@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

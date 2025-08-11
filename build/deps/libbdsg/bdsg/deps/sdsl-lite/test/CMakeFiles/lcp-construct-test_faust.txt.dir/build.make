@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for lcp-construct-test_faust.txt.
 
@@ -66,11 +66,11 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faus
 # Include the progress variables for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/progress.make
 
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/faust.txt
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute lcp-construct-test on faust.txt."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/faust.txt /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/lcp_construct_test_faust.txt /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/faust.txt
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute lcp-construct-test on faust.txt."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/faust.txt /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/lcp_construct_test_faust.txt /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
 
 lcp-construct-test_faust.txt: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt
 lcp-construct-test_faust.txt: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/build.make
@@ -81,10 +81,10 @@ deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.di
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/lcp-construct-test_faust.txt.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/lcp-construct-test_faust.txt.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp-construct-test_faust.txt.dir/depend
 

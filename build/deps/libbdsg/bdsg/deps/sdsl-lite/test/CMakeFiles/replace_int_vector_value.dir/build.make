@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/depend.make
@@ -70,18 +70,18 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_valu
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/flags.make
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o -MF CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o.d -o CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o -MF CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o.d -o CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp > CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp > CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp -o CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/replace_int_vector_value.cpp -o CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.s
 
 # Object files for target replace_int_vector_value
 replace_int_vector_value_OBJECTS = \
@@ -90,25 +90,25 @@ replace_int_vector_value_OBJECTS = \
 # External object files for target replace_int_vector_value
 replace_int_vector_value_EXTERNAL_OBJECTS =
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/build.make
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value: lib/libgtest.so.1.15.2
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so.3.0.1
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/replace_int_vector_value.dir/link.txt --verbose=$(VERBOSE)
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/build.make
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value: lib/libgtest.so.1.15.2
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so.3.0.1
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/replace_int_vector_value.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/build: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/build: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/replace_int_vector_value.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/replace_int_vector_value.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/replace_int_vector_value.dir/depend
 

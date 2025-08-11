@@ -1,7 +1,7 @@
 deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/src/utility.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/src/utility.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp \
  /usr/include/c++/12/string \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

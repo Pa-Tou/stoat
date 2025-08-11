@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/wt_int_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/wt_int_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/wt_int_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/wt_int_test.pdb"
   "CMakeFiles/wt_int_test.dir/wt_int_test.cpp.o"
   "CMakeFiles/wt_int_test.dir/wt_int_test.cpp.o.d"
 )

@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -55,8 +55,8 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     endif()
   endforeach()
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES
-    "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so.3.0.1"
-    "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so.3"
+    "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so.3.0.1"
+    "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so.3"
     )
   foreach(file
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort.so.3.0.1"
@@ -78,7 +78,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort.so")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -100,8 +100,8 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     endif()
   endforeach()
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES
-    "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1"
-    "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3"
+    "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1"
+    "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3"
     )
   foreach(file
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort64.so.3.0.1"
@@ -123,7 +123,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort64.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort64.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libdivsufsort64.so")
     if(CMAKE_INSTALL_DO_STRIP)

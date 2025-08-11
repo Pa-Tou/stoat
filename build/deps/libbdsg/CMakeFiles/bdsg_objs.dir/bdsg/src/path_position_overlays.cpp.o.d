@@ -1,7 +1,7 @@
 deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/src/path_position_overlays.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/src/path_position_overlays.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/path_position_overlays.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/path_position_overlays.hpp \
  /usr/include/c++/12/unordered_map /usr/include/c++/12/type_traits \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -52,12 +52,12 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o: \
  /usr/include/c++/12/bits/erase_if.h /usr/include/c++/12/map \
  /usr/include/c++/12/bits/stl_tree.h /usr/include/c++/12/bits/stl_map.h \
  /usr/include/c++/12/bits/stl_multimap.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_deletable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_deletable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
@@ -71,7 +71,7 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o: \
  /usr/include/c++/12/functional /usr/include/c++/12/bits/refwrap.h \
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/typeinfo \
  /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
  /usr/include/c++/12/string /usr/include/c++/12/bits/stringfwd.h \
  /usr/include/c++/12/bits/char_traits.h \
  /usr/include/c++/12/bits/postypes.h /usr/include/c++/12/cwchar \
@@ -175,7 +175,7 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o: \
  /usr/include/c++/12/bits/basic_ios.tcc \
  /usr/include/c++/12/bits/ostream.tcc /usr/include/c++/12/istream \
  /usr/include/c++/12/bits/istream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
  /usr/include/c++/12/regex /usr/include/c++/12/bitset \
  /usr/include/c++/12/locale \
  /usr/include/c++/12/bits/locale_facets_nonio.h /usr/include/c++/12/ctime \
@@ -214,8 +214,8 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o: \
  /usr/include/c++/12/bits/regex_executor.tcc \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/bits/unordered_set.h /usr/include/c++/12/vector \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_metadata.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/deletable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/deletable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp

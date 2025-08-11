@@ -51,7 +51,7 @@ add_library(VGio::VGio SHARED IMPORTED)
 
 set_target_properties(VGio::VGio PROPERTIES
   INTERFACE_COMPILE_FEATURES "cxx_std_17"
-  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/STOAT/deps/libvgio/include;/home/mbagarre/Bureau/STOAT/build/deps/libvgio;/usr/include;/usr/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/stoat/deps/libvgio/include;/home/mbagarre/Bureau/stoat/build/deps/libvgio;/usr/include;/usr/include"
   INTERFACE_LINK_DIRECTORIES "/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu"
   INTERFACE_LINK_LIBRARIES "protobuf::libprotobuf;Threads::Threads;hts;jansson;libhandlegraph::handlegraph_shared;OpenMP::OpenMP_CXX"
 )
@@ -61,7 +61,7 @@ add_library(VGio::VGio_static STATIC IMPORTED)
 
 set_target_properties(VGio::VGio_static PROPERTIES
   INTERFACE_COMPILE_FEATURES "cxx_std_17"
-  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/STOAT/deps/libvgio/include;/home/mbagarre/Bureau/STOAT/build/deps/libvgio;/usr/include;/usr/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/stoat/deps/libvgio/include;/home/mbagarre/Bureau/stoat/build/deps/libvgio;/usr/include;/usr/include"
   INTERFACE_LINK_DIRECTORIES "/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu"
   INTERFACE_LINK_LIBRARIES "protobuf::libprotobuf;Threads::Threads;hts;htscodecs;bz2;deflate;hts;m;pthread;z;lzma;pthread;jansson;libhandlegraph::handlegraph_static;OpenMP::OpenMP_CXX"
 )
@@ -69,7 +69,7 @@ set_target_properties(VGio::VGio_static PROPERTIES
 # Import target "VGio::VGio" for configuration ""
 set_property(TARGET VGio::VGio APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
 set_target_properties(VGio::VGio PROPERTIES
-  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/STOAT/build/deps/libvgio/libvgio.so"
+  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/stoat/build/deps/libvgio/libvgio.so"
   IMPORTED_SONAME_NOCONFIG "libvgio.so"
   )
 
@@ -77,7 +77,7 @@ set_target_properties(VGio::VGio PROPERTIES
 set_property(TARGET VGio::VGio_static APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
 set_target_properties(VGio::VGio_static PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_NOCONFIG "CXX"
-  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/STOAT/build/deps/libvgio/libvgio.a"
+  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/stoat/build/deps/libvgio/libvgio.a"
   )
 
 # Make sure the targets which have been exported in some other

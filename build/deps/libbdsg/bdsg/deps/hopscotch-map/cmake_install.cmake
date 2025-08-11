@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/hopscotch-map
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/hopscotch-map
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -43,18 +43,18 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/hopscotch-map/include/tsl")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/hopscotch-map/include/tsl")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map" TYPE FILE FILES "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/hopscotch-map/tsl-hopscotch-mapConfig.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map" TYPE FILE FILES "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/hopscotch-map/tsl-hopscotch-mapConfig.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map/tsl-hopscotch-mapTargets.cmake")
     file(DIFFERENT _cmake_export_file_changed FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map/tsl-hopscotch-mapTargets.cmake"
-         "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/hopscotch-map/CMakeFiles/Export/6bb61b077f2b52f0a9b4bcdde1f5fb94/tsl-hopscotch-mapTargets.cmake")
+         "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/hopscotch-map/CMakeFiles/Export/6bb61b077f2b52f0a9b4bcdde1f5fb94/tsl-hopscotch-mapTargets.cmake")
     if(_cmake_export_file_changed)
       file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map/tsl-hopscotch-mapTargets-*.cmake")
       if(_cmake_old_config_files)
@@ -67,10 +67,10 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     endif()
     unset(_cmake_export_file_changed)
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map" TYPE FILE FILES "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/hopscotch-map/CMakeFiles/Export/6bb61b077f2b52f0a9b4bcdde1f5fb94/tsl-hopscotch-mapTargets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map" TYPE FILE FILES "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/hopscotch-map/CMakeFiles/Export/6bb61b077f2b52f0a9b4bcdde1f5fb94/tsl-hopscotch-mapTargets.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map" TYPE FILE FILES "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/hopscotch-map/tsl-hopscotch-mapConfigVersion.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/tsl-hopscotch-map" TYPE FILE FILES "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/hopscotch-map/tsl-hopscotch-mapConfigVersion.cmake")
 endif()
 

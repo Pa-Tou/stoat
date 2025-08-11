@@ -1,9 +1,9 @@
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/construct_config.hpp \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/config.hpp \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/uintx_t.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/construct_config.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/config.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/uintx_t.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

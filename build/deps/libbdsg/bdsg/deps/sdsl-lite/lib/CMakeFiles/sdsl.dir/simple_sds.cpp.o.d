@@ -1,7 +1,7 @@
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/simple_sds.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/simple_sds.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

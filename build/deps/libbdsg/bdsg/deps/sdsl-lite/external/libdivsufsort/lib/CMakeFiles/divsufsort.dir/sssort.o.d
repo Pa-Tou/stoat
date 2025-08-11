@@ -1,8 +1,8 @@
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort.dir/sssort.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include/divsufsort_private.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include/config.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include/divsufsort_private.h \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include/config.h \
  /usr/include/assert.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -66,4 +66,4 @@ deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsor
  /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include/divsufsort.h
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include/divsufsort.h

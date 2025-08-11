@@ -1,8 +1,8 @@
 deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/vpkg.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/vpkg.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/vpkg.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/registry.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/vpkg.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/registry.hpp \
  /usr/include/c++/12/string \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -303,17 +303,17 @@ deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o: \
  /usr/include/google/protobuf/any.pb.h \
  /usr/include/google/protobuf/source_context.pb.h \
  /usr/include/google/protobuf/stubs/status.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_iterator.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_iterator.hpp \
  /usr/include/c++/12/fstream /usr/include/c++/12/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
  /usr/include/htslib/bgzf.h /usr/include/htslib/hts_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_emitter.hpp \
  /usr/include/google/protobuf/io/zero_copy_stream_impl.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/fdstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/fdstream.hpp \
  /usr/include/c++/12/deque /usr/include/c++/12/bits/stl_deque.h \
  /usr/include/c++/12/bits/deque.tcc /usr/include/c++/12/cxxabi.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/cxxabi_tweaks.h

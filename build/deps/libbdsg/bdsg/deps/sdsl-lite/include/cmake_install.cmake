@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/cmake_install.cmake")
 
 endif()
 

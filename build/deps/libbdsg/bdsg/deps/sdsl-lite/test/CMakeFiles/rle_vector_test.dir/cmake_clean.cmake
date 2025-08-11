@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/rle_vector_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/rle_vector_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/rle_vector_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/rle_vector_test.pdb"
   "CMakeFiles/rle_vector_test.dir/rle_vector_test.cpp.o"
   "CMakeFiles/rle_vector_test.dir/rle_vector_test.cpp.o.d"
 )

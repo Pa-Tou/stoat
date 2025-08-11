@@ -1,9 +1,9 @@
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dfs.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dfs.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/internal/dfs.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/internal/dfs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -37,7 +37,7 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o: \
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/typeinfo \
  /usr/include/c++/12/bits/functexcept.h \
  /usr/include/c++/12/bits/exception_defines.h /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
  /usr/include/c++/12/string /usr/include/c++/12/bits/stringfwd.h \
  /usr/include/c++/12/bits/memoryfwd.h \
  /usr/include/c++/12/bits/char_traits.h \

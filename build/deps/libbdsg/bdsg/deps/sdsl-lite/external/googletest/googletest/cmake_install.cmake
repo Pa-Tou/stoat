@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -1,8 +1,8 @@
 CMakeFiles/gbwt.dir/deps/gbwt/src/variants.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/gbwt/src/variants.cpp \
+ /home/mbagarre/Bureau/stoat/deps/gbwt/src/variants.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/gbwt/include/gbwt/variants.h \
- /home/mbagarre/Bureau/STOAT/deps/gbwt/include/gbwt/utils.h \
+ /home/mbagarre/Bureau/stoat/deps/gbwt/include/gbwt/variants.h \
+ /home/mbagarre/Bureau/stoat/deps/gbwt/include/gbwt/utils.h \
  /usr/include/c++/12/algorithm /usr/include/c++/12/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -172,12 +172,12 @@ CMakeFiles/gbwt.dir/deps/gbwt/src/variants.cpp.o: \
  /usr/include/c++/12/bits/stl_vector.h \
  /usr/include/c++/12/bits/stl_bvector.h \
  /usr/include/c++/12/bits/vector.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
  /usr/include/c++/12/bitset /usr/include/c++/12/cassert \
  /usr/include/assert.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
  /usr/include/c++/12/unordered_map \
  /usr/include/c++/12/ext/aligned_buffer.h \
  /usr/include/c++/12/bits/hashtable.h \
@@ -200,20 +200,20 @@ CMakeFiles/gbwt.dir/deps/gbwt/src/variants.cpp.o: \
  /usr/include/c++/12/bits/atomic_lockfree_defines.h \
  /usr/include/c++/12/backward/auto_ptr.h \
  /usr/include/c++/12/pstl/glue_memory_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
  /usr/include/c++/12/map /usr/include/c++/12/bits/stl_tree.h \
  /usr/include/c++/12/bits/stl_map.h \
  /usr/include/c++/12/bits/stl_multimap.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/c++/12/mutex /usr/include/c++/12/bits/chrono.h \
  /usr/include/c++/12/ratio /usr/include/c++/12/ctime \
  /usr/include/c++/12/bits/parse_numbers.h \
  /usr/include/c++/12/bits/std_mutex.h \
  /usr/include/c++/12/bits/unique_lock.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/c++/12/functional /usr/include/c++/12/bits/std_function.h \
  /usr/include/c++/12/array /usr/include/c++/12/compare \
  /usr/include/string.h /usr/include/strings.h \
@@ -266,11 +266,11 @@ CMakeFiles/gbwt.dir/deps/gbwt/src/variants.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/unistd.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
  /usr/include/linux/close_range.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
  /usr/include/c++/12/utility /usr/include/c++/12/bits/stl_relops.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
  /usr/include/c++/12/cstring /usr/include/c++/12/set \
  /usr/include/c++/12/bits/stl_set.h \
  /usr/include/c++/12/bits/stl_multiset.h /usr/include/c++/12/cstddef \
@@ -290,18 +290,18 @@ CMakeFiles/gbwt.dir/deps/gbwt/src/variants.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
  /usr/include/x86_64-linux-gnu/bits/mman_ext.h \
  /usr/include/c++/12/iterator /usr/include/c++/12/bits/stream_iterator.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sd_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_mcl.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v5.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_scan.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_scan.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sd_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_mcl.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v5.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_scan.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_scan.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/omp.h \
  /usr/include/c++/12/parallel/algorithm \
  /usr/include/c++/12/parallel/algorithmfwd.h \
@@ -344,5 +344,5 @@ CMakeFiles/gbwt.dir/deps/gbwt/src/variants.cpp.o: \
  /usr/include/c++/12/parallel/merge.h \
  /usr/include/c++/12/parallel/unique_copy.h \
  /usr/include/c++/12/parallel/set_operations.h \
- /home/mbagarre/Bureau/STOAT/deps/gbwt/include/gbwt/internal.h \
- /home/mbagarre/Bureau/STOAT/deps/gbwt/include/gbwt/support.h
+ /home/mbagarre/Bureau/stoat/deps/gbwt/include/gbwt/internal.h \
+ /home/mbagarre/Bureau/stoat/deps/gbwt/include/gbwt/support.h

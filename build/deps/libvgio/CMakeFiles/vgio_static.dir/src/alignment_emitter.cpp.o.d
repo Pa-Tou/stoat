@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_emitter.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_emitter.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/alignment_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/alignment_emitter.hpp \
  /usr/include/c++/12/mutex /usr/include/c++/12/tuple \
  /usr/include/c++/12/bits/stl_pair.h /usr/include/c++/12/type_traits \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
@@ -174,7 +174,7 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
  /usr/include/htslib/kroundup.h /usr/include/htslib/sam.h \
  /usr/include/htslib/hts.h /usr/include/htslib/hts_endian.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg/vg.pb.h \
+ /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg/vg.pb.h \
  /usr/include/google/protobuf/port_def.inc \
  /usr/include/google/protobuf/port_undef.inc \
  /usr/include/google/protobuf/io/coded_stream.h /usr/include/assert.h \
@@ -308,7 +308,7 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o: \
  /usr/include/google/protobuf/reflection_ops.h \
  /usr/include/google/protobuf/map_field_inl.h \
  /usr/include/google/protobuf/map_field.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/protobuf_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/protobuf_emitter.hpp \
  /usr/include/c++/12/fstream /usr/include/c++/12/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
@@ -316,30 +316,30 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o: \
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/array \
  /usr/include/c++/12/compare /usr/include/c++/12/list \
  /usr/include/c++/12/bits/stl_list.h /usr/include/c++/12/bits/list.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_emitter.hpp \
  /usr/include/google/protobuf/io/zero_copy_stream_impl.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
  /usr/include/htslib/bgzf.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/registry.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/registry.hpp \
  /usr/include/c++/12/typeindex \
  /usr/include/google/protobuf/util/type_resolver.h \
  /usr/include/google/protobuf/type.pb.h \
  /usr/include/google/protobuf/any.pb.h \
  /usr/include/google/protobuf/source_context.pb.h \
  /usr/include/google/protobuf/stubs/status.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/stream_multiplexer.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/stream_multiplexer.hpp \
  /usr/include/c++/12/sstream /usr/include/c++/12/bits/sstream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/named_node_back_translation.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/alignment_io.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/named_node_back_translation.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/alignment_io.hpp \
  /usr/include/zlib.h /usr/include/zconf.h /usr/include/htslib/vcf.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/gafkluge.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/json2pb.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/hfile_cppstream.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/stream.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_iterator.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/protobuf_iterator.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/gafkluge.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/json2pb.h \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/hfile_cppstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_iterator.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/protobuf_iterator.hpp \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/omp.h

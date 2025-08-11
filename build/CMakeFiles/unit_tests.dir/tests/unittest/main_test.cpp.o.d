@@ -1,7 +1,7 @@
 CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o: \
- /home/mbagarre/Bureau/STOAT/tests/unittest/main_test.cpp \
+ /home/mbagarre/Bureau/stoat/tests/unittest/main_test.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/Catch2/single_include/catch2/catch.hpp \
+ /home/mbagarre/Bureau/stoat/deps/Catch2/single_include/catch2/catch.hpp \
  /usr/include/c++/12/cstddef \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

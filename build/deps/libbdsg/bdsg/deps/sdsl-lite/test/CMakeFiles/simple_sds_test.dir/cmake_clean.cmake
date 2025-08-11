@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/simple_sds_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/simple_sds_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/simple_sds_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/simple_sds_test.pdb"
   "CMakeFiles/simple_sds_test.dir/simple_sds_test.cpp.o"
   "CMakeFiles/simple_sds_test.dir/simple_sds_test.cpp.o.d"
 )

@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/sd_vector_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/sd_vector_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/sd_vector_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/sd_vector_test.pdb"
   "CMakeFiles/sd_vector_test.dir/sd_vector_test.cpp.o"
   "CMakeFiles/sd_vector_test.dir/sd_vector_test.cpp.o.d"
 )

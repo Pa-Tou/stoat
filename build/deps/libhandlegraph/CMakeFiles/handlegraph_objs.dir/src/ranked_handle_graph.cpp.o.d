@@ -1,10 +1,10 @@
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/ranked_handle_graph.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/ranked_handle_graph.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -38,7 +38,7 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/typeinfo \
  /usr/include/c++/12/bits/functexcept.h \
  /usr/include/c++/12/bits/exception_defines.h /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
  /usr/include/c++/12/string /usr/include/c++/12/bits/stringfwd.h \
  /usr/include/c++/12/bits/memoryfwd.h \
  /usr/include/c++/12/bits/char_traits.h \
@@ -162,7 +162,7 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.
  /usr/include/c++/12/bits/basic_ios.tcc \
  /usr/include/c++/12/bits/ostream.tcc /usr/include/c++/12/istream \
  /usr/include/c++/12/bits/istream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
  /usr/include/c++/12/regex /usr/include/c++/12/bitset \
  /usr/include/c++/12/locale \
  /usr/include/c++/12/bits/locale_facets_nonio.h /usr/include/c++/12/ctime \

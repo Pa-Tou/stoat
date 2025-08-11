@@ -1,5 +1,5 @@
 deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/json2pb.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/json2pb.cpp \
  /usr/include/stdc-predef.h /usr/include/errno.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -302,5 +302,5 @@ deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o: \
  /usr/include/google/protobuf/reflection_ops.h \
  /usr/include/google/protobuf/map_field_inl.h \
  /usr/include/google/protobuf/map_field.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/json2pb.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/bin2ascii.h
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/json2pb.h \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/bin2ascii.h

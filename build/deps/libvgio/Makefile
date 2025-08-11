@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/STOAT/build/CPackSourceConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/stoat/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -162,14 +162,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles /home/mbagarre/Bureau/STOAT/build/deps/libvgio//CMakeFiles/progress.marks
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles /home/mbagarre/Bureau/stoat/build/deps/libvgio//CMakeFiles/progress.marks
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/clean
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/clean
 .PHONY : clean
 
 # The main clean target
@@ -178,22 +178,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 deps/libvgio/CMakeFiles/link_target.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/link_target.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/link_target.dir/rule
 .PHONY : deps/libvgio/CMakeFiles/link_target.dir/rule
 
 # Convenience name for target.
@@ -202,12 +202,12 @@ link_target: deps/libvgio/CMakeFiles/link_target.dir/rule
 
 # fast build rule for target.
 link_target/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/link_target.dir/build.make deps/libvgio/CMakeFiles/link_target.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/link_target.dir/build.make deps/libvgio/CMakeFiles/link_target.dir/build
 .PHONY : link_target/fast
 
 # Convenience name for target.
 deps/libvgio/CMakeFiles/vgio.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/vgio.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/vgio.dir/rule
 .PHONY : deps/libvgio/CMakeFiles/vgio.dir/rule
 
 # Convenience name for target.
@@ -216,12 +216,12 @@ vgio: deps/libvgio/CMakeFiles/vgio.dir/rule
 
 # fast build rule for target.
 vgio/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/build
 .PHONY : vgio/fast
 
 # Convenience name for target.
 deps/libvgio/CMakeFiles/vgio_static.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/vgio_static.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/vgio_static.dir/rule
 .PHONY : deps/libvgio/CMakeFiles/vgio_static.dir/rule
 
 # Convenience name for target.
@@ -230,12 +230,12 @@ vgio_static: deps/libvgio/CMakeFiles/vgio_static.dir/rule
 
 # fast build rule for target.
 vgio_static/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/build
 .PHONY : vgio_static/fast
 
 # Convenience name for target.
 deps/libvgio/CMakeFiles/test_libvgio.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/test_libvgio.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libvgio/CMakeFiles/test_libvgio.dir/rule
 .PHONY : deps/libvgio/CMakeFiles/test_libvgio.dir/rule
 
 # Convenience name for target.
@@ -244,7 +244,7 @@ test_libvgio: deps/libvgio/CMakeFiles/test_libvgio.dir/rule
 
 # fast build rule for target.
 test_libvgio/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/build
 .PHONY : test_libvgio/fast
 
 src/alignment_emitter.o: src/alignment_emitter.cpp.o
@@ -252,8 +252,8 @@ src/alignment_emitter.o: src/alignment_emitter.cpp.o
 
 # target to build an object file
 src/alignment_emitter.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o
 .PHONY : src/alignment_emitter.cpp.o
 
 src/alignment_emitter.i: src/alignment_emitter.cpp.i
@@ -261,8 +261,8 @@ src/alignment_emitter.i: src/alignment_emitter.cpp.i
 
 # target to preprocess a source file
 src/alignment_emitter.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.i
 .PHONY : src/alignment_emitter.cpp.i
 
 src/alignment_emitter.s: src/alignment_emitter.cpp.s
@@ -270,8 +270,8 @@ src/alignment_emitter.s: src/alignment_emitter.cpp.s
 
 # target to generate assembly for a file
 src/alignment_emitter.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.s
 .PHONY : src/alignment_emitter.cpp.s
 
 src/alignment_io.o: src/alignment_io.cpp.o
@@ -279,8 +279,8 @@ src/alignment_io.o: src/alignment_io.cpp.o
 
 # target to build an object file
 src/alignment_io.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o
 .PHONY : src/alignment_io.cpp.o
 
 src/alignment_io.i: src/alignment_io.cpp.i
@@ -288,8 +288,8 @@ src/alignment_io.i: src/alignment_io.cpp.i
 
 # target to preprocess a source file
 src/alignment_io.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.i
 .PHONY : src/alignment_io.cpp.i
 
 src/alignment_io.s: src/alignment_io.cpp.s
@@ -297,8 +297,8 @@ src/alignment_io.s: src/alignment_io.cpp.s
 
 # target to generate assembly for a file
 src/alignment_io.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.s
 .PHONY : src/alignment_io.cpp.s
 
 src/basic_stream.o: src/basic_stream.cpp.o
@@ -306,8 +306,8 @@ src/basic_stream.o: src/basic_stream.cpp.o
 
 # target to build an object file
 src/basic_stream.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.o
 .PHONY : src/basic_stream.cpp.o
 
 src/basic_stream.i: src/basic_stream.cpp.i
@@ -315,8 +315,8 @@ src/basic_stream.i: src/basic_stream.cpp.i
 
 # target to preprocess a source file
 src/basic_stream.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.i
 .PHONY : src/basic_stream.cpp.i
 
 src/basic_stream.s: src/basic_stream.cpp.s
@@ -324,8 +324,8 @@ src/basic_stream.s: src/basic_stream.cpp.s
 
 # target to generate assembly for a file
 src/basic_stream.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.s
 .PHONY : src/basic_stream.cpp.s
 
 src/blocked_gzip_input_stream.o: src/blocked_gzip_input_stream.cpp.o
@@ -333,8 +333,8 @@ src/blocked_gzip_input_stream.o: src/blocked_gzip_input_stream.cpp.o
 
 # target to build an object file
 src/blocked_gzip_input_stream.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o
 .PHONY : src/blocked_gzip_input_stream.cpp.o
 
 src/blocked_gzip_input_stream.i: src/blocked_gzip_input_stream.cpp.i
@@ -342,8 +342,8 @@ src/blocked_gzip_input_stream.i: src/blocked_gzip_input_stream.cpp.i
 
 # target to preprocess a source file
 src/blocked_gzip_input_stream.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.i
 .PHONY : src/blocked_gzip_input_stream.cpp.i
 
 src/blocked_gzip_input_stream.s: src/blocked_gzip_input_stream.cpp.s
@@ -351,8 +351,8 @@ src/blocked_gzip_input_stream.s: src/blocked_gzip_input_stream.cpp.s
 
 # target to generate assembly for a file
 src/blocked_gzip_input_stream.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.s
 .PHONY : src/blocked_gzip_input_stream.cpp.s
 
 src/blocked_gzip_output_stream.o: src/blocked_gzip_output_stream.cpp.o
@@ -360,8 +360,8 @@ src/blocked_gzip_output_stream.o: src/blocked_gzip_output_stream.cpp.o
 
 # target to build an object file
 src/blocked_gzip_output_stream.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.o
 .PHONY : src/blocked_gzip_output_stream.cpp.o
 
 src/blocked_gzip_output_stream.i: src/blocked_gzip_output_stream.cpp.i
@@ -369,8 +369,8 @@ src/blocked_gzip_output_stream.i: src/blocked_gzip_output_stream.cpp.i
 
 # target to preprocess a source file
 src/blocked_gzip_output_stream.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.i
 .PHONY : src/blocked_gzip_output_stream.cpp.i
 
 src/blocked_gzip_output_stream.s: src/blocked_gzip_output_stream.cpp.s
@@ -378,8 +378,8 @@ src/blocked_gzip_output_stream.s: src/blocked_gzip_output_stream.cpp.s
 
 # target to generate assembly for a file
 src/blocked_gzip_output_stream.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.s
 .PHONY : src/blocked_gzip_output_stream.cpp.s
 
 src/edit.o: src/edit.cpp.o
@@ -387,8 +387,8 @@ src/edit.o: src/edit.cpp.o
 
 # target to build an object file
 src/edit.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.o
 .PHONY : src/edit.cpp.o
 
 src/edit.i: src/edit.cpp.i
@@ -396,8 +396,8 @@ src/edit.i: src/edit.cpp.i
 
 # target to preprocess a source file
 src/edit.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.i
 .PHONY : src/edit.cpp.i
 
 src/edit.s: src/edit.cpp.s
@@ -405,8 +405,8 @@ src/edit.s: src/edit.cpp.s
 
 # target to generate assembly for a file
 src/edit.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.s
 .PHONY : src/edit.cpp.s
 
 src/hfile_cppstream.o: src/hfile_cppstream.cpp.o
@@ -414,8 +414,8 @@ src/hfile_cppstream.o: src/hfile_cppstream.cpp.o
 
 # target to build an object file
 src/hfile_cppstream.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.o
 .PHONY : src/hfile_cppstream.cpp.o
 
 src/hfile_cppstream.i: src/hfile_cppstream.cpp.i
@@ -423,8 +423,8 @@ src/hfile_cppstream.i: src/hfile_cppstream.cpp.i
 
 # target to preprocess a source file
 src/hfile_cppstream.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.i
 .PHONY : src/hfile_cppstream.cpp.i
 
 src/hfile_cppstream.s: src/hfile_cppstream.cpp.s
@@ -432,8 +432,8 @@ src/hfile_cppstream.s: src/hfile_cppstream.cpp.s
 
 # target to generate assembly for a file
 src/hfile_cppstream.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.s
 .PHONY : src/hfile_cppstream.cpp.s
 
 src/json2pb.o: src/json2pb.cpp.o
@@ -441,8 +441,8 @@ src/json2pb.o: src/json2pb.cpp.o
 
 # target to build an object file
 src/json2pb.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.o
 .PHONY : src/json2pb.cpp.o
 
 src/json2pb.i: src/json2pb.cpp.i
@@ -450,8 +450,8 @@ src/json2pb.i: src/json2pb.cpp.i
 
 # target to preprocess a source file
 src/json2pb.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.i
 .PHONY : src/json2pb.cpp.i
 
 src/json2pb.s: src/json2pb.cpp.s
@@ -459,8 +459,8 @@ src/json2pb.s: src/json2pb.cpp.s
 
 # target to generate assembly for a file
 src/json2pb.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.s
 .PHONY : src/json2pb.cpp.s
 
 src/message_emitter.o: src/message_emitter.cpp.o
@@ -468,8 +468,8 @@ src/message_emitter.o: src/message_emitter.cpp.o
 
 # target to build an object file
 src/message_emitter.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o
 .PHONY : src/message_emitter.cpp.o
 
 src/message_emitter.i: src/message_emitter.cpp.i
@@ -477,8 +477,8 @@ src/message_emitter.i: src/message_emitter.cpp.i
 
 # target to preprocess a source file
 src/message_emitter.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.i
 .PHONY : src/message_emitter.cpp.i
 
 src/message_emitter.s: src/message_emitter.cpp.s
@@ -486,8 +486,8 @@ src/message_emitter.s: src/message_emitter.cpp.s
 
 # target to generate assembly for a file
 src/message_emitter.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.s
 .PHONY : src/message_emitter.cpp.s
 
 src/message_iterator.o: src/message_iterator.cpp.o
@@ -495,8 +495,8 @@ src/message_iterator.o: src/message_iterator.cpp.o
 
 # target to build an object file
 src/message_iterator.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o
 .PHONY : src/message_iterator.cpp.o
 
 src/message_iterator.i: src/message_iterator.cpp.i
@@ -504,8 +504,8 @@ src/message_iterator.i: src/message_iterator.cpp.i
 
 # target to preprocess a source file
 src/message_iterator.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.i
 .PHONY : src/message_iterator.cpp.i
 
 src/message_iterator.s: src/message_iterator.cpp.s
@@ -513,8 +513,8 @@ src/message_iterator.s: src/message_iterator.cpp.s
 
 # target to generate assembly for a file
 src/message_iterator.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.s
 .PHONY : src/message_iterator.cpp.s
 
 src/registry.o: src/registry.cpp.o
@@ -522,8 +522,8 @@ src/registry.o: src/registry.cpp.o
 
 # target to build an object file
 src/registry.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.o
 .PHONY : src/registry.cpp.o
 
 src/registry.i: src/registry.cpp.i
@@ -531,8 +531,8 @@ src/registry.i: src/registry.cpp.i
 
 # target to preprocess a source file
 src/registry.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.i
 .PHONY : src/registry.cpp.i
 
 src/registry.s: src/registry.cpp.s
@@ -540,8 +540,8 @@ src/registry.s: src/registry.cpp.s
 
 # target to generate assembly for a file
 src/registry.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.s
 .PHONY : src/registry.cpp.s
 
 src/stream.o: src/stream.cpp.o
@@ -549,8 +549,8 @@ src/stream.o: src/stream.cpp.o
 
 # target to build an object file
 src/stream.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.o
 .PHONY : src/stream.cpp.o
 
 src/stream.i: src/stream.cpp.i
@@ -558,8 +558,8 @@ src/stream.i: src/stream.cpp.i
 
 # target to preprocess a source file
 src/stream.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.i
 .PHONY : src/stream.cpp.i
 
 src/stream.s: src/stream.cpp.s
@@ -567,8 +567,8 @@ src/stream.s: src/stream.cpp.s
 
 # target to generate assembly for a file
 src/stream.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.s
 .PHONY : src/stream.cpp.s
 
 src/stream_multiplexer.o: src/stream_multiplexer.cpp.o
@@ -576,8 +576,8 @@ src/stream_multiplexer.o: src/stream_multiplexer.cpp.o
 
 # target to build an object file
 src/stream_multiplexer.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.o
 .PHONY : src/stream_multiplexer.cpp.o
 
 src/stream_multiplexer.i: src/stream_multiplexer.cpp.i
@@ -585,8 +585,8 @@ src/stream_multiplexer.i: src/stream_multiplexer.cpp.i
 
 # target to preprocess a source file
 src/stream_multiplexer.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.i
 .PHONY : src/stream_multiplexer.cpp.i
 
 src/stream_multiplexer.s: src/stream_multiplexer.cpp.s
@@ -594,8 +594,8 @@ src/stream_multiplexer.s: src/stream_multiplexer.cpp.s
 
 # target to generate assembly for a file
 src/stream_multiplexer.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.s
 .PHONY : src/stream_multiplexer.cpp.s
 
 src/vpkg.o: src/vpkg.cpp.o
@@ -603,8 +603,8 @@ src/vpkg.o: src/vpkg.cpp.o
 
 # target to build an object file
 src/vpkg.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.o
 .PHONY : src/vpkg.cpp.o
 
 src/vpkg.i: src/vpkg.cpp.i
@@ -612,8 +612,8 @@ src/vpkg.i: src/vpkg.cpp.i
 
 # target to preprocess a source file
 src/vpkg.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.i
 .PHONY : src/vpkg.cpp.i
 
 src/vpkg.s: src/vpkg.cpp.s
@@ -621,8 +621,8 @@ src/vpkg.s: src/vpkg.cpp.s
 
 # target to generate assembly for a file
 src/vpkg.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.s
 .PHONY : src/vpkg.cpp.s
 
 test.o: test.cpp.o
@@ -630,7 +630,7 @@ test.o: test.cpp.o
 
 # target to build an object file
 test.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o
 .PHONY : test.cpp.o
 
 test.i: test.cpp.i
@@ -638,7 +638,7 @@ test.i: test.cpp.i
 
 # target to preprocess a source file
 test.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.i
 .PHONY : test.cpp.i
 
 test.s: test.cpp.s
@@ -646,7 +646,7 @@ test.s: test.cpp.s
 
 # target to generate assembly for a file
 test.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/test_libvgio.dir/build.make deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.s
 .PHONY : test.cpp.s
 
 vg.pb.o: vg.pb.cc.o
@@ -654,8 +654,8 @@ vg.pb.o: vg.pb.cc.o
 
 # target to build an object file
 vg.pb.cc.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.o
 .PHONY : vg.pb.cc.o
 
 vg.pb.i: vg.pb.cc.i
@@ -663,8 +663,8 @@ vg.pb.i: vg.pb.cc.i
 
 # target to preprocess a source file
 vg.pb.cc.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.i
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.i
 .PHONY : vg.pb.cc.i
 
 vg.pb.s: vg.pb.cc.s
@@ -672,8 +672,8 @@ vg.pb.s: vg.pb.cc.s
 
 # target to generate assembly for a file
 vg.pb.cc.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.s
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio.dir/build.make deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libvgio/CMakeFiles/vgio_static.dir/build.make deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.s
 .PHONY : vg.pb.cc.s
 
 # Help Target
@@ -754,6 +754,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

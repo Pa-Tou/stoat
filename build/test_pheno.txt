@@ -1,2 +1,0 @@
-FID ID PHENO
-F1 I1 1

@@ -1,10 +1,10 @@
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_single_stranded.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_single_stranded.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/is_single_stranded.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/is_single_stranded.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -38,7 +38,7 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/typeinfo \
  /usr/include/c++/12/bits/functexcept.h \
  /usr/include/c++/12/bits/exception_defines.h /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
  /usr/include/c++/12/string /usr/include/c++/12/bits/stringfwd.h \
  /usr/include/c++/12/bits/memoryfwd.h \
  /usr/include/c++/12/bits/char_traits.h \
@@ -166,7 +166,7 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o
  /usr/include/c++/12/bits/stl_vector.h \
  /usr/include/c++/12/bits/stl_bvector.h \
  /usr/include/c++/12/bits/vector.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/apply_orientations.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/apply_orientations.hpp \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/ext/aligned_buffer.h \
  /usr/include/c++/12/bits/hashtable.h \

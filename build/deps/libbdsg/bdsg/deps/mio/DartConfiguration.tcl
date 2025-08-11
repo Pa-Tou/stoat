@@ -4,8 +4,8 @@
 
 
 # Configuration directories and files
-SourceDirectory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio
-BuildDirectory: /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio
+SourceDirectory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio
+BuildDirectory: /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio
 
 # Where to place the cost data store
 CostDataFile: 
@@ -27,7 +27,7 @@ SubmitInactivityTimeout:
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "/usr/bin/cmake" "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio"
+ConfigureCommand: "/usr/bin/cmake" "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio"
 MakeCommand: /usr/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
 DefaultCTestConfigurationType: Release
 

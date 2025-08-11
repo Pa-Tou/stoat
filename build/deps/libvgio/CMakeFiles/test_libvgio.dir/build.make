@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libvgio/CMakeFiles/test_libvgio.dir/depend.make
@@ -70,18 +70,18 @@ include deps/libvgio/CMakeFiles/test_libvgio.dir/progress.make
 include deps/libvgio/CMakeFiles/test_libvgio.dir/flags.make
 
 deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o: deps/libvgio/CMakeFiles/test_libvgio.dir/flags.make
-deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/test.cpp
+deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/test.cpp
 deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o: deps/libvgio/CMakeFiles/test_libvgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o -MF CMakeFiles/test_libvgio.dir/test.cpp.o.d -o CMakeFiles/test_libvgio.dir/test.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o -MF CMakeFiles/test_libvgio.dir/test.cpp.o.d -o CMakeFiles/test_libvgio.dir/test.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/test.cpp
 
 deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test_libvgio.dir/test.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/test.cpp > CMakeFiles/test_libvgio.dir/test.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/test.cpp > CMakeFiles/test_libvgio.dir/test.cpp.i
 
 deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test_libvgio.dir/test.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/test.cpp -o CMakeFiles/test_libvgio.dir/test.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/test.cpp -o CMakeFiles/test_libvgio.dir/test.cpp.s
 
 # Object files for target test_libvgio
 test_libvgio_OBJECTS = \
@@ -90,26 +90,26 @@ test_libvgio_OBJECTS = \
 # External object files for target test_libvgio
 test_libvgio_EXTERNAL_OBJECTS =
 
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: deps/libvgio/CMakeFiles/test_libvgio.dir/build.make
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: deps/libvgio/libvgio.a
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: /usr/lib/x86_64-linux-gnu/libprotobuf.so
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: deps/libhandlegraph/libhandlegraph.a
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: /usr/lib/x86_64-linux-gnu/libpthread.a
-/home/mbagarre/Bureau/STOAT/bin/test_libvgio: deps/libvgio/CMakeFiles/test_libvgio.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/STOAT/bin/test_libvgio"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_libvgio.dir/link.txt --verbose=$(VERBOSE)
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: deps/libvgio/CMakeFiles/test_libvgio.dir/test.cpp.o
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: deps/libvgio/CMakeFiles/test_libvgio.dir/build.make
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: deps/libvgio/libvgio.a
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: /usr/lib/x86_64-linux-gnu/libprotobuf.so
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: deps/libhandlegraph/libhandlegraph.a
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: /usr/lib/x86_64-linux-gnu/libpthread.a
+/home/mbagarre/Bureau/stoat/bin/test_libvgio: deps/libvgio/CMakeFiles/test_libvgio.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/stoat/bin/test_libvgio"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_libvgio.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-deps/libvgio/CMakeFiles/test_libvgio.dir/build: /home/mbagarre/Bureau/STOAT/bin/test_libvgio
+deps/libvgio/CMakeFiles/test_libvgio.dir/build: /home/mbagarre/Bureau/stoat/bin/test_libvgio
 .PHONY : deps/libvgio/CMakeFiles/test_libvgio.dir/build
 
 deps/libvgio/CMakeFiles/test_libvgio.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && $(CMAKE_COMMAND) -P CMakeFiles/test_libvgio.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && $(CMAKE_COMMAND) -P CMakeFiles/test_libvgio.dir/cmake_clean.cmake
 .PHONY : deps/libvgio/CMakeFiles/test_libvgio.dir/clean
 
 deps/libvgio/CMakeFiles/test_libvgio.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libvgio /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libvgio /home/mbagarre/Bureau/STOAT/build/deps/libvgio/CMakeFiles/test_libvgio.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libvgio /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libvgio /home/mbagarre/Bureau/stoat/build/deps/libvgio/CMakeFiles/test_libvgio.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libvgio/CMakeFiles/test_libvgio.dir/depend
 

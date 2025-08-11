@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/depend.make
@@ -70,410 +70,410 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/progress.make
 include deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o -MF CMakeFiles/sdsl.dir/bits.cpp.o.d -o CMakeFiles/sdsl.dir/bits.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o -MF CMakeFiles/sdsl.dir/bits.cpp.o.d -o CMakeFiles/sdsl.dir/bits.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/bits.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp > CMakeFiles/sdsl.dir/bits.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp > CMakeFiles/sdsl.dir/bits.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/bits.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp -o CMakeFiles/sdsl.dir/bits.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp -o CMakeFiles/sdsl.dir/bits.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o -MF CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o.d -o CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o -MF CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o.d -o CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp > CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp > CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp -o CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bp_support_algorithm.cpp -o CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o -MF CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o.d -o CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o -MF CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o.d -o CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/coder_elias_delta.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp > CMakeFiles/sdsl.dir/coder_elias_delta.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp > CMakeFiles/sdsl.dir/coder_elias_delta.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/coder_elias_delta.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp -o CMakeFiles/sdsl.dir/coder_elias_delta.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_delta.cpp -o CMakeFiles/sdsl.dir/coder_elias_delta.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o -MF CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o.d -o CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o -MF CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o.d -o CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp > CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp > CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp -o CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_elias_gamma.cpp -o CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o -MF CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o.d -o CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o -MF CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o.d -o CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/coder_fibonacci.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp > CMakeFiles/sdsl.dir/coder_fibonacci.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp > CMakeFiles/sdsl.dir/coder_fibonacci.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/coder_fibonacci.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp -o CMakeFiles/sdsl.dir/coder_fibonacci.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/coder_fibonacci.cpp -o CMakeFiles/sdsl.dir/coder_fibonacci.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o -MF CMakeFiles/sdsl.dir/config.cpp.o.d -o CMakeFiles/sdsl.dir/config.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o -MF CMakeFiles/sdsl.dir/config.cpp.o.d -o CMakeFiles/sdsl.dir/config.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/config.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp > CMakeFiles/sdsl.dir/config.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp > CMakeFiles/sdsl.dir/config.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/config.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp -o CMakeFiles/sdsl.dir/config.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/config.cpp -o CMakeFiles/sdsl.dir/config.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o -MF CMakeFiles/sdsl.dir/construct_config.cpp.o.d -o CMakeFiles/sdsl.dir/construct_config.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o -MF CMakeFiles/sdsl.dir/construct_config.cpp.o.d -o CMakeFiles/sdsl.dir/construct_config.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/construct_config.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp > CMakeFiles/sdsl.dir/construct_config.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp > CMakeFiles/sdsl.dir/construct_config.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/construct_config.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp -o CMakeFiles/sdsl.dir/construct_config.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_config.cpp -o CMakeFiles/sdsl.dir/construct_config.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o -MF CMakeFiles/sdsl.dir/construct_isa.cpp.o.d -o CMakeFiles/sdsl.dir/construct_isa.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o -MF CMakeFiles/sdsl.dir/construct_isa.cpp.o.d -o CMakeFiles/sdsl.dir/construct_isa.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/construct_isa.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp > CMakeFiles/sdsl.dir/construct_isa.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp > CMakeFiles/sdsl.dir/construct_isa.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/construct_isa.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp -o CMakeFiles/sdsl.dir/construct_isa.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_isa.cpp -o CMakeFiles/sdsl.dir/construct_isa.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o -MF CMakeFiles/sdsl.dir/construct_lcp.cpp.o.d -o CMakeFiles/sdsl.dir/construct_lcp.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o -MF CMakeFiles/sdsl.dir/construct_lcp.cpp.o.d -o CMakeFiles/sdsl.dir/construct_lcp.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/construct_lcp.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp > CMakeFiles/sdsl.dir/construct_lcp.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp > CMakeFiles/sdsl.dir/construct_lcp.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/construct_lcp.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp -o CMakeFiles/sdsl.dir/construct_lcp.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp.cpp -o CMakeFiles/sdsl.dir/construct_lcp.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o -MF CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o.d -o CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o -MF CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o.d -o CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp > CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp > CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp -o CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_lcp_helper.cpp -o CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o -MF CMakeFiles/sdsl.dir/construct_sa.cpp.o.d -o CMakeFiles/sdsl.dir/construct_sa.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o -MF CMakeFiles/sdsl.dir/construct_sa.cpp.o.d -o CMakeFiles/sdsl.dir/construct_sa.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/construct_sa.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp > CMakeFiles/sdsl.dir/construct_sa.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp > CMakeFiles/sdsl.dir/construct_sa.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/construct_sa.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp -o CMakeFiles/sdsl.dir/construct_sa.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa.cpp -o CMakeFiles/sdsl.dir/construct_sa.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o -MF CMakeFiles/sdsl.dir/construct_sa_se.cpp.o.d -o CMakeFiles/sdsl.dir/construct_sa_se.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o -MF CMakeFiles/sdsl.dir/construct_sa_se.cpp.o.d -o CMakeFiles/sdsl.dir/construct_sa_se.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/construct_sa_se.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp > CMakeFiles/sdsl.dir/construct_sa_se.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp > CMakeFiles/sdsl.dir/construct_sa_se.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/construct_sa_se.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp -o CMakeFiles/sdsl.dir/construct_sa_se.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/construct_sa_se.cpp -o CMakeFiles/sdsl.dir/construct_sa_se.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o -MF CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o.d -o CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o -MF CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o.d -o CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp > CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp > CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp -o CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/csa_alphabet_strategy.cpp -o CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o -MF CMakeFiles/sdsl.dir/io.cpp.o.d -o CMakeFiles/sdsl.dir/io.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o -MF CMakeFiles/sdsl.dir/io.cpp.o.d -o CMakeFiles/sdsl.dir/io.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/io.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp > CMakeFiles/sdsl.dir/io.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp > CMakeFiles/sdsl.dir/io.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/io.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp -o CMakeFiles/sdsl.dir/io.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/io.cpp -o CMakeFiles/sdsl.dir/io.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o -MF CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o.d -o CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o -MF CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o.d -o CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/lcp_support_tree.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp > CMakeFiles/sdsl.dir/lcp_support_tree.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp > CMakeFiles/sdsl.dir/lcp_support_tree.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/lcp_support_tree.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp -o CMakeFiles/sdsl.dir/lcp_support_tree.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/lcp_support_tree.cpp -o CMakeFiles/sdsl.dir/lcp_support_tree.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o -MF CMakeFiles/sdsl.dir/louds_tree.cpp.o.d -o CMakeFiles/sdsl.dir/louds_tree.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o -MF CMakeFiles/sdsl.dir/louds_tree.cpp.o.d -o CMakeFiles/sdsl.dir/louds_tree.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/louds_tree.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp > CMakeFiles/sdsl.dir/louds_tree.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp > CMakeFiles/sdsl.dir/louds_tree.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/louds_tree.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp -o CMakeFiles/sdsl.dir/louds_tree.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/louds_tree.cpp -o CMakeFiles/sdsl.dir/louds_tree.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o -MF CMakeFiles/sdsl.dir/memory_management.cpp.o.d -o CMakeFiles/sdsl.dir/memory_management.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o -MF CMakeFiles/sdsl.dir/memory_management.cpp.o.d -o CMakeFiles/sdsl.dir/memory_management.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/memory_management.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp > CMakeFiles/sdsl.dir/memory_management.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp > CMakeFiles/sdsl.dir/memory_management.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/memory_management.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp -o CMakeFiles/sdsl.dir/memory_management.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/memory_management.cpp -o CMakeFiles/sdsl.dir/memory_management.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o -MF CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o.d -o CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o -MF CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o.d -o CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp > CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp > CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp -o CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/nn_dict_dynamic.cpp -o CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o -MF CMakeFiles/sdsl.dir/ram_filebuf.cpp.o.d -o CMakeFiles/sdsl.dir/ram_filebuf.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o -MF CMakeFiles/sdsl.dir/ram_filebuf.cpp.o.d -o CMakeFiles/sdsl.dir/ram_filebuf.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/ram_filebuf.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp > CMakeFiles/sdsl.dir/ram_filebuf.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp > CMakeFiles/sdsl.dir/ram_filebuf.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/ram_filebuf.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp -o CMakeFiles/sdsl.dir/ram_filebuf.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp -o CMakeFiles/sdsl.dir/ram_filebuf.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o -MF CMakeFiles/sdsl.dir/ram_fs.cpp.o.d -o CMakeFiles/sdsl.dir/ram_fs.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o -MF CMakeFiles/sdsl.dir/ram_fs.cpp.o.d -o CMakeFiles/sdsl.dir/ram_fs.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/ram_fs.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp > CMakeFiles/sdsl.dir/ram_fs.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp > CMakeFiles/sdsl.dir/ram_fs.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/ram_fs.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp -o CMakeFiles/sdsl.dir/ram_fs.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_fs.cpp -o CMakeFiles/sdsl.dir/ram_fs.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o -MF CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o.d -o CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o -MF CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o.d -o CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/rrr_vector_15.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp > CMakeFiles/sdsl.dir/rrr_vector_15.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp > CMakeFiles/sdsl.dir/rrr_vector_15.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/rrr_vector_15.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp -o CMakeFiles/sdsl.dir/rrr_vector_15.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/rrr_vector_15.cpp -o CMakeFiles/sdsl.dir/rrr_vector_15.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o -MF CMakeFiles/sdsl.dir/sd_vector.cpp.o.d -o CMakeFiles/sdsl.dir/sd_vector.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o -MF CMakeFiles/sdsl.dir/sd_vector.cpp.o.d -o CMakeFiles/sdsl.dir/sd_vector.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/sd_vector.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp > CMakeFiles/sdsl.dir/sd_vector.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp > CMakeFiles/sdsl.dir/sd_vector.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/sd_vector.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp -o CMakeFiles/sdsl.dir/sd_vector.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sd_vector.cpp -o CMakeFiles/sdsl.dir/sd_vector.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o -MF CMakeFiles/sdsl.dir/sfstream.cpp.o.d -o CMakeFiles/sdsl.dir/sfstream.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o -MF CMakeFiles/sdsl.dir/sfstream.cpp.o.d -o CMakeFiles/sdsl.dir/sfstream.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/sfstream.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp > CMakeFiles/sdsl.dir/sfstream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp > CMakeFiles/sdsl.dir/sfstream.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/sfstream.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp -o CMakeFiles/sdsl.dir/sfstream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/sfstream.cpp -o CMakeFiles/sdsl.dir/sfstream.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o -MF CMakeFiles/sdsl.dir/simple_sds.cpp.o.d -o CMakeFiles/sdsl.dir/simple_sds.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o -MF CMakeFiles/sdsl.dir/simple_sds.cpp.o.d -o CMakeFiles/sdsl.dir/simple_sds.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/simple_sds.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp > CMakeFiles/sdsl.dir/simple_sds.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp > CMakeFiles/sdsl.dir/simple_sds.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/simple_sds.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp -o CMakeFiles/sdsl.dir/simple_sds.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/simple_sds.cpp -o CMakeFiles/sdsl.dir/simple_sds.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o -MF CMakeFiles/sdsl.dir/structure_tree.cpp.o.d -o CMakeFiles/sdsl.dir/structure_tree.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o -MF CMakeFiles/sdsl.dir/structure_tree.cpp.o.d -o CMakeFiles/sdsl.dir/structure_tree.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/structure_tree.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp > CMakeFiles/sdsl.dir/structure_tree.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp > CMakeFiles/sdsl.dir/structure_tree.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/structure_tree.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp -o CMakeFiles/sdsl.dir/structure_tree.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/structure_tree.cpp -o CMakeFiles/sdsl.dir/structure_tree.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o -MF CMakeFiles/sdsl.dir/uint128_t.cpp.o.d -o CMakeFiles/sdsl.dir/uint128_t.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o -MF CMakeFiles/sdsl.dir/uint128_t.cpp.o.d -o CMakeFiles/sdsl.dir/uint128_t.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/uint128_t.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp > CMakeFiles/sdsl.dir/uint128_t.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp > CMakeFiles/sdsl.dir/uint128_t.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/uint128_t.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp -o CMakeFiles/sdsl.dir/uint128_t.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint128_t.cpp -o CMakeFiles/sdsl.dir/uint128_t.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o -MF CMakeFiles/sdsl.dir/uint256_t.cpp.o.d -o CMakeFiles/sdsl.dir/uint256_t.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o -MF CMakeFiles/sdsl.dir/uint256_t.cpp.o.d -o CMakeFiles/sdsl.dir/uint256_t.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/uint256_t.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp > CMakeFiles/sdsl.dir/uint256_t.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp > CMakeFiles/sdsl.dir/uint256_t.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/uint256_t.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp -o CMakeFiles/sdsl.dir/uint256_t.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/uint256_t.cpp -o CMakeFiles/sdsl.dir/uint256_t.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o -MF CMakeFiles/sdsl.dir/util.cpp.o.d -o CMakeFiles/sdsl.dir/util.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o -MF CMakeFiles/sdsl.dir/util.cpp.o.d -o CMakeFiles/sdsl.dir/util.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/util.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp > CMakeFiles/sdsl.dir/util.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp > CMakeFiles/sdsl.dir/util.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/util.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp -o CMakeFiles/sdsl.dir/util.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/util.cpp -o CMakeFiles/sdsl.dir/util.cpp.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o -MF CMakeFiles/sdsl.dir/wt_helper.cpp.o.d -o CMakeFiles/sdsl.dir/wt_helper.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o -MF CMakeFiles/sdsl.dir/wt_helper.cpp.o.d -o CMakeFiles/sdsl.dir/wt_helper.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sdsl.dir/wt_helper.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp > CMakeFiles/sdsl.dir/wt_helper.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp > CMakeFiles/sdsl.dir/wt_helper.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sdsl.dir/wt_helper.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp -o CMakeFiles/sdsl.dir/wt_helper.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/wt_helper.cpp -o CMakeFiles/sdsl.dir/wt_helper.cpp.s
 
 # Object files for target sdsl
 sdsl_OBJECTS = \
@@ -510,56 +510,56 @@ sdsl_OBJECTS = \
 # External object files for target sdsl
 sdsl_EXTERNAL_OBJECTS =
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Linking CXX shared library /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sdsl.dir/link.txt --verbose=$(VERBOSE)
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && $(CMAKE_COMMAND) -E cmake_symlink_library /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1 /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.3 /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Linking CXX shared library /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sdsl.dir/link.txt --verbose=$(VERBOSE)
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && $(CMAKE_COMMAND) -E cmake_symlink_library /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1 /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.3 /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.3: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
-	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.3
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.3: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
+	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.3
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
-	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
+	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so
 
 # Rule to build all files generated by this target.
-deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so
+deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && $(CMAKE_COMMAND) -P CMakeFiles/sdsl.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib && $(CMAKE_COMMAND) -P CMakeFiles/sdsl.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/depend
 

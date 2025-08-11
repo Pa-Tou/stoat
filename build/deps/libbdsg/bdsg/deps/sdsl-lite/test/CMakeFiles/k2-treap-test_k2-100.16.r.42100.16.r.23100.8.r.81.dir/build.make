@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.
 
@@ -66,10 +66,10 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16
 # Include the progress variables for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/progress.make
 
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/k2_treap_test
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute k2-treap-test on k2-100.16.r.42100.16.r.23100.8.r.81."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/k2_treap_test /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-100.16.r.42100.16.r.23100.8.r.81 /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/k2_treap_test_k2-100.16.r.42100.16.r.23100.8.r.81
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/k2_treap_test
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute k2-treap-test on k2-100.16.r.42100.16.r.23100.8.r.81."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/k2_treap_test /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-100.16.r.42100.16.r.23100.8.r.81 /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/k2_treap_test_k2-100.16.r.42100.16.r.23100.8.r.81
 
 k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81
 k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/build.make
@@ -80,10 +80,10 @@ deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-treap-test_k2-100.16.r.42100.16.r.23100.8.r.81.dir/depend
 

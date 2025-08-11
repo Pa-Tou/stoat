@@ -4,7 +4,7 @@
 # compile C with /usr/bin/cc
 C_DEFINES = -DDIVSUFSORT_BUILD_DLL -DHAVE_CONFIG_H=1 -DMODE_TI -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 
-C_INCLUDES = -I/home/mbagarre/Bureau/STOAT/deps/eigen -I/home/mbagarre/Bureau/STOAT/deps/libbdsg -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include -I/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include
+C_INCLUDES = -I/home/mbagarre/Bureau/stoat/deps/eigen -I/home/mbagarre/Bureau/stoat/deps/libbdsg -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include -I/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/../include
 
 C_FLAGS =  -O3 -O3 -g -fopenmp -fopenmp -Wall -O3 -DNDEBUG -fomit-frame-pointer -fPIC
 

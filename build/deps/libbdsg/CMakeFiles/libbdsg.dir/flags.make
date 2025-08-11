@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -Dlibbdsg_EXPORTS
 
-CXX_INCLUDES = -I/home/mbagarre/Bureau/STOAT/deps/eigen -I/home/mbagarre/Bureau/STOAT/deps/libbdsg -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/hopscotch-map/include -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/DYNAMIC/include -I/home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/BBHash -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio/include
+CXX_INCLUDES = -I/home/mbagarre/Bureau/stoat/deps/eigen -I/home/mbagarre/Bureau/stoat/deps/libbdsg -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/hopscotch-map/include -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/DYNAMIC/include -I/home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/BBHash -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio/include
 
 CXX_FLAGS =  -O3 -O3 -g -fopenmp -fopenmp -g -fPIC -std=c++14
 

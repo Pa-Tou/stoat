@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/test_libbdsg"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/test_libbdsg.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/test_libbdsg"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/test_libbdsg.pdb"
   "CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.o"
   "CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.o.d"
 )

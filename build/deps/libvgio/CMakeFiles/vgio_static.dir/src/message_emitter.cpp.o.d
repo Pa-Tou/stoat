@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_emitter.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_emitter.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_emitter.hpp \
  /usr/include/c++/12/cassert \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -265,5 +265,5 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o: \
  /usr/include/google/protobuf/io/zero_copy_stream_impl_lite.h \
  /usr/include/google/protobuf/stubs/callback.h \
  /usr/include/google/protobuf/stubs/stl_util.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
  /usr/include/htslib/bgzf.h /usr/include/htslib/hts_defs.h

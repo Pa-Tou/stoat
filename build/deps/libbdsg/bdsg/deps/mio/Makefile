@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/STOAT/build/CPackSourceConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/stoat/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -162,14 +162,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio//CMakeFiles/progress.marks
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio//CMakeFiles/progress.marks
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/clean
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/clean
 .PHONY : clean
 
 # The main clean target
@@ -178,22 +178,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/rule
 
 # Convenience name for target.
@@ -202,12 +202,12 @@ Experimental: deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/rule
 
 # fast build rule for target.
 Experimental/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/Experimental.dir/build
 .PHONY : Experimental/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/rule
 
 # Convenience name for target.
@@ -216,12 +216,12 @@ Nightly: deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/rule
 
 # fast build rule for target.
 Nightly/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/Nightly.dir/build
 .PHONY : Nightly/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/rule
 
 # Convenience name for target.
@@ -230,12 +230,12 @@ Continuous: deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/rule
 
 # fast build rule for target.
 Continuous/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/Continuous.dir/build
 .PHONY : Continuous/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/rule
 
 # Convenience name for target.
@@ -244,12 +244,12 @@ NightlyMemoryCheck: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir
 
 # fast build rule for target.
 NightlyMemoryCheck/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemoryCheck.dir/build
 .PHONY : NightlyMemoryCheck/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/rule
 
 # Convenience name for target.
@@ -258,12 +258,12 @@ NightlyStart: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/rule
 
 # fast build rule for target.
 NightlyStart/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyStart.dir/build
 .PHONY : NightlyStart/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/rule
 
 # Convenience name for target.
@@ -272,12 +272,12 @@ NightlyUpdate: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/rule
 
 # fast build rule for target.
 NightlyUpdate/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyUpdate.dir/build
 .PHONY : NightlyUpdate/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/rule
 
 # Convenience name for target.
@@ -286,12 +286,12 @@ NightlyConfigure: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/rul
 
 # fast build rule for target.
 NightlyConfigure/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyConfigure.dir/build
 .PHONY : NightlyConfigure/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/rule
 
 # Convenience name for target.
@@ -300,12 +300,12 @@ NightlyBuild: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/rule
 
 # fast build rule for target.
 NightlyBuild/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyBuild.dir/build
 .PHONY : NightlyBuild/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/rule
 
 # Convenience name for target.
@@ -314,12 +314,12 @@ NightlyTest: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/rule
 
 # fast build rule for target.
 NightlyTest/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyTest.dir/build
 .PHONY : NightlyTest/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/rule
 
 # Convenience name for target.
@@ -328,12 +328,12 @@ NightlyCoverage: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/rule
 
 # fast build rule for target.
 NightlyCoverage/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyCoverage.dir/build
 .PHONY : NightlyCoverage/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/rule
 
 # Convenience name for target.
@@ -342,12 +342,12 @@ NightlyMemCheck: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/rule
 
 # fast build rule for target.
 NightlyMemCheck/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlyMemCheck.dir/build
 .PHONY : NightlyMemCheck/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/rule
 
 # Convenience name for target.
@@ -356,12 +356,12 @@ NightlySubmit: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/rule
 
 # fast build rule for target.
 NightlySubmit/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/build
 .PHONY : NightlySubmit/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/rule
 
 # Convenience name for target.
@@ -370,12 +370,12 @@ ExperimentalStart: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/r
 
 # fast build rule for target.
 ExperimentalStart/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalStart.dir/build
 .PHONY : ExperimentalStart/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/rule
 
 # Convenience name for target.
@@ -384,12 +384,12 @@ ExperimentalUpdate: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir
 
 # fast build rule for target.
 ExperimentalUpdate/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalUpdate.dir/build
 .PHONY : ExperimentalUpdate/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/rule
 
 # Convenience name for target.
@@ -398,12 +398,12 @@ ExperimentalConfigure: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigu
 
 # fast build rule for target.
 ExperimentalConfigure/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalConfigure.dir/build
 .PHONY : ExperimentalConfigure/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/rule
 
 # Convenience name for target.
@@ -412,12 +412,12 @@ ExperimentalBuild: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/r
 
 # fast build rule for target.
 ExperimentalBuild/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalBuild.dir/build
 .PHONY : ExperimentalBuild/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/rule
 
 # Convenience name for target.
@@ -426,12 +426,12 @@ ExperimentalTest: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/rul
 
 # fast build rule for target.
 ExperimentalTest/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalTest.dir/build
 .PHONY : ExperimentalTest/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/rule
 
 # Convenience name for target.
@@ -440,12 +440,12 @@ ExperimentalCoverage: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage
 
 # fast build rule for target.
 ExperimentalCoverage/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalCoverage.dir/build
 .PHONY : ExperimentalCoverage/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/rule
 
 # Convenience name for target.
@@ -454,12 +454,12 @@ ExperimentalMemCheck: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck
 
 # fast build rule for target.
 ExperimentalMemCheck/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalMemCheck.dir/build
 .PHONY : ExperimentalMemCheck/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/rule
 
 # Convenience name for target.
@@ -468,12 +468,12 @@ ExperimentalSubmit: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir
 
 # fast build rule for target.
 ExperimentalSubmit/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ExperimentalSubmit.dir/build
 .PHONY : ExperimentalSubmit/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/rule
 
 # Convenience name for target.
@@ -482,12 +482,12 @@ ContinuousStart: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/rule
 
 # fast build rule for target.
 ContinuousStart/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousStart.dir/build
 .PHONY : ContinuousStart/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/rule
 
 # Convenience name for target.
@@ -496,12 +496,12 @@ ContinuousUpdate: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/rul
 
 # fast build rule for target.
 ContinuousUpdate/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousUpdate.dir/build
 .PHONY : ContinuousUpdate/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/rule
 
 # Convenience name for target.
@@ -510,12 +510,12 @@ ContinuousConfigure: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.d
 
 # fast build rule for target.
 ContinuousConfigure/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousConfigure.dir/build
 .PHONY : ContinuousConfigure/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/rule
 
 # Convenience name for target.
@@ -524,12 +524,12 @@ ContinuousBuild: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/rule
 
 # fast build rule for target.
 ContinuousBuild/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousBuild.dir/build
 .PHONY : ContinuousBuild/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/rule
 
 # Convenience name for target.
@@ -538,12 +538,12 @@ ContinuousTest: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/rule
 
 # fast build rule for target.
 ContinuousTest/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousTest.dir/build
 .PHONY : ContinuousTest/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/rule
 
 # Convenience name for target.
@@ -552,12 +552,12 @@ ContinuousCoverage: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir
 
 # fast build rule for target.
 ContinuousCoverage/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousCoverage.dir/build
 .PHONY : ContinuousCoverage/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/rule
 
 # Convenience name for target.
@@ -566,12 +566,12 @@ ContinuousMemCheck: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir
 
 # fast build rule for target.
 ContinuousMemCheck/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousMemCheck.dir/build
 .PHONY : ContinuousMemCheck/fast
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/rule
 
 # Convenience name for target.
@@ -580,7 +580,7 @@ ContinuousSubmit: deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/rul
 
 # fast build rule for target.
 ContinuousSubmit/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/build.make deps/libbdsg/bdsg/deps/mio/CMakeFiles/ContinuousSubmit.dir/build
 .PHONY : ContinuousSubmit/fast
 
 # Help Target
@@ -637,6 +637,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

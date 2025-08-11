@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/bin/vcf_simu_test"
-  "/home/mbagarre/Bureau/STOAT/bin/vcf_simu_test.pdb"
+  "/home/mbagarre/Bureau/stoat/bin/vcf_simu_test"
+  "/home/mbagarre/Bureau/stoat/bin/vcf_simu_test.pdb"
   "CMakeFiles/vcf_simu_test.dir/tests/system/vcf_simu_test.cpp.o"
   "CMakeFiles/vcf_simu_test.dir/tests/system/vcf_simu_test.cpp.o.d"
 )

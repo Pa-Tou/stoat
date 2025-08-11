@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/depend.make
@@ -70,60 +70,60 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/d
 include deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/flags.make
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c
+deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o -MF CMakeFiles/divsufsort64.dir/divsufsort.o.d -o CMakeFiles/divsufsort64.dir/divsufsort.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o -MF CMakeFiles/divsufsort64.dir/divsufsort.o.d -o CMakeFiles/divsufsort64.dir/divsufsort.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/divsufsort64.dir/divsufsort.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c > CMakeFiles/divsufsort64.dir/divsufsort.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c > CMakeFiles/divsufsort64.dir/divsufsort.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/divsufsort64.dir/divsufsort.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c -o CMakeFiles/divsufsort64.dir/divsufsort.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/divsufsort.c -o CMakeFiles/divsufsort64.dir/divsufsort.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c
+deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o -MF CMakeFiles/divsufsort64.dir/sssort.o.d -o CMakeFiles/divsufsort64.dir/sssort.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o -MF CMakeFiles/divsufsort64.dir/sssort.o.d -o CMakeFiles/divsufsort64.dir/sssort.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/divsufsort64.dir/sssort.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c > CMakeFiles/divsufsort64.dir/sssort.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c > CMakeFiles/divsufsort64.dir/sssort.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/divsufsort64.dir/sssort.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c -o CMakeFiles/divsufsort64.dir/sssort.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/sssort.c -o CMakeFiles/divsufsort64.dir/sssort.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c
+deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o -MF CMakeFiles/divsufsort64.dir/trsort.o.d -o CMakeFiles/divsufsort64.dir/trsort.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o -MF CMakeFiles/divsufsort64.dir/trsort.o.d -o CMakeFiles/divsufsort64.dir/trsort.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/divsufsort64.dir/trsort.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c > CMakeFiles/divsufsort64.dir/trsort.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c > CMakeFiles/divsufsort64.dir/trsort.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/divsufsort64.dir/trsort.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c -o CMakeFiles/divsufsort64.dir/trsort.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/trsort.c -o CMakeFiles/divsufsort64.dir/trsort.s
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c
+deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o -MF CMakeFiles/divsufsort64.dir/utils.o.d -o CMakeFiles/divsufsort64.dir/utils.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o -MF CMakeFiles/divsufsort64.dir/utils.o.d -o CMakeFiles/divsufsort64.dir/utils.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/divsufsort64.dir/utils.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c > CMakeFiles/divsufsort64.dir/utils.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c > CMakeFiles/divsufsort64.dir/utils.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/divsufsort64.dir/utils.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c -o CMakeFiles/divsufsort64.dir/utils.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/utils.c -o CMakeFiles/divsufsort64.dir/utils.s
 
 # Object files for target divsufsort64
 divsufsort64_OBJECTS = \
@@ -135,31 +135,31 @@ divsufsort64_OBJECTS = \
 # External object files for target divsufsort64
 divsufsort64_EXTERNAL_OBJECTS =
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/build.make
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking C shared library /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/divsufsort64.dir/link.txt --verbose=$(VERBOSE)
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && $(CMAKE_COMMAND) -E cmake_symlink_library /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1 /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3 /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/divsufsort.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/sssort.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/trsort.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/utils.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/build.make
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1: deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking C shared library /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/divsufsort64.dir/link.txt --verbose=$(VERBOSE)
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && $(CMAKE_COMMAND) -E cmake_symlink_library /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1 /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3 /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
-	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
+	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
-	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
+	@$(CMAKE_COMMAND) -E touch_nocreate /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so
 
 # Rule to build all files generated by this target.
-deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/build: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so
+deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/build: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && $(CMAKE_COMMAND) -P CMakeFiles/divsufsort64.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib && $(CMAKE_COMMAND) -P CMakeFiles/divsufsort64.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/depend
 

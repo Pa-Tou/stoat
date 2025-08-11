@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/mbagarre/Bureau/STOAT/deps/eigen -I/home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include
+CXX_INCLUDES = -I/home/mbagarre/Bureau/stoat/deps/eigen -I/home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include
 
 CXX_FLAGS =  -O3 -O3 -g -fPIC -std=c++14
 

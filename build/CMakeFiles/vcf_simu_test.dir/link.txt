@@ -1,1 +1,1 @@
-/usr/bin/c++  -O3 CMakeFiles/vcf_simu_test.dir/tests/system/vcf_simu_test.cpp.o -o /home/mbagarre/Bureau/STOAT/bin/vcf_simu_test  -lhts 
+/usr/bin/c++  -O3 CMakeFiles/vcf_simu_test.dir/tests/system/vcf_simu_test.cpp.o -o /home/mbagarre/Bureau/stoat/bin/vcf_simu_test  -lhts 

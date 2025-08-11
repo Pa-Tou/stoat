@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_input_stream.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_input_stream.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
  /usr/include/google/protobuf/io/zero_copy_stream.h \
  /usr/include/c++/12/string \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
@@ -244,6 +244,6 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o: \
  /usr/include/google/protobuf/port_undef.inc \
  /usr/include/google/protobuf/stubs/macros.h /usr/include/htslib/bgzf.h \
  /usr/include/htslib/hts_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/hfile_cppstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/hfile_cppstream.hpp \
  /usr/include/htslib/hfile.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/hfile_internal.hpp
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/hfile_internal.hpp

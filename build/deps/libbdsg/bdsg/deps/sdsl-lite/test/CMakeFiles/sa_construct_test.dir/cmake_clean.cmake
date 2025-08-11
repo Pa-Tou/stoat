@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/sa_construct_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/sa_construct_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/sa_construct_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/sa_construct_test.pdb"
   "CMakeFiles/sa_construct_test.dir/sa_construct_test.cpp.o"
   "CMakeFiles/sa_construct_test.dir/sa_construct_test.cpp.o.d"
 )

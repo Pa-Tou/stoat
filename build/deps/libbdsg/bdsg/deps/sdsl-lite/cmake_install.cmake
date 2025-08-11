@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -43,15 +43,15 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/sdsl-lite.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/sdsl-lite.pc")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/cmake_install.cmake")
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/include/cmake_install.cmake")
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/cmake_install.cmake")
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/include/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/cmake_install.cmake")
 
 endif()
 

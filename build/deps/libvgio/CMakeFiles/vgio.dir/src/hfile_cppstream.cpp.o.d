@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/hfile_cppstream.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/hfile_cppstream.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/hfile_cppstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/hfile_cppstream.hpp \
  /usr/include/htslib/hfile.h /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -162,5 +162,5 @@ deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o: \
  /usr/include/c++/12/bits/basic_ios.tcc /usr/include/c++/12/ostream \
  /usr/include/c++/12/bits/ostream.tcc \
  /usr/include/c++/12/bits/istream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/hfile_internal.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/hfile_internal.hpp \
  /usr/include/c++/12/iostream

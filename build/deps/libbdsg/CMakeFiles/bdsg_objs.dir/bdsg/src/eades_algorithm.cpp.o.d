@@ -1,9 +1,9 @@
 deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/src/eades_algorithm.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/src/eades_algorithm.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/eades_algorithm.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/eades_algorithm.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -37,7 +37,7 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o: \
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/typeinfo \
  /usr/include/c++/12/bits/functexcept.h \
  /usr/include/c++/12/bits/exception_defines.h /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
  /usr/include/c++/12/string /usr/include/c++/12/bits/stringfwd.h \
  /usr/include/c++/12/bits/memoryfwd.h \
  /usr/include/c++/12/bits/char_traits.h \
@@ -161,7 +161,7 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o: \
  /usr/include/c++/12/bits/basic_ios.tcc \
  /usr/include/c++/12/bits/ostream.tcc /usr/include/c++/12/istream \
  /usr/include/c++/12/bits/istream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/is_single_stranded.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/is_single_stranded.hpp \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/ext/aligned_buffer.h \
  /usr/include/c++/12/bits/hashtable.h \

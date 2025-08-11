@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/STOAT/build/CPackSourceConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/stoat/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -162,14 +162,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph//CMakeFiles/progress.marks
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph//CMakeFiles/progress.marks
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/clean
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/clean
 .PHONY : clean
 
 # The main clean target
@@ -178,22 +178,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/rule
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/rule
 
 # Convenience name for target.
@@ -202,12 +202,12 @@ handlegraph_objs: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/rule
 
 # fast build rule for target.
 handlegraph_objs/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build
 .PHONY : handlegraph_objs/fast
 
 # Convenience name for target.
 deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/rule
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/rule
 
 # Convenience name for target.
@@ -216,12 +216,12 @@ handlegraph_shared: deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/rule
 
 # fast build rule for target.
 handlegraph_shared/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/build
 .PHONY : handlegraph_shared/fast
 
 # Convenience name for target.
 deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/rule
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/rule
 
 # Convenience name for target.
@@ -230,7 +230,7 @@ handlegraph_static: deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/rule
 
 # fast build rule for target.
 handlegraph_static/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/build
 .PHONY : handlegraph_static/fast
 
 src/append_graph.o: src/append_graph.cpp.o
@@ -238,7 +238,7 @@ src/append_graph.o: src/append_graph.cpp.o
 
 # target to build an object file
 src/append_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o
 .PHONY : src/append_graph.cpp.o
 
 src/append_graph.i: src/append_graph.cpp.i
@@ -246,7 +246,7 @@ src/append_graph.i: src/append_graph.cpp.i
 
 # target to preprocess a source file
 src/append_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.i
 .PHONY : src/append_graph.cpp.i
 
 src/append_graph.s: src/append_graph.cpp.s
@@ -254,7 +254,7 @@ src/append_graph.s: src/append_graph.cpp.s
 
 # target to generate assembly for a file
 src/append_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.s
 .PHONY : src/append_graph.cpp.s
 
 src/apply_orientations.o: src/apply_orientations.cpp.o
@@ -262,7 +262,7 @@ src/apply_orientations.o: src/apply_orientations.cpp.o
 
 # target to build an object file
 src/apply_orientations.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o
 .PHONY : src/apply_orientations.cpp.o
 
 src/apply_orientations.i: src/apply_orientations.cpp.i
@@ -270,7 +270,7 @@ src/apply_orientations.i: src/apply_orientations.cpp.i
 
 # target to preprocess a source file
 src/apply_orientations.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.i
 .PHONY : src/apply_orientations.cpp.i
 
 src/apply_orientations.s: src/apply_orientations.cpp.s
@@ -278,7 +278,7 @@ src/apply_orientations.s: src/apply_orientations.cpp.s
 
 # target to generate assembly for a file
 src/apply_orientations.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.s
 .PHONY : src/apply_orientations.cpp.s
 
 src/are_equivalent.o: src/are_equivalent.cpp.o
@@ -286,7 +286,7 @@ src/are_equivalent.o: src/are_equivalent.cpp.o
 
 # target to build an object file
 src/are_equivalent.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o
 .PHONY : src/are_equivalent.cpp.o
 
 src/are_equivalent.i: src/are_equivalent.cpp.i
@@ -294,7 +294,7 @@ src/are_equivalent.i: src/are_equivalent.cpp.i
 
 # target to preprocess a source file
 src/are_equivalent.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.i
 .PHONY : src/are_equivalent.cpp.i
 
 src/are_equivalent.s: src/are_equivalent.cpp.s
@@ -302,7 +302,7 @@ src/are_equivalent.s: src/are_equivalent.cpp.s
 
 # target to generate assembly for a file
 src/are_equivalent.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.s
 .PHONY : src/are_equivalent.cpp.s
 
 src/chop.o: src/chop.cpp.o
@@ -310,7 +310,7 @@ src/chop.o: src/chop.cpp.o
 
 # target to build an object file
 src/chop.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o
 .PHONY : src/chop.cpp.o
 
 src/chop.i: src/chop.cpp.i
@@ -318,7 +318,7 @@ src/chop.i: src/chop.cpp.i
 
 # target to preprocess a source file
 src/chop.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.i
 .PHONY : src/chop.cpp.i
 
 src/chop.s: src/chop.cpp.s
@@ -326,7 +326,7 @@ src/chop.s: src/chop.cpp.s
 
 # target to generate assembly for a file
 src/chop.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.s
 .PHONY : src/chop.cpp.s
 
 src/copy_graph.o: src/copy_graph.cpp.o
@@ -334,7 +334,7 @@ src/copy_graph.o: src/copy_graph.cpp.o
 
 # target to build an object file
 src/copy_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o
 .PHONY : src/copy_graph.cpp.o
 
 src/copy_graph.i: src/copy_graph.cpp.i
@@ -342,7 +342,7 @@ src/copy_graph.i: src/copy_graph.cpp.i
 
 # target to preprocess a source file
 src/copy_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.i
 .PHONY : src/copy_graph.cpp.i
 
 src/copy_graph.s: src/copy_graph.cpp.s
@@ -350,7 +350,7 @@ src/copy_graph.s: src/copy_graph.cpp.s
 
 # target to generate assembly for a file
 src/copy_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.s
 .PHONY : src/copy_graph.cpp.s
 
 src/count_walks.o: src/count_walks.cpp.o
@@ -358,7 +358,7 @@ src/count_walks.o: src/count_walks.cpp.o
 
 # target to build an object file
 src/count_walks.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o
 .PHONY : src/count_walks.cpp.o
 
 src/count_walks.i: src/count_walks.cpp.i
@@ -366,7 +366,7 @@ src/count_walks.i: src/count_walks.cpp.i
 
 # target to preprocess a source file
 src/count_walks.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.i
 .PHONY : src/count_walks.cpp.i
 
 src/count_walks.s: src/count_walks.cpp.s
@@ -374,7 +374,7 @@ src/count_walks.s: src/count_walks.cpp.s
 
 # target to generate assembly for a file
 src/count_walks.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.s
 .PHONY : src/count_walks.cpp.s
 
 src/dagify.o: src/dagify.cpp.o
@@ -382,7 +382,7 @@ src/dagify.o: src/dagify.cpp.o
 
 # target to build an object file
 src/dagify.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o
 .PHONY : src/dagify.cpp.o
 
 src/dagify.i: src/dagify.cpp.i
@@ -390,7 +390,7 @@ src/dagify.i: src/dagify.cpp.i
 
 # target to preprocess a source file
 src/dagify.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.i
 .PHONY : src/dagify.cpp.i
 
 src/dagify.s: src/dagify.cpp.s
@@ -398,7 +398,7 @@ src/dagify.s: src/dagify.cpp.s
 
 # target to generate assembly for a file
 src/dagify.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.s
 .PHONY : src/dagify.cpp.s
 
 src/deletable_handle_graph.o: src/deletable_handle_graph.cpp.o
@@ -406,7 +406,7 @@ src/deletable_handle_graph.o: src/deletable_handle_graph.cpp.o
 
 # target to build an object file
 src/deletable_handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o
 .PHONY : src/deletable_handle_graph.cpp.o
 
 src/deletable_handle_graph.i: src/deletable_handle_graph.cpp.i
@@ -414,7 +414,7 @@ src/deletable_handle_graph.i: src/deletable_handle_graph.cpp.i
 
 # target to preprocess a source file
 src/deletable_handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.i
 .PHONY : src/deletable_handle_graph.cpp.i
 
 src/deletable_handle_graph.s: src/deletable_handle_graph.cpp.s
@@ -422,7 +422,7 @@ src/deletable_handle_graph.s: src/deletable_handle_graph.cpp.s
 
 # target to generate assembly for a file
 src/deletable_handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.s
 .PHONY : src/deletable_handle_graph.cpp.s
 
 src/dfs.o: src/dfs.cpp.o
@@ -430,7 +430,7 @@ src/dfs.o: src/dfs.cpp.o
 
 # target to build an object file
 src/dfs.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o
 .PHONY : src/dfs.cpp.o
 
 src/dfs.i: src/dfs.cpp.i
@@ -438,7 +438,7 @@ src/dfs.i: src/dfs.cpp.i
 
 # target to preprocess a source file
 src/dfs.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.i
 .PHONY : src/dfs.cpp.i
 
 src/dfs.s: src/dfs.cpp.s
@@ -446,7 +446,7 @@ src/dfs.s: src/dfs.cpp.s
 
 # target to generate assembly for a file
 src/dfs.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.s
 .PHONY : src/dfs.cpp.s
 
 src/dijkstra.o: src/dijkstra.cpp.o
@@ -454,7 +454,7 @@ src/dijkstra.o: src/dijkstra.cpp.o
 
 # target to build an object file
 src/dijkstra.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o
 .PHONY : src/dijkstra.cpp.o
 
 src/dijkstra.i: src/dijkstra.cpp.i
@@ -462,7 +462,7 @@ src/dijkstra.i: src/dijkstra.cpp.i
 
 # target to preprocess a source file
 src/dijkstra.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.i
 .PHONY : src/dijkstra.cpp.i
 
 src/dijkstra.s: src/dijkstra.cpp.s
@@ -470,7 +470,7 @@ src/dijkstra.s: src/dijkstra.cpp.s
 
 # target to generate assembly for a file
 src/dijkstra.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.s
 .PHONY : src/dijkstra.cpp.s
 
 src/eades_algorithm.o: src/eades_algorithm.cpp.o
@@ -478,7 +478,7 @@ src/eades_algorithm.o: src/eades_algorithm.cpp.o
 
 # target to build an object file
 src/eades_algorithm.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o
 .PHONY : src/eades_algorithm.cpp.o
 
 src/eades_algorithm.i: src/eades_algorithm.cpp.i
@@ -486,7 +486,7 @@ src/eades_algorithm.i: src/eades_algorithm.cpp.i
 
 # target to preprocess a source file
 src/eades_algorithm.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.i
 .PHONY : src/eades_algorithm.cpp.i
 
 src/eades_algorithm.s: src/eades_algorithm.cpp.s
@@ -494,7 +494,7 @@ src/eades_algorithm.s: src/eades_algorithm.cpp.s
 
 # target to generate assembly for a file
 src/eades_algorithm.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.s
 .PHONY : src/eades_algorithm.cpp.s
 
 src/extend.o: src/extend.cpp.o
@@ -502,7 +502,7 @@ src/extend.o: src/extend.cpp.o
 
 # target to build an object file
 src/extend.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o
 .PHONY : src/extend.cpp.o
 
 src/extend.i: src/extend.cpp.i
@@ -510,7 +510,7 @@ src/extend.i: src/extend.cpp.i
 
 # target to preprocess a source file
 src/extend.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.i
 .PHONY : src/extend.cpp.i
 
 src/extend.s: src/extend.cpp.s
@@ -518,7 +518,7 @@ src/extend.s: src/extend.cpp.s
 
 # target to generate assembly for a file
 src/extend.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.s
 .PHONY : src/extend.cpp.s
 
 src/find_shortest_paths.o: src/find_shortest_paths.cpp.o
@@ -526,7 +526,7 @@ src/find_shortest_paths.o: src/find_shortest_paths.cpp.o
 
 # target to build an object file
 src/find_shortest_paths.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o
 .PHONY : src/find_shortest_paths.cpp.o
 
 src/find_shortest_paths.i: src/find_shortest_paths.cpp.i
@@ -534,7 +534,7 @@ src/find_shortest_paths.i: src/find_shortest_paths.cpp.i
 
 # target to preprocess a source file
 src/find_shortest_paths.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.i
 .PHONY : src/find_shortest_paths.cpp.i
 
 src/find_shortest_paths.s: src/find_shortest_paths.cpp.s
@@ -542,7 +542,7 @@ src/find_shortest_paths.s: src/find_shortest_paths.cpp.s
 
 # target to generate assembly for a file
 src/find_shortest_paths.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.s
 .PHONY : src/find_shortest_paths.cpp.s
 
 src/find_tips.o: src/find_tips.cpp.o
@@ -550,7 +550,7 @@ src/find_tips.o: src/find_tips.cpp.o
 
 # target to build an object file
 src/find_tips.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o
 .PHONY : src/find_tips.cpp.o
 
 src/find_tips.i: src/find_tips.cpp.i
@@ -558,7 +558,7 @@ src/find_tips.i: src/find_tips.cpp.i
 
 # target to preprocess a source file
 src/find_tips.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.i
 .PHONY : src/find_tips.cpp.i
 
 src/find_tips.s: src/find_tips.cpp.s
@@ -566,7 +566,7 @@ src/find_tips.s: src/find_tips.cpp.s
 
 # target to generate assembly for a file
 src/find_tips.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.s
 .PHONY : src/find_tips.cpp.s
 
 src/handle_graph.o: src/handle_graph.cpp.o
@@ -574,7 +574,7 @@ src/handle_graph.o: src/handle_graph.cpp.o
 
 # target to build an object file
 src/handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o
 .PHONY : src/handle_graph.cpp.o
 
 src/handle_graph.i: src/handle_graph.cpp.i
@@ -582,7 +582,7 @@ src/handle_graph.i: src/handle_graph.cpp.i
 
 # target to preprocess a source file
 src/handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.i
 .PHONY : src/handle_graph.cpp.i
 
 src/handle_graph.s: src/handle_graph.cpp.s
@@ -590,7 +590,7 @@ src/handle_graph.s: src/handle_graph.cpp.s
 
 # target to generate assembly for a file
 src/handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.s
 .PHONY : src/handle_graph.cpp.s
 
 src/is_acyclic.o: src/is_acyclic.cpp.o
@@ -598,7 +598,7 @@ src/is_acyclic.o: src/is_acyclic.cpp.o
 
 # target to build an object file
 src/is_acyclic.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o
 .PHONY : src/is_acyclic.cpp.o
 
 src/is_acyclic.i: src/is_acyclic.cpp.i
@@ -606,7 +606,7 @@ src/is_acyclic.i: src/is_acyclic.cpp.i
 
 # target to preprocess a source file
 src/is_acyclic.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.i
 .PHONY : src/is_acyclic.cpp.i
 
 src/is_acyclic.s: src/is_acyclic.cpp.s
@@ -614,7 +614,7 @@ src/is_acyclic.s: src/is_acyclic.cpp.s
 
 # target to generate assembly for a file
 src/is_acyclic.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.s
 .PHONY : src/is_acyclic.cpp.s
 
 src/is_single_stranded.o: src/is_single_stranded.cpp.o
@@ -622,7 +622,7 @@ src/is_single_stranded.o: src/is_single_stranded.cpp.o
 
 # target to build an object file
 src/is_single_stranded.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o
 .PHONY : src/is_single_stranded.cpp.o
 
 src/is_single_stranded.i: src/is_single_stranded.cpp.i
@@ -630,7 +630,7 @@ src/is_single_stranded.i: src/is_single_stranded.cpp.i
 
 # target to preprocess a source file
 src/is_single_stranded.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.i
 .PHONY : src/is_single_stranded.cpp.i
 
 src/is_single_stranded.s: src/is_single_stranded.cpp.s
@@ -638,7 +638,7 @@ src/is_single_stranded.s: src/is_single_stranded.cpp.s
 
 # target to generate assembly for a file
 src/is_single_stranded.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.s
 .PHONY : src/is_single_stranded.cpp.s
 
 src/mutable_handle_graph.o: src/mutable_handle_graph.cpp.o
@@ -646,7 +646,7 @@ src/mutable_handle_graph.o: src/mutable_handle_graph.cpp.o
 
 # target to build an object file
 src/mutable_handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o
 .PHONY : src/mutable_handle_graph.cpp.o
 
 src/mutable_handle_graph.i: src/mutable_handle_graph.cpp.i
@@ -654,7 +654,7 @@ src/mutable_handle_graph.i: src/mutable_handle_graph.cpp.i
 
 # target to preprocess a source file
 src/mutable_handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.i
 .PHONY : src/mutable_handle_graph.cpp.i
 
 src/mutable_handle_graph.s: src/mutable_handle_graph.cpp.s
@@ -662,7 +662,7 @@ src/mutable_handle_graph.s: src/mutable_handle_graph.cpp.s
 
 # target to generate assembly for a file
 src/mutable_handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.s
 .PHONY : src/mutable_handle_graph.cpp.s
 
 src/mutable_path_deletable_handle_graph.o: src/mutable_path_deletable_handle_graph.cpp.o
@@ -670,7 +670,7 @@ src/mutable_path_deletable_handle_graph.o: src/mutable_path_deletable_handle_gra
 
 # target to build an object file
 src/mutable_path_deletable_handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o
 .PHONY : src/mutable_path_deletable_handle_graph.cpp.o
 
 src/mutable_path_deletable_handle_graph.i: src/mutable_path_deletable_handle_graph.cpp.i
@@ -678,7 +678,7 @@ src/mutable_path_deletable_handle_graph.i: src/mutable_path_deletable_handle_gra
 
 # target to preprocess a source file
 src/mutable_path_deletable_handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.i
 .PHONY : src/mutable_path_deletable_handle_graph.cpp.i
 
 src/mutable_path_deletable_handle_graph.s: src/mutable_path_deletable_handle_graph.cpp.s
@@ -686,7 +686,7 @@ src/mutable_path_deletable_handle_graph.s: src/mutable_path_deletable_handle_gra
 
 # target to generate assembly for a file
 src/mutable_path_deletable_handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.s
 .PHONY : src/mutable_path_deletable_handle_graph.cpp.s
 
 src/mutable_path_handle_graph.o: src/mutable_path_handle_graph.cpp.o
@@ -694,7 +694,7 @@ src/mutable_path_handle_graph.o: src/mutable_path_handle_graph.cpp.o
 
 # target to build an object file
 src/mutable_path_handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o
 .PHONY : src/mutable_path_handle_graph.cpp.o
 
 src/mutable_path_handle_graph.i: src/mutable_path_handle_graph.cpp.i
@@ -702,7 +702,7 @@ src/mutable_path_handle_graph.i: src/mutable_path_handle_graph.cpp.i
 
 # target to preprocess a source file
 src/mutable_path_handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.i
 .PHONY : src/mutable_path_handle_graph.cpp.i
 
 src/mutable_path_handle_graph.s: src/mutable_path_handle_graph.cpp.s
@@ -710,7 +710,7 @@ src/mutable_path_handle_graph.s: src/mutable_path_handle_graph.cpp.s
 
 # target to generate assembly for a file
 src/mutable_path_handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.s
 .PHONY : src/mutable_path_handle_graph.cpp.s
 
 src/mutable_path_metadata.o: src/mutable_path_metadata.cpp.o
@@ -718,7 +718,7 @@ src/mutable_path_metadata.o: src/mutable_path_metadata.cpp.o
 
 # target to build an object file
 src/mutable_path_metadata.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o
 .PHONY : src/mutable_path_metadata.cpp.o
 
 src/mutable_path_metadata.i: src/mutable_path_metadata.cpp.i
@@ -726,7 +726,7 @@ src/mutable_path_metadata.i: src/mutable_path_metadata.cpp.i
 
 # target to preprocess a source file
 src/mutable_path_metadata.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.i
 .PHONY : src/mutable_path_metadata.cpp.i
 
 src/mutable_path_metadata.s: src/mutable_path_metadata.cpp.s
@@ -734,7 +734,7 @@ src/mutable_path_metadata.s: src/mutable_path_metadata.cpp.s
 
 # target to generate assembly for a file
 src/mutable_path_metadata.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.s
 .PHONY : src/mutable_path_metadata.cpp.s
 
 src/path_handle_graph.o: src/path_handle_graph.cpp.o
@@ -742,7 +742,7 @@ src/path_handle_graph.o: src/path_handle_graph.cpp.o
 
 # target to build an object file
 src/path_handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o
 .PHONY : src/path_handle_graph.cpp.o
 
 src/path_handle_graph.i: src/path_handle_graph.cpp.i
@@ -750,7 +750,7 @@ src/path_handle_graph.i: src/path_handle_graph.cpp.i
 
 # target to preprocess a source file
 src/path_handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.i
 .PHONY : src/path_handle_graph.cpp.i
 
 src/path_handle_graph.s: src/path_handle_graph.cpp.s
@@ -758,7 +758,7 @@ src/path_handle_graph.s: src/path_handle_graph.cpp.s
 
 # target to generate assembly for a file
 src/path_handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.s
 .PHONY : src/path_handle_graph.cpp.s
 
 src/path_metadata.o: src/path_metadata.cpp.o
@@ -766,7 +766,7 @@ src/path_metadata.o: src/path_metadata.cpp.o
 
 # target to build an object file
 src/path_metadata.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o
 .PHONY : src/path_metadata.cpp.o
 
 src/path_metadata.i: src/path_metadata.cpp.i
@@ -774,7 +774,7 @@ src/path_metadata.i: src/path_metadata.cpp.i
 
 # target to preprocess a source file
 src/path_metadata.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.i
 .PHONY : src/path_metadata.cpp.i
 
 src/path_metadata.s: src/path_metadata.cpp.s
@@ -782,7 +782,7 @@ src/path_metadata.s: src/path_metadata.cpp.s
 
 # target to generate assembly for a file
 src/path_metadata.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.s
 .PHONY : src/path_metadata.cpp.s
 
 src/path_position_handle_graph.o: src/path_position_handle_graph.cpp.o
@@ -790,7 +790,7 @@ src/path_position_handle_graph.o: src/path_position_handle_graph.cpp.o
 
 # target to build an object file
 src/path_position_handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o
 .PHONY : src/path_position_handle_graph.cpp.o
 
 src/path_position_handle_graph.i: src/path_position_handle_graph.cpp.i
@@ -798,7 +798,7 @@ src/path_position_handle_graph.i: src/path_position_handle_graph.cpp.i
 
 # target to preprocess a source file
 src/path_position_handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.i
 .PHONY : src/path_position_handle_graph.cpp.i
 
 src/path_position_handle_graph.s: src/path_position_handle_graph.cpp.s
@@ -806,7 +806,7 @@ src/path_position_handle_graph.s: src/path_position_handle_graph.cpp.s
 
 # target to generate assembly for a file
 src/path_position_handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.s
 .PHONY : src/path_position_handle_graph.cpp.s
 
 src/ranked_handle_graph.o: src/ranked_handle_graph.cpp.o
@@ -814,7 +814,7 @@ src/ranked_handle_graph.o: src/ranked_handle_graph.cpp.o
 
 # target to build an object file
 src/ranked_handle_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o
 .PHONY : src/ranked_handle_graph.cpp.o
 
 src/ranked_handle_graph.i: src/ranked_handle_graph.cpp.i
@@ -822,7 +822,7 @@ src/ranked_handle_graph.i: src/ranked_handle_graph.cpp.i
 
 # target to preprocess a source file
 src/ranked_handle_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.i
 .PHONY : src/ranked_handle_graph.cpp.i
 
 src/ranked_handle_graph.s: src/ranked_handle_graph.cpp.s
@@ -830,7 +830,7 @@ src/ranked_handle_graph.s: src/ranked_handle_graph.cpp.s
 
 # target to generate assembly for a file
 src/ranked_handle_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.s
 .PHONY : src/ranked_handle_graph.cpp.s
 
 src/reverse_complement.o: src/reverse_complement.cpp.o
@@ -838,7 +838,7 @@ src/reverse_complement.o: src/reverse_complement.cpp.o
 
 # target to build an object file
 src/reverse_complement.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o
 .PHONY : src/reverse_complement.cpp.o
 
 src/reverse_complement.i: src/reverse_complement.cpp.i
@@ -846,7 +846,7 @@ src/reverse_complement.i: src/reverse_complement.cpp.i
 
 # target to preprocess a source file
 src/reverse_complement.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.i
 .PHONY : src/reverse_complement.cpp.i
 
 src/reverse_complement.s: src/reverse_complement.cpp.s
@@ -854,7 +854,7 @@ src/reverse_complement.s: src/reverse_complement.cpp.s
 
 # target to generate assembly for a file
 src/reverse_complement.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.s
 .PHONY : src/reverse_complement.cpp.s
 
 src/serializable.o: src/serializable.cpp.o
@@ -862,7 +862,7 @@ src/serializable.o: src/serializable.cpp.o
 
 # target to build an object file
 src/serializable.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o
 .PHONY : src/serializable.cpp.o
 
 src/serializable.i: src/serializable.cpp.i
@@ -870,7 +870,7 @@ src/serializable.i: src/serializable.cpp.i
 
 # target to preprocess a source file
 src/serializable.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.i
 .PHONY : src/serializable.cpp.i
 
 src/serializable.s: src/serializable.cpp.s
@@ -878,7 +878,7 @@ src/serializable.s: src/serializable.cpp.s
 
 # target to generate assembly for a file
 src/serializable.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.s
 .PHONY : src/serializable.cpp.s
 
 src/snarl_decomposition.o: src/snarl_decomposition.cpp.o
@@ -886,7 +886,7 @@ src/snarl_decomposition.o: src/snarl_decomposition.cpp.o
 
 # target to build an object file
 src/snarl_decomposition.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o
 .PHONY : src/snarl_decomposition.cpp.o
 
 src/snarl_decomposition.i: src/snarl_decomposition.cpp.i
@@ -894,7 +894,7 @@ src/snarl_decomposition.i: src/snarl_decomposition.cpp.i
 
 # target to preprocess a source file
 src/snarl_decomposition.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.i
 .PHONY : src/snarl_decomposition.cpp.i
 
 src/snarl_decomposition.s: src/snarl_decomposition.cpp.s
@@ -902,7 +902,7 @@ src/snarl_decomposition.s: src/snarl_decomposition.cpp.s
 
 # target to generate assembly for a file
 src/snarl_decomposition.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.s
 .PHONY : src/snarl_decomposition.cpp.s
 
 src/split_strands.o: src/split_strands.cpp.o
@@ -910,7 +910,7 @@ src/split_strands.o: src/split_strands.cpp.o
 
 # target to build an object file
 src/split_strands.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o
 .PHONY : src/split_strands.cpp.o
 
 src/split_strands.i: src/split_strands.cpp.i
@@ -918,7 +918,7 @@ src/split_strands.i: src/split_strands.cpp.i
 
 # target to preprocess a source file
 src/split_strands.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.i
 .PHONY : src/split_strands.cpp.i
 
 src/split_strands.s: src/split_strands.cpp.s
@@ -926,7 +926,7 @@ src/split_strands.s: src/split_strands.cpp.s
 
 # target to generate assembly for a file
 src/split_strands.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.s
 .PHONY : src/split_strands.cpp.s
 
 src/strongly_connected_components.o: src/strongly_connected_components.cpp.o
@@ -934,7 +934,7 @@ src/strongly_connected_components.o: src/strongly_connected_components.cpp.o
 
 # target to build an object file
 src/strongly_connected_components.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o
 .PHONY : src/strongly_connected_components.cpp.o
 
 src/strongly_connected_components.i: src/strongly_connected_components.cpp.i
@@ -942,7 +942,7 @@ src/strongly_connected_components.i: src/strongly_connected_components.cpp.i
 
 # target to preprocess a source file
 src/strongly_connected_components.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.i
 .PHONY : src/strongly_connected_components.cpp.i
 
 src/strongly_connected_components.s: src/strongly_connected_components.cpp.s
@@ -950,7 +950,7 @@ src/strongly_connected_components.s: src/strongly_connected_components.cpp.s
 
 # target to generate assembly for a file
 src/strongly_connected_components.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.s
 .PHONY : src/strongly_connected_components.cpp.s
 
 src/topological_sort.o: src/topological_sort.cpp.o
@@ -958,7 +958,7 @@ src/topological_sort.o: src/topological_sort.cpp.o
 
 # target to build an object file
 src/topological_sort.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o
 .PHONY : src/topological_sort.cpp.o
 
 src/topological_sort.i: src/topological_sort.cpp.i
@@ -966,7 +966,7 @@ src/topological_sort.i: src/topological_sort.cpp.i
 
 # target to preprocess a source file
 src/topological_sort.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.i
 .PHONY : src/topological_sort.cpp.i
 
 src/topological_sort.s: src/topological_sort.cpp.s
@@ -974,7 +974,7 @@ src/topological_sort.s: src/topological_sort.cpp.s
 
 # target to generate assembly for a file
 src/topological_sort.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.s
 .PHONY : src/topological_sort.cpp.s
 
 src/trivially_serializable.o: src/trivially_serializable.cpp.o
@@ -982,7 +982,7 @@ src/trivially_serializable.o: src/trivially_serializable.cpp.o
 
 # target to build an object file
 src/trivially_serializable.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o
 .PHONY : src/trivially_serializable.cpp.o
 
 src/trivially_serializable.i: src/trivially_serializable.cpp.i
@@ -990,7 +990,7 @@ src/trivially_serializable.i: src/trivially_serializable.cpp.i
 
 # target to preprocess a source file
 src/trivially_serializable.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.i
 .PHONY : src/trivially_serializable.cpp.i
 
 src/trivially_serializable.s: src/trivially_serializable.cpp.s
@@ -998,7 +998,7 @@ src/trivially_serializable.s: src/trivially_serializable.cpp.s
 
 # target to generate assembly for a file
 src/trivially_serializable.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.s
 .PHONY : src/trivially_serializable.cpp.s
 
 src/types.o: src/types.cpp.o
@@ -1006,7 +1006,7 @@ src/types.o: src/types.cpp.o
 
 # target to build an object file
 src/types.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o
 .PHONY : src/types.cpp.o
 
 src/types.i: src/types.cpp.i
@@ -1014,7 +1014,7 @@ src/types.i: src/types.cpp.i
 
 # target to preprocess a source file
 src/types.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.i
 .PHONY : src/types.cpp.i
 
 src/types.s: src/types.cpp.s
@@ -1022,7 +1022,7 @@ src/types.s: src/types.cpp.s
 
 # target to generate assembly for a file
 src/types.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.s
 .PHONY : src/types.cpp.s
 
 src/weakly_connected_components.o: src/weakly_connected_components.cpp.o
@@ -1030,7 +1030,7 @@ src/weakly_connected_components.o: src/weakly_connected_components.cpp.o
 
 # target to build an object file
 src/weakly_connected_components.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o
 .PHONY : src/weakly_connected_components.cpp.o
 
 src/weakly_connected_components.i: src/weakly_connected_components.cpp.i
@@ -1038,7 +1038,7 @@ src/weakly_connected_components.i: src/weakly_connected_components.cpp.i
 
 # target to preprocess a source file
 src/weakly_connected_components.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.i
 .PHONY : src/weakly_connected_components.cpp.i
 
 src/weakly_connected_components.s: src/weakly_connected_components.cpp.s
@@ -1046,7 +1046,7 @@ src/weakly_connected_components.s: src/weakly_connected_components.cpp.s
 
 # target to generate assembly for a file
 src/weakly_connected_components.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build.make deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.s
 .PHONY : src/weakly_connected_components.cpp.s
 
 # Help Target
@@ -1180,6 +1180,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

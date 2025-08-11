@@ -1,7 +1,7 @@
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/ram_filebuf.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/ram_filebuf.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/ram_filebuf.hpp \
  /usr/include/c++/12/fstream /usr/include/c++/12/istream \
  /usr/include/c++/12/ios /usr/include/c++/12/iosfwd \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
@@ -162,8 +162,8 @@ deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o: \
  /usr/include/c++/12/bits/stl_vector.h \
  /usr/include/c++/12/bits/stl_bvector.h \
  /usr/include/c++/12/bits/vector.tcc \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/ram_fs.hpp \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/uintx_t.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/uintx_t.hpp \
  /usr/include/c++/12/map /usr/include/c++/12/bits/stl_tree.h \
  /usr/include/c++/12/ext/aligned_buffer.h \
  /usr/include/c++/12/bits/stl_map.h /usr/include/c++/12/tuple \

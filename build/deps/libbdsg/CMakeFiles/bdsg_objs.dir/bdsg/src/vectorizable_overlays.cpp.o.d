@@ -1,7 +1,7 @@
 deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/src/vectorizable_overlays.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/src/vectorizable_overlays.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/vectorizable_overlays.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/vectorizable_overlays.hpp \
  /usr/include/c++/12/unordered_map /usr/include/c++/12/type_traits \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -52,9 +52,9 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/c++/12/bits/erase_if.h /usr/include/c++/12/map \
  /usr/include/c++/12/bits/stl_tree.h /usr/include/c++/12/bits/stl_map.h \
  /usr/include/c++/12/bits/stl_multimap.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vectors.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vectors.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
@@ -168,8 +168,8 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/c++/12/bits/ostream.tcc /usr/include/c++/12/istream \
  /usr/include/c++/12/bits/istream.tcc /usr/include/c++/12/bitset \
  /usr/include/c++/12/cassert /usr/include/assert.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
  /usr/include/c++/12/sstream /usr/include/c++/12/bits/sstream.tcc \
  /usr/include/c++/12/memory /usr/include/c++/12/bits/stl_uninitialized.h \
  /usr/include/c++/12/bits/stl_tempbuf.h \
@@ -184,14 +184,14 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/c++/12/bits/atomic_base.h \
  /usr/include/c++/12/bits/atomic_lockfree_defines.h \
  /usr/include/c++/12/backward/auto_ptr.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
  /usr/include/c++/12/fstream /usr/include/c++/12/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/c++/12/vector /usr/include/c++/12/bits/stl_vector.h \
  /usr/include/c++/12/bits/stl_bvector.h \
  /usr/include/c++/12/bits/vector.tcc /usr/include/c++/12/mutex \
@@ -200,8 +200,8 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/c++/12/bits/parse_numbers.h \
  /usr/include/c++/12/bits/std_mutex.h \
  /usr/include/c++/12/bits/unique_lock.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/c++/12/functional /usr/include/c++/12/bits/std_function.h \
  /usr/include/string.h /usr/include/strings.h \
  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
@@ -245,11 +245,11 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/unistd.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
  /usr/include/linux/close_range.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
  /usr/include/c++/12/utility /usr/include/c++/12/bits/stl_relops.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
  /usr/include/c++/12/cstring /usr/include/c++/12/set \
  /usr/include/c++/12/bits/stl_set.h \
  /usr/include/c++/12/bits/stl_multiset.h /usr/include/c++/12/cstddef \
@@ -269,30 +269,30 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
  /usr/include/x86_64-linux-gnu/bits/mman_ext.h \
  /usr/include/c++/12/iterator /usr/include/c++/12/bits/stream_iterator.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vector_il.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vector_il.hpp \
  /usr/include/c++/12/queue /usr/include/c++/12/bits/stl_queue.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_helper.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint128_t.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint256_t.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector_15.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sd_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_mcl.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v5.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_scan.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_scan.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/hyb_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rle_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/hash_map.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/wang_hash.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/packed_structs.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_helper.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint128_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint256_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector_15.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sd_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_mcl.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v5.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_scan.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_scan.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/hyb_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rle_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/hash_map.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/wang_hash.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/packed_structs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
  /usr/include/c++/12/climits \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/syslimits.h \
@@ -303,18 +303,18 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
  /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
  /usr/include/c++/12/shared_mutex \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_stdint.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_config.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_traits.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_utils.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_stdint.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_config.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_traits.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_utils.h \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
  /usr/include/c++/12/regex /usr/include/c++/12/bits/regex_constants.h \
  /usr/include/c++/12/bits/regex_error.h \
  /usr/include/c++/12/bits/regex_automaton.h \
@@ -328,10 +328,10 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o: \
  /usr/include/c++/12/bits/regex_executor.tcc \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/bits/unordered_set.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/BBHash/BooPHF.h \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/BBHash/BooPHF.h \
  /usr/include/c++/12/stdlib.h /usr/include/c++/12/math.h \
  /usr/include/c++/12/array /usr/include/c++/12/compare \
  /usr/include/inttypes.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/util.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp

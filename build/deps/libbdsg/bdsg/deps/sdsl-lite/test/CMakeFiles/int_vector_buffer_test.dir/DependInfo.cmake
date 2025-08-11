@@ -8,15 +8,15 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/int_vector_buffer_test.cpp" "deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/int_vector_buffer_test.dir/int_vector_buffer_test.cpp.o" "gcc" "deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/int_vector_buffer_test.dir/int_vector_buffer_test.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/int_vector_buffer_test.cpp" "deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/int_vector_buffer_test.dir/int_vector_buffer_test.cpp.o" "gcc" "deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/int_vector_buffer_test.dir/int_vector_buffer_test.cpp.o.d"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/DependInfo.cmake"
-  "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/DependInfo.cmake"
-  "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort.dir/DependInfo.cmake"
-  "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/DependInfo.cmake"
+  "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/DependInfo.cmake"
+  "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/DependInfo.cmake"
+  "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort.dir/DependInfo.cmake"
+  "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/libdivsufsort/lib/CMakeFiles/divsufsort64.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

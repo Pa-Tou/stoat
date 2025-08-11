@@ -6,6 +6,7 @@
 #include <set>
 #include <vector>
 #include <iostream>
+#include <Rcpp.h>
 
 #include "Eigen/Cholesky"
 #include "Eigen/Core"
@@ -249,10 +250,12 @@ Vector& LinearRegression::GetAsyPvalue() {
   int numCov = B.Length();
   pValue.Dimension(numCov);
   for (int i = 0; i < numCov; ++i) {
-    double Zstat = B[i] / sqrt(covB(i, i));
-    Zstat *= Zstat;
-    pValue[i] = gsl_cdf_chisq_Q(Zstat, 1.0);
+    double se = sqrt(covB(i, i));
+    double t_stat = B[i] / se;
+    double Zstat = t_stat * t_stat;
+    pValue[i] = gsl_cdf_chisq_Q(Zstat, 1.0); // why degree of freedom = 1.0 ?
   }
+
   return pValue;
 }
 
@@ -272,6 +275,53 @@ bool LinearRegression::calculateResidualMatrix(Matrix& X, Matrix* out) {
     for (int j = 0; j < out->cols; ++j)
       (*out)(i, j) = (i == j) ? 1.0 - (*out)(i, j) : -(*out)(i, j);
   return true;
+}
+
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+List linear_regression_rvtest(NumericMatrix Xr, NumericVector yr) {
+    int numSamples = Xr.nrow();
+    int numVariables = Xr.ncol();
+
+    // Convert NumericMatrix to your Matrix type
+    Matrix X(numSamples, numVariables);
+    for (int i = 0; i < numSamples; i++) {
+        for (int j = 0; j < numVariables; j++) {
+            X(i, j) = Xr(i, j);
+        }
+    }
+
+    // Convert phenotype vector
+    Vector y;
+    y.Dimension(numSamples);
+    for (int i = 0; i < numSamples; i++) {
+        y[i] = yr[i];
+    }
+
+    // Fit model
+    LinearRegression lr;
+    bool success = lr.FitLinearModel(X, y);
+
+    if (!success) {
+        stop("Linear regression failed.");
+    }
+
+    Vector &coef = lr.GetCovEst();
+    Vector &pval = lr.GetAsyPvalue();
+
+    NumericVector coef_out(numVariables);
+    NumericVector pval_out(numVariables);
+    for (int i = 0; i < numVariables; i++) {
+        coef_out[i] = coef[i];
+        pval_out[i] = pval[i];
+    }
+
+    return List::create(
+        _["coefficients"] = coef_out,
+        _["p_values"] = pval_out
+    );
 }
 
 // ======================= Test Main ===========================

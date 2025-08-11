@@ -1,7 +1,7 @@
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/lib/bits.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include/sdsl/bits.hpp \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \

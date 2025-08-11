@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/mbagarre/Bureau/STOAT/deps/eigen -I/home/mbagarre/Bureau/STOAT/deps/libvgio/include -I/home/mbagarre/Bureau/STOAT/build/deps/libvgio -I/home/mbagarre/Bureau/STOAT/deps/libvgio/src -I/home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include
+CXX_INCLUDES = -I/home/mbagarre/Bureau/stoat/deps/eigen -I/home/mbagarre/Bureau/stoat/deps/libvgio/include -I/home/mbagarre/Bureau/stoat/build/deps/libvgio -I/home/mbagarre/Bureau/stoat/deps/libvgio/src -I/home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include
 
 CXX_FLAGS = -O3 -g  -O3 -fopenmp -std=c++17
 

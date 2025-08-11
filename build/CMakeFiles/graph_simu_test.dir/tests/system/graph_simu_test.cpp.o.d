@@ -1,7 +1,7 @@
 CMakeFiles/graph_simu_test.dir/tests/system/graph_simu_test.cpp.o: \
- /home/mbagarre/Bureau/STOAT/tests/system/graph_simu_test.cpp \
+ /home/mbagarre/Bureau/stoat/tests/system/graph_simu_test.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/Catch2/single_include/catch2/catch.hpp \
+ /home/mbagarre/Bureau/stoat/deps/Catch2/single_include/catch2/catch.hpp \
  /usr/include/c++/12/cstddef \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

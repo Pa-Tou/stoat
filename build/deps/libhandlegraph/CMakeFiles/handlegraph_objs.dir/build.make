@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/depend.make
@@ -70,480 +70,480 @@ include deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/progress.make
 include deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/deletable_handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/deletable_handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/deletable_handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/deletable_handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/deletable_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/deletable_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/deletable_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/deletable_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_deletable_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dfs.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dfs.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dfs.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dfs.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dfs.cpp > CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dfs.cpp > CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dfs.cpp -o CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dfs.cpp -o CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_metadata.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_metadata.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_metadata.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_metadata.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_metadata.cpp > CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_metadata.cpp > CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_metadata.cpp -o CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_metadata.cpp -o CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_metadata.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_metadata.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_metadata.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_metadata.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_metadata.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_metadata.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_metadata.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_metadata.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_position_handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_position_handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_position_handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_position_handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_position_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_position_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/path_position_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/path_position_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/mutable_path_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/mutable_path_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/ranked_handle_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/ranked_handle_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/ranked_handle_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/ranked_handle_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/ranked_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/ranked_handle_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/ranked_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/ranked_handle_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/serializable.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/serializable.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/serializable.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/serializable.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/serializable.cpp > CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/serializable.cpp > CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/serializable.cpp -o CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/serializable.cpp -o CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/snarl_decomposition.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/snarl_decomposition.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/snarl_decomposition.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/snarl_decomposition.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/snarl_decomposition.cpp > CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/snarl_decomposition.cpp > CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/snarl_decomposition.cpp -o CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/snarl_decomposition.cpp -o CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/trivially_serializable.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/trivially_serializable.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/trivially_serializable.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/trivially_serializable.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/trivially_serializable.cpp > CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/trivially_serializable.cpp > CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/trivially_serializable.cpp -o CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/trivially_serializable.cpp -o CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/types.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/types.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/types.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/types.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/types.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/types.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/types.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/types.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/types.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/types.cpp > CMakeFiles/handlegraph_objs.dir/src/types.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/types.cpp > CMakeFiles/handlegraph_objs.dir/src/types.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/types.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/types.cpp -o CMakeFiles/handlegraph_objs.dir/src/types.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/types.cpp -o CMakeFiles/handlegraph_objs.dir/src/types.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/copy_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/copy_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/copy_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/copy_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/copy_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/copy_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/copy_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/copy_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/append_graph.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/append_graph.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/append_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/append_graph.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/append_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/append_graph.cpp > CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/append_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/append_graph.cpp -o CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/are_equivalent.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/are_equivalent.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/are_equivalent.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/are_equivalent.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/are_equivalent.cpp > CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/are_equivalent.cpp > CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/are_equivalent.cpp -o CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/are_equivalent.cpp -o CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_tips.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_tips.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_tips.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_tips.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_tips.cpp > CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_tips.cpp > CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_tips.cpp -o CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_tips.cpp -o CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/topological_sort.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/topological_sort.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/topological_sort.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/topological_sort.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/topological_sort.cpp > CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/topological_sort.cpp > CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/topological_sort.cpp -o CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/topological_sort.cpp -o CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/apply_orientations.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/apply_orientations.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/apply_orientations.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/apply_orientations.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/apply_orientations.cpp > CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/apply_orientations.cpp > CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/apply_orientations.cpp -o CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/apply_orientations.cpp -o CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_single_stranded.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_single_stranded.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_single_stranded.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_single_stranded.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_single_stranded.cpp > CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_single_stranded.cpp > CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_single_stranded.cpp -o CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_single_stranded.cpp -o CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/count_walks.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/count_walks.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/count_walks.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/count_walks.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/count_walks.cpp > CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/count_walks.cpp > CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/count_walks.cpp -o CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/count_walks.cpp -o CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/eades_algorithm.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/eades_algorithm.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/eades_algorithm.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/eades_algorithm.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/eades_algorithm.cpp > CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/eades_algorithm.cpp > CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/eades_algorithm.cpp -o CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/eades_algorithm.cpp -o CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dagify.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dagify.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dagify.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dagify.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dagify.cpp > CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dagify.cpp > CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dagify.cpp -o CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dagify.cpp -o CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/strongly_connected_components.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/strongly_connected_components.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/strongly_connected_components.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/strongly_connected_components.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/strongly_connected_components.cpp > CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/strongly_connected_components.cpp > CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/strongly_connected_components.cpp -o CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/strongly_connected_components.cpp -o CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_shortest_paths.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_shortest_paths.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_shortest_paths.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_shortest_paths.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_shortest_paths.cpp > CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_shortest_paths.cpp > CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_shortest_paths.cpp -o CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_shortest_paths.cpp -o CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dijkstra.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dijkstra.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dijkstra.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dijkstra.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dijkstra.cpp > CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dijkstra.cpp > CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/dijkstra.cpp -o CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/dijkstra.cpp -o CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_acyclic.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_acyclic.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_acyclic.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_acyclic.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_acyclic.cpp > CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_acyclic.cpp > CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/is_acyclic.cpp -o CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/is_acyclic.cpp -o CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/reverse_complement.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/reverse_complement.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/reverse_complement.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/reverse_complement.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/reverse_complement.cpp > CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/reverse_complement.cpp > CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/reverse_complement.cpp -o CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/reverse_complement.cpp -o CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/split_strands.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/split_strands.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/split_strands.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/split_strands.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/split_strands.cpp > CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/split_strands.cpp > CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/split_strands.cpp -o CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/split_strands.cpp -o CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/chop.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/chop.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/chop.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/chop.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/chop.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/chop.cpp > CMakeFiles/handlegraph_objs.dir/src/chop.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/chop.cpp > CMakeFiles/handlegraph_objs.dir/src/chop.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/chop.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/chop.cpp -o CMakeFiles/handlegraph_objs.dir/src/chop.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/chop.cpp -o CMakeFiles/handlegraph_objs.dir/src/chop.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/weakly_connected_components.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/weakly_connected_components.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/weakly_connected_components.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/weakly_connected_components.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/weakly_connected_components.cpp > CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/weakly_connected_components.cpp > CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/weakly_connected_components.cpp -o CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/weakly_connected_components.cpp -o CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.s
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/flags.make
-deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/extend.cpp
+deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o: /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/extend.cpp
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/extend.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o -MF CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o.d -o CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/extend.cpp
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/handlegraph_objs.dir/src/extend.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/extend.cpp > CMakeFiles/handlegraph_objs.dir/src/extend.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/extend.cpp > CMakeFiles/handlegraph_objs.dir/src/extend.cpp.i
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/handlegraph_objs.dir/src/extend.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/extend.cpp -o CMakeFiles/handlegraph_objs.dir/src/extend.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/extend.cpp -o CMakeFiles/handlegraph_objs.dir/src/extend.cpp.s
 
 handlegraph_objs: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o
 handlegraph_objs: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o
@@ -587,10 +587,10 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build: handlegraph_objs
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/build
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && $(CMAKE_COMMAND) -P CMakeFiles/handlegraph_objs.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && $(CMAKE_COMMAND) -P CMakeFiles/handlegraph_objs.dir/cmake_clean.cmake
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/clean
 
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libhandlegraph /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libhandlegraph /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/depend
 

@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/search_bidirectional_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/search_bidirectional_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/search_bidirectional_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/search_bidirectional_test.pdb"
   "CMakeFiles/search_bidirectional_test.dir/search_bidirectional_test.cpp.o"
   "CMakeFiles/search_bidirectional_test.dir/search_bidirectional_test.cpp.o.d"
 )

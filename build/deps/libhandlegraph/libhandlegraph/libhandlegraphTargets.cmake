@@ -50,20 +50,20 @@ unset(_cmake_expected_targets)
 add_library(libhandlegraph::handlegraph_shared SHARED IMPORTED)
 
 set_target_properties(libhandlegraph::handlegraph_shared PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include"
 )
 
 # Create imported target libhandlegraph::handlegraph_static
 add_library(libhandlegraph::handlegraph_static STATIC IMPORTED)
 
 set_target_properties(libhandlegraph::handlegraph_static PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include"
 )
 
 # Import target "libhandlegraph::handlegraph_shared" for configuration ""
 set_property(TARGET libhandlegraph::handlegraph_shared APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
 set_target_properties(libhandlegraph::handlegraph_shared PROPERTIES
-  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/libhandlegraph.so"
+  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/libhandlegraph.so"
   IMPORTED_SONAME_NOCONFIG "libhandlegraph.so"
   )
 
@@ -71,7 +71,7 @@ set_target_properties(libhandlegraph::handlegraph_shared PROPERTIES
 set_property(TARGET libhandlegraph::handlegraph_static APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
 set_target_properties(libhandlegraph::handlegraph_static PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_NOCONFIG "CXX"
-  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/libhandlegraph.a"
+  IMPORTED_LOCATION_NOCONFIG "/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/libhandlegraph.a"
   )
 
 # This file does not depend on other imported targets which have

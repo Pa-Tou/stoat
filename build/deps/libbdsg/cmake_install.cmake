@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -49,12 +49,12 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libbdsg.so"
          RPATH "/usr/local/lib")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libbdsg.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libbdsg.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libbdsg.so"
-         OLD_RPATH "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib:\$ORIGIN/../../../build/deps/libhandlegraph:"
+         OLD_RPATH "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib:\$ORIGIN/../../../build/deps/libhandlegraph:"
          NEW_RPATH "/usr/local/lib")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libbdsg.so")
@@ -66,22 +66,22 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES
-    "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/DYNAMIC/include/"
-    "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/BBHash/"
-    "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp"
+    "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/DYNAMIC/include/"
+    "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/BBHash/"
+    "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp"
     FILES_MATCHING REGEX "/[^/]*\\.hpp$" REGEX "/[^/]*\\.h$")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/cmake_install.cmake")
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/hopscotch-map/cmake_install.cmake")
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/hopscotch-map/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio/cmake_install.cmake")
 
 endif()
 

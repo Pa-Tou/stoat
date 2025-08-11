@@ -8,32 +8,32 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_emitter.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_io.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/basic_stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_input_stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_output_stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/edit.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/hfile_cppstream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/json2pb.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_emitter.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_iterator.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/registry.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream_multiplexer.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/deps/libvgio/src/vpkg.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.o.d"
-  "/home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.cc" "deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_emitter.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_emitter.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_io.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/basic_stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/basic_stream.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_input_stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_input_stream.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_output_stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/blocked_gzip_output_stream.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/edit.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/edit.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/hfile_cppstream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/hfile_cppstream.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/json2pb.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/json2pb.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/message_emitter.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_emitter.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/message_iterator.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/registry.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/registry.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/stream.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/stream_multiplexer.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/stream_multiplexer.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/deps/libvgio/src/vpkg.cpp" "deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/src/vpkg.cpp.o.d"
+  "/home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.cc" "deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.o" "gcc" "deps/libvgio/CMakeFiles/vgio_static.dir/vg.pb.cc.o.d"
   )
 
 # Pairs of files generated by the same build rule.
 set(CMAKE_MULTIPLE_OUTPUT_PAIRS
-  "/home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.cc" "/home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.h"
+  "/home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.cc" "/home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.h"
   )
 
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/DependInfo.cmake"
+  "/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_static.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

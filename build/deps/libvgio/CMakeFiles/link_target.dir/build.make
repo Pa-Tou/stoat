@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for link_target.
 
@@ -67,7 +67,7 @@ include deps/libvgio/CMakeFiles/link_target.dir/compiler_depend.make
 include deps/libvgio/CMakeFiles/link_target.dir/progress.make
 
 deps/libvgio/CMakeFiles/link_target:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/cmake -E create_symlink . vg
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/cmake -E create_symlink . vg
 
 link_target: deps/libvgio/CMakeFiles/link_target
 link_target: deps/libvgio/CMakeFiles/link_target.dir/build.make
@@ -78,10 +78,10 @@ deps/libvgio/CMakeFiles/link_target.dir/build: link_target
 .PHONY : deps/libvgio/CMakeFiles/link_target.dir/build
 
 deps/libvgio/CMakeFiles/link_target.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && $(CMAKE_COMMAND) -P CMakeFiles/link_target.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && $(CMAKE_COMMAND) -P CMakeFiles/link_target.dir/cmake_clean.cmake
 .PHONY : deps/libvgio/CMakeFiles/link_target.dir/clean
 
 deps/libvgio/CMakeFiles/link_target.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libvgio /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libvgio /home/mbagarre/Bureau/STOAT/build/deps/libvgio/CMakeFiles/link_target.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libvgio /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libvgio /home/mbagarre/Bureau/stoat/build/deps/libvgio/CMakeFiles/link_target.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libvgio/CMakeFiles/link_target.dir/depend
 

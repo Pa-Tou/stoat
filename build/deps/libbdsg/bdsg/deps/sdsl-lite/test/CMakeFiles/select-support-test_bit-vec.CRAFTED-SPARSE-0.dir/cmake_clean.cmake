@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/bit-vec.CRAFTED-SPARSE-0"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/bit-vec.CRAFTED-SPARSE-0"
   "CMakeFiles/select-support-test_bit-vec.CRAFTED-SPARSE-0"
 )
 

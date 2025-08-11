@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for cst-int-test_moby.int_8.
 
@@ -66,11 +66,11 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8
 # Include the progress variables for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/progress.make
 
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/moby.int
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/cst_int_test
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute cst-int-test on moby.int."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/cst_int_test /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/moby.int 8 /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/cst_int_test__8 /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/moby.int
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/cst_int_test
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute cst-int-test on moby.int."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/cst_int_test /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/moby.int 8 /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/cst_int_test__8 /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
 
 cst-int-test_moby.int_8: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8
 cst-int-test_moby.int_8: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/build.make
@@ -81,10 +81,10 @@ deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/bui
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/cst-int-test_moby.int_8.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/cst-int-test_moby.int_8.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/cst-int-test_moby.int_8.dir/depend
 

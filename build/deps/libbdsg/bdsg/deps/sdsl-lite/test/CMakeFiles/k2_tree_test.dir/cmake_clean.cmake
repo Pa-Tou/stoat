@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/k2_tree_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/k2_tree_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/k2_tree_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/k2_tree_test.pdb"
   "CMakeFiles/k2_tree_test.dir/k2_tree_test.cpp.o"
   "CMakeFiles/k2_tree_test.dir/k2_tree_test.cpp.o.d"
 )

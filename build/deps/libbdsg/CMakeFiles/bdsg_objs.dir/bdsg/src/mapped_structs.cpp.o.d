@@ -1,7 +1,7 @@
 deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/src/mapped_structs.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/src/mapped_structs.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
  /usr/include/c++/12/cstdio \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -185,12 +185,12 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o: \
  /usr/include/c++/12/bits/chrono.h /usr/include/c++/12/ratio \
  /usr/include/c++/12/ctime /usr/include/c++/12/bits/parse_numbers.h \
  /usr/include/c++/12/bits/std_mutex.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
  /usr/include/c++/12/bitset \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
  /usr/include/c++/12/sstream /usr/include/c++/12/bits/sstream.tcc \
  /usr/include/c++/12/memory /usr/include/c++/12/bits/stl_tempbuf.h \
  /usr/include/c++/12/bits/stl_raw_storage_iter.h \
@@ -204,17 +204,17 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o: \
  /usr/include/c++/12/bits/atomic_base.h \
  /usr/include/c++/12/bits/atomic_lockfree_defines.h \
  /usr/include/c++/12/backward/auto_ptr.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
  /usr/include/c++/12/fstream /usr/include/c++/12/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/c++/12/mutex /usr/include/c++/12/bits/unique_lock.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/string.h /usr/include/strings.h \
  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
  /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
@@ -257,11 +257,11 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/unistd.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
  /usr/include/linux/close_range.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
  /usr/include/c++/12/utility /usr/include/c++/12/bits/stl_relops.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
  /usr/include/c++/12/cstring /usr/include/c++/12/set \
  /usr/include/c++/12/bits/stl_set.h \
  /usr/include/c++/12/bits/stl_multiset.h /usr/include/c++/12/cstddef \
@@ -281,9 +281,9 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
  /usr/include/x86_64-linux-gnu/bits/mman_ext.h \
  /usr/include/c++/12/iterator /usr/include/c++/12/bits/stream_iterator.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/statx.h /usr/include/linux/stat.h \
  /usr/include/linux/types.h /usr/include/x86_64-linux-gnu/asm/types.h \
@@ -297,7 +297,7 @@ deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio/include/mio/mmap.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio/include/mio/page.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio/include/mio/detail/mmap.ipp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio/include/mio/detail/string_util.hpp
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio/include/mio/mmap.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio/include/mio/page.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio/include/mio/detail/mmap.ipp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio/include/mio/detail/string_util.hpp

@@ -1,5 +1,5 @@
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: \
- /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_packed_graph.cpp \
+ /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_packed_graph.cpp \
  /usr/include/stdc-predef.h /usr/include/arpa/inet.h \
  /usr/include/features.h /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -54,7 +54,7 @@ CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
  /usr/include/x86_64-linux-gnu/bits/socket2.h \
  /usr/include/x86_64-linux-gnu/bits/in.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/registry.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/registry.hpp \
  /usr/include/c++/12/string \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -320,18 +320,18 @@ CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: \
  /usr/include/google/protobuf/any.pb.h \
  /usr/include/google/protobuf/source_context.pb.h \
  /usr/include/google/protobuf/stubs/status.h \
- /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_packed_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/packed_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/trivially_serializable.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/serializable.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/base_packed_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/util.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/strand_split_overlay.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp \
+ /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_packed_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/packed_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/trivially_serializable.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/serializable.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/base_packed_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/strand_split_overlay.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp \
  /usr/include/c++/12/sstream /usr/include/c++/12/bits/sstream.tcc \
  /usr/include/c++/12/iomanip /usr/include/c++/12/locale \
  /usr/include/c++/12/bits/locale_facets_nonio.h \
@@ -341,7 +341,7 @@ CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: \
  /usr/include/c++/12/bits/locale_facets_nonio.tcc \
  /usr/include/c++/12/bits/locale_conv.h \
  /usr/include/c++/12/bits/quoted_string.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/packed_structs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/packed_structs.hpp \
  /usr/include/c++/12/random /usr/include/c++/12/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
@@ -369,30 +369,30 @@ CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: \
  /usr/include/c++/12/bits/random.tcc /usr/include/c++/12/numeric \
  /usr/include/c++/12/bits/stl_numeric.h \
  /usr/include/c++/12/pstl/glue_numeric_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
  /usr/include/c++/12/bitset \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
  /usr/include/c++/12/fstream \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/c++/12/chrono /usr/include/x86_64-linux-gnu/sys/time.h \
  /usr/include/x86_64-linux-gnu/sys/resource.h \
  /usr/include/x86_64-linux-gnu/bits/resource.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_rusage.h \
  /usr/include/libgen.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
  /usr/include/c++/12/stack /usr/include/c++/12/deque \
  /usr/include/c++/12/bits/stl_deque.h /usr/include/c++/12/bits/deque.tcc \
  /usr/include/c++/12/bits/stl_stack.h /usr/include/fcntl.h \
@@ -407,29 +407,29 @@ CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/mman-linux.h \
  /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
  /usr/include/x86_64-linux-gnu/bits/mman_ext.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
  /usr/include/c++/12/shared_mutex \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/hash_map.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/wang_hash.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_stdint.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_config.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_traits.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_utils.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/eades_algorithm.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/is_single_stranded.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/hash_map.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/wang_hash.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_stdint.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_config.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_traits.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_utils.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/eades_algorithm.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/is_single_stranded.hpp \
  /usr/include/c++/12/list /usr/include/c++/12/bits/stl_list.h \
  /usr/include/c++/12/bits/list.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/graph_proxy.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_deletable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/graph_proxy.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_deletable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
  /usr/include/c++/12/regex /usr/include/c++/12/bits/regex_constants.h \
  /usr/include/c++/12/bits/regex_error.h \
  /usr/include/c++/12/bits/regex_automaton.h \
@@ -441,12 +441,12 @@ CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: \
  /usr/include/c++/12/bits/regex.h /usr/include/c++/12/bits/regex.tcc \
  /usr/include/c++/12/bits/regex_executor.h \
  /usr/include/c++/12/bits/regex_executor.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_metadata.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/deletable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/serializable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_handle_graph_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_path_handle_graph_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_mutable_path_deletable_handle_graph_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_serializable_handle_graph_fragment.classfragment
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/deletable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/serializable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_handle_graph_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_path_handle_graph_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_mutable_path_deletable_handle_graph_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_serializable_handle_graph_fragment.classfragment

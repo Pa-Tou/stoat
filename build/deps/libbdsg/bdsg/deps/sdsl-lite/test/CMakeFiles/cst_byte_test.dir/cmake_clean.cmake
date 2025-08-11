@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/cst_byte_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/cst_byte_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/cst_byte_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/cst_byte_test.pdb"
   "CMakeFiles/cst_byte_test.dir/cst_byte_test.cpp.o"
   "CMakeFiles/cst_byte_test.dir/cst_byte_test.cpp.o.d"
 )

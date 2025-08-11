@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/bin/test_libvgio"
-  "/home/mbagarre/Bureau/STOAT/bin/test_libvgio.pdb"
+  "/home/mbagarre/Bureau/stoat/bin/test_libvgio"
+  "/home/mbagarre/Bureau/stoat/bin/test_libvgio.pdb"
   "CMakeFiles/test_libvgio.dir/test.cpp.o"
   "CMakeFiles/test_libvgio.dir/test.cpp.o.d"
 )

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/depend.make
@@ -70,18 +70,18 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/flags.make
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o -MF CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o.d -o CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o -MF CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o.d -o CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp > CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp > CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp -o CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/lcp_construct_test.cpp -o CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.s
 
 # Object files for target lcp_construct_test
 lcp_construct_test_OBJECTS = \
@@ -90,25 +90,25 @@ lcp_construct_test_OBJECTS = \
 # External object files for target lcp_construct_test
 lcp_construct_test_EXTERNAL_OBJECTS =
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/build.make
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test: lib/libgtest.so.1.15.2
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so.3.0.1
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/lcp_construct_test.dir/link.txt --verbose=$(VERBOSE)
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/lcp_construct_test.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/build.make
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test: lib/libgtest.so.1.15.2
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so.3.0.1
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/lcp_construct_test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/build: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/lcp_construct_test
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/build: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/lcp_construct_test
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/lcp_construct_test.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/lcp_construct_test.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/lcp_construct_test.dir/depend
 

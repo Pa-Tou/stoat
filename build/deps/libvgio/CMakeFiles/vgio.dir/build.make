@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libvgio/CMakeFiles/vgio.dir/depend.make
@@ -69,10 +69,10 @@ include deps/libvgio/CMakeFiles/vgio.dir/progress.make
 # Include the compile flags for this target's objects.
 include deps/libvgio/CMakeFiles/vgio.dir/flags.make
 
-deps/libvgio/vg.pb.h: /home/mbagarre/Bureau/STOAT/deps/libvgio/deps/vg.proto
+deps/libvgio/vg.pb.h: /home/mbagarre/Bureau/stoat/deps/libvgio/deps/vg.proto
 deps/libvgio/vg.pb.h: /usr/bin/protoc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Running cpp protocol buffer compiler on deps/vg.proto"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/protoc --cpp_out /home/mbagarre/Bureau/STOAT/build/deps/libvgio -I /home/mbagarre/Bureau/STOAT/deps/libvgio/deps /home/mbagarre/Bureau/STOAT/deps/libvgio/deps/vg.proto
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Running cpp protocol buffer compiler on deps/vg.proto"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/protoc --cpp_out /home/mbagarre/Bureau/stoat/build/deps/libvgio -I /home/mbagarre/Bureau/stoat/deps/libvgio/deps /home/mbagarre/Bureau/stoat/deps/libvgio/deps/vg.proto
 
 deps/libvgio/vg.pb.cc: deps/libvgio/vg.pb.h
 	@$(CMAKE_COMMAND) -E touch_nocreate deps/libvgio/vg.pb.cc
@@ -80,212 +80,212 @@ deps/libvgio/vg.pb.cc: deps/libvgio/vg.pb.h
 deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
 deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o: deps/libvgio/vg.pb.cc
 deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o -MF CMakeFiles/vgio.dir/vg.pb.cc.o.d -o CMakeFiles/vgio.dir/vg.pb.cc.o -c /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o -MF CMakeFiles/vgio.dir/vg.pb.cc.o.d -o CMakeFiles/vgio.dir/vg.pb.cc.o -c /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.cc
 
 deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/vg.pb.cc.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.cc > CMakeFiles/vgio.dir/vg.pb.cc.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.cc > CMakeFiles/vgio.dir/vg.pb.cc.i
 
 deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/vg.pb.cc.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.cc -o CMakeFiles/vgio.dir/vg.pb.cc.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.cc -o CMakeFiles/vgio.dir/vg.pb.cc.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_emitter.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_emitter.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o -MF CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o.d -o CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_emitter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o -MF CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o.d -o CMakeFiles/vgio.dir/src/alignment_emitter.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_emitter.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/alignment_emitter.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_emitter.cpp > CMakeFiles/vgio.dir/src/alignment_emitter.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_emitter.cpp > CMakeFiles/vgio.dir/src/alignment_emitter.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_emitter.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/alignment_emitter.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_emitter.cpp -o CMakeFiles/vgio.dir/src/alignment_emitter.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_emitter.cpp -o CMakeFiles/vgio.dir/src/alignment_emitter.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_io.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_io.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o -MF CMakeFiles/vgio.dir/src/alignment_io.cpp.o.d -o CMakeFiles/vgio.dir/src/alignment_io.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_io.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.o -MF CMakeFiles/vgio.dir/src/alignment_io.cpp.o.d -o CMakeFiles/vgio.dir/src/alignment_io.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_io.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/alignment_io.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_io.cpp > CMakeFiles/vgio.dir/src/alignment_io.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_io.cpp > CMakeFiles/vgio.dir/src/alignment_io.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/alignment_io.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/alignment_io.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_io.cpp -o CMakeFiles/vgio.dir/src/alignment_io.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_io.cpp -o CMakeFiles/vgio.dir/src/alignment_io.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/basic_stream.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/basic_stream.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o -MF CMakeFiles/vgio.dir/src/basic_stream.cpp.o.d -o CMakeFiles/vgio.dir/src/basic_stream.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/basic_stream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o -MF CMakeFiles/vgio.dir/src/basic_stream.cpp.o.d -o CMakeFiles/vgio.dir/src/basic_stream.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/basic_stream.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/basic_stream.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/basic_stream.cpp > CMakeFiles/vgio.dir/src/basic_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/basic_stream.cpp > CMakeFiles/vgio.dir/src/basic_stream.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/basic_stream.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/basic_stream.cpp -o CMakeFiles/vgio.dir/src/basic_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/basic_stream.cpp -o CMakeFiles/vgio.dir/src/basic_stream.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_input_stream.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_input_stream.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o -MF CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o.d -o CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_input_stream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o -MF CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o.d -o CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_input_stream.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_input_stream.cpp > CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_input_stream.cpp > CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_input_stream.cpp -o CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_input_stream.cpp -o CMakeFiles/vgio.dir/src/blocked_gzip_input_stream.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_output_stream.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_output_stream.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o -MF CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o.d -o CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_output_stream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o -MF CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o.d -o CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_output_stream.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_output_stream.cpp > CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_output_stream.cpp > CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/blocked_gzip_output_stream.cpp -o CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/blocked_gzip_output_stream.cpp -o CMakeFiles/vgio.dir/src/blocked_gzip_output_stream.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/edit.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/edit.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o -MF CMakeFiles/vgio.dir/src/edit.cpp.o.d -o CMakeFiles/vgio.dir/src/edit.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/edit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o -MF CMakeFiles/vgio.dir/src/edit.cpp.o.d -o CMakeFiles/vgio.dir/src/edit.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/edit.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/edit.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/edit.cpp > CMakeFiles/vgio.dir/src/edit.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/edit.cpp > CMakeFiles/vgio.dir/src/edit.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/edit.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/edit.cpp -o CMakeFiles/vgio.dir/src/edit.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/edit.cpp -o CMakeFiles/vgio.dir/src/edit.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/hfile_cppstream.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/hfile_cppstream.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o -MF CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o.d -o CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/hfile_cppstream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o -MF CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o.d -o CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/hfile_cppstream.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/hfile_cppstream.cpp > CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/hfile_cppstream.cpp > CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/hfile_cppstream.cpp -o CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/hfile_cppstream.cpp -o CMakeFiles/vgio.dir/src/hfile_cppstream.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/json2pb.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/json2pb.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o -MF CMakeFiles/vgio.dir/src/json2pb.cpp.o.d -o CMakeFiles/vgio.dir/src/json2pb.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/json2pb.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.o -MF CMakeFiles/vgio.dir/src/json2pb.cpp.o.d -o CMakeFiles/vgio.dir/src/json2pb.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/json2pb.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/json2pb.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/json2pb.cpp > CMakeFiles/vgio.dir/src/json2pb.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/json2pb.cpp > CMakeFiles/vgio.dir/src/json2pb.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/json2pb.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/json2pb.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/json2pb.cpp -o CMakeFiles/vgio.dir/src/json2pb.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/json2pb.cpp -o CMakeFiles/vgio.dir/src/json2pb.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_emitter.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_emitter.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o -MF CMakeFiles/vgio.dir/src/message_emitter.cpp.o.d -o CMakeFiles/vgio.dir/src/message_emitter.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_emitter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.o -MF CMakeFiles/vgio.dir/src/message_emitter.cpp.o.d -o CMakeFiles/vgio.dir/src/message_emitter.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_emitter.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/message_emitter.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_emitter.cpp > CMakeFiles/vgio.dir/src/message_emitter.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_emitter.cpp > CMakeFiles/vgio.dir/src/message_emitter.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/message_emitter.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/message_emitter.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_emitter.cpp -o CMakeFiles/vgio.dir/src/message_emitter.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_emitter.cpp -o CMakeFiles/vgio.dir/src/message_emitter.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_iterator.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_iterator.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o -MF CMakeFiles/vgio.dir/src/message_iterator.cpp.o.d -o CMakeFiles/vgio.dir/src/message_iterator.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_iterator.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.o -MF CMakeFiles/vgio.dir/src/message_iterator.cpp.o.d -o CMakeFiles/vgio.dir/src/message_iterator.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_iterator.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/message_iterator.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_iterator.cpp > CMakeFiles/vgio.dir/src/message_iterator.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_iterator.cpp > CMakeFiles/vgio.dir/src/message_iterator.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/message_iterator.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/message_iterator.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_iterator.cpp -o CMakeFiles/vgio.dir/src/message_iterator.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_iterator.cpp -o CMakeFiles/vgio.dir/src/message_iterator.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/registry.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/registry.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o -MF CMakeFiles/vgio.dir/src/registry.cpp.o.d -o CMakeFiles/vgio.dir/src/registry.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/registry.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o -MF CMakeFiles/vgio.dir/src/registry.cpp.o.d -o CMakeFiles/vgio.dir/src/registry.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/registry.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/registry.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/registry.cpp > CMakeFiles/vgio.dir/src/registry.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/registry.cpp > CMakeFiles/vgio.dir/src/registry.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/registry.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/registry.cpp -o CMakeFiles/vgio.dir/src/registry.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/registry.cpp -o CMakeFiles/vgio.dir/src/registry.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o -MF CMakeFiles/vgio.dir/src/stream.cpp.o.d -o CMakeFiles/vgio.dir/src/stream.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.o -MF CMakeFiles/vgio.dir/src/stream.cpp.o.d -o CMakeFiles/vgio.dir/src/stream.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/stream.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream.cpp > CMakeFiles/vgio.dir/src/stream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream.cpp > CMakeFiles/vgio.dir/src/stream.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/stream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/stream.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream.cpp -o CMakeFiles/vgio.dir/src/stream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream.cpp -o CMakeFiles/vgio.dir/src/stream.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream_multiplexer.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream_multiplexer.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o -MF CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o.d -o CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream_multiplexer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o -MF CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o.d -o CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream_multiplexer.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream_multiplexer.cpp > CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream_multiplexer.cpp > CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream_multiplexer.cpp -o CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream_multiplexer.cpp -o CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.s
 
 deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/flags.make
-deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o: /home/mbagarre/Bureau/STOAT/deps/libvgio/src/vpkg.cpp
+deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o: /home/mbagarre/Bureau/stoat/deps/libvgio/src/vpkg.cpp
 deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o: deps/libvgio/CMakeFiles/vgio.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o -MF CMakeFiles/vgio.dir/src/vpkg.cpp.o.d -o CMakeFiles/vgio.dir/src/vpkg.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/libvgio/src/vpkg.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.o -MF CMakeFiles/vgio.dir/src/vpkg.cpp.o.d -o CMakeFiles/vgio.dir/src/vpkg.cpp.o -c /home/mbagarre/Bureau/stoat/deps/libvgio/src/vpkg.cpp
 
 deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vgio.dir/src/vpkg.cpp.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libvgio/src/vpkg.cpp > CMakeFiles/vgio.dir/src/vpkg.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libvgio/src/vpkg.cpp > CMakeFiles/vgio.dir/src/vpkg.cpp.i
 
 deps/libvgio/CMakeFiles/vgio.dir/src/vpkg.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vgio.dir/src/vpkg.cpp.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libvgio/src/vpkg.cpp -o CMakeFiles/vgio.dir/src/vpkg.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libvgio/src/vpkg.cpp -o CMakeFiles/vgio.dir/src/vpkg.cpp.s
 
 # Object files for target vgio
 vgio_OBJECTS = \
@@ -329,19 +329,19 @@ deps/libvgio/libvgio.so: deps/libhandlegraph/libhandlegraph.so
 deps/libvgio/libvgio.so: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
 deps/libvgio/libvgio.so: /usr/lib/x86_64-linux-gnu/libpthread.a
 deps/libvgio/libvgio.so: deps/libvgio/CMakeFiles/vgio.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX shared library libvgio.so"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/vgio.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX shared library libvgio.so"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/vgio.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 deps/libvgio/CMakeFiles/vgio.dir/build: deps/libvgio/libvgio.so
 .PHONY : deps/libvgio/CMakeFiles/vgio.dir/build
 
 deps/libvgio/CMakeFiles/vgio.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libvgio && $(CMAKE_COMMAND) -P CMakeFiles/vgio.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libvgio && $(CMAKE_COMMAND) -P CMakeFiles/vgio.dir/cmake_clean.cmake
 .PHONY : deps/libvgio/CMakeFiles/vgio.dir/clean
 
 deps/libvgio/CMakeFiles/vgio.dir/depend: deps/libvgio/vg.pb.cc
 deps/libvgio/CMakeFiles/vgio.dir/depend: deps/libvgio/vg.pb.h
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libvgio /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libvgio /home/mbagarre/Bureau/STOAT/build/deps/libvgio/CMakeFiles/vgio.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libvgio /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libvgio /home/mbagarre/Bureau/stoat/build/deps/libvgio/CMakeFiles/vgio.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libvgio/CMakeFiles/vgio.dir/depend
 

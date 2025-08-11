@@ -1,6 +1,6 @@
 CMakeFiles/stoat_objs.dir/src/log.cpp.o: \
- /home/mbagarre/Bureau/STOAT/src/log.cpp /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/src/log.hpp /usr/include/c++/12/iostream \
+ /home/mbagarre/Bureau/stoat/src/log.cpp /usr/include/stdc-predef.h \
+ /home/mbagarre/Bureau/stoat/src/log.hpp /usr/include/c++/12/iostream \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \

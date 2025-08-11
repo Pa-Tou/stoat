@@ -1,5 +1,5 @@
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/eades_algorithm.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/eades_algorithm.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/12/list \
  /usr/include/c++/12/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
@@ -53,9 +53,9 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: \
  /usr/include/c++/12/bits/stl_uninitialized.h \
  /usr/include/c++/12/bits/stl_deque.h /usr/include/c++/12/bits/refwrap.h \
  /usr/include/c++/12/bits/deque.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/eades_algorithm.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/eades_algorithm.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
@@ -68,7 +68,7 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: \
  /usr/include/c++/12/utility /usr/include/c++/12/bits/stl_relops.h \
  /usr/include/c++/12/functional /usr/include/c++/12/bits/std_function.h \
  /usr/include/c++/12/typeinfo /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
  /usr/include/c++/12/string /usr/include/c++/12/bits/stringfwd.h \
  /usr/include/c++/12/bits/char_traits.h \
  /usr/include/c++/12/bits/postypes.h /usr/include/c++/12/cwchar \
@@ -175,8 +175,8 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o: \
  /usr/include/c++/12/bits/stl_vector.h \
  /usr/include/c++/12/bits/stl_bvector.h \
  /usr/include/c++/12/bits/vector.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/is_single_stranded.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/apply_orientations.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/is_single_stranded.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/apply_orientations.hpp \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/bits/unordered_set.h

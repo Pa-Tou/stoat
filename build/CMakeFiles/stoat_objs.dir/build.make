@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/stoat_objs.dir/depend.make
@@ -70,312 +70,312 @@ include CMakeFiles/stoat_objs.dir/progress.make
 include CMakeFiles/stoat_objs.dir/flags.make
 
 CMakeFiles/stoat_objs.dir/src/utils.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/utils.cpp.o: /home/mbagarre/Bureau/STOAT/src/utils.cpp
+CMakeFiles/stoat_objs.dir/src/utils.cpp.o: /home/mbagarre/Bureau/stoat/src/utils.cpp
 CMakeFiles/stoat_objs.dir/src/utils.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/stoat_objs.dir/src/utils.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/utils.cpp.o -MF CMakeFiles/stoat_objs.dir/src/utils.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/utils.cpp.o -c /home/mbagarre/Bureau/STOAT/src/utils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/stoat_objs.dir/src/utils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/utils.cpp.o -MF CMakeFiles/stoat_objs.dir/src/utils.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/utils.cpp.o -c /home/mbagarre/Bureau/stoat/src/utils.cpp
 
 CMakeFiles/stoat_objs.dir/src/utils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/utils.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/utils.cpp > CMakeFiles/stoat_objs.dir/src/utils.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/utils.cpp > CMakeFiles/stoat_objs.dir/src/utils.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/utils.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/utils.cpp -o CMakeFiles/stoat_objs.dir/src/utils.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/utils.cpp -o CMakeFiles/stoat_objs.dir/src/utils.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o: /home/mbagarre/Bureau/STOAT/src/arg_parser.cpp
+CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o: /home/mbagarre/Bureau/stoat/src/arg_parser.cpp
 CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o -MF CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o -c /home/mbagarre/Bureau/STOAT/src/arg_parser.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o -MF CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o -c /home/mbagarre/Bureau/stoat/src/arg_parser.cpp
 
 CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/arg_parser.cpp > CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/arg_parser.cpp > CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/arg_parser.cpp -o CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/arg_parser.cpp -o CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o: /home/mbagarre/Bureau/STOAT/src/post_processing.cpp
+CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o: /home/mbagarre/Bureau/stoat/src/post_processing.cpp
 CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o -MF CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o -c /home/mbagarre/Bureau/STOAT/src/post_processing.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o -MF CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o -c /home/mbagarre/Bureau/stoat/src/post_processing.cpp
 
 CMakeFiles/stoat_objs.dir/src/post_processing.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/post_processing.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/post_processing.cpp > CMakeFiles/stoat_objs.dir/src/post_processing.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/post_processing.cpp > CMakeFiles/stoat_objs.dir/src/post_processing.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/post_processing.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/post_processing.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/post_processing.cpp -o CMakeFiles/stoat_objs.dir/src/post_processing.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/post_processing.cpp -o CMakeFiles/stoat_objs.dir/src/post_processing.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o: /home/mbagarre/Bureau/STOAT/src/gaf_creator.cpp
+CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o: /home/mbagarre/Bureau/stoat/src/gaf_creator.cpp
 CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o -MF CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o -c /home/mbagarre/Bureau/STOAT/src/gaf_creator.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o -MF CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o -c /home/mbagarre/Bureau/stoat/src/gaf_creator.cpp
 
 CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/gaf_creator.cpp > CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/gaf_creator.cpp > CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/gaf_creator.cpp -o CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/gaf_creator.cpp -o CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o: /home/mbagarre/Bureau/STOAT/src/snarl_data_t.cpp
+CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o: /home/mbagarre/Bureau/stoat/src/snarl_data_t.cpp
 CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o -MF CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o -c /home/mbagarre/Bureau/STOAT/src/snarl_data_t.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o -MF CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o -c /home/mbagarre/Bureau/stoat/src/snarl_data_t.cpp
 
 CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/snarl_data_t.cpp > CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/snarl_data_t.cpp > CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/snarl_data_t.cpp -o CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/snarl_data_t.cpp -o CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/matrix.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/matrix.cpp.o: /home/mbagarre/Bureau/STOAT/src/matrix.cpp
+CMakeFiles/stoat_objs.dir/src/matrix.cpp.o: /home/mbagarre/Bureau/stoat/src/matrix.cpp
 CMakeFiles/stoat_objs.dir/src/matrix.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/stoat_objs.dir/src/matrix.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/matrix.cpp.o -MF CMakeFiles/stoat_objs.dir/src/matrix.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/matrix.cpp.o -c /home/mbagarre/Bureau/STOAT/src/matrix.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/stoat_objs.dir/src/matrix.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/matrix.cpp.o -MF CMakeFiles/stoat_objs.dir/src/matrix.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/matrix.cpp.o -c /home/mbagarre/Bureau/stoat/src/matrix.cpp
 
 CMakeFiles/stoat_objs.dir/src/matrix.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/matrix.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/matrix.cpp > CMakeFiles/stoat_objs.dir/src/matrix.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/matrix.cpp > CMakeFiles/stoat_objs.dir/src/matrix.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/matrix.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/matrix.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/matrix.cpp -o CMakeFiles/stoat_objs.dir/src/matrix.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/matrix.cpp -o CMakeFiles/stoat_objs.dir/src/matrix.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/log.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/log.cpp.o: /home/mbagarre/Bureau/STOAT/src/log.cpp
+CMakeFiles/stoat_objs.dir/src/log.cpp.o: /home/mbagarre/Bureau/stoat/src/log.cpp
 CMakeFiles/stoat_objs.dir/src/log.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/stoat_objs.dir/src/log.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/log.cpp.o -MF CMakeFiles/stoat_objs.dir/src/log.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/log.cpp.o -c /home/mbagarre/Bureau/STOAT/src/log.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/stoat_objs.dir/src/log.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/log.cpp.o -MF CMakeFiles/stoat_objs.dir/src/log.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/log.cpp.o -c /home/mbagarre/Bureau/stoat/src/log.cpp
 
 CMakeFiles/stoat_objs.dir/src/log.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/log.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/log.cpp > CMakeFiles/stoat_objs.dir/src/log.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/log.cpp > CMakeFiles/stoat_objs.dir/src/log.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/log.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/log.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/log.cpp -o CMakeFiles/stoat_objs.dir/src/log.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/log.cpp -o CMakeFiles/stoat_objs.dir/src/log.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o: /home/mbagarre/Bureau/STOAT/src/binary_table.cpp
+CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o: /home/mbagarre/Bureau/stoat/src/binary_table.cpp
 CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o -MF CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o -c /home/mbagarre/Bureau/STOAT/src/binary_table.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o -MF CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o -c /home/mbagarre/Bureau/stoat/src/binary_table.cpp
 
 CMakeFiles/stoat_objs.dir/src/binary_table.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/binary_table.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/binary_table.cpp > CMakeFiles/stoat_objs.dir/src/binary_table.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/binary_table.cpp > CMakeFiles/stoat_objs.dir/src/binary_table.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/binary_table.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/binary_table.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/binary_table.cpp -o CMakeFiles/stoat_objs.dir/src/binary_table.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/binary_table.cpp -o CMakeFiles/stoat_objs.dir/src/binary_table.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o: /home/mbagarre/Bureau/STOAT/src/quantitative_table.cpp
+CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o: /home/mbagarre/Bureau/stoat/src/quantitative_table.cpp
 CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o -MF CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o -c /home/mbagarre/Bureau/STOAT/src/quantitative_table.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o -MF CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o -c /home/mbagarre/Bureau/stoat/src/quantitative_table.cpp
 
 CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/quantitative_table.cpp > CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/quantitative_table.cpp > CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/quantitative_table.cpp -o CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/quantitative_table.cpp -o CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o: /home/mbagarre/Bureau/STOAT/src/stats_test.cpp
+CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o: /home/mbagarre/Bureau/stoat/src/stats_test.cpp
 CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o -MF CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o -c /home/mbagarre/Bureau/STOAT/src/stats_test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o -MF CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o -c /home/mbagarre/Bureau/stoat/src/stats_test.cpp
 
 CMakeFiles/stoat_objs.dir/src/stats_test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/stats_test.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/stats_test.cpp > CMakeFiles/stoat_objs.dir/src/stats_test.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/stats_test.cpp > CMakeFiles/stoat_objs.dir/src/stats_test.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/stats_test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/stats_test.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/stats_test.cpp -o CMakeFiles/stoat_objs.dir/src/stats_test.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/stats_test.cpp -o CMakeFiles/stoat_objs.dir/src/stats_test.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/writer.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/writer.cpp.o: /home/mbagarre/Bureau/STOAT/src/writer.cpp
+CMakeFiles/stoat_objs.dir/src/writer.cpp.o: /home/mbagarre/Bureau/stoat/src/writer.cpp
 CMakeFiles/stoat_objs.dir/src/writer.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/stoat_objs.dir/src/writer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/writer.cpp.o -MF CMakeFiles/stoat_objs.dir/src/writer.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/writer.cpp.o -c /home/mbagarre/Bureau/STOAT/src/writer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/stoat_objs.dir/src/writer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/writer.cpp.o -MF CMakeFiles/stoat_objs.dir/src/writer.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/writer.cpp.o -c /home/mbagarre/Bureau/stoat/src/writer.cpp
 
 CMakeFiles/stoat_objs.dir/src/writer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/writer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/writer.cpp > CMakeFiles/stoat_objs.dir/src/writer.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/writer.cpp > CMakeFiles/stoat_objs.dir/src/writer.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/writer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/writer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/writer.cpp -o CMakeFiles/stoat_objs.dir/src/writer.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/writer.cpp -o CMakeFiles/stoat_objs.dir/src/writer.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o: /home/mbagarre/Bureau/STOAT/src/snarl_analyzer.cpp
+CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o: /home/mbagarre/Bureau/stoat/src/snarl_analyzer.cpp
 CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o -MF CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o -c /home/mbagarre/Bureau/STOAT/src/snarl_analyzer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o -MF CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o -c /home/mbagarre/Bureau/stoat/src/snarl_analyzer.cpp
 
 CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/snarl_analyzer.cpp > CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/snarl_analyzer.cpp > CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/snarl_analyzer.cpp -o CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/snarl_analyzer.cpp -o CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o: /home/mbagarre/Bureau/STOAT/src/graph_path_association_finder.cpp
+CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o: /home/mbagarre/Bureau/stoat/src/graph_path_association_finder.cpp
 CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o -MF CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o -c /home/mbagarre/Bureau/STOAT/src/graph_path_association_finder.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o -MF CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o -c /home/mbagarre/Bureau/stoat/src/graph_path_association_finder.cpp
 
 CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/graph_path_association_finder.cpp > CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/graph_path_association_finder.cpp > CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/graph_path_association_finder.cpp -o CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/graph_path_association_finder.cpp -o CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o: /home/mbagarre/Bureau/STOAT/src/partitioner.cpp
+CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o: /home/mbagarre/Bureau/stoat/src/partitioner.cpp
 CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o -MF CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o -c /home/mbagarre/Bureau/STOAT/src/partitioner.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o -MF CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o -c /home/mbagarre/Bureau/stoat/src/partitioner.cpp
 
 CMakeFiles/stoat_objs.dir/src/partitioner.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/partitioner.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/partitioner.cpp > CMakeFiles/stoat_objs.dir/src/partitioner.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/partitioner.cpp > CMakeFiles/stoat_objs.dir/src/partitioner.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/partitioner.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/partitioner.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/partitioner.cpp -o CMakeFiles/stoat_objs.dir/src/partitioner.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/partitioner.cpp -o CMakeFiles/stoat_objs.dir/src/partitioner.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o: /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbz.cpp
+CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o: /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbz.cpp
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o -c /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbz.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o -c /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbz.cpp
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbz.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbz.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbz.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbz.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o: /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbzgraph.cpp
+CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o: /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbzgraph.cpp
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o -c /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbzgraph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o -c /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbzgraph.cpp
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbzgraph.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbzgraph.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_gbzgraph.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_gbzgraph.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o: /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_hash_graph.cpp
+CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o: /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_hash_graph.cpp
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_hash_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o -c /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_hash_graph.cpp
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_hash_graph.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_hash_graph.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_hash_graph.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_hash_graph.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_packed_graph.cpp
+CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_packed_graph.cpp
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o -c /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_packed_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o -c /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_packed_graph.cpp
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_packed_graph.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_packed_graph.cpp > CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/io/register_loader_saver_packed_graph.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/io/register_loader_saver_packed_graph.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o: /home/mbagarre/Bureau/STOAT/src/io/register_io.cpp
+CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o: /home/mbagarre/Bureau/stoat/src/io/register_io.cpp
 CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o -c /home/mbagarre/Bureau/STOAT/src/io/register_io.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o -MF CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o -c /home/mbagarre/Bureau/stoat/src/io/register_io.cpp
 
 CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/io/register_io.cpp > CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/io/register_io.cpp > CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/io/register_io.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/io/register_io.cpp -o CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o: /home/mbagarre/Bureau/STOAT/src/subcommand/vcf.cpp
+CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o: /home/mbagarre/Bureau/stoat/src/subcommand/vcf.cpp
 CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o -MF CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o -c /home/mbagarre/Bureau/STOAT/src/subcommand/vcf.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o -MF CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o -c /home/mbagarre/Bureau/stoat/src/subcommand/vcf.cpp
 
 CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/subcommand/vcf.cpp > CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/subcommand/vcf.cpp > CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/subcommand/vcf.cpp -o CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/subcommand/vcf.cpp -o CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: /home/mbagarre/Bureau/STOAT/src/subcommand/graph.cpp
+CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: /home/mbagarre/Bureau/stoat/src/subcommand/graph.cpp
 CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o -c /home/mbagarre/Bureau/STOAT/src/subcommand/graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o -MF CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o -c /home/mbagarre/Bureau/stoat/src/subcommand/graph.cpp
 
 CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/subcommand/graph.cpp > CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/subcommand/graph.cpp > CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/subcommand/graph.cpp -o CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/subcommand/graph.cpp -o CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.s
 
 CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o: CMakeFiles/stoat_objs.dir/flags.make
-CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o: /home/mbagarre/Bureau/STOAT/src/subcommand/bh_correct.cpp
+CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o: /home/mbagarre/Bureau/stoat/src/subcommand/bh_correct.cpp
 CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o: CMakeFiles/stoat_objs.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o -MF CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o -c /home/mbagarre/Bureau/STOAT/src/subcommand/bh_correct.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o -MF CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o.d -o CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o -c /home/mbagarre/Bureau/stoat/src/subcommand/bh_correct.cpp
 
 CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/subcommand/bh_correct.cpp > CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/subcommand/bh_correct.cpp > CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.i
 
 CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/subcommand/bh_correct.cpp -o CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/subcommand/bh_correct.cpp -o CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.s
 
 stoat_objs: CMakeFiles/stoat_objs.dir/src/utils.cpp.o
 stoat_objs: CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o
@@ -411,6 +411,6 @@ CMakeFiles/stoat_objs.dir/clean:
 .PHONY : CMakeFiles/stoat_objs.dir/clean
 
 CMakeFiles/stoat_objs.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/stoat_objs.dir/depend
 

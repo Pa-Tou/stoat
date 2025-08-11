@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/depend.make
@@ -70,18 +70,18 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFil
 include deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/flags.make
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/flags.make
-deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc
+deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc
 deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o: deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o -MF CMakeFiles/gtest.dir/src/gtest-all.cc.o.d -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o -MF CMakeFiles/gtest.dir/src/gtest-all.cc.o.d -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gtest.dir/src/gtest-all.cc.i"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc > CMakeFiles/gtest.dir/src/gtest-all.cc.i
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc > CMakeFiles/gtest.dir/src/gtest-all.cc.i
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gtest.dir/src/gtest-all.cc.s"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc -o CMakeFiles/gtest.dir/src/gtest-all.cc.s
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/src/gtest-all.cc -o CMakeFiles/gtest.dir/src/gtest-all.cc.s
 
 # Object files for target gtest
 gtest_OBJECTS = \
@@ -93,9 +93,9 @@ gtest_EXTERNAL_OBJECTS =
 lib/libgtest.so.1.15.2: deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
 lib/libgtest.so.1.15.2: deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/build.make
 lib/libgtest.so.1.15.2: deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX shared library ../../../../../../../../lib/libgtest.so"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/gtest.dir/link.txt --verbose=$(VERBOSE)
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && $(CMAKE_COMMAND) -E cmake_symlink_library ../../../../../../../../lib/libgtest.so.1.15.2 ../../../../../../../../lib/libgtest.so.1.15.2 ../../../../../../../../lib/libgtest.so
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX shared library ../../../../../../../../lib/libgtest.so"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/gtest.dir/link.txt --verbose=$(VERBOSE)
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && $(CMAKE_COMMAND) -E cmake_symlink_library ../../../../../../../../lib/libgtest.so.1.15.2 ../../../../../../../../lib/libgtest.so.1.15.2 ../../../../../../../../lib/libgtest.so
 
 lib/libgtest.so: lib/libgtest.so.1.15.2
 	@$(CMAKE_COMMAND) -E touch_nocreate lib/libgtest.so
@@ -105,10 +105,10 @@ deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && $(CMAKE_COMMAND) -P CMakeFiles/gtest.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest && $(CMAKE_COMMAND) -P CMakeFiles/gtest.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/CMakeFiles/gtest.dir/depend
 

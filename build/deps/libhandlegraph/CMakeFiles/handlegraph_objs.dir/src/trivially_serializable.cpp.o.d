@@ -1,8 +1,8 @@
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/trivially_serializable.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/trivially_serializable.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/trivially_serializable.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/serializable.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/trivially_serializable.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/serializable.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

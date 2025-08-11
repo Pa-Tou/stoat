@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for NightlySubmit.
 
@@ -67,7 +67,7 @@ include deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/compiler_depend.
 include deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/progress.make
 
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio && /usr/bin/ctest -D NightlySubmit
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio && /usr/bin/ctest -D NightlySubmit
 
 NightlySubmit: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit
 NightlySubmit: deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/build.make
@@ -78,10 +78,10 @@ deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/build: NightlySubmit
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/build
 
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio && $(CMAKE_COMMAND) -P CMakeFiles/NightlySubmit.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio && $(CMAKE_COMMAND) -P CMakeFiles/NightlySubmit.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/clean
 
 deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/mio/CMakeFiles/NightlySubmit.dir/depend
 

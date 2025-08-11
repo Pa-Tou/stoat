@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.pdb"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so.3"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libdivsufsort.so.3.0.1"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so.3"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort.so.3.0.1"
   "CMakeFiles/divsufsort.dir/divsufsort.o"
   "CMakeFiles/divsufsort.dir/divsufsort.o.d"
   "CMakeFiles/divsufsort.dir/sssort.o"

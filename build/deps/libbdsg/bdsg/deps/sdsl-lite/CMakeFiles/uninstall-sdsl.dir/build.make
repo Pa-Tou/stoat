@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for uninstall-sdsl.
 
@@ -67,7 +67,7 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/compiler_
 include deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/progress.make
 
 deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite && /usr/bin/cmake -P /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/CMakeModules/cmake_uninstall.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite && /usr/bin/cmake -P /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/CMakeModules/cmake_uninstall.cmake
 
 uninstall-sdsl: deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl
 uninstall-sdsl: deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/build.make
@@ -78,10 +78,10 @@ deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/build: uninstall-
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite && $(CMAKE_COMMAND) -P CMakeFiles/uninstall-sdsl.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite && $(CMAKE_COMMAND) -P CMakeFiles/uninstall-sdsl.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/CMakeFiles/uninstall-sdsl.dir/depend
 

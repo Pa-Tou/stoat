@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for k2-1000000.52.r.421000000.57.r.231000000.45.r.81.
 
@@ -66,26 +66,26 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.4210000
 # Include the progress variables for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/progress.make
 
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating test case k2-1000000.52.r.421000000.57.r.231000000.45.r.81."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w 1000000 45 r 81
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating test case k2-1000000.52.r.421000000.57.r.231000000.45.r.81."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w 1000000 45 r 81
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating test case k2-1000000.52.r.421000000.57.r.231000000.45.r.81."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x 1000000 52 r 42
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating test case k2-1000000.52.r.421000000.57.r.231000000.45.r.81."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x 1000000 52 r 42
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating test case k2-1000000.52.r.421000000.57.r.231000000.45.r.81."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y 1000000 57 r 23
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating test case k2-1000000.52.r.421000000.57.r.231000000.45.r.81."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y 1000000 57 r 23
 
 k2-1000000.52.r.421000000.57.r.231000000.45.r.81: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81
-k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w
-k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x
-k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y
+k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.w
+k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.x
+k2-1000000.52.r.421000000.57.r.231000000.45.r.81: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.y
 k2-1000000.52.r.421000000.57.r.231000000.45.r.81: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/build.make
 .PHONY : k2-1000000.52.r.421000000.57.r.231000000.45.r.81
 
@@ -94,10 +94,10 @@ deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/k2-1000000.52.r.421000000.57.r.231000000.45.r.81.dir/depend
 

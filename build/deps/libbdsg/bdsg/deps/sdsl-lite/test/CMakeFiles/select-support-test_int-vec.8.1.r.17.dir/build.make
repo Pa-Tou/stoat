@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Utility rule file for select-support-test_int-vec.8.1.r.17.
 
@@ -66,18 +66,18 @@ include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int
 # Include the progress variables for this target.
 include deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/progress.make
 
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
-deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/select_support_test
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute select-support-test on int-vec.8.1.r.17."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/select_support_test /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17 /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/select_support_test_int-vec.8.1.r.17 /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
+deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/select_support_test
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Execute select-support-test on int-vec.8.1.r.17."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/select_support_test /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17 /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp/select_support_test_int-vec.8.1.r.17 /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/tmp
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating test case int-vec.8.1.r.17."
-	/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17 8 1 r 17
+/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17: /home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating test case int-vec.8.1.r.17."
+	/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/int_vector_generator /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17 8 1 r 17
 
 select-support-test_int-vec.8.1.r.17: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17
-select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17
+select-support-test_int-vec.8.1.r.17: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.8.1.r.17
 select-support-test_int-vec.8.1.r.17: deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/build.make
 .PHONY : select-support-test_int-vec.8.1.r.17
 
@@ -86,10 +86,10 @@ deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/build
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test && $(CMAKE_COMMAND) -P CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/clean
 
 deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/test/CMakeFiles/select-support-test_int-vec.8.1.r.17.dir/depend
 

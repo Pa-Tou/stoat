@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/STOAT/build/CPackSourceConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/stoat/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -162,14 +162,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib//CMakeFiles/progress.marks
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles /home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib//CMakeFiles/progress.marks
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/clean
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/clean
 .PHONY : clean
 
 # The main clean target
@@ -178,22 +178,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rule
 .PHONY : deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rule
 
 # Convenience name for target.
@@ -202,7 +202,7 @@ sdsl: deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rule
 
 # fast build rule for target.
 sdsl/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build
 .PHONY : sdsl/fast
 
 bits.o: bits.cpp.o
@@ -210,7 +210,7 @@ bits.o: bits.cpp.o
 
 # target to build an object file
 bits.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.o
 .PHONY : bits.cpp.o
 
 bits.i: bits.cpp.i
@@ -218,7 +218,7 @@ bits.i: bits.cpp.i
 
 # target to preprocess a source file
 bits.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.i
 .PHONY : bits.cpp.i
 
 bits.s: bits.cpp.s
@@ -226,7 +226,7 @@ bits.s: bits.cpp.s
 
 # target to generate assembly for a file
 bits.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bits.cpp.s
 .PHONY : bits.cpp.s
 
 bp_support_algorithm.o: bp_support_algorithm.cpp.o
@@ -234,7 +234,7 @@ bp_support_algorithm.o: bp_support_algorithm.cpp.o
 
 # target to build an object file
 bp_support_algorithm.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o
 .PHONY : bp_support_algorithm.cpp.o
 
 bp_support_algorithm.i: bp_support_algorithm.cpp.i
@@ -242,7 +242,7 @@ bp_support_algorithm.i: bp_support_algorithm.cpp.i
 
 # target to preprocess a source file
 bp_support_algorithm.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.i
 .PHONY : bp_support_algorithm.cpp.i
 
 bp_support_algorithm.s: bp_support_algorithm.cpp.s
@@ -250,7 +250,7 @@ bp_support_algorithm.s: bp_support_algorithm.cpp.s
 
 # target to generate assembly for a file
 bp_support_algorithm.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.s
 .PHONY : bp_support_algorithm.cpp.s
 
 coder_elias_delta.o: coder_elias_delta.cpp.o
@@ -258,7 +258,7 @@ coder_elias_delta.o: coder_elias_delta.cpp.o
 
 # target to build an object file
 coder_elias_delta.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.o
 .PHONY : coder_elias_delta.cpp.o
 
 coder_elias_delta.i: coder_elias_delta.cpp.i
@@ -266,7 +266,7 @@ coder_elias_delta.i: coder_elias_delta.cpp.i
 
 # target to preprocess a source file
 coder_elias_delta.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.i
 .PHONY : coder_elias_delta.cpp.i
 
 coder_elias_delta.s: coder_elias_delta.cpp.s
@@ -274,7 +274,7 @@ coder_elias_delta.s: coder_elias_delta.cpp.s
 
 # target to generate assembly for a file
 coder_elias_delta.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_delta.cpp.s
 .PHONY : coder_elias_delta.cpp.s
 
 coder_elias_gamma.o: coder_elias_gamma.cpp.o
@@ -282,7 +282,7 @@ coder_elias_gamma.o: coder_elias_gamma.cpp.o
 
 # target to build an object file
 coder_elias_gamma.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.o
 .PHONY : coder_elias_gamma.cpp.o
 
 coder_elias_gamma.i: coder_elias_gamma.cpp.i
@@ -290,7 +290,7 @@ coder_elias_gamma.i: coder_elias_gamma.cpp.i
 
 # target to preprocess a source file
 coder_elias_gamma.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.i
 .PHONY : coder_elias_gamma.cpp.i
 
 coder_elias_gamma.s: coder_elias_gamma.cpp.s
@@ -298,7 +298,7 @@ coder_elias_gamma.s: coder_elias_gamma.cpp.s
 
 # target to generate assembly for a file
 coder_elias_gamma.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_elias_gamma.cpp.s
 .PHONY : coder_elias_gamma.cpp.s
 
 coder_fibonacci.o: coder_fibonacci.cpp.o
@@ -306,7 +306,7 @@ coder_fibonacci.o: coder_fibonacci.cpp.o
 
 # target to build an object file
 coder_fibonacci.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.o
 .PHONY : coder_fibonacci.cpp.o
 
 coder_fibonacci.i: coder_fibonacci.cpp.i
@@ -314,7 +314,7 @@ coder_fibonacci.i: coder_fibonacci.cpp.i
 
 # target to preprocess a source file
 coder_fibonacci.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.i
 .PHONY : coder_fibonacci.cpp.i
 
 coder_fibonacci.s: coder_fibonacci.cpp.s
@@ -322,7 +322,7 @@ coder_fibonacci.s: coder_fibonacci.cpp.s
 
 # target to generate assembly for a file
 coder_fibonacci.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/coder_fibonacci.cpp.s
 .PHONY : coder_fibonacci.cpp.s
 
 config.o: config.cpp.o
@@ -330,7 +330,7 @@ config.o: config.cpp.o
 
 # target to build an object file
 config.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.o
 .PHONY : config.cpp.o
 
 config.i: config.cpp.i
@@ -338,7 +338,7 @@ config.i: config.cpp.i
 
 # target to preprocess a source file
 config.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.i
 .PHONY : config.cpp.i
 
 config.s: config.cpp.s
@@ -346,7 +346,7 @@ config.s: config.cpp.s
 
 # target to generate assembly for a file
 config.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/config.cpp.s
 .PHONY : config.cpp.s
 
 construct_config.o: construct_config.cpp.o
@@ -354,7 +354,7 @@ construct_config.o: construct_config.cpp.o
 
 # target to build an object file
 construct_config.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.o
 .PHONY : construct_config.cpp.o
 
 construct_config.i: construct_config.cpp.i
@@ -362,7 +362,7 @@ construct_config.i: construct_config.cpp.i
 
 # target to preprocess a source file
 construct_config.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.i
 .PHONY : construct_config.cpp.i
 
 construct_config.s: construct_config.cpp.s
@@ -370,7 +370,7 @@ construct_config.s: construct_config.cpp.s
 
 # target to generate assembly for a file
 construct_config.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_config.cpp.s
 .PHONY : construct_config.cpp.s
 
 construct_isa.o: construct_isa.cpp.o
@@ -378,7 +378,7 @@ construct_isa.o: construct_isa.cpp.o
 
 # target to build an object file
 construct_isa.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.o
 .PHONY : construct_isa.cpp.o
 
 construct_isa.i: construct_isa.cpp.i
@@ -386,7 +386,7 @@ construct_isa.i: construct_isa.cpp.i
 
 # target to preprocess a source file
 construct_isa.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.i
 .PHONY : construct_isa.cpp.i
 
 construct_isa.s: construct_isa.cpp.s
@@ -394,7 +394,7 @@ construct_isa.s: construct_isa.cpp.s
 
 # target to generate assembly for a file
 construct_isa.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_isa.cpp.s
 .PHONY : construct_isa.cpp.s
 
 construct_lcp.o: construct_lcp.cpp.o
@@ -402,7 +402,7 @@ construct_lcp.o: construct_lcp.cpp.o
 
 # target to build an object file
 construct_lcp.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.o
 .PHONY : construct_lcp.cpp.o
 
 construct_lcp.i: construct_lcp.cpp.i
@@ -410,7 +410,7 @@ construct_lcp.i: construct_lcp.cpp.i
 
 # target to preprocess a source file
 construct_lcp.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.i
 .PHONY : construct_lcp.cpp.i
 
 construct_lcp.s: construct_lcp.cpp.s
@@ -418,7 +418,7 @@ construct_lcp.s: construct_lcp.cpp.s
 
 # target to generate assembly for a file
 construct_lcp.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp.cpp.s
 .PHONY : construct_lcp.cpp.s
 
 construct_lcp_helper.o: construct_lcp_helper.cpp.o
@@ -426,7 +426,7 @@ construct_lcp_helper.o: construct_lcp_helper.cpp.o
 
 # target to build an object file
 construct_lcp_helper.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.o
 .PHONY : construct_lcp_helper.cpp.o
 
 construct_lcp_helper.i: construct_lcp_helper.cpp.i
@@ -434,7 +434,7 @@ construct_lcp_helper.i: construct_lcp_helper.cpp.i
 
 # target to preprocess a source file
 construct_lcp_helper.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.i
 .PHONY : construct_lcp_helper.cpp.i
 
 construct_lcp_helper.s: construct_lcp_helper.cpp.s
@@ -442,7 +442,7 @@ construct_lcp_helper.s: construct_lcp_helper.cpp.s
 
 # target to generate assembly for a file
 construct_lcp_helper.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_lcp_helper.cpp.s
 .PHONY : construct_lcp_helper.cpp.s
 
 construct_sa.o: construct_sa.cpp.o
@@ -450,7 +450,7 @@ construct_sa.o: construct_sa.cpp.o
 
 # target to build an object file
 construct_sa.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.o
 .PHONY : construct_sa.cpp.o
 
 construct_sa.i: construct_sa.cpp.i
@@ -458,7 +458,7 @@ construct_sa.i: construct_sa.cpp.i
 
 # target to preprocess a source file
 construct_sa.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.i
 .PHONY : construct_sa.cpp.i
 
 construct_sa.s: construct_sa.cpp.s
@@ -466,7 +466,7 @@ construct_sa.s: construct_sa.cpp.s
 
 # target to generate assembly for a file
 construct_sa.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa.cpp.s
 .PHONY : construct_sa.cpp.s
 
 construct_sa_se.o: construct_sa_se.cpp.o
@@ -474,7 +474,7 @@ construct_sa_se.o: construct_sa_se.cpp.o
 
 # target to build an object file
 construct_sa_se.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.o
 .PHONY : construct_sa_se.cpp.o
 
 construct_sa_se.i: construct_sa_se.cpp.i
@@ -482,7 +482,7 @@ construct_sa_se.i: construct_sa_se.cpp.i
 
 # target to preprocess a source file
 construct_sa_se.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.i
 .PHONY : construct_sa_se.cpp.i
 
 construct_sa_se.s: construct_sa_se.cpp.s
@@ -490,7 +490,7 @@ construct_sa_se.s: construct_sa_se.cpp.s
 
 # target to generate assembly for a file
 construct_sa_se.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/construct_sa_se.cpp.s
 .PHONY : construct_sa_se.cpp.s
 
 csa_alphabet_strategy.o: csa_alphabet_strategy.cpp.o
@@ -498,7 +498,7 @@ csa_alphabet_strategy.o: csa_alphabet_strategy.cpp.o
 
 # target to build an object file
 csa_alphabet_strategy.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.o
 .PHONY : csa_alphabet_strategy.cpp.o
 
 csa_alphabet_strategy.i: csa_alphabet_strategy.cpp.i
@@ -506,7 +506,7 @@ csa_alphabet_strategy.i: csa_alphabet_strategy.cpp.i
 
 # target to preprocess a source file
 csa_alphabet_strategy.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.i
 .PHONY : csa_alphabet_strategy.cpp.i
 
 csa_alphabet_strategy.s: csa_alphabet_strategy.cpp.s
@@ -514,7 +514,7 @@ csa_alphabet_strategy.s: csa_alphabet_strategy.cpp.s
 
 # target to generate assembly for a file
 csa_alphabet_strategy.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/csa_alphabet_strategy.cpp.s
 .PHONY : csa_alphabet_strategy.cpp.s
 
 io.o: io.cpp.o
@@ -522,7 +522,7 @@ io.o: io.cpp.o
 
 # target to build an object file
 io.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.o
 .PHONY : io.cpp.o
 
 io.i: io.cpp.i
@@ -530,7 +530,7 @@ io.i: io.cpp.i
 
 # target to preprocess a source file
 io.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.i
 .PHONY : io.cpp.i
 
 io.s: io.cpp.s
@@ -538,7 +538,7 @@ io.s: io.cpp.s
 
 # target to generate assembly for a file
 io.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/io.cpp.s
 .PHONY : io.cpp.s
 
 lcp_support_tree.o: lcp_support_tree.cpp.o
@@ -546,7 +546,7 @@ lcp_support_tree.o: lcp_support_tree.cpp.o
 
 # target to build an object file
 lcp_support_tree.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.o
 .PHONY : lcp_support_tree.cpp.o
 
 lcp_support_tree.i: lcp_support_tree.cpp.i
@@ -554,7 +554,7 @@ lcp_support_tree.i: lcp_support_tree.cpp.i
 
 # target to preprocess a source file
 lcp_support_tree.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.i
 .PHONY : lcp_support_tree.cpp.i
 
 lcp_support_tree.s: lcp_support_tree.cpp.s
@@ -562,7 +562,7 @@ lcp_support_tree.s: lcp_support_tree.cpp.s
 
 # target to generate assembly for a file
 lcp_support_tree.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/lcp_support_tree.cpp.s
 .PHONY : lcp_support_tree.cpp.s
 
 louds_tree.o: louds_tree.cpp.o
@@ -570,7 +570,7 @@ louds_tree.o: louds_tree.cpp.o
 
 # target to build an object file
 louds_tree.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.o
 .PHONY : louds_tree.cpp.o
 
 louds_tree.i: louds_tree.cpp.i
@@ -578,7 +578,7 @@ louds_tree.i: louds_tree.cpp.i
 
 # target to preprocess a source file
 louds_tree.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.i
 .PHONY : louds_tree.cpp.i
 
 louds_tree.s: louds_tree.cpp.s
@@ -586,7 +586,7 @@ louds_tree.s: louds_tree.cpp.s
 
 # target to generate assembly for a file
 louds_tree.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/louds_tree.cpp.s
 .PHONY : louds_tree.cpp.s
 
 memory_management.o: memory_management.cpp.o
@@ -594,7 +594,7 @@ memory_management.o: memory_management.cpp.o
 
 # target to build an object file
 memory_management.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.o
 .PHONY : memory_management.cpp.o
 
 memory_management.i: memory_management.cpp.i
@@ -602,7 +602,7 @@ memory_management.i: memory_management.cpp.i
 
 # target to preprocess a source file
 memory_management.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.i
 .PHONY : memory_management.cpp.i
 
 memory_management.s: memory_management.cpp.s
@@ -610,7 +610,7 @@ memory_management.s: memory_management.cpp.s
 
 # target to generate assembly for a file
 memory_management.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/memory_management.cpp.s
 .PHONY : memory_management.cpp.s
 
 nn_dict_dynamic.o: nn_dict_dynamic.cpp.o
@@ -618,7 +618,7 @@ nn_dict_dynamic.o: nn_dict_dynamic.cpp.o
 
 # target to build an object file
 nn_dict_dynamic.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.o
 .PHONY : nn_dict_dynamic.cpp.o
 
 nn_dict_dynamic.i: nn_dict_dynamic.cpp.i
@@ -626,7 +626,7 @@ nn_dict_dynamic.i: nn_dict_dynamic.cpp.i
 
 # target to preprocess a source file
 nn_dict_dynamic.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.i
 .PHONY : nn_dict_dynamic.cpp.i
 
 nn_dict_dynamic.s: nn_dict_dynamic.cpp.s
@@ -634,7 +634,7 @@ nn_dict_dynamic.s: nn_dict_dynamic.cpp.s
 
 # target to generate assembly for a file
 nn_dict_dynamic.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/nn_dict_dynamic.cpp.s
 .PHONY : nn_dict_dynamic.cpp.s
 
 ram_filebuf.o: ram_filebuf.cpp.o
@@ -642,7 +642,7 @@ ram_filebuf.o: ram_filebuf.cpp.o
 
 # target to build an object file
 ram_filebuf.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.o
 .PHONY : ram_filebuf.cpp.o
 
 ram_filebuf.i: ram_filebuf.cpp.i
@@ -650,7 +650,7 @@ ram_filebuf.i: ram_filebuf.cpp.i
 
 # target to preprocess a source file
 ram_filebuf.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.i
 .PHONY : ram_filebuf.cpp.i
 
 ram_filebuf.s: ram_filebuf.cpp.s
@@ -658,7 +658,7 @@ ram_filebuf.s: ram_filebuf.cpp.s
 
 # target to generate assembly for a file
 ram_filebuf.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_filebuf.cpp.s
 .PHONY : ram_filebuf.cpp.s
 
 ram_fs.o: ram_fs.cpp.o
@@ -666,7 +666,7 @@ ram_fs.o: ram_fs.cpp.o
 
 # target to build an object file
 ram_fs.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.o
 .PHONY : ram_fs.cpp.o
 
 ram_fs.i: ram_fs.cpp.i
@@ -674,7 +674,7 @@ ram_fs.i: ram_fs.cpp.i
 
 # target to preprocess a source file
 ram_fs.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.i
 .PHONY : ram_fs.cpp.i
 
 ram_fs.s: ram_fs.cpp.s
@@ -682,7 +682,7 @@ ram_fs.s: ram_fs.cpp.s
 
 # target to generate assembly for a file
 ram_fs.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/ram_fs.cpp.s
 .PHONY : ram_fs.cpp.s
 
 rrr_vector_15.o: rrr_vector_15.cpp.o
@@ -690,7 +690,7 @@ rrr_vector_15.o: rrr_vector_15.cpp.o
 
 # target to build an object file
 rrr_vector_15.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.o
 .PHONY : rrr_vector_15.cpp.o
 
 rrr_vector_15.i: rrr_vector_15.cpp.i
@@ -698,7 +698,7 @@ rrr_vector_15.i: rrr_vector_15.cpp.i
 
 # target to preprocess a source file
 rrr_vector_15.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.i
 .PHONY : rrr_vector_15.cpp.i
 
 rrr_vector_15.s: rrr_vector_15.cpp.s
@@ -706,7 +706,7 @@ rrr_vector_15.s: rrr_vector_15.cpp.s
 
 # target to generate assembly for a file
 rrr_vector_15.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/rrr_vector_15.cpp.s
 .PHONY : rrr_vector_15.cpp.s
 
 sd_vector.o: sd_vector.cpp.o
@@ -714,7 +714,7 @@ sd_vector.o: sd_vector.cpp.o
 
 # target to build an object file
 sd_vector.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.o
 .PHONY : sd_vector.cpp.o
 
 sd_vector.i: sd_vector.cpp.i
@@ -722,7 +722,7 @@ sd_vector.i: sd_vector.cpp.i
 
 # target to preprocess a source file
 sd_vector.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.i
 .PHONY : sd_vector.cpp.i
 
 sd_vector.s: sd_vector.cpp.s
@@ -730,7 +730,7 @@ sd_vector.s: sd_vector.cpp.s
 
 # target to generate assembly for a file
 sd_vector.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sd_vector.cpp.s
 .PHONY : sd_vector.cpp.s
 
 sfstream.o: sfstream.cpp.o
@@ -738,7 +738,7 @@ sfstream.o: sfstream.cpp.o
 
 # target to build an object file
 sfstream.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.o
 .PHONY : sfstream.cpp.o
 
 sfstream.i: sfstream.cpp.i
@@ -746,7 +746,7 @@ sfstream.i: sfstream.cpp.i
 
 # target to preprocess a source file
 sfstream.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.i
 .PHONY : sfstream.cpp.i
 
 sfstream.s: sfstream.cpp.s
@@ -754,7 +754,7 @@ sfstream.s: sfstream.cpp.s
 
 # target to generate assembly for a file
 sfstream.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/sfstream.cpp.s
 .PHONY : sfstream.cpp.s
 
 simple_sds.o: simple_sds.cpp.o
@@ -762,7 +762,7 @@ simple_sds.o: simple_sds.cpp.o
 
 # target to build an object file
 simple_sds.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.o
 .PHONY : simple_sds.cpp.o
 
 simple_sds.i: simple_sds.cpp.i
@@ -770,7 +770,7 @@ simple_sds.i: simple_sds.cpp.i
 
 # target to preprocess a source file
 simple_sds.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.i
 .PHONY : simple_sds.cpp.i
 
 simple_sds.s: simple_sds.cpp.s
@@ -778,7 +778,7 @@ simple_sds.s: simple_sds.cpp.s
 
 # target to generate assembly for a file
 simple_sds.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/simple_sds.cpp.s
 .PHONY : simple_sds.cpp.s
 
 structure_tree.o: structure_tree.cpp.o
@@ -786,7 +786,7 @@ structure_tree.o: structure_tree.cpp.o
 
 # target to build an object file
 structure_tree.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.o
 .PHONY : structure_tree.cpp.o
 
 structure_tree.i: structure_tree.cpp.i
@@ -794,7 +794,7 @@ structure_tree.i: structure_tree.cpp.i
 
 # target to preprocess a source file
 structure_tree.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.i
 .PHONY : structure_tree.cpp.i
 
 structure_tree.s: structure_tree.cpp.s
@@ -802,7 +802,7 @@ structure_tree.s: structure_tree.cpp.s
 
 # target to generate assembly for a file
 structure_tree.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/structure_tree.cpp.s
 .PHONY : structure_tree.cpp.s
 
 uint128_t.o: uint128_t.cpp.o
@@ -810,7 +810,7 @@ uint128_t.o: uint128_t.cpp.o
 
 # target to build an object file
 uint128_t.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.o
 .PHONY : uint128_t.cpp.o
 
 uint128_t.i: uint128_t.cpp.i
@@ -818,7 +818,7 @@ uint128_t.i: uint128_t.cpp.i
 
 # target to preprocess a source file
 uint128_t.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.i
 .PHONY : uint128_t.cpp.i
 
 uint128_t.s: uint128_t.cpp.s
@@ -826,7 +826,7 @@ uint128_t.s: uint128_t.cpp.s
 
 # target to generate assembly for a file
 uint128_t.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint128_t.cpp.s
 .PHONY : uint128_t.cpp.s
 
 uint256_t.o: uint256_t.cpp.o
@@ -834,7 +834,7 @@ uint256_t.o: uint256_t.cpp.o
 
 # target to build an object file
 uint256_t.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.o
 .PHONY : uint256_t.cpp.o
 
 uint256_t.i: uint256_t.cpp.i
@@ -842,7 +842,7 @@ uint256_t.i: uint256_t.cpp.i
 
 # target to preprocess a source file
 uint256_t.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.i
 .PHONY : uint256_t.cpp.i
 
 uint256_t.s: uint256_t.cpp.s
@@ -850,7 +850,7 @@ uint256_t.s: uint256_t.cpp.s
 
 # target to generate assembly for a file
 uint256_t.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/uint256_t.cpp.s
 .PHONY : uint256_t.cpp.s
 
 util.o: util.cpp.o
@@ -858,7 +858,7 @@ util.o: util.cpp.o
 
 # target to build an object file
 util.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.o
 .PHONY : util.cpp.o
 
 util.i: util.cpp.i
@@ -866,7 +866,7 @@ util.i: util.cpp.i
 
 # target to preprocess a source file
 util.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.i
 .PHONY : util.cpp.i
 
 util.s: util.cpp.s
@@ -874,7 +874,7 @@ util.s: util.cpp.s
 
 # target to generate assembly for a file
 util.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/util.cpp.s
 .PHONY : util.cpp.s
 
 wt_helper.o: wt_helper.cpp.o
@@ -882,7 +882,7 @@ wt_helper.o: wt_helper.cpp.o
 
 # target to build an object file
 wt_helper.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.o
 .PHONY : wt_helper.cpp.o
 
 wt_helper.i: wt_helper.cpp.i
@@ -890,7 +890,7 @@ wt_helper.i: wt_helper.cpp.i
 
 # target to preprocess a source file
 wt_helper.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.i
 .PHONY : wt_helper.cpp.i
 
 wt_helper.s: wt_helper.cpp.s
@@ -898,7 +898,7 @@ wt_helper.s: wt_helper.cpp.s
 
 # target to generate assembly for a file
 wt_helper.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/build.make deps/libbdsg/bdsg/deps/sdsl-lite/lib/CMakeFiles/sdsl.dir/wt_helper.cpp.s
 .PHONY : wt_helper.cpp.s
 
 # Help Target
@@ -1015,6 +1015,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

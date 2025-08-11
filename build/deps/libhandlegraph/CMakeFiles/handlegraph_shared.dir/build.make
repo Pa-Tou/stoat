@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/depend.make
@@ -74,40 +74,40 @@ handlegraph_shared_OBJECTS =
 
 # External object files for target handlegraph_shared
 handlegraph_shared_EXTERNAL_OBJECTS = \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o"
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dfs.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_metadata.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_metadata.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/path_position_handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/ranked_handle_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/serializable.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/snarl_decomposition.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/trivially_serializable.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/copy_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/append_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/are_equivalent.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_tips.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/topological_sort.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/apply_orientations.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_single_stranded.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/count_walks.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/eades_algorithm.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dagify.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/strongly_connected_components.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/dijkstra.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/is_acyclic.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/reverse_complement.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/split_strands.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/chop.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/weakly_connected_components.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o"
 
 deps/libhandlegraph/libhandlegraph.so: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/deletable_handle_graph.cpp.o
 deps/libhandlegraph/libhandlegraph.so: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/mutable_path_deletable_handle_graph.cpp.o
@@ -145,18 +145,18 @@ deps/libhandlegraph/libhandlegraph.so: deps/libhandlegraph/CMakeFiles/handlegrap
 deps/libhandlegraph/libhandlegraph.so: deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/extend.cpp.o
 deps/libhandlegraph/libhandlegraph.so: deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/build.make
 deps/libhandlegraph/libhandlegraph.so: deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Linking CXX shared library libhandlegraph.so"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/handlegraph_shared.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Linking CXX shared library libhandlegraph.so"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/handlegraph_shared.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/build: deps/libhandlegraph/libhandlegraph.so
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/build
 
 deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph && $(CMAKE_COMMAND) -P CMakeFiles/handlegraph_shared.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph && $(CMAKE_COMMAND) -P CMakeFiles/handlegraph_shared.dir/cmake_clean.cmake
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/clean
 
 deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libhandlegraph /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph /home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libhandlegraph /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph /home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libhandlegraph/CMakeFiles/handlegraph_shared.dir/depend
 

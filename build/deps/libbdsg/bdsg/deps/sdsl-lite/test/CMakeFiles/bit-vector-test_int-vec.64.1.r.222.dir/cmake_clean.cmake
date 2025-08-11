@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.64.1.r.222"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/test/test_cases/int-vec.64.1.r.222"
   "CMakeFiles/bit-vector-test_int-vec.64.1.r.222"
 )
 

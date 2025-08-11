@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -Dgbwt_EXPORTS
 
-CXX_INCLUDES = -I/home/mbagarre/Bureau/STOAT/deps/eigen -I/home/mbagarre/Bureau/STOAT/deps/gbwt/include -I/home/mbagarre/Bureau/STOAT/deps/Catch2/single_include/catch2 -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include
+CXX_INCLUDES = -I/home/mbagarre/Bureau/stoat/deps/eigen -I/home/mbagarre/Bureau/stoat/deps/gbwt/include -I/home/mbagarre/Bureau/stoat/deps/Catch2/single_include/catch2 -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include
 
 CXX_FLAGS =  -O3 -fPIC -fopenmp -std=c++17
 

@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/nn_dict_dynamic_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/nn_dict_dynamic_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/nn_dict_dynamic_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/nn_dict_dynamic_test.pdb"
   "CMakeFiles/nn_dict_dynamic_test.dir/nn_dict_dynamic_test.cpp.o"
   "CMakeFiles/nn_dict_dynamic_test.dir/nn_dict_dynamic_test.cpp.o.d"
 )

@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/replace_int_vector_value.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/replace_int_vector_value.pdb"
   "CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o"
   "CMakeFiles/replace_int_vector_value.dir/replace_int_vector_value.cpp.o.d"
 )

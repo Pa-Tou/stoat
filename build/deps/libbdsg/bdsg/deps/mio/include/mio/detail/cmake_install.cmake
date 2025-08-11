@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio/include/mio/detail
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio/include/mio/detail
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

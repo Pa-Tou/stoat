@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/registry.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/registry.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/registry.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/registry.hpp \
  /usr/include/c++/12/string \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -302,8 +302,8 @@ deps/libvgio/CMakeFiles/vgio.dir/src/registry.cpp.o: \
  /usr/include/google/protobuf/any.pb.h \
  /usr/include/google/protobuf/source_context.pb.h \
  /usr/include/google/protobuf/stubs/status.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/fdstream.hpp \
- /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg/vg.pb.h \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/fdstream.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg/vg.pb.h \
  /usr/include/google/protobuf/struct.pb.h \
  /usr/include/google/protobuf/map_entry.h \
  /usr/include/google/protobuf/reflection_ops.h \

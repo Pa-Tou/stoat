@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.pdb"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so"
 )
 
 # Per-language clean rules from dependency scanning.

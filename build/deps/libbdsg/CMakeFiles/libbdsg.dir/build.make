@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include deps/libbdsg/CMakeFiles/libbdsg.dir/depend.make
@@ -74,56 +74,56 @@ libbdsg_OBJECTS =
 
 # External object files for target libbdsg
 libbdsg_EXTERNAL_OBJECTS = \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.o"
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.o"
 
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.o
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/libbdsg.dir/build.make
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libhandlegraph/libhandlegraph.so
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: /usr/lib/x86_64-linux-gnu/libjansson.so
-/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/libbdsg.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Linking CXX shared library /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so"
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/libbdsg.dir/link.txt --verbose=$(VERBOSE)
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.o
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/libbdsg.dir/build.make
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libhandlegraph/libhandlegraph.so
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: /usr/lib/x86_64-linux-gnu/libjansson.so
+/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so: deps/libbdsg/CMakeFiles/libbdsg.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Linking CXX shared library /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so"
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/libbdsg.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-deps/libbdsg/CMakeFiles/libbdsg.dir/build: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so
+deps/libbdsg/CMakeFiles/libbdsg.dir/build: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so
 .PHONY : deps/libbdsg/CMakeFiles/libbdsg.dir/build
 
 deps/libbdsg/CMakeFiles/libbdsg.dir/clean:
-	cd /home/mbagarre/Bureau/STOAT/build/deps/libbdsg && $(CMAKE_COMMAND) -P CMakeFiles/libbdsg.dir/cmake_clean.cmake
+	cd /home/mbagarre/Bureau/stoat/build/deps/libbdsg && $(CMAKE_COMMAND) -P CMakeFiles/libbdsg.dir/cmake_clean.cmake
 .PHONY : deps/libbdsg/CMakeFiles/libbdsg.dir/clean
 
 deps/libbdsg/CMakeFiles/libbdsg.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/deps/libbdsg /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/deps/libbdsg /home/mbagarre/Bureau/STOAT/build/deps/libbdsg/CMakeFiles/libbdsg.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/deps/libbdsg /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/deps/libbdsg /home/mbagarre/Bureau/stoat/build/deps/libbdsg/CMakeFiles/libbdsg.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/libbdsg/CMakeFiles/libbdsg.dir/depend
 

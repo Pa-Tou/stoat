@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/gbwtgraph.dir/depend.make
@@ -70,130 +70,130 @@ include CMakeFiles/gbwtgraph.dir/progress.make
 include CMakeFiles/gbwtgraph.dir/flags.make
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/algorithms.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/algorithms.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/algorithms.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/algorithms.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/algorithms.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/algorithms.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/algorithms.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/algorithms.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/algorithms.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/cached_gbwtgraph.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/cached_gbwtgraph.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/cached_gbwtgraph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/cached_gbwtgraph.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/cached_gbwtgraph.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/cached_gbwtgraph.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/cached_gbwtgraph.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/cached_gbwtgraph.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/cached_gbwtgraph.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbwtgraph.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbwtgraph.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbwtgraph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbwtgraph.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbwtgraph.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbwtgraph.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbwtgraph.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbwtgraph.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbwtgraph.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbz.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbz.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbz.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbz.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbz.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbz.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gbz.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gbz.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gbz.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gfa.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gfa.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gfa.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gfa.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gfa.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gfa.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/gfa.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/gfa.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/gfa.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/internal.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/internal.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/internal.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/internal.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/internal.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/internal.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/internal.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/internal.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/internal.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/minimizer.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/minimizer.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/minimizer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/minimizer.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/minimizer.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/minimizer.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/minimizer.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/minimizer.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/minimizer.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/path_cover.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/path_cover.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/path_cover.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/path_cover.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/path_cover.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/path_cover.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/path_cover.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/path_cover.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/path_cover.cpp.s
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o: CMakeFiles/gbwtgraph.dir/flags.make
-CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o: /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/utils.cpp
+CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o: /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/utils.cpp
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o: CMakeFiles/gbwtgraph.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o -c /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/utils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o -MF CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o.d -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o -c /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/utils.cpp
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/utils.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/utils.cpp > CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.i
 
 CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/deps/gbwtgraph/src/utils.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/deps/gbwtgraph/src/utils.cpp -o CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.s
 
 # Object files for target gbwtgraph
 gbwtgraph_OBJECTS = \
@@ -222,11 +222,11 @@ libgbwtgraph.so: CMakeFiles/gbwtgraph.dir/deps/gbwtgraph/src/utils.cpp.o
 libgbwtgraph.so: CMakeFiles/gbwtgraph.dir/build.make
 libgbwtgraph.so: libgbwt.so
 libgbwtgraph.so: deps/libhandlegraph/libhandlegraph.so
-libgbwtgraph.so: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
+libgbwtgraph.so: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
 libgbwtgraph.so: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
 libgbwtgraph.so: /usr/lib/x86_64-linux-gnu/libpthread.a
 libgbwtgraph.so: CMakeFiles/gbwtgraph.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX shared library libgbwtgraph.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX shared library libgbwtgraph.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/gbwtgraph.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -238,6 +238,6 @@ CMakeFiles/gbwtgraph.dir/clean:
 .PHONY : CMakeFiles/gbwtgraph.dir/clean
 
 CMakeFiles/gbwtgraph.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/CMakeFiles/gbwtgraph.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/CMakeFiles/gbwtgraph.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/gbwtgraph.dir/depend
 

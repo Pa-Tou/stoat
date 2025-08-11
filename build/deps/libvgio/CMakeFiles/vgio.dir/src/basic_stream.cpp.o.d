@@ -1,5 +1,5 @@
 deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/basic_stream.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/basic_stream.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/12/fstream \
  /usr/include/c++/12/istream /usr/include/c++/12/ios \
  /usr/include/c++/12/iosfwd \
@@ -178,8 +178,8 @@ deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o: \
  /usr/include/c++/12/bits/stl_heap.h \
  /usr/include/c++/12/bits/stl_tempbuf.h \
  /usr/include/c++/12/bits/uniform_int_dist.h /usr/include/c++/12/iostream \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/basic_stream.hpp \
- /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg/vg.pb.h \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/basic_stream.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg/vg.pb.h \
  /usr/include/c++/12/limits /usr/include/google/protobuf/port_def.inc \
  /usr/include/google/protobuf/port_undef.inc \
  /usr/include/google/protobuf/io/coded_stream.h /usr/include/assert.h \
@@ -301,21 +301,21 @@ deps/libvgio/CMakeFiles/vgio.dir/src/basic_stream.cpp.o: \
  /usr/include/google/protobuf/reflection_ops.h \
  /usr/include/google/protobuf/map_field_inl.h \
  /usr/include/google/protobuf/map_field.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/stream.hpp \
  /usr/include/c++/12/list /usr/include/c++/12/bits/stl_list.h \
  /usr/include/c++/12/bits/list.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/registry.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/registry.hpp \
  /usr/include/c++/12/typeindex \
  /usr/include/google/protobuf/util/type_resolver.h \
  /usr/include/google/protobuf/type.pb.h \
  /usr/include/google/protobuf/any.pb.h \
  /usr/include/google/protobuf/source_context.pb.h \
  /usr/include/google/protobuf/stubs/status.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_iterator.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_iterator.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
  /usr/include/htslib/bgzf.h /usr/include/htslib/hts_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/protobuf_iterator.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/protobuf_emitter.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/protobuf_iterator.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/protobuf_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_emitter.hpp \
  /usr/include/google/protobuf/io/zero_copy_stream_impl.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp

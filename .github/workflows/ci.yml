@@ -1,0 +1,46 @@
+name: CI Build and Test STOAT C++
+
+on:
+  push:
+    branches:
+      - main
+      - stoat_cxx
+  pull_request:
+    branches:
+      - main
+      - stoat_cxx
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+            submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+            build-essential cmake git pkg-config wget \
+            libhts-dev libboost-all-dev \
+            libjansson-dev \
+           protobuf-compiler libprotoc-dev libprotobuf-dev valgrind
+
+
+      - name: Clone and build dependencies
+        run: |
+          git clone --recursive https://github.com/vgteam/libbdsg.git ~/libbdsg
+          cd ~/libbdsg && mkdir build && cd build
+          cmake -DRUN_DOXYGEN=OFF .. && make -j$(nproc) && sudo make install
+
+          git clone https://github.com/catchorg/Catch2.git ~/Catch2
+          cd ~/Catch2 && cmake -Bbuild -H. -DBUILD_TESTING=OFF
+          cmake --build build/ && sudo cmake --install build/
+
+      - name: Build STOAT C++ and run unit tests
+        run: |
+          mkdir build && cd build
+          cmake .. && make -j$(nproc)
+          ../bin/unit_tests

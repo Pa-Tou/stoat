@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/mbagarre/Bureau/STOAT/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/STOAT/build/CPackSourceConfig.cmake
+	cd /home/mbagarre/Bureau/stoat/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/mbagarre/Bureau/stoat/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -162,14 +162,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles /home/mbagarre/Bureau/STOAT/build/deps/libbdsg//CMakeFiles/progress.marks
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/STOAT/build/CMakeFiles 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles /home/mbagarre/Bureau/stoat/build/deps/libbdsg//CMakeFiles/progress.marks
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mbagarre/Bureau/stoat/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/clean
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/clean
 .PHONY : clean
 
 # The main clean target
@@ -178,22 +178,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/preinstall
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 deps/libbdsg/CMakeFiles/bdsg_objs.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/CMakeFiles/bdsg_objs.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/CMakeFiles/bdsg_objs.dir/rule
 .PHONY : deps/libbdsg/CMakeFiles/bdsg_objs.dir/rule
 
 # Convenience name for target.
@@ -202,12 +202,12 @@ bdsg_objs: deps/libbdsg/CMakeFiles/bdsg_objs.dir/rule
 
 # fast build rule for target.
 bdsg_objs/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/build
 .PHONY : bdsg_objs/fast
 
 # Convenience name for target.
 deps/libbdsg/CMakeFiles/libbdsg.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/CMakeFiles/libbdsg.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/CMakeFiles/libbdsg.dir/rule
 .PHONY : deps/libbdsg/CMakeFiles/libbdsg.dir/rule
 
 # Convenience name for target.
@@ -216,12 +216,12 @@ libbdsg: deps/libbdsg/CMakeFiles/libbdsg.dir/rule
 
 # fast build rule for target.
 libbdsg/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/libbdsg.dir/build.make deps/libbdsg/CMakeFiles/libbdsg.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/libbdsg.dir/build.make deps/libbdsg/CMakeFiles/libbdsg.dir/build
 .PHONY : libbdsg/fast
 
 # Convenience name for target.
 deps/libbdsg/CMakeFiles/test_libbdsg.dir/rule:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/CMakeFiles/test_libbdsg.dir/rule
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/libbdsg/CMakeFiles/test_libbdsg.dir/rule
 .PHONY : deps/libbdsg/CMakeFiles/test_libbdsg.dir/rule
 
 # Convenience name for target.
@@ -230,7 +230,7 @@ test_libbdsg: deps/libbdsg/CMakeFiles/test_libbdsg.dir/rule
 
 # fast build rule for target.
 test_libbdsg/fast:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/build
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/build
 .PHONY : test_libbdsg/fast
 
 bdsg/src/eades_algorithm.o: bdsg/src/eades_algorithm.cpp.o
@@ -238,7 +238,7 @@ bdsg/src/eades_algorithm.o: bdsg/src/eades_algorithm.cpp.o
 
 # target to build an object file
 bdsg/src/eades_algorithm.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.o
 .PHONY : bdsg/src/eades_algorithm.cpp.o
 
 bdsg/src/eades_algorithm.i: bdsg/src/eades_algorithm.cpp.i
@@ -246,7 +246,7 @@ bdsg/src/eades_algorithm.i: bdsg/src/eades_algorithm.cpp.i
 
 # target to preprocess a source file
 bdsg/src/eades_algorithm.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.i
 .PHONY : bdsg/src/eades_algorithm.cpp.i
 
 bdsg/src/eades_algorithm.s: bdsg/src/eades_algorithm.cpp.s
@@ -254,7 +254,7 @@ bdsg/src/eades_algorithm.s: bdsg/src/eades_algorithm.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/eades_algorithm.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/eades_algorithm.cpp.s
 .PHONY : bdsg/src/eades_algorithm.cpp.s
 
 bdsg/src/hash_graph.o: bdsg/src/hash_graph.cpp.o
@@ -262,7 +262,7 @@ bdsg/src/hash_graph.o: bdsg/src/hash_graph.cpp.o
 
 # target to build an object file
 bdsg/src/hash_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.o
 .PHONY : bdsg/src/hash_graph.cpp.o
 
 bdsg/src/hash_graph.i: bdsg/src/hash_graph.cpp.i
@@ -270,7 +270,7 @@ bdsg/src/hash_graph.i: bdsg/src/hash_graph.cpp.i
 
 # target to preprocess a source file
 bdsg/src/hash_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.i
 .PHONY : bdsg/src/hash_graph.cpp.i
 
 bdsg/src/hash_graph.s: bdsg/src/hash_graph.cpp.s
@@ -278,7 +278,7 @@ bdsg/src/hash_graph.s: bdsg/src/hash_graph.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/hash_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/hash_graph.cpp.s
 .PHONY : bdsg/src/hash_graph.cpp.s
 
 bdsg/src/is_single_stranded.o: bdsg/src/is_single_stranded.cpp.o
@@ -286,7 +286,7 @@ bdsg/src/is_single_stranded.o: bdsg/src/is_single_stranded.cpp.o
 
 # target to build an object file
 bdsg/src/is_single_stranded.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.o
 .PHONY : bdsg/src/is_single_stranded.cpp.o
 
 bdsg/src/is_single_stranded.i: bdsg/src/is_single_stranded.cpp.i
@@ -294,7 +294,7 @@ bdsg/src/is_single_stranded.i: bdsg/src/is_single_stranded.cpp.i
 
 # target to preprocess a source file
 bdsg/src/is_single_stranded.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.i
 .PHONY : bdsg/src/is_single_stranded.cpp.i
 
 bdsg/src/is_single_stranded.s: bdsg/src/is_single_stranded.cpp.s
@@ -302,7 +302,7 @@ bdsg/src/is_single_stranded.s: bdsg/src/is_single_stranded.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/is_single_stranded.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/is_single_stranded.cpp.s
 .PHONY : bdsg/src/is_single_stranded.cpp.s
 
 bdsg/src/mapped_structs.o: bdsg/src/mapped_structs.cpp.o
@@ -310,7 +310,7 @@ bdsg/src/mapped_structs.o: bdsg/src/mapped_structs.cpp.o
 
 # target to build an object file
 bdsg/src/mapped_structs.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.o
 .PHONY : bdsg/src/mapped_structs.cpp.o
 
 bdsg/src/mapped_structs.i: bdsg/src/mapped_structs.cpp.i
@@ -318,7 +318,7 @@ bdsg/src/mapped_structs.i: bdsg/src/mapped_structs.cpp.i
 
 # target to preprocess a source file
 bdsg/src/mapped_structs.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.i
 .PHONY : bdsg/src/mapped_structs.cpp.i
 
 bdsg/src/mapped_structs.s: bdsg/src/mapped_structs.cpp.s
@@ -326,7 +326,7 @@ bdsg/src/mapped_structs.s: bdsg/src/mapped_structs.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/mapped_structs.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/mapped_structs.cpp.s
 .PHONY : bdsg/src/mapped_structs.cpp.s
 
 bdsg/src/packed_graph.o: bdsg/src/packed_graph.cpp.o
@@ -334,7 +334,7 @@ bdsg/src/packed_graph.o: bdsg/src/packed_graph.cpp.o
 
 # target to build an object file
 bdsg/src/packed_graph.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.o
 .PHONY : bdsg/src/packed_graph.cpp.o
 
 bdsg/src/packed_graph.i: bdsg/src/packed_graph.cpp.i
@@ -342,7 +342,7 @@ bdsg/src/packed_graph.i: bdsg/src/packed_graph.cpp.i
 
 # target to preprocess a source file
 bdsg/src/packed_graph.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.i
 .PHONY : bdsg/src/packed_graph.cpp.i
 
 bdsg/src/packed_graph.s: bdsg/src/packed_graph.cpp.s
@@ -350,7 +350,7 @@ bdsg/src/packed_graph.s: bdsg/src/packed_graph.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/packed_graph.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_graph.cpp.s
 .PHONY : bdsg/src/packed_graph.cpp.s
 
 bdsg/src/packed_path_position_overlay.o: bdsg/src/packed_path_position_overlay.cpp.o
@@ -358,7 +358,7 @@ bdsg/src/packed_path_position_overlay.o: bdsg/src/packed_path_position_overlay.c
 
 # target to build an object file
 bdsg/src/packed_path_position_overlay.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.o
 .PHONY : bdsg/src/packed_path_position_overlay.cpp.o
 
 bdsg/src/packed_path_position_overlay.i: bdsg/src/packed_path_position_overlay.cpp.i
@@ -366,7 +366,7 @@ bdsg/src/packed_path_position_overlay.i: bdsg/src/packed_path_position_overlay.c
 
 # target to preprocess a source file
 bdsg/src/packed_path_position_overlay.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.i
 .PHONY : bdsg/src/packed_path_position_overlay.cpp.i
 
 bdsg/src/packed_path_position_overlay.s: bdsg/src/packed_path_position_overlay.cpp.s
@@ -374,7 +374,7 @@ bdsg/src/packed_path_position_overlay.s: bdsg/src/packed_path_position_overlay.c
 
 # target to generate assembly for a file
 bdsg/src/packed_path_position_overlay.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_path_position_overlay.cpp.s
 .PHONY : bdsg/src/packed_path_position_overlay.cpp.s
 
 bdsg/src/packed_reference_path_overlay.o: bdsg/src/packed_reference_path_overlay.cpp.o
@@ -382,7 +382,7 @@ bdsg/src/packed_reference_path_overlay.o: bdsg/src/packed_reference_path_overlay
 
 # target to build an object file
 bdsg/src/packed_reference_path_overlay.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.o
 .PHONY : bdsg/src/packed_reference_path_overlay.cpp.o
 
 bdsg/src/packed_reference_path_overlay.i: bdsg/src/packed_reference_path_overlay.cpp.i
@@ -390,7 +390,7 @@ bdsg/src/packed_reference_path_overlay.i: bdsg/src/packed_reference_path_overlay
 
 # target to preprocess a source file
 bdsg/src/packed_reference_path_overlay.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.i
 .PHONY : bdsg/src/packed_reference_path_overlay.cpp.i
 
 bdsg/src/packed_reference_path_overlay.s: bdsg/src/packed_reference_path_overlay.cpp.s
@@ -398,7 +398,7 @@ bdsg/src/packed_reference_path_overlay.s: bdsg/src/packed_reference_path_overlay
 
 # target to generate assembly for a file
 bdsg/src/packed_reference_path_overlay.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_reference_path_overlay.cpp.s
 .PHONY : bdsg/src/packed_reference_path_overlay.cpp.s
 
 bdsg/src/packed_subgraph_overlay.o: bdsg/src/packed_subgraph_overlay.cpp.o
@@ -406,7 +406,7 @@ bdsg/src/packed_subgraph_overlay.o: bdsg/src/packed_subgraph_overlay.cpp.o
 
 # target to build an object file
 bdsg/src/packed_subgraph_overlay.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.o
 .PHONY : bdsg/src/packed_subgraph_overlay.cpp.o
 
 bdsg/src/packed_subgraph_overlay.i: bdsg/src/packed_subgraph_overlay.cpp.i
@@ -414,7 +414,7 @@ bdsg/src/packed_subgraph_overlay.i: bdsg/src/packed_subgraph_overlay.cpp.i
 
 # target to preprocess a source file
 bdsg/src/packed_subgraph_overlay.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.i
 .PHONY : bdsg/src/packed_subgraph_overlay.cpp.i
 
 bdsg/src/packed_subgraph_overlay.s: bdsg/src/packed_subgraph_overlay.cpp.s
@@ -422,7 +422,7 @@ bdsg/src/packed_subgraph_overlay.s: bdsg/src/packed_subgraph_overlay.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/packed_subgraph_overlay.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/packed_subgraph_overlay.cpp.s
 .PHONY : bdsg/src/packed_subgraph_overlay.cpp.s
 
 bdsg/src/path_position_overlays.o: bdsg/src/path_position_overlays.cpp.o
@@ -430,7 +430,7 @@ bdsg/src/path_position_overlays.o: bdsg/src/path_position_overlays.cpp.o
 
 # target to build an object file
 bdsg/src/path_position_overlays.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.o
 .PHONY : bdsg/src/path_position_overlays.cpp.o
 
 bdsg/src/path_position_overlays.i: bdsg/src/path_position_overlays.cpp.i
@@ -438,7 +438,7 @@ bdsg/src/path_position_overlays.i: bdsg/src/path_position_overlays.cpp.i
 
 # target to preprocess a source file
 bdsg/src/path_position_overlays.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.i
 .PHONY : bdsg/src/path_position_overlays.cpp.i
 
 bdsg/src/path_position_overlays.s: bdsg/src/path_position_overlays.cpp.s
@@ -446,7 +446,7 @@ bdsg/src/path_position_overlays.s: bdsg/src/path_position_overlays.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/path_position_overlays.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_position_overlays.cpp.s
 .PHONY : bdsg/src/path_position_overlays.cpp.s
 
 bdsg/src/path_subgraph_overlay.o: bdsg/src/path_subgraph_overlay.cpp.o
@@ -454,7 +454,7 @@ bdsg/src/path_subgraph_overlay.o: bdsg/src/path_subgraph_overlay.cpp.o
 
 # target to build an object file
 bdsg/src/path_subgraph_overlay.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.o
 .PHONY : bdsg/src/path_subgraph_overlay.cpp.o
 
 bdsg/src/path_subgraph_overlay.i: bdsg/src/path_subgraph_overlay.cpp.i
@@ -462,7 +462,7 @@ bdsg/src/path_subgraph_overlay.i: bdsg/src/path_subgraph_overlay.cpp.i
 
 # target to preprocess a source file
 bdsg/src/path_subgraph_overlay.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.i
 .PHONY : bdsg/src/path_subgraph_overlay.cpp.i
 
 bdsg/src/path_subgraph_overlay.s: bdsg/src/path_subgraph_overlay.cpp.s
@@ -470,7 +470,7 @@ bdsg/src/path_subgraph_overlay.s: bdsg/src/path_subgraph_overlay.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/path_subgraph_overlay.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/path_subgraph_overlay.cpp.s
 .PHONY : bdsg/src/path_subgraph_overlay.cpp.s
 
 bdsg/src/reference_path_overlay.o: bdsg/src/reference_path_overlay.cpp.o
@@ -478,7 +478,7 @@ bdsg/src/reference_path_overlay.o: bdsg/src/reference_path_overlay.cpp.o
 
 # target to build an object file
 bdsg/src/reference_path_overlay.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.o
 .PHONY : bdsg/src/reference_path_overlay.cpp.o
 
 bdsg/src/reference_path_overlay.i: bdsg/src/reference_path_overlay.cpp.i
@@ -486,7 +486,7 @@ bdsg/src/reference_path_overlay.i: bdsg/src/reference_path_overlay.cpp.i
 
 # target to preprocess a source file
 bdsg/src/reference_path_overlay.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.i
 .PHONY : bdsg/src/reference_path_overlay.cpp.i
 
 bdsg/src/reference_path_overlay.s: bdsg/src/reference_path_overlay.cpp.s
@@ -494,7 +494,7 @@ bdsg/src/reference_path_overlay.s: bdsg/src/reference_path_overlay.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/reference_path_overlay.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/reference_path_overlay.cpp.s
 .PHONY : bdsg/src/reference_path_overlay.cpp.s
 
 bdsg/src/snarl_distance_index.o: bdsg/src/snarl_distance_index.cpp.o
@@ -502,7 +502,7 @@ bdsg/src/snarl_distance_index.o: bdsg/src/snarl_distance_index.cpp.o
 
 # target to build an object file
 bdsg/src/snarl_distance_index.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.o
 .PHONY : bdsg/src/snarl_distance_index.cpp.o
 
 bdsg/src/snarl_distance_index.i: bdsg/src/snarl_distance_index.cpp.i
@@ -510,7 +510,7 @@ bdsg/src/snarl_distance_index.i: bdsg/src/snarl_distance_index.cpp.i
 
 # target to preprocess a source file
 bdsg/src/snarl_distance_index.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.i
 .PHONY : bdsg/src/snarl_distance_index.cpp.i
 
 bdsg/src/snarl_distance_index.s: bdsg/src/snarl_distance_index.cpp.s
@@ -518,7 +518,7 @@ bdsg/src/snarl_distance_index.s: bdsg/src/snarl_distance_index.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/snarl_distance_index.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/snarl_distance_index.cpp.s
 .PHONY : bdsg/src/snarl_distance_index.cpp.s
 
 bdsg/src/strand_split_overlay.o: bdsg/src/strand_split_overlay.cpp.o
@@ -526,7 +526,7 @@ bdsg/src/strand_split_overlay.o: bdsg/src/strand_split_overlay.cpp.o
 
 # target to build an object file
 bdsg/src/strand_split_overlay.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.o
 .PHONY : bdsg/src/strand_split_overlay.cpp.o
 
 bdsg/src/strand_split_overlay.i: bdsg/src/strand_split_overlay.cpp.i
@@ -534,7 +534,7 @@ bdsg/src/strand_split_overlay.i: bdsg/src/strand_split_overlay.cpp.i
 
 # target to preprocess a source file
 bdsg/src/strand_split_overlay.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.i
 .PHONY : bdsg/src/strand_split_overlay.cpp.i
 
 bdsg/src/strand_split_overlay.s: bdsg/src/strand_split_overlay.cpp.s
@@ -542,7 +542,7 @@ bdsg/src/strand_split_overlay.s: bdsg/src/strand_split_overlay.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/strand_split_overlay.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/strand_split_overlay.cpp.s
 .PHONY : bdsg/src/strand_split_overlay.cpp.s
 
 bdsg/src/subgraph_overlay.o: bdsg/src/subgraph_overlay.cpp.o
@@ -550,7 +550,7 @@ bdsg/src/subgraph_overlay.o: bdsg/src/subgraph_overlay.cpp.o
 
 # target to build an object file
 bdsg/src/subgraph_overlay.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.o
 .PHONY : bdsg/src/subgraph_overlay.cpp.o
 
 bdsg/src/subgraph_overlay.i: bdsg/src/subgraph_overlay.cpp.i
@@ -558,7 +558,7 @@ bdsg/src/subgraph_overlay.i: bdsg/src/subgraph_overlay.cpp.i
 
 # target to preprocess a source file
 bdsg/src/subgraph_overlay.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.i
 .PHONY : bdsg/src/subgraph_overlay.cpp.i
 
 bdsg/src/subgraph_overlay.s: bdsg/src/subgraph_overlay.cpp.s
@@ -566,7 +566,7 @@ bdsg/src/subgraph_overlay.s: bdsg/src/subgraph_overlay.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/subgraph_overlay.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/subgraph_overlay.cpp.s
 .PHONY : bdsg/src/subgraph_overlay.cpp.s
 
 bdsg/src/test_libbdsg.o: bdsg/src/test_libbdsg.cpp.o
@@ -574,7 +574,7 @@ bdsg/src/test_libbdsg.o: bdsg/src/test_libbdsg.cpp.o
 
 # target to build an object file
 bdsg/src/test_libbdsg.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.o
 .PHONY : bdsg/src/test_libbdsg.cpp.o
 
 bdsg/src/test_libbdsg.i: bdsg/src/test_libbdsg.cpp.i
@@ -582,7 +582,7 @@ bdsg/src/test_libbdsg.i: bdsg/src/test_libbdsg.cpp.i
 
 # target to preprocess a source file
 bdsg/src/test_libbdsg.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.i
 .PHONY : bdsg/src/test_libbdsg.cpp.i
 
 bdsg/src/test_libbdsg.s: bdsg/src/test_libbdsg.cpp.s
@@ -590,7 +590,7 @@ bdsg/src/test_libbdsg.s: bdsg/src/test_libbdsg.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/test_libbdsg.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/test_libbdsg.dir/build.make deps/libbdsg/CMakeFiles/test_libbdsg.dir/bdsg/src/test_libbdsg.cpp.s
 .PHONY : bdsg/src/test_libbdsg.cpp.s
 
 bdsg/src/utility.o: bdsg/src/utility.cpp.o
@@ -598,7 +598,7 @@ bdsg/src/utility.o: bdsg/src/utility.cpp.o
 
 # target to build an object file
 bdsg/src/utility.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.o
 .PHONY : bdsg/src/utility.cpp.o
 
 bdsg/src/utility.i: bdsg/src/utility.cpp.i
@@ -606,7 +606,7 @@ bdsg/src/utility.i: bdsg/src/utility.cpp.i
 
 # target to preprocess a source file
 bdsg/src/utility.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.i
 .PHONY : bdsg/src/utility.cpp.i
 
 bdsg/src/utility.s: bdsg/src/utility.cpp.s
@@ -614,7 +614,7 @@ bdsg/src/utility.s: bdsg/src/utility.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/utility.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/utility.cpp.s
 .PHONY : bdsg/src/utility.cpp.s
 
 bdsg/src/vectorizable_overlays.o: bdsg/src/vectorizable_overlays.cpp.o
@@ -622,7 +622,7 @@ bdsg/src/vectorizable_overlays.o: bdsg/src/vectorizable_overlays.cpp.o
 
 # target to build an object file
 bdsg/src/vectorizable_overlays.cpp.o:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.o
 .PHONY : bdsg/src/vectorizable_overlays.cpp.o
 
 bdsg/src/vectorizable_overlays.i: bdsg/src/vectorizable_overlays.cpp.i
@@ -630,7 +630,7 @@ bdsg/src/vectorizable_overlays.i: bdsg/src/vectorizable_overlays.cpp.i
 
 # target to preprocess a source file
 bdsg/src/vectorizable_overlays.cpp.i:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.i
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.i
 .PHONY : bdsg/src/vectorizable_overlays.cpp.i
 
 bdsg/src/vectorizable_overlays.s: bdsg/src/vectorizable_overlays.cpp.s
@@ -638,7 +638,7 @@ bdsg/src/vectorizable_overlays.s: bdsg/src/vectorizable_overlays.cpp.s
 
 # target to generate assembly for a file
 bdsg/src/vectorizable_overlays.cpp.s:
-	cd /home/mbagarre/Bureau/STOAT/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.s
+	cd /home/mbagarre/Bureau/stoat/build && $(MAKE) $(MAKESILENT) -f deps/libbdsg/CMakeFiles/bdsg_objs.dir/build.make deps/libbdsg/CMakeFiles/bdsg_objs.dir/bdsg/src/vectorizable_overlays.cpp.s
 .PHONY : bdsg/src/vectorizable_overlays.cpp.s
 
 # Help Target
@@ -721,6 +721,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

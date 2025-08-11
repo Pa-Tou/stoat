@@ -1,7 +1,7 @@
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/types.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/types.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -35,5 +35,5 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/types.cpp.o: \
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/typeinfo \
  /usr/include/c++/12/bits/functexcept.h \
  /usr/include/c++/12/bits/exception_defines.h /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/util.hpp \
  /usr/include/c++/12/cassert /usr/include/assert.h

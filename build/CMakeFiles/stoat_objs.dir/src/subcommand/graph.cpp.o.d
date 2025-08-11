@@ -1,7 +1,7 @@
 CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
- /home/mbagarre/Bureau/STOAT/src/subcommand/graph.cpp \
+ /home/mbagarre/Bureau/stoat/src/subcommand/graph.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/src/subcommand/graph.hpp \
+ /home/mbagarre/Bureau/stoat/src/subcommand/graph.hpp \
  /usr/include/c++/12/iostream \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -181,9 +181,9 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/c++/12/bits/uses_allocator.h \
  /usr/include/c++/12/ext/aligned_buffer.h \
  /usr/include/c++/12/bits/fs_dir.h /usr/include/c++/12/bits/fs_ops.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/snarl_distance_index.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/snarl_decomposition.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/snarl_distance_index.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/snarl_decomposition.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/utility /usr/include/c++/12/bits/stl_relops.h \
  /usr/include/c++/12/functional /usr/include/c++/12/bits/std_function.h \
  /usr/include/c++/12/unordered_map /usr/include/c++/12/bits/hashtable.h \
@@ -201,16 +201,16 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/c++/12/bits/stl_heap.h \
  /usr/include/c++/12/bits/stl_tempbuf.h \
  /usr/include/c++/12/bits/uniform_int_dist.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/dijkstra.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/dijkstra.hpp \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/bits/unordered_set.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/util.hpp \
  /usr/include/c++/12/cassert /usr/include/assert.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/trivially_serializable.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/serializable.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/trivially_serializable.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/serializable.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/mapped_structs.hpp \
  /usr/include/c++/12/climits \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/syslimits.h \
@@ -223,12 +223,12 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/c++/12/bits/stl_tree.h /usr/include/c++/12/bits/stl_map.h \
  /usr/include/c++/12/bits/stl_multimap.h /usr/include/c++/12/shared_mutex \
  /usr/include/c++/12/bits/std_mutex.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
  /usr/include/c++/12/bitset \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bits.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/structure_tree.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uintx_t.hpp \
  /usr/include/c++/12/memory \
  /usr/include/c++/12/bits/stl_raw_storage_iter.h \
  /usr/include/c++/12/bits/align.h /usr/include/c++/12/bit \
@@ -238,17 +238,17 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/c++/12/backward/auto_ptr.h \
  /usr/include/c++/12/pstl/glue_memory_defs.h \
  /usr/include/c++/12/pstl/execution_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/config.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/util.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sfstream.hpp \
  /usr/include/c++/12/fstream \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/c++/12/mutex /usr/include/c++/12/bits/unique_lock.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_filebuf.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/ram_fs.hpp \
  /usr/include/string.h /usr/include/strings.h \
  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
  /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
@@ -293,10 +293,10 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/unistd.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
  /usr/include/linux/close_range.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/io.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sdsl_concepts.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/simple_sds.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/memory_management.hpp \
  /usr/include/c++/12/cstring /usr/include/c++/12/set \
  /usr/include/c++/12/bits/stl_set.h \
  /usr/include/c++/12/bits/stl_multiset.h /usr/include/c++/12/cstddef \
@@ -316,9 +316,9 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
  /usr/include/x86_64-linux-gnu/bits/mman_ext.h \
  /usr/include/c++/12/iterator /usr/include/c++/12/bits/stream_iterator.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector_buffer.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/int_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/iterators.hpp \
  /usr/include/arpa/inet.h /usr/include/netinet/in.h \
  /usr/include/x86_64-linux-gnu/sys/socket.h \
  /usr/include/x86_64-linux-gnu/bits/socket.h \
@@ -337,37 +337,37 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
  /usr/include/x86_64-linux-gnu/bits/socket2.h \
  /usr/include/x86_64-linux-gnu/bits/in.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/overlay_helper.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/vectorizable_overlays.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vectors.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vector_il.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/overlay_helper.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/vectorizable_overlays.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vectors.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/bit_vector_il.hpp \
  /usr/include/c++/12/queue /usr/include/c++/12/bits/stl_queue.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_helper.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint128_t.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint256_t.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector_15.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sd_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_mcl.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v5.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_scan.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_scan.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/hyb_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rle_vector.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/hash_map.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/wang_hash.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/packed_structs.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_stdint.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_config.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_traits.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_utils.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_helper.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint128_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/uint256_t.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rrr_vector_15.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/sd_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_mcl.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_v5.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rank_support_scan.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/select_support_scan.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/hyb_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include/sdsl/rle_vector.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/hash_map.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/wang_hash.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/packed_structs.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_stdint.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_config.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_traits.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sparsepp/sparsepp/spp_utils.h \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_position_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/path_metadata.hpp \
  /usr/include/c++/12/regex /usr/include/c++/12/bits/regex_constants.h \
  /usr/include/c++/12/bits/regex_error.h \
  /usr/include/c++/12/bits/regex_automaton.h \
@@ -379,21 +379,21 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/c++/12/bits/regex.h /usr/include/c++/12/bits/regex.tcc \
  /usr/include/c++/12/bits/regex_executor.h \
  /usr/include/c++/12/bits/regex_executor.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/BBHash/BooPHF.h \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/expanding_overlay_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/BBHash/BooPHF.h \
  /usr/include/c++/12/stdlib.h /usr/include/c++/12/math.h \
  /usr/include/inttypes.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/packed_path_position_overlay.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_deletable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_path_metadata.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/deletable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/reference_path_overlay.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/packed_reference_path_overlay.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/vpkg.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/registry.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/packed_path_position_overlay.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_deletable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_path_metadata.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/mutable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/deletable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/reference_path_overlay.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/packed_reference_path_overlay.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/vpkg.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/registry.hpp \
  /usr/include/c++/12/typeindex \
  /usr/include/google/protobuf/util/type_resolver.h \
  /usr/include/google/protobuf/stubs/common.h \
@@ -469,259 +469,259 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/google/protobuf/any.pb.h \
  /usr/include/google/protobuf/source_context.pb.h \
  /usr/include/google/protobuf/stubs/status.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_iterator.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_iterator.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
  /usr/include/htslib/bgzf.h /usr/include/htslib/hts_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_emitter.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_emitter.hpp \
  /usr/include/google/protobuf/io/zero_copy_stream_impl.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/fdstream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_output_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/fdstream.hpp \
  /usr/include/c++/12/cxxabi.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/cxxabi_tweaks.h \
- /home/mbagarre/Bureau/STOAT/src/subcommand/../log.hpp \
- /home/mbagarre/Bureau/STOAT/src/subcommand/../graph_path_association_finder.hpp \
- /home/mbagarre/Bureau/STOAT/src/subcommand/../partitioner.hpp \
- /home/mbagarre/Bureau/STOAT/src/subcommand/../utils.hpp \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/Dense \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/Core \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/DisableStupidWarnings.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/Macros.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/../InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/ConfigureVectorization.h \
+ /home/mbagarre/Bureau/stoat/src/subcommand/../log.hpp \
+ /home/mbagarre/Bureau/stoat/src/subcommand/../graph_path_association_finder.hpp \
+ /home/mbagarre/Bureau/stoat/src/subcommand/../partitioner.hpp \
+ /home/mbagarre/Bureau/stoat/src/subcommand/../utils.hpp \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/Dense \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/Core \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/DisableStupidWarnings.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/Macros.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/../InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/ConfigureVectorization.h \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/mmintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/emmintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/xmmintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/mm_malloc.h \
  /usr/include/c++/12/complex \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/MKL_support.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/MKL_support.h \
  /usr/include/c++/12/thread /usr/include/c++/12/bits/std_thread.h \
  /usr/include/c++/12/bits/this_thread_sleep.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/Constants.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/Meta.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/Assert.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/ForwardDeclarations.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/StaticAssert.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/XprHelper.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/Memory.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/IntegralConstant.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/Serializer.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/SymbolicIndex.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/EmulateArray.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/MoreMeta.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/NumTraits.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/MathFunctions.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/RandomImpl.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/GenericPacketMath.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/MathFunctionsImpl.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/Default/ConjHelper.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/Default/../../InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/Default/Half.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/Default/BFloat16.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/SSE/PacketMath.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/SSE/../../InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/SSE/Reductions.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/SSE/Complex.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/SSE/TypeCasting.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/SSE/MathFunctions.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/Default/Settings.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/functors/TernaryFunctors.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/functors/../InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/functors/BinaryFunctors.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/functors/UnaryFunctors.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/functors/NullaryFunctors.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/functors/StlFunctors.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/functors/AssignmentFunctors.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/IndexedViewHelper.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/ReshapedHelper.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/ArithmeticSequence.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/IO.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/DenseCoeffsBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/DenseBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/CommonCwiseUnaryOps.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/BlockMethods.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/IndexedViewMethods.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/ReshapedMethods.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/ReshapedMethods.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/MatrixBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/CommonCwiseBinaryOps.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/MatrixCwiseUnaryOps.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/MatrixCwiseBinaryOps.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/EigenBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Product.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CoreEvaluators.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/AssignEvaluator.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Assign.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/ArrayBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/ArrayCwiseUnaryOps.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/../plugins/ArrayCwiseBinaryOps.inc \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/BlasUtil.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/DenseStorage.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/NestByValue.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/ReturnByValue.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/NoAlias.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/PlainObjectBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Matrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Array.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Fill.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CwiseTernaryOp.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CwiseBinaryOp.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CwiseUnaryOp.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CwiseNullaryOp.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CwiseUnaryView.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/SelfCwiseBinaryOp.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/InnerProduct.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Dot.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/StableNorm.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Stride.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/MapBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Map.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Ref.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Block.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/VectorBlock.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/IndexedView.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Reshaped.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Transpose.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/DiagonalMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Diagonal.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/DiagonalProduct.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/SkewSymmetricMatrix3.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Redux.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Visitor.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/FindCoeff.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Fuzzy.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Swap.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CommaInitializer.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/GeneralProduct.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Solve.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Inverse.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/SolverBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/PermutationMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Transpositions.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/TriangularMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/SelfAdjointView.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/../InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/DeviceWrapper.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/Parallelizer.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/ProductEvaluators.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/GeneralMatrixVector.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/GeneralMatrixMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/SolveTriangular.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/SelfadjointMatrixVector.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/SelfadjointProduct.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/SelfadjointRank2Update.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/TriangularMatrixVector.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/TriangularMatrixMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/TriangularSolverMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/products/TriangularSolverVector.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/BandMatrix.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/CoreIterators.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/ConditionEstimator.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Select.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/VectorwiseOp.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/PartialReduxEvaluator.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Random.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Replicate.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/Reverse.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/ArrayWrapper.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/StlIterators.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/GlobalFunctions.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Core/util/ReenableStupidWarnings.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/LU \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/misc/Kernel.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/misc/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/misc/Image.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/LU/FullPivLU.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/LU/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/LU/PartialPivLU.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/LU/Determinant.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/LU/InverseImpl.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/LU/arch/InverseSize4.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/LU/arch/../InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/Cholesky \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/Jacobi \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Jacobi/Jacobi.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Jacobi/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Cholesky/LLT.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Cholesky/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Cholesky/LDLT.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/QR \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/Householder \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Householder/Householder.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Householder/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Householder/HouseholderSequence.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Householder/BlockHouseholder.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/QR/HouseholderQR.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/QR/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/QR/FullPivHouseholderQR.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/QR/ColPivHouseholderQR.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/QR/CompleteOrthogonalDecomposition.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/SVD \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/misc/RealSvd2x2.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/SVD/UpperBidiagonalization.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/SVD/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/SVD/SVDBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/SVD/JacobiSVD.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/SVD/BDCSVD.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/Geometry \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/OrthoMethods.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/EulerAngles.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Homogeneous.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/RotationBase.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Rotation2D.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Quaternion.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/AngleAxis.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Transform.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Translation.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Scaling.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Hyperplane.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/ParametrizedLine.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/AlignedBox.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/Umeyama.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/arch/Geometry_SIMD.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Geometry/arch/../InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/Eigenvalues \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/Tridiagonalization.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/./InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/RealSchur.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/./HessenbergDecomposition.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/././InternalHeaderCheck.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/EigenSolver.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/./RealSchur.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/./Tridiagonalization.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/GeneralizedSelfAdjointEigenSolver.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/HessenbergDecomposition.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/ComplexSchur.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/./ComplexSchur.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/RealQZ.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/./RealQZ.h \
- /home/mbagarre/Bureau/STOAT/deps/eigen/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/hash_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/serializable_handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/endianness.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/packed_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/base_packed_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/overlays/strand_split_overlay.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/eades_algorithm.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/is_single_stranded.hpp \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/Constants.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/Meta.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/Assert.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/ForwardDeclarations.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/StaticAssert.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/XprHelper.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/Memory.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/IntegralConstant.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/Serializer.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/SymbolicIndex.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/EmulateArray.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/MoreMeta.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/NumTraits.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/MathFunctions.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/RandomImpl.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/GenericPacketMath.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/MathFunctionsImpl.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/Default/ConjHelper.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/Default/../../InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/Default/Half.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/Default/BFloat16.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/SSE/PacketMath.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/SSE/../../InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/SSE/Reductions.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/SSE/Complex.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/Default/Settings.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/functors/TernaryFunctors.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/functors/../InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/functors/BinaryFunctors.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/functors/UnaryFunctors.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/functors/NullaryFunctors.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/functors/StlFunctors.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/functors/AssignmentFunctors.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/IndexedViewHelper.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/ReshapedHelper.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/ArithmeticSequence.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/IO.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/DenseCoeffsBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/DenseBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/CommonCwiseUnaryOps.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/BlockMethods.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/IndexedViewMethods.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/ReshapedMethods.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/ReshapedMethods.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/MatrixBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/CommonCwiseBinaryOps.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/MatrixCwiseUnaryOps.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/MatrixCwiseBinaryOps.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/EigenBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Product.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CoreEvaluators.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/AssignEvaluator.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Assign.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/ArrayBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/ArrayCwiseUnaryOps.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/../plugins/ArrayCwiseBinaryOps.inc \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/BlasUtil.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/DenseStorage.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/NestByValue.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/ReturnByValue.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/NoAlias.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/PlainObjectBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Matrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Array.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Fill.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CwiseTernaryOp.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CwiseBinaryOp.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CwiseUnaryOp.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CwiseNullaryOp.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CwiseUnaryView.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/InnerProduct.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Dot.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/StableNorm.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Stride.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/MapBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Map.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Ref.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Block.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/VectorBlock.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/IndexedView.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Reshaped.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Transpose.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/DiagonalMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Diagonal.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/DiagonalProduct.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/SkewSymmetricMatrix3.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Redux.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Visitor.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/FindCoeff.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Fuzzy.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Swap.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CommaInitializer.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/GeneralProduct.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Solve.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Inverse.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/SolverBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/PermutationMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Transpositions.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/TriangularMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/SelfAdjointView.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/../InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/DeviceWrapper.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/Parallelizer.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/ProductEvaluators.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/GeneralMatrixVector.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/SolveTriangular.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/SelfadjointProduct.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/TriangularMatrixVector.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/products/TriangularSolverVector.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/BandMatrix.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/CoreIterators.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/ConditionEstimator.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Select.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/VectorwiseOp.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/PartialReduxEvaluator.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Random.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Replicate.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/Reverse.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/ArrayWrapper.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/StlIterators.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/GlobalFunctions.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/LU \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/misc/Kernel.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/misc/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/misc/Image.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/LU/FullPivLU.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/LU/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/LU/PartialPivLU.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/LU/Determinant.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/LU/InverseImpl.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/LU/arch/InverseSize4.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/LU/arch/../InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/Cholesky \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/Jacobi \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Jacobi/Jacobi.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Jacobi/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Cholesky/LLT.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Cholesky/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Cholesky/LDLT.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/QR \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/Householder \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Householder/Householder.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Householder/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Householder/HouseholderSequence.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Householder/BlockHouseholder.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/QR/HouseholderQR.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/QR/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/QR/FullPivHouseholderQR.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/QR/ColPivHouseholderQR.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/QR/CompleteOrthogonalDecomposition.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/SVD \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/misc/RealSvd2x2.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/SVD/UpperBidiagonalization.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/SVD/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/SVD/SVDBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/SVD/JacobiSVD.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/SVD/BDCSVD.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/Geometry \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/OrthoMethods.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/EulerAngles.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Homogeneous.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/RotationBase.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Rotation2D.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Quaternion.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/AngleAxis.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Transform.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Translation.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Scaling.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Hyperplane.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/ParametrizedLine.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/AlignedBox.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/Umeyama.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/arch/Geometry_SIMD.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Geometry/arch/../InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/Eigenvalues \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/Tridiagonalization.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/./InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/RealSchur.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/./HessenbergDecomposition.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/././InternalHeaderCheck.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/EigenSolver.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/./RealSchur.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/./Tridiagonalization.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/GeneralizedSelfAdjointEigenSolver.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/HessenbergDecomposition.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/ComplexSchur.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/./ComplexSchur.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/RealQZ.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/./RealQZ.h \
+ /home/mbagarre/Bureau/stoat/deps/eigen/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/hash_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/serializable_handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/utility.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/endianness.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/packed_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/base_packed_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/overlays/strand_split_overlay.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/eades_algorithm.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/is_single_stranded.hpp \
  /usr/include/c++/12/list /usr/include/c++/12/bits/stl_list.h \
  /usr/include/c++/12/bits/list.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/graph_proxy.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_handle_graph_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_path_handle_graph_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_mutable_path_deletable_handle_graph_fragment.classfragment \
- /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_serializable_handle_graph_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/graph_proxy.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_handle_graph_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_path_handle_graph_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_mutable_path_deletable_handle_graph_fragment.classfragment \
+ /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/include/bdsg/internal/graph_proxy_serializable_handle_graph_fragment.classfragment \
  /usr/include/boost/math/distributions/chi_squared.hpp \
  /usr/include/boost/math/distributions/fwd.hpp \
  /usr/include/boost/math/special_functions/gamma.hpp \
@@ -1338,6 +1338,6 @@ CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o: \
  /usr/include/boost/math/special_functions/cbrt.hpp \
  /usr/include/boost/mpl/divides.hpp \
  /usr/include/boost/mpl/aux_/preprocessed/gcc/divides.hpp \
- /home/mbagarre/Bureau/STOAT/src/subcommand/../log.hpp \
- /home/mbagarre/Bureau/STOAT/src/subcommand/../io/register_io.hpp \
- /home/mbagarre/Bureau/STOAT/src/subcommand/../post_processing.hpp
+ /home/mbagarre/Bureau/stoat/src/subcommand/../log.hpp \
+ /home/mbagarre/Bureau/stoat/src/subcommand/../io/register_io.hpp \
+ /home/mbagarre/Bureau/stoat/src/subcommand/../post_processing.hpp

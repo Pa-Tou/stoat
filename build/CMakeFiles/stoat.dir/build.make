@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/stoat.dir/depend.make
@@ -70,18 +70,18 @@ include CMakeFiles/stoat.dir/progress.make
 include CMakeFiles/stoat.dir/flags.make
 
 CMakeFiles/stoat.dir/src/main.cpp.o: CMakeFiles/stoat.dir/flags.make
-CMakeFiles/stoat.dir/src/main.cpp.o: /home/mbagarre/Bureau/STOAT/src/main.cpp
+CMakeFiles/stoat.dir/src/main.cpp.o: /home/mbagarre/Bureau/stoat/src/main.cpp
 CMakeFiles/stoat.dir/src/main.cpp.o: CMakeFiles/stoat.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/stoat.dir/src/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat.dir/src/main.cpp.o -MF CMakeFiles/stoat.dir/src/main.cpp.o.d -o CMakeFiles/stoat.dir/src/main.cpp.o -c /home/mbagarre/Bureau/STOAT/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/stoat.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/stoat.dir/src/main.cpp.o -MF CMakeFiles/stoat.dir/src/main.cpp.o.d -o CMakeFiles/stoat.dir/src/main.cpp.o -c /home/mbagarre/Bureau/stoat/src/main.cpp
 
 CMakeFiles/stoat.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stoat.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/src/main.cpp > CMakeFiles/stoat.dir/src/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/src/main.cpp > CMakeFiles/stoat.dir/src/main.cpp.i
 
 CMakeFiles/stoat.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stoat.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/src/main.cpp -o CMakeFiles/stoat.dir/src/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/src/main.cpp -o CMakeFiles/stoat.dir/src/main.cpp.s
 
 # Object files for target stoat
 stoat_OBJECTS = \
@@ -89,69 +89,69 @@ stoat_OBJECTS = \
 
 # External object files for target stoat
 stoat_EXTERNAL_OBJECTS = \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/utils.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/matrix.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/log.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/writer.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o"
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/utils.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/matrix.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/log.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/writer.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o"
 
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat.dir/src/main.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/utils.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/matrix.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/log.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/writer.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat.dir/build.make
-/home/mbagarre/Bureau/STOAT/bin/stoat: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: /usr/lib/x86_64-linux-gnu/libjansson.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: libgbwtgraph.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: libgbwt.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
-/home/mbagarre/Bureau/STOAT/bin/stoat: deps/libvgio/libvgio.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: deps/libhandlegraph/libhandlegraph.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: /usr/lib/x86_64-linux-gnu/libprotobuf.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
-/home/mbagarre/Bureau/STOAT/bin/stoat: /usr/lib/x86_64-linux-gnu/libpthread.a
-/home/mbagarre/Bureau/STOAT/bin/stoat: CMakeFiles/stoat.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/STOAT/bin/stoat"
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat.dir/src/main.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/utils.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/matrix.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/log.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/writer.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat.dir/build.make
+/home/mbagarre/Bureau/stoat/bin/stoat: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so
+/home/mbagarre/Bureau/stoat/bin/stoat: /usr/lib/x86_64-linux-gnu/libjansson.so
+/home/mbagarre/Bureau/stoat/bin/stoat: libgbwtgraph.so
+/home/mbagarre/Bureau/stoat/bin/stoat: libgbwt.so
+/home/mbagarre/Bureau/stoat/bin/stoat: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
+/home/mbagarre/Bureau/stoat/bin/stoat: deps/libvgio/libvgio.so
+/home/mbagarre/Bureau/stoat/bin/stoat: deps/libhandlegraph/libhandlegraph.so
+/home/mbagarre/Bureau/stoat/bin/stoat: /usr/lib/x86_64-linux-gnu/libprotobuf.so
+/home/mbagarre/Bureau/stoat/bin/stoat: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
+/home/mbagarre/Bureau/stoat/bin/stoat: /usr/lib/x86_64-linux-gnu/libpthread.a
+/home/mbagarre/Bureau/stoat/bin/stoat: CMakeFiles/stoat.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/mbagarre/Bureau/stoat/bin/stoat"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/stoat.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-CMakeFiles/stoat.dir/build: /home/mbagarre/Bureau/STOAT/bin/stoat
+CMakeFiles/stoat.dir/build: /home/mbagarre/Bureau/stoat/bin/stoat
 .PHONY : CMakeFiles/stoat.dir/build
 
 CMakeFiles/stoat.dir/clean:
@@ -159,6 +159,6 @@ CMakeFiles/stoat.dir/clean:
 .PHONY : CMakeFiles/stoat.dir/clean
 
 CMakeFiles/stoat.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/stoat.dir/depend
 

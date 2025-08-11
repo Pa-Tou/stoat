@@ -1,8 +1,8 @@
 deps/libvgio/CMakeFiles/vgio.dir/src/edit.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/edit.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/edit.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/edit.hpp \
- /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg/vg.pb.h \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/edit.hpp \
+ /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg/vg.pb.h \
  /usr/include/c++/12/limits \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/inv_perm_support_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/inv_perm_support_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/inv_perm_support_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/inv_perm_support_test.pdb"
   "CMakeFiles/inv_perm_support_test.dir/inv_perm_support_test.cpp.o"
   "CMakeFiles/inv_perm_support_test.dir/inv_perm_support_test.cpp.o.d"
 )

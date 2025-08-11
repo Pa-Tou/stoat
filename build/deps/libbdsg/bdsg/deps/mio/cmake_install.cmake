@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio
+# Install script for directory: /home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -43,14 +43,14 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/mio/include/" FILES_MATCHING REGEX "/[^/]*\\.[^/]*pp$")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/mio/include/" FILES_MATCHING REGEX "/[^/]*\\.[^/]*pp$")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/mio/mio-targets.cmake")
     file(DIFFERENT _cmake_export_file_changed FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/mio/mio-targets.cmake"
-         "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio/CMakeFiles/Export/771001dab16db1fc759fdc4e52dc45e7/mio-targets.cmake")
+         "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio/CMakeFiles/Export/771001dab16db1fc759fdc4e52dc45e7/mio-targets.cmake")
     if(_cmake_export_file_changed)
       file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/mio/mio-targets-*.cmake")
       if(_cmake_old_config_files)
@@ -63,19 +63,19 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     endif()
     unset(_cmake_export_file_changed)
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/mio" TYPE FILE FILES "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio/CMakeFiles/Export/771001dab16db1fc759fdc4e52dc45e7/mio-targets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/mio" TYPE FILE FILES "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio/CMakeFiles/Export/771001dab16db1fc759fdc4e52dc45e7/mio-targets.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/mio" TYPE FILE FILES
-    "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio/mio-config-version.cmake"
-    "/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio/mio-config.cmake"
+    "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio/mio-config-version.cmake"
+    "/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio/mio-config.cmake"
     )
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/mio/include/mio/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/mio/include/mio/cmake_install.cmake")
 
 endif()
 

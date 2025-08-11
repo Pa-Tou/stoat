@@ -1,63 +1,63 @@
 Performing C SOURCE FILE Test HAVE___DECLSPEC_DLLEXPORT_ failed with the following output:
-Change Dir: /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp
+Change Dir: /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_f43ba/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f43ba.dir/build.make CMakeFiles/cmTC_f43ba.dir/build
-gmake[1] : on entre dans le répertoire « /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp »
-Building C object CMakeFiles/cmTC_f43ba.dir/src.c.o
-/usr/bin/cc -DHAVE___DECLSPEC_DLLEXPORT_  -O3 -O3 -g -fopenmp -fopenmp -Wall  -o CMakeFiles/cmTC_f43ba.dir/src.c.o -c /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: return type defaults to ‘int’ [-Wimplicit-int]
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6b6cc/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6b6cc.dir/build.make CMakeFiles/cmTC_6b6cc.dir/build
+gmake[1] : on entre dans le répertoire « /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_6b6cc.dir/src.c.o
+/usr/bin/cc -DHAVE___DECLSPEC_DLLEXPORT_  -O3 -O3 -g -fopenmp -fopenmp -Wall  -o CMakeFiles/cmTC_6b6cc.dir/src.c.o -c /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: return type defaults to ‘int’ [-Wimplicit-int]
     1 | __declspec(dllexport) void func(); void func() { } int main() { func(); return 0; }
       | ^~~~~~~~~~
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c: In function ‘__declspec’:
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:48: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c: In function ‘__declspec’:
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:48: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
     1 | __declspec(dllexport) void func(); void func() { } int main() { func(); return 0; }
       |                                                ^
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:63: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:63: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
     1 | __declspec(dllexport) void func(); void func() { } int main() { func(); return 0; }
       |                                                               ^
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: type of ‘dllexport’ defaults to ‘int’ [-Wimplicit-int]
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: type of ‘dllexport’ defaults to ‘int’ [-Wimplicit-int]
     1 | __declspec(dllexport) void func(); void func() { } int main() { func(); return 0; }
       | ^~~~~~~~~~
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:28: error: declaration for parameter ‘func’ but no such parameter
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:28: error: declaration for parameter ‘func’ but no such parameter
     1 | __declspec(dllexport) void func(); void func() { } int main() { func(); return 0; }
       |                            ^~~~
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:2: error: expected ‘{’ at end of input
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:2: warning: control reaches end of non-void function [-Wreturn-type]
-gmake[1]: *** [CMakeFiles/cmTC_f43ba.dir/build.make:78 : CMakeFiles/cmTC_f43ba.dir/src.c.o] Erreur 1
-gmake[1] : on quitte le répertoire « /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp »
-gmake: *** [Makefile:127 : cmTC_f43ba/fast] Erreur 2
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:2: error: expected ‘{’ at end of input
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:2: warning: control reaches end of non-void function [-Wreturn-type]
+gmake[1]: *** [CMakeFiles/cmTC_6b6cc.dir/build.make:78 : CMakeFiles/cmTC_6b6cc.dir/src.c.o] Erreur 1
+gmake[1] : on quitte le répertoire « /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp »
+gmake: *** [Makefile:127 : cmTC_6b6cc/fast] Erreur 2
 
 
 Source file was:
 __declspec(dllexport) void func(); void func() { } int main() { func(); return 0; }
 Performing C SOURCE FILE Test HAVE___DECLSPEC_DLLIMPORT_ failed with the following output:
-Change Dir: /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp
+Change Dir: /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_1032e/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_1032e.dir/build.make CMakeFiles/cmTC_1032e.dir/build
-gmake[1] : on entre dans le répertoire « /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp »
-Building C object CMakeFiles/cmTC_1032e.dir/src.c.o
-/usr/bin/cc -DHAVE___DECLSPEC_DLLIMPORT_  -O3 -O3 -g -fopenmp -fopenmp -Wall  -o CMakeFiles/cmTC_1032e.dir/src.c.o -c /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: return type defaults to ‘int’ [-Wimplicit-int]
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_993b2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_993b2.dir/build.make CMakeFiles/cmTC_993b2.dir/build
+gmake[1] : on entre dans le répertoire « /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_993b2.dir/src.c.o
+/usr/bin/cc -DHAVE___DECLSPEC_DLLIMPORT_  -O3 -O3 -g -fopenmp -fopenmp -Wall  -o CMakeFiles/cmTC_993b2.dir/src.c.o -c /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: return type defaults to ‘int’ [-Wimplicit-int]
     1 | __declspec(dllimport) void func(); void func() { } int main() { func(); return 0; }
       | ^~~~~~~~~~
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c: In function ‘__declspec’:
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:48: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c: In function ‘__declspec’:
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:48: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
     1 | __declspec(dllimport) void func(); void func() { } int main() { func(); return 0; }
       |                                                ^
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:63: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:63: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
     1 | __declspec(dllimport) void func(); void func() { } int main() { func(); return 0; }
       |                                                               ^
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: type of ‘dllimport’ defaults to ‘int’ [-Wimplicit-int]
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:1: warning: type of ‘dllimport’ defaults to ‘int’ [-Wimplicit-int]
     1 | __declspec(dllimport) void func(); void func() { } int main() { func(); return 0; }
       | ^~~~~~~~~~
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:1:28: error: declaration for parameter ‘func’ but no such parameter
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:1:28: error: declaration for parameter ‘func’ but no such parameter
     1 | __declspec(dllimport) void func(); void func() { } int main() { func(); return 0; }
       |                            ^~~~
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:2: error: expected ‘{’ at end of input
-/home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp/src.c:2: warning: control reaches end of non-void function [-Wreturn-type]
-gmake[1]: *** [CMakeFiles/cmTC_1032e.dir/build.make:78 : CMakeFiles/cmTC_1032e.dir/src.c.o] Erreur 1
-gmake[1] : on quitte le répertoire « /home/mbagarre/Bureau/STOAT/build/CMakeFiles/CMakeTmp »
-gmake: *** [Makefile:127 : cmTC_1032e/fast] Erreur 2
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:2: error: expected ‘{’ at end of input
+/home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp/src.c:2: warning: control reaches end of non-void function [-Wreturn-type]
+gmake[1]: *** [CMakeFiles/cmTC_993b2.dir/build.make:78 : CMakeFiles/cmTC_993b2.dir/src.c.o] Erreur 1
+gmake[1] : on quitte le répertoire « /home/mbagarre/Bureau/stoat/build/CMakeFiles/CMakeTmp »
+gmake: *** [Makefile:127 : cmTC_993b2/fast] Erreur 2
 
 
 Source file was:

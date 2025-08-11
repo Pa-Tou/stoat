@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/alignment_io.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/alignment_io.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/alignment_io.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/alignment_io.hpp \
  /usr/include/c++/12/iostream \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -192,7 +192,7 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/unistd.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
  /usr/include/linux/close_range.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg/vg.pb.h \
+ /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg/vg.pb.h \
  /usr/include/c++/12/limits /usr/include/google/protobuf/port_def.inc \
  /usr/include/google/protobuf/port_undef.inc \
  /usr/include/google/protobuf/io/coded_stream.h /usr/include/assert.h \
@@ -303,13 +303,13 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/alignment_io.cpp.o: \
  /usr/include/htslib/kstring.h /usr/include/htslib/kroundup.h \
  /usr/include/htslib/sam.h /usr/include/htslib/hts.h \
  /usr/include/htslib/hts_endian.h /usr/include/htslib/vcf.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/named_node_back_translation.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/gafkluge.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/named_node_back_translation.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/gafkluge.hpp \
  /usr/include/c++/12/sstream /usr/include/c++/12/bits/sstream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/edit.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/edit.hpp \
  /usr/include/c++/12/regex /usr/include/c++/12/bitset \
  /usr/include/c++/12/locale \
  /usr/include/c++/12/bits/locale_facets_nonio.h \

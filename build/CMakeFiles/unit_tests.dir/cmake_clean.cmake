@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/bin/unit_tests"
-  "/home/mbagarre/Bureau/STOAT/bin/unit_tests.pdb"
+  "/home/mbagarre/Bureau/stoat/bin/unit_tests"
+  "/home/mbagarre/Bureau/stoat/bin/unit_tests.pdb"
   "CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o"
   "CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o.d"
   "CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o"

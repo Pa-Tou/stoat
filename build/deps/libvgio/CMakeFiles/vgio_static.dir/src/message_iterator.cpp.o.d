@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/message_iterator.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/message_iterator.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/message_iterator.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/message_iterator.hpp \
  /usr/include/c++/12/cassert \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -260,10 +260,10 @@ deps/libvgio/CMakeFiles/vgio_static.dir/src/message_iterator.cpp.o: \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/bits/unordered_set.h \
  /usr/include/google/protobuf/port.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/blocked_gzip_input_stream.hpp \
  /usr/include/google/protobuf/io/zero_copy_stream.h \
  /usr/include/htslib/bgzf.h /usr/include/htslib/hts_defs.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/registry.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/registry.hpp \
  /usr/include/c++/12/typeindex \
  /usr/include/google/protobuf/util/type_resolver.h \
  /usr/include/google/protobuf/type.pb.h \

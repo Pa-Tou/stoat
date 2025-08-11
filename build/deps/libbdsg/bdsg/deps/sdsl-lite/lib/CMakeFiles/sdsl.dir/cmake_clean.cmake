@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.pdb"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.3"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.3"
   "CMakeFiles/sdsl.dir/bits.cpp.o"
   "CMakeFiles/sdsl.dir/bits.cpp.o.d"
   "CMakeFiles/sdsl.dir/bp_support_algorithm.cpp.o"

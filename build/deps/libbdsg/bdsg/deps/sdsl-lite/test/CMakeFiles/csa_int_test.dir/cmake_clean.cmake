@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/csa_int_test"
-  "/home/mbagarre/Bureau/STOAT/deps/libbdsg/bin/csa_int_test.pdb"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/csa_int_test"
+  "/home/mbagarre/Bureau/stoat/deps/libbdsg/bin/csa_int_test.pdb"
   "CMakeFiles/csa_int_test.dir/csa_int_test.cpp.o"
   "CMakeFiles/csa_int_test.dir/csa_int_test.cpp.o.d"
 )

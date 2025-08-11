@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -Dhandlegraph_shared_EXPORTS
 
-CXX_INCLUDES = -I/home/mbagarre/Bureau/STOAT/deps/eigen
+CXX_INCLUDES = -I/home/mbagarre/Bureau/stoat/deps/eigen
 
 CXX_FLAGS =  -O3 -O3 -g -fPIC -std=c++14
 

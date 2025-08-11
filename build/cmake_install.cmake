@@ -1,4 +1,4 @@
-# Install script for directory: /home/mbagarre/Bureau/STOAT
+# Install script for directory: /home/mbagarre/Bureau/stoat
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -49,12 +49,12 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwt.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/STOAT/build/libgbwt.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/stoat/build/libgbwt.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwt.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwt.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwt.so"
-         OLD_RPATH "/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib:"
+         OLD_RPATH "/home/mbagarre/Bureau/stoat/deps/libbdsg/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwt.so")
@@ -72,12 +72,12 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwtgraph.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/STOAT/build/libgbwtgraph.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/mbagarre/Bureau/stoat/build/libgbwtgraph.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwtgraph.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwtgraph.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwtgraph.so"
-         OLD_RPATH "/home/mbagarre/Bureau/STOAT/build:/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph:/home/mbagarre/Bureau/STOAT/deps/libbdsg/lib:"
+         OLD_RPATH "/home/mbagarre/Bureau/stoat/build:/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph:/home/mbagarre/Bureau/stoat/deps/libbdsg/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libgbwtgraph.so")
@@ -90,9 +90,9 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libhandlegraph/cmake_install.cmake")
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libvgio/cmake_install.cmake")
-  include("/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libhandlegraph/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libvgio/cmake_install.cmake")
+  include("/home/mbagarre/Bureau/stoat/build/deps/libbdsg/cmake_install.cmake")
 
 endif()
 
@@ -104,5 +104,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/mbagarre/Bureau/STOAT/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/mbagarre/Bureau/stoat/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

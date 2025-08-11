@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DMODE_TI -Dsdsl_EXPORTS
 
-CXX_INCLUDES = -I/home/mbagarre/Bureau/STOAT/deps/eigen -I/home/mbagarre/Bureau/STOAT/deps/libbdsg -I/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include -I/home/mbagarre/Bureau/STOAT/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../external/libdivsufsort/include -I/home/mbagarre/Bureau/STOAT/deps/libbdsg/bdsg/deps/sdsl-lite/include
+CXX_INCLUDES = -I/home/mbagarre/Bureau/stoat/deps/eigen -I/home/mbagarre/Bureau/stoat/deps/libbdsg -I/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../include -I/home/mbagarre/Bureau/stoat/build/deps/libbdsg/bdsg/deps/sdsl-lite/lib/../external/libdivsufsort/include -I/home/mbagarre/Bureau/stoat/deps/libbdsg/bdsg/deps/sdsl-lite/include
 
 CXX_FLAGS =  -O3 -O3 -g -fopenmp -fopenmp -std=c++17 -Wall -Wextra -DNDEBUG -O3 -DNDEBUG -fPIC -std=c++14
 

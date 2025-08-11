@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/bin/stoat"
-  "/home/mbagarre/Bureau/STOAT/bin/stoat.pdb"
+  "/home/mbagarre/Bureau/stoat/bin/stoat"
+  "/home/mbagarre/Bureau/stoat/bin/stoat.pdb"
   "CMakeFiles/stoat.dir/src/main.cpp.o"
   "CMakeFiles/stoat.dir/src/main.cpp.o.d"
 )

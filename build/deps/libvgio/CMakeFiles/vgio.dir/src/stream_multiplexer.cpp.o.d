@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio.dir/src/stream_multiplexer.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/src/stream_multiplexer.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/src/stream_multiplexer.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libvgio/include/vg/io/stream_multiplexer.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libvgio/include/vg/io/stream_multiplexer.hpp \
  /usr/include/c++/12/sstream /usr/include/c++/12/istream \
  /usr/include/c++/12/ios /usr/include/c++/12/iosfwd \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \

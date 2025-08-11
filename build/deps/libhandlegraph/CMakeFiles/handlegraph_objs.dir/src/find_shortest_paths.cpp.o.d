@@ -1,7 +1,7 @@
 deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.o: \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/find_shortest_paths.cpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/find_shortest_paths.cpp \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/find_shortest_paths.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/find_shortest_paths.hpp \
  /usr/include/c++/12/unordered_map /usr/include/c++/12/type_traits \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -50,8 +50,8 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.
  /usr/include/c++/12/bits/unordered_map.h \
  /usr/include/c++/12/bits/range_access.h \
  /usr/include/c++/12/bits/erase_if.h \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/types.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/handle_graph.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/types.hpp \
  /usr/include/c++/12/cstdint \
  /usr/lib/gcc/x86_64-linux-gnu/12/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
@@ -65,7 +65,7 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.
  /usr/include/c++/12/functional /usr/include/c++/12/bits/refwrap.h \
  /usr/include/c++/12/bits/std_function.h /usr/include/c++/12/typeinfo \
  /usr/include/c++/12/limits \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/iteratee.hpp \
  /usr/include/c++/12/string /usr/include/c++/12/bits/stringfwd.h \
  /usr/include/c++/12/bits/char_traits.h \
  /usr/include/c++/12/bits/postypes.h /usr/include/c++/12/cwchar \
@@ -169,6 +169,6 @@ deps/libhandlegraph/CMakeFiles/handlegraph_objs.dir/src/find_shortest_paths.cpp.
  /usr/include/c++/12/bits/basic_ios.tcc \
  /usr/include/c++/12/bits/ostream.tcc /usr/include/c++/12/istream \
  /usr/include/c++/12/bits/istream.tcc \
- /home/mbagarre/Bureau/STOAT/deps/libhandlegraph/src/include/handlegraph/algorithms/dijkstra.hpp \
+ /home/mbagarre/Bureau/stoat/deps/libhandlegraph/src/include/handlegraph/algorithms/dijkstra.hpp \
  /usr/include/c++/12/unordered_set \
  /usr/include/c++/12/bits/unordered_set.h

@@ -1,7 +1,7 @@
 deps/libvgio/CMakeFiles/vgio.dir/vg.pb.cc.o: \
- /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.cc \
+ /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.cc \
  /usr/include/stdc-predef.h \
- /home/mbagarre/Bureau/STOAT/build/deps/libvgio/vg.pb.h \
+ /home/mbagarre/Bureau/stoat/build/deps/libvgio/vg.pb.h \
  /usr/include/c++/12/limits \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \

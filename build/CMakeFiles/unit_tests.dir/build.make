@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/STOAT
+CMAKE_SOURCE_DIR = /home/mbagarre/Bureau/stoat
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mbagarre/Bureau/STOAT/build
+CMAKE_BINARY_DIR = /home/mbagarre/Bureau/stoat/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/unit_tests.dir/depend.make
@@ -70,158 +70,158 @@ include CMakeFiles/unit_tests.dir/progress.make
 include CMakeFiles/unit_tests.dir/flags.make
 
 CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/main_test.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/main_test.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/main_test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/main_test.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/main_test.cpp > CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/main_test.cpp > CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/main_test.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/main_test.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/binary_test_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/binary_test_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/binary_test_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/binary_test_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/binary_test_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/binary_test_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/binary_test_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/binary_test_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/gaf_creator_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/gaf_creator_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/gaf_creator_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/gaf_creator_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/gaf_creator_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/gaf_creator_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/gaf_creator_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/gaf_creator_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_data_t_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/snarl_data_t_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_data_t_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/snarl_data_t_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_data_t_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/snarl_data_t_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_data_t_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/snarl_data_t_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/matrix_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/matrix_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/matrix_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/matrix_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/matrix_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/matrix_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/matrix_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/matrix_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/quantitative_test_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/quantitative_test_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/quantitative_test_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/quantitative_test_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/quantitative_test_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/quantitative_test_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/quantitative_test_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/quantitative_test_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/path_partitioner_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/path_partitioner_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/path_partitioner_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/path_partitioner_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/path_partitioner_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/path_partitioner_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/path_partitioner_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/path_partitioner_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/arg_parsing_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/arg_parsing_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/arg_parsing_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/arg_parsing_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/arg_parsing_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/arg_parsing_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/arg_parsing_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/arg_parsing_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/post_processing_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/post_processing_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/post_processing_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/post_processing_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/post_processing_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/post_processing_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/post_processing_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/post_processing_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_analyzer_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/snarl_analyzer_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_analyzer_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/snarl_analyzer_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_analyzer_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/snarl_analyzer_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/snarl_analyzer_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/snarl_analyzer_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.s
 
 CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o: CMakeFiles/unit_tests.dir/flags.make
-CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o: /home/mbagarre/Bureau/STOAT/tests/unittest/utils_unit.cpp
+CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o: /home/mbagarre/Bureau/stoat/tests/unittest/utils_unit.cpp
 CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o: CMakeFiles/unit_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o -c /home/mbagarre/Bureau/STOAT/tests/unittest/utils_unit.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o -MF CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o.d -o CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o -c /home/mbagarre/Bureau/stoat/tests/unittest/utils_unit.cpp
 
 CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/STOAT/tests/unittest/utils_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mbagarre/Bureau/stoat/tests/unittest/utils_unit.cpp > CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.i
 
 CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/STOAT/tests/unittest/utils_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mbagarre/Bureau/stoat/tests/unittest/utils_unit.cpp -o CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.s
 
 # Object files for target unit_tests
 unit_tests_OBJECTS = \
@@ -239,79 +239,79 @@ unit_tests_OBJECTS = \
 
 # External object files for target unit_tests
 unit_tests_EXTERNAL_OBJECTS = \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/utils.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/matrix.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/log.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/writer.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o" \
-"/home/mbagarre/Bureau/STOAT/build/CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o"
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/utils.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/matrix.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/log.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/writer.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o" \
+"/home/mbagarre/Bureau/stoat/build/CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o"
 
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/utils.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/matrix.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/log.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/writer.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/build.make
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libbdsg.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: /usr/lib/x86_64-linux-gnu/libjansson.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: libgbwtgraph.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: libgbwt.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: /home/mbagarre/Bureau/STOAT/deps/libbdsg/lib/libsdsl.so.2.3.1
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: deps/libvgio/libvgio.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: deps/libhandlegraph/libhandlegraph.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: /usr/lib/x86_64-linux-gnu/libprotobuf.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: /usr/lib/x86_64-linux-gnu/libpthread.a
-/home/mbagarre/Bureau/STOAT/bin/unit_tests: CMakeFiles/unit_tests.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/STOAT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable /home/mbagarre/Bureau/STOAT/bin/unit_tests"
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/main_test.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/binary_test_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/gaf_creator_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/snarl_data_t_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/matrix_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/quantitative_test_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/path_partitioner_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/arg_parsing_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/post_processing_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/snarl_analyzer_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/tests/unittest/utils_unit.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/utils.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/arg_parser.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/post_processing.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/gaf_creator.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/snarl_data_t.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/matrix.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/log.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/binary_table.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/quantitative_table.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/stats_test.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/writer.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/snarl_analyzer.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/graph_path_association_finder.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/partitioner.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbz.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_gbzgraph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_hash_graph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_loader_saver_packed_graph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/io/register_io.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/subcommand/vcf.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/subcommand/graph.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/stoat_objs.dir/src/subcommand/bh_correct.cpp.o
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/build.make
+/home/mbagarre/Bureau/stoat/bin/unit_tests: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libbdsg.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: /usr/lib/x86_64-linux-gnu/libjansson.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: libgbwtgraph.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: libgbwt.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libsdsl.so.2.3.1
+/home/mbagarre/Bureau/stoat/bin/unit_tests: deps/libvgio/libvgio.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: deps/libhandlegraph/libhandlegraph.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: /usr/lib/x86_64-linux-gnu/libprotobuf.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: /usr/lib/gcc/x86_64-linux-gnu/12/libgomp.so
+/home/mbagarre/Bureau/stoat/bin/unit_tests: /usr/lib/x86_64-linux-gnu/libpthread.a
+/home/mbagarre/Bureau/stoat/bin/unit_tests: CMakeFiles/unit_tests.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mbagarre/Bureau/stoat/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable /home/mbagarre/Bureau/stoat/bin/unit_tests"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/unit_tests.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-CMakeFiles/unit_tests.dir/build: /home/mbagarre/Bureau/STOAT/bin/unit_tests
+CMakeFiles/unit_tests.dir/build: /home/mbagarre/Bureau/stoat/bin/unit_tests
 .PHONY : CMakeFiles/unit_tests.dir/build
 
 CMakeFiles/unit_tests.dir/clean:
@@ -319,6 +319,6 @@ CMakeFiles/unit_tests.dir/clean:
 .PHONY : CMakeFiles/unit_tests.dir/clean
 
 CMakeFiles/unit_tests.dir/depend:
-	cd /home/mbagarre/Bureau/STOAT/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build /home/mbagarre/Bureau/STOAT/build/CMakeFiles/unit_tests.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mbagarre/Bureau/stoat/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build /home/mbagarre/Bureau/stoat/build/CMakeFiles/unit_tests.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/unit_tests.dir/depend
 

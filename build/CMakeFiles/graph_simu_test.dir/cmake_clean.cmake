@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/mbagarre/Bureau/STOAT/bin/graph_simu_test"
-  "/home/mbagarre/Bureau/STOAT/bin/graph_simu_test.pdb"
+  "/home/mbagarre/Bureau/stoat/bin/graph_simu_test"
+  "/home/mbagarre/Bureau/stoat/bin/graph_simu_test.pdb"
   "CMakeFiles/graph_simu_test.dir/tests/system/graph_simu_test.cpp.o"
   "CMakeFiles/graph_simu_test.dir/tests/system/graph_simu_test.cpp.o.d"
 )
