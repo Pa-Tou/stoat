@@ -1,1 +1,0 @@
-/usr/bin/cc -fPIC  -O3 -O3 -g -fopenmp -fopenmp -Wall -O3 -DNDEBUG -fomit-frame-pointer -shared -Wl,-soname,libdivsufsort64.so.3 -o /home/mbagarre/Bureau/stoat/deps/libbdsg/lib/libdivsufsort64.so.3.0.1 CMakeFiles/divsufsort64.dir/divsufsort.o CMakeFiles/divsufsort64.dir/sssort.o CMakeFiles/divsufsort64.dir/trsort.o CMakeFiles/divsufsort64.dir/utils.o 

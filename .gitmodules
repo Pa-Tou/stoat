@@ -1,0 +1,21 @@
+[submodule "deps/gbwt"]
+	path = deps/gbwt
+	url = https://github.com/jltsiren/gbwt.git
+[submodule "deps/libvgio"]
+	path = deps/libvgio
+	url = https://github.com/vgteam/libvgio.git
+[submodule "deps/libbdsg"]
+	path = deps/libbdsg
+	url = https://github.com/vgteam/libbdsg.git
+[submodule "deps/gbwtgraph"]
+	path = deps/gbwtgraph
+	url = https://github.com/jltsiren/gbwtgraph.git
+[submodule "deps/Catch2"]
+	path = deps/Catch2
+	url = https://github.com/catchorg/Catch2.git
+[submodule "deps/eigen"]
+	path = deps/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "deps/libhandlegraph"]
+	path = deps/libhandlegraph
+	url = https://github.com/vgteam/libhandlegraph
