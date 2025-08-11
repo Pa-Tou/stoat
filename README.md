@@ -30,41 +30,43 @@ In general, the latest versions of all of these tools should work.
 
 ## Docker
 
-- `Dockerfile` : [Dockerfile](https://github.com/Plogeur/STOAT/blob/main/Dockerfile)
+- `Dockerfile` : [Dockerfile](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile)
 
 - `Container` : docker://quay.io/matis_alias-bagarre/stoat
 
 ## Build
 
 ```bash
-git clone --recursive --branch stoat_cxx https://github.com/Plogeur/STOAT.git
-cd STOAT
+git clone --recursive https://github.com/Pa-Tou/stoat.git
+cd stoat
 
 mkdir build && cd build
 cmake .. && make -j 4
 ```
 
-This will create a binary file `stoat` in `STOAT/bin`. 
-It can be run from the main `STOAT` directory with:
+This will create a binary file `stoat` in `stoat/bin`. 
+It can be run from the main `stoat` directory with:
 
-```
+```bash
 ./bin/stoat
 ```
 
 The `bin` directory can be added to your `PATH` variable to allow `stoat` to be run from any directory.
-From the `STOAT` directory, run:
+From the `stoat` directory, run:
 
-```
+```bash
 echo 'export PATH="${PATH}:'"$(pwd)"'/bin"' >>~/.bashrc
 ```
 
 Then close your terminal and open it again, or run
 
-```
+```bash
 source ~/.bashrc
 ```
 
-STOAT is a specialized tool developed for conducting Genome-Wide Association Studies (GWAS) with a unique focus on snarl structures within pangenome graphs. Unlike traditional GWAS tools that analyze linear genome variants, STOAT processes VCF files to extract and analyze snarl regions—complex structural variations that capture nested and overlapping variant patterns within a pangenome. This approach allows for a more nuanced understanding of genetic variations in diverse populations and complex traits.
+## Running STOAT
+
+STOAT is a specialized tool developed for conducting Genome-Wide Association Studies (GWAS) with a unique focus on snarl structures within pangenome graphs. Unlike traditional GWAS tools that analyze linear genome variants, STOAT uses the [snarl decomposition](https://github.com/vgteam/vg/wiki/Snarls-and-chains) of a graph, which represents nested and overlapping variant patterns within a pangenome. This approach allows for a more nuanced understanding of genetic variations in diverse populations and complex traits.
 
 STOAT supports both binary and quantitative phenotypes:
 
@@ -72,11 +74,11 @@ STOAT supports both binary and quantitative phenotypes:
 
 - For quantitative phenotypes (e.g., traits measured on a continuous scale), the tool employs linear regression models to assess the association between snarl structures and phenotype values, allowing for continuous trait mapping with greater precision.
 
-## Usage
-
+### Usage
+  
 `stoat` has two main use cases, finding associations from a [VCF file](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf) and finding associations from [paths in the graph](https://github.com/Pa-Tou/stoat/wiki/stoat-graph).
 
-- Use `stoat vcf` if you want to make a GWAS from a VCF file : 
+- Use `stoat vcf` if you want to run a GWAS from a VCF file : 
 
 ```bash
 # decompose pangenome
