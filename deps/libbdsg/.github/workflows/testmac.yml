@@ -1,0 +1,37 @@
+name: Test Mac
+
+# Run on our main branch and any PRs to it, and on release tags, but not every
+# commit in every branch.
+on:
+  push:
+    branches:    
+      - master
+    tags:
+      - "*"
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  testmac:
+    name: Test on Mac
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      
+      - name: Run build and test
+        run: |
+          set -e
+          brew install libomp doxygen jansson
+          mkdir -p build
+          cd build
+          cmake .. -DRUN_DOXYGEN=ON -DPYTHON_EXECUTABLE="$(which python3)"
+          echo "Build with $(nproc) threads"
+          make -j$(nproc) VERBOSE=1
+          ../bin/test_libbdsg
+          (cd ../lib && python3 -c 'import bdsg; print(bdsg)')
+        shell: bash

@@ -1,0 +1,2 @@
+FID IID PHENO
+F1 I1

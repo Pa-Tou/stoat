@@ -1,0 +1,111 @@
+
+# snakemake --cores 1 --snakefile create_simu/Snakefile_simulation --configfile create_simu/config/config_binary.yaml
+
+NREADS = config['nreads']
+NVAR = config['nvar']
+NSAMP = config['nsamp']
+SNP_PROP = config['snp_prop']
+NESTED_PROP = config['nested_prop']
+NCOV = config['ncov']
+NGENE = config['ngene']
+GENE_PROB = config['gene_prob']
+PHENOTYPE = config['phenotype']
+GROUPS = ['0','1']
+
+rule main:
+    input: f"{PHENOTYPE}/merged_{PHENOTYPE}.vcf.gz"
+
+rule pg_simulate:
+    output: '{phenotype}/pg.{phenotype}.full.gfa'
+    shell: 
+        """
+        python3 create_simu/scripts/simulate_test_dataset.py \
+        --nvar {NVAR} --nsamp {NSAMP} --snp_prop {SNP_PROP} \
+        --nested_prop {NESTED_PROP} --ncov {NCOV} --ngene {NGENE} \
+        --gene_prob {GENE_PROB} --{PHENOTYPE} --sex_cov --output {PHENOTYPE}
+        """
+
+rule gfa_to_pg:
+    input: '{phenotype}/pg.{phenotype}.full.gfa'
+    output: '{phenotype}/pg.{phenotype}.full.pg'
+    threads: 4
+    shell: "vg convert -t {threads} -g {input}  > {output}"
+
+rule index_pg:
+    input: '{phenotype}/pg.{phenotype}.full.pg'
+    output: '{phenotype}/pg.{phenotype}.full.xg'
+    threads: 4
+    shell: "vg index -t {threads} -x {output} {input}"
+
+rule simulate_reads:
+    input: '{phenotype}/pg.{phenotype}.full.pg'
+    output: '{phenotype}/reads/{samp}.fq.gz'
+    threads: 8
+    shell: "vg sim -t {threads} -x {input} -n {NREADS} -l 150 -a -P {wildcards.samp}_h0 -P {wildcards.samp}_h1 | vg view -aX - | gzip > {output}"
+
+rule index_pg_giraffe:
+    input: '{phenotype}/pg.{phenotype}.full.xg'
+    output: '{phenotype}/pg.{phenotype}.full.giraffe.gbz'
+    threads: 8
+    shell: "vg giraffe -t {threads} -x {input}"
+
+rule map_reads:
+    input:
+        xg='{phenotype}/pg.{phenotype}.full.xg',
+        gbz='{phenotype}/pg.{phenotype}.full.giraffe.gbz',
+        fq='{phenotype}/reads/samp_g{group}_{samp}.fq.gz'
+    output: '{phenotype}/gafs/samp_g{group}_{samp}.gaf.gz'
+    threads: 8
+    shell: "vg giraffe -t {threads} -x {input.xg} -o gaf -f {input.fq} | gzip > {output}"
+
+rule pack_gaf:
+    input:
+        xg='{phenotype}/pg.{phenotype}.full.xg',
+        gaf='{phenotype}/gafs/samp_g{group}_{samp}.gaf.gz'
+    output: '{phenotype}/gafs/samp_g{group}_{samp}.pack'
+    threads: 4
+    shell: 'vg pack -t {threads} -x {input.xg} -o {output} -a {input.gaf}'
+
+rule call_variants:
+    input:
+        xg='{phenotype}/pg.{phenotype}.full.xg',
+        pack='{phenotype}/gafs/samp_g{group}_{samp}.pack'
+    output: '{phenotype}/calls/samp_g{group}_{samp}.vcf.gz'
+    threads: 4
+    shell:
+        """
+        vg call -t {threads} -a -A -p ref -k {input.pack} {input.xg} | bgzip > {output}
+        """
+
+rule reheader_variants:
+    input:
+        vcf='{phenotype}/calls/samp_g{group}_{samp}.vcf.gz'
+    output: '{phenotype}/calls/samp_g{group}_{samp}.vcf.rh.gz'
+    params:
+        samp="temp_{samp}.txt"
+    shell:
+        """
+        echo samp_g{wildcards.group}_{wildcards.samp} > {params.samp}
+        bcftools reheader {input.vcf} -s {params.samp} -o {output}
+        """
+
+rule index_variants:
+    input:
+        vcf='{phenotype}/calls/samp_g{group}_{samp}.vcf.rh.gz'
+    output: '{phenotype}/calls/samp_g{group}_{samp}.vcf.rh.gz.csi'
+    threads: 4
+    shell:
+        """
+        bcftools index -f {input.vcf} -c --threads {threads} -o {output}
+        """
+
+rule merge_variants:
+    input:
+        vcf=expand('{phenotype}/calls/samp_g{group}_{samp}.vcf.rh.gz', group=GROUPS, samp=list(range(NSAMP//2)), phenotype=PHENOTYPE),
+        idx_vcf=expand('{phenotype}/calls/samp_g{group}_{samp}.vcf.rh.gz.csi', group=GROUPS, samp=list(range(NSAMP//2)), phenotype=PHENOTYPE)
+    output: "{phenotype}/merged_{phenotype}.vcf.gz"
+    threads: 6
+    shell:
+        """
+        bcftools merge {input.vcf} --threads {threads} -m none -0 -Oz -o {output}
+        """

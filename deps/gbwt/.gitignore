@@ -1,0 +1,37 @@
+# Dependencies, objects, and libraries
+*.d
+*.o
+*.a
+
+# Build directories
+bin
+lib
+obj
+build
+
+# Tools
+build_gbwt
+build_ri
+merge_gbwt
+benchmark
+metadata_tool
+remove_seq
+
+# Tests
+test_bwtmerge
+test_metadata
+test_queries
+test_support
+test_variants
+
+# Mac
+.DS_Store
+
+# emacs
+*~
+
+# vim
+\#*
+
+# vscode
+.vscode

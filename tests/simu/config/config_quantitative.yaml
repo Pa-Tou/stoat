@@ -1,0 +1,9 @@
+nreads: 50000           # Number of reads per sample
+nvar: 1000              # Number of top-level variants
+nsamp: 200              # Number of samples
+snp_prop: 0.7           # Proportion of top-level variants that are SNPs
+nested_prop: 0.8        # Proportion of indels to add nested SNPs into
+ncov: 3                 # Number of covariates
+ngene: 100              # Number of genes for eQTL phenotype
+gene_prob: 0.1          # Probability of a gene being significant for eQTL phenotype
+phenotype: "quantitative"       # Phenotype type
