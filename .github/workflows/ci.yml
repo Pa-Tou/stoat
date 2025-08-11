@@ -41,6 +41,6 @@ jobs:
 
       - name: Build STOAT C++ and run unit tests
         run: |
-          mkdir build && cd build
+          mkdir -p build && cd build
           cmake .. && make -j$(nproc)
           ../bin/unit_tests
