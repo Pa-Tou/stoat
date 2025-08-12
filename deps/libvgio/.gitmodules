@@ -1,3 +1,0 @@
-[submodule "deps/libhandlegraph"]
-	path = deps/libhandlegraph
-	url = https://github.com/vgteam/libhandlegraph.git
