@@ -12,20 +12,20 @@ bool run_test(
     const std::string& data_path,
     const std::string phenotype_command,
     const std::string phenotype,
-    bool use_covariate = false) {
+    const std::string graph_base,
+    const std::vector<std::string> samples_of_interest) {
 
     clean_output_dir(output_dir);
 
     std::string cmd = binary + " graph"
-        + " -g " + data_path + "/pg.full.pg"
-        + " -d " + data_path + "/pg.full.dist"
-        + " -S " + data_path + "/samples.g0.tsv"
+        + " -g " + data_path + "/" + graph_base + ".pg"
+        + " -d " + data_path + "/" + graph_base + ".dist"
         + phenotype_command + " -r ref";
 
-    if (use_covariate) {
-        cmd += " --covariate " + data_path + "/covariate.tsv"
-             + " --covar-name CP1,SEX,CP3";
+    for (const auto& sample : samples_of_interest) {
+        cmd += " -s " + sample;
     }
+
 
     cmd += " --output " + output_dir;
 
@@ -49,34 +49,12 @@ TEST_CASE("Binary association tests graph", "[binary]") {
     const std::string data_path = "../data/binary";
     const std::string phenotype_command = " -T chi2 ";
     const std::string phenotype = "binary";
+    std::vector<std::string> samples = {"samp_g0_60_h1", "samp_g0_8_h0", "samp_g0_73_h1", "samp_g0_12_h0", "samp_g0_8_h1", "samp_g0_94_h1", "samp_g0_94_h0", "samp_g0_78_h1", "samp_g0_16_h1", "samp_g0_16_h0", "samp_g0_19_h0", "samp_g0_19_h1", "samp_g0_78_h0", "samp_g0_75_h1", "samp_g0_75_h0", "samp_g0_38_h1", "samp_g0_61_h1", "samp_g0_21_h0", "samp_g0_21_h1", "samp_g0_30_h1", "samp_g0_38_h0", "samp_g0_70_h1", "samp_g0_30_h0", "samp_g0_70_h0", "samp_g0_61_h0", "samp_g0_99_h0", "samp_g0_99_h1", "samp_g0_59_h1", "samp_g0_59_h0", "samp_g0_7_h1", "samp_g0_32_h0", "samp_g0_7_h0", "samp_g0_32_h1", "samp_g0_50_h0", "samp_g0_50_h1", "samp_g0_24_h0", "samp_g0_24_h1", "samp_g0_22_h0", "samp_g0_22_h1", "samp_g0_77_h1", "samp_g0_77_h0", "samp_g0_9_h0", "samp_g0_9_h1", "samp_g0_48_h1", "samp_g0_48_h0", "samp_g0_46_h1", "samp_g0_20_h1", "samp_g0_46_h0", "samp_g0_64_h0", "samp_g0_95_h1", "samp_g0_64_h1", "samp_g0_95_h0", "samp_g0_18_h0", "samp_g0_18_h1", "samp_g0_49_h1", "samp_g0_20_h0", "samp_g0_52_h0", "samp_g0_52_h1", "samp_g0_91_h1", "samp_g0_91_h0", "samp_g0_41_h1", "samp_g0_41_h0", "samp_g0_23_h1", "samp_g0_3_h1", "samp_g0_3_h0", "samp_g0_23_h0", "samp_g0_28_h0", "samp_g0_28_h1", "samp_g0_93_h0", "samp_g0_93_h1", "samp_g0_39_h0", "samp_g0_39_h1", "samp_g0_76_h0", "samp_g0_88_h0", "samp_g0_76_h1", "samp_g0_88_h1", "samp_g0_29_h0", "samp_g0_29_h1", "samp_g0_1_h0", "samp_g0_1_h1", "samp_g0_10_h1", "samp_g0_10_h0", "samp_g0_25_h0", "samp_g0_25_h1", "samp_g0_0_h0", "samp_g0_0_h1", "samp_g0_11_h0", "samp_g0_11_h1", "samp_g0_2_h0", "samp_g0_2_h1", "samp_g0_56_h0", "samp_g0_56_h1", "samp_g0_13_h1", "samp_g0_13_h0", "samp_g0_55_h0", "samp_g0_55_h1", "samp_g0_98_h0", "samp_g0_98_h1", "samp_g0_71_h1", "samp_g0_71_h0", "samp_g0_83_h0", "samp_g0_31_h1", "samp_g0_31_h0", "samp_g0_96_h0", "samp_g0_83_h1", "samp_g0_96_h1", "samp_g0_51_h0", "samp_g0_51_h1", "samp_g0_72_h0", "samp_g0_72_h1", "samp_g0_47_h0", "samp_g0_47_h1", "samp_g0_34_h0", "samp_g0_34_h1", "samp_g0_65_h0", "samp_g0_65_h1", "samp_g0_4_h1", "samp_g0_4_h0", "samp_g0_90_h1", "samp_g0_90_h0", "samp_g0_35_h0", "samp_g0_35_h1", "samp_g0_67_h0", "samp_g0_67_h1", "samp_g0_84_h0", "samp_g0_66_h0", "samp_g0_66_h1", "samp_g0_84_h1", "samp_g0_68_h1", "samp_g0_26_h1", "samp_g0_26_h0", "samp_g0_85_h1", "samp_g0_85_h0", "samp_g0_89_h0", "samp_g0_89_h1", "samp_g0_68_h0", "samp_g0_14_h0", "samp_g0_42_h1", "samp_g0_54_h1", "samp_g0_42_h0", "samp_g0_54_h0", "samp_g0_14_h1", "samp_g0_62_h1", "samp_g0_6_h1", "samp_g0_36_h1", "samp_g0_49_h0", "samp_g0_36_h0", "samp_g0_6_h0", "samp_g0_81_h0", "samp_g0_62_h0", "samp_g0_81_h1", "samp_g0_40_h0", "samp_g0_43_h1", "samp_g0_40_h1", "samp_g0_43_h0", "samp_g0_45_h0", "samp_g0_82_h0", "samp_g0_45_h1", "samp_g0_82_h1", "samp_g0_5_h1", "samp_g0_5_h0", "samp_g0_27_h0", "samp_g0_27_h1", "samp_g0_92_h0", "samp_g0_92_h1", "samp_g0_87_h0", "samp_g0_87_h1", "samp_g0_86_h1", "samp_g0_86_h0", "samp_g0_74_h0", "samp_g0_74_h1", "samp_g0_57_h1", "samp_g0_57_h0", "samp_g0_53_h1", "samp_g0_97_h0", "samp_g0_53_h0", "samp_g0_97_h1", "samp_g0_17_h1", "samp_g0_17_h0", "samp_g0_69_h1", "samp_g0_69_h0", "samp_g0_33_h1", "samp_g0_33_h0", "samp_g0_37_h0", "samp_g0_37_h1", "samp_g0_44_h0", "samp_g0_63_h1", "samp_g0_44_h1", "samp_g0_63_h0", "samp_g0_79_h0", "samp_g0_79_h1", "samp_g0_15_h1", "samp_g0_15_h0", "samp_g0_80_h1", "samp_g0_80_h0", "samp_g0_12_h1", "samp_g0_58_h1", "samp_g0_58_h0", "samp_g0_73_h0", "samp_g0_60_h0"};
 
     SECTION("Without covariate") {
-        REQUIRE(run_test(binary, output_dir, expected_dir, data_path, phenotype_command, phenotype, false));
+        REQUIRE(run_test(binary, output_dir, expected_dir, data_path, phenotype_command, phenotype, "pg.full", samples));
         clean_output_dir(output_dir);
     }
 
-    // SECTION("With covariate") {
-    //     REQUIRE(run_test(binary, output_dir, expected_dir_covar, data_path, phenotype_command, true));
-    // }
 }
 
-// TEST_CASE("Quantitative trait tests graph", "[quantitative]") {
-//     const std::string binary = "./stoat";
-//     const std::string output_dir = "../output_quantitative";
-//     const std::string expected_dir = "../tests/expected_output/graph/quantitative";
-//     const std::string expected_dir_covar = "../tests/expected_output/graph/quantitative_covar";
-//     const std::string data_path = "../data/quantitative";
-//     const std::string phenotype_command = " -q ";
-//     const std::string phenotype = "quantitative";
-
-//     //TODO: I added this so it would compile, idk what it should be
-//     std::string sample_of_interest;
-
-//     SECTION("Without covariate") {
-//         REQUIRE(run_test(binary, output_dir, expected_dir, data_path, sample_of_interest, false));
-//     }
-
-//     SECTION("With covariate") {
-//         REQUIRE(run_test(binary, output_dir, expected_dir_covar, data_path, sample_of_interest, true));
-//     }
-// }
