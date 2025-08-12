@@ -140,6 +140,8 @@ void linear_regression(
     }
 }
 
+using namespace Rcpp;
+
 // [[Rcpp::export]]
 Rcpp::List cpp_linear_regression_maths(Rcpp::NumericMatrix X_raw, Rcpp::NumericVector y) {
     int n = X_raw.nrow();
@@ -153,6 +155,7 @@ Rcpp::List cpp_linear_regression_maths(Rcpp::NumericMatrix X_raw, Rcpp::NumericV
 
     auto Xt = transpose(X);
     auto XtX = matmul(Xt, X);
+
     auto XtX_inv = inverse(XtX);
     std::vector<double> y_vec(y.begin(), y.end());
     auto Xty = matvec(Xt, y_vec);
@@ -176,16 +179,25 @@ Rcpp::List cpp_linear_regression_maths(Rcpp::NumericMatrix X_raw, Rcpp::NumericV
         double se = std::sqrt(sigma2 * XtX_inv[i][i]);
         double t_stat = beta[i] / se;
         boost::math::students_t dist(df_resid);
-        double pval = 2 * boost::math::cdf(boost::math::complement(dist, std::fabs(t_stat)));
-        p_values.push_back(pval)
+        double pval;
+        if (std::isnan(t_stat) || std::isinf(t_stat)) {
+            pval = 1.0;
+        } else {
+            try {
+                pval = 2 * boost::math::cdf(boost::math::complement(dist, std::abs(t_stat)));
+            } catch (...) {
+                pval = 1.0; // fallback if Boost still fails
+            }
+        }
+
+        p_values.push_back(pval);
     }
 
-    return List::create(
+    return Rcpp::List::create(
         _["coefficients"] = beta,
         _["p_values"] = p_values
     );
 }
-
 
 int main() {
 
