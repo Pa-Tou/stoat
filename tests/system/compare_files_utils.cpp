@@ -99,6 +99,53 @@ bool files_equal(const std::string& file1, const std::string& file2) {
     return true;
 }
 
+bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, std::string, std::string>>& fasta_records) {
+    std::unordered_map<std::string, std::pair<size_t, std::string>> header_to_sequence;
+    size_t record_count = 0;
+    for (auto& record : fasta_records) {
+        record_count = std::max(record_count, std::get<0>(record));
+        header_to_sequence.emplace(std::string(std::get<1>(record)), std::make_pair(std::get<0>(record), std::get<2>(record)));
+    }
+
+    //Check that each equivalence class is represented in the file 
+    std::vector<bool> has_record(record_count, false);
+    size_t actual_record_count = 0;
+
+    std::ifstream infile(file);
+    std::string line;
+
+    while (std::getline(infile, line)) {
+        std::string header = line;
+        std::string seq = "";
+        while (infile.peek() != '>') {
+            std::getline(infile, line);
+            seq += line;
+        }
+        if (!header_to_sequence.count(header)) {
+            std::cerr << "FASTA output contains unknown header: " << header << std::endl;
+            return false;
+        }
+        const std::pair<size_t, std::string>& truth = header_to_sequence.at(header);
+        if (seq != truth.second) {
+            std::cerr << "FASTA output with header" << std::endl << header << std::endl;
+            std::cerr << "contains different sequence" << std::endl;
+            std::cerr << "FASTA: " << seq << std::endl;
+            std::cerr << "Truth: " << truth.second << std::endl;
+
+            return false;
+        }
+
+        if (has_record[truth.first]) {
+            std::cerr << "FASTA output has duplicate header " << header << std::endl;
+        }
+
+        has_record[truth.first] = true;
+    }
+    return true;
+
+
+}
+
 bool compare_output_dirs(const std::string& output_dir, const std::string& expected_dir) {
     for (const auto& file : fs::directory_iterator(expected_dir)) {
         auto expected_file = file.path();
