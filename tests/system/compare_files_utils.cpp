@@ -102,10 +102,17 @@ bool files_equal(const std::string& file1, const std::string& file2) {
 
 bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, std::string, std::string>>& fasta_records) {
     std::unordered_map<std::string, std::pair<size_t, std::string>> header_to_sequence;
+    std::unordered_map<size_t, std::vector<std::string>> set_to_header;
     size_t record_count = 0;
     for (auto& record : fasta_records) {
-        record_count = std::max(record_count, std::get<0>(record));
-        header_to_sequence.emplace(std::string(std::get<1>(record)), std::make_pair(std::get<0>(record), std::get<2>(record)));
+        size_t set_id = std::get<0>(record);
+        record_count = std::max(record_count, set_id);
+        header_to_sequence.emplace(std::string(std::get<1>(record)), std::make_pair(set_id, std::get<2>(record)));
+
+        if (!set_to_header.count(set_id)) {
+            set_to_header.emplace(set_id, std::vector<std::string>());
+        }
+        set_to_header.at(set_id).emplace_back(std::get<1>(record));
     }
 
     //Check that each equivalence class is represented in the file 
@@ -141,8 +148,24 @@ bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, s
         }
 
         has_record[truth.first] = true;
+        actual_record_count ++;
     }
     infile.close();
+    for (size_t i = 1 ; i < record_count+1 ; i++) {
+        if (!has_record[i]) {
+            cerr << i << endl;
+            cerr << "Fasta output should have one of the following records" << endl;
+            for (const auto& header : set_to_header.at(i)) {
+                cerr << "\t" << header << endl;
+            }
+            return false;
+        }
+    }
+
+    if (actual_record_count != record_count) {
+        cerr << "Fasta output has " << actual_record_count << " records, should have " << record_count << endl;
+        return false;
+    }
     return true;
 
 

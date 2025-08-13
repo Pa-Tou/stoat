@@ -69,7 +69,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
 
         cmd += " --output " + output_dir;
-            std::cerr << "Command failed: " << cmd << "\n";
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -100,7 +99,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
 
         cmd += " --output " + output_dir;
-            std::cerr << "Command failed: " << cmd << "\n";
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -146,11 +144,18 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
         truth_fasta.emplace_back(1, ">snarl:1-4|path0:1-2|path0:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1-4|path0:1-2|path1:1-2", "C");
         truth_fasta.emplace_back(2, ">snarl:1-4|path0:1-2|path2:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1-4|path0:1-2|path3:1-2", "C");
+
         truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path0:3-6", "TCA");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path1:3-6", "TA");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path3:3-6", "TA");
         truth_fasta.emplace_back(4, ">snarl:4-8|path0:3-6|path2:3-3", "");
+
         truth_fasta.emplace_back(5, ">snarl:5-7|path0:4-5|path0:4-5", "C");
         truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path1:4-4", "");
+        truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path3:4-4", "");
         REQUIRE(fasta_equal(output_dir+"/associated.fasta", truth_fasta));
 
 
