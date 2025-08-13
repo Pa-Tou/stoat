@@ -1,3 +1,12 @@
+// [[Rcpp::depends(RcppEigen)]]
+// [[Rcpp::plugins(cpp11)]]
+// [[Rcpp::depends(BH)]]
+// [[Rcpp::depends(RcppGSL)]]
+// [[Rcpp::plugins(openmp)]]
+
+#define EIGEN_DONT_VECTORIZE
+#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
+
 #include <stdio.h>
 #include <algorithm>
 #include <cassert>
@@ -7,10 +16,13 @@
 #include <vector>
 #include <iostream>
 #include <Rcpp.h>
+#include <RcppEigen.h>
+#include <RcppGSL.h>
 
 #include "Eigen/Cholesky"
 #include "Eigen/Core"
 #include "gsl/gsl_cdf.h"
+#include <gsl/gsl_cdf.h>
 
 #define DECLARE_EIGEN_VECTOR(v, v_e) Eigen::Map<Eigen::VectorXd> v_e((v).data.data(), (v).data.size())
 #define DECLARE_EIGEN_CONST_VECTOR(v, v_e) Eigen::Map<const Eigen::VectorXd> v_e((v).data.data(), (v).data.size())
@@ -246,14 +258,21 @@ bool LinearRegression::FitLinearModel(const Matrix& X, const Vector& y) {
   return true;
 }
 
+// [[Rcpp::depends(RcppGSL)]]
+// [[Rcpp::export]]
+double my_gsl_chisq_Q(double x, double df) {
+  return gsl_cdf_chisq_Q(x, df);
+}
+
 Vector& LinearRegression::GetAsyPvalue() {
   int numCov = B.Length();
   pValue.Dimension(numCov);
   for (int i = 0; i < numCov; ++i) {
     double se = sqrt(covB(i, i));
     double t_stat = B[i] / se;
+
     double Zstat = t_stat * t_stat;
-    pValue[i] = gsl_cdf_chisq_Q(Zstat, 1.0); // why degree of freedom = 1.0 ?
+    pValue[i] = my_gsl_chisq_Q(Zstat, 1.0); // why degree of freedom = 1.0 ?
   }
 
   return pValue;
@@ -277,16 +296,13 @@ bool LinearRegression::calculateResidualMatrix(Matrix& X, Matrix* out) {
   return true;
 }
 
-
-using namespace Rcpp;
-
 // [[Rcpp::export]]
-List linear_regression_rvtest(NumericMatrix Xr, NumericVector yr) {
-    int numSamples = Xr.nrow();
+Rcpp::List cpp_linear_regression_rvtest(Rcpp::NumericMatrix Xr, Rcpp::NumericVector yr) {
+    int numSamples   = Xr.nrow();
     int numVariables = Xr.ncol();
 
-    // Convert NumericMatrix to your Matrix type
-    Matrix X(numSamples, numVariables);
+    // Convert Rcpp matrix to your C++ Matrix
+    ::Matrix X(numSamples, numVariables); // explicitly global
     for (int i = 0; i < numSamples; i++) {
         for (int j = 0; j < numVariables; j++) {
             X(i, j) = Xr(i, j);
@@ -294,33 +310,32 @@ List linear_regression_rvtest(NumericMatrix Xr, NumericVector yr) {
     }
 
     // Convert phenotype vector
-    Vector y;
+    ::Vector y; // explicitly global
     y.Dimension(numSamples);
     for (int i = 0; i < numSamples; i++) {
         y[i] = yr[i];
     }
 
-    // Fit model
     LinearRegression lr;
     bool success = lr.FitLinearModel(X, y);
 
     if (!success) {
-        stop("Linear regression failed.");
+        Rcpp::stop("Linear regression failed.");
     }
 
-    Vector &coef = lr.GetCovEst();
-    Vector &pval = lr.GetAsyPvalue();
+    ::Vector &coef = lr.GetCovEst();
+    ::Vector &pval = lr.GetAsyPvalue();
 
-    NumericVector coef_out(numVariables);
-    NumericVector pval_out(numVariables);
+    Rcpp::NumericVector coef_out(numVariables);
+    Rcpp::NumericVector pval_out(numVariables);
     for (int i = 0; i < numVariables; i++) {
         coef_out[i] = coef[i];
         pval_out[i] = pval[i];
     }
 
-    return List::create(
-        _["coefficients"] = coef_out,
-        _["p_values"] = pval_out
+    return Rcpp::List::create(
+        Rcpp::_["coefficients"] = coef_out,
+        Rcpp::_["p_values"] = pval_out
     );
 }
 
@@ -377,12 +392,3 @@ int main() {
 
 // g++ linear_regression_rvtest.cpp -std=c++17 -I/usr/local/include/eigen3 -I/usr/local/include -L/usr/local/lib -lgsl -lgslcblas -lm -o linear_regression_rvtest
 // ./linear_regression_rvtest
-
-// Coefficients:
-//   B[0] = 16.000000
-//   B[1] = -6.057143
-//   B[2] = -1.000000
-// P-values:
-//   p[0] = 4.1447e-09
-//   p[1] = 0.037376
-//   p[2] = 0.79503
