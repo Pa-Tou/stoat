@@ -113,5 +113,47 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
 
     }
+
+    SECTION("Test chi2 fasta output") {
+        const std::string expected_dir = "../tests/graph_test/expected_output/simple_nested_chain/chi2/fasta/";
+
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=  " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -T chi2 -r path0 -O fasta";
+
+        for (const auto& sample : samples_of_interest) {
+            cmd += " -s " + sample;
+        }
+
+
+        cmd += " --output " + output_dir;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
+
+        //REQUIRE(file_is_empty(output_dir+"/unassociated.fasta"));
+
+        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
+        truth_fasta.emplace_back(1, ">snarl:1-4|path0:1-2|path0:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1-4|path0:1-2|path2:1-2", "C");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path0:3-6", "TCA");
+        truth_fasta.emplace_back(4, ">snarl:4-8|path0:3-6|path2:3-3", "");
+        truth_fasta.emplace_back(5, ">snarl:5-7|path0:4-5|path0:4-5", "C");
+        truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path1:4-4", "");
+        REQUIRE(fasta_equal(output_dir+"/associated.fasta", truth_fasta));
+
+
+    }
     //clean_output_dir(output_dir);
 }

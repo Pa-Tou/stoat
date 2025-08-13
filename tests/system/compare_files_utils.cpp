@@ -14,6 +14,7 @@
 #include <string>
 
 namespace fs = std::filesystem;
+using namespace std;
 
 // === UTILITY FUNCTIONS ===
 
@@ -117,7 +118,7 @@ bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, s
     while (std::getline(infile, line)) {
         std::string header = line;
         std::string seq = "";
-        while (infile.peek() != '>') {
+        while (infile.peek() != '>' && infile.peek() != EOF) {
             std::getline(infile, line);
             seq += line;
         }
@@ -141,6 +142,7 @@ bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, s
 
         has_record[truth.first] = true;
     }
+    infile.close();
     return true;
 
 
