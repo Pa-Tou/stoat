@@ -270,7 +270,6 @@ Vector& LinearRegression::GetAsyPvalue() {
   for (int i = 0; i < numCov; ++i) {
     double se = sqrt(covB(i, i));
     double t_stat = B[i] / se;
-
     double Zstat = t_stat * t_stat;
     pValue[i] = my_gsl_chisq_Q(Zstat, 1.0); // why degree of freedom = 1.0 ?
   }
@@ -299,13 +298,19 @@ bool LinearRegression::calculateResidualMatrix(Matrix& X, Matrix* out) {
 // [[Rcpp::export]]
 Rcpp::List cpp_linear_regression_rvtest(Rcpp::NumericMatrix Xr, Rcpp::NumericVector yr) {
     int numSamples   = Xr.nrow();
-    int numVariables = Xr.ncol();
+    int numVariables = Xr.ncol()+1;
 
     // Convert Rcpp matrix to your C++ Matrix
     ::Matrix X(numSamples, numVariables); // explicitly global
+    // Fill the intercept column (first column)
     for (int i = 0; i < numSamples; i++) {
-        for (int j = 0; j < numVariables; j++) {
-            X(i, j) = Xr(i, j);
+        X(i, 0) = 1.0;  // intercept
+    }
+
+    // Copy the SNP data into remaining columns
+    for (int i = 0; i < numSamples; i++) {
+        for (int j = 1; j < numVariables; j++) {
+            X(i, j) = Xr(i, j - 1);
         }
     }
 
