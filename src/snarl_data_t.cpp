@@ -233,8 +233,8 @@ std::vector<stoat::Path_traversal_t> stringToVectorPath(std::string& input) {
 // Add a snarl
 Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) : 
     snarl(snarl_), start_positions(0), end_positions(0), depth(distance_index.get_depth(snarl_)) {
-    snarl_ids = std::make_pair(distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false))),
-                               distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false))));
+    snarl_ids = std::make_pair(distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false))),
+                               distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false))));
 }
 
 Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_,
