@@ -148,8 +148,18 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
         REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
-        bool passed = compare_output_dirs(output_dir, expected_dir);
-        REQUIRE(passed);
+        std::vector<std::string> truth_lines;
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t1\t2\t4_1\t1/1\t1.0000\t1.0000\t1.0000\t1:1,1:1\t1");
+        truth_lines.emplace_back("path0\t3\t6\t8_4\t0/3\t1.0000\t0.2482\t0.3723\t2:1,0:1\t1");
+        truth_lines.emplace_back("path0\t4\t5\t7_5\t0/1\t0.3333\t0.0833\t0.2499\t0:1,2:0\t2");
+
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+
+        truth_lines.clear();
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
 
 
     }
@@ -178,9 +188,18 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        bool passed = compare_output_dirs(output_dir, expected_dir);
-        REQUIRE(passed);
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
+        std::vector<std::string> truth_lines;
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t4\t5\t7_5\t0/1\tNA\tNA\t1.0000\tNA\t2");
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+
+        truth_lines.clear();
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
 
     }
 
