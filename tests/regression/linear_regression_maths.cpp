@@ -82,64 +82,6 @@ std::vector<std::vector<double>> inverse(const std::vector<std::vector<double>> 
     return I;
 }
 
-void linear_regression(
-    const std::vector<std::vector<double>>& X_raw,
-    const std::vector<double>& y,
-    const std::vector<std::vector<double>>& covariates) {
-
-    int n = X_raw.size();
-    int k = X_raw[0].size();
-    int c = covariates.empty() ? 0 : covariates[0].size();
-    int p = 1 + k + c; // intercept + variants + covariates
-
-    // Build design matrix with intercept, X_raw, and covariates
-    std::vector<std::vector<double>> X(n, std::vector<double>(p, 1.0));
-    for (int i = 0; i < n; ++i) {
-        int col = 1;
-        for (int j = 0; j < k; ++j)
-            X[i][col++] = X_raw[i][j];
-        for (int j = 0; j < c; ++j)
-            X[i][col++] = covariates[i][j];
-    }
-
-    // OLS computations
-    auto Xt = transpose(X);
-    auto XtX = matmul(Xt, X);
-
-    // WARNING: If X has multicollinearity (one or more columns are linearly dependent),
-    //          XtX becomes singular or nearly singular. In that case, inverse(XtX)
-    //          may fail (division by zero) or produce numerically unstable results,
-    //          because the naive Gaussian elimination here does not use pivoting.
-    auto XtX_inv = inverse(XtX);    
-    
-    auto Xty = matvec(Xt, y);
-
-    std::vector<double> beta(p, 0.0);
-    for (int i = 0; i < p; ++i)
-        for (int j = 0; j < p; ++j)
-            beta[i] += XtX_inv[i][j] * Xty[j];
-
-    std::vector<double> y_hat = matvec(X, beta);
-    double sse = 0.0;
-    for (int i = 0; i < n; ++i)
-        sse += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
-
-    double df_resid = (n - p) <= 0 ? n - p : 1; // avoid Degrees of freedom <= 0
-    double sigma2 = sse / df_resid;
-
-    for (int i = 0; i < p; ++i) {
-        double se = std::sqrt(sigma2 * XtX_inv[i][i]);
-        double t_stat = beta[i] / se;
-        boost::math::students_t dist(df_resid);
-        double pval = 2 * boost::math::cdf(boost::math::complement(dist, std::fabs(t_stat)));
-
-        std::cout << "beta[" << i << "] = " << beta[i]
-            << ", SE = " << se
-            << ", t = " << t_stat
-            << ", p = " << pval << '\n';
-    }
-}
-
 using namespace Rcpp;
 
 // [[Rcpp::export]]
@@ -170,7 +112,9 @@ Rcpp::List cpp_linear_regression_maths(Rcpp::NumericMatrix X_raw, Rcpp::NumericV
     for (int i = 0; i < n; ++i)
         sse += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
 
-    double df_resid = (n - p) <= 0 ? n - p : 1; // avoid Degrees of freedom <= 0
+    double df_resid = n - p;
+    if(df_resid <= 0) df_resid = 1; // only for safety
+
     double sigma2 = sse / df_resid;
 
     std::vector<double> p_values;
@@ -199,27 +143,88 @@ Rcpp::List cpp_linear_regression_maths(Rcpp::NumericMatrix X_raw, Rcpp::NumericV
     );
 }
 
-int main() {
+// void linear_regression(
+//     const std::vector<std::vector<double>>& X_raw,
+//     const std::vector<double>& y,
+//     const std::vector<std::vector<double>>& covariates) {
 
-    std::vector<std::vector<double>> df = {
-        {1, 0},
-        {1, 0},
-        {1, 0},
-        {1, 0},
-        {1, 0},
-        {1, 0},
-        {1, 0},
-        {0, 1},
-        {0, 0},
-    };
+//     int n = X_raw.size();
+//     int k = X_raw[0].size();
+//     int c = covariates.empty() ? 0 : covariates[0].size();
+//     int p = 1 + k + c; // intercept + variants + covariates
 
-    std::vector<double> quantitative_phenotype = {4.5, 7.0, 9.2, 10.9, 13.0, 14.0, 11.0, 15.0, 16.0};
+//     // Build design matrix with intercept, X_raw, and covariates
+//     std::vector<std::vector<double>> X(n, std::vector<double>(p, 1.0));
+//     for (int i = 0; i < n; ++i) {
+//         int col = 1;
+//         for (int j = 0; j < k; ++j)
+//             X[i][col++] = X_raw[i][j];
+//         for (int j = 0; j < c; ++j)
+//             X[i][col++] = covariates[i][j];
+//     }
 
-    std::vector<std::vector<double>> covariates = {};
+//     // OLS computations
+//     auto Xt = transpose(X);
+//     auto XtX = matmul(Xt, X);
 
-    linear_regression(df, quantitative_phenotype, covariates);
-    return 0;
-}
+//     // WARNING: If X has multicollinearity (one or more columns are linearly dependent),
+//     //          XtX becomes singular or nearly singular. In that case, inverse(XtX)
+//     //          may fail (division by zero) or produce numerically unstable results,
+//     //          because the naive Gaussian elimination here does not use pivoting.
+//     auto XtX_inv = inverse(XtX);    
+    
+//     auto Xty = matvec(Xt, y);
+
+//     std::vector<double> beta(p, 0.0);
+//     for (int i = 0; i < p; ++i)
+//         for (int j = 0; j < p; ++j)
+//             beta[i] += XtX_inv[i][j] * Xty[j];
+
+//     std::vector<double> y_hat = matvec(X, beta);
+//     double sse = 0.0;
+//     for (int i = 0; i < n; ++i)
+//         sse += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
+
+//     double df_resid = n - p;
+//     if(df_resid <= 0) df_resid = 1; // only for safety
+
+//     double sigma2 = sse / df_resid;
+
+//     for (int i = 0; i < p; ++i) {
+//         double se = std::sqrt(sigma2 * XtX_inv[i][i]);
+//         double t_stat = beta[i] / se;
+//         boost::math::students_t dist(df_resid);
+//         double pval = 2 * boost::math::cdf(boost::math::complement(dist, std::fabs(t_stat)));
+
+//         std::cout << "beta[" << i << "] = " << beta[i]
+//             << ", SE = " << se
+//             << ", t = " << t_stat
+//             << ", p = " << pval << '\n';
+//     }
+// }
+
+
+// int main() {
+
+//     std::vector<std::vector<double>> df = {
+//         {1, 0},
+//         {1, 0},
+//         {1, 0},
+//         {1, 0},
+//         {1, 0},
+//         {1, 0},
+//         {1, 0},
+//         {0, 1},
+//         {0, 0},
+//     };
+
+//     std::vector<double> quantitative_phenotype = {4.5, 7.0, 9.2, 10.9, 13.0, 14.0, 11.0, 15.0, 16.0};
+
+//     std::vector<std::vector<double>> covariates = {};
+
+//     linear_regression(df, quantitative_phenotype, covariates);
+//     return 0;
+// }
 
 // g++ -std=c++17 -lboost_math_c99 -o simple_linear linear_regression_simple.cpp
 // ./simple_linear
