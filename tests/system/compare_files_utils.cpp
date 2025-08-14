@@ -25,56 +25,85 @@ void clean_output_dir(const std::string& output_dir) {
     fs::create_directory(output_dir);
 }
 
+void process_tsv_line(const std::string& line, std::unordered_map<std::string, std::string>& map, int& snarl_column, bool& header_processed, const std::string& file_name) {
+
+    std::istringstream ss(line);
+    std::string token;
+    std::vector<std::string> columns;
+    
+    while (std::getline(ss, token, '\t')) {
+        columns.push_back(token);
+    }
+    
+    // First non-empty line is the header
+    if (!header_processed) {
+        for (size_t i = 0; i < columns.size(); ++i) {
+            if (columns[i] == "SNARL") {
+                snarl_column = static_cast<int>(i);
+                break;
+            }
+        }
+    
+        if (snarl_column == -1) {
+            std::cerr << "SNARL column not found in header of file: " << file_name << std::endl;
+            exit(1);
+        }
+    
+        header_processed = true;
+        return; // skip header line
+    }
+    
+    if (snarl_column >= columns.size()) {
+        std::cerr << "Invalid line (too few columns) in file: " << file_name << "\nLine: " << line << std::endl;
+        exit(1);
+    }
+    
+    std::string snarl_id = columns[snarl_column];
+    map[snarl_id] = line;
+}
+
+void load_tsv_file (const std::string& path, std::unordered_map<std::string, std::string>& map) {
+    std::ifstream infile(path);
+    std::string line;
+    int snarl_column = -1;
+    bool header_processed = false;
+
+    while (std::getline(infile, line)) {
+        if (line.empty()) continue;
+
+        process_tsv_line(line, map, snarl_column, header_processed, path);
+    }
+}
+
+void load_tsv_file (const std::vector<std::string>& lines, std::unordered_map<std::string, std::string>& map) {
+
+    int snarl_column = -1;
+    bool header_processed = false;
+
+    for (const std::string& line : lines) {
+        process_tsv_line(line, map, snarl_column, header_processed, "supposed truth vector");
+    }
+};
+
+
 bool files_equal(const std::string& file1, const std::string& file2) {
     std::unordered_map<std::string, std::string> map1, map2;
 
-    auto load_file = [](const std::string& path, std::unordered_map<std::string, std::string>& map) {
-        std::ifstream infile(path);
-        std::string line;
-        int snarl_column = -1;
-        bool header_processed = false;
+    load_tsv_file(file1, map1);
+    load_tsv_file(file2, map2);
 
-        while (std::getline(infile, line)) {
-            if (line.empty()) continue;
+    return files_equal(map1, map2);
+}
 
-            std::istringstream ss(line);
-            std::string token;
-            std::vector<std::string> columns;
+bool files_equal(const std::string& file, const std::vector<std::string>& lines) {
+    std::unordered_map<std::string, std::string> map1, map2;
 
-            while (std::getline(ss, token, '\t')) {
-                columns.push_back(token);
-            }
+    load_tsv_file(file, map1);
+    load_tsv_file(lines, map2);
+    return files_equal(map1, map2);
+}
 
-            // First non-empty line is the header
-            if (!header_processed) {
-                for (size_t i = 0; i < columns.size(); ++i) {
-                    if (columns[i] == "SNARL") {
-                        snarl_column = static_cast<int>(i);
-                        break;
-                    }
-                }
-
-                if (snarl_column == -1) {
-                    std::cerr << "SNARL column not found in header of file: " << path << std::endl;
-                    exit(1);
-                }
-
-                header_processed = true;
-                continue; // skip header line
-            }
-
-            if (snarl_column >= columns.size()) {
-                std::cerr << "Invalid line (too few columns) in file: " << path << "\nLine: " << line << std::endl;
-                exit(1);
-            }
-
-            std::string snarl_id = columns[snarl_column];
-            map[snarl_id] = line;
-        }
-    };
-
-    load_file(file1, map1);
-    load_file(file2, map2);
+bool files_equal(const std::unordered_map<std::string, std::string>& map1, const std::unordered_map<std::string, std::string>& map2) {
 
     // Compare file1 against file2
     for (const auto& [snarl, line1] : map1) {

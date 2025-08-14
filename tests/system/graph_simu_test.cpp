@@ -6,6 +6,8 @@
 namespace fs = std::filesystem;
 
 TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
+    // Just check that this runs and produces some output
+
     const std::string output_dir = "../output_binary";
     const std::string expected_dir = "../tests/expected_output/graph/binary";
     const std::string data_path = "../data/binary";
@@ -42,6 +44,72 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
 
     }
+
+    SECTION("Test chi2 fasta output") {
+
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -T chi2 -r ref -O fasta";
+
+        for (const auto& sample : samples_of_interest) {
+            cmd += " -s " + sample;
+        }
+
+
+        cmd += " --output " + output_dir;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
+
+        REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
+
+
+    }
+
+    SECTION("Test exact fasta output") {
+
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -T exact -r ref -O fasta";
+
+        for (const auto& sample : samples_of_interest) {
+            cmd += " -s " + sample;
+        }
+
+
+        cmd += " --output " + output_dir;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
+
+        REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
+
+
+    }
     clean_output_dir(output_dir);
 }
 
@@ -75,6 +143,10 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             std::cerr << "Command failed: " << cmd << "\n";
             REQUIRE( false);
         }
+
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         bool passed = compare_output_dirs(output_dir, expected_dir);
         REQUIRE(passed);
@@ -140,6 +212,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
         REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
 
+        REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
+
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
         // Since we don't know which are associated or not for this test, this should be empty
@@ -188,6 +263,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
         REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
+
+        REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
 
         //Test unassociated
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
