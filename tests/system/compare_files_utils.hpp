@@ -24,4 +24,7 @@ bool files_equal(const std::string& file1, const std::string& file2);
 // This doesn't check the values of equivalence classes so they are assumed to start at 1 and increase by 1
 bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, std::string, std::string>>& fasta_records);
 
+// Check if a fasta is valid: lines are only headers or sequences and sequence lines are less than 80 characters
+bool is_valid_fasta(const std::string& file);
+
 bool compare_output_dirs(const std::string& output_dir, const std::string& expected_dir);

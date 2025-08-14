@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <regex>
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -100,6 +101,29 @@ bool files_equal(const std::string& file1, const std::string& file2) {
     return true;
 }
 
+bool is_valid_fasta(const std::string& file) {
+
+    std::ifstream infile(file);
+    std::string line;
+    while (std::getline(infile, line)) {
+        if (line[0] == '>') {
+            continue;
+        }
+        // Check that this is a valid sequence line
+        if (!std::regex_match(line, std::regex("[ACGTN]*"))) {
+            cerr << "Invalid FASTA line: " << line << endl;
+            return false;
+        }
+        if (infile.peek() != '>' && infile.peek() != EOF) {
+            if (line.size() > 80) {
+                cerr << "FASTA sequence line longer than 80 characters" << endl;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, std::string, std::string>>& fasta_records) {
     std::unordered_map<std::string, std::pair<size_t, std::string>> header_to_sequence;
     std::unordered_map<size_t, std::vector<std::string>> set_to_header;
@@ -128,6 +152,7 @@ bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, s
         while (infile.peek() != '>' && infile.peek() != EOF) {
             std::getline(infile, line);
             seq += line;
+
         }
         if (!header_to_sequence.count(header)) {
             std::cerr << "FASTA output contains unknown header: " << header << std::endl;
