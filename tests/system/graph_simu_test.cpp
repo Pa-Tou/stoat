@@ -4,6 +4,7 @@
 #include "compare_files_utils.hpp"
 
 namespace fs = std::filesystem;
+using namespace std;
 
 TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
     // Just check that this runs and produces some output
@@ -120,7 +121,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     std::vector<std::string> samples_of_interest = {"path1", "path3"};
 
     SECTION("Test chi2 tsv output") {
-        const std::string expected_dir = "../tests/graph_test/expected_output/simple_nested_chain/chi2/tsv/";
 
 
         clean_output_dir(output_dir);
@@ -164,7 +164,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
     }
     SECTION("Test exact tsv output") {
-        const std::string expected_dir = "../tests/graph_test/expected_output/simple_nested_chain/exact/tsv/";
 
 
         clean_output_dir(output_dir);
@@ -204,7 +203,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     }
 
     SECTION("Test chi2 fasta output") {
-        const std::string expected_dir = "../tests/graph_test/expected_output/simple_nested_chain/chi2/fasta/";
 
 
         clean_output_dir(output_dir);
@@ -256,7 +254,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
     }
     SECTION("Test exact fasta output") {
-        const std::string expected_dir = "../tests/graph_test/expected_output/simple_nested_chain/chi2/fasta/";
 
 
         clean_output_dir(output_dir);
@@ -302,5 +299,185 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
 
     }
+    clean_output_dir(output_dir);
+}
+
+TEST_CASE("Output loop with snarl", "[graph][bug]") {
+    const std::string output_dir = "../output_binary";
+    const std::string graph_base = "../tests/graph_test/loop_with_indel";
+
+    std::vector<std::string> samples_of_interest = {"path1", "path2"};
+
+    SECTION("Test chi2 tsv output") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+        cmd += " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -T chi2 -r path0";
+
+        for (const auto& sample : samples_of_interest) {
+            cmd += " -s " + sample;
+        }
+
+
+        cmd += " --output " + output_dir;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
+
+        std::vector<std::string> truth_lines;
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t10\t14\t1_6\t3/4\t0.3333\t0.0833\t0.1666\t0:1,2:0\t1");
+        truth_lines.emplace_back("path0\t11\t12\t4_2\t0/1\t1.0000\t0.2482\t0.2482\t1:1,2:0\t2");
+
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+
+        truth_lines.clear();
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
+
+
+    }
+
+    SECTION("Test exact tsv output") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+        cmd += " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -T exact -r path0";
+
+        for (const auto& sample : samples_of_interest) {
+            cmd += " -s " + sample;
+        }
+
+
+        cmd += " --output " + output_dir;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
+
+        std::vector<std::string> truth_lines;
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t10\t14\t1_6\t3/4\tNA\tNA\t1.0000\tNA\t1");
+
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+
+        truth_lines.clear();
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
+        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
+
+
+    }
+
+    SECTION("Test chi2 fasta output") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+        cmd += " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -T chi2 -r path0 -O fasta";
+
+        for (const auto& sample : samples_of_interest) {
+            cmd += " -s " + sample;
+        }
+
+
+        cmd += " --output " + output_dir;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+
+        REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
+
+        REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
+
+        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
+        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
+
+        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path1:10-16", "ACTACT");
+        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
+
+        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
+        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path2:11-11", "");
+        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path2:14-15", "G");
+
+        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
+        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
+
+        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path2:11-11", "");
+        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path2:14-15", "G");
+
+        REQUIRE(fasta_equal(output_dir+"/associated.fasta", truth_fasta));
+    }
+    SECTION("Test exact fasta output") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+        cmd += " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -T exact -r path0 -O fasta";
+
+        for (const auto& sample : samples_of_interest) {
+            cmd += " -s " + sample;
+        }
+
+
+        cmd += " --output " + output_dir;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+
+        REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
+
+        REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
+
+        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
+        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path1:10-16", "ACTACT");
+        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
+
+        REQUIRE(fasta_equal(output_dir+"/associated.fasta", truth_fasta));
+
+        truth_fasta.clear();
+        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
+
+        REQUIRE(fasta_equal(output_dir+"/unassociated.fasta", truth_fasta));
+
+    }
+
+
     clean_output_dir(output_dir);
 }

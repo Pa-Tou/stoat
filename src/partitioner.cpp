@@ -25,10 +25,6 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
                 cerr << "\t" << sample.sample << endl;
             }
         }
-        cerr << "TRUTH" << endl;
-        for ( const std::string& x : samples_of_interest) {
-            cerr << "\t" << x << endl;
-        }
     #endif
 
     std::vector<std::set<std::string>> sample_name_sets (sample_sets.size());
