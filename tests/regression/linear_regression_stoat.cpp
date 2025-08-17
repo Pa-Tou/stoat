@@ -1,5 +1,5 @@
 // [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::plugins(cpp11)]]
+// [[Rcpp::plugins(cpp14)]]
 
 #define EIGEN_DONT_VECTORIZE
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 #include <boost/math/distributions/students_t.hpp>
 #include <chrono>
+
 #include <Rcpp.h>
 #include <RcppEigen.h>
 
