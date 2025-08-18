@@ -100,3 +100,6 @@ stoat vcf -p <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -q <phenotype.txt>
 ```bash
 stoat graph -g <graph> -d <dist.dist> -S <samples.tsv>
 ```
+### Wiki
+
+For more information about Stoat, see our [wiki documentation](https://github.com/Pa-Tou/stoat/wiki).
