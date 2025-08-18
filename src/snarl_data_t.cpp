@@ -27,7 +27,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
     }
 
     // Expected header
-    std::vector<std::string> expected_header = {"CHR", "START_POS", "END_POS", "SNARL", "PATHS", "TYPE", "REF", "DEPTH"};
+    std::vector<std::string> expected_header = {"CHR", "START_POS", "END_POS", "SNARL_HANDLEGRAPH", "SNARL", "PATHS", "TYPE", "REF", "DEPTH"};
 
     if (header_fields != expected_header) {
         // Build detailed error message
@@ -92,7 +92,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 
         std::pair<size_t, size_t> snarl_ids = stringToPair(snarl_id);
         std::vector<stoat::Path_traversal_t> paths = stringToVectorPath(paths_str);
-        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoi(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoi(depth));
+        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoi(depth));
         snarl_paths.push_back(snarl_path);
     }
     // last chr adding
@@ -714,7 +714,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         const std::string& chr = std::get<1>(snarl_path_pos);
         if (chr.empty()) {continue;}
 
-        size_t strat_pos = std::get<2>(snarl_path_pos);
+        size_t start_pos = std::get<2>(snarl_path_pos);
         size_t end_pos = std::get<3>(snarl_path_pos);
         size_t depth = stree.get_depth(snarl);
         std::string str_reference = std::get<4>(snarl_path_pos) ? "1" : "0";
@@ -722,7 +722,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         // Output result
         #pragma omp critical(out_snarl)
         out_snarl << chr << "\t" 
-                    << strat_pos << "\t" 
+                    << start_pos << "\t" 
                     << end_pos << "\t" 
                     << handlegraph::as_integer(snarl) << "\t" 
                     << snarl_id_str << "\t"
@@ -730,7 +730,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
                     << stoat::vectorToString(type_variants) << "\t"
                     << str_reference << "\t" 
                     << depth << "\n";
-        Snarl_data_t snarl_path(snarl, snarl_id, pretty_paths, strat_pos, end_pos, type_variants, depth);
+        Snarl_data_t snarl_path(snarl, snarl_id, pretty_paths, start_pos, end_pos, type_variants, depth);
         
         #pragma omp critical(chr_snarl_matrix)
         chr_snarl_matrix[chr].emplace_back(std::move(snarl_path));
