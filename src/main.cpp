@@ -96,7 +96,10 @@ int main(int argc, char* argv[]) {
 // ./stoat vcf -p ../data/quantitative/pg.full.pg -d ../data/quantitative/pg.full.dist -r ../data/quantitative/pg.chromosome -v ../data/quantitative/merged_output.vcf.gz -q ../data/quantitative/phenotype.tsv  --covariate ../data/quantitative/covariate.tsv --covar-name CP1,SEX,CP3 --output ../output
 
 // EQTL
-// ./stoat vcf -s ../test_data/quantitative/paths_snarl.tsv -v ../test_data/quantitative/variants.vcf -e ../test_data/quantitative/qtl.tsv --gene-position ../test_data/quantitative/gene_position.tsv --output ../output
+// ./stoat vcf -s ../data/eqtl/paths_snarl.tsv -v ../data/eqtl/variants.vcf -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --output ../output
+
+// EQTL + COVARIATE
+// ./stoat vcf -s ../data/eqtl/paths_snarl.tsv -v ../data/eqtl/variants.vcf -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --covariate ../data/eqtl/covariate.tsv --covar-name SEX,AGE,PC1,PC2,PC3 --output ../output
 
 // SIMU TEST
 // ./stoat vcf -p ../tests/graph_test/3th_snp.pg -d ../tests/graph_test/3th_snp.dist --output ../output

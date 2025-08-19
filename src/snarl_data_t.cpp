@@ -6,42 +6,41 @@ namespace stoat {
 
 // Function to parse the snarl path file
 std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(const std::string& file_path) {
-
+    
     std::string line, chr, snarl, snarl_id, start_pos_str, end_pos_str, path_list, type_var, ref, depth;
-    unordered_map<string, std::vector<Snarl_data_t>> chr_snarl_matrix;
     std::vector<Snarl_data_t> snarl_paths;
+    std::unordered_map<std::string, std::vector<Snarl_data_t>> chr_snarl_matrix;
     std::ifstream file(file_path);
     std::string save_chr = "";
 
-    // Read and validate header
-    if (!std::getline(file, line)) {
-        stoat::LOG_FATAL("Empty file or failed to read header.");
-    }
+    std::getline(file, line);
 
-    // Parse actual header fields
+    // --- Parse and validate header ---
+    std::istringstream header_stream(line);
     std::vector<std::string> header_fields;
-    istringstream header_stream(line);
     std::string field;
-    while (getline(header_stream, field, '\t')) {
+
+    while (std::getline(header_stream, field, '\t')) {
         header_fields.push_back(field);
     }
 
-    // Expected header
-    std::vector<std::string> expected_header = {"CHR", "START_POS", "END_POS", "SNARL_HANDLEGRAPH", "SNARL", "PATHS", "TYPE", "REF", "DEPTH"};
+    const std::vector<std::string> expected_header = {
+        "CHR", "START_POS", "END_POS", "SNARL_HANDLEGRAPH",
+        "SNARL", "PATHS", "TYPE", "REF", "DEPTH"
+    };
 
     if (header_fields != expected_header) {
-        // Build detailed error message
-        ostringstream oss;
+        std::ostringstream oss;
         oss << "Error: Invalid header format in file: " << file_path << "\n";
         oss << " > Expected: ";
         for (size_t i = 0; i < expected_header.size(); ++i) {
             oss << expected_header[i];
-            if (i < expected_header.size() - 1) oss << "\\t";
+            if (i < expected_header.size() - 1) oss << "\t";
         }
         oss << "\n > Got:      ";
         for (size_t i = 0; i < header_fields.size(); ++i) {
             oss << header_fields[i];
-            if (i < header_fields.size() - 1) oss << "\\t";
+            if (i < header_fields.size() - 1) oss << "\t";
         }
         stoat::LOG_FATAL(oss.str());
     }
