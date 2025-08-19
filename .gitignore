@@ -5,3 +5,4 @@ build/
 output/*
 bin/*
 plot_script/.Rdata
+*~
