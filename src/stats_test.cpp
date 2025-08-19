@@ -379,24 +379,6 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     const std::vector<double>& quantitative_phenotype,
     const std::vector<std::vector<double>>& covar) {
 
-    // --- Print df vector vector ---
-    for (size_t i = 0; i < df.size(); ++i) {
-        std::cout << "Row " << i << ": ";
-        for (size_t j = 0; j < df[i].size(); ++j) {
-            std::cout << df[i][j];
-            if (j < df[i].size() - 1) std::cout << ", ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-    
-    // --- Print phenotype vector ---
-    std::cout << "phenotype (" << quantitative_phenotype.size() << " values):\n";
-    for (const auto& val : quantitative_phenotype) {
-        std::cout << val << " ";
-    }
-    std::cout << "\n";
-
     size_t num_samples = df.size();
     size_t num_variants = df[0].size();
     size_t num_covariates = 0;
@@ -458,12 +440,11 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
             continue;
         }
         p_values.push_back(2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stats[i])))); // two-tailed
-        std::cout << "p_values[" << i-1 << "] : " << p_values[i-1] << std::endl;
     }
 
     double p_value_adjusted = p_values[0];
-    double beta_adjusted = beta[0];
-    double se_adjusted = se[0];
+    double beta_adjusted = beta[1];
+    double se_adjusted = se[1];
 
     if (p_values.size() > 1) {
         std::vector<double> p_values_adjusted = stoat::adjusted_holm(p_values);
