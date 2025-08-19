@@ -64,12 +64,11 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
         std::vector<std::string> type;
         size_t start_pos = std::stoi(start_pos_str);
         size_t end_pos = std::stoi(end_pos_str);
-        int size_paths = 0;
         std::string paths_str;
         bool first = true;
 
+        // Reconstruct path string and count paths
         while (std::getline(path_stream, path_list, ',')) {
-            size_paths++;
             if (!first) {
                 paths_str += ",";
             }
@@ -94,10 +93,21 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
         Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoi(depth));
         snarl_paths.push_back(snarl_path);
     }
-    // last chr adding
-    chr_snarl_matrix[save_chr] = std::move(snarl_paths);
 
+    // last chromosome
+    chr_snarl_matrix[save_chr] = std::move(snarl_paths);
     file.close();
+
+    // --- Print statistics ---
+    std::cout << "\nSnarl statistics per chromosome:\n";
+    for (const auto& [chr, snarls] : chr_snarl_matrix) {
+        size_t total_paths = 0;
+        for (const auto& snarl : snarls) {
+            total_paths += snarl.snarl_paths.size();
+        }
+        std::cout << " > " << chr << ": " << snarls.size() << " snarls, " << total_paths << " total paths\n";
+    }
+
     return chr_snarl_matrix;
 }
 

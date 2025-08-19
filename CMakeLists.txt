@@ -20,6 +20,14 @@ message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
 # This is the same flag used by libbdsg and libvgio to specify which version of libhandlegraph should be used
 OPTION(USE_INSTALLED_LIBHANDLEGRAPH "Use the version of libhandlegraph installed on the system, if it exists, instead of the bundled version [default: off]" OFF)
 
+# DEBUG STEP : 
+# cmake -DCMAKE_BUILD_TYPE=Debug .
+# make -j 8
+# cd ../bin
+# gdb --args ./stoat ... (command that you want to test)
+# (gdb) run
+
+# Optimize option
 if (OPTIMIZE)
   message(STATUS "Optimization compilation mode activated")
   # Use all standard-compliant optimizations

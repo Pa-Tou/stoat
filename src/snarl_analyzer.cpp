@@ -398,10 +398,12 @@ void BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
     remove_empty_columns_quantitative_table(df);
     
     bool filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
-    combine_identical_columns_quantitative_table(df);
-    remove_last_columns_quantitative_table(df);
 
-    if (!filtration) { // filtred snarl
+    if (!filtration) { // snarl ok
+
+        combine_identical_columns_quantitative_table(df);
+        remove_last_columns_quantitative_table(df);
+
         // logistic regression with covariates if not empty
         const auto& [p_value, beta, se, r2] = lr.logistic_regression(df, phenotype_filtered, covariate);
 
@@ -425,20 +427,22 @@ void QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     remove_empty_columns_quantitative_table(df);
     
     bool filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
-    combine_identical_columns_quantitative_table(df);
-    remove_last_columns_quantitative_table(df);
 
-    // make a std::string separated by ',' from a vector of std::string
-    std::ostringstream oss;
-    for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
-        if (i != 0) oss << ","; // Add comma before all elements except the first
-        oss << snarl_data_s.type_variants[i];
-    }
+    if (!filtration) { // snarl ok
 
-    std::string type_var_str = oss.str();
-    std::stringstream data;
+        combine_identical_columns_quantitative_table(df);
+        remove_last_columns_quantitative_table(df);
+
+        // make a std::string separated by ',' from a vector of std::string
+        std::ostringstream oss;
+        for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
+            if (i != 0) oss << ","; // Add comma before all elements except the first
+            oss << snarl_data_s.type_variants[i];
+        }
+
+        std::string type_var_str = oss.str();
+        std::stringstream data;
     
-    if (!filtration) { // filtred snarl
         auto [p_value, beta, se, r2] = lr.linear_regression(df, phenotype_filtered, covariate);
         
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
@@ -482,40 +486,44 @@ void EQTLSnarlAnalyzer::analyze_and_write_snarl(
 
     std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
     auto [df, index_filtered, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
+    
     remove_empty_columns_quantitative_table(df);
     
     bool filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
-    combine_identical_columns_quantitative_table(df);
-    remove_last_columns_quantitative_table(df);
+    
+    if (!filtration) { // snarl ok
 
-    for (size_t i = 0; i < list_gene_index.size(); ++i) {
-        size_t gene_idx = list_gene_index[i];
-        std::string gene_name = eqtl_map.at(chr)[gene_idx].geneName;
-        std::vector<double> gene_expression = eqtl_map.at(chr)[gene_idx].sampleExpresion;
-        stoat::retain_indices(gene_expression, index_filtered);
+        combine_identical_columns_quantitative_table(df);
+        remove_last_columns_quantitative_table(df);
 
-        // make a std::string separated by ',' from a vector of std::string
-        std::ostringstream oss;
-        for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
-            if (i != 0) oss << ","; // Add comma before all elements except the first
-            oss << snarl_data_s.type_variants[i];
-        }
+        for (size_t i = 0; i < list_gene_index.size(); ++i) {
+            size_t gene_idx = list_gene_index[i];
+            std::string gene_name = eqtl_map.at(chr)[gene_idx].geneName;
+            std::vector<double> gene_expression = eqtl_map.at(chr)[gene_idx].sampleExpresion;
+            stoat::retain_indices(gene_expression, index_filtered);
+
+            // make a std::string separated by ',' from a vector of std::string
+            std::ostringstream oss;
+            for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
+                if (i != 0) oss << ","; // Add comma before all elements except the first
+                oss << snarl_data_s.type_variants[i];
+            }
 
         std::string type_var_str = oss.str();
         std::stringstream data;
 
-        if (!filtration) { // filtred snarl
-            auto [p_value, beta, se, r2] = lr.linear_regression(df, gene_expression, covariate);
+        auto [p_value, beta, se, r2] = lr.linear_regression(df, gene_expression, covariate);
 
-            if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
-                std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-                stoat::writeSignificantTableToTSV(df,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
-            }
+        if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
+            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
+            stoat::writeSignificantTableToTSV(df,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
+        }
 
-            #pragma omp critical (outf)
-            {
-                stoat::write_eqtl(outf, chr, snarl_data_s, type_var_str, gene_name, p_value, "", r2, beta, se, allele_paths);
-            }
+        #pragma omp critical (outf)
+        {
+            stoat::write_eqtl(outf, chr, snarl_data_s, type_var_str, gene_name, p_value, "", r2, beta, se, allele_paths);
+        }
+
         }
     }
 }
@@ -604,6 +612,8 @@ void combine_identical_columns_quantitative_table(
 
     size_t num_rows = df.size();
     size_t num_cols = df[0].size();
+
+    if (num_cols < 3) {return;} // avoid creation of unique column
 
     std::vector<bool> merged(num_cols, false);
     std::vector<std::vector<double>> new_cols;
