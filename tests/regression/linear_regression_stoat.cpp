@@ -145,13 +145,17 @@ void linear_regression(
     boost::math::students_t t_dist(df_res);
 
     std::vector<double> p_values;
-    for (int i = 0; i < num_features; ++i) { // i = 1 avoid const p-value
+    for (int i = 1; i < num_features; ++i) { // i = 1 avoid const p-value
         if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) {
             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
             continue;
         }
         p_values.push_back(2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stats[i])))); // two-tailed
         std::cout << "p_values[" << i << "] : " << p_values[i] << std::endl;
+    }
+
+    if (p_values.size() > 2) {
+        std::cout << "Adjustement" << std::endl;
     }
 
     // Print results

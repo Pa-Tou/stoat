@@ -135,10 +135,9 @@ std::tuple<std::string, std::string, std::string, std::string> LogisticRegressio
 
     // --- Wald Test (Normal approximation)
     std::vector<double> p_values(num_variants);
-    for (size_t i = 0; i < num_variants; ++i) {
-        size_t idx = 1 + i; // skip intercept
-        double z_score = beta(idx) / se(idx);
-        p_values[i] = 2.0 * (1.0 - normal_cdf(std::abs(z_score))); // Two-sided
+    for (size_t i = 1; i < num_variants - num_covariates; ++i) { // skip intercept
+        double z_score = beta(i) / se(i);
+        p_values.push_back(2.0 * (1.0 - normal_cdf(std::abs(z_score)))); // Two-sided
     }
 
     // --- McFadden's R²
@@ -380,6 +379,24 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     const std::vector<double>& quantitative_phenotype,
     const std::vector<std::vector<double>>& covar) {
 
+    // --- Print df vector vector ---
+    for (size_t i = 0; i < df.size(); ++i) {
+        std::cout << "Row " << i << ": ";
+        for (size_t j = 0; j < df[i].size(); ++j) {
+            std::cout << df[i][j];
+            if (j < df[i].size() - 1) std::cout << ", ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    
+    // --- Print phenotype vector ---
+    std::cout << "phenotype (" << quantitative_phenotype.size() << " values):\n";
+    for (const auto& val : quantitative_phenotype) {
+        std::cout << val << " ";
+    }
+    std::cout << "\n";
+
     size_t num_samples = df.size();
     size_t num_variants = df[0].size();
     size_t num_covariates = 0;
@@ -435,12 +452,13 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     boost::math::students_t t_dist(df_res);
  
     std::vector<double> p_values;
-    for (int i = 1; i < num_features; ++i) { // i = 1 avoid const p-value
-        if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) {
+    for (int i = 1; i < num_features - num_covariates; ++i) { // i = 1 avoid const p-value
+        if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) { // Special case
             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
             continue;
         }
         p_values.push_back(2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stats[i])))); // two-tailed
+        std::cout << "p_values[" << i-1 << "] : " << p_values[i-1] << std::endl;
     }
 
     double p_value_adjusted = p_values[0];
@@ -456,10 +474,10 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     }
 
     // set precision : 4 digit
-    std::string r2_str = stoat::set_precision(r2);
+    std::string p_value_str = stoat::set_precision(p_value_adjusted);
     std::string beta_str = stoat::set_precision(beta_adjusted);
     std::string se_str = stoat::set_precision(se_adjusted);
-    std::string p_value_str = stoat::set_precision(p_value_adjusted);
+    std::string r2_str = stoat::set_precision(r2);
 
-    return std::make_tuple(r2_str, beta_str, se_str, p_value_str);
+    return std::make_tuple(p_value_str, beta_str, se_str, r2_str);
 }

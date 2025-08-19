@@ -77,13 +77,17 @@ void linear_regression(
     boost::math::students_t t_dist(df_res);
  
     std::vector<double> p_values;
-    for (int i = 0; i < num_features; ++i) { // i = 1 avoid const p-value
+    for (int i = 1; i < num_features - num_covariates; ++i) { // i = 1 avoid const p-value
         if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) {
             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
             continue;
         }
         p_values.push_back(2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stats[i])))); // two-tailed
-        cout << "p_values[" << i << "] : " << p_values[i] << std::endl;
+        std::cout << "p_values[" << i-1 << "] : " << p_values[i-1] << std::endl;
+    }
+
+    if (p_values.size() > 2) {
+        std::cout << "Adjustement" << std::endl;
     }
 
     // Print results
@@ -92,10 +96,12 @@ void linear_regression(
     for (int i = 0; i < num_features; ++i) {
         std::cout << "beta[" << i << "] = " << beta[i] << std::endl;
     }
+
     std::cout << "Standard Errors (se):" << std::endl;
     for (int i = 0; i < num_features; ++i) {
         std::cout << "se[" << i << "] = " << se[i] << std::endl;
     }
+
     std::cout << "R²: " << r2 << std::endl;
     std::cout << "Residual Degrees of Freedom: " << df_res << std::endl;
     std::cout << "Mean Squared Error (MSE): " << mse << std::endl;
@@ -204,4 +210,4 @@ int main(int argc, char* argv[]) {
 // MACOS
 // g++ -std=c++17 -I/usr/local/eigen3 -lboost_math_c99 -o lr_arg linear_regression_arg.cpp
 
-// ./lr_arg ../../output/regression/4_6.tsv ../../data/quantitative/phenotype.tsv
+// ./lr_arg ../../output/regression/1_4.tsv ../../data/quantitative/phenotype.tsv

@@ -207,6 +207,9 @@ protected:
     LinearRegression lr;
 };
 
+void combine_identical_columns_quantitative_table(
+    std::vector<std::vector<double>>& df);
+
 void remove_empty_columns_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1);

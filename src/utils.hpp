@@ -40,7 +40,7 @@ bool is_na(const std::string& s);
 double string_to_pvalue(const std::string& p1);
 
 bool isPValueSignificant(const double& pvalue_threshold, const std::string& pvalue_str);
-void retain_indices(std::vector<double>& vec, const std::unordered_set<size_t>& indices_to_keep);
+void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep);
 std::vector<double> adjusted_holm(const std::vector<double>& p_values);
 
 template <typename T>

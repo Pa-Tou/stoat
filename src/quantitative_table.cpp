@@ -20,21 +20,19 @@ template std::tuple<std::vector<std::vector<double>>, std::vector<bool>, std::ve
         const stoat_vcf::EdgeBySampleMatrix&);
 
 std::tuple<std::vector<std::vector<double>>,  
-std::unordered_set<size_t>, std::vector<size_t>> process_table_quantitative(
+std::set<size_t>, std::vector<size_t>> process_table_quantitative(
         const size_t& number_samples,
         const std::vector<stoat::Path_traversal_t>& column_headers,
         const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
     size_t length_column = column_headers.size();
-
     std::vector<size_t> allele_paths(length_column, 0);
-
     std::vector<std::vector<double>> genotypes(number_samples);
-    for (auto& row : genotypes)
-        row.reserve(length_column);
+
+    for (auto& row : genotypes) {row.reserve(length_column);}
 
     std::vector<size_t> kept_columns; // Indices of valid columns
-    std::unordered_set<size_t> index_used;
+    std::set<size_t> index_used;
 
     // Loop over all columns
     for (size_t col_idx = 0; col_idx < length_column; ++col_idx) {
@@ -105,7 +103,7 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<size_t
     return {genotypes_filtered, phenotype_filtered, allele_paths};
 }
 
-std::tuple<std::vector<std::vector<double>>, std::unordered_set<size_t>, std::vector<size_t>> create_eqtl_table(
+std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<size_t>> create_eqtl_table(
     const size_t& number_samples,
     const std::vector<stoat::Path_traversal_t>& column_headers,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {

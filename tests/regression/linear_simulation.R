@@ -499,6 +499,487 @@ summarize_pct_diff(results_null$PctDiff_RVTest, "RVTest")
 
 # ----------------------------------------- SIMULATION COLLINEARITY -----------------------------------------
 
+# ----------------------------------------- WITHOUT MERGE SAME COLUMN -----------------------------------------
+
+# ----------------------------------------- SIGNIFICATIF -----------------------------------------
+
+results <- data.frame(
+  Rep   = integer(n_sims),
+  N     = integer(n_sims),
+  K     = integer(n_sims),
+  P_R = numeric(n_sims),
+  P_Maths = numeric(n_sims),
+  P_Stoat = numeric(n_sims),
+  P_RVTest = numeric(n_sims),
+  Coef_R = numeric(n_sims),
+  Coef_Maths = numeric(n_sims),
+  Coef_Stoat = numeric(n_sims),
+  Coef_RVTest = numeric(n_sims),
+  Diff_P_Maths = numeric(n_sims),
+  Diff_P_Stoat = numeric(n_sims),
+  Diff_P_RVTest = numeric(n_sims),
+  Diff_Coef_Maths  <- numeric(n_sims),
+  Diff_Coef_Stoat  <- numeric(n_sims),
+  Diff_Coef_RVTest <- numeric(n_sims)
+)
+
+for (rep in 1:n_sims) {
+
+  # Random sample sizes
+  n <- 1000
+  k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
+  number_last_element <- sample(1:max(1, floor(0.1 * n)), 1) # number of rows to modify at the end
+
+  # Step 1: Generate matrix X (SNP data with sum=1 per row)
+  X <- matrix(
+    t(replicate(n, gen_row(k))),
+    nrow = n,
+    ncol = k
+  )
+
+  # Step 2: Add 2 new zero columns
+  X <- cbind(X, matrix(0, nrow = n, ncol = 2))
+
+  # Step 3: Modify the last 'number_last_element' rows
+  if (number_last_element > 0) {
+    start_row <- n - number_last_element + 1
+    # Reset the last rows to 0
+    X[start_row:n, ] <- 0
+    # Set last 2 columns of these rows to 0.5
+    X[start_row:n, (k+1):(k+2)] <- 0.5
+  }
+
+  # Step 3: sanity check
+  if(any(rowSums(X) != 1)) stop("Some rows do not sum to 1!")
+
+  # ---- Store meta ----
+  results$Rep[rep] <- rep
+  results$N[rep]   <- n
+  results$K[rep]   <- k
+
+  # ---- Generate Y ----
+  beta_true <- rep(0, ncol(X))
+  beta_true[1] <- 0.5  # assign signal to X1
+  Y <- X %*% beta_true + rnorm(n, sd = sigma)
+  Y <- as.vector(Y)
+
+  # ---- R lm ----
+  df <- data.frame(Y = Y, X)
+  fit_r <- lm(Y ~ ., data = df)
+  coefs <- coef(summary(fit_r))
+
+  results$P_R[rep]     <- coefs[2, "Pr(>|t|)"]
+  results$Coef_R[rep]  <- coef(fit_r)[2]
+
+  X_maths <- X[, -ncol(X), drop = FALSE]
+
+  # ---- C++ Maths ----
+  res_maths <- cpp_linear_regression_maths(X_maths, Y)
+  cpp_pvals_maths <- unlist(res_maths$p_values)
+  results$P_Maths[rep]     <- cpp_pvals_maths[2]
+  results$Coef_Maths[rep]  <- unlist(res_maths$coefficients)[2]
+  results$Diff_P_Maths[rep]  <- results$P_Maths[rep] - results$P_R[rep]
+
+  # ---- C++ Stoat ----
+  res_stoat <- cpp_linear_regression_stoat(X_maths, Y)
+  cpp_pvals_stoat <- unlist(res_stoat$p_values)
+  results$P_Stoat[rep]     <- cpp_pvals_stoat[2]
+  results$Coef_Stoat[rep]  <- unlist(res_stoat$coefficients)[2]
+  results$Diff_P_Stoat[rep]  <- results$P_Stoat[rep] - results$P_R[rep]
+
+  # ---- C++ RVTest ----
+  res_rvtest <- cpp_linear_regression_rvtest(X_maths, Y)
+  cpp_pvals_rvtest <- unlist(res_rvtest$p_values)
+  results$P_RVTest[rep]    <- cpp_pvals_rvtest[2]
+  results$Coef_RVTest[rep] <- unlist(res_rvtest$coefficients)[2]
+  results$Diff_P_RVTest[rep] <- results$P_RVTest[rep] - results$P_R[rep]
+
+}
+
+# ----------------------------------------- SIMULATION -----------------------------------------
+
+# Check valide (No NA or No numeric value)
+check_invalid_counts(
+  results$Coef_R, results$P_R,
+  results$Coef_Maths, results$P_Maths,
+  results$Coef_Stoat, results$P_Stoat,
+  results$Coef_RVTest, results$P_RVTest
+)
+
+cat("P-value distribution [min/max/means] [collinearity significative NO merging same column] : \n")
+
+P_stats <- data.frame(
+  Method = c("PR"),
+  Min = min(results$P_R, na.rm = TRUE),
+  Mean = mean(results$P_R, na.rm = TRUE),
+  Max = max(results$P_R, na.rm = TRUE)
+)
+
+print(P_stats)
+
+df_pvals_long <- melt(
+  data.frame(
+    P_R      = results$P_R,
+    P_Maths  = results$P_Maths,
+    P_Stoat  = results$P_Stoat,
+    P_RVTest = results$P_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "PValue"
+)
+
+# ---- Filtered p-value distributions: 0 to 0.01 ----
+df_pvals_long_small <- subset(df_pvals_long, PValue > 0 & PValue <= 0.01)
+
+ggplot(df_pvals_long_small, aes(x = PValue, fill = Method)) +
+  geom_histogram(alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "P-value Distributions by Method (0 to 0.01) [collinearity significative NO merging same column]",
+       x = "P-value", y = "Frequency") +
+  xlim(0, 0.01)
+
+ggplot(df_pvals_long, aes(x = PValue, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "P-value Distributions by Method [collinearity significative NO merging same column]",
+       x = "P-value", y = "Frequency")
+
+# ---- PLOT p-value differences ----
+
+# Combine the p-value differences into long format for plotting
+df_pvalue_diff_pvalue <- data.frame(
+  P_R = results$P_R,
+  Maths  = results$Diff_P_Maths,
+  Stoat  = results$Diff_P_Stoat,
+  RVTest = results$Diff_P_RVTest
+)
+
+# Convert to long format for ggplot
+df_pvalue_diff_pvalue_long <- melt(df_pvalue_diff_pvalue, id.vars = "P_R",
+                          variable.name = "Method", value.name = "Diff_P")
+
+# Plot: P_R on X, Diff_P on Y
+ggplot(df_pvalue_diff_pvalue_long, aes(x = P_R, y = Diff_P, color = Method)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  theme_bw(base_size = 14) +
+  labs(
+    title = "Difference in P-values vs R [collinearity significative NO merging same column]",
+    x = "P-value (R lm)",
+    y = "Difference in P-value (Method - R)",
+    color = "Method")
+
+df_pdiff_long <- melt(
+  data.frame(
+    Diff_P_Maths  = results$Diff_P_Maths,
+    Diff_P_Stoat  = results$Diff_P_Stoat,
+    Diff_P_RVTest = results$Diff_P_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "PValueDiff"
+)
+
+ggplot(df_pdiff_long, aes(x = PValueDiff, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "Difference in P-values vs R lm [collinearity significative NO merging same column]",
+       x = "C++ P-value - R P-value", y = "Frequency")
+
+# ---- PLOT coefficient distributions ----
+df_coef_long <- melt(
+  data.frame(
+    Coef_R      = results$Coef_R,
+    Coef_Maths  = results$Coef_Maths,
+    Coef_Stoat  = results$Coef_Stoat,
+    Coef_RVTest = results$Coef_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "Coefficient"
+)
+
+ggplot(df_coef_long, aes(x = Coefficient, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "Coefficient Distributions [collinearity significative NO merging same column]",
+       x = "Coefficient", y = "Frequency")
+
+# ---- PLOT coefficient differences ----
+df_diff_long <- melt(
+  data.frame(
+    Diff_Coef_Maths  = results$Diff_Coef_Maths,
+    Diff_Coef_Stoat  = results$Diff_Coef_Stoat,
+    Diff_Coef_RVTest = results$Diff_Coef_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "CoefDiff"
+)
+
+ggplot(df_diff_long, aes(x = CoefDiff, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "Difference in Coefficients vs R lm [collinearity significative NO merging same column]",
+       x = "C++ Coefficient - R Coefficient", y = "Frequency")
+
+# ---- SIGNIFICANCE proportion ----
+p_threshold <- 0.01
+sig_props <- sapply(results[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
+                    function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
+
+print(sig_props)
+
+# ---- Difference p-value proportion ----
+cat("Difference Pvalue per methods [min/max/means] [collinearity significative NO merging same column] : \n")
+
+# Compute percentage differences
+results$PctDiff_Maths  <- 100 * (results$P_Maths  - results$P_R) / results$P_R
+results$PctDiff_Stoat  <- 100 * (results$P_Stoat  - results$P_R) / results$P_R
+results$PctDiff_RVTest <- 100 * (results$P_RVTest - results$P_R) / results$P_R
+
+summarize_pct_diff(results$PctDiff_Maths, "Maths")
+summarize_pct_diff(results$PctDiff_Stoat, "Stoat")
+summarize_pct_diff(results$PctDiff_RVTest, "RVTest")
+
+# ----------------------------------------- NO SIGNIFICATIF -----------------------------------------
+
+results_null <- data.frame(
+  Rep   = integer(n_sims),
+  N     = integer(n_sims),
+  K     = integer(n_sims),
+  P_R = numeric(n_sims),
+  P_Maths = numeric(n_sims),
+  P_Stoat = numeric(n_sims),
+  P_RVTest = numeric(n_sims),
+  Coef_R = numeric(n_sims),
+  Coef_Maths = numeric(n_sims),
+  Coef_Stoat = numeric(n_sims),
+  Coef_RVTest = numeric(n_sims),
+  Diff_P_Maths = numeric(n_sims),
+  Diff_P_Stoat = numeric(n_sims),
+  Diff_P_RVTest = numeric(n_sims),
+  Diff_Coef_Maths  <- numeric(n_sims),
+  Diff_Coef_Stoat  <- numeric(n_sims),
+  Diff_Coef_RVTest <- numeric(n_sims)
+)
+
+for (rep in 1:n_sims) {
+
+  # Random sample sizes
+  n <- 1000
+  k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
+  number_last_element <- sample(1:max(1, floor(0.1 * n)), 1)  # number of rows to modify at the end
+
+  # Step 1: Generate matrix X (SNP data with sum=1 per row)
+  X <- matrix(
+    t(replicate(n, gen_row(k))),
+    nrow = n,
+    ncol = k
+  )
+
+  # Step 2: Add 2 new zero columns
+  X <- cbind(X, matrix(0, nrow = n, ncol = 2))
+
+  # Step 3: Modify the last 'number_last_element' rows
+  if (number_last_element > 0) {
+    start_row <- n - number_last_element + 1
+    # Reset the last rows to 0
+    X[start_row:n, ] <- 0
+    # Set last 2 columns of these rows to 0.5
+    X[start_row:n, (k+1):(k+2)] <- 0.5
+  }
+
+  # Step 3: sanity check
+  if(any(rowSums(X) != 1)) stop("Some rows do not sum to 1!")
+
+  # ---- Store meta ----
+  results_null$Rep[rep] <- rep
+  results_null$N[rep]   <- n
+  results_null$K[rep]   <- k
+
+  # ---- Generate Y ----
+  beta_null <- rep(0, ncol(X))
+  beta_null[1] <- 0  # assign signal to X1
+  Y_null <- X %*% beta_null + rnorm(n, sd = sigma)
+  Y_null <- as.vector(Y_null)
+
+  # ---- R lm ----
+  df_null <- data.frame(Y = Y_null, X)
+  fit_r <- lm(Y ~ ., data = df_null)
+  coefs <- coef(summary(fit_r))
+
+  results_null$P_R[rep]     <- coefs[2, "Pr(>|t|)"]
+  results_null$Coef_R[rep]  <- coef(fit_r)[2]
+
+  # Now proceed with maths version using X_unique instead of X
+  X_maths <- X[, -ncol(X), drop = FALSE]
+
+  # ---- C++ Maths ----
+  res_maths <- cpp_linear_regression_maths(X_maths, Y_null)
+  cpp_pvals_maths <- unlist(res_maths$p_values)
+  results_null$P_Maths[rep]     <- cpp_pvals_maths[2]
+  results_null$Coef_Maths[rep]  <- unlist(res_maths$coefficients)[2]
+  results_null$Diff_P_Maths[rep]  <- results_null$P_Maths[rep] - results_null$P_R[rep]
+
+  # ---- C++ Stoat ----
+  res_stoat <- cpp_linear_regression_stoat(X_maths, Y_null)
+  cpp_pvals_stoat <- unlist(res_stoat$p_values)
+  results_null$P_Stoat[rep]     <- cpp_pvals_stoat[2]
+  results_null$Coef_Stoat[rep]  <- unlist(res_stoat$coefficients)[2]
+  results_null$Diff_P_Stoat[rep]  <- results_null$P_Stoat[rep] - results_null$P_R[rep]
+
+  # ---- C++ RVTest ----
+  res_rvtest <- cpp_linear_regression_rvtest(X_maths, Y_null)
+  cpp_pvals_rvtest <- unlist(res_rvtest$p_values)
+  results_null$P_RVTest[rep]    <- cpp_pvals_rvtest[2]
+  results_null$Coef_RVTest[rep] <- unlist(res_rvtest$coefficients)[2]
+  results_null$Diff_P_RVTest[rep] <- results_null$P_RVTest[rep] - results_null$P_R[rep]
+
+}
+
+# ----------------------------------------- SIMULATION -----------------------------------------
+
+# Check valide (No NA or No numeric value)
+check_invalid_counts(
+  results_null$Coef_R, results_null$P_R,
+  results_null$Coef_Maths, results_null$P_Maths,
+  results_null$Coef_Stoat, results_null$P_Stoat,
+  results_null$Coef_RVTest, results_null$P_RVTest
+)
+
+# ---- PLOT p-value distributions ----
+df_pvals_long_null <- melt(
+  data.frame(
+    P_R      = results_null$P_R,
+    P_Maths  = results_null$P_Maths,
+    P_Stoat  = results_null$P_Stoat,
+    P_RVTest = results_null$P_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "PValue"
+)
+
+# Distribution of pvalue
+ggplot(df_pvals_long_null, aes(x = PValue, color = Method)) +
+  stat_ecdf(linewidth = 1) +
+  theme_bw() +
+  labs(
+    title = "Empirical CDF of P-values by Method",
+    x = "P-value",
+    y = "ECDF"
+  ) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")
+
+ggplot(df_pvals_long_null, aes(x = PValue, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "P-value Distributions by Method [collinearity NO significative NO merging same column]",
+       x = "P-value", y = "Frequency")
+
+# ---- PLOT p-value differences ----
+
+# Combine the p-value differences into long format for plotting
+df_pvalue_diff_pvalue <- data.frame(
+  P_R = results_null$P_R,
+  Maths  = results_null$Diff_P_Maths,
+  Stoat  = results_null$Diff_P_Stoat,
+  RVTest = results_null$Diff_P_RVTest
+)
+
+# Convert to long format for ggplot
+df_pvalue_diff_pvalue_long <- melt(df_pvalue_diff_pvalue, id.vars = "P_R",
+                     variable.name = "Method", value.name = "Diff_P")
+
+# Plot: P_R on X, Diff_P on Y
+ggplot(df_pvalue_diff_pvalue_long, aes(x = P_R, y = Diff_P, color = Method)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  theme_bw(base_size = 14) +
+  labs(
+    title = "Difference in P-values vs R [collinearity NO Significant NO merging same column]",
+    x = "P-value (R lm)",
+    y = "Difference in P-value (Method - R)",
+    color = "Method")
+
+df_pdiff_long <- melt(
+  data.frame(
+    Diff_P_Maths  = results_null$Diff_P_Maths,
+    Diff_P_Stoat  = results_null$Diff_P_Stoat,
+    Diff_P_RVTest = results_null$Diff_P_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "PValueDiff"
+)
+
+ggplot(df_pdiff_long, aes(x = PValueDiff, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "Difference in P-values vs R lm [collinearity NO significative NO merging same column]",
+       x = "C++ P-value - R P-value", y = "Frequency")
+
+# ---- PLOT coefficient distributions ----
+df_coef_long <- melt(
+  data.frame(
+    Coef_R      = results_null$Coef_R,
+    Coef_Maths  = results_null$Coef_Maths,
+    Coef_Stoat  = results_null$Coef_Stoat,
+    Coef_RVTest = results_null$Coef_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "Coefficient"
+)
+
+ggplot(df_coef_long, aes(x = Coefficient, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "Coefficient Distributions [collinearity NO significative NO merging same column]",
+       x = "Coefficient", y = "Frequency")
+
+# ---- PLOT coefficient differences ----
+df_diff_long <- melt(
+  data.frame(
+    Diff_Coef_Maths  = results_null$Diff_Coef_Maths,
+    Diff_Coef_Stoat  = results_null$Diff_Coef_Stoat,
+    Diff_Coef_RVTest = results_null$Diff_Coef_RVTest
+  ),
+  variable.name = "Method",
+  value.name = "CoefDiff"
+)
+
+ggplot(df_diff_long, aes(x = CoefDiff, fill = Method)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+  theme_bw() +
+  labs(title = "Difference in Coefficients vs R lm [collinearity NO significative NO merging same column]",
+       x = "C++ Coefficient - R Coefficient", y = "Frequency")
+
+# ---- SIGNIFICANCE proportion ----
+p_threshold <- 0.01
+sig_props <- sapply(results_null[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
+                    function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
+
+print(sig_props)
+
+test_PR <- data.frame(
+  Method = c("PR"),
+  Min = min(results_null$P_R, na.rm = TRUE),
+  Mean = mean(results_null$P_R, na.rm = TRUE),
+  Max = max(results_null$P_R, na.rm = TRUE)
+)
+
+print(test_PR)
+
+# ---- Difference p-value proportion ----
+cat("Difference Pvalue per methods [min/max/means] [collinearity NO significative NO merging same column] : \n")
+
+# Compute percentage differences
+results_null$PctDiff_Maths  <- 100 * (results_null$P_Maths  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_Stoat  <- 100 * (results_null$P_Stoat  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_RVTest <- 100 * (results_null$P_RVTest - results_null$P_R) / results_null$P_R
+
+summarize_pct_diff(results_null$PctDiff_Maths, "Maths")
+summarize_pct_diff(results_null$PctDiff_Stoat, "Stoat")
+summarize_pct_diff(results_null$PctDiff_RVTest, "RVTest")
+
+# ----------------------------------------- WITH MERGE SAME COLUMN -----------------------------------------
+
 # ----------------------------------------- SIGNIFICATIF -----------------------------------------
 
 results <- data.frame(
@@ -636,14 +1117,14 @@ df_pvals_long_small <- subset(df_pvals_long, PValue > 0 & PValue <= 0.01)
 ggplot(df_pvals_long_small, aes(x = PValue, fill = Method)) +
   geom_histogram(alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "P-value Distributions by Method (0 to 0.01) [collinearity significative]",
+  labs(title = "P-value Distributions by Method (0 to 0.01) [collinearity significative merging same column]",
        x = "P-value", y = "Frequency") +
   xlim(0, 0.01)
 
 ggplot(df_pvals_long, aes(x = PValue, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "P-value Distributions by Method [collinearity significative]",
+  labs(title = "P-value Distributions by Method [collinearity significative merging same column]",
        x = "P-value", y = "Frequency")
 
 # ---- PLOT p-value differences ----
@@ -666,7 +1147,7 @@ ggplot(df_pvalue_diff_pvalue_long, aes(x = P_R, y = Diff_P, color = Method)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
   theme_bw(base_size = 14) +
   labs(
-    title = "Difference in P-values vs R (collinearity significative)",
+    title = "Difference in P-values vs R [collinearity significative merging same column]",
     x = "P-value (R lm)",
     y = "Difference in P-value (Method - R)",
     color = "Method")
@@ -684,7 +1165,7 @@ df_pdiff_long <- melt(
 ggplot(df_pdiff_long, aes(x = PValueDiff, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "Difference in P-values vs R lm [collinearity significative]",
+  labs(title = "Difference in P-values vs R lm [collinearity significative merging same column]",
        x = "C++ P-value - R P-value", y = "Frequency")
 
 # ---- PLOT coefficient distributions ----
@@ -702,7 +1183,7 @@ df_coef_long <- melt(
 ggplot(df_coef_long, aes(x = Coefficient, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "Coefficient Distributions [collinearity significative]",
+  labs(title = "Coefficient Distributions [collinearity significative merging same column]",
        x = "Coefficient", y = "Frequency")
 
 # ---- PLOT coefficient differences ----
