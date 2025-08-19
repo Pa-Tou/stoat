@@ -1,2 +1,0 @@
-IID age sex
-samp0 XX 1

@@ -108,7 +108,7 @@ int main_stoat(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:p:d:r:b:q:e:m:c:C:k:g:i:y:l:G:w:T:M:t:V:I:H:o:h", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:p:d:r:b:q:e:c:C:k:i:y:l:G:w:T:M:t:V:I:H:o:gmh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;

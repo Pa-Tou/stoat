@@ -154,7 +154,7 @@ void SnarlAnalyzer::process_snarls_by_chromosome_chunk(
         rec = rec_new;
 
         auto end_1 = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Matrix time analysis in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
+        stoat::LOG_INFO("Matrix time construction in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
 
         const auto& snarls = chr_to_snarl_data.at(chr);
         

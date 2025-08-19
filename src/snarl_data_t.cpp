@@ -6,42 +6,41 @@ namespace stoat {
 
 // Function to parse the snarl path file
 std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(const std::string& file_path) {
-
+    
     std::string line, chr, snarl, snarl_id, start_pos_str, end_pos_str, path_list, type_var, ref, depth;
-    unordered_map<string, std::vector<Snarl_data_t>> chr_snarl_matrix;
     std::vector<Snarl_data_t> snarl_paths;
+    std::unordered_map<std::string, std::vector<Snarl_data_t>> chr_snarl_matrix;
     std::ifstream file(file_path);
     std::string save_chr = "";
 
-    // Read and validate header
-    if (!std::getline(file, line)) {
-        stoat::LOG_FATAL("Empty file or failed to read header.");
-    }
+    std::getline(file, line);
 
-    // Parse actual header fields
+    // --- Parse and validate header ---
+    std::istringstream header_stream(line);
     std::vector<std::string> header_fields;
-    istringstream header_stream(line);
     std::string field;
-    while (getline(header_stream, field, '\t')) {
+
+    while (std::getline(header_stream, field, '\t')) {
         header_fields.push_back(field);
     }
 
-    // Expected header
-    std::vector<std::string> expected_header = {"CHR", "START_POS", "END_POS", "SNARL", "PATHS", "TYPE", "REF", "DEPTH"};
+    const std::vector<std::string> expected_header = {
+        "CHR", "START_POS", "END_POS", "SNARL_HANDLEGRAPH",
+        "SNARL", "PATHS", "TYPE", "REF", "DEPTH"
+    };
 
     if (header_fields != expected_header) {
-        // Build detailed error message
-        ostringstream oss;
+        std::ostringstream oss;
         oss << "Error: Invalid header format in file: " << file_path << "\n";
         oss << " > Expected: ";
         for (size_t i = 0; i < expected_header.size(); ++i) {
             oss << expected_header[i];
-            if (i < expected_header.size() - 1) oss << "\\t";
+            if (i < expected_header.size() - 1) oss << "\t";
         }
         oss << "\n > Got:      ";
         for (size_t i = 0; i < header_fields.size(); ++i) {
             oss << header_fields[i];
-            if (i < header_fields.size() - 1) oss << "\\t";
+            if (i < header_fields.size() - 1) oss << "\t";
         }
         stoat::LOG_FATAL(oss.str());
     }
@@ -92,7 +91,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 
         std::pair<size_t, size_t> snarl_ids = stringToPair(snarl_id);
         std::vector<stoat::Path_traversal_t> paths = stringToVectorPath(paths_str);
-        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoi(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoi(depth));
+        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoi(depth));
         snarl_paths.push_back(snarl_path);
     }
     // last chr adding
@@ -233,8 +232,8 @@ std::vector<stoat::Path_traversal_t> stringToVectorPath(std::string& input) {
 // Add a snarl
 Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) : 
     snarl(snarl_), start_positions(0), end_positions(0), depth(distance_index.get_depth(snarl_)) {
-    snarl_ids = std::make_pair(distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false))),
-                               distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false))));
+    snarl_ids = std::make_pair(distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false))),
+                               distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false))));
 }
 
 Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_,
@@ -714,7 +713,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         const std::string& chr = std::get<1>(snarl_path_pos);
         if (chr.empty()) {continue;}
 
-        size_t strat_pos = std::get<2>(snarl_path_pos);
+        size_t start_pos = std::get<2>(snarl_path_pos);
         size_t end_pos = std::get<3>(snarl_path_pos);
         size_t depth = stree.get_depth(snarl);
         std::string str_reference = std::get<4>(snarl_path_pos) ? "1" : "0";
@@ -722,7 +721,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         // Output result
         #pragma omp critical(out_snarl)
         out_snarl << chr << "\t" 
-                    << strat_pos << "\t" 
+                    << start_pos << "\t" 
                     << end_pos << "\t" 
                     << handlegraph::as_integer(snarl) << "\t" 
                     << snarl_id_str << "\t"
@@ -730,7 +729,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
                     << stoat::vectorToString(type_variants) << "\t"
                     << str_reference << "\t" 
                     << depth << "\n";
-        Snarl_data_t snarl_path(snarl, snarl_id, pretty_paths, strat_pos, end_pos, type_variants, depth);
+        Snarl_data_t snarl_path(snarl, snarl_id, pretty_paths, start_pos, end_pos, type_variants, depth);
         
         #pragma omp critical(chr_snarl_matrix)
         chr_snarl_matrix[chr].emplace_back(std::move(snarl_path));
