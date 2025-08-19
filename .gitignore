@@ -1,7 +1,7 @@
 .docker/
 .vscode/*
 .Rproj.user
-build/
+build/*
 output/*
 bin/*
 plot_script/.Rdata
