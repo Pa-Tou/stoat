@@ -36,8 +36,9 @@ void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_d
 }
 
 void write_binary_covar(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value, const std::string& p_value_adjusted, const std::string& r2,
+                        const std::string& p_value, const std::string& p_value_adjusted,
                         const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+
     outstream << chr << "\t" 
               << snarl_data_s.start_positions << "\t" 
               << snarl_data_s.end_positions << "\t" 
@@ -45,17 +46,16 @@ void write_binary_covar(std::ostream& outstream, const std::string& chr, const S
               << type_var_str << "\t" 
               << p_value << "\t" 
               << p_value_adjusted << "\t" 
-              << r2 << "\t" 
               << beta << "\t" 
               << se << "\t" 
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << endl;
 }
 
-
 void write_quantitative(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
                         const std::string& p_value, const std::string& p_value_adjusted, const std::string& r2,
                         const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+
     outstream << chr << "\t" 
               << snarl_data_s.start_positions << "\t" 
               << snarl_data_s.end_positions << "\t" 
@@ -74,6 +74,7 @@ void write_quantitative(std::ostream& outstream, const std::string& chr, const S
 void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
                    const std::string& gene_name, const std::string& p_value, const std::string& p_value_adjusted, const std::string& r2,
                    const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+
     outstream << chr << "\t" 
               << snarl_data_s.start_positions << "\t" 
               << snarl_data_s.end_positions << "\t" 

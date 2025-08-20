@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import re
+import os
 from cyvcf2 import VCF # type: ignore
 
 def split_snarl(input_str):
@@ -141,8 +142,13 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
                     # Choose p-value field
                     if type_ == 'binary':
                         p_val = matched['P_FISHER']
+                        group_paths = matched.get('GROUP_PATHS', '')
+                        allele_num = sum(
+                            int(part.split(':')[1]) for part in group_paths.split(',') if ':' in part) if group_paths else 200
                     elif type_ == 'quantitative':
                         p_val = matched['P']
+                        group_paths = matched.get('ALLELE_PATHS', '')
+                        allele_num = sum(int(x) for x in group_paths.split(',')) if group_paths else 200
                     else:
                         raise ValueError("type_ must be 'binary' or 'quantitative'")
 
@@ -153,12 +159,6 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
                     cleaned_true_labels.append(true_labels[i])
                     clean_list_diff.append(list_diff[i])
                     pvalue_list.append(p_val)
-
-                    # Compute allele_num from GROUP_PATHS safely
-                    group_paths = matched.get('GROUP_PATHS', '')
-                    allele_num = sum(
-                        int(part.split(':')[1]) for part in group_paths.split(',') if ':' in part
-                    ) if group_paths else 200
                     num_sample.append(allele_num)
 
     return (
@@ -367,6 +367,7 @@ if __name__ == "__main__":
     parser.add_argument("--paths", help="Path to snarl paths list file")
     parser.add_argument("-t", "--threshold", type=float, required=False, help="Threshold to define the truth label")
     parser.add_argument("--sv", action="store_true", required=False, help="Verify truth only for SV (>= 50 pb diff)")
+    parser.add_argument("--output", default="output", required=False, help="Verify truth only for SV (>= 50 pb diff)")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-b", "--binary", action='store_true', help="binary test")
@@ -374,14 +375,18 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # Ensure output directory exists
+    output_dir = args.output
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Created output directory: {output_dir}")
+    else:
+        print(f"Output directory already exists: {output_dir}")
+
     if args.binary:
-        output = "tests/"
-        output_diff = f"{output}"
         type_ = 'binary'
 
     elif args.quantitative:
-        output = "tests/"
-        output_diff = f"{output}"
         type_ = 'quantitative'
 
     # THRESHOLD_FREQ = 0.0 : Case where just a difference between both group snarl is considered like Truth label
@@ -391,20 +396,24 @@ if __name__ == "__main__":
     freq_test_path_list, test_true_labels, test_list_diff = process_file(args.freq, THRESHOLD_FREQ)
     test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name = match_snarl(freq_test_path_list, test_true_labels, test_list_diff, args.p_value, args.paths, save_sv_snarl, type_)
     test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name = match_snarl(freq_test_path_list, test_true_labels, test_list_diff, args.p_value, args.paths, save_sv_snarl, type_)
-    print_confusion_matrix(test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, f"{output}/confusion_matrix_{THRESHOLD_FREQ}")
+    print_confusion_matrix(test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, f"{output_dir}/confusion_matrix_{THRESHOLD_FREQ}")
     assert len(cleaned_true_labels) == len(clean_list_diff)
 
     print("Pourcentage of paths tested : ", (len(pvalue)/len(freq_test_path_list))*100*2) # *2 because we jump 2 per 2 the paths
     # Plot distribution of p-values for false negatives and true positives
-    plot_diff_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, output_diff, "10^-2")
-    p_value_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name, output_diff)
+    plot_diff_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, output_dir, "10^-2")
+    p_value_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name, output_dir)
 
     """
     python3 tests/scripts/verify_truth.py --freq data/quantitative/pg.snarls.freq.tsv \
     --p_value output/quantitative_table_vcf.tsv --paths output/snarl_analyse.tsv -q
 
+    python3 tests/scripts/verify_truth.py --freq data/quantitative/pg.snarls.freq.tsv \
+    --p_value output/quantitative_table_covar_vcf.tsv --paths output/snarl_analyse.tsv -q
+
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output/binary_table_vcf.tsv --paths output/snarl_analyse.tsv -b
+    --p_value output/binary_table_vcf.tsv --paths output/binary_snarl_analyse.tsv -b
+
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output/binary_table_vcf.tsv --paths output/snarl_analyse.tsv -b
+    --p_value output/binary_table_covar_vcf.tsv --paths output/binary_snarl_analyse.tsv -q
     """

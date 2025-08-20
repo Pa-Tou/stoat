@@ -48,7 +48,7 @@ void add_BH_adjusted_column(
 
     if (phenotype_type == stoat::BINARY || phenotype_type == stoat::EQTL) {
         adjusted_col_index = 7;
-    } else if (phenotype_type == stoat::QUANTITATIVE) {
+    } else if (phenotype_type == stoat::QUANTITATIVE || phenotype_type == stoat::BINARY_COVAR) {
         adjusted_col_index = 6;
     }
 
@@ -132,6 +132,7 @@ void add_BH_adjusted_column(
             outfile << columns[i];
             if (i != columns.size() - 1) outfile << '\t';
         }
+
         outfile << '\n';
 
         if (adjusted_p < 1e-5) {

@@ -1,0 +1,107 @@
+------------------- [ALL kind of variation significative] -------------------
+
+P-value distribution [min/max/means] : 
+Method          Min         Mean       Max
+PR 3.357324e-14 0.0009101567 0.1019797
+
+% of pvalue significative per methods : 
+P_R  P_Maths  P_Stoat P_RVTest 
+98.3     98.3     98.3     98.3 
+
+Difference Pvalue per methods [min/max/means] in % [ALL significative] : 
+  Method          Min         Mean          Max
+1  Maths 1.306884e-14 8.931894e-12 5.615587e-11
+  Method          Min         Mean          Max
+1  Stoat 1.306884e-14 8.884205e-12 5.615587e-11
+  Method       Min     Mean      Max
+1 RVTest 0.9809027 16.91514 63.09729
+
+------------------- [ALL kind of variation NO significative] -------------------
+
+% of pvalue significative per methods : 
+P_R  P_Maths  P_Stoat P_RVTest 
+0.6      0.6      0.6      0.6
+
+Difference Pvalue per methods [min/max/means] in % [ALL NO significative] : 
+  Method Min         Mean          Max
+1  Maths   0 1.364508e-12 1.054802e-11
+  Method Min         Mean          Max
+1  Stoat   0 1.363379e-12 1.054802e-11
+  Method          Min      Mean      Max
+1 RVTest 1.338319e-05 0.4039048 6.761813
+
+------------------- [collinearity significative NO merging same column] -------------------
+
+Dans check_invalid_counts(results$Coef_R, results$P_R, results$Coef_Maths,  :
+  Found 70 NA or non-numeric values in results.)
+
+P-value distribution [min/max/means] [collinearity significative NO merging same column] : 
+Method          Min       Mean       Max
+1     PR 4.144281e-11 0.08429657 0.9873938
+
+% of pvalue significative per methods : 
+P_R  P_Maths  P_Stoat P_RVTest 
+59.2      0.0      5.0     48.2 
+
+Difference Pvalue per methods [min/max/means] in % [collinearity significative NO merging same column] : 
+  Method      Min       Mean          Max
+1  Maths 1.276711 5718429060 2.412961e+12
+  Method         Min       Mean          Max
+1  Stoat 0.004896441 5709647823 2.412962e+12
+  Method       Min       Mean          Max
+1 RVTest 0.3087774 3502674178 2.412964e+12
+
+------------------- [collinearity NO significative NO merging same column] -------------------
+
+Found 73 NA or non-numeric values in results.
+
+% of pvalue significative per methods : 
+P_R  P_Maths  P_Stoat P_RVTest
+0.9      0.0      0.1      0.5
+
+P-value distribution [min/max/means] [collinearity NO significative NO merging same column] : 
+Method          Min      Mean       Max
+PR 0.0008293073 0.5008458 0.9993774
+
+Difference Pvalue per methods [min/max/means] in % [collinearity NO significative NO merging same column] : 
+  Method        Min     Mean      Max
+1  Maths 0.06230119 703.9746 120482.5
+  Method          Min     Mean      Max
+1  Stoat 3.136228e-05 678.1468 120482.5
+  Method         Min     Mean      Max
+1 RVTest 0.001413837 123.0833 25977.81
+P-value distribution [min/max/means] : 
+  Method          Min       Mean       Max
+1     PR 4.225861e-10 0.08548489 0.9939674
+
+------------------- [collinearity significative merging same column] -------------------
+
+% of pvalue significative per methods : 
+P_R  P_Maths  P_Stoat P_RVTest
+56.7     56.7     56.7     57.1
+
+Difference Pvalue per methods [min/max/means] in %  [collinearity significative merging same column] : 
+  Method          Min         Mean          Max
+1  Maths 1.909963e-14 8.564004e-12 7.105684e-11
+  Method         Min         Mean          Max
+1  Stoat 1.23278e-14 8.532216e-12 7.496241e-11
+  Method         Min     Mean      Max
+1 RVTest 0.001982098 6.587597 41.17024
+
+------------------- [collinearity NO significative merging same column] -------------------
+
+% of pvalue significative per methods : 
+P_R  P_Maths  P_Stoat P_RVTest
+0.8      0.8      0.8      1.0
+
+P-value distribution [min/max/means] [collinearity NO significative merging same column] : 
+Method         Min      Mean       Max
+1     PR 0.002138483 0.5022906 0.9997261
+
+Difference Pvalue per methods [min/max/means] in % [collinearity NO significative merging same column] : 
+  Method Min        Mean          Max
+1  Maths   0 3.50113e-12 7.631365e-11
+  Method Min         Mean          Max
+1  Stoat   0 3.506364e-12 7.628827e-11
+  Method          Min      Mean      Max
+1 RVTest 8.948963e-05 0.5281195 5.656666

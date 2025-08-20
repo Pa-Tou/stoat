@@ -1,11 +1,13 @@
 # install.packages("RcppEigen", repos = "https://cloud.r-project.org")   # if not installed
 # install.packages("RcppGSL", repos = "https://cloud.r-project.org")     # if not installed
 
+suppressPackageStartupMessages({
 library(Rcpp)
 library(RcppEigen)
 library(RcppGSL)
 library(ggplot2)
 library(reshape2)
+})
 
 Sys.setenv("CXX14FLAGS"="-std=gnu++14")
 
@@ -16,11 +18,14 @@ sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_rvtest
 
 # Simulation parameters
 set.seed(123)
-n_sims <- 1000
+n_sims <- 1000 # number of simulation
+n <- 1000 # sample number
+k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
 vals <- c(0.5, 1)
-p_threshold <- 0.01
-intercept <- 1
+p_threshold <- 0.01 # pvalue threshold
+intercept <- 1 # intercept value
 sigma <- 1 # noise level
+beta_1 <- 0.5 # beta 1 coef
 
 # Storage for simulation results
 results <- data.frame(
@@ -71,7 +76,7 @@ check_invalid_counts <- function(...) {
   # Count all invalid values across all provided arguments
   total_invalid <- sum(sapply(list(...), count_invalid))
   if (total_invalid > 0) {
-    stop(paste("Error: Found", total_invalid, "NA or non-numeric values in results."))
+    warning("Found ", total_invalid, " NA or non-numeric values in results.")
   }
 }
 
@@ -94,10 +99,6 @@ summarize_pct_diff <- function(pct_diff, method_name = "Method") {
 
 for (i in seq_len(n_sims)) {
 
-  # Random sample sizes
-  n <- 1000 # sample number
-  k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
-
   results$N[i] <- n
   results$K[i] <- k
 
@@ -113,7 +114,7 @@ for (i in seq_len(n_sims)) {
 
   # ---- Step 2a: Significant regression ----
   beta_true <- rep(0, ncol(X))
-  beta_true[1] <- 0.5  # assign signal to X1
+  beta_true[1] <- beta_1  # assign signal to X1
   Y <- X %*% beta_true + rnorm(n, sd = sigma)
   Y <- as.vector(Y)
 
@@ -263,6 +264,17 @@ ggplot(df_pvals_long, aes(x = PValue, fill = Method)) +
   labs(title = "P-value Distributions by Method [all significative]",
        x = "P-value", y = "Frequency")
 
+# Boxplot of p-values by method
+ggplot(df_pvals_long, aes(x = Method, y = PValue, fill = Method)) +
+  geom_boxplot(outlier.size = 1) +
+  theme_bw() +
+  labs(
+    title = "Distribution of P-values by Method",
+    x = "Method",
+    y = "P-value"
+  ) +
+  theme(legend.position = "none")
+
 # ---- Filtered p-value distributions: 0 to 0.0001 ----
 df_pvals_long_small <- subset(df_pvals_long, PValue <= 0.0001)
 
@@ -354,16 +366,17 @@ p_threshold <- 0.01
 sig_props <- sapply(results[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
                     function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
 
+cat("% of pvalue significative per methods :\n ")
 print(sig_props)
 
 # ---- Difference proportion ----
 # ---- Difference p-value proportion ----
-cat("Difference Pvalue per methods [min/max/means] : \n")
+cat("Difference Pvalue per methods [min/max/means] in % [ALL significative] : \n")
 
 # Compute percentage differences
-results$PctDiff_Maths  <- 100 * (results$P_Maths  - results$P_R) / results$P_R
-results$PctDiff_Stoat  <- 100 * (results$P_Stoat  - results$P_R) / results$P_R
-results$PctDiff_RVTest <- 100 * (results$P_RVTest - results$P_R) / results$P_R
+results$PctDiff_Maths  <- 100 * abs(results$P_Maths  - results$P_R) / results$P_R
+results$PctDiff_Stoat  <- 100 * abs(results$P_Stoat  - results$P_R) / results$P_R
+results$PctDiff_RVTest <- 100 * abs(results$P_RVTest - results$P_R) / results$P_R
 
 summarize_pct_diff(results$PctDiff_Maths, "Maths")
 summarize_pct_diff(results$PctDiff_Stoat, "Stoat")
@@ -384,6 +397,8 @@ df_pvals_long_null <- melt(
 )
 
 # Distribution of pvalue
+# stat_ecdf() computes and plots the empirical cumulative distribution function:
+# For each value of PValue, it shows the proportion of observations ≤ that value.
 ggplot(df_pvals_long_null, aes(x = PValue, color = Method)) +
   stat_ecdf(linewidth = 1) +
   theme_bw() +
@@ -393,6 +408,18 @@ ggplot(df_pvals_long_null, aes(x = PValue, color = Method)) +
     y = "ECDF"
   ) +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")
+
+# Boxplot of p-values by method
+ggplot(df_pvals_long_null, aes(x = Method, y = PValue, fill = Method)) +
+  geom_boxplot(outlier.size = 1) +
+  theme_bw() +
+  labs(
+    title = "Distribution of P-values by Method",
+    x = "Method",
+    y = "P-value"
+  ) +
+  theme(legend.position = "none")
+
 
 ggplot(df_pvals_long_null, aes(x = PValue, fill = Method)) +
   geom_histogram(alpha = 0.5, position = "dodge") +
@@ -486,12 +513,12 @@ sig_props_null <- sapply(
 print(sig_props_null)
 
 # ---- Difference p-value proportion ----
-cat("Difference Pvalue per methods [min/max/means] : \n")
+cat("Difference Pvalue per methods [min/max/means] in % [ALL NO significative] : \n")
 
 # Compute percentage differences
-results_null$PctDiff_Maths  <- 100 * (results_null$P_Maths  - results_null$P_R) / results_null$P_R
-results_null$PctDiff_Stoat  <- 100 * (results_null$P_Stoat  - results_null$P_R) / results_null$P_R
-results_null$PctDiff_RVTest <- 100 * (results_null$P_RVTest - results_null$P_R) / results_null$P_R
+results_null$PctDiff_Maths  <- 100 * abs(results_null$P_Maths  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_Stoat  <- 100 * abs(results_null$P_Stoat  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_RVTest <- 100 * abs(results_null$P_RVTest - results_null$P_R) / results_null$P_R
 
 summarize_pct_diff(results_null$PctDiff_Maths, "Maths")
 summarize_pct_diff(results_null$PctDiff_Stoat, "Stoat")
@@ -525,9 +552,6 @@ results <- data.frame(
 
 for (rep in 1:n_sims) {
 
-  # Random sample sizes
-  n <- 1000
-  k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
   number_last_element <- sample(1:max(1, floor(0.1 * n)), 1) # number of rows to modify at the end
 
   # Step 1: Generate matrix X (SNP data with sum=1 per row)
@@ -559,7 +583,7 @@ for (rep in 1:n_sims) {
 
   # ---- Generate Y ----
   beta_true <- rep(0, ncol(X))
-  beta_true[1] <- 0.5  # assign signal to X1
+  beta_true[1] <- beta_1  # assign signal to X1
   Y <- X %*% beta_true + rnorm(n, sd = sigma)
   Y <- as.vector(Y)
 
@@ -606,7 +630,7 @@ check_invalid_counts(
   results$Coef_RVTest, results$P_RVTest
 )
 
-cat("P-value distribution [min/max/means] [collinearity significative NO merging same column] : \n")
+cat("P-value distribution [min/max/means] : \n")
 
 P_stats <- data.frame(
   Method = c("PR"),
@@ -637,6 +661,17 @@ ggplot(df_pvals_long_small, aes(x = PValue, fill = Method)) +
   labs(title = "P-value Distributions by Method (0 to 0.01) [collinearity significative NO merging same column]",
        x = "P-value", y = "Frequency") +
   xlim(0, 0.01)
+
+# Boxplot of p-values by method
+ggplot(df_pvals_long, aes(x = Method, y = PValue, fill = Method)) +
+  geom_boxplot(outlier.size = 1) +
+  theme_bw() +
+  labs(
+    title = "Distribution of P-values by Method",
+    x = "Method",
+    y = "P-value"
+  ) +
+  theme(legend.position = "none")
 
 ggplot(df_pvals_long, aes(x = PValue, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
@@ -725,15 +760,16 @@ p_threshold <- 0.01
 sig_props <- sapply(results[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
                     function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
 
+cat("% of pvalue significative per methods :\n ")
 print(sig_props)
 
 # ---- Difference p-value proportion ----
-cat("Difference Pvalue per methods [min/max/means] [collinearity significative NO merging same column] : \n")
+cat("Difference Pvalue per methods [min/max/means] in % [collinearity significative NO merging same column] : \n")
 
 # Compute percentage differences
-results$PctDiff_Maths  <- 100 * (results$P_Maths  - results$P_R) / results$P_R
-results$PctDiff_Stoat  <- 100 * (results$P_Stoat  - results$P_R) / results$P_R
-results$PctDiff_RVTest <- 100 * (results$P_RVTest - results$P_R) / results$P_R
+results$PctDiff_Maths  <- 100 * abs(results$P_Maths  - results$P_R) / results$P_R
+results$PctDiff_Stoat  <- 100 * abs(results$P_Stoat  - results$P_R) / results$P_R
+results$PctDiff_RVTest <- 100 * abs(results$P_RVTest - results$P_R) / results$P_R
 
 summarize_pct_diff(results$PctDiff_Maths, "Maths")
 summarize_pct_diff(results$PctDiff_Stoat, "Stoat")
@@ -763,9 +799,6 @@ results_null <- data.frame(
 
 for (rep in 1:n_sims) {
 
-  # Random sample sizes
-  n <- 1000
-  k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
   number_last_element <- sample(1:max(1, floor(0.1 * n)), 1)  # number of rows to modify at the end
 
   # Step 1: Generate matrix X (SNP data with sum=1 per row)
@@ -868,6 +901,17 @@ ggplot(df_pvals_long_null, aes(x = PValue, color = Method)) +
   ) +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")
 
+# Boxplot of p-values by method
+ggplot(df_pvals_long_null, aes(x = Method, y = PValue, fill = Method)) +
+  geom_boxplot(outlier.size = 1) +
+  theme_bw() +
+  labs(
+    title = "Distribution of P-values by Method",
+    x = "Method",
+    y = "P-value"
+  ) +
+  theme(legend.position = "none")
+
 ggplot(df_pvals_long_null, aes(x = PValue, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
@@ -955,6 +999,7 @@ p_threshold <- 0.01
 sig_props <- sapply(results_null[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
                     function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
 
+cat("% of pvalue significative per methods :\n ")
 print(sig_props)
 
 test_PR <- data.frame(
@@ -967,12 +1012,12 @@ test_PR <- data.frame(
 print(test_PR)
 
 # ---- Difference p-value proportion ----
-cat("Difference Pvalue per methods [min/max/means] [collinearity NO significative NO merging same column] : \n")
+cat("Difference Pvalue per methods [min/max/means] in % [collinearity NO significative NO merging same column] : \n")
 
 # Compute percentage differences
-results_null$PctDiff_Maths  <- 100 * (results_null$P_Maths  - results_null$P_R) / results_null$P_R
-results_null$PctDiff_Stoat  <- 100 * (results_null$P_Stoat  - results_null$P_R) / results_null$P_R
-results_null$PctDiff_RVTest <- 100 * (results_null$P_RVTest - results_null$P_R) / results_null$P_R
+results_null$PctDiff_Maths  <- 100 * abs(results_null$P_Maths  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_Stoat  <- 100 * abs(results_null$P_Stoat  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_RVTest <- 100 * abs(results_null$P_RVTest - results_null$P_R) / results_null$P_R
 
 summarize_pct_diff(results_null$PctDiff_Maths, "Maths")
 summarize_pct_diff(results_null$PctDiff_Stoat, "Stoat")
@@ -1004,9 +1049,6 @@ results <- data.frame(
 
 for (rep in 1:n_sims) {
 
-  # Random sample sizes
-  n <- 1000
-  k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
   number_last_element <- sample(1:max(1, floor(0.1 * n)), 1) # number of rows to modify at the end
 
   # Step 1: Generate matrix X (SNP data with sum=1 per row)
@@ -1038,7 +1080,7 @@ for (rep in 1:n_sims) {
 
   # ---- Generate Y ----
   beta_true <- rep(0, ncol(X))
-  beta_true[1] <- 0.5  # assign signal to X1
+  beta_true[1] <- beta_1  # assign signal to X1
   Y <- X %*% beta_true + rnorm(n, sd = sigma)
   Y <- as.vector(Y)
 
@@ -1121,6 +1163,17 @@ ggplot(df_pvals_long_small, aes(x = PValue, fill = Method)) +
        x = "P-value", y = "Frequency") +
   xlim(0, 0.01)
 
+# Boxplot of p-values by method
+ggplot(df_pvals_long, aes(x = Method, y = PValue, fill = Method)) +
+  geom_boxplot(outlier.size = 1) +
+  theme_bw() +
+  labs(
+    title = "Distribution of P-values by Method",
+    x = "Method",
+    y = "P-value"
+  ) +
+  theme(legend.position = "none")
+
 ggplot(df_pvals_long, aes(x = PValue, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
@@ -1200,7 +1253,7 @@ df_diff_long <- melt(
 ggplot(df_diff_long, aes(x = CoefDiff, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "Difference in Coefficients vs R lm [collinearity significative]",
+  labs(title = "Difference in Coefficients vs R lm [collinearity significative merging same column]",
        x = "C++ Coefficient - R Coefficient", y = "Frequency")
 
 # ---- SIGNIFICANCE proportion ----
@@ -1208,15 +1261,16 @@ p_threshold <- 0.01
 sig_props <- sapply(results[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
                     function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
 
+cat("% of pvalue significative per methods :\n ")
 print(sig_props)
 
 # ---- Difference p-value proportion ----
-cat("Difference Pvalue per methods [min/max/means] : \n")
+cat("Difference Pvalue per methods [min/max/means] in % [collinearity significative merging same column] : \n")
 
 # Compute percentage differences
-results$PctDiff_Maths  <- 100 * (results$P_Maths  - results$P_R) / results$P_R
-results$PctDiff_Stoat  <- 100 * (results$P_Stoat  - results$P_R) / results$P_R
-results$PctDiff_RVTest <- 100 * (results$P_RVTest - results$P_R) / results$P_R
+results$PctDiff_Maths  <- 100 * abs(results$P_Maths  - results$P_R) / results$P_R
+results$PctDiff_Stoat  <- 100 * abs(results$P_Stoat  - results$P_R) / results$P_R
+results$PctDiff_RVTest <- 100 * abs(results$P_RVTest - results$P_R) / results$P_R
 
 summarize_pct_diff(results$PctDiff_Maths, "Maths")
 summarize_pct_diff(results$PctDiff_Stoat, "Stoat")
@@ -1246,9 +1300,6 @@ results_null <- data.frame(
 
 for (rep in 1:n_sims) {
 
-  # Random sample sizes
-  n <- 1000
-  k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
   number_last_element <- sample(1:max(1, floor(0.1 * n)), 1)  # number of rows to modify at the end
 
   # Step 1: Generate matrix X (SNP data with sum=1 per row)
@@ -1321,8 +1372,6 @@ for (rep in 1:n_sims) {
 
 }
 
-# ----------------------------------------- SIMULATION -----------------------------------------
-
 # Check valide (No NA or No numeric value)
 check_invalid_counts(
   results_null$Coef_R, results_null$P_R,
@@ -1354,10 +1403,21 @@ ggplot(df_pvals_long_null, aes(x = PValue, color = Method)) +
   ) +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")
 
+# Boxplot of p-values by method
+ggplot(df_pvals_long_null, aes(x = Method, y = PValue, fill = Method)) +
+  geom_boxplot(outlier.size = 1) +
+  theme_bw() +
+  labs(
+    title = "Distribution of P-values by Method",
+    x = "Method",
+    y = "P-value"
+  ) +
+  theme(legend.position = "none")
+
 ggplot(df_pvals_long_null, aes(x = PValue, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "P-value Distributions by Method [collinearity NO significative]",
+  labs(title = "P-value Distributions by Method [collinearity NO significative merging same column]",
        x = "P-value", y = "Frequency")
 
 # ---- PLOT p-value differences ----
@@ -1380,7 +1440,7 @@ ggplot(df_pvalue_diff_pvalue_long, aes(x = P_R, y = Diff_P, color = Method)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
   theme_bw(base_size = 14) +
   labs(
-    title = "Difference in P-values vs R (collinearity NO Significant)",
+    title = "Difference in P-values vs R [collinearity NO significative merging same column]",
     x = "P-value (R lm)",
     y = "Difference in P-value (Method - R)",
     color = "Method")
@@ -1398,7 +1458,7 @@ df_pdiff_long <- melt(
 ggplot(df_pdiff_long, aes(x = PValueDiff, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "Difference in P-values vs R lm [collinearity NO significative]",
+  labs(title = "Difference in P-values vs R lm [collinearity NO significative merging same column]",
        x = "C++ P-value - R P-value", y = "Frequency")
 
 # ---- PLOT coefficient distributions ----
@@ -1416,7 +1476,7 @@ df_coef_long <- melt(
 ggplot(df_coef_long, aes(x = Coefficient, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "Coefficient Distributions [collinearity NO significative]",
+  labs(title = "Coefficient Distributions [collinearity NO significative merging same column]",
        x = "Coefficient", y = "Frequency")
 
 # ---- PLOT coefficient differences ----
@@ -1433,7 +1493,7 @@ df_diff_long <- melt(
 ggplot(df_diff_long, aes(x = CoefDiff, fill = Method)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
   theme_bw() +
-  labs(title = "Difference in Coefficients vs R lm [collinearity NO significative]",
+  labs(title = "Difference in Coefficients vs R lm [collinearity NO significative merging same column]",
        x = "C++ Coefficient - R Coefficient", y = "Frequency")
 
 # ---- SIGNIFICANCE proportion ----
@@ -1441,6 +1501,7 @@ p_threshold <- 0.01
 sig_props <- sapply(results_null[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
                     function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
 
+cat("% of pvalue significative per methods :\n ")
 print(sig_props)
 
 test_PR <- data.frame(
@@ -1453,12 +1514,12 @@ test_PR <- data.frame(
 print(test_PR)
 
 # ---- Difference p-value proportion ----
-cat("Difference Pvalue per methods [min/max/means] : \n")
+cat("Difference Pvalue per methods [min/max/means] in % [collinearity NO significative merging same column] :\n")
 
 # Compute percentage differences
-results_null$PctDiff_Maths  <- 100 * (results_null$P_Maths  - results_null$P_R) / results_null$P_R
-results_null$PctDiff_Stoat  <- 100 * (results_null$P_Stoat  - results_null$P_R) / results_null$P_R
-results_null$PctDiff_RVTest <- 100 * (results_null$P_RVTest - results_null$P_R) / results_null$P_R
+results_null$PctDiff_Maths  <- 100 * abs(results_null$P_Maths  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_Stoat  <- 100 * abs(results_null$P_Stoat  - results_null$P_R) / results_null$P_R
+results_null$PctDiff_RVTest <- 100 * abs(results_null$P_RVTest - results_null$P_R) / results_null$P_R
 
 summarize_pct_diff(results_null$PctDiff_Maths, "Maths")
 summarize_pct_diff(results_null$PctDiff_Stoat, "Stoat")
@@ -1468,10 +1529,6 @@ summarize_pct_diff(results_null$PctDiff_RVTest, "RVTest")
 
 # Define beta values to test
 beta_lin <- c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2)
-
-# Number of simulations
-n_sims <- 1000
-sigma <- 1
 
 # Pre-allocate results data frame
 results <- data.frame(
@@ -1580,3 +1637,5 @@ ggplot(df_pvals_long, aes(x = Beta, y = PValue, color = Method)) +
     plot.title = element_text(hjust = 0.5, size = 16),
     axis.title = element_text(size = 14)
   )
+
+# Rscript linear_simulation.R

@@ -405,16 +405,16 @@ void BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
         remove_last_columns_quantitative_table(df);
 
         // logistic regression with covariates if not empty
-        const auto& [p_value, beta, se, r2] = lr.logistic_regression(df, phenotype_filtered, covariate);
+        const auto& [p_value, beta, se] = lr.logistic_regression(df, phenotype_filtered, covariate);
 
         // Plot regression table
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
             std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
             stoat::writeSignificantTableToTSV(df,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
         }
-        # pragma omp critical (outf) 
+        #pragma omp critical (outf) 
         {
-            stoat::write_binary_covar(outf, chr, snarl_data_s, type_var_str, p_value, "", r2, beta, se, allele_paths);
+            stoat::write_binary_covar(outf, chr, snarl_data_s, type_var_str, p_value, "", beta, se, allele_paths);
         }
     }
 }

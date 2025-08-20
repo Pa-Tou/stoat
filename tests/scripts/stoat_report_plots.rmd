@@ -1,0 +1,278 @@
+---
+title: "Stoat Report (20/08)"
+output: html_document
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(CMplot)
+
+utils::globalVariables(c("Expected", "Observed"))
+
+# ---- File paths ----
+file_list <- list(
+  binary_snarl = "/home/mbagarre/Bureau/stoat/output/binary_snarl_analyse.tsv",
+  binary_freq = "/home/mbagarre/Bureau/stoat/data/binary/pg.snarls.freq.tsv",
+  binary_vcf = "/home/mbagarre/Bureau/stoat/output/binary_table_vcf.tsv",
+  binary_covar_vcf = "/home/mbagarre/Bureau/stoat/output/binary_table_covar_vcf.tsv",
+
+  quantitative_snarl = "/home/mbagarre/Bureau/stoat/output/quantitative_snarl_analyse.tsv",
+  quantitative_freq = "/home/mbagarre/Bureau/stoat/data/quantitative/pg.snarls.freq.tsv",
+  quantitative_vcf = "/home/mbagarre/Bureau/stoat/output/quantitative_table_vcf.tsv",
+  quantitative_covar_vcf = "/home/mbagarre/Bureau/stoat/output/quantitative_table_covar_vcf.tsv",
+
+  eqtl_snarl = "/home/mbagarre/Bureau/stoat/output/eqtl_snarl_analyse.tsv",
+  eqtl_freq = "/home/mbagarre/Bureau/stoat/data/eqtl/pg.snarls.freq.tsv",
+  eqtl_vcf = "/home/mbagarre/Bureau/stoat/output/eqtl_table_vcf.tsv",
+  eqtl_covar_vcf = "/home/mbagarre/Bureau/stoat/output/eqtl_table_covar_vcf.tsv",
+
+  binary_graph = "/home/mbagarre/Bureau/stoat/output/binary_table_graph.tsv"
+)
+
+# ---- Helper functions ----
+
+# Read and clean table
+read_stoat <- function(path) {
+  df <- read_tsv(path, show_col_types = FALSE)
+  
+  if ("#CHR" %in% names(df)) names(df)[names(df) == "#CHR"] <- "CHR"
+  if ("P_CHI2" %in% names(df)) names(df)[names(df) == "P_CHI2"] <- "P"
+  if ("START_POS" %in% names(df) && !"POS" %in% names(df)) df$POS <- df$START_POS
+  
+  return(df)
+}
+
+# QQ plot
+qq_plot <- function(df, col, label = col) {
+  pvec <- df[[col]]
+  observed <- sort(pvec[!is.na(pvec)])
+  expected <- -log10(ppoints(length(observed)))
+  observed_log <- -log10(observed)
+  data <- data.frame(Expected = expected, Observed = observed_log)
+  
+  ggplot(data, aes(x = Expected, y = Observed)) +
+    geom_point(size = 1, alpha = 0.5) +
+    geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+    labs(title = paste("QQ Plot of", label),
+         x = "Expected -log10(P)", y = "Observed -log10(P)") +
+    theme_bw()
+}
+
+# Manhattan plot
+manhattan_plot <- function(df) {
+  if (!("CHR" %in% names(df) && "POS" %in% names(df) && "P" %in% names(df))) {
+    message("Skipping Manhattan plot: missing required columns")
+    return(NULL)
+  }
+  
+  df$CHR_numeric <- as.numeric(as.factor(df$CHR))
+  df_m <- df[, c("CHR_numeric", "POS", "P")]
+  colnames(df_m) <- c("CHR", "BP", "P")
+  df_m <- df_m[complete.cases(df_m), ]
+  
+  ggplot(df_m, aes(x = BP, y = -log10(P))) +
+    geom_point(alpha = 0.6, color = "blue") +
+    theme_bw() +
+    labs(title = "Manhattan plot (CHR unique)", x = "Position (BP)", y = "-log10(P)")
+}
+
+# Volcano plot
+volcano_plot <- function(df) {
+  if (!all(c("BETA", "P") %in% names(df))) {
+    message("Skipping Volcano plot: 'BETA' or 'P' not found.")
+    return(NULL)
+  }
+  
+  p <- ggplot(df, aes(x = BETA, y = -log10(P))) +
+    geom_point(alpha = 0.6) +
+    theme_bw() +
+    labs(title = "Volcano Plot", x = "Effect Size (BETA)", y = "-log10(P-value)")
+  
+  return(p)
+}
+
+# RSQUARE vs BETA plot
+rsq_plot <- function(df) {
+  if (!all(c("RSQUARE", "BETA") %in% names(df))) return(NULL)
+  ggplot(df, aes(x = RSQUARE, y = BETA)) +
+    geom_point(alpha = 0.6) +
+    theme_bw() +
+    labs(title = "Effect Size vs RSQUARE", x = "R-squared", y = "BETA")
+}
+
+# Histogram of P-values
+histogram_plot <- function(df) {
+  if (!all(c("P","P_ADJUSTED") %in% names(df))) return(NULL)
+  df_long <- df %>%
+    select(P, P_ADJUSTED) %>%
+    pivot_longer(cols = everything(), names_to = "Type", values_to = "PValue")
+  
+  ggplot(df_long, aes(x = PValue, fill = Type)) +
+    geom_histogram(alpha = 0.6, position = "identity", bins = 50) +
+    theme_bw() +
+    labs(title = "Distribution of P-values", x = "P-value", y = "Count") +
+    scale_fill_brewer(palette = "Set1")
+}
+
+# ---- Run Python verification truth VCF ----
+run_verify_truth <- function(freq_file, pvalue_file, paths_file, flag) {
+  cmd <- paste(
+    "python3 /home/mbagarre/Bureau/stoat/tests/scripts/verify_truth.py",
+    "--freq", freq_file,
+    "--p_value", pvalue_file,
+    "--paths", paths_file,
+    flag
+  )
+  output <- system(cmd, intern = TRUE)
+  return(output)
+}
+
+run_scatter_plot_graph <- function(input, output) {
+  cmd <- paste(
+    "python3 /home/mbagarre/Bureau/stoat/tests/scripts/plot_scatter.py",
+    input,
+    output
+  )
+  output <- system(cmd, intern = TRUE)
+  return(output)
+}
+
+run_histo_plot_graph <- function(input, output) {
+  cmd <- paste(
+    "python3 /home/mbagarre/Bureau/stoat/tests/scripts/plot_histogram.py",
+    input,
+    output
+  )
+  output <- system(cmd, intern = TRUE)
+  return(output)
+}
+```
+
+### Binary VCF
+
+```{r binary-vcf}
+
+# Execute verification for binary VCF
+binary_output <- run_verify_truth(
+  freq_file = file_list$binary_freq,
+  pvalue_file = file_list$binary_vcf,
+  paths_file = file_list$binary_snarl,
+  flag = " -b "
+)
+
+cat(binary_output, sep = "\n")
+
+# Plots
+histogram_plot(df)
+qq_plot(df, "P")
+qq_plot(df, "P_ADJUSTED")
+manhattan_plot(df)
+```
+
+
+```{r binary-vcf-covar}
+
+# Execute verification for binary VCF
+binary_output <- run_verify_truth(
+  freq_file = file_list$binary_freq,
+  pvalue_file = file_list$binary_covar_vcf,
+  paths_file = file_list$binary_snarl,
+  flag = " -q "
+)
+
+cat(binary_output, sep = "\n")
+
+df <- read_stoat(file_list$binary_covar_vcf)
+
+# Plots
+histogram_plot(df)
+qq_plot(df, "P")
+qq_plot(df, "P_ADJUSTED")
+manhattan_plot(df)
+volcano_plot(df)
+rsq_plot(df)
+```
+
+---
+
+
+### Quantitative VCF
+
+```{r quantitative-vcf}
+
+# Execute verification for quantitative VCF
+quantitative_output <- run_verify_truth(
+  freq_file = file_list$quantitative_freq,
+  pvalue_file = file_list$quantitative_vcf,
+  paths_file = file_list$quantitative_snarl,
+  flag = " -q "
+)
+
+cat(quantitative_output, sep = "\n")
+
+df <- read_stoat(file_list$quantitative_vcf)
+
+# ---- Plots ----
+histogram_plot(df)
+qq_plot(df, "P")
+qq_plot(df, "P_ADJUSTED")
+manhattan_plot(df)
+volcano_plot(df)
+rsq_plot(df)
+```
+
+---
+
+### eQTL VCF
+
+```{r eqtl-vcf}
+df <- read_stoat(file_list$eqtl_vcf)
+
+# Plots
+histogram_plot(df)
+qq_plot(df, "P")
+qq_plot(df, "P_ADJUSTED")
+manhattan_plot(df)
+volcano_plot(df)
+rsq_plot(df)
+```
+
+---
+
+### Binary GRAPH
+
+```{r eqtl-vcf}
+# Execute verification for binary VCF
+binary_output <- run_verify_truth(
+  freq_file = file_list$binary_freq,
+  pvalue_file = file_list$binary_vcf,
+  paths_file = file_list$binary_snarl,
+  flag = " -b "
+)
+cat(binary_output, sep = "\n")
+
+binary_scatter_plot_graph <- run_scatter_plot_graph(
+  input = binary_vcf,
+  output = "binary_scatter_plot_graph.png"
+)
+cat(binary_scatter_plot_graph, sep = "\n")
+
+binary_histo_plot_graph <- run_histo_plot_graph(
+  input = binary_vcf,
+  output = "binary_histo_plot_graph.png"
+)
+cat(binary_histo_plot_graph, sep = "\n")
+
+df <- read_stoat(file_list$eqtl_vcf)
+
+# Plots
+histogram_plot(df)
+qq_plot(df, "P")
+qq_plot(df, "P_ADJUSTED")
+manhattan_plot(df)
+volcano_plot(df)
+rsq_plot(df)
+```

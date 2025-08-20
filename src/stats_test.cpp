@@ -44,7 +44,7 @@ double LogisticRegression::calculate_log_likelihood(const Eigen::VectorXd& y, co
 }
 
 // GLM Implementation with Iteratively Reweighted Least Squares (IRLS)
-std::tuple<std::string, std::string, std::string, std::string> LogisticRegression::logistic_regression(
+std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_regression(
     const std::vector<std::vector<double>>& df,
     const std::vector<bool>& phenotype,
     const std::vector<std::vector<double>>& covariates) {
@@ -102,7 +102,7 @@ std::tuple<std::string, std::string, std::string, std::string> LogisticRegressio
         Eigen::VectorXd gradient = X.transpose() * (y - p) - l2_penalty * beta;
 
         Eigen::LDLT<Eigen::MatrixXd> ldlt(hessian);
-        if (ldlt.info() != Eigen::Success) return std::make_tuple("NA", "NA", "NA", "NA");
+        if (ldlt.info() != Eigen::Success) return std::make_tuple("NA", "NA", "NA");
 
         Eigen::VectorXd delta = ldlt.solve(gradient);
         beta += delta;
@@ -114,7 +114,7 @@ std::tuple<std::string, std::string, std::string, std::string> LogisticRegressio
         beta_old = beta;
     }
 
-    if (!converged) return std::make_tuple("NA", "NA", "NA", "NA");
+    if (!converged) return std::make_tuple("NA", "NA", "NA");
 
     // Final weights
     Eigen::VectorXd z_final = X * beta;
@@ -134,22 +134,27 @@ std::tuple<std::string, std::string, std::string, std::string> LogisticRegressio
     Eigen::VectorXd se = cov.diagonal().array().sqrt();
 
     // --- Wald Test (Normal approximation)
-    std::vector<double> p_values(num_variants);
+    std::vector<double> p_values;
+    p_values.reserve(num_variants - 1 - num_covariates);
     for (size_t i = 1; i < num_variants - num_covariates; ++i) { // skip intercept
         double z_score = beta(i) / se(i);
         p_values.push_back(2.0 * (1.0 - normal_cdf(std::abs(z_score)))); // Two-sided
     }
 
     // --- McFadden's R²
-    double ll_full = calculate_log_likelihood(y, p);
-    double p_null_val = clamp(y.mean(), epsilon, 1.0 - epsilon);
-    Eigen::VectorXd p_null = Eigen::VectorXd::Constant(num_samples, p_null_val);
-    double ll_null = calculate_log_likelihood(y, p_null);
-    double r2 = clamp(1.0 - (ll_full / ll_null), 0.0, 1.0);
+    // double ll_full = calculate_log_likelihood(y, p);
+    // double p_null_val = clamp(y.mean(), epsilon, 1.0 - epsilon);
+    // Eigen::VectorXd p_null = Eigen::VectorXd::Constant(num_samples, p_null_val);
+    // double ll_null = calculate_log_likelihood(y, p_null);
+    // double r2 = 0.0;
+    // if (ll_null != 0.0) {
+    //     r2 = 1.0 - (ll_full / ll_null);
+    //     r2 = std::min(std::max(r2, 0.0), 1.0);  // clamp between 0 and 1
+    // }
 
     double p_value_adjusted = p_values[0];
-    double beta_adjusted = beta[0];
-    double se_adjusted = se[0];
+    double beta_adjusted = beta(1);
+    double se_adjusted = se(1);
 
     if (p_values.size() > 1) { // case > 3 column/path
         std::vector<double> p_values_adjusted = stoat::adjusted_holm(p_values);
@@ -160,12 +165,12 @@ std::tuple<std::string, std::string, std::string, std::string> LogisticRegressio
     }
 
     // set precision : 4 digit
-    std::string r2_str = stoat::set_precision(r2);
+    // std::string r2_str = stoat::set_precision(r2);
+    std::string p_value_str = stoat::set_precision(p_value_adjusted);
     std::string beta_str = stoat::set_precision(beta_adjusted);
     std::string se_str = stoat::set_precision(se_adjusted);
-    std::string p_value_str = stoat::set_precision(p_value_adjusted);
 
-    return std::make_tuple(r2_str, beta_str, se_str, p_value_str);
+    return std::make_tuple(p_value_str, beta_str, se_str);
 }
 
 // ------------------------ Chi2 test ------------------------

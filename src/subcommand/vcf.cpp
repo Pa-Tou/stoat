@@ -372,11 +372,12 @@ int main_stoat(int argc, char* argv[]) {
         if (!covariate.empty()){
             // Binary covariate
             snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, binary_phenotype, min_individuals, min_haplotypes, regression_dir));
+            phenotype_type = stoat::BINARY_COVAR; // need it in the BH adjusted
         } else {
             // Binary without covariate
             snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, maf_threshold, table_threshold, binary_phenotype, min_individuals, min_haplotypes, regression_dir));
+            phenotype_type = stoat::BINARY;
         }
-        phenotype_type = stoat::BINARY; 
     } else if (!quantitative_path.empty()) {
         // Quantitative
         snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, quantitative_phenotype, min_individuals, min_haplotypes, regression_dir));
@@ -387,13 +388,13 @@ int main_stoat(int argc, char* argv[]) {
         phenotype_type = stoat::EQTL; 
     }
 
-    std::string output_tsv = output_dir + (phenotype_type == stoat::BINARY       ? "/binary_table_vcf.tsv" : 
+    std::string output_tsv = output_dir + (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR ? "/binary_table_vcf.tsv" : 
                                             (phenotype_type == stoat::QUANTITATIVE ? "/quantitative_table_vcf.tsv" 
                                                                                         : "/eqtl_table_vcf.tsv"));
 
     snarl_analyzer->process_snarls_by_chromosome_chunk(ptr_vcf, hdr, rec, output_tsv);
 
-    std::string output_significative = output_dir + (phenotype_type == stoat::BINARY       ?  "/top_variant_binary_vcf.tsv" : 
+    std::string output_significative = output_dir + (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR ? "/top_variant_binary_vcf.tsv" : 
                                                     (phenotype_type == stoat::QUANTITATIVE ? "/top_variant_quantitative_vcf.tsv" 
                                                                                                 : "/top_variant_eqtl_vcf.tsv"));
 
