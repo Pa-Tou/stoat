@@ -234,21 +234,18 @@ std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_g
     std::ifstream file(filename);
     std::string line;
 
-    std::istringstream header_stream(line);
-    std::string col1, col2, col3, col4;
-    if (!(std::getline(header_stream, col1, '\t') &&
-          std::getline(header_stream, col2, '\t') &&
-          std::getline(header_stream, col3, '\t') &&
-          std::getline(header_stream, col4, '\t')) ||
-        col1 != "gene_name" || col2 != "chr" || col3 != "start" || col4 != "end") {
+    // parse and check header
+    std::getline(file, line);
+    std::stringstream ss_header(line);
+    std::string gene, chrom, startStr, endStr;
+    if (!std::getline(ss_header, gene, '\t') || !std::getline(ss_header, chrom, '\t') || !std::getline(ss_header, startStr, '\t') || !std::getline(ss_header, endStr, '\t') ||
+         gene != "gene_name" || chrom != "chr" || startStr != "start" || endStr != "end") {
         stoat::LOG_FATAL("In parsing gene position file, invalid header format. Expected: gene_name\tchr\tstart\tend");
     }
 
     // Check for required columns
     while (std::getline(file, line)) {
         std::stringstream ss(line);
-        std::string gene, chrom, startStr, endStr;
-
         std::getline(ss, gene, '\t');
         std::getline(ss, chrom, '\t');
         std::getline(ss, startStr, '\t');
