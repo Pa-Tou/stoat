@@ -1,5 +1,5 @@
 ---
-title: "Stoat Report (20/08)"
+title: "Stoat Report (08/2025)"
 output: html_document
 ---
 
@@ -118,13 +118,14 @@ histogram_plot <- function(df) {
 }
 
 # ---- Run Python verification truth VCF ----
-run_verify_truth <- function(freq_file, pvalue_file, paths_file, flag) {
+run_verify_truth <- function(freq_file, pvalue_file, paths_file, flag, output_dir) {
   cmd <- paste(
     "python3 /home/mbagarre/Bureau/stoat/tests/scripts/verify_truth.py",
     "--freq", freq_file,
     "--p_value", pvalue_file,
     "--paths", paths_file,
-    flag
+    flag,
+    "--output", output_dir
   )
   output <- system(cmd, intern = TRUE)
   return(output)
@@ -160,7 +161,8 @@ binary_output <- run_verify_truth(
   freq_file = file_list$binary_freq,
   pvalue_file = file_list$binary_vcf,
   paths_file = file_list$binary_snarl,
-  flag = " -b "
+  flag = " -b ",
+  output_dir = "binary_output"
 )
 
 cat(binary_output, sep = "\n")
@@ -172,6 +174,7 @@ qq_plot(df, "P_ADJUSTED")
 manhattan_plot(df)
 ```
 
+---
 
 ```{r binary-vcf-covar}
 
@@ -180,10 +183,14 @@ binary_output <- run_verify_truth(
   freq_file = file_list$binary_freq,
   pvalue_file = file_list$binary_covar_vcf,
   paths_file = file_list$binary_snarl,
-  flag = " -q "
+  flag = " -q ",
+  output_dir = "binary_covar_output"
 )
 
 cat(binary_output, sep = "\n")
+
+# plots will be create as :
+# - binary_covar_output/output_pvalue_interactive.html
 
 df <- read_stoat(file_list$binary_covar_vcf)
 
@@ -198,7 +205,6 @@ rsq_plot(df)
 
 ---
 
-
 ### Quantitative VCF
 
 ```{r quantitative-vcf}
@@ -208,12 +214,38 @@ quantitative_output <- run_verify_truth(
   freq_file = file_list$quantitative_freq,
   pvalue_file = file_list$quantitative_vcf,
   paths_file = file_list$quantitative_snarl,
-  flag = " -q "
+  flag = " -q ",
+  output_dir = "quantitative_output"
 )
 
 cat(quantitative_output, sep = "\n")
 
 df <- read_stoat(file_list$quantitative_vcf)
+
+# ---- Plots ----
+histogram_plot(df)
+qq_plot(df, "P")
+qq_plot(df, "P_ADJUSTED")
+manhattan_plot(df)
+volcano_plot(df)
+rsq_plot(df)
+```
+
+---
+```{r quantitative-covar-vcf}
+
+# Execute verification for quantitative VCF
+quantitative_output <- run_verify_truth(
+  freq_file = file_list$quantitative_freq,
+  pvalue_file = file_list$quantitative_covar_vcf,
+  paths_file = file_list$quantitative_snarl,
+  flag = " -q ",
+  output_dir = "quantitative_covar_output"
+)
+
+cat(quantitative_output, sep = "\n")
+
+df <- read_stoat(file_list$quantitative_covar_vcf)
 
 # ---- Plots ----
 histogram_plot(df)
@@ -250,7 +282,8 @@ binary_output <- run_verify_truth(
   freq_file = file_list$binary_freq,
   pvalue_file = file_list$binary_graph,
   paths_file = file_list$binary_snarl,
-  flag = " -b "
+  flag = " -b ",
+  output_dir = "binary_graph_output"
 )
 cat(binary_output, sep = "\n")
 
@@ -276,3 +309,5 @@ qq_plot(df, "P")
 qq_plot(df, "P_ADJUSTED")
 manhattan_plot(df)
 ```
+
+

@@ -292,6 +292,9 @@ def p_value_distribution(test_predicted_labels, cleaned_true_labels, list_diff, 
     # Optionally, save the plot as an HTML file
     fig.write_html(f'{output}_pvalue_interactive.html')
 
+    # Save as static PNG
+    fig.write_image(f'{output}_pvalue_interactive.png')
+
 def plot_diff_distribution(test_predicted_labels:list, cleaned_true_labels:list, clean_list_diff:list, output:str, pvalue:list):
 
     # True label 0 : difference freq significative
