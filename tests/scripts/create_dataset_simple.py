@@ -37,7 +37,7 @@ def generate_qtl_gene_position(chr_number, num_samples, number_genes, output_qtl
 def generate_covar(num_samples, output_covar):
     age_list = [age for age in range(0, 100)]
     with open(output_covar, "w") as f:
-        f.write("FID\tIID\tSEX\tAGE\tCP1\tCP2\tCP3\n")
+        f.write("FID\tIID\tSEX\tAGE\tPC1\tPC2\tPC3\n")
         for i in range(num_samples):
             fid = iid = f"sample{i+1}"
             age = random.choice(age_list)

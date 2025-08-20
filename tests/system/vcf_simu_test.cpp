@@ -62,7 +62,7 @@ bool run_test(
 
     if (use_covariate) {
         cmd += " --covariate " + data_path + "/covariate.tsv"
-             + " --covar-name CP1,SEX,CP3";
+             + " --covar-name PC1,SEX,PC3";
     }
 
     cmd += " --output " + output_dir;
@@ -114,7 +114,7 @@ bool run_test_full(
 
     if (use_covariate) {
         cmd += " --covariate " + data_path + "/covariate.tsv"
-             + " --covar-name CP1,SEX,CP3";
+             + " --covar-name PC1,SEX,PC3";
     }
 
     cmd += " --output " + output_dir;
@@ -179,7 +179,7 @@ TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
 }
 
 TEST_CASE("eQTL tests vcf", "[eqtl]") {
-    const std::string stoat_command = "./stoat";
+    const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_eqtl";
     const std::string expected_dir = "../tests/expected_output/vcf/eqtl";
     const std::string expected_dir_covar = "../tests/expected_output/vcf/eqtl_covar";

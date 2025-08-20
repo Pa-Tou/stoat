@@ -25,66 +25,186 @@ void clean_output_dir(const std::string& output_dir) {
     fs::create_directory(output_dir);
 }
 
-void process_tsv_line(const std::string& line, std::unordered_map<std::string, std::string>& map, int& snarl_column, bool& header_processed, const std::string& file_name) {
+std::tuple<int, int> parse_header_eqtl(
+    const std::string& header_line, 
+    const std::string& file_name) {
 
+    std::istringstream ss(header_line);
+    std::string token;
+    size_t index = 0;
+    int snarl_column_index = -1;
+    int gene_column_index = -1;
+
+    while (std::getline(ss, token, '\t')) {
+
+        if (token == "SNARL") {
+            snarl_column_index = index;
+        } else if (token == "GENE") {
+            gene_column_index = index;
+        }
+
+        if (snarl_column_index != -1 &&
+            gene_column_index != -1) {
+            break;
+        }
+
+        ++index;
+    }
+
+    if (snarl_column_index == -1 || gene_column_index == -1) {
+        std::cerr << "SNARL and/or GENE column not found in header of file: " << file_name << std::endl;
+        std::exit(1);
+    }
+
+    return {snarl_column_index, gene_column_index};
+}
+
+void process_tsv_line_eqtl(const std::string& line,
+    std::unordered_map<std::string, std::string>& map,
+    const int& snarl_column, const int& gene_column,
+    const std::string& file_name) {
+    
     std::istringstream ss(line);
     std::string token;
     std::vector<std::string> columns;
-    
+
     while (std::getline(ss, token, '\t')) {
         columns.push_back(token);
     }
-    
-    // First non-empty line is the header
-    if (!header_processed) {
-        for (size_t i = 0; i < columns.size(); ++i) {
-            if (columns[i] == "SNARL") {
-                snarl_column = static_cast<int>(i);
-                break;
-            }
-        }
-    
-        if (snarl_column == -1) {
-            std::cerr << "SNARL column not found in header of file: " << file_name << std::endl;
-            exit(1);
-        }
-    
-        header_processed = true;
-        return; // skip header line
+
+    if (snarl_column >= columns.size() || gene_column >= columns.size()) {
+        std::cerr << "Invalid line (too few columns) in file: " << file_name
+                  << "\nLine: " << line << std::endl;
+        std::exit(1);
     }
+
+    const std::string& snarl_id = columns[snarl_column];
+    const std::string& gene_id  = columns[gene_column];
+
+    const std::string composite_key = snarl_id + "_" + gene_id;
+    map[composite_key] = line;
+}
+
+int parse_header(const std::string& header_line, 
+    const std::string& file_name) {
+
+    std::istringstream ss(header_line);
+    std::string token;
+    int snarl_column_index = 0;
+
+    while (std::getline(ss, token, '\t')) {
+        if (token == "SNARL") {
+            return snarl_column_index;
+        }
+        ++snarl_column_index;
+    }
+
+    std::cerr << "SNARL column not found in header of file: " << file_name << std::endl;
+    std::exit(1);
+}
+
+void process_tsv_line(const std::string& line,
+    std::unordered_map<std::string, std::string>& map,
+    const int& snarl_column,
+    const std::string& file_name) {
     
+    std::istringstream ss(line);
+    std::string token;
+    std::vector<std::string> columns;
+
+    while (std::getline(ss, token, '\t')) {
+        columns.push_back(token);
+    }
+
     if (snarl_column >= columns.size()) {
-        std::cerr << "Invalid line (too few columns) in file: " << file_name << "\nLine: " << line << std::endl;
-        exit(1);
+        std::cerr << "Invalid line (too few columns) in file: " << file_name
+                  << "\nLine: " << line << std::endl;
+        std::exit(1);
     }
-    
-    std::string snarl_id = columns[snarl_column];
+
+    const std::string& snarl_id = columns[snarl_column];
     map[snarl_id] = line;
 }
 
-void load_tsv_file (const std::string& path, std::unordered_map<std::string, std::string>& map) {
-    std::ifstream infile(path);
-    std::string line;
-    int snarl_column = -1;
-    bool header_processed = false;
+void load_tsv_file_eqtl(const std::string& path,
+    std::unordered_map<std::string, std::string>& map) {
 
+    std::ifstream infile(path);
+    if (!infile.is_open()) {
+        std::cerr << "Failed to open file: " << path << std::endl;
+        std::exit(1);
+    }
+
+    std::string line;
+
+    // --- Parse header ---
+    if (!std::getline(infile, line) || line.empty()) {
+        std::cerr << "Empty file or missing header in file: " << path << std::endl;
+        std::exit(1);
+    }
+
+    auto [snarl_column, gene_column] = parse_header_eqtl(line, path);
+
+    // --- Process data lines ---
     while (std::getline(infile, line)) {
         if (line.empty()) continue;
-
-        process_tsv_line(line, map, snarl_column, header_processed, path);
+        process_tsv_line_eqtl(line, map, snarl_column, gene_column, path);
     }
 }
 
-void load_tsv_file (const std::vector<std::string>& lines, std::unordered_map<std::string, std::string>& map) {
+void load_tsv_file(const std::string& path,
+    std::unordered_map<std::string, std::string>& map) {
+
+    std::ifstream infile(path);
+    if (!infile.is_open()) {
+        std::cerr << "Failed to open file: " << path << std::endl;
+        std::exit(1);
+    }
+
+    std::string line;
+    int snarl_column = -1;
+
+    // --- Parse header ---
+    while (std::getline(infile, line)) {
+        if (line.empty()) continue;
+        snarl_column = parse_header(line, path);
+        break;
+    }
+
+    // --- Process data lines ---
+    while (std::getline(infile, line)) {
+        if (line.empty()) continue;
+        process_tsv_line(line, map, snarl_column, path);
+    }
+}
+
+void load_tsv_file(const std::vector<std::string>& lines, 
+    std::unordered_map<std::string, std::string>& map) {
 
     int snarl_column = -1;
-    bool header_processed = false;
+    bool found_header = false;
 
     for (const std::string& line : lines) {
-        process_tsv_line(line, map, snarl_column, header_processed, "supposed truth vector");
-    }
-};
+        if (line.empty()) continue;
 
+        if (!found_header) {
+            snarl_column = parse_header(line, "supposed truth vector");
+            found_header = true;
+            continue; // skip header line
+        }
+
+        process_tsv_line(line, map, snarl_column, "supposed truth vector");
+    }
+}
+
+bool files_equal_eqtl(const std::string& file1, const std::string& file2) {
+    std::unordered_map<std::string, std::string> map1, map2;
+
+    load_tsv_file_eqtl(file1, map1);
+    load_tsv_file_eqtl(file2, map2);
+
+    return compare_file(map1, map2);
+}
 
 bool files_equal(const std::string& file1, const std::string& file2) {
     std::unordered_map<std::string, std::string> map1, map2;
@@ -92,7 +212,7 @@ bool files_equal(const std::string& file1, const std::string& file2) {
     load_tsv_file(file1, map1);
     load_tsv_file(file2, map2);
 
-    return files_equal(map1, map2);
+    return compare_file(map1, map2);
 }
 
 bool files_equal(const std::string& file, const std::vector<std::string>& lines) {
@@ -100,10 +220,12 @@ bool files_equal(const std::string& file, const std::vector<std::string>& lines)
 
     load_tsv_file(file, map1);
     load_tsv_file(lines, map2);
-    return files_equal(map1, map2);
+
+    return compare_file(map1, map2);
 }
 
-bool files_equal(const std::unordered_map<std::string, std::string>& map1, const std::unordered_map<std::string, std::string>& map2) {
+bool compare_file(const std::unordered_map<std::string, std::string>& map1, 
+    const std::unordered_map<std::string, std::string>& map2) {
 
     // Compare file1 against file2
     for (const auto& [snarl, line1] : map1) {
@@ -153,7 +275,9 @@ bool is_valid_fasta(const std::string& file) {
     return true;
 }
 
-bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, std::string, std::string>>& fasta_records) {
+bool fasta_equal(const std::string& file, 
+    const std::vector<std::tuple<size_t, std::string, std::string>>& fasta_records) {
+
     std::unordered_map<std::string, std::pair<size_t, std::string>> header_to_sequence;
     std::unordered_map<size_t, std::vector<std::string>> set_to_header;
     size_t record_count = 0;
@@ -221,8 +345,6 @@ bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, s
         return false;
     }
     return true;
-
-
 }
 
 bool compare_output_dirs(const std::string& output_dir, const std::string& expected_dir) {
@@ -234,9 +356,19 @@ bool compare_output_dirs(const std::string& output_dir, const std::string& expec
             std::cerr << "Missing output file: " << output_file << "\n";
             return false;
         }
-        if (!files_equal(expected_file, output_file)) {
-            std::cerr << "Mismatch in file: " << expected_file.filename() << "\n";
-            return false;
+
+        const std::string filename = expected_file.filename().string();
+
+        if (filename.find("eqtl") != std::string::npos) {
+            if (!files_equal_eqtl(expected_file, output_file)) {
+                std::cerr << "Mismatch in eQTL file: " << filename << "\n";
+                return false;
+            }
+        } else {
+            if (!files_equal(expected_file, output_file)) {
+                std::cerr << "Mismatch in file: " << filename << "\n";
+                return false;
+            }
         }
     }
     return true;
