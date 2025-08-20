@@ -3,6 +3,11 @@ title: "Stoat Report (08/2025)"
 output: html_document
 ---
 
+## Stoat version 0.2.0 (08/2025)
+
+
+
+
 ```{r setup, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(readr)
@@ -174,6 +179,14 @@ qq_plot(df, "P_ADJUSTED")
 manhattan_plot(df)
 ```
 
+```{r show-plot-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("binary_output/output_pvalue_interactive.png")
+knitr::include_graphics("binary_output/output10^-2_distribution_false_negative.png")
+knitr::include_graphics("binary_output/output10^-2_distribution_false_positive.png")
+knitr::include_graphics("binary_output/output10^-2_distribution_true_negatives.png")
+knitr::include_graphics("binary_output/output10^-2_distribution_true_positive.png")
+```
+
 ---
 
 ```{r binary-vcf-covar}
@@ -190,7 +203,7 @@ binary_output <- run_verify_truth(
 cat(binary_output, sep = "\n")
 
 # plots will be create as :
-# - binary_covar_output/output_pvalue_interactive.html
+# - binary_covar_output/output_pvalue_interactive.png
 
 df <- read_stoat(file_list$binary_covar_vcf)
 
@@ -203,6 +216,13 @@ volcano_plot(df)
 rsq_plot(df)
 ```
 
+```{r show-plot-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("binary_covar_output/output_pvalue_interactive.png")
+knitr::include_graphics("binary_covar_output/output10^-2_distribution_false_negative.png")
+knitr::include_graphics("binary_covar_output/output10^-2_distribution_false_positive.png")
+knitr::include_graphics("binary_covar_output/output10^-2_distribution_true_negatives.png")
+knitr::include_graphics("binary_covar_output/output10^-2_distribution_true_positive.png")
+```
 ---
 
 ### Quantitative VCF
@@ -231,6 +251,14 @@ volcano_plot(df)
 rsq_plot(df)
 ```
 
+```{r show-plot-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("quantitative_output/output_pvalue_interactive.png")
+knitr::include_graphics("quantitative_output/output10^-2_distribution_false_negative.png")
+knitr::include_graphics("quantitative_output/output10^-2_distribution_false_positive.png")
+knitr::include_graphics("quantitative_output/output10^-2_distribution_true_negatives.png")
+knitr::include_graphics("quantitative_output/output10^-2_distribution_true_positive.png")
+```
+
 ---
 ```{r quantitative-covar-vcf}
 
@@ -254,6 +282,14 @@ qq_plot(df, "P_ADJUSTED")
 manhattan_plot(df)
 volcano_plot(df)
 rsq_plot(df)
+```
+
+```{r show-plot-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("quantitative_covar_output/output_pvalue_interactive.png")
+knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_false_negative.png")
+knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_false_positive.png")
+knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_true_negatives.png")
+knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_true_positive.png")
 ```
 
 ---
@@ -289,14 +325,14 @@ cat(binary_output, sep = "\n")
 
 binary_scatter_plot_graph <- run_scatter_plot_graph(
   input = file_list$binary_graph,
-  output = "binary_scatter_plot_graph.png"
+  output = "binary_graph_output/binary_scatter_plot_graph.png"
 )
 
 cat(binary_scatter_plot_graph, sep = "\n")
 
 binary_histo_plot_graph <- run_histo_plot_graph(
   input = file_list$binary_graph,
-  output = "binary_histo_plot_graph.png"
+  output = "binary_graph_output/binary_histo_plot_graph.png"
 )
 
 cat(binary_histo_plot_graph, sep = "\n")
@@ -310,4 +346,13 @@ qq_plot(df, "P_ADJUSTED")
 manhattan_plot(df)
 ```
 
+```{r show-plot-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("binary_graph_output/output_pvalue_interactive.png")
+knitr::include_graphics("binary_graph_output/output10^-2_distribution_false_negative.png")
+knitr::include_graphics("binary_graph_output/output10^-2_distribution_false_positive.png")
+knitr::include_graphics("binary_graph_output/output10^-2_distribution_true_negatives.png")
+knitr::include_graphics("binary_graph_output/output10^-2_distribution_true_positive.png")
 
+knitr::include_graphics("binary_graph_output/binary_scatter_plot_graph.png")
+knitr::include_graphics("binary_graph_output/binary_histo_plot_graph.png")
+```
