@@ -5,8 +5,15 @@ output: html_document
 
 ## Stoat version 0.2.0 (08/2025)
 
-
-
+STOAT is a versatile GWAS (Genome-Wide Association Study) tool designed to work seamlessly with 
+pangenome graphs. It supports binary phenotypes both with and without covariates: 
+using Fisher’s exact test or Chi-squared test when no covariates are present, 
+and logistic regression when covariates are included. For quantitative traits, 
+STOAT performs linear regression, again with or without covariates. 
+Additionally, it supports eQTL analysis, enabling association testing between 
+genetic variants and gene expression levels. One of its key features is the ability 
+to operate on variation graphs, allowing for GWAS directly on the pangenome structure
+rather than a linear reference, improving variant representation and mapping accuracy.
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -356,3 +363,6 @@ knitr::include_graphics("binary_graph_output/output10^-2_distribution_true_posit
 knitr::include_graphics("binary_graph_output/binary_scatter_plot_graph.png")
 knitr::include_graphics("binary_graph_output/binary_histo_plot_graph.png")
 ```
+
+Lauching stoat graph command : `./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -T chi2 -r ref -S ../data/binary/samples.g0.tsv -o ../output`
+Even with the same test (fisher/chi2) the p-value result is different between stoat vcf and stoat graph.
