@@ -108,6 +108,10 @@ std::tuple<std::string, size_t, size_t> get_name_and_offsets_of_snarl_path_range
 /// Function to find snarl ID- the start and end ids as a pair of size_t's
 std::pair<size_t, size_t> find_snarl_id(const bdsg::SnarlDistanceIndex& stree, const handlegraph::net_handle_t& snarl);
 
+/// Print ids of all nodes present in a snarl to stderr, one per line
+/// Useful for debugging with `vg find -N`
+void print_nodes_in_snarl(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl);
+
 
 // equality within a given epsilon
 template<typename T>
