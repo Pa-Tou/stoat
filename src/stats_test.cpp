@@ -135,8 +135,8 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
 
     // --- Wald Test (Normal approximation)
     std::vector<double> p_values;
-    p_values.reserve(num_variants - 1 - num_covariates);
-    for (size_t i = 1; i < num_variants - num_covariates; ++i) { // skip intercept
+    p_values.reserve(num_features - 1 - num_covariates);
+    for (size_t i = 1; i < num_features - num_covariates; ++i) { // skip intercept
         double z_score = beta(i) / se(i);
         p_values.push_back(2.0 * (1.0 - normal_cdf(std::abs(z_score)))); // Two-sided
     }

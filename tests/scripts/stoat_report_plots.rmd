@@ -74,7 +74,7 @@ manhattan_plot <- function(df) {
   df_m <- df_m[complete.cases(df_m), ]
   
   ggplot(df_m, aes(x = BP, y = -log10(P))) +
-    geom_point(alpha = 0.6, color = "blue") +
+    geom_point(color = "blue") +
     theme_bw() +
     labs(title = "Manhattan plot (CHR unique)", x = "Position (BP)", y = "-log10(P)")
 }
@@ -244,35 +244,35 @@ rsq_plot(df)
 
 ### Binary GRAPH
 
-```{r eqtl-vcf}
+```{r binary-graph}
 # Execute verification for binary VCF
 binary_output <- run_verify_truth(
   freq_file = file_list$binary_freq,
-  pvalue_file = file_list$binary_vcf,
+  pvalue_file = file_list$binary_graph,
   paths_file = file_list$binary_snarl,
   flag = " -b "
 )
 cat(binary_output, sep = "\n")
 
 binary_scatter_plot_graph <- run_scatter_plot_graph(
-  input = binary_vcf,
+  input = file_list$binary_graph,
   output = "binary_scatter_plot_graph.png"
 )
+
 cat(binary_scatter_plot_graph, sep = "\n")
 
 binary_histo_plot_graph <- run_histo_plot_graph(
-  input = binary_vcf,
+  input = file_list$binary_graph,
   output = "binary_histo_plot_graph.png"
 )
+
 cat(binary_histo_plot_graph, sep = "\n")
 
-df <- read_stoat(file_list$eqtl_vcf)
+df <- read_stoat(file_list$binary_graph)
 
 # Plots
 histogram_plot(df)
 qq_plot(df, "P")
 qq_plot(df, "P_ADJUSTED")
 manhattan_plot(df)
-volcano_plot(df)
-rsq_plot(df)
 ```
