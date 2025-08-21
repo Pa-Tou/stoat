@@ -1,9 +1,9 @@
 ---
 title: "Stoat Report (08/2025)"
-output: html_document
+output: pdf_document
 ---
 
-## Stoat version 0.2.0 (08/2025)
+## Stoat in a netshell
 
 STOAT is a versatile GWAS (Genome-Wide Association Study) tool designed to work seamlessly with 
 pangenome graphs. It supports binary phenotypes both with and without covariates: 
@@ -14,6 +14,17 @@ Additionally, it supports eQTL analysis, enabling association testing between
 genetic variants and gene expression levels. One of its key features is the ability 
 to operate on variation graphs, allowing for GWAS directly on the pangenome structure
 rather than a linear reference, improving variant representation and mapping accuracy.
+
+## Stoat version 0.2.0 (08/2025)
+- stoat :
+  - Cartoon update : added stoat graph
+- stoat vcf :
+  - Linear regression : Correction for the near perfect collinearity case by merging same column toghever.
+  - Logistic regression : Correction of the output format
+  - Other correction : fixe snarl paths parsing, fixe eqtl parsing format file (case handlegraph too big)
+- stoat graph :
+  - 
+
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(ggplot2)
