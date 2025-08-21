@@ -5,14 +5,15 @@ output: pdf_document
 
 # Stoat in a nutshell
 
-STOAT is a versatile GWAS (Genome-Wide Association Study) tool designed to work seamlessly with 
-pangenome graphs. 
+STOAT is a versatile GWAS (Genome-Wide Association Study) tool designed to work with 
+pangenome graphs.
 
 It supports binary phenotypes both with and without covariates: 
 using Fisher’s exact test or Chi-squared test when no covariates are present, 
-and logistic regression when covariates are included. For quantitative traits, 
-STOAT performs linear regression, again with or without covariates. 
-Additionally, it supports eQTL analysis, enabling association testing between 
+and logistic regression when covariates are included. 
+
+For quantitative traits, STOAT performs linear regression, again with or without covariates. 
+Additionally, it supports eQTL analysis, enabling association testing between
 genetic variants and gene expression levels. 
 
 It containt 2 modes : 
@@ -493,7 +494,7 @@ histogram_plot(df=df_binary_vcf, subtitle="Binary [stoat vcf]", "P_FISHER", "P_C
 qq_plot(df_binary_vcf, "P_FISHER", subtitle="Binary [stoat vcf]")
 qq_plot(df_binary_vcf, "P_CHI2", subtitle="Binary [stoat vcf]")
 
-manhattan_plot(df_binary_vcf, subtitle="on Binary [stoat vcf]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
+manhattan_plot(df_binary_vcf, subtitle="Binary [stoat vcf]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
 ```
 
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
@@ -596,27 +597,7 @@ df_binary_graph$SNARL <- as.character(df_binary_graph$SNARL)
 # Full join by SNARL
 df_joined <- full_join(df1, df2, by = "SNARL", suffix = c("_df1", "_df2"))
 
-# Compare columns for matching SNARL
-diff_summary <- df_joined %>%
-  filter(!is.na(START_POS_df1) & !is.na(START_POS_df2)) %>%  # only SNARL in both
-  rowwise() %>%
-  mutate(
-    diff_cols = list(names(c_across(ends_with("_df1"))) %>%
-                       sapply(function(col) {
-                         col2 <- sub("_df1$", "_df2", col)
-                         val1 <- get(col)
-                         val2 <- get(col2)
-                         if(is.na(val1) & is.na(val2)) FALSE
-                         else if(is.na(val1) | is.na(val2)) TRUE
-                         else val1 != val2
-                       }) %>% which() %>% names()),
-    num_diff = length(diff_cols)
-  ) %>%
-  select(SNARL, num_diff, diff_cols)
-
-# Print summary
-cat("Number of differing columns per SNARL:\n")
-print(diff_summary)
+# Compare each columns by matching SNARL
 
 # SNARLs only in one file
 only_in_df1 <- df_joined %>%
