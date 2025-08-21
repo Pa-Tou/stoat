@@ -499,24 +499,24 @@ std::vector<std::tuple<handlegraph::net_handle_t,
     function<void(handlegraph::net_handle_t)> save_snarl_tree_node;
     save_snarl_tree_node = [&](handlegraph::net_handle_t net) {
 
-        std::tuple<std::string, size_t, size_t> snarl_pos = get_net_start_position(net);
+        std::tuple<std::string, size_t, size_t> snarl_path_pos = get_net_start_position(net);
         bool ref = true;
 
         // if we couldn't find a position, use the parent's that we should have
         // found and saved earlier
-        if (std::get<0>(snarl_pos).empty()) {
+        if (std::get<0>(snarl_path_pos).empty()) {
             auto par_net = stree.get_parent(net);
-            snarl_pos = snarls_pos[stree.net_handle_as_string(par_net)];
+            snarl_path_pos = snarls_pos[stree.net_handle_as_string(par_net)];
             ref = false;
         }
 
         // save this position
-        snarls_pos[stree.net_handle_as_string(net)] = snarl_pos;
+        snarls_pos[stree.net_handle_as_string(net)] = snarl_path_pos;
 
         // save snarl
         if (stree.is_snarl(net)) {
             // handlegraph::net_handle_t snarl, chr_ref, pos, is_on_ref_bool
-            snarls.push_back(std::make_tuple(net, std::get<0>(snarl_pos), std::get<1>(snarl_pos), std::get<2>(snarl_pos), ref));
+            snarls.push_back(std::make_tuple(net, std::get<0>(snarl_path_pos), std::get<1>(snarl_path_pos), std::get<2>(snarl_path_pos)-1, ref));
         }
 
         // explore children

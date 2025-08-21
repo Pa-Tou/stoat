@@ -84,22 +84,22 @@ int main(int argc, char* argv[]) {
 // -------------------------------------------------------------- VCF --------------------------------------------------------------
 
 // BINARY
-// ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output
+// ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output_binary
 
 // BINARY + COVARIATE
-// ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --covariate ../data/binary/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output
+// ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --covariate ../data/binary/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_binary_covar
 
 // QUANTITATIVE
-// ./stoat vcf -p ../data/quantitative/pg.full.pg -d ../data/quantitative/pg.full.dist -r ../data/quantitative/pg.chromosome -v ../data/quantitative/merged_output.vcf.gz -q ../data/quantitative/phenotype.tsv --output ../output
+// ./stoat vcf -p ../data/quantitative/pg.full.pg -d ../data/quantitative/pg.full.dist -r ../data/quantitative/pg.chromosome -v ../data/quantitative/merged_output.vcf.gz -q ../data/quantitative/phenotype.tsv --output ../output_quantitative
 
 // QUANTITATIVE + COVARIATE
-// ./stoat vcf -p ../data/quantitative/pg.full.pg -d ../data/quantitative/pg.full.dist -r ../data/quantitative/pg.chromosome -v ../data/quantitative/merged_output.vcf.gz -q ../data/quantitative/phenotype.tsv  --covariate ../data/quantitative/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output
+// ./stoat vcf -p ../data/quantitative/pg.full.pg -d ../data/quantitative/pg.full.dist -r ../data/quantitative/pg.chromosome -v ../data/quantitative/merged_output.vcf.gz -q ../data/quantitative/phenotype.tsv  --covariate ../data/quantitative/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_quantitative_covar
 
 // EQTL
-// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --output ../output
+// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --output ../output_eqtl
 
 // EQTL + COVARIATE
-// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --covariate ../data/eqtl/covariate.tsv --covar-name SEX,AGE,PC1,PC2,PC3 --output ../output
+// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --covariate ../data/eqtl/covariate.tsv --covar-name SEX,AGE,PC1,PC2,PC3 --output ../output_eqtl_covar
 
 // SIMU TEST
 // ./stoat vcf -p ../tests/graph_test/3th_snp.pg -d ../tests/graph_test/3th_snp.dist --output ../output
@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 // -------------------------------------------------------------- GRAPH --------------------------------------------------------------
 
 // BINARY
-// ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -T chi2 -r ref -S ../data/binary/samples.g0.tsv -o ../output
+// ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -T chi2 -r ref -S ../data/binary/samples.g0.tsv -o ../output_binary_graph
 
 // -------------------------------------------------------------- OTHER --------------------------------------------------------------
 

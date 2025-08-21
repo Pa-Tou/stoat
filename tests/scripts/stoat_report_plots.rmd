@@ -3,7 +3,7 @@ title: "Stoat Report (08/2025)"
 output: pdf_document
 ---
 
-## Stoat in a netshell
+# Stoat in a nutshell
 
 STOAT is a versatile GWAS (Genome-Wide Association Study) tool designed to work seamlessly with 
 pangenome graphs. It supports binary phenotypes both with and without covariates: 
@@ -16,14 +16,15 @@ to operate on variation graphs, allowing for GWAS directly on the pangenome stru
 rather than a linear reference, improving variant representation and mapping accuracy.
 
 ## Stoat version 0.2.0 (08/2025)
+
 - stoat :
   - Cartoon update : added stoat graph
 - stoat vcf :
   - Linear regression : Correction for the near perfect collinearity case by merging same column toghever.
   - Logistic regression : Correction of the output format
-  - Other correction : fixe snarl paths parsing, fixe eqtl parsing format file (case handlegraph too big)
+  - Other correction : fix snarl paths parsing, fix eqtl parsing format file (case handlegraph too big)
 - stoat graph :
-  - 
+  - ...
 
 
 ```{r setup, message=FALSE, warning=FALSE}
@@ -32,27 +33,28 @@ library(readr)
 library(dplyr)
 library(tidyr)
 library(CMplot)
+library(stringr)
 
 utils::globalVariables(c("Expected", "Observed"))
 
 # ---- File paths ----
 file_list <- list(
-  binary_snarl = "/home/mbagarre/Bureau/stoat/output/binary_snarl_analyse.tsv",
+  binary_snarl = "/home/mbagarre/Bureau/stoat/output_binary/snarl_analyse.tsv",
   binary_freq = "/home/mbagarre/Bureau/stoat/data/binary/pg.snarls.freq.tsv",
-  binary_vcf = "/home/mbagarre/Bureau/stoat/output/binary_table_vcf.tsv",
-  binary_covar_vcf = "/home/mbagarre/Bureau/stoat/output/binary_table_covar_vcf.tsv",
+  binary_vcf = "/home/mbagarre/Bureau/stoat/output_binary/binary_table_vcf.tsv",
+  binary_covar_vcf = "/home/mbagarre/Bureau/stoat/output_binary_covar/binary_table_vcf.tsv",
 
-  quantitative_snarl = "/home/mbagarre/Bureau/stoat/output/quantitative_snarl_analyse.tsv",
+  quantitative_snarl = "/home/mbagarre/Bureau/stoat/output_quantitative/snarl_analyse.tsv",
   quantitative_freq = "/home/mbagarre/Bureau/stoat/data/quantitative/pg.snarls.freq.tsv",
-  quantitative_vcf = "/home/mbagarre/Bureau/stoat/output/quantitative_table_vcf.tsv",
-  quantitative_covar_vcf = "/home/mbagarre/Bureau/stoat/output/quantitative_table_covar_vcf.tsv",
+  quantitative_vcf = "/home/mbagarre/Bureau/stoat/output_quantitative/quantitative_table_vcf.tsv",
+  quantitative_covar_vcf = "/home/mbagarre/Bureau/stoat/output_quantitative_covar/quantitative_table_vcf.tsv",
 
-  eqtl_snarl = "/home/mbagarre/Bureau/stoat/output/eqtl_snarl_analyse.tsv",
+  eqtl_snarl = "/home/mbagarre/Bureau/stoat/output_eqtl/snarl_analyse.tsv",
   eqtl_freq = "/home/mbagarre/Bureau/stoat/data/eqtl/pg.snarls.freq.tsv",
-  eqtl_vcf = "/home/mbagarre/Bureau/stoat/output/eqtl_table_vcf.tsv",
-  eqtl_covar_vcf = "/home/mbagarre/Bureau/stoat/output/eqtl_table_covar_vcf.tsv",
+  eqtl_vcf = "/home/mbagarre/Bureau/stoat/output_eqtl/eqtl_table_vcf.tsv",
+  eqtl_covar_vcf = "/home/mbagarre/Bureau/stoat/output_eqtl_covar/eqtl_table_vcf.tsv",
 
-  binary_graph = "/home/mbagarre/Bureau/stoat/output/binary_table_graph.tsv"
+  binary_graph = "/home/mbagarre/Bureau/stoat/output_binary_graph/binary_table_graph.tsv"
 )
 
 # ---- Helper functions ----
@@ -62,14 +64,172 @@ read_stoat <- function(path) {
   df <- read_tsv(path, show_col_types = FALSE)
   
   if ("#CHR" %in% names(df)) names(df)[names(df) == "#CHR"] <- "CHR"
-  if ("P_CHI2" %in% names(df)) names(df)[names(df) == "P_CHI2"] <- "P"
+  # if ("P_CHI2" %in% names(df)) df$P <- df$P_CHI2
   if ("START_POS" %in% names(df) && !"POS" %in% names(df)) df$POS <- df$START_POS
-  
+
   return(df)
 }
 
-# QQ plot
-qq_plot <- function(df, col, label = col) {
+# Split snarl string on ">" or "<", remove empty elements
+split_snarl <- function(input_str) {
+  parts <- unlist(strsplit(input_str, "[><]"))
+  parts <- parts[parts != ""]  # Filter out empty strings
+  return(as.character(parts))  # Keep it as string like in Python version
+}
+
+process_file <- function(freq_file, threshold = 0.2) {
+  df <- read.delim(freq_file, sep = "\t", stringsAsFactors = FALSE)
+  
+  freq_path_list <- character()
+  true_labels <- integer()
+  list_diff <- numeric()
+  
+  for (i in seq(1, nrow(df) - 1, by = 2)) {
+    row_1 <- df[i, ]
+    row_2 <- df[i + 1, ]
+    
+    diff <- abs(row_1$freq - row_2$freq)
+    
+    # If group freq diff > threshold, then true label is 0, else 1
+    label <- ifelse(diff > threshold, 0, 1)
+    
+    path <- paste0(as.integer(row_1$start_node), "_", as.integer(row_1$next_node))
+    
+    freq_path_list <- c(freq_path_list, path)
+    true_labels <- c(true_labels, label)
+    list_diff <- c(list_diff, diff)
+  }
+  
+  return(list(freq_path_list = freq_path_list, true_labels = true_labels, list_diff = list_diff))
+}
+
+check_valid_snarl <- function(start_node_1, next_node_1, start_node_2, next_node_2, snarl_list) {
+  # First condition: start nodes must match
+  if (start_node_1 != start_node_2) {
+    stop("start_node_1 != start_node_2")
+  }
+  
+  contains_first_pair <- FALSE
+  contains_second_pair <- FALSE
+  
+  for (path in snarl_list) {
+    # Extract all numbers from the path string
+    decomposed_path <- as.integer(unlist(regmatches(path, gregexpr("\\d+", path))))
+    
+    if (start_node_1 %in% decomposed_path && next_node_1 %in% decomposed_path) {
+      contains_first_pair <- TRUE
+    }
+    
+    if (start_node_2 %in% decomposed_path && next_node_2 %in% decomposed_path) {
+      contains_second_pair <- TRUE
+    }
+    
+    if (contains_first_pair && contains_second_pair) {
+      return(TRUE)
+    }
+  }
+  
+  return(contains_first_pair && contains_second_pair)
+}
+
+
+match_snarl <- function(freq_path_list, true_labels, list_diff, p_value_file, paths_file, save_sv_snarl = NULL, type_) {
+  # Load data
+  p_value_df <- read_tsv(p_value_file, show_col_types = FALSE)
+  paths_df <- read_tsv(paths_file, show_col_types = FALSE) %>%
+    select(SNARL, PATHS)
+
+  # Merge on SNARL
+  p_value_df <- left_join(p_value_df, paths_df, by = "SNARL")
+
+  # Split SNARL
+  snarl_split <- str_split_fixed(p_value_df$SNARL, "_", 2)
+  snarl_start <- as.integer(snarl_split[,1])
+  snarl_end <- as.integer(snarl_split[,2])
+
+  # Outputs
+  predicted_labels_10_2 <- c()
+  predicted_labels_10_5 <- c()
+  predicted_labels_10_8 <- c()
+  cleaned_true_labels <- c()
+  clean_list_diff <- c()
+  pvalue_list <- c()
+  num_sample <- c()
+  snarl_name <- c()
+
+  step <- 2
+  for (i in seq(1, length(freq_path_list) - 1, by = step)) {
+    nodes1 <- as.integer(str_split(freq_path_list[[i]], "_")[[1]])
+    nodes2 <- as.integer(str_split(freq_path_list[[i + 1]], "_")[[1]])
+    start_node_1 <- nodes1[1]; next_node_1 <- nodes1[2]
+    start_node_2 <- nodes2[1]; next_node_2 <- nodes2[2]
+
+    # Vectorized filtering
+    match_mask <- ((snarl_end <= start_node_1 & snarl_start >= next_node_1) |
+                   (snarl_start <= start_node_1 & snarl_end >= next_node_1))
+    matched_rows <- p_value_df[match_mask, ]
+
+    if (nrow(matched_rows) > 0) {
+      if (!is.null(save_sv_snarl)) {
+        matched_rows <- matched_rows %>% filter(SNARL %in% save_sv_snarl)
+      }
+
+      for (row_idx in 1:nrow(matched_rows)) {
+        matched <- matched_rows[row_idx, ]
+
+        path_list <- str_split(matched$PATHS, ",")[[1]]
+        if (check_valid_snarl(start_node_1, next_node_1, start_node_2, next_node_2, path_list)) {
+          p_val <- matched$P_ADJUSTED
+
+          if (type_ == "binary") {
+            group_paths <- matched$GROUP_PATHS
+            if (!is.na(group_paths) && group_paths != "") {
+              parts <- str_split(group_paths, ",")[[1]]
+              allele_num <- sum(as.integer(str_extract(parts, "(?<=:)\\d+")), na.rm = TRUE)
+            } else {
+              allele_num <- 200
+            }
+          } else if (type_ == "quantitative") {
+            group_paths <- matched$ALLELE_PATHS
+            if (!is.na(group_paths) && group_paths != "") {
+              allele_num <- sum(as.integer(str_split(group_paths, ",")[[1]]), na.rm = TRUE)
+            } else {
+              allele_num <- 200
+            }
+          } else {
+            stop("type_ must be 'binary' or 'quantitative'")
+          }
+
+          snarl_name <- c(snarl_name, matched$SNARL)
+          predicted_labels_10_2 <- c(predicted_labels_10_2, ifelse(p_val < 0.01, 0, 1))
+          predicted_labels_10_5 <- c(predicted_labels_10_5, ifelse(p_val < 1e-5, 0, 1))
+          predicted_labels_10_8 <- c(predicted_labels_10_8, ifelse(p_val < 1e-8, 0, 1))
+          cleaned_true_labels <- c(cleaned_true_labels, true_labels[i])
+          clean_list_diff <- c(clean_list_diff, list_diff[i])
+          pvalue_list <- c(pvalue_list, p_val)
+          num_sample <- c(num_sample, allele_num)
+        }
+      }
+    }
+  }
+
+  return(list(
+    predicted_labels_10_2 = predicted_labels_10_2,
+    predicted_labels_10_5 = predicted_labels_10_5,
+    predicted_labels_10_8 = predicted_labels_10_8,
+    cleaned_true_labels = cleaned_true_labels,
+    clean_list_diff = clean_list_diff,
+    pvalue_list = pvalue_list,
+    num_sample = num_sample,
+    snarl_name = snarl_name
+  ))
+}
+
+
+# QQ plot with customizable column and subtitle
+qq_plot <- function(df, col, subtitle = "") {
+  if (!col %in% names(df)) return(NULL)
+
   pvec <- df[[col]]
   observed <- sort(pvec[!is.na(pvec)])
   expected <- -log10(ppoints(length(observed)))
@@ -79,64 +239,110 @@ qq_plot <- function(df, col, label = col) {
   ggplot(data, aes(x = Expected, y = Observed)) +
     geom_point(size = 1, alpha = 0.5) +
     geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
-    labs(title = paste("QQ Plot of", label),
-         x = "Expected -log10(P)", y = "Observed -log10(P)") +
+    labs(
+      title = paste("QQ Plot of", col, subtitle),
+      x = "Expected -log10(P)", y = "Observed -log10(P)"
+    ) +
     theme_bw()
 }
 
 # Manhattan plot
-manhattan_plot <- function(df) {
-  if (!("CHR" %in% names(df) && "POS" %in% names(df) && "P" %in% names(df))) {
-    message("Skipping Manhattan plot: missing required columns")
+manhattan_plot <- function(df, p_col = "P", subtitle = "") {
+  if (!all(c("CHR", "POS", p_col) %in% names(df))) {
+    message("Skipping Manhattan plot: missing required columns.")
     return(NULL)
   }
   
   df$CHR_numeric <- as.numeric(as.factor(df$CHR))
-  df_m <- df[, c("CHR_numeric", "POS", "P")]
+  df_m <- df[, c("CHR_numeric", "POS", p_col)]
   colnames(df_m) <- c("CHR", "BP", "P")
   df_m <- df_m[complete.cases(df_m), ]
   
   ggplot(df_m, aes(x = BP, y = -log10(P))) +
-    geom_point(color = "blue") +
+    geom_point(color = "blue", alpha = 0.6) +
     theme_bw() +
-    labs(title = "Manhattan plot (CHR unique)", x = "Position (BP)", y = "-log10(P)")
+    labs(
+      title = paste("Manhattan plot", subtitle),
+      x = "Position (BP)", y = "-log10(P)"
+    )
 }
 
 # Volcano plot
-volcano_plot <- function(df) {
-  if (!all(c("BETA", "P") %in% names(df))) {
-    message("Skipping Volcano plot: 'BETA' or 'P' not found.")
+volcano_plot <- function(df, p_col = "P", beta_col = "BETA", 
+                         title = "Volcano Plot Beta vs P-value", subtitle = NULL, 
+                         log_y = TRUE, point_alpha = 0.6, point_color = "blue") {
+  
+  # Check required columns
+  if (!all(c(beta_col, p_col) %in% names(df))) {
+    message(sprintf("Skipping Volcano plot: '%s' or '%s' not found.", beta_col, p_col))
     return(NULL)
   }
   
-  p <- ggplot(df, aes(x = BETA, y = -log10(P))) +
-    geom_point(alpha = 0.6) +
+  # Compute -log10(P)
+  df$logP <- -log10(df[[p_col]])
+  
+  # Plot
+  p <- ggplot(df, aes_string(x = beta_col, y = "logP")) +
+    geom_point(alpha = point_alpha, color = point_color) +
     theme_bw() +
-    labs(title = "Volcano Plot", x = "Effect Size (BETA)", y = "-log10(P-value)")
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = paste("Effect Size (", beta_col, ")", sep = ""),
+      y = paste("-log10(", p_col, ")", sep = "")
+    )
+  
+  if (log_y) {
+    p <- p + scale_y_continuous(trans = "log10")
+  }
   
   return(p)
 }
 
 # RSQUARE vs BETA plot
-rsq_plot <- function(df) {
-  if (!all(c("RSQUARE", "BETA") %in% names(df))) return(NULL)
-  ggplot(df, aes(x = RSQUARE, y = BETA)) +
-    geom_point(alpha = 0.6) +
+rsq_plot <- function(df, rsq_col = "RSQUARE", beta_col = "BETA", 
+                     title = "Effect Size vs RSQUARE", subtitle = NULL, 
+                     log_x = FALSE, log_y = FALSE, point_alpha = 0.6, point_color = "blue") {
+  
+  # Check required columns
+  if (!all(c(rsq_col, beta_col) %in% names(df))) {
+    message(sprintf("Skipping RSQ plot: '%s' or '%s' not found.", rsq_col, beta_col))
+    return(NULL)
+  }
+  
+  # Plot
+  p <- ggplot(df, aes_string(x = rsq_col, y = beta_col)) +
+    geom_point(alpha = point_alpha, color = point_color) +
     theme_bw() +
-    labs(title = "Effect Size vs RSQUARE", x = "R-squared", y = "BETA")
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = rsq_col,
+      y = beta_col
+    )
+  
+  if (log_x) p <- p + scale_x_continuous(trans = "log10")
+  if (log_y) p <- p + scale_y_continuous(trans = "log10")
+  
+  return(p)
 }
 
-# Histogram of P-values
-histogram_plot <- function(df) {
-  if (!all(c("P","P_ADJUSTED") %in% names(df))) return(NULL)
+# Histogram of P-values with custom columns and subtitle
+histogram_plot <- function(df, subtitle = "", ...) {
+  cols <- c(...)
+  if (!all(cols %in% names(df))) return(NULL)
+
   df_long <- df %>%
-    select(P, P_ADJUSTED) %>%
+    select(all_of(cols)) %>%
     pivot_longer(cols = everything(), names_to = "Type", values_to = "PValue")
   
   ggplot(df_long, aes(x = PValue, fill = Type)) +
-    geom_histogram(alpha = 0.6, position = "identity", bins = 50) +
+    geom_histogram(alpha = 0.6, position = "dodge", bins = 50) +
     theme_bw() +
-    labs(title = "Distribution of P-values", x = "P-value", y = "Count") +
+    labs(
+      title = paste("Distribution of P-values", subtitle),
+      x = "P-value", y = "Count"
+    ) +
     scale_fill_brewer(palette = "Set1")
 }
 
@@ -185,24 +391,33 @@ binary_output <- run_verify_truth(
   pvalue_file = file_list$binary_vcf,
   paths_file = file_list$binary_snarl,
   flag = " -b ",
-  output_dir = "binary_output"
+  output_dir = "../binary_output"
 )
 
 cat(binary_output, sep = "\n")
 
+df <- read_stoat(file_list$binary_vcf)
+
 # Plots
-histogram_plot(df)
-qq_plot(df, "P")
-qq_plot(df, "P_ADJUSTED")
-manhattan_plot(df)
+histogram_plot(df=df, subtitle="Binary [stoat vcf]", "P_FISHER", "P_CHI2", "P_ADJUSTED")
+qq_plot(df, "P_FISHER", subtitle="Binary [stoat vcf]")
+qq_plot(df, "P_CHI2", subtitle="Binary [stoat vcf]")
+
+manhattan_plot(df, "P_CHI2", subtitle="with P_CHI2 Binary [stoat vcf]")
+manhattan_plot(df, "P_FISHER", subtitle="with P_FISHER Binary [stoat vcf]")
+manhattan_plot(df, "P_ADJUSTED", subtitle="with P_ADJUSTED Binary [stoat vcf]")
 ```
 
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("binary_output/output_pvalue_interactive.png")
-knitr::include_graphics("binary_output/output10^-2_distribution_false_negative.png")
-knitr::include_graphics("binary_output/output10^-2_distribution_false_positive.png")
-knitr::include_graphics("binary_output/output10^-2_distribution_true_negatives.png")
-knitr::include_graphics("binary_output/output10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/pvalue_interactive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_false_negative.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_false_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_true_negatives.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_true_positive.png")
+
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_0.01.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_1e-05.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_1e-08.png")
 ```
 
 ---
@@ -214,8 +429,8 @@ binary_output <- run_verify_truth(
   freq_file = file_list$binary_freq,
   pvalue_file = file_list$binary_covar_vcf,
   paths_file = file_list$binary_snarl,
-  flag = " -q ",
-  output_dir = "binary_covar_output"
+  flag = " -c ",
+  output_dir = "../binary_covar_output"
 )
 
 cat(binary_output, sep = "\n")
@@ -226,21 +441,30 @@ cat(binary_output, sep = "\n")
 df <- read_stoat(file_list$binary_covar_vcf)
 
 # Plots
-histogram_plot(df)
-qq_plot(df, "P")
-qq_plot(df, "P_ADJUSTED")
-manhattan_plot(df)
-volcano_plot(df)
-rsq_plot(df)
+histogram_plot(df=df, subtitle="Binary covar [stoat vcf]", "P", "P_ADJUSTED")
+qq_plot(df, "P", subtitle="Binary covar [stoat vcf]")
+
+manhattan_plot(df, "P", subtitle="with P Binary covar [stoat vcf]")
+manhattan_plot(df, "P_ADJUSTED", subtitle="with P_ADJUSTED Binary covar [stoat vcf]")
+
+volcano_plot(df, subtitle="Binary covar [stoat vcf]")
 ```
 
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("binary_covar_output/output_pvalue_interactive.png")
-knitr::include_graphics("binary_covar_output/output10^-2_distribution_false_negative.png")
-knitr::include_graphics("binary_covar_output/output10^-2_distribution_false_positive.png")
-knitr::include_graphics("binary_covar_output/output10^-2_distribution_true_negatives.png")
-knitr::include_graphics("binary_covar_output/output10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/pvalue_interactive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_false_negative.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_false_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_true_negatives.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_true_positive.png")
+
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/confusion_matrix_0.0_0.01.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/confusion_matrix_0.0_1e-05.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/confusion_matrix_0.0_1e-08.png")
 ```
+The 
+The Threshold to determine if a variant is concidered as a positive is determine if the 
+Covariate are simulated with no effect, they containt SEX,PC1,PC2,PC3 (same value line for each sample : 0	25.215	75.84	45.0).
+
 ---
 
 ### Quantitative VCF
@@ -253,7 +477,7 @@ quantitative_output <- run_verify_truth(
   pvalue_file = file_list$quantitative_vcf,
   paths_file = file_list$quantitative_snarl,
   flag = " -q ",
-  output_dir = "quantitative_output"
+  output_dir = "../quantitative_output"
 )
 
 cat(quantitative_output, sep = "\n")
@@ -261,23 +485,30 @@ cat(quantitative_output, sep = "\n")
 df <- read_stoat(file_list$quantitative_vcf)
 
 # ---- Plots ----
-histogram_plot(df)
-qq_plot(df, "P")
-qq_plot(df, "P_ADJUSTED")
-manhattan_plot(df)
-volcano_plot(df)
-rsq_plot(df)
+histogram_plot(df=df, subtitle="Quantitative [stoat vcf]", "P", "P_ADJUSTED")
+qq_plot(df, "P", subtitle="Quantitative [stoat vcf]")
+
+manhattan_plot(df, "P", subtitle="with P Quantitative [stoat vcf]")
+manhattan_plot(df, "P_ADJUSTED", subtitle="with P_ADJUSTED Quantitative [stoat vcf]")
+
+volcano_plot(df, subtitle="Quantitative [stoat vcf]")
+rsq_plot(df, subtitle="Quantitative [stoat vcf]")
 ```
 
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("quantitative_output/output_pvalue_interactive.png")
-knitr::include_graphics("quantitative_output/output10^-2_distribution_false_negative.png")
-knitr::include_graphics("quantitative_output/output10^-2_distribution_false_positive.png")
-knitr::include_graphics("quantitative_output/output10^-2_distribution_true_negatives.png")
-knitr::include_graphics("quantitative_output/output10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/pvalue_interactive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_false_negative.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_false_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_true_negatives.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_true_positive.png")
+
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/confusion_matrix_0.0_0.01.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/confusion_matrix_0.0_1e-05.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/confusion_matrix_0.0_1e-08.png")
 ```
 
 ---
+
 ```{r quantitative-covar-vcf}
 
 # Execute verification for quantitative VCF
@@ -286,7 +517,7 @@ quantitative_output <- run_verify_truth(
   pvalue_file = file_list$quantitative_covar_vcf,
   paths_file = file_list$quantitative_snarl,
   flag = " -q ",
-  output_dir = "quantitative_covar_output"
+  output_dir = "../quantitative_covar_output"
 )
 
 cat(quantitative_output, sep = "\n")
@@ -294,20 +525,26 @@ cat(quantitative_output, sep = "\n")
 df <- read_stoat(file_list$quantitative_covar_vcf)
 
 # ---- Plots ----
-histogram_plot(df)
-qq_plot(df, "P")
-qq_plot(df, "P_ADJUSTED")
-manhattan_plot(df)
-volcano_plot(df)
-rsq_plot(df)
+histogram_plot(df=df, subtitle="Quantitative covar [stoat vcf]", "P", "P_ADJUSTED")
+qq_plot(df, "P", subtitle="Quantitative covar [stoat vcf]")
+
+manhattan_plot(df, "P", subtitle="with P Quantitative covar [stoat vcf]")
+manhattan_plot(df, "P_ADJUSTED", subtitle="with P_ADJUSTED Quantitative covar [stoat vcf]")
+
+volcano_plot(df, subtitle="Quantitative covar [stoat vcf]")
+rsq_plot(df, subtitle="Quantitative covar [stoat vcf]")
 ```
 
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("quantitative_covar_output/output_pvalue_interactive.png")
-knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_false_negative.png")
-knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_false_positive.png")
-knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_true_negatives.png")
-knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/pvalue_interactive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_false_negative.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_false_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_true_negatives.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_true_positive.png")
+
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/confusion_matrix_0.0_0.01.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/confusion_matrix_0.0_1e-05.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/confusion_matrix_0.0_1e-08.png")
 ```
 
 ---
@@ -317,13 +554,31 @@ knitr::include_graphics("quantitative_covar_output/output10^-2_distribution_true
 ```{r eqtl-vcf}
 df <- read_stoat(file_list$eqtl_vcf)
 
-# Plots
-histogram_plot(df)
-qq_plot(df, "P")
-qq_plot(df, "P_ADJUSTED")
-manhattan_plot(df)
-volcano_plot(df)
-rsq_plot(df)
+# ---- Plots ----
+histogram_plot(df=df, subtitle="Eqtl [stoat vcf]", "P", "P_ADJUSTED")
+qq_plot(df, "P", subtitle="Eqtl [stoat vcf]")
+
+manhattan_plot(df, "P", subtitle="with P Eqtl [stoat vcf]")
+manhattan_plot(df, "P_ADJUSTED", subtitle="with P_ADJUSTED Eqtl [stoat vcf]")
+
+volcano_plot(df, subtitle="Eqtl [stoat vcf]")
+rsq_plot(df, subtitle="Eqtl [stoat vcf]")
+```
+
+---
+
+```{r eqtl-covar-vcf}
+df <- read_stoat(file_list$eqtl_covar_vcf)
+
+# ---- Plots ----
+histogram_plot(df=df, subtitle="Eqtl covar [stoat vcf]", "P", "P_ADJUSTED")
+qq_plot(df, "P", subtitle="Eqtl covar [stoat vcf]")
+
+manhattan_plot(df, "P", subtitle="with P Eqtl covar [stoat vcf]")
+manhattan_plot(df, "P_ADJUSTED", subtitle="with P_ADJUSTED Eqtl covar [stoat vcf]")
+
+volcano_plot(df, subtitle="Eqtl covar [stoat vcf]")
+rsq_plot(df, subtitle="Eqtl covar [stoat vcf]")
 ```
 
 ---
@@ -331,49 +586,36 @@ rsq_plot(df)
 ### Binary GRAPH
 
 ```{r binary-graph}
-# Execute verification for binary VCF
 binary_output <- run_verify_truth(
   freq_file = file_list$binary_freq,
   pvalue_file = file_list$binary_graph,
   paths_file = file_list$binary_snarl,
   flag = " -b ",
-  output_dir = "binary_graph_output"
+  output_dir = "../binary_graph_output"
 )
+
 cat(binary_output, sep = "\n")
-
-binary_scatter_plot_graph <- run_scatter_plot_graph(
-  input = file_list$binary_graph,
-  output = "binary_graph_output/binary_scatter_plot_graph.png"
-)
-
-cat(binary_scatter_plot_graph, sep = "\n")
-
-binary_histo_plot_graph <- run_histo_plot_graph(
-  input = file_list$binary_graph,
-  output = "binary_graph_output/binary_histo_plot_graph.png"
-)
-
-cat(binary_histo_plot_graph, sep = "\n")
 
 df <- read_stoat(file_list$binary_graph)
 
 # Plots
-histogram_plot(df)
-qq_plot(df, "P")
-qq_plot(df, "P_ADJUSTED")
-manhattan_plot(df)
+histogram_plot(df=df, subtitle="Binary [stoat graph]", "P_FISHER", "P_CHI2", "P_ADJUSTED")
+qq_plot(df, "P_FISHER", subtitle="Binary [stoat graph]")
+qq_plot(df, "P_CHI2", subtitle="Binary [stoat graph]")
+
+manhattan_plot(df, "P_CHI2", subtitle="with P_CHI2 Binary [stoat graph]")
+manhattan_plot(df, "P_FISHER", subtitle="with P_FISHER Binary [stoat graph]")
+manhattan_plot(df, "P_ADJUSTED", subtitle="with P_ADJUSTED Binary [stoat graph]")
 ```
 
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("binary_graph_output/output_pvalue_interactive.png")
-knitr::include_graphics("binary_graph_output/output10^-2_distribution_false_negative.png")
-knitr::include_graphics("binary_graph_output/output10^-2_distribution_false_positive.png")
-knitr::include_graphics("binary_graph_output/output10^-2_distribution_true_negatives.png")
-knitr::include_graphics("binary_graph_output/output10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output_pvalue_interactive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_false_negative.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_false_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_true_negatives.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_true_positive.png")
 
-knitr::include_graphics("binary_graph_output/binary_scatter_plot_graph.png")
-knitr::include_graphics("binary_graph_output/binary_histo_plot_graph.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/binary_scatter_plot_graph.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/binary_histo_plot_graph.png")
 ```
 
-Lauching stoat graph command : `./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -T chi2 -r ref -S ../data/binary/samples.g0.tsv -o ../output`
-Even with the same test (fisher/chi2) the p-value result is different between stoat vcf and stoat graph.

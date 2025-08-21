@@ -68,7 +68,7 @@ void AssociationFinder::test_snarls() const {
                 string chi2_p_value = "NA";
                 // Get the path lengths, except since we don't know the lengths of the alleles, it's just the min and max length of the snarl
                 std::stringstream ss;
-                ss << distance_index.minimum_length(snarl) << "/" << distance_index.maximum_length(snarl);
+                ss << distance_index.minimum_length(snarl) << "," << distance_index.maximum_length(snarl);
                 string path_lengths = ss.str();
 
                 // Each set represents a partition of samples that takes the same path through the snarl's netgraph

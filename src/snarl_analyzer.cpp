@@ -373,7 +373,7 @@ void BinarySnarlAnalyzer::analyze_and_write_snarl(
     if (!filtration) { // good table
         auto group_paths = format_group_paths(g0, g1);
 
-        auto [fastfisher_p_value, chi2_p_value] = fk.fisher_khi2(g0, g1);
+        auto [chi2_p_value, fastfisher_p_value] = fk.fisher_khi2(g0, g1);
 
         # pragma omp critical (outf) 
         {

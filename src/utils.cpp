@@ -355,7 +355,7 @@ std::pair<size_t, size_t> find_snarl_id(const bdsg::SnarlDistanceIndex& stree, c
     size_t end_node_id_size_t = static_cast<size_t>(end_node_id);
 
     // Construct the snarl ID
-    std::pair<size_t, size_t> snarl_id(end_node_id_size_t, start_node_id_size_t);
+    std::pair<size_t, size_t> snarl_id(start_node_id_size_t, end_node_id_size_t);
 
     return snarl_id;  // Return the generated snarl ID as a std::string
 }
