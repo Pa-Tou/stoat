@@ -37,14 +37,23 @@ Collinearity occurs when two or more predictor variables are highly correlated, 
 - Unstable coefficient estimates
 - Difficulty in interpreting the effect of individual predictors
 
-#### Example in R:
+```{r collinearity, echo=TRUE}
+# Set seed for reproducibility
+set.seed(123)
 
+# X1 can be any continuous variable
+X1 <- runif(100, 0, 1)
 
-```{r near-perfect-collinearity, echo=TRUE}
-# X2 is almost identical to X1
-cor(X1, X2)  # correlation near 1
+# Make X2 perfectly collinear with X1
+X2 <- X1  # now X2 = X1 exactly
 
-# Attempt to fit model
+# Response variable Y
+Y <- 5 + 2*X1 + rnorm(100, sd = 0.1)
+
+# Check correlation (should be 1)
+cor(X1, X2)
+
+# Fit linear model with perfectly collinear predictors
 model2 <- lm(Y ~ X1 + X2)
 summary(model2)
 ```
@@ -53,19 +62,32 @@ summary(model2)
 
 When predictors are nearly perfectly collinear, the model may fail to estimate coefficients properly (this case can happend when the number of column are > 2 and at 2 column are identical) :
 
-```{r collinearity-example, echo=TRUE}
-# Simulate correlated predictors
+```{r near-perfect-collinearity, echo=TRUE}
 set.seed(123)
-X1 <- rnorm(100)
-X2 <- X1 + rnorm(100, sd=0.01)  # nearly collinear with X1
-Y <- 5 + 2*X1 + 3*X2 + rnorm(100)
+n <- 100
+
+# First column
+X1 <- runif(n, 0, 1)
+
+# Second column is exactly the same as the first
+X2 <- X1  # perfect collinearity
+
+# Third column ensures rows sum to 1
+X3 <- 1 - (X1 + X2)
+
+# Check row sums
+all.equal(rowSums(cbind(X1, X2, X3)), rep(1, n))  # should be TRUE
+
+# Response variable
+Y <- 5 + 2*X1 + 3*X2 + rnorm(n)
 
 # Fit linear model
-model <- lm(Y ~ X1 + X2)
+df <- data.frame(Y = Y, X1 = X1, X2 = X2, X3 = X3)
+model <- lm(Y ~ ., data = df)
 summary(model)
-````
+```
 
-### Linear Regression test
+### Linear Regression test methods
 
 ```{r import, echo=FALSE, message=FALSE}
 # install.packages("RcppEigen", repos = "https://cloud.r-project.org")   # if not installed
