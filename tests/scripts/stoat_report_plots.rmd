@@ -590,14 +590,36 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/b
 ### Compare stoat graph vs stoat vcf binary output
 
 ```{r binary-graph}
-# Make sure SNARL is character
-df_binary_vcf$SNARL <- as.character(df_binary_vcf$SNARL)
-df_binary_graph$SNARL <- as.character(df_binary_graph$SNARL)
-
-# Full join by SNARL
-df_joined <- full_join(df1, df2, by = "SNARL", suffix = c("_df1", "_df2"))
-
 # Compare each columns by matching SNARL
+# Merge the data frames by SNARL
+merged_df <- merge(df_binary_vcf, df_binary_graph, by = "SNARL", suffixes = c("_df1", "_df2"))
+
+# Get the list of columns to compare (excluding SNARL)
+columns_to_compare <- setdiff(names(df1), "SNARL")
+
+# Initialize a named vector to store number of differing rows per column
+column_diff_counts <- setNames(integer(length(columns_to_compare)), columns_to_compare)
+
+# Loop through each column and count differing rows
+for (col in columns_to_compare) {
+  col1 <- paste0(col, "_df1")
+  col2 <- paste0(col, "_df2")
+  
+  # Count where values differ (using `!=` and NA-safe logic)
+  diffs <- merged_df[[col1]] != merged_df[[col2]]
+  
+  # Handle NAs: count rows where one is NA and the other is not, or values differ
+  diffs[is.na(diffs)] <- xor(is.na(merged_df[[col1]]), is.na(merged_df[[col2]]))[is.na(diffs)]
+  
+  column_diff_counts[col] <- sum(diffs, na.rm = TRUE)
+}
+
+# Convert to data frame for pretty output
+result <- data.frame(Column = names(column_diff_counts),
+                     Num_Different_Rows = as.integer(column_diff_counts))
+
+# Print result
+print(result)
 
 # SNARLs only in one file
 only_in_df1 <- df_joined %>%
