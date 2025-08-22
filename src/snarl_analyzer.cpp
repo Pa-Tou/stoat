@@ -118,6 +118,8 @@ void SnarlAnalyzer::process_snarls_by_chromosome_chunk(
     // Write the header
     write_header(outf);
 
+    size_t total_number_snarl_filtered = 0;
+
     // Go through the vcf and get chunks by chromosome. 
     while (bcf_read(ptr_vcf, hdr, rec) >= 0) {
 
@@ -157,23 +159,27 @@ void SnarlAnalyzer::process_snarls_by_chromosome_chunk(
         stoat::LOG_INFO("Matrix time construction in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
 
         const auto& snarls = chr_to_snarl_data.at(chr);
-        
         auto start_2 = std::chrono::high_resolution_clock::now();
+        size_t chr_number_snarl_filtered = 0;
 
         #pragma omp parallel for schedule(static)
 
         // Make the snarl test analysis
         // Iterate over each snarl
         for (const stoat::Snarl_data_t& snarl_data_s : snarls) {
-            analyze_and_write_snarl(snarl_data_s, chr, outf);
+            bool fail = analyze_and_write_snarl(snarl_data_s, chr, outf);
+            chr_number_snarl_filtered += (fail ? 1 : 0); 
         }
 
+        total_number_snarl_filtered += chr_number_snarl_filtered;
         auto end_2 = std::chrono::high_resolution_clock::now();
 
+        stoat::LOG_INFO("Number of snarl filtered in chr " + chr + " : " + std::to_string(chr_number_snarl_filtered));
         stoat::LOG_INFO("Snarl time analysis in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
         stoat::LOG_INFO("Total time for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(end_2 - start_1).count()) + " s");
-
     }
+
+    stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(total_number_snarl_filtered));
 
     // Cleanup
     bcf_destroy(rec);
@@ -349,7 +355,7 @@ std::vector<size_t> identify_path(
     return idx_srr_save;
 }
 
-void BinarySnarlAnalyzer::analyze_and_write_snarl(
+bool BinarySnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
     std::ostringstream oss;
@@ -380,9 +386,10 @@ void BinarySnarlAnalyzer::analyze_and_write_snarl(
             stoat::write_binary(outf, chr, snarl_data_s, type_var_str, fastfisher_p_value, chi2_p_value, "",  group_paths);
         }
     }
+    return filtration;
 }
 
-void BinaryCovarSnarlAnalyzer::analyze_and_write_snarl( 
+bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl( 
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
     std::ostringstream oss;
@@ -417,10 +424,11 @@ void BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
             stoat::write_binary_covar(outf, chr, snarl_data_s, type_var_str, p_value, "", beta, se, allele_paths);
         }
     }
+    return filtration;
 }
 
 // Quantitative Table Generation
-void QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
+bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
     auto [df, phenotype_filtered, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
@@ -455,6 +463,7 @@ void QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
             stoat::write_quantitative(outf, chr, snarl_data_s, type_var_str, p_value, "", r2, beta, se, allele_paths);
         }
     }
+    return filtration;
 }
 
 // Identify genes index that will be tested for this snarl by matching position
@@ -481,7 +490,7 @@ std::vector<size_t> found_gene_snarl(
     return gene_index;
 }
 
-void EQTLSnarlAnalyzer::analyze_and_write_snarl(
+bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
     std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
@@ -526,6 +535,7 @@ void EQTLSnarlAnalyzer::analyze_and_write_snarl(
 
         }
     }
+    return filtration;
 }
 
 // Return true when snarl must be filtered and false if not

@@ -57,6 +57,29 @@ It containt 2 modes :
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/stoat_representation.png")
 ```
 
+```{r stoat-lauching, message=FALSE, warning=FALSE, echo=FALSE}
+# # BINARY
+# system("stoat vcf -p data/binary/pg.full.pg -d data/binary/pg.full.dist -r data/binary/pg.chromosome -v data/binary/merged_output.vcf.gz -b data/binary/phenotype.tsv --output output_binary")
+
+# # BINARY + COVARIATE
+# system("stoat vcf -p data/binary/pg.full.pg -d data/binary/pg.full.dist -r data/binary/pg.chromosome -v data/binary/merged_output.vcf.gz -b data/binary/phenotype.tsv --covariate data/binary/covariate.tsv --covar-name PC1,SEX,PC3 --output output_binary_covar")
+
+# # QUANTITATIVE
+# system("stoat vcf -p data/quantitative/pg.full.pg -d data/quantitative/pg.full.dist -r data/quantitative/pg.chromosome -v data/quantitative/merged_output.vcf.gz -q data/quantitative/phenotype.tsv --output output_quantitative")
+
+# # QUANTITATIVE + COVARIATE
+# system("stoat vcf -p data/quantitative/pg.full.pg -d data/quantitative/pg.full.dist -r data/quantitative/pg.chromosome -v data/quantitative/merged_output.vcf.gz -q data/quantitative/phenotype.tsv --covariate data/quantitative/covariate.tsv --covar-name PC1,SEX,PC3 --output output_quantitative_covar")
+
+# # EQTL
+# system("stoat vcf -s data/eqtl/snarl_analyse.tsv -v data/eqtl/merged_output.vcf.gz -e data/eqtl/qtl.tsv --gene-position data/eqtl/gene_position.tsv --output output_eqtl")
+
+# # EQTL + COVARIATE
+# system("stoat vcf -s data/eqtl/snarl_analyse.tsv -v data/eqtl/merged_output.vcf.gz -e data/eqtl/qtl.tsv --gene-position data/eqtl/gene_position.tsv --covariate data/eqtl/covariate.tsv --covar-name SEX,PC1,PC2,PC3 --output output_eqtl_covar")
+
+# # BINARY GRAPH
+# system("stoat graph -g data/binary/pg.full.pg -d data/binary/pg.full.dist -T chi2 -r ref -S data/binary/samples.g0.tsv -o output_binary_graph")
+```
+
 ```{r setup, message=FALSE, warning=FALSE, echo=FALSE}
 library(ggplot2)
 library(readr)

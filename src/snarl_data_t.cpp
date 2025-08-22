@@ -659,6 +659,8 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
 
     std::unordered_map<std::string, std::vector<Snarl_data_t>> chr_snarl_matrix;
     size_t paths_number_analysis = 0;
+    size_t snarl_fail = 0;
+    size_t paths_fail = 0;
 
     // Parallel loop
     #pragma omp parallel for schedule(dynamic)
@@ -678,6 +680,8 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         if (children > children_threshold) {
             #pragma omp critical(out_fail)
             out_fail << snarl_id_str << "\ttoo_many_children = " << children << " children\n";
+            paths_fail += children;
+            snarl_fail++;
             continue;
         }
 
@@ -709,6 +713,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
                 #pragma omp critical(out_fail)
                 out_fail << snarl_id_str << "\titeration_calculation_out = " << children << " children\n";
                 break_snarl = true;
+                paths_fail++;
                 break;
             }
 
@@ -718,7 +723,11 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         if (break_snarl) {continue;}
 
         auto [pretty_paths, type_variants] = fill_pretty_paths(stree, pg, finished_paths);
-        if (pretty_paths.size() < 2) {continue;} // avoid special case single path
+        
+        if (pretty_paths.size() < 2) {
+            snarl_fail++;
+            continue;
+        } // avoid special case single path
 
         const std::string& chr = std::get<1>(snarl_path_pos);
         if (chr.empty()) {continue;}
@@ -747,7 +756,9 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         paths_number_analysis += pretty_paths.size();
     }
 
+    stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(snarl_fail));
     stoat::LOG_INFO("Total number of paths : " + std::to_string(paths_number_analysis));
+    stoat::LOG_INFO("Total number of paths filtered : " + std::to_string(paths_fail));
 
     if (paths_number_analysis == 0) {
         stoat::LOG_FATAL("Total number of paths = 0. This may indicate that the graph does not contain a flagged reference path. Please use -r/--chr to specify the reference paths.");
