@@ -1,6 +1,14 @@
 ---
 title: "Stoat Report (08/2025)"
-output: pdf_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: united
+    df_print: paged
+params:
+  run_mode: "html"
 ---
 
 # Stoat in a nutshell
@@ -16,23 +24,40 @@ For quantitative traits, STOAT performs linear regression, again with or without
 Additionally, it supports eQTL analysis, enabling association testing between
 genetic variants and gene expression levels. 
 
-It containt 2 modes : 
-- VCF : that will take VCF file in input and test snarl variant in it
-- Graph : that will test snarl directly on the pangenome graph
+It containt 2 modes :
+
+* VCF : that will take VCF file in input and test snarl variant in it
+* Graph : that will test snarl directly on the pangenome graph
 
 ## Stoat version 0.2.0 (08/2025)
 
-- stoat :
-  - Cartoon update : added stoat graph
-  - Unify format output (position, snarl_id, type)
-- stoat vcf :
-  - Linear regression : Correction for the near perfect collinearity case by merging same column toghever.
-  - Logistic regression : Correction of the output format
-  - Other correction : fix snarl paths parsing, fix eqtl parsing format file (case handlegraph too big)
-- stoat graph :
-  - ...
+---
 
-```{r setup, message=FALSE, warning=FALSE}
+* **Stoat**:
+
+  * *Cartoon Update*: Added stoat graph (working progress).
+  * Unified output format (`position`, `snarl_id`, `type`).
+
+* **Stoat VCF**:
+
+  * *Linear Regression*: Corrected near-perfect collinearity case by merging identical columns.
+  * *Logistic Regression*: Corrected output format.
+  * *Other Fixes*:
+
+    * Fixed snarl paths parsing.
+    * Fixed eQTL file format parsing (handles cases with large handlegraphs).
+
+* **Stoat Graph**:
+
+  * ...
+
+---
+
+```{r stoat-rep-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/stoat_representation.png")
+```
+
+```{r setup, message=FALSE, warning=FALSE, echo=FALSE}
 library(ggplot2)
 library(readr)
 library(dplyr)
@@ -40,7 +65,7 @@ library(tidyr)
 library(CMplot)
 library(stringr)
 
-utils::globalVariables(c("Expected", "Observed"))
+# utils::globalVariables(c("Expected", "Observed"))
 
 # ---- File paths ----
 file_list <- list(
@@ -71,162 +96,6 @@ read_stoat <- function(path) {
   if ("START_POS" %in% names(df) && !"POS" %in% names(df)) df$POS <- df$START_POS
   return(df)
 }
-
-# Split snarl string on ">" or "<", remove empty elements
-split_snarl <- function(input_str) {
-  parts <- unlist(strsplit(input_str, "[><]"))
-  parts <- parts[parts != ""]  # Filter out empty strings
-  return(as.character(parts))  # Keep it as string like in Python version
-}
-
-process_file <- function(freq_file, threshold = 0.2) {
-  df <- read.delim(freq_file, sep = "\t", stringsAsFactors = FALSE)
-  
-  freq_path_list <- character()
-  true_labels <- integer()
-  list_diff <- numeric()
-  
-  for (i in seq(1, nrow(df) - 1, by = 2)) {
-    row_1 <- df[i, ]
-    row_2 <- df[i + 1, ]
-    
-    diff <- abs(row_1$freq - row_2$freq)
-    
-    # If group freq diff > threshold, then true label is 0, else 1
-    label <- ifelse(diff > threshold, 0, 1)
-    
-    path <- paste0(as.integer(row_1$start_node), "_", as.integer(row_1$next_node))
-    
-    freq_path_list <- c(freq_path_list, path)
-    true_labels <- c(true_labels, label)
-    list_diff <- c(list_diff, diff)
-  }
-  
-  return(list(freq_path_list = freq_path_list, true_labels = true_labels, list_diff = list_diff))
-}
-
-check_valid_snarl <- function(start_node_1, next_node_1, start_node_2, next_node_2, snarl_list) {
-  # First condition: start nodes must match
-  if (start_node_1 != start_node_2) {
-    stop("start_node_1 != start_node_2")
-  }
-  
-  contains_first_pair <- FALSE
-  contains_second_pair <- FALSE
-  
-  for (path in snarl_list) {
-    # Extract all numbers from the path string
-    decomposed_path <- as.integer(unlist(regmatches(path, gregexpr("\\d+", path))))
-    
-    if (start_node_1 %in% decomposed_path && next_node_1 %in% decomposed_path) {
-      contains_first_pair <- TRUE
-    }
-    
-    if (start_node_2 %in% decomposed_path && next_node_2 %in% decomposed_path) {
-      contains_second_pair <- TRUE
-    }
-    
-    if (contains_first_pair && contains_second_pair) {
-      return(TRUE)
-    }
-  }
-  
-  return(contains_first_pair && contains_second_pair)
-}
-
-
-match_snarl <- function(freq_path_list, true_labels, list_diff, p_value_file, paths_file, save_sv_snarl = NULL, type_) {
-  # Load data
-  p_value_df <- read_tsv(p_value_file, show_col_types = FALSE)
-  paths_df <- read_tsv(paths_file, show_col_types = FALSE) %>%
-    select(SNARL, PATHS)
-
-  # Merge on SNARL
-  p_value_df <- left_join(p_value_df, paths_df, by = "SNARL")
-
-  # Split SNARL
-  snarl_split <- str_split_fixed(p_value_df$SNARL, "_", 2)
-  snarl_start <- as.integer(snarl_split[,1])
-  snarl_end <- as.integer(snarl_split[,2])
-
-  # Outputs
-  predicted_labels_10_2 <- c()
-  predicted_labels_10_5 <- c()
-  predicted_labels_10_8 <- c()
-  cleaned_true_labels <- c()
-  clean_list_diff <- c()
-  pvalue_list <- c()
-  num_sample <- c()
-  snarl_name <- c()
-
-  step <- 2
-  for (i in seq(1, length(freq_path_list) - 1, by = step)) {
-    nodes1 <- as.integer(str_split(freq_path_list[[i]], "_")[[1]])
-    nodes2 <- as.integer(str_split(freq_path_list[[i + 1]], "_")[[1]])
-    start_node_1 <- nodes1[1]; next_node_1 <- nodes1[2]
-    start_node_2 <- nodes2[1]; next_node_2 <- nodes2[2]
-
-    # Vectorized filtering
-    match_mask <- ((snarl_end <= start_node_1 & snarl_start >= next_node_1) |
-                   (snarl_start <= start_node_1 & snarl_end >= next_node_1))
-    matched_rows <- p_value_df[match_mask, ]
-
-    if (nrow(matched_rows) > 0) {
-      if (!is.null(save_sv_snarl)) {
-        matched_rows <- matched_rows %>% filter(SNARL %in% save_sv_snarl)
-      }
-
-      for (row_idx in 1:nrow(matched_rows)) {
-        matched <- matched_rows[row_idx, ]
-
-        path_list <- str_split(matched$PATHS, ",")[[1]]
-        if (check_valid_snarl(start_node_1, next_node_1, start_node_2, next_node_2, path_list)) {
-          p_val <- matched$P_ADJUSTED
-
-          if (type_ == "binary") {
-            group_paths <- matched$GROUP_PATHS
-            if (!is.na(group_paths) && group_paths != "") {
-              parts <- str_split(group_paths, ",")[[1]]
-              allele_num <- sum(as.integer(str_extract(parts, "(?<=:)\\d+")), na.rm = TRUE)
-            } else {
-              allele_num <- 200
-            }
-          } else if (type_ == "quantitative") {
-            group_paths <- matched$ALLELE_PATHS
-            if (!is.na(group_paths) && group_paths != "") {
-              allele_num <- sum(as.integer(str_split(group_paths, ",")[[1]]), na.rm = TRUE)
-            } else {
-              allele_num <- 200
-            }
-          } else {
-            stop("type_ must be 'binary' or 'quantitative'")
-          }
-
-          snarl_name <- c(snarl_name, matched$SNARL)
-          predicted_labels_10_2 <- c(predicted_labels_10_2, ifelse(p_val < 0.01, 0, 1))
-          predicted_labels_10_5 <- c(predicted_labels_10_5, ifelse(p_val < 1e-5, 0, 1))
-          predicted_labels_10_8 <- c(predicted_labels_10_8, ifelse(p_val < 1e-8, 0, 1))
-          cleaned_true_labels <- c(cleaned_true_labels, true_labels[i])
-          clean_list_diff <- c(clean_list_diff, list_diff[i])
-          pvalue_list <- c(pvalue_list, p_val)
-          num_sample <- c(num_sample, allele_num)
-        }
-      }
-    }
-  }
-
-  return(list(
-    predicted_labels_10_2 = predicted_labels_10_2,
-    predicted_labels_10_5 = predicted_labels_10_5,
-    predicted_labels_10_8 = predicted_labels_10_8,
-    cleaned_true_labels = cleaned_true_labels,
-    clean_list_diff = clean_list_diff,
-    pvalue_list = pvalue_list,
-    num_sample = num_sample,
-    snarl_name = snarl_name
-  ))
-}
-
 
 # QQ plot with customizable column and subtitle
 qq_plot <- function(df, col, subtitle = "") {
@@ -401,18 +270,39 @@ run_histo_plot_graph <- function(input, output) {
 }
 ```
 
-## Simulation description
-We construct 2 simulated dataset (binary and quantitative) each one has its own pangenome graph containing only one chromosome that incorporates variations like SNP, INDEL and complex variant, but the structure base on fork remains the same amoung all simulation. A fork structure can be define as a boundary snarl with only 2 paths that can containt also other fork in it. Once the pangenome graph was constructed, we simulated individual haplotypes by generating sample genomes that traverse different paths within the graph. To introduce phenotype-genotype relationships, we assigned each haplotype to a binary or quantitative phenotype rule simulation
+---
 
-```{r results='asis'}
+## Simulation Description
+
+We constructed three simulated datasets: **binary**, **quantitative**, and **eQTL**.
+
+The binary and quantitative simulations each include their own pangenome graph representing a single chromosome, incorporating various types of variation, such as SNPs, INDELs, and complex variants. Despite the different variations, the graph structure—based on a fork pattern—remains consistent across all simulations.
+
+A fork structure is defined as a boundary snarl with exactly two paths, which can themselves contain nested forks (see fork representation below).
+
+```{r show-fork-png, echo=FALSE, out.width="20%"}
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/fork.png")
+```
+
+Once the pangenome graph was constructed, we simulated individual haplotypes by generating sample genomes that traverse different paths within the graph. To introduce phenotype-genotype relationships, we assigned each haplotype a binary or quantitative phenotype according to specific simulation rules.
+
+```{r show-haplotype-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/haplotype.png")
+```
+
+The eQTL simulation differs in that it includes **10 chromosomes**, but no pangenome graph is constructed. Instead, we directly simulate the path-snarl file required by STOAT, and the variations consist only of simple SNPs.
+
+---
+
+```{r results='asis', echo=FALSE}
 library(knitr)
 
 # Create the data frame
 df <- data.frame(
-  Type = c("Binary", "Quantitative"),
-  `Number of samples` = c(200, 200),
-  `Number of variant type (SNP/INDEL/COMPLEX)` = c("2444/446/158", "2478/382/138"),
-  `Number of snarl/paths` = c("1524/3048", "1499/2998"),
+  Type = c("Binary", "Quantitative", "eqtl"),
+  `Number of samples` = c(200, 200, 200),
+  `Number of variant type (SNP/INDEL/COMPLEX)` = c("2444/446/158", "2478/382/138", "200000/0/0"),
+  `Number of snarl/paths` = c("1524/3048", "1499/2998", "100000/200000"),
   check.names = FALSE
 )
 
@@ -420,24 +310,31 @@ df <- data.frame(
 kable(df, format = "markdown", align = "c")
 ```
 
-### Binary simulation
-200 Samples were divided into two cohorts (100 case and 100 control), each corresponding to a different phenotypic state containing 1000 variations. Each group had a correlated probability of traversing a specific path within snarls. This probability (e.g., 50/50) could be equal between the two cohorts or skewed in favor of one group (e.g., 20/80), simulating an association between variation and phenotype.
+---
 
-```{r show-fork-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/fork.png")
-```
-Fork representation
+### Binary Simulation
 
-### Quantitative simulation
-Similar to the binary simulation, 200 samples were divided into two cohorts, with each group having a correlated probability of traversing specific paths within snarls. However, in this case, an additional probability factor was introduced, where the likelihood of passing through a given path was influenced by the individual's phenotype value.
+200 samples were divided into two cohorts (100 cases and 100 controls), each corresponding to a different phenotypic state containing 1,000 variations. Each group had a correlated probability of traversing a specific path within each snarl. This probability (e.g., 50/50) could be equal between the two cohorts or skewed in favor of one group (e.g., 20/80), simulating an association between variation and phenotype.
 
-### Eqtl simulation
-Here, we simulated 200 samples with 100,000 simple SNP variations and 100 genes. In this simulation, there are no significant variants, everything was generated randomly. The goal was to create a very simple simulation to test STOAT's VCF eQTL implementation.
+---
+
+### Quantitative Simulation
+
+Similar to the binary simulation, 200 samples were divided into two cohorts, with each group having a correlated probability of traversing specific paths within snarls. In this case, an additional probability factor was introduced so that the likelihood of passing through a given path depends on the individual’s phenotype value.
+
+---
+
+### eQTL Simulation
+
+In this simulation, we generated 200 samples with 200,000 SNPs and 100 genes. All variants were generated randomly, meaning no significant associations were introduced. The goal was to create a simple simulation to test STOAT’s VCF-based eQTL pipeline.
+
+---
 
 ### Covariate Simulation
 
-Covariates are simulated with no effect. They include **SEX**, **PC1**, **PC2**, and **PC3**.
-Each sample has the same values across these covariates: `0`, `25.215`, `75.84`, `45.0`.
+Covariates were simulated based on the phenotype, except for sex. They include **SEX**, **PC1**, **PC2**, and **PC3**. The SEX covariate is randomly assigned as male or female, while the other PCs are simulated from a normal distribution.
+
+---
 
 ### Verifying the Truth Simulation Description
 
@@ -445,12 +342,11 @@ Each sample has the same values across these covariates: `0`, `25.215`, `75.84`,
 
 The **binary** and **quantitative** simulations produce a file containing the following elements:
 
-* The **frequency probability (freq)** of a haplotype, depending on its group, to follow a specific path/edge in a fork.
+* The **frequency probability (freq)** of a haplotype, depending on its group, to follow a specific path or edge in a fork.
 * The **group** associated with each frequency.
-* The **start** and **end** node of the fork.
+* The **start** and **end** nodes of the fork.
 
-An identical probability between two groups on the same edge suggests that the edge may appear significant due to randomness, but it will be considered **non-significant** in downstream analysis.
-On the other hand, a difference in frequency between the two groups even if small is treated as **significant**.
+If two groups have identical probabilities on the same edge, it may appear significant by chance but will be treated as **non-significant** in downstream analysis. Conversely, a difference in frequency between the two groups, even if small, is treated as **significant**.
 
 **Example `freq` file:**
 
@@ -462,19 +358,26 @@ start_node	next_node	group	freq
 2	        4	        1	    0.47
 ```
 
-#### Computing Stoat Output with the Frequency File
+#### Computing STOAT Output with the Frequency File
 
-To assess whether a snarl is correctly identified as significant, we merge the snarl's path information with the frequency probabilities from the `freq` file.
+To assess whether a snarl is correctly identified as significant, we merge the snarl’s path information with the frequency probabilities from the `freq` file.
 
-A **correct match** is a snarl that contains **both** start/end node pairs in two **separate paths** (one for each group).
+A **correct match** is a snarl that contains **both** start/end node pairs in **two separate paths** (one for each group).
+
+---
 
 ### Graph Information
+
 * A snarl is considered **true** if it contains a fork where **at least one edge** shows a frequency difference between the two groups.
 * A snarl is considered **positive** if its **P-value is below 0.01**.
+* The **p-value** used for verification in the binary simulation is the **CHI2 p-value**.
+* The size of the dots in the p-value vs. simulated effect graphs is proportional to the number of haplotypes passing through the snarl.
+
+---
 
 ### Binary stoat VCF
 
-```{r binary-vcf}
+```{r binary-vcf, echo=FALSE}
 
 # Execute verification for binary VCF
 binary_output <- run_verify_truth(
@@ -490,22 +393,18 @@ cat(binary_output, sep = "\n")
 df_binary_vcf <- read_stoat(file_list$binary_vcf)
 
 # Plots
-histogram_plot(df=df_binary_vcf, subtitle="Binary [stoat vcf]", "P_FISHER", "P_CHI2", "P_ADJUSTED")
+histogram_plot(df=df_binary_vcf, subtitle="Binary [stoat vcf]", "P_FISHER", "P_CHI2")
 qq_plot(df_binary_vcf, "P_FISHER", subtitle="Binary [stoat vcf]")
 qq_plot(df_binary_vcf, "P_CHI2", subtitle="Binary [stoat vcf]")
 
-manhattan_plot(df_binary_vcf, subtitle="Binary [stoat vcf]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
+#manhattan_plot(df_binary_vcf, subtitle="Binary [stoat vcf]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
 ```
 
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/pvalue_interactive.png")
-```
-
-```{r show-plot-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_false_negative.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_false_positive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_true_negatives.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_fn_tp.png")
+# knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_false_positive.png")
+# knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_true_negatives.png")
 
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_0.01.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_1e-05.png")
@@ -516,7 +415,7 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusi
 
 ### Binary stoat covar VCF
 
-```{r binary-vcf-covar}
+```{r binary-vcf-covar, echo=FALSE}
 
 # Execute verification for binary VCF
 binary_output <- run_verify_truth(
@@ -532,19 +431,20 @@ cat(binary_output, sep = "\n")
 df_binary_covar_vcf <- read_stoat(file_list$binary_covar_vcf)
 
 # Plots
-histogram_plot(df=df_binary_covar_vcf, subtitle="Binary covar [stoat vcf]", "P", "P_ADJUSTED")
+histogram_plot(df=df_binary_covar_vcf, subtitle="Binary covar [stoat vcf]", "P")
 qq_plot(df_binary_covar_vcf, "P", subtitle="Binary covar [stoat vcf]")
 
-manhattan_plot(df_binary_covar_vcf, subtitle="on Binary covar [stoat vcf]", "P", "P_ADJUSTED")
-volcano_plot(df_binary_covar_vcf, subtitle="Binary covar [stoat vcf]")
+#manhattan_plot(df_binary_covar_vcf, subtitle="on Binary covar [stoat vcf]", "P", "P_ADJUSTED")
+#volcano_plot(df_binary_covar_vcf, subtitle="Binary covar [stoat vcf]")
 ```
 
-```{r show-plot-png, echo=FALSE, out.width="100%"}
+The reason why the percentage of paths tested isn’t 100% can be explained by the fact that we filter snarls based on a threshold for the number of haplotypes and the number of samples present in each snarl.
+
+```{r show-plot1-png, echo=FALSE, out.width="100%"}
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/pvalue_interactive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_false_negative.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_false_positive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_true_negatives.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_fn_tp.png")
+# knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_false_positive.png")
+# knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/10^-2_distribution_true_negatives.png")
 
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/confusion_matrix_0.0_0.01.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/confusion_matrix_0.0_1e-05.png")
@@ -555,7 +455,7 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/c
 
 ### Binary stoat GRAPH
 
-```{r binary-graph}
+```{r binary-graph, echo=FALSE}
 binary_output <- run_verify_truth(
   freq_file = file_list$binary_freq,
   pvalue_file = file_list$binary_graph,
@@ -569,33 +469,33 @@ cat(binary_output, sep = "\n")
 df_binary_graph <- read_stoat(file_list$binary_graph)
 
 # Plots
-histogram_plot(df=df_binary_graph, subtitle="Binary [stoat graph]", "P_FISHER", "P_CHI2", "P_ADJUSTED")
+histogram_plot(df=df_binary_graph, subtitle="Binary [stoat graph]", "P_FISHER", "P_CHI2")
 qq_plot(df_binary_graph, "P_FISHER", subtitle="Binary [stoat graph]")
 qq_plot(df_binary_graph, "P_CHI2", subtitle="Binary [stoat graph]")
 
-manhattan_plot(df_binary_graph, subtitle="on Binary [stoat graph]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
+#manhattan_plot(df_binary_graph, subtitle="on Binary [stoat graph]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
 ```
 
-```{r show-plot-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output_pvalue_interactive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_false_negative.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_false_positive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_true_negatives.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/output10^-2_distribution_true_positive.png")
+```{r show-plot2-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/pvalue_interactive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/10^-2_distribution_fn_tp.png")
+#knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/10^-2_distribution_false_positive.png")
+#knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/10^-2_distribution_true_negatives.png")
 
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/binary_scatter_plot_graph.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/binary_histo_plot_graph.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/confusion_matrix_0.0_0.01.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/confusion_matrix_0.0_1e-05.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/confusion_matrix_0.0_1e-08.png")
 ```
 
 ### Compare stoat graph vs stoat vcf binary output
 
-```{r binary-graph}
+```{r binary-graph2, echo=FALSE}
 # Compare each columns by matching SNARL
 # Merge the data frames by SNARL
 merged_df <- merge(df_binary_vcf, df_binary_graph, by = "SNARL", suffixes = c("_df1", "_df2"))
 
 # Get the list of columns to compare (excluding SNARL)
-columns_to_compare <- setdiff(names(df1), "SNARL")
+columns_to_compare <- setdiff(names(df_binary_vcf), "SNARL")
 
 # Initialize a named vector to store number of differing rows per column
 column_diff_counts <- setNames(integer(length(columns_to_compare)), columns_to_compare)
@@ -620,28 +520,15 @@ result <- data.frame(Column = names(column_diff_counts),
 
 # Print result
 print(result)
-
-# SNARLs only in one file
-only_in_df1 <- df_joined %>%
-  filter(!is.na(START_POS_df1) & is.na(START_POS_df2)) %>%
-  select(SNARL)
-
-only_in_df2 <- df_joined %>%
-  filter(is.na(START_POS_df1) & !is.na(START_POS_df2)) %>%
-  select(SNARL)
-
-cat("\n SNARL only in df1:\n")
-print(only_in_df1)
-
-cat("\n SNARL only in df2:\n")
-print(only_in_df2)
 ```
+
+This change can be explained because the stoat graph uses the 'ref' haplotype as the correct haplotype, whereas in the simulation it is not.
 
 ---
 
 ### Quantitative stoat VCF
 
-```{r quantitative-vcf}
+```{r quantitative-vcf, echo=FALSE}
 
 # Execute verification for quantitative VCF
 quantitative_output <- run_verify_truth(
@@ -657,20 +544,19 @@ cat(quantitative_output, sep = "\n")
 df_quantitative_vcf <- read_stoat(file_list$quantitative_vcf)
 
 # ---- Plots ----
-histogram_plot(df=df_quantitative_vcf, subtitle="Quantitative [stoat vcf]", "P", "P_ADJUSTED")
+histogram_plot(df=df_quantitative_vcf, subtitle="Quantitative [stoat vcf]", "P")
 qq_plot(df_quantitative_vcf, "P", subtitle="Quantitative [stoat vcf]")
 
-manhattan_plot(df_quantitative_vcf, subtitle="on Quantitative [stoat vcf]", "P", "P_ADJUSTED")
-volcano_plot(df_quantitative_vcf, subtitle="Quantitative [stoat vcf]")
-rsq_plot(df_quantitative_vcf, subtitle="Quantitative [stoat vcf]")
+#manhattan_plot(df_quantitative_vcf, subtitle="on Quantitative [stoat vcf]", "P", "P_ADJUSTED")
+#volcano_plot(df_quantitative_vcf, subtitle="Quantitative [stoat vcf]")
+#rsq_plot(df_quantitative_vcf, subtitle="Quantitative [stoat vcf]")
 ```
 
-```{r show-plot-png, echo=FALSE, out.width="100%"}
+```{r show-plot3-png, echo=FALSE, out.width="100%"}
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/pvalue_interactive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_false_negative.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_false_positive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_true_negatives.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_fn_tp.png")
+#knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_false_positive.png")
+#knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/10^-2_distribution_true_negatives.png")
 
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/confusion_matrix_0.0_0.01.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/confusion_matrix_0.0_1e-05.png")
@@ -681,7 +567,7 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_output/c
 
 ### Quantitative covar stoat VCF
 
-```{r quantitative-covar-vcf}
+```{r quantitative-covar-vcf, echo=FALSE}
 
 # Execute verification for quantitative VCF
 quantitative_output <- run_verify_truth(
@@ -697,20 +583,19 @@ cat(quantitative_output, sep = "\n")
 df_quantitative_covar_vcf <- read_stoat(file_list$quantitative_covar_vcf)
 
 # ---- Plots ----
-histogram_plot(df=df_quantitative_covar_vcf, subtitle="Quantitative covar [stoat vcf]", "P", "P_ADJUSTED")
+histogram_plot(df=df_quantitative_covar_vcf, subtitle="Quantitative covar [stoat vcf]", "P")
 qq_plot(df_quantitative_covar_vcf, "P", subtitle="Quantitative covar [stoat vcf]")
 
-manhattan_plot(df_quantitative_covar_vcf, subtitle="On Quantitative covar [stoat vcf]", "P", "P_ADJUSTED")
-volcano_plot(df_quantitative_covar_vcf, subtitle="Quantitative covar [stoat vcf]")
-rsq_plot(df_quantitative_covar_vcf, subtitle="Quantitative covar [stoat vcf]")
+#manhattan_plot(df_quantitative_covar_vcf, subtitle="On Quantitative covar [stoat vcf]", "P", "P_ADJUSTED")
+#volcano_plot(df_quantitative_covar_vcf, subtitle="Quantitative covar [stoat vcf]")
+#rsq_plot(df_quantitative_covar_vcf, subtitle="Quantitative covar [stoat vcf]")
 ```
 
-```{r show-plot-png, echo=FALSE, out.width="100%"}
+```{r show-plot4-png, echo=FALSE, out.width="100%"}
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/pvalue_interactive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_false_negative.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_false_positive.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_true_negatives.png")
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_true_positive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_fn_tp.png")
+#knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_false_positive.png")
+#knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/10^-2_distribution_true_negatives.png")
 
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/confusion_matrix_0.0_0.01.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_output/confusion_matrix_0.0_1e-05.png")
@@ -721,30 +606,30 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/quantitative_covar_ou
 
 ### eQTL stoat VCF
 
-```{r eqtl-vcf}
+```{r eqtl-vcf, echo=FALSE}
 df_eqtl_vcf <- read_stoat(file_list$eqtl_vcf)
 
 # ---- Plots ----
-histogram_plot(df=df_eqtl_vcf, subtitle="Eqtl [stoat vcf]", "P", "P_ADJUSTED")
+histogram_plot(df=df_eqtl_vcf, subtitle="Eqtl [stoat vcf]", "P")
 qq_plot(df_eqtl_vcf, "P", subtitle="Eqtl [stoat vcf]")
 
-manhattan_plot(df_eqtl_vcf, subtitle="On Eqtl [stoat vcf]", "P_ADJUSTED", "P")
-volcano_plot(df_eqtl_vcf, subtitle="Eqtl [stoat vcf]")
-rsq_plot(df_eqtl_vcf, subtitle="Eqtl [stoat vcf]")
+#manhattan_plot(df_eqtl_vcf, subtitle="On Eqtl [stoat vcf]", "P_ADJUSTED", "P")
+#volcano_plot(df_eqtl_vcf, subtitle="Eqtl [stoat vcf]")
+#rsq_plot(df_eqtl_vcf, subtitle="Eqtl [stoat vcf]")
 ```
 
 ---
 
 ### eQTL covar stoat VCF
 
-```{r eqtl-covar-vcf}
+```{r eqtl-covar-vcf, echo=FALSE}
 df_eqtl_covar_vcf <- read_stoat(file_list$eqtl_covar_vcf)
 
 # ---- Plots ----
-histogram_plot(df=df_eqtl_covar_vcf, subtitle="Eqtl covar [stoat vcf]", "P", "P_ADJUSTED")
+histogram_plot(df=df_eqtl_covar_vcf, subtitle="Eqtl covar [stoat vcf]", "P")
 qq_plot(df_eqtl_covar_vcf, "P", subtitle="Eqtl covar [stoat vcf]")
 
-manhattan_plot(df_eqtl_covar_vcf, subtitle="with P Eqtl covar [stoat vcf]", "P", "P_ADJUSTED")
-volcano_plot(df_eqtl_covar_vcf, subtitle="Eqtl covar [stoat vcf]")
-rsq_plot(df_eqtl_covar_vcf, subtitle="Eqtl covar [stoat vcf]")
+#manhattan_plot(df_eqtl_covar_vcf, subtitle="with P Eqtl covar [stoat vcf]", "P", "P_ADJUSTED")
+#volcano_plot(df_eqtl_covar_vcf, subtitle="Eqtl covar [stoat vcf]")
+#rsq_plot(df_eqtl_covar_vcf, subtitle="Eqtl covar [stoat vcf]")
 ```

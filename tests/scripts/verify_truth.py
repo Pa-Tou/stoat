@@ -173,32 +173,36 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
     )
 
 def conf_mat_maker(p_val, predicted_labels, true_labels, output):
-        
-    # Calculate confusion matrix for p-value < p_val
-    print(f"\nMetrics for p-value < {p_val}:")
 
-    # Inverse because I want the X axis to be the truth labels and Y axis to be the predicted labels
+    # Inverse because we want X axis = true labels, Y axis = predicted labels
     cm = confusion_matrix(predicted_labels, true_labels)
-    print(f"Confusion Matrix for p-value [P] < {p_val}:\n{cm}")
+        
+    # Calculate metrics
     prec = precision_score(predicted_labels, true_labels)
     recall = recall_score(predicted_labels, true_labels)
     f1 = f1_score(predicted_labels, true_labels)
-    print(f"Precision: {prec:.3f}")
-    print(f"Recall: {recall:.3f}")
-    print(f"F1 Score: {f1:.3f}")
-
-    # Plot confusion matrix for p-value < p_val
-    plt.figure(figsize=(8, 6))
+    
+    # Plot confusion matrix
+    plt.figure(figsize=(8, 8))  # Increase size to make space for text
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
-                xticklabels=['Positive', 'Negative'], 
+                xticklabels=['Positive', 'Negative'],
                 yticklabels=['Positive', 'Negative'],
                 annot_kws={"size": 30})
-    plt.xticks(fontsize=16)  
-    plt.yticks(fontsize=16)  
-    plt.title(f'Confusion Matrix for p-value [P] < {p_val}', fontsize=18)  # Increase title font size
-    plt.xlabel('Truth Labels', fontsize=20)  # Increase x-label font size
-    plt.ylabel('Predicted Labels', fontsize=20)  # Increase y-label font size
+    
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.title(f'Confusion Matrix for p-value [P] < {p_val}', fontsize=18)
+    plt.xlabel('Truth Labels', fontsize=20)
+    plt.ylabel('Predicted Labels', fontsize=20)
+    
+    # Add precision, recall, and F1 below the plot
+    plt.text(2.05, 0.3, f'Precision: {prec:.3f}', fontsize=14)
+    plt.text(2.05, 0.6, f'Recall:    {recall:.3f}', fontsize=14)
+    plt.text(2.05, 0.9, f'F1 Score:  {f1:.3f}', fontsize=14)
+    
+    plt.tight_layout()
     plt.savefig(output + f'_{p_val}.png', format='png', dpi=300)
+    plt.close()
 
 def print_confusion_matrix(predicted_labels_10_2, predicted_labels_10_5, predicted_labels_10_8, true_labels, output):
     
@@ -264,7 +268,7 @@ def p_value_distribution(test_predicted_labels, cleaned_true_labels, list_diff, 
             "Min Sample": True,  # Include Min Sample (size is already shown)
             "Snarl": True,  # Include Snarl name 
         },
-        title="Distribution of P-Values for FP, FN & TP [P] with threshold Positive > 0% difference",
+        title="Distribution of P-Values for FP, FN & TP with threshold Positive",
         labels={"P-Value": "P-Value", "Difference": "Simulated Effect (Difference in Probabilities)"},
         size_max=25
     )
@@ -296,21 +300,6 @@ def plot_diff_distribution(test_predicted_labels:list, cleaned_true_labels:list,
     # Predict label 0 : pvalue significative
     # Predict label 1 : No pvalue significative
 
-    # ----------------------------- True Positive -----------------------------
-    true_positive_indices= [
-        i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
-        if pred == 0 and true == 0]
-
-    true_positive_diffs = [clean_list_diff[i]*100 for i in true_positive_indices]
-
-    plt.figure(figsize=(10, 6))
-    sns.histplot(true_positive_diffs, bins=20, kde=True, color='blue')
-    plt.title("Distribution of Differences for True Positive [P]", fontsize=16)
-    plt.xlabel("Difference (%)", fontsize=14)
-    plt.ylabel("Frequency", fontsize=14)
-    plt.grid(False)
-    plt.savefig(f"{output}/{pvalue}_distribution_true_positive.png", format='png', dpi=300)
-
     # ----------------------------- False Positive -----------------------------
     false_positive_indices = [
         i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
@@ -326,20 +315,33 @@ def plot_diff_distribution(test_predicted_labels:list, cleaned_true_labels:list,
     plt.grid(False)
     plt.savefig(f"{output}/{pvalue}_distribution_false_positive.png", format='png', dpi=300)
 
-    # ----------------------------- False Negative -----------------------------
+    # ----------------------------- FN & TP -----------------------------
+
+    true_positive_indices = [
+        i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
+        if pred == 0 and true == 0
+    ]
     false_negative_indices = [
         i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
-        if pred == 1 and true == 0]
+        if pred == 1 and true == 0
+    ]
 
-    false_negative_diffs = [clean_list_diff[i]*100 for i in false_negative_indices]
+    true_positive_diffs = [clean_list_diff[i] * 100 for i in true_positive_indices]
+    false_negative_diffs = [clean_list_diff[i] * 100 for i in false_negative_indices]
 
     plt.figure(figsize=(10, 6))
-    sns.histplot(false_negative_diffs, bins=20, kde=True, color='blue')
-    plt.title("Distribution of Differences for False Negative [P]", fontsize=16)
+
+    sns.histplot(true_positive_diffs, bins=20, kde=True, color='blue', label='True Positives [P]', stat='density', alpha=0.6)
+    sns.histplot(false_negative_diffs, bins=20, kde=True, color='red', label='False Negatives [P]', stat='density', alpha=0.6)
+
+    plt.title("Distribution of Differences for True Positives and False Negatives [P]", fontsize=16)
     plt.xlabel("Difference (%)", fontsize=14)
-    plt.ylabel("Frequency", fontsize=14)
+    plt.ylabel("Density", fontsize=14)
+    plt.legend()
     plt.grid(False)
-    plt.savefig(f"{output}/{pvalue}_distribution_false_negative.png", format='png', dpi=300)
+    plt.tight_layout()
+    plt.savefig(f"{output}/{pvalue}_distribution_fn_tp.png", format='png', dpi=300)
+    plt.close()
 
     # ----------------------------- True Negative -----------------------------
     true_negative_indices = [
@@ -378,9 +380,6 @@ if __name__ == "__main__":
     output_dir = args.output
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-        print(f"Created output directory: {output_dir}")
-    else:
-        print(f"Output directory already exists: {output_dir}")
 
     if args.binary:
         type_ = 'binary'
@@ -398,7 +397,6 @@ if __name__ == "__main__":
     
     save_sv_snarl = parse_sv_rows(args.p_value) if args.sv else None
     freq_test_path_list, test_true_labels, test_list_diff = process_file(args.freq, THRESHOLD_FREQ)
-    test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name = match_snarl(freq_test_path_list, test_true_labels, test_list_diff, args.p_value, args.paths, save_sv_snarl, type_)
     test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name = match_snarl(freq_test_path_list, test_true_labels, test_list_diff, args.p_value, args.paths, save_sv_snarl, type_)
     print_confusion_matrix(test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, f"{output_dir}/confusion_matrix_{THRESHOLD_FREQ}")
     assert len(cleaned_true_labels) == len(clean_list_diff)
