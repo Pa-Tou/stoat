@@ -1,5 +1,4 @@
 // [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppGSL)]]
 // [[Rcpp::plugins(cpp14)]]
 
 #define EIGEN_DONT_VECTORIZE
@@ -15,13 +14,10 @@
 #include <iostream>
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include <RcppGSL.h>
 #include <boost/math/distributions/students_t.hpp>
 
 #include "Eigen/Cholesky"
 #include "Eigen/Core"
-#include "gsl/gsl_cdf.h"
-#include <gsl/gsl_cdf.h>
 
 #define DECLARE_EIGEN_VECTOR(v, v_e) Eigen::Map<Eigen::VectorXd> v_e((v).data.data(), (v).data.size())
 #define DECLARE_EIGEN_CONST_VECTOR(v, v_e) Eigen::Map<const Eigen::VectorXd> v_e((v).data.data(), (v).data.size())
@@ -270,13 +266,13 @@ Vector& LinearRegression::GetAsyPvalue() {
     double se = sqrt(covB(i, i));
     double t_stat = B[i] / se;
 
-    // // 2 tail students_t test stats
-    // boost::math::students_t t_dist(df_res);
-    // pValue[i] = 2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stat)));
+    // 2 tail students_t test stats
+    boost::math::students_t t_dist(df_res);
+    pValue[i] = 2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stat)));
 
     // 1 tail chi2 test stats
-    double Zstat = t_stat * t_stat;
-    pValue[i] = gsl_cdf_chisq_Q(Zstat, 1.0); // why degree of freedom = 1.0 ?
+    //double Zstat = t_stat * t_stat;
+    //pValue[i] = gsl_cdf_chisq_Q(Zstat, 1.0); // why degree of freedom = 1.0 ?
   }
   return pValue;
 }
