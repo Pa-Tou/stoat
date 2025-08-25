@@ -13,12 +13,12 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
     #endif
 
     //Get the partition of paths, depending on if the snarl is simple or not
-    std::vector<std::set<stoat::sample_hap_t>> sample_sets = distance_index.is_regular_snarl(snarl) 
+    std::vector<std::set<stoat::sample_hap_t>> sample_sets = distance_index.is_regular_snarl(snarl, &graph) 
                                                                 ? get_start_edge_sets(graph, distance_index, snarl)
                                                                 : get_walk_sets(graph, distance_index, snarl);
 
     #ifdef DEBUG_PATH_PARTITIONER
-        cerr << "Found sets of paths using " << ( distance_index.is_regular_snarl(snarl) ? "edges from the start node" : "walk sets") << endl;
+        cerr << "Found sets of paths using " << ( distance_index.is_regular_snarl(snarl, &graph) ? "edges from the start node" : "walk sets") << endl;
         for (const std::set<stoat::sample_hap_t>& sample_set : sample_sets) {
             cerr << "SET "<< endl;
             for (const stoat::sample_hap_t& sample : sample_set) {
