@@ -343,13 +343,12 @@ std::vector<std::string> calcul_pos_type_variant(const std::vector<std::tuple<si
     return list_type_variant;
 }
 
-std::tuple<std::unique_ptr<bdsg::SnarlDistanceIndex>, 
-    std::unique_ptr<bdsg::PackedGraph>, 
+std::tuple<bdsg::SnarlDistanceIndex*, 
+    handlegraph::PathHandleGraph*, 
     handlegraph::net_handle_t,
-    std::unique_ptr<handlegraph::PathHandleGraph>,
-    std::unique_ptr<bdsg::PackedPositionOverlay>> 
+    bdsg::PositionOverlay*>
     parse_graph_tree(
-        const std::string& pg_file, 
+        const std::string& graph_file, 
         const std::string& dist_file) {
 
     // Tell the IO library about libvg types.
@@ -357,32 +356,26 @@ std::tuple<std::unique_ptr<bdsg::SnarlDistanceIndex>,
         stoat::LOG_FATAL("error[stoat vgio]: Could not register libvg types with libvgio");
     }
 
-    // Load graph
-    auto pg = std::make_unique<bdsg::PackedGraph>();
-    pg->deserialize(pg_file);
+    // Load the graph and make it a PathPositionHandleGraph
+    unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_file);
 
-    // Load snarl tree
-    auto stree = std::make_unique<bdsg::SnarlDistanceIndex>();
-    stree->deserialize(dist_file);
+    // Load the distance index
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize(dist_file);
 
-    //bdsg::PackedPositionOverlay takes a pointer to pg
-    auto pp_overlay = std::make_unique<bdsg::PackedPositionOverlay>(pg.get());
-    
-    unique_ptr<handlegraph::PathHandleGraph> path_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(pg_file);
-    // bdsg::PathPositionOverlayHelper overlay_helper;
-    // bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get());
+    bdsg::PositionOverlay position_overlay(graph.get());
 
     // Get root of snarl tree
-    handlegraph::net_handle_t root = stree->get_root();
+    handlegraph::net_handle_t root = distance_index.get_root();
 
-    return std::make_tuple(std::move(stree), std::move(pg), root, std::move(path_graph), std::move(pp_overlay));
+    return std::make_tuple(distance_index, graph, root, position_overlay);
 }
 
 void follow_edges(bdsg::SnarlDistanceIndex& stree,
                 std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths,
                 const std::vector<handlegraph::net_handle_t>& path,
                 std::vector<std::vector<handlegraph::net_handle_t>>& paths,
-                bdsg::PackedGraph& pg,
+                bdsg::PackedGraph& graph,
                 const bool& cycle) {
 
     auto add_to_path = [&](const handlegraph::net_handle_t& next_child) {
@@ -409,7 +402,7 @@ void follow_edges(bdsg::SnarlDistanceIndex& stree,
 
     // Follow edges from the last element in path
     if (!path.empty()) {
-        stree.follow_net_edges(path.back(), &pg, false, add_to_path);
+        stree.follow_net_edges(path.back(), &graph, false, add_to_path);
     }
 }
 
@@ -417,7 +410,7 @@ std::vector<std::tuple<handlegraph::net_handle_t,
     std::string, size_t, size_t, bool>> save_snarls(
         bdsg::SnarlDistanceIndex& stree, 
         handlegraph::net_handle_t& root,
-        bdsg::PackedGraph& pg, 
+        bdsg::PackedGraph& graph, 
         std::unordered_set<std::string>& ref_chr,
         bdsg::PackedPositionOverlay& ppo) {
 
@@ -427,21 +420,21 @@ std::vector<std::tuple<handlegraph::net_handle_t,
 
     // Given a node handle (dist index), return a position if on chr reference path
     auto get_node_position = [&](handlegraph::net_handle_t node) -> std::tuple<std::string, size_t, size_t> { // node : handlegraph::net_handle_t
-        handlegraph::handle_t node_h = stree.get_handle(node, &pg);
+        handlegraph::handle_t node_h = stree.get_handle(node, &graph);
 
         // path_name, position
         std::tuple<std::string, size_t, size_t> ret_pos;
 
         auto step_callback = [&](const handlegraph::step_handle_t& step_handle) {
-            const auto path_handle = pg.get_path_handle_of_step(step_handle);
+            const auto path_handle = graph.get_path_handle_of_step(step_handle);
 
             // Determine if this path is a candidate (reference or in ref_chr)
             bool is_candidate = get_ref
-                ? (pg.get_sense(path_handle) == handlegraph::PathSense::REFERENCE)
-                : (ref_chr.count(pg.get_path_name(path_handle)) > 0);
+                ? (graph.get_sense(path_handle) == handlegraph::PathSense::REFERENCE)
+                : (ref_chr.count(graph.get_path_name(path_handle)) > 0);
 
             if (is_candidate) {
-                const std::string& chr_path = pg.get_path_name(path_handle);
+                const std::string& chr_path = graph.get_path_name(path_handle);
                 const size_t pos = ppo.get_position_of_step(step_handle);
 
                 std::get<0>(ret_pos) = chr_path;
@@ -454,7 +447,7 @@ std::vector<std::tuple<handlegraph::net_handle_t,
             return true; // Continue iteration
         };
 
-        pg.for_each_step_on_handle(node_h, step_callback);
+        graph.for_each_step_on_handle(node_h, step_callback);
         return ret_pos;
     };
 
@@ -532,7 +525,7 @@ std::vector<std::tuple<handlegraph::net_handle_t,
 
 std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_pretty_paths(
     bdsg::SnarlDistanceIndex& stree, 
-    bdsg::PackedGraph& pg, 
+    bdsg::PackedGraph& graph, 
     std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths) {
 
     // list of paths
@@ -560,8 +553,8 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
             if (stree.is_node(net)) {
                 bool rev = ppath.addNodeHandle(net, stree);
                 handlegraph::nid_t node_start_id = stree.node_id(net);
-                handlegraph::handle_t node_handle = pg.get_handle(node_start_id);
-                size_node[i] = pg.get_length(node_handle);
+                handlegraph::handle_t node_handle = graph.get_handle(node_start_id);
+                size_node[i] = graph.get_length(node_handle);
             }
 
             // Trivial chain case
@@ -569,8 +562,8 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                 bool rev = ppath.addNodeHandle(net, stree);
                 auto stn_start = stree.starts_at_start(net) ? stree.get_bound(net, false, true) : stree.get_bound(net, true, true);
                 handlegraph::nid_t node_start_id = stree.node_id(stn_start);
-                handlegraph::handle_t net_trivial_chain = pg.get_handle(node_start_id);
-                size_node[i] = pg.get_length(net_trivial_chain);
+                handlegraph::handle_t net_trivial_chain = graph.get_handle(node_start_id);
+                size_node[i] = graph.get_length(net_trivial_chain);
             }
 
             // Chain case (can be nested snarl or just chain nodes)
@@ -596,7 +589,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                         chain_2node = false;
                         return false; // stop early
                     } else {
-                        sum_node += pg.get_length(pg.get_handle(stree.node_id(child)));
+                        sum_node += graph.get_length(graph.get_handle(stree.node_id(child)));
                     }
                     return true;
                 });
@@ -644,7 +637,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
 std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_write(
     bdsg::SnarlDistanceIndex& stree,
     std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>& snarls,
-    bdsg::PackedGraph& pg,
+    bdsg::PackedGraph& graph,
     const std::string& output_file,
     const std::string& output_snarl_not_analyse,
     const size_t& children_threshold,
@@ -717,12 +710,12 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
                 break;
             }
 
-            follow_edges(stree, finished_paths, path, paths, pg, cycle);
+            follow_edges(stree, finished_paths, path, paths, graph, cycle);
         }
 
         if (break_snarl) {continue;}
 
-        auto [pretty_paths, type_variants] = fill_pretty_paths(stree, pg, finished_paths);
+        auto [pretty_paths, type_variants] = fill_pretty_paths(stree, graph, finished_paths);
         
         if (pretty_paths.size() < 2) {
             snarl_fail++;

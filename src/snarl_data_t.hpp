@@ -18,9 +18,8 @@
 #include <utility>
 
 #include <bdsg/hash_graph.hpp>
-#include <bdsg/packed_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
-#include <bdsg/overlays/packed_path_position_overlay.hpp>
+#include <bdsg/overlays/path_position_overlays.hpp>
 #include <handlegraph/handle_graph.hpp>
 #include <handlegraph/path_handle_graph.hpp>
 #include <bdsg/overlays/overlay_helper.hpp>
@@ -158,12 +157,11 @@ void write_snarl_data_output(std::ostream& outstream);
 void write_snarl_data_fail(std::ostream& outstream);
 
 // Load the distance index and graph and return unique_ptrs to them
-std::tuple<std::unique_ptr<bdsg::SnarlDistanceIndex>, 
-           std::unique_ptr<bdsg::PackedGraph>, 
-           handlegraph::net_handle_t, 
-           std::unique_ptr<handlegraph::PathHandleGraph>,
-           std::unique_ptr<bdsg::PackedPositionOverlay>>
-parse_graph_tree(const std::string& pg_file, const std::string& dist_file);
+std::tuple<bdsg::SnarlDistanceIndex, 
+    unique_ptr<bdsg::PathHandleGraph>, 
+    handlegraph::net_handle_t,
+    bdsg::PositionOverlay>
+parse_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
 // Function to calculate the type of variant
 // Given a vector of <size node 2, min length of the snarl, max length of the snarl, path length, sum_path, is_complex)
