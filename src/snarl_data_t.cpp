@@ -344,10 +344,10 @@ std::vector<std::string> calcul_pos_type_variant(const std::vector<std::tuple<si
 }
 
 std::tuple<
-    bdsg::SnarlDistanceIndex, 
-    unique_ptr<handlegraph::PathHandleGraph>, 
+    unique_ptr<bdsg::SnarlDistanceIndex>,
+    unique_ptr<handlegraph::PathHandleGraph>,
     handlegraph::net_handle_t,
-    bdsg::PositionOverlay>
+    unique_ptr<bdsg::PositionOverlay>>
     parse_graph_tree(
         const std::string& graph_file, 
         const std::string& dist_file) {
@@ -361,15 +361,20 @@ std::tuple<
     unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_file);
 
     // Load the distance index
-    bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize(dist_file);
+    unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
+    distance_index->deserialize(dist_file);
 
-    bdsg::PositionOverlay position_overlay(graph.get());
+    unique_ptr<bdsg::PositionOverlay> position_overlay = std::make_unique<bdsg::PositionOverlay>(graph.get());
 
     // Get root of snarl tree
-    handlegraph::net_handle_t root = distance_index.get_root();
+    handlegraph::net_handle_t root = distance_index->get_root();
 
-    return std::make_tuple(distance_index, graph, root, position_overlay);
+    return std::make_tuple(
+        std::move(distance_index),
+        std::move(graph),
+        root,
+        std::move(position_overlay)
+    );
 }
 
 void follow_edges(

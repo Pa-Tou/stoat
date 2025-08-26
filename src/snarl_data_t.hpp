@@ -158,10 +158,10 @@ void write_snarl_data_fail(std::ostream& outstream);
 
 // Load the distance index and graph and return unique_ptrs to them
 std::tuple<
-    bdsg::SnarlDistanceIndex, 
-    unique_ptr<handlegraph::PathHandleGraph>, 
+    unique_ptr<bdsg::SnarlDistanceIndex>,
+    unique_ptr<handlegraph::PathHandleGraph>,
     handlegraph::net_handle_t,
-    bdsg::PositionOverlay>
+    unique_ptr<bdsg::PositionOverlay>>
 parse_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
 // Function to calculate the type of variant

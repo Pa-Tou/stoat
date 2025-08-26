@@ -88,13 +88,13 @@ std::vector<size_t> decompose_snarl(const std::string& snarl) {
     return snarl_node;
 }
 
-int calcul_path_length(bdsg::PackedGraph& pg, const std::string& snarl) {
+int calcul_path_length(handlegraph::PathHandleGraph& graph, const std::string& snarl) {
     std::vector<size_t> snarl_nodes = decompose_snarl(snarl);
     int length_node = 0;
 
     for (size_t node : snarl_nodes) {
-        handlegraph::handle_t handle = pg.get_handle(node);
-        length_node += pg.get_length(handle);
+        handlegraph::handle_t handle = graph.get_handle(node);
+        length_node += graph.get_length(handle);
     }
     return length_node;
 }
@@ -107,7 +107,7 @@ void write_gaf_lines(const std::string& sequence_name, const std::string& path, 
 // Parses the input file and processes data into two output files
 void gaf_creation(const std::string& input_file, 
     std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& snarl_chr,
-    bdsg::PackedGraph& pg, 
+    handlegraph::PathHandleGraph& graph, 
     const std::string& output_file) {
 
     std::string output_file_1 = add_suffix_to_filename(output_file, "_0");
@@ -170,8 +170,8 @@ void gaf_creation(const std::string& input_file,
                 std::string star_path_1 = path.substr(0, star_pos - 1);
                 std::string star_path_2 = path.substr(star_pos + 1);
 
-                int len1 = calcul_path_length(pg, star_path_1);
-                int len2 = calcul_path_length(pg, star_path_2);
+                int len1 = calcul_path_length(graph, star_path_1);
+                int len2 = calcul_path_length(graph, star_path_2);
                 auto [prop_g0, prop_g1] = calcul_proportion_signi(stoi(group_0[idx]), stoi(group_1[idx]), pfisher);
 
                 // Write lines for start_path_1
@@ -183,7 +183,7 @@ void gaf_creation(const std::string& input_file,
                 write_gaf_lines(sequence_name_g1[idx], star_path_2, len2, prop_g1, outfile2);
             } else {
                 // Case where "*" is NOT in path
-                int len = calcul_path_length(pg, path);
+                int len = calcul_path_length(graph, path);
                 auto [prop_g0, prop_g1] = calcul_proportion_signi(stoi(group_0[idx]), stoi(group_1[idx]), pfisher);
                 write_gaf_lines(sequence_name_g0[idx], path, len, prop_g0, outfile1);
                 write_gaf_lines(sequence_name_g1[idx], path, len, prop_g1, outfile2);

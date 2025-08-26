@@ -310,10 +310,10 @@ int main_stoat(int argc, char* argv[]) {
     // scope declaration
     // chr : <snarl, paths, pos(start, end), type>
     std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> snarls_chr;
-    bdsg::SnarlDistanceIndex distance_index;
+    unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
     unique_ptr<handlegraph::PathHandleGraph> graph;
     handlegraph::net_handle_t root;
-    bdsg::PositionOverlay p_overlay;
+    unique_ptr<bdsg::PositionOverlay> p_overlay;
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
         stoat::LOG_TRACE("Parsing snarl path file");
@@ -336,13 +336,13 @@ int main_stoat(int argc, char* argv[]) {
 
         // std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>
         // snarl_net_grah, chr_ref, start_pos, end_pos, is_on_ref
-        auto snarls = stoat::save_snarls(distance_index, root, *graph, ref_chr, p_overlay);
+        auto snarls = stoat::save_snarls(*distance_index, root, *graph, ref_chr, *p_overlay);
 
         std::string output_snarl_not_analyse = output_dir + "/snarl_not_analyse.tsv";
         std::string output_file = output_dir + "/snarl_analyse.tsv";
 
         // Go through snarls and fill in snarls_chr 
-        snarls_chr = stoat::loop_over_snarls_write(distance_index, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, cycle_threshold);
+        snarls_chr = stoat::loop_over_snarls_write(*distance_index, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, cycle_threshold);
         auto end_0 = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl time decomposition : " + std::to_string(std::chrono::duration<double>(end_0 - start_0).count()) + " s");
 
