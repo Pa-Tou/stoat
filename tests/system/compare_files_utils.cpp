@@ -22,7 +22,6 @@ using namespace std;
 void clean_output_dir(const std::string& output_dir) {
     if (fs::exists(output_dir))
         fs::remove_all(output_dir);
-    fs::create_directory(output_dir);
 }
 
 std::tuple<int, int> parse_header_eqtl(

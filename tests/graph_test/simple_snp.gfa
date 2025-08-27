@@ -1,0 +1,15 @@
+H	VN:Z:1.0
+S	1	TTTT
+S	2	AAAA
+S	3	C
+S	4	G
+S	5	AAAA
+S	6	TTTT
+L	1	+	2	+	0M
+L	2	+	3	+	0M
+L	2	+	4	+	0M
+L	3	+	5	+	0M
+L	4	+	5	+	0M
+L	5	+	6	+	0M
+P	ref	1+,2+,3+,5+,6+	*
+P	alt	1+,2+,4+,5+,6+	*

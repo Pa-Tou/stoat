@@ -357,11 +357,12 @@ std::tuple<
         stoat::LOG_FATAL("error[stoat vgio]: Could not register libvg types with libvgio");
     }
 
+
     // Load the graph and make it a PathPositionHandleGraph
     unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_file);
 
     // Load the distance index
-    unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
+    unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
     distance_index->deserialize(dist_file);
 
     unique_ptr<bdsg::PositionOverlay> position_overlay = std::make_unique<bdsg::PositionOverlay>(graph.get());

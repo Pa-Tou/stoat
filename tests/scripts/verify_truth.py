@@ -151,7 +151,6 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
                         p_val = matched['P']
                         group_paths = matched.get('ALLELE_PATHS', '')
                         allele_num = [int(x) for x in group_paths.split(',')]
-                        allele_num = [allele_num[0] + allele_num[2], allele_num[1] + allele_num[3]]
                     else:
                         raise ValueError("type_ must be 'binary' or 'quantitative'")
 

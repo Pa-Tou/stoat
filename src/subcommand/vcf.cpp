@@ -325,6 +325,8 @@ int main_stoat(int argc, char* argv[]) {
 
         // Load the snarl tree and graph
         std::tie(distance_index, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
+        // Program received signal SIGSEGV, Segmentation fault.
+        // 0x00005555555cafe1 in stoat::parse_graph_tree(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
 
         // Check if chr present in chr file is present in the graph
         for (const auto& chr : ref_chr) {

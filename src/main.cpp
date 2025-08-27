@@ -28,7 +28,7 @@
 #include "subcommand/bh_correct.hpp"
 
 // Global variable
-const std::string VERSION = "v0.0.2";
+const std::string VERSION = "v0.0.3";
 
 void print_help() {
     std::cerr   << "stoat: gwas analysis tool, version " << VERSION << "\n"
@@ -83,6 +83,9 @@ int main(int argc, char* argv[]) {
 
 // -------------------------------------------------------------- VCF --------------------------------------------------------------
 
+// SNARL
+// ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --output ../output_snarl
+
 // BINARY
 // ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output_binary
 
@@ -99,7 +102,7 @@ int main(int argc, char* argv[]) {
 // ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --output ../output_eqtl
 
 // EQTL + COVARIATE
-// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --covariate ../data/eqtl/covariate.tsv --covar-name SEX,PC1,PC2,PC3 --output ../output_eqtl_covar
+// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --covariate ../data/eqtl/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_eqtl_covar
 
 // SIMU TEST
 // ./stoat vcf -p ../tests/graph_test/3th_snp.pg -d ../tests/graph_test/3th_snp.dist --output ../output
@@ -121,10 +124,12 @@ int main(int argc, char* argv[]) {
 // BINARY
 // ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -T chi2 -r ref -S ../data/binary/samples.g0.tsv -o ../output_binary_graph
 
-// -------------------------------------------------------------- OTHER --------------------------------------------------------------
+// -------------------------------------------------------------- DECONSTRUCT --------------------------------------------------------------
 
 // BINARY DECONSTRUCT
 // ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/pg.full.deconstruct.change2.vcf -b ../data/binary/phenotype.tsv --output ../output_binary_deconstruct
+
+// -------------------------------------------------------------- OTHER --------------------------------------------------------------
 
 // PLINK
 // plink --vcf ../data/simu/merged_output.vcf.gz --make-bed --allow-extra-chr --out ../output/genotype
@@ -135,6 +140,12 @@ int main(int argc, char* argv[]) {
 // ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist --output ../output_droso_2
 // ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging.vcf -q ../../lab/droso/data/pangenome_pheno.tsv --output ../output_droso
 
+// -------------------------------------------------------------- DEBUG --------------------------------------------------------------
+
 // VALGRIND
 // valgrind --tool=callgrind ./stoat -s ../data/binary/snarl_paths.tsv -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output
 // kcachegrind callgrind.out.<id>
+
+// GDB
+// gdb --args ./stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output_binary
+// (gdb) run

@@ -40,6 +40,42 @@ def create_simple_snp_graph(filename="simple_snp.hg"):
     vg_view(filename, 6)
     print("simple snp graph created")
 
+def create_simple_snp_gfa(filename="simple_snp.gfa"):
+    gfa_graph = {
+        "nodes": ["TTTT", "AAAA", "C", "G", "AAAA", "TTTT"],
+        "edges": [
+            (0, 1),
+            (1, 2),
+            (1, 3),
+            (2, 4),
+            (3, 4),
+            (4, 5)
+        ],
+        "paths": {
+            "ref": [0, 1, 2, 4, 5],
+            "alt": [0, 1, 3, 4, 5]
+        }
+    }
+
+    with open(filename, "w") as f:
+        # Write header
+        f.write("H\tVN:Z:1.0\n")
+
+        # Write S lines
+        for i, seq in enumerate(gfa_graph["nodes"]):
+            f.write(f"S\t{i+1}\t{seq}\n")
+
+        # Write L lines (0M overlaps, always forward orientation)
+        for from_idx, to_idx in gfa_graph["edges"]:
+            f.write(f"L\t{from_idx+1}\t+\t{to_idx+1}\t+\t0M\n")
+
+        # Write P lines
+        for path_name, node_list in gfa_graph["paths"].items():
+            steps = ",".join(f"{i+1}+" for i in node_list)
+            f.write(f"P\t{path_name}\t{steps}\t*\n")
+
+    print("simple snp gfa created")
+
 def create_3th_snp_graph(filename="3th_snp.hg"):
     gr = HashGraph()
     seqs = ["TTTT", "AAAA", "C", "T", "G", "AAAA", "TTTT"]
@@ -559,6 +595,8 @@ if __name__ == "__main__":
         return os.path.join(args.output, name)
 
     # Call desired graph creation functions using wrap_filename()
+    # Run this to create the file
+    create_simple_snp_gfa(wrap_filename("simple_snp.gfa"))
     create_simple_snp_graph(wrap_filename("simple_snp.hg"))
     create_3th_snp_graph(wrap_filename("3th_snp.hg"))
     create_insert_snp_graph(wrap_filename("insert_snp.hg"))

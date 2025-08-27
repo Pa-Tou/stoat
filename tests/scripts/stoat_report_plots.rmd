@@ -71,8 +71,6 @@ It containt 2 modes :
   * Fix bug finding offsets of nodes in paths (probably `vg` bug).
   * Make input samples file match Stoat VCF.
 
----
-
 ```{r stoat-rep-png, echo=FALSE, out.width="100%"}
 # knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/stoat_representation.png")
 ```
@@ -491,7 +489,7 @@ qq_plot(df_binary_vcf_deconstruct, "P_CHI2", subtitle="Binary [stoat vcf]")
 #manhattan_plot(df_binary_vcf_deconstruct, subtitle="Binary [stoat vcf]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
 ```
 
-```{r show-plot-png, echo=FALSE, out.width="100%"}
+```{r show-plot-png-deconstruct, echo=FALSE, out.width="100%"}
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/pvalue_interactive.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/10^-2_distribution_fn_tp.png")
 # knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/10^-2_distribution_false_positive.png")
@@ -578,6 +576,8 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/c
 
 ### Compare stoat graph vs stoat vcf binary output
 
+Here we compare stoat vcf and stoat graph output for binary simulation by comparing each columns by matching SNARL.
+If a column is different we count the number of different rows per column.
 ```{r binary-compare, echo=FALSE}
 # Compare each columns by matching SNARL
 # Merge the data frames by SNARL
@@ -611,7 +611,7 @@ result <- data.frame(Column = names(column_diff_counts),
 print(result)
 ```
 
-This change can be explained because the stoat vcf used VCF file computed with vg variant calling that can create bad results and stoat graph use the 'ref' haplotype as the correct haplotype, whereas in the simulation it is not.
+This change can be explained because the stoat vcf used VCF file computed with vg variant calling that can create bad results and stoat graph use the 'ref' haplotype as the correct haplotype, whereas in the simulation it is not. To test this theory we run stoat vcf with a deconstructed vcf (using vg deconstruct on the pangenome binary graph).
 
 ```{r binary-compare2, echo=FALSE}
 # Compare each columns by matching SNARL
