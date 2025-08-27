@@ -71,8 +71,9 @@ void AssociationFinder::test_snarls() const {
                 if (check_distances) {
                     ss << distance_index.minimum_length(snarl) << "," << distance_index.maximum_length(snarl);
                 } else {
-                    ss << "NA";
+                    ss << "NA,NA";
                 }
+
                 string path_lengths = ss.str();
 
                 // Each set represents a partition of samples that takes the same path through the snarl's netgraph

@@ -137,7 +137,6 @@ int main(int argc, char* argv[]) {
 
 // DROSO
 // ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv --output ../output_droso
-// ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist --output ../output_droso_2
 // ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging.vcf -q ../../lab/droso/data/pangenome_pheno.tsv --output ../output_droso
 
 // -------------------------------------------------------------- DEBUG --------------------------------------------------------------
