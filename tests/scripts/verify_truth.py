@@ -143,12 +143,15 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
                     if type_ == 'binary':
                         p_val = matched['P_CHI2']
                         group_paths = matched.get('GROUP_PATHS', '')
-                        allele_num = sum(
-                            int(part.split(':')[1]) for part in group_paths.split(',') if ':' in part) if group_paths else 200
+                        allele_num = [
+                            sum(int(part.split(':')[0]) for part in group_paths.split(',')),
+                            sum(int(part.split(':')[1]) for part in group_paths.split(','))
+                        ]
                     elif type_ == 'quantitative' or type_ == 'binary_covar' :
                         p_val = matched['P']
                         group_paths = matched.get('ALLELE_PATHS', '')
-                        allele_num = sum(int(x) for x in group_paths.split(',')) if group_paths else 200
+                        allele_num = [int(x) for x in group_paths.split(',')]
+                        allele_num = [allele_num[0] + allele_num[2], allele_num[1] + allele_num[3]]
                     else:
                         raise ValueError("type_ must be 'binary' or 'quantitative'")
 
@@ -230,17 +233,17 @@ def p_value_distribution(test_predicted_labels, cleaned_true_labels, list_diff, 
 
     diff_false_positive = [list_diff[i] for i in false_positive_indices]
     pvalue_false_positive = [p_value[i] for i in false_positive_indices]
-    minsample_false_positive = [num_sample[i] for i in false_positive_indices]
+    minsample_false_positive = [min(num_sample[i]) for i in false_positive_indices] # make the sum of min sampel 
     snarl_name_false_positive = [snarl_name[i] for i in false_positive_indices]
 
     diff_true_positives = [list_diff[i] for i in true_positive_indices]
     pvalue_true_positives = [p_value[i] for i in true_positive_indices]
-    minsample_true_positives = [num_sample[i] for i in true_positive_indices]
+    minsample_true_positives = [min(num_sample[i]) for i in true_positive_indices]
     snarl_name_true_positives = [snarl_name[i] for i in true_positive_indices]
 
     diff_false_negative = [list_diff[i] for i in false_negative_indices]
     pvalue_false_negative = [p_value[i] for i in false_negative_indices]
-    minsample_false_negative = [num_sample[i] for i in false_negative_indices]
+    minsample_false_negative = [min(num_sample[i]) for i in false_negative_indices]
     snarl_name_false_negative = [snarl_name[i] for i in false_negative_indices]
 
     # Create a DataFrame for easy plotting
@@ -282,6 +285,16 @@ def p_value_distribution(test_predicted_labels, cleaned_true_labels, list_diff, 
         yaxis_title_font=dict(size=15),  # Increase font size for y-axis title
         xaxis=dict(tickfont=dict(size=15)),  # Increase font size for x-axis ticks
         yaxis=dict(tickfont=dict(size=15)),  # Increase font size for y-axis ticks
+    )
+
+    # Add annotation to explain the size meaning
+    fig.add_annotation(
+        text="• Circle size represents Min sum of haplotype per group",
+        xref="paper", yref="paper",
+        x=1.02, y=1,  # Adjust the x/y to position near the legend
+        showarrow=False,
+        align="left",
+        font=dict(size=13),
     )
 
     # Show the interactive plot
@@ -415,11 +428,11 @@ if __name__ == "__main__":
     --p_value output/quantitative_table_covar_vcf.tsv --paths output/snarl_analyse.tsv -q --output tests/scripts/quantitative_covar_output
 
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output/binary_table_vcf.tsv --paths output/binary_snarl_analyse.tsv -b --output tests/scripts/binary_output
+    --p_value output_binary/binary_table_vcf.tsv --paths output_binary/snarl_analyse.tsv -b --output tests/scripts/binary_output
 
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output/binary_table_covar_vcf.tsv --paths output/binary_snarl_analyse.tsv -q --output tests/scripts/binary_covar_output
+    --p_value output_binary_covar/binary_table_vcf.tsv --paths output_binary/snarl_analyse.tsv -q --output tests/scripts/binary_covar_output
     
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output_binary_graph/binary_table_graph.tsv --paths output_binary/snarl_analyse.tsv -q --output tests/scripts/quantitative_output
+    --p_value output_binary_graph/binary_table_graph.tsv --paths output_binary/snarl_analyse.tsv -b --output tests/scripts/binary_graph_output
     """

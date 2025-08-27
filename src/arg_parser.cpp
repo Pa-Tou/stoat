@@ -186,7 +186,7 @@ template <typename T>
 void check_match_samples(const std::unordered_map<std::string, T>& map, const std::vector<std::string>& keys) {
     for (const auto& key : keys) {
         if (map.find(key) == map.end()) {
-            stoat::LOG_FATAL("Key '" + key + "' not found in the phenotype file");
+            stoat::LOG_FATAL("Sample '" + key + "' not found in the phenotype file");
         }
     }
     if (map.size() != keys.size()) {

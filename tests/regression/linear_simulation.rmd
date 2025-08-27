@@ -122,6 +122,7 @@ To compute p-values in OLS regression, we use the following core statistics:
         $$
 5.  **Degrees of Freedom**
     -   Defined as $n - k$, where $n$ is number of observations and $k$ is number of parameters (including intercept).
+
 6.  **p-value**
     -   Computed from the t-distribution:\
         $$
@@ -180,7 +181,30 @@ summary(model)
 
 To handle this special case of collinearity, one of the strategies we will examine in this report is to removing the last column of each predictor matrix $X$, and merging columns that are perfectly redundant.
 
-# Linear Regression test methods
+# Linear Regression Test Methods
+
+In this section, we test three different methods for computing ordinary least squares (OLS) linear regression:
+
+1. **STOAT Implementation**  
+   - Uses `eigen` and Boost libraries for robust computation of the inverse of \(X^TX\).  
+   - Designed for numerical stability and efficiency on large datasets.  
+   - Particularly robust against collinearity and near-singular matrices.
+
+2. **Mathematical Implementation**  
+   - Directly implements the OLS formula: \(\hat{\beta} = (X^TX)^{-1} X^T y\).  
+   - Provides a clear demonstration of the mathematical foundations of linear regression.  
+   - Useful for understanding step-by-step computation and verifying other implementations.
+
+3. **RVTEST OLS Implementation**  
+   - A specialized OLS implementation often used in genomics and high-dimensional data.  
+   - Optimized for large-scale regression tasks, potentially with additional model diagnostics.  
+   - Offers an alternative reference for coefficient estimates and p-values.
+
+These three implementations are compared against R’s standard `lm()` function, which serves as the "ground truth" for this analysis. The comparison focuses on:
+
+- **coefficients**: checking if the estimates are consistent across methods.
+- **p-values**: evaluating statistical significance and comparing results across implementations.
+- **robustness to collinearity**: assessing how each method handles near-singular matrices.
 
 ```{r import, echo=FALSE, message=FALSE, warning=FALSE}
 # install.packages("RcppEigen", repos = "https://cloud.r-project.org")   # if not installed
@@ -200,9 +224,9 @@ Sys.setenv("CXX14FLAGS"="-std=gnu++14")
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
 
 # Load C++ implementations
-sourceCpp("/Users/matisalias/Desktop/stoat/tests/regression/linear_regression_maths.cpp")
-sourceCpp("/Users/matisalias/Desktop/stoat/tests/regression/linear_regression_stoat.cpp")
-sourceCpp("/Users/matisalias/Desktop/stoat/tests/regression/linear_regression_rvtest.cpp")
+sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_maths.cpp")
+sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_stoat.cpp")
+sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_rvtest.cpp")
 
 # Simulation parameters
 set.seed(123)
@@ -282,6 +306,7 @@ summarize_pct_diff <- function(pct_diff, method_name = "Method") {
   print(stats)
   invisible(stats)  # Return stats invisibly if needed
 }
+
 # Fixed function that simulates lr for all methods
 run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
                                   significant = TRUE, collinearity = FALSE, 
@@ -308,14 +333,14 @@ run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
   
   # Separate storage for all p-values (will be longer than n_sims)
   all_pvals <- list(
-    P_R_all = numeric(),
-    P_Maths_all = numeric(),
-    P_Stoat_all = numeric(),
-    P_RVTest_all = numeric(),
+    P_R_all = list(),
+    P_Maths_all = list(),
+    P_Stoat_all = list(),
+    P_RVTest_all = list(),
     Method = character(),
     Simulation = integer()
   )
-  
+    
   for (i in seq_len(n_sims)) {
     
     results$N[i] <- n
@@ -329,15 +354,21 @@ run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
       ncol = k - 1
     )
     
-    if (collinearity) {
-      X <- cbind(X, matrix(0, nrow = n, ncol = 2))
-      number_last_element <- 1
-      start_row <- n - number_last_element + 1
-      X[start_row:n, ] <- 0
-      last_cols <- (ncol(X)-1):ncol(X)
-      X[start_row:n, last_cols] <- 0.5
-      beta_ <- beta_ + k - 1
-    }
+  if (collinearity) {
+    X <- cbind(X, matrix(0, nrow = n, ncol = 2))
+    
+    # Determine number of last rows (between 1 and 10% of n)
+    number_last_element <- sample(1:ceiling(n * 0.1), 1)
+    start_row <- n - number_last_element + 1
+    
+    # Set selected rows to 0
+    X[start_row:n, ] <- 0
+    
+    # Set last two columns to 0.5
+    last_cols <- (ncol(X)-1):ncol(X)
+    X[start_row:n, last_cols] <- 0.5
+    beta_ <- beta_ + k - 1
+  }
     
     if (any(rowSums(X) != 1)) stop("Some rows do not sum to 1!")
     
@@ -358,11 +389,6 @@ run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
       print(r_summary)
       stop("P-value is NA. Exiting.")
     }
-    
-    # Store all p-values for R method
-    all_pvals$P_R_all <- c(all_pvals$P_R_all, pvals_r)
-    all_pvals$Method <- c(all_pvals$Method, rep("P_R", length(pvals_r)))
-    all_pvals$Simulation <- c(all_pvals$Simulation, rep(i, length(pvals_r)))
     
     if (merge) {
       dup_cols <- duplicated(as.data.frame(t(X)))
@@ -387,9 +413,12 @@ run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
     rvtest_pvals <- unlist(res_rvtest$p_values[2:length(res_rvtest$p_values)])
     
     # Store all p-values for other methods
-    all_pvals$P_Maths_all[[length(all_pvals$P_Maths_all) + 1]] <- maths_pvals
-    all_pvals$P_Stoat_all[[length(all_pvals$P_Stoat_all) + 1]] <- stoat_pvals
-    all_pvals$P_RVTest_all[[length(all_pvals$P_RVTest_all) + 1]] <- rvtest_pvals
+    #all_pvals$P_R_all <- c(all_pvals$P_R_all, pvals_r)
+    #all_pvals$Method <- c(all_pvals$Method, rep("P_R", length(pvals_r)))
+    #all_pvals$Simulation <- c(all_pvals$Simulation, rep(i, length(pvals_r)))
+    #all_pvals$P_Maths_all[[length(all_pvals$P_Maths_all) + 1]] <- maths_pvals
+    #all_pvals$P_Stoat_all[[length(all_pvals$P_Stoat_all) + 1]] <- stoat_pvals
+    #all_pvals$P_RVTest_all[[length(all_pvals$P_RVTest_all) + 1]] <- rvtest_pvals
 
     # Store main results
     results$Coef_R[i] <- coef_r
@@ -509,14 +538,14 @@ plot_linear_simulation_results <- function(results_result_all, null = FALSE, tit
   y_upper <- min(1, mean_pr + (mean_pr*0.1))
   
   # Boxplot with equal numbers (Option 1 - recommended for comparison)
-  plots$pval_box_equal <- ggplot(df_pvals_long_all_equal, aes(x = Method, y = PValue, fill = Replicate)) +
-  geom_boxplot(position = position_dodge(width = 0.75), outlier.size = 1) +
-  ylim(y_lower, y_upper) +
-  theme_bw() +
-  labs(title = paste("Distribution of P-values by Method and Replicate", title_prefix),
-       x = "Method", y = "P-value", fill = "Replicate") +
-  theme(legend.position = "right")
-  
+  # plots$pval_box_equal <- ggplot(df_pvals_long_all_equal, aes(x = Method, y = PValue, fill = Replicate)) +
+  # geom_boxplot(position = position_dodge(width = 0.75), outlier.size = 1) +
+  # ylim(y_lower, y_upper) +
+  # theme_bw() +
+  # labs(title = paste("Distribution of P-values by Method and Replicate", title_prefix),
+  #      x = "Method", y = "P-value", fill = "Replicate") +
+  # theme(legend.position = "right")
+
   if (null) {
     # ECDF for null pvalue
     plots$pval_ecdf <- ggplot(df_pvals_long, aes(x = PValue, color = Method)) +
@@ -534,7 +563,7 @@ plot_linear_simulation_results <- function(results_result_all, null = FALSE, tit
     # Filtered P-values (0 to 0.0001)
     df_pvals_long_small <- subset(df_pvals_long, PValue <= 0.0001)
     plots$pval_hist_small <- ggplot(df_pvals_long_small, aes(x = PValue, fill = Method)) +
-      geom_histogram(position = "dodge", bins = 30) +
+      geom_histogram(alpha = 0.5, position = "dodge", bins = 30) +
       theme_bw() +
       labs(title = paste("P-value Distributions (0 to 0.0001)", title_prefix),
           x = "P-value", y = "Frequency")
@@ -645,56 +674,55 @@ plot_linear_simulation_results <- function(results_result_all, null = FALSE, tit
 }
 ```
 
-## ALL VARIANT PLOT SIGNIFICANCE
+## All variant plot significant
 
 ```{r plot1, echo=FALSE, message=FALSE, warning=FALSE}
-results_all_significatif <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=FALSE, merge=FALSE)
-plots_all_significatif <- plot_linear_simulation_results(results=results_all_significatif, null=FALSE, title_prefix = "[All variant type + Significant]")
-plots_all_significatif
+results_all_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=FALSE, merge=FALSE)
+plots_all_significant <- plot_linear_simulation_results(results=results_all_significant, null=FALSE, title_prefix = "[All variant type + Significant]")
+plots_all_significant
 ```
 
-## ALL VARIANT PLOT NO SIGNIFICANCE
+## All variant plot no significant
 
 ```{r plot2, echo=FALSE, message=FALSE, warning=FALSE}
-results_all_no_significatif <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=FALSE, merge=FALSE)
-plots_all_no_sig <- plot_linear_simulation_results(results_all_no_significatif, null = TRUE, title_prefix = "[All variant type + No Significant]")
+results_all_no_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=FALSE, merge=FALSE)
+plots_all_no_sig <- plot_linear_simulation_results(results_all_no_significant, null = TRUE, title_prefix = "[All variant type + No Significant]")
 plots_all_no_sig
 ```
 
-## NEAR PERFECT COLLINEARITY WITHOUT MERGE SAME COLUMN SIGNIFICATIF
+## Near perfect collinearity without merging significant
 
 ```{r plot3, echo=FALSE, message=FALSE, warning=FALSE}
-results_colinearity_significatif <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=FALSE)
-plots_colinearity_significatif <- plot_linear_simulation_results(results_colinearity_significatif, null = FALSE, title_prefix = "[All variant type + Significant]")
-plots_colinearity_significatif
+results_colinearity_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=FALSE)
+plots_colinearity_significant <- plot_linear_simulation_results(results_colinearity_significant, null = FALSE, title_prefix = "[Collinear + no merged + Significant]")
+plots_colinearity_significant
 ```
 
-## NEAR PERFECT COLLINEARITY WITHOUT MERGE SAME COLUMN NO SIGNIFICATIF
+## Near perfect collinearity without merging no significant
 
 ```{r plot4, echo=FALSE, message=FALSE, warning=FALSE}
-results_colinearity_no_significatif <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=FALSE)
-plots_colinearity_no_significatif <- plot_linear_simulation_results(results_colinearity_no_significatif, null = TRUE, title_prefix = "[All variant type + No Significant]")
-plots_colinearity_no_significatif
+results_colinearity_no_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=FALSE)
+plots_colinearity_no_significant <- plot_linear_simulation_results(results_colinearity_no_significant, null = TRUE, title_prefix = "[Collinear + no merged + No Significant]")
+plots_colinearity_no_significant
 ```
 
-## NEAR PERFECT COLLINEARITY WITH MERGE SAME COLUMN SIGNIFICATIF
+## Near perfect collinearity with merging significant
 
 ```{r plot5, echo=FALSE, message=FALSE, warning=FALSE}
-results_colinearity_significatif_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=TRUE)
-plots_colinearity_significatif_merge <- plot_linear_simulation_results(results_colinearity_significatif_merge, null = FALSE, title_prefix = "[All variant type + No Significant]")
-plots_colinearity_significatif_merge
+results_colinearity_significant_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=TRUE)
+plots_colinearity_significant_merge <- plot_linear_simulation_results(results_colinearity_significant_merge, null = FALSE, title_prefix = "[Collinear + merged + Significant]")
+plots_colinearity_significant_merge
 ```
 
-## NEAR PERFECT COLLINEARITY WITH MERGE SAME COLUMN NO SIGNIFICATIF
+## Near perfect collinearity with merging no significant
 
 ```{r plot6, echo=FALSE, message=FALSE, warning=FALSE}
-results_colinearity_no_significatif_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=TRUE)
-plots_colinearity_no_significatif_merge <- plot_linear_simulation_results(results_colinearity_no_significatif_merge, null = TRUE, title_prefix = "[All variant type + No Significant]")
-plots_colinearity_no_significatif_merge
+results_colinearity_no_significant_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=TRUE)
+plots_colinearity_no_significant_merge <- plot_linear_simulation_results(results_colinearity_no_significant_merge, null = TRUE, title_prefix = "[Collinear + merged + No Significant]")
+plots_colinearity_no_significant_merge
 ```
 
-## BETA SIMULATION
-
+## Beta simulation
 
 ```{r function-beta, echo=FALSE, message=FALSE, warning=FALSE}
 

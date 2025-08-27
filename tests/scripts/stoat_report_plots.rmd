@@ -49,12 +49,32 @@ It containt 2 modes :
 
 * **Stoat Graph**:
 
-  * ...
+  * Fixed bug with distanceless index
+  * Added smaller curated tests for output
+
+## Stoat futur
+
+---
+
+* **Stoat**:
+
+  * Make an R stoat library for plots.
+  * Update the simulation graph script.
+
+* **Stoat VCF**:
+
+  * Test all methods with better simulation graph.
+  * Use FID (family information).
+
+* **Stoat Graph**:
+
+  * Fix bug finding offsets of nodes in paths (probably `vg` bug).
+  * Make input samples file match Stoat VCF.
 
 ---
 
 ```{r stoat-rep-png, echo=FALSE, out.width="100%"}
-knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/stoat_representation.png")
+# knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/plots/stoat_representation.png")
 ```
 
 ```{r stoat-lauching, message=FALSE, warning=FALSE, echo=FALSE}
@@ -94,7 +114,9 @@ library(stringr)
 file_list <- list(
   binary_snarl = "/home/mbagarre/Bureau/stoat/output_binary/snarl_analyse.tsv",
   binary_freq = "/home/mbagarre/Bureau/stoat/data/binary/pg.snarls.freq.tsv",
+  binary_vcf_deconstruct = "/home/mbagarre/Bureau/stoat/output_binary_deconstruct/binary_table_vcf.tsv",
   binary_vcf = "/home/mbagarre/Bureau/stoat/output_binary/binary_table_vcf.tsv",
+
   binary_covar_vcf = "/home/mbagarre/Bureau/stoat/output_binary_covar/binary_table_vcf.tsv",
 
   quantitative_snarl = "/home/mbagarre/Bureau/stoat/output_quantitative/snarl_analyse.tsv",
@@ -295,11 +317,19 @@ run_histo_plot_graph <- function(input, output) {
 
 ---
 
+## Stoat difference
+
+The main difference between **stoat vcf** and **stoat graph** lies in their input data and analysis approach:
+
+* **Stoat VCF**: This mode takes a VCF (Variant Call Format) file as input, which contains genetic variant data for multiple samples. It analyzes the variants present in the VCF file to identify associations between the genetic variations present in the VCF and phenotypes (binary or quantitative). But doing the VCF can occure problem during the variant calling step, leading of errors, missing variants and significant difference between stoat vcf & stoat graph.
+
+* **Stoat Graph**: This mode operates directly on a pangenome graph, which represents the genetic diversity of a population in a graph structure. Instead of relying on pre-called variants in a VCF file, it analyzes the graph to identify snarls (complex variant structures) and tests for associations between these snarls and phenotypes. This approach allows for a more comprehensive analysis of genetic variation.
+
 ## Simulation Description
 
 We constructed three simulated datasets: **binary**, **quantitative**, and **eQTL**.
 
-The binary and quantitative simulations each include their own pangenome graph representing a single chromosome, incorporating various types of variation, such as SNPs, INDELs, and complex variants. Despite the different variations, the graph structure—based on a fork pattern—remains consistent across all simulations.
+The binary and quantitative simulations each include their own pangenome graph representing a **single chromosome**, incorporating various types of variation, such as SNPs, INDELs, and complex variants. Despite the different variations, the graph structure—based on a fork pattern—remains consistent across all simulations.
 
 A fork structure is defined as a boundary snarl with exactly two paths, which can themselves contain nested forks (see fork representation below).
 
@@ -349,7 +379,7 @@ Similar to the binary simulation, 200 samples were divided into two cohorts, wit
 
 ### eQTL Simulation
 
-In this simulation, we generated 200 samples with 200,000 SNPs and 100 genes. All variants were generated randomly, meaning no significant associations were introduced. The goal was to create a simple simulation to test STOAT’s VCF-based eQTL pipeline.
+In this simulation, we generated 200 samples with 200,000 SNPs and 100 genes. All variants were generated randomly, meaning no significant associations were introduced. The goal was to create a simple simulation to test stoat on eQTL data.
 
 ---
 
@@ -423,6 +453,8 @@ qq_plot(df_binary_vcf, "P_CHI2", subtitle="Binary [stoat vcf]")
 #manhattan_plot(df_binary_vcf, subtitle="Binary [stoat vcf]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
 ```
 
+The reason why the percentage of paths tested isn’t 100% can be explained by the fact that we filter snarls based on a threshold for the number of haplotypes and the number of samples present in each snarl.
+
 ```{r show-plot-png, echo=FALSE, out.width="100%"}
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/pvalue_interactive.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_distribution_fn_tp.png")
@@ -432,6 +464,42 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/10^-2_d
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_0.01.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_1e-05.png")
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output/confusion_matrix_0.0_1e-08.png")
+```
+
+### Binary stoat VCF deconstruct
+
+```{r binary-vcf-deconstruct, echo=FALSE}
+
+# Execute verification for binary VCF
+binary_output_deconstruct <- run_verify_truth(
+  freq_file = file_list$binary_freq,
+  pvalue_file = file_list$binary_vcf_deconstruct,
+  paths_file = file_list$binary_snarl,
+  flag = " -b ",
+  output_dir = "../binary_output_deconstruct"
+)
+
+cat(binary_output_deconstruct, sep = "\n")
+
+df_binary_vcf_deconstruct <- read_stoat(file_list$binary_vcf_deconstruct)
+
+# Plots
+histogram_plot(df=df_binary_vcf_deconstruct, subtitle="Binary [stoat vcf]", "P_FISHER", "P_CHI2")
+qq_plot(df_binary_vcf_deconstruct, "P_FISHER", subtitle="Binary [stoat vcf]")
+qq_plot(df_binary_vcf_deconstruct, "P_CHI2", subtitle="Binary [stoat vcf]")
+
+#manhattan_plot(df_binary_vcf_deconstruct, subtitle="Binary [stoat vcf]", "P_CHI2", "P_FISHER", "P_ADJUSTED")
+```
+
+```{r show-plot-png, echo=FALSE, out.width="100%"}
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/pvalue_interactive.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/10^-2_distribution_fn_tp.png")
+# knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/10^-2_distribution_false_positive.png")
+# knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/10^-2_distribution_true_negatives.png")
+
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/confusion_matrix_0.0_0.01.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/confusion_matrix_0.0_1e-05.png")
+knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_output_deconstruct/confusion_matrix_0.0_1e-08.png")
 ```
 
 ---
@@ -460,8 +528,6 @@ qq_plot(df_binary_covar_vcf, "P", subtitle="Binary covar [stoat vcf]")
 #manhattan_plot(df_binary_covar_vcf, subtitle="on Binary covar [stoat vcf]", "P", "P_ADJUSTED")
 #volcano_plot(df_binary_covar_vcf, subtitle="Binary covar [stoat vcf]")
 ```
-
-The reason why the percentage of paths tested isn’t 100% can be explained by the fact that we filter snarls based on a threshold for the number of haplotypes and the number of samples present in each snarl.
 
 ```{r show-plot1-png, echo=FALSE, out.width="100%"}
 knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_covar_output/pvalue_interactive.png")
@@ -512,7 +578,7 @@ knitr::include_graphics("/home/mbagarre/Bureau/stoat/tests/binary_graph_output/c
 
 ### Compare stoat graph vs stoat vcf binary output
 
-```{r binary-graph2, echo=FALSE}
+```{r binary-compare, echo=FALSE}
 # Compare each columns by matching SNARL
 # Merge the data frames by SNARL
 merged_df <- merge(df_binary_vcf, df_binary_graph, by = "SNARL", suffixes = c("_df1", "_df2"))
@@ -545,7 +611,40 @@ result <- data.frame(Column = names(column_diff_counts),
 print(result)
 ```
 
-This change can be explained because the stoat graph uses the 'ref' haplotype as the correct haplotype, whereas in the simulation it is not.
+This change can be explained because the stoat vcf used VCF file computed with vg variant calling that can create bad results and stoat graph use the 'ref' haplotype as the correct haplotype, whereas in the simulation it is not.
+
+```{r binary-compare2, echo=FALSE}
+# Compare each columns by matching SNARL
+# Merge the data frames by SNARL
+merged_df <- merge(df_binary_vcf_deconstruct, df_binary_graph, by = "SNARL", suffixes = c("_df1", "_df2"))
+
+# Get the list of columns to compare (excluding SNARL)
+columns_to_compare <- setdiff(names(df_binary_vcf_deconstruct), "SNARL")
+
+# Initialize a named vector to store number of differing rows per column
+column_diff_counts <- setNames(integer(length(columns_to_compare)), columns_to_compare)
+
+# Loop through each column and count differing rows
+for (col in columns_to_compare) {
+  col1 <- paste0(col, "_df1")
+  col2 <- paste0(col, "_df2")
+  
+  # Count where values differ (using `!=` and NA-safe logic)
+  diffs <- merged_df[[col1]] != merged_df[[col2]]
+  
+  # Handle NAs: count rows where one is NA and the other is not, or values differ
+  diffs[is.na(diffs)] <- xor(is.na(merged_df[[col1]]), is.na(merged_df[[col2]]))[is.na(diffs)]
+  
+  column_diff_counts[col] <- sum(diffs, na.rm = TRUE)
+}
+
+# Convert to data frame for pretty output
+result <- data.frame(Column = names(column_diff_counts),
+                     Num_Different_Rows = as.integer(column_diff_counts))
+
+# Print result
+print(result)
+```
 
 ---
 
