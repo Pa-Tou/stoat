@@ -52,7 +52,7 @@ TEST_CASE("adjusted_holm maintains monotonicity") {
 
 TEST_CASE("retain_indices keeps only specified elements") {
     std::vector<double> vec = {0.1, 0.2, 0.3, 0.4};
-    std::unordered_set<size_t> keep = {1, 3};
+    std::set<size_t> keep = {1, 3};
     retain_indices(vec, keep);
     REQUIRE(vec.size() == 2);
     REQUIRE(vec[0] == 0.2);

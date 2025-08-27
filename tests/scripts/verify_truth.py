@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import re
+import os
 from cyvcf2 import VCF # type: ignore
 
 def split_snarl(input_str):
@@ -140,9 +141,16 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
                 if check_valid_snarl(start_node_1, next_node_1, start_node_2, next_node_2, matched['PATHS'].split(',')):
                     # Choose p-value field
                     if type_ == 'binary':
-                        p_val = matched['P_FISHER']
-                    elif type_ == 'quantitative':
+                        p_val = matched['P_CHI2']
+                        group_paths = matched.get('GROUP_PATHS', '')
+                        allele_num = [
+                            sum(int(part.split(':')[0]) for part in group_paths.split(',')),
+                            sum(int(part.split(':')[1]) for part in group_paths.split(','))
+                        ]
+                    elif type_ == 'quantitative' or type_ == 'binary_covar' :
                         p_val = matched['P']
+                        group_paths = matched.get('ALLELE_PATHS', '')
+                        allele_num = [int(x) for x in group_paths.split(',')]
                     else:
                         raise ValueError("type_ must be 'binary' or 'quantitative'")
 
@@ -153,12 +161,6 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
                     cleaned_true_labels.append(true_labels[i])
                     clean_list_diff.append(list_diff[i])
                     pvalue_list.append(p_val)
-
-                    # Compute allele_num from GROUP_PATHS safely
-                    group_paths = matched.get('GROUP_PATHS', '')
-                    allele_num = sum(
-                        int(part.split(':')[1]) for part in group_paths.split(',') if ':' in part
-                    ) if group_paths else 200
                     num_sample.append(allele_num)
 
     return (
@@ -173,32 +175,36 @@ def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file
     )
 
 def conf_mat_maker(p_val, predicted_labels, true_labels, output):
-        
-    # Calculate confusion matrix for p-value < p_val
-    print(f"\nMetrics for p-value < {p_val}:")
 
-    # Inverse because I want the X axis to be the truth labels and Y axis to be the predicted labels
+    # Inverse because we want X axis = true labels, Y axis = predicted labels
     cm = confusion_matrix(predicted_labels, true_labels)
-    print(f"Confusion stoat_vcf::EdgeBySampleMatrix for p-value < {p_val}:\n{cm}")
+        
+    # Calculate metrics
     prec = precision_score(predicted_labels, true_labels)
     recall = recall_score(predicted_labels, true_labels)
     f1 = f1_score(predicted_labels, true_labels)
-    print(f"Precision: {prec:.3f}")
-    print(f"Recall: {recall:.3f}")
-    print(f"F1 Score: {f1:.3f}")
-
-    # Plot confusion matrix for p-value < p_val
-    plt.figure(figsize=(8, 6))
+    
+    # Plot confusion matrix
+    plt.figure(figsize=(8, 8))  # Increase size to make space for text
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
-                xticklabels=['Positive', 'Negative'], 
+                xticklabels=['Positive', 'Negative'],
                 yticklabels=['Positive', 'Negative'],
                 annot_kws={"size": 30})
-    plt.xticks(fontsize=16)  
-    plt.yticks(fontsize=16)  
-    plt.title(f'Confusion stoat_vcf::EdgeBySampleMatrix for p-value < {p_val}', fontsize=18)  # Increase title font size
-    plt.xlabel('Truth Labels', fontsize=20)  # Increase x-label font size
-    plt.ylabel('Predicted Labels', fontsize=20)  # Increase y-label font size
+    
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.title(f'Confusion Matrix for p-value [P] < {p_val}', fontsize=18)
+    plt.xlabel('Truth Labels', fontsize=20)
+    plt.ylabel('Predicted Labels', fontsize=20)
+    
+    # Add precision, recall, and F1 below the plot
+    plt.text(2.05, 0.3, f'Precision: {prec:.3f}', fontsize=14)
+    plt.text(2.05, 0.6, f'Recall:    {recall:.3f}', fontsize=14)
+    plt.text(2.05, 0.9, f'F1 Score:  {f1:.3f}', fontsize=14)
+    
+    plt.tight_layout()
     plt.savefig(output + f'_{p_val}.png', format='png', dpi=300)
+    plt.close()
 
 def print_confusion_matrix(predicted_labels_10_2, predicted_labels_10_5, predicted_labels_10_8, true_labels, output):
     
@@ -216,33 +222,27 @@ def p_value_distribution(test_predicted_labels, cleaned_true_labels, list_diff, 
         i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
         if pred == 0 and true == 1]
 
-    print("len(false_positive_indices) : " , len(false_positive_indices))
-
     true_positive_indices = [
         i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
         if pred == 0 and true == 0]
     
-    print("len(true_positive_indices) : " , len(true_positive_indices))
-
     false_negative_indices = [
         i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
         if pred == 1 and true == 0]
 
-    print("len(false_negative_indices) : " , len(false_negative_indices))
-
     diff_false_positive = [list_diff[i] for i in false_positive_indices]
     pvalue_false_positive = [p_value[i] for i in false_positive_indices]
-    minsample_false_positive = [num_sample[i] for i in false_positive_indices]
+    minsample_false_positive = [min(num_sample[i]) for i in false_positive_indices] # make the sum of min sampel 
     snarl_name_false_positive = [snarl_name[i] for i in false_positive_indices]
 
     diff_true_positives = [list_diff[i] for i in true_positive_indices]
     pvalue_true_positives = [p_value[i] for i in true_positive_indices]
-    minsample_true_positives = [num_sample[i] for i in true_positive_indices]
+    minsample_true_positives = [min(num_sample[i]) for i in true_positive_indices]
     snarl_name_true_positives = [snarl_name[i] for i in true_positive_indices]
 
     diff_false_negative = [list_diff[i] for i in false_negative_indices]
     pvalue_false_negative = [p_value[i] for i in false_negative_indices]
-    minsample_false_negative = [num_sample[i] for i in false_negative_indices]
+    minsample_false_negative = [min(num_sample[i]) for i in false_negative_indices]
     snarl_name_false_negative = [snarl_name[i] for i in false_negative_indices]
 
     # Create a DataFrame for easy plotting
@@ -270,9 +270,9 @@ def p_value_distribution(test_predicted_labels, cleaned_true_labels, list_diff, 
             "Min Sample": True,  # Include Min Sample (size is already shown)
             "Snarl": True,  # Include Snarl name 
         },
-        title="Distribution of P-Values for False Positives and True Positives",
+        title="Distribution of P-Values for FP, FN & TP with threshold Positive",
         labels={"P-Value": "P-Value", "Difference": "Simulated Effect (Difference in Probabilities)"},
-        size_max=20
+        size_max=25
     )
 
     fig.update_layout(
@@ -280,17 +280,30 @@ def p_value_distribution(test_predicted_labels, cleaned_true_labels, list_diff, 
         yaxis_title="Simulated Effect (Difference in Probabilities)",
         legend_title="Type",
         template="plotly_white",
-        xaxis_title_font=dict(size=30),  # Increase font size for x-axis title
-        yaxis_title_font=dict(size=30),  # Increase font size for y-axis title
-        xaxis=dict(tickfont=dict(size=25)),  # Increase font size for x-axis ticks
-        yaxis=dict(tickfont=dict(size=25)),  # Increase font size for y-axis ticks
+        xaxis_title_font=dict(size=15),  # Increase font size for x-axis title
+        yaxis_title_font=dict(size=15),  # Increase font size for y-axis title
+        xaxis=dict(tickfont=dict(size=15)),  # Increase font size for x-axis ticks
+        yaxis=dict(tickfont=dict(size=15)),  # Increase font size for y-axis ticks
+    )
+
+    # Add annotation to explain the size meaning
+    fig.add_annotation(
+        text="• Circle size represents Min sum of haplotype per group",
+        xref="paper", yref="paper",
+        x=1.02, y=1,  # Adjust the x/y to position near the legend
+        showarrow=False,
+        align="left",
+        font=dict(size=13),
     )
 
     # Show the interactive plot
-    fig.show()
+    #fig.show()
 
     # Optionally, save the plot as an HTML file
-    fig.write_html(f'{output}_pvalue_interactive.html')
+    fig.write_html(f'{output}/pvalue_interactive.html')
+
+    # Save as static PNG
+    fig.write_image(f'{output}/pvalue_interactive.png')
 
 def plot_diff_distribution(test_predicted_labels:list, cleaned_true_labels:list, clean_list_diff:list, output:str, pvalue:list):
 
@@ -298,21 +311,6 @@ def plot_diff_distribution(test_predicted_labels:list, cleaned_true_labels:list,
     # True label 1 : No difference freq significative
     # Predict label 0 : pvalue significative
     # Predict label 1 : No pvalue significative
-
-    # ----------------------------- True Positive -----------------------------
-    true_positive_indices= [
-        i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
-        if pred == 0 and true == 0]
-
-    true_positive_diffs = [clean_list_diff[i]*100 for i in true_positive_indices]
-
-    plt.figure(figsize=(10, 6))
-    sns.histplot(true_positive_diffs, bins=20, kde=True, color='blue')
-    plt.title("Distribution of Differences for True Positive", fontsize=16)
-    plt.xlabel("Difference (%)", fontsize=14)
-    plt.ylabel("Frequency", fontsize=14)
-    plt.grid(False)
-    plt.savefig(output + pvalue + '_distribution_true_positive.png', format='png', dpi=300)
 
     # ----------------------------- False Positive -----------------------------
     false_positive_indices = [
@@ -323,26 +321,39 @@ def plot_diff_distribution(test_predicted_labels:list, cleaned_true_labels:list,
 
     plt.figure(figsize=(10, 6))
     sns.histplot(false_positive_diffs, bins=20, kde=True, color='blue')
-    plt.title("Distribution of Differences for False Positive", fontsize=16)
+    plt.title("Distribution of Differences for False Positive [P]", fontsize=16)
     plt.xlabel("Difference (%)", fontsize=14)
     plt.ylabel("Frequency", fontsize=14)
     plt.grid(False)
-    plt.savefig(output + pvalue + '_distribution_false_positive.png', format='png', dpi=300)
+    plt.savefig(f"{output}/{pvalue}_distribution_false_positive.png", format='png', dpi=300)
 
-    # ----------------------------- False Negative -----------------------------
+    # ----------------------------- FN & TP -----------------------------
+
+    true_positive_indices = [
+        i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
+        if pred == 0 and true == 0
+    ]
     false_negative_indices = [
         i for i, (pred, true) in enumerate(zip(test_predicted_labels, cleaned_true_labels)) 
-        if pred == 1 and true == 0]
+        if pred == 1 and true == 0
+    ]
 
-    false_negative_diffs = [clean_list_diff[i]*100 for i in false_negative_indices]
+    true_positive_diffs = [clean_list_diff[i] * 100 for i in true_positive_indices]
+    false_negative_diffs = [clean_list_diff[i] * 100 for i in false_negative_indices]
 
     plt.figure(figsize=(10, 6))
-    sns.histplot(false_negative_diffs, bins=20, kde=True, color='blue')
-    plt.title("Distribution of Differences for False Negative", fontsize=16)
+
+    sns.histplot(true_positive_diffs, bins=20, kde=True, color='blue', label='True Positives [P]', stat='density', alpha=0.6)
+    sns.histplot(false_negative_diffs, bins=20, kde=True, color='red', label='False Negatives [P]', stat='density', alpha=0.6)
+
+    plt.title("Distribution of Differences for True Positives and False Negatives [P]", fontsize=16)
     plt.xlabel("Difference (%)", fontsize=14)
-    plt.ylabel("Frequency", fontsize=14)
+    plt.ylabel("Density", fontsize=14)
+    plt.legend()
     plt.grid(False)
-    plt.savefig(output + pvalue + '_distribution_false_negative.png', format='png', dpi=300)
+    plt.tight_layout()
+    plt.savefig(f"{output}/{pvalue}_distribution_fn_tp.png", format='png', dpi=300)
+    plt.close()
 
     # ----------------------------- True Negative -----------------------------
     true_negative_indices = [
@@ -353,11 +364,11 @@ def plot_diff_distribution(test_predicted_labels:list, cleaned_true_labels:list,
 
     plt.figure(figsize=(10, 6))
     sns.histplot(true_negative_diffs, bins=20, kde=True, color='blue')
-    plt.title("Distribution of Differences for True Negatives", fontsize=16)
+    plt.title("Distribution of Differences for True Negatives [P]", fontsize=16)
     plt.xlabel("Difference (%)", fontsize=14)
     plt.ylabel("Frequency", fontsize=14)
     plt.grid(False)
-    plt.savefig(output + pvalue + '_distribution_true_negatives.png', format='png', dpi=300)
+    plt.savefig(f"{output}/{pvalue}_distribution_true_negatives.png", format='png', dpi=300)
     
 if __name__ == "__main__":
 
@@ -365,24 +376,33 @@ if __name__ == "__main__":
     parser.add_argument("--freq", help="Path to allele frequence file")
     parser.add_argument("--p_value", help="Path to p_value gwas output file")
     parser.add_argument("--paths", help="Path to snarl paths list file")
+    parser.add_argument("--p_value_column_name", default="output", help="Path to snarl paths list file")
     parser.add_argument("-t", "--threshold", type=float, required=False, help="Threshold to define the truth label")
     parser.add_argument("--sv", action="store_true", required=False, help="Verify truth only for SV (>= 50 pb diff)")
+    parser.add_argument("--output", default="output", required=False, help="Verify truth only for SV (>= 50 pb diff)")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-b", "--binary", action='store_true', help="binary test")
     group.add_argument("-q", "--quantitative", action='store_true', help="quantitative test")
+    group.add_argument("-c", "--binary_covar", action='store_true', help="binary covar test")
 
     args = parser.parse_args()
 
+    # Ensure output directory exists
+    output_dir = args.output
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     if args.binary:
-        output = "tests/"
-        output_diff = f"{output}"
         type_ = 'binary'
 
-    elif args.quantitative:
-        output = "tests/"
-        output_diff = f"{output}"
+    if args.quantitative:
         type_ = 'quantitative'
+
+    if args.binary_covar:
+        type_ = 'binary_covar'
+
+    p_value_column_name = args.p_value_column_name
 
     # THRESHOLD_FREQ = 0.0 : Case where just a difference between both group snarl is considered like Truth label
     THRESHOLD_FREQ = 0.0
@@ -390,21 +410,28 @@ if __name__ == "__main__":
     save_sv_snarl = parse_sv_rows(args.p_value) if args.sv else None
     freq_test_path_list, test_true_labels, test_list_diff = process_file(args.freq, THRESHOLD_FREQ)
     test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name = match_snarl(freq_test_path_list, test_true_labels, test_list_diff, args.p_value, args.paths, save_sv_snarl, type_)
-    test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name = match_snarl(freq_test_path_list, test_true_labels, test_list_diff, args.p_value, args.paths, save_sv_snarl, type_)
-    print_confusion_matrix(test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, f"{output}/confusion_matrix_{THRESHOLD_FREQ}")
+    print_confusion_matrix(test_predicted_labels_10_2, test_predicted_labels_10_5, test_predicted_labels_10_8, cleaned_true_labels, f"{output_dir}/confusion_matrix_{THRESHOLD_FREQ}")
     assert len(cleaned_true_labels) == len(clean_list_diff)
 
-    print("Pourcentage of paths tested : ", (len(pvalue)/len(freq_test_path_list))*100*2) # *2 because we jump 2 per 2 the paths
+    print("")
+    print("Pourcentage of paths (present in freq file) tested : ", (len(pvalue)/len(freq_test_path_list))*100*2) # *2 because we jump 2 per 2 the paths
     # Plot distribution of p-values for false negatives and true positives
-    plot_diff_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, output_diff, "10^-2")
-    p_value_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name, output_diff)
+    plot_diff_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, output_dir, "10^-2")
+    p_value_distribution(test_predicted_labels_10_2, cleaned_true_labels, clean_list_diff, pvalue, num_sample, snarl_name, output_dir)
 
     """
     python3 tests/scripts/verify_truth.py --freq data/quantitative/pg.snarls.freq.tsv \
-    --p_value output/quantitative_table_vcf.tsv --paths output/snarl_analyse.tsv -q
+    --p_value output/quantitative_table_vcf.tsv --paths output/snarl_analyse.tsv -q --output tests/scripts/quantitative_output
+
+    python3 tests/scripts/verify_truth.py --freq data/quantitative/pg.snarls.freq.tsv \
+    --p_value output/quantitative_table_covar_vcf.tsv --paths output/snarl_analyse.tsv -q --output tests/scripts/quantitative_covar_output
 
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output/binary_table_vcf.tsv --paths output/snarl_analyse.tsv -b
+    --p_value output_binary/binary_table_vcf.tsv --paths output_binary/snarl_analyse.tsv -b --output tests/scripts/binary_output
+
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output/binary_table_vcf.tsv --paths output/snarl_analyse.tsv -b
+    --p_value output_binary_covar/binary_table_vcf.tsv --paths output_binary/snarl_analyse.tsv -q --output tests/scripts/binary_covar_output
+    
+    python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
+    --p_value output_binary_graph/binary_table_graph.tsv --paths output_binary/snarl_analyse.tsv -b --output tests/scripts/binary_graph_output
     """

@@ -22,7 +22,7 @@ namespace stoat_command {
 
 void print_help_vcf() {
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -p, --pg FILE                Path to the packed graph file (.pg)\n"
+              << "  -p, --graph FILE                Path to the packed graph file (.graph)\n"
               << "  -d, --dist FILE              Path to the packed distance index file [vg index] (.dist)\n"
               << "  -v, --vcf FILE               Path to the VCF file (.vcf or .vcf.gz)\n"
               << "  -s, --snarl FILE             Path to the snarl file (.txt or .tsv)\n"
@@ -53,7 +53,7 @@ void print_help_vcf() {
 int main_stoat(int argc, char* argv[]) {
     
     // Declare variables to hold argument values
-    std::string vcf_path, snarl_path, pg_path, dist_path, 
+    std::string vcf_path, snarl_path, graph_path, dist_path, 
         chromosome_path, binary_path, quantitative_path, 
         eqtl_path, covariate_path, gene_position_path, 
         kinship_path, output_dir;
@@ -81,7 +81,7 @@ int main_stoat(int argc, char* argv[]) {
     static struct option long_options[] = {
         {"vcf", required_argument, 0, 'v'},
         {"snarl", required_argument, 0, 's'},
-        {"pg", required_argument, 0, 'p'},
+        {"graph", required_argument, 0, 'p'},
         {"dist", required_argument, 0, 'd'},
         {"chr", required_argument, 0, 'r'},
         {"binary", required_argument, 0, 'b'},
@@ -108,11 +108,11 @@ int main_stoat(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:p:d:r:b:q:e:m:c:C:k:g:i:y:l:G:w:T:M:t:V:I:H:o:h", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:p:d:r:b:q:e:c:C:k:i:y:l:G:w:T:M:t:V:I:H:o:gmh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
-            case 'p': pg_path = optarg; stoat_vcf::check_file(pg_path); break;
+            case 'p': graph_path = optarg; stoat_vcf::check_file(graph_path); break;
             case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
             case 'r': chromosome_path = optarg; stoat_vcf::check_file(chromosome_path); break;
             case 'b': binary_path = optarg; phenotype++; stoat_vcf::check_file(binary_path); break;
@@ -235,28 +235,28 @@ int main_stoat(int argc, char* argv[]) {
     }
 
     // Enforce valid argument combinations
-    if ((!snarl_path.empty() || (!pg_path.empty() && !dist_path.empty())) && !vcf_path.empty() && phenotype == 1) {
+    if ((!snarl_path.empty() || (!graph_path.empty() && !dist_path.empty())) && !vcf_path.empty() && phenotype == 1) {
         //stoat::LOG_TRACE("Case Gwas");
         // Case 1: snarl_path + vcf_path + phenotype
-        // Case 2: pg_path + dist_path + vcf_path + phenotype
-    } else if (!pg_path.empty() && !dist_path.empty() && vcf_path.empty() && snarl_path.empty() && phenotype == 0) {
+        // Case 2: graph_path + dist_path + vcf_path + phenotype
+    } else if (!graph_path.empty() && !dist_path.empty() && vcf_path.empty() && snarl_path.empty() && phenotype == 0) {
         //stoat::LOG_TRACE("Case Snarl path decomposition");
-        // Case 3: Only pg_path + dist_path
+        // Case 3: Only graph_path + dist_path
         only_snarl_parsing = true;
     } else {
         stoat::LOG_ERROR(
             std::string("Invalid argument combination provided.\n") +
             "There are only 3 ways to launch stoat vcf:\n" +
             "Case 1 (GWAS only): snarl_path + vcf_path + phenotype (+ optional file)\n" +
-            "Case 2 (GWAS + snarl path decomposition): pg_path + dist_path + vcf_path + phenotype (+ optional file)\n" +
-            "Case 3 (snarl path decomposition): pg_path + dist_path"
+            "Case 2 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + phenotype (+ optional file)\n" +
+            "Case 3 (snarl path decomposition): graph_path + dist_path"
         );
         print_help_vcf();
         return EXIT_FAILURE;
     }
 
-    if ((gaf == true && binary_path.empty()) || (gaf == true && pg_path.empty())) {
-        stoat::LOG_ERROR("GAF file can be generated only with binary phenotype AND with the pg graph");
+    if ((gaf == true && binary_path.empty()) || (gaf == true && graph_path.empty())) {
+        stoat::LOG_ERROR("GAF file can be generated only with binary phenotype AND with the graph graph");
         print_help_vcf();
         return EXIT_FAILURE;
     }
@@ -310,11 +310,10 @@ int main_stoat(int argc, char* argv[]) {
     // scope declaration
     // chr : <snarl, paths, pos(start, end), type>
     std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> snarls_chr;
-    std::unique_ptr<bdsg::SnarlDistanceIndex> stree;
-    std::unique_ptr<bdsg::PackedGraph> pg;
+    unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
+    unique_ptr<handlegraph::PathHandleGraph> graph;
     handlegraph::net_handle_t root;
-    std::unique_ptr<handlegraph::PathHandleGraph> path_graph;
-    std::unique_ptr<bdsg::PackedPositionOverlay> pp_overlay;
+    unique_ptr<bdsg::PositionOverlay> p_overlay;
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
         stoat::LOG_TRACE("Parsing snarl path file");
@@ -325,25 +324,27 @@ int main_stoat(int argc, char* argv[]) {
         auto start_0 = std::chrono::high_resolution_clock::now();
 
         // Load the snarl tree and graph
-        std::tie(stree, pg, root, path_graph, pp_overlay) = stoat::parse_graph_tree(pg_path, dist_path);
+        std::tie(distance_index, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
+        // Program received signal SIGSEGV, Segmentation fault.
+        // 0x00005555555cafe1 in stoat::parse_graph_tree(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
 
         // Check if chr present in chr file is present in the graph
         for (const auto& chr : ref_chr) {
             stoat::LOG_TRACE("Chr found in .chr file : " + chr);
-            if (!path_graph->has_path(chr)) {
+            if (!graph->has_path(chr)) {
                 stoat::LOG_FATAL("Reference chromosome : " + chr + " not present in graph");
             }
         }
 
         // std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>
         // snarl_net_grah, chr_ref, start_pos, end_pos, is_on_ref
-        auto snarls = stoat::save_snarls(*stree, root, *pg, ref_chr, *pp_overlay);
+        auto snarls = stoat::save_snarls(*distance_index, root, *graph, ref_chr, *p_overlay);
 
         std::string output_snarl_not_analyse = output_dir + "/snarl_not_analyse.tsv";
         std::string output_file = output_dir + "/snarl_analyse.tsv";
 
         // Go through snarls and fill in snarls_chr 
-        snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *pg, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, cycle_threshold);
+        snarls_chr = stoat::loop_over_snarls_write(*distance_index, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, cycle_threshold);
         auto end_0 = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl time decomposition : " + std::to_string(std::chrono::duration<double>(end_0 - start_0).count()) + " s");
 
@@ -351,9 +352,9 @@ int main_stoat(int argc, char* argv[]) {
             return EXIT_SUCCESS;
         }
 
-        // Clean up unique_ptr except pg
-        stree.reset();
-        pp_overlay.reset();
+        // Clean up unique_ptr except graph
+        distance_index.reset();
+        p_overlay.reset();
     }
 
     //////////////////////////////////////// Go through the vcf, do the analysis, and write the output
@@ -372,11 +373,12 @@ int main_stoat(int argc, char* argv[]) {
         if (!covariate.empty()){
             // Binary covariate
             snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, binary_phenotype, min_individuals, min_haplotypes, regression_dir));
+            phenotype_type = stoat::BINARY_COVAR; // need it in the BH adjusted
         } else {
             // Binary without covariate
             snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, maf_threshold, table_threshold, binary_phenotype, min_individuals, min_haplotypes, regression_dir));
+            phenotype_type = stoat::BINARY;
         }
-        phenotype_type = stoat::BINARY; 
     } else if (!quantitative_path.empty()) {
         // Quantitative
         snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, quantitative_phenotype, min_individuals, min_haplotypes, regression_dir));
@@ -387,13 +389,13 @@ int main_stoat(int argc, char* argv[]) {
         phenotype_type = stoat::EQTL; 
     }
 
-    std::string output_tsv = output_dir + (phenotype_type == stoat::BINARY       ? "/binary_table_vcf.tsv" : 
+    std::string output_tsv = output_dir + (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR ? "/binary_table_vcf.tsv" : 
                                             (phenotype_type == stoat::QUANTITATIVE ? "/quantitative_table_vcf.tsv" 
                                                                                         : "/eqtl_table_vcf.tsv"));
 
     snarl_analyzer->process_snarls_by_chromosome_chunk(ptr_vcf, hdr, rec, output_tsv);
 
-    std::string output_significative = output_dir + (phenotype_type == stoat::BINARY       ?  "/top_variant_binary_vcf.tsv" : 
+    std::string output_significative = output_dir + (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR ? "/top_variant_binary_vcf.tsv" : 
                                                     (phenotype_type == stoat::QUANTITATIVE ? "/top_variant_quantitative_vcf.tsv" 
                                                                                                 : "/top_variant_eqtl_vcf.tsv"));
 
@@ -403,7 +405,7 @@ int main_stoat(int argc, char* argv[]) {
     if (phenotype_type == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
         std::string output_gaf = output_dir + "/binary_table_vcf.gaf";
-        stoat_vcf::gaf_creation(output_tsv, snarls_chr, *pg, output_gaf);
+        stoat_vcf::gaf_creation(output_tsv, snarls_chr, *graph, output_gaf);
     }
 
     auto end_1 = std::chrono::high_resolution_clock::now();

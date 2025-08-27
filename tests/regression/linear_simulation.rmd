@@ -1,0 +1,832 @@
+---
+title: "Linear regression"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: united
+    df_print: paged
+params:
+  run_mode: "html"
+---
+
+Linear regression is a fundamental statistical method used to model the relationship between a dependent variable and one or more independent variables. It is widely used in various fields such as economics, biology, engineering, and social sciences.
+
+# Types of Linear Regression
+
+There are several types of linear regression, depending on the number of variables and the nature of the relationship:
+
+## Simple Linear Regression
+
+Simple linear regression involves one independent variable and one dependent variable. The model is expressed as:
+
+$$
+Y = \beta_0 + \beta_1 X + \epsilon
+$$
+
+Where:
+
+-   $Y$ : dependent (phenotype) variable you are trying to predict
+-   $X$ : main independent variables of interest
+-   $\beta_0$ : intercept (expected value of $Y$ when all predictors are zero)
+-   $\beta_1$ : coefficients for main predictors
+-   $\epsilon$ : error term capturing variation in $Y$ not explained by the model
+
+## Multiple Linear Regression
+
+Multiple linear regression includes two or more independent variables:
+
+$$
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p + \gamma_1 Z_1 + \gamma_2 Z_2 + \dots + \gamma_q Z_q + \epsilon
+$$
+
+Where:
+
+-   $Y$ : dependent (phenotype) variable you are trying to predict
+-   $X_1, X_2, \dots, X_p$ : main independent variables of interest
+-   $\beta_0$ : intercept (expected value of $Y$ when all predictors are zero)
+-   $\beta_1, \dots, \beta_p$ : coefficients for main predictors $X_1 \dots X_p$
+-   $Z_1, \dots, Z_q$ : covariates (additional variables you adjust for, e.g., age, sex, PCs in genetics)
+-   $\gamma_1, \dots, \gamma_q$ : coefficients for covariates
+-   $\epsilon$ : error term capturing variation in $Y$ not explained by the model
+
+One of the method commun method for Multiple Linear Regression is Ordinary Least Squares (OLS), used to estimate the parameters (coefficients) of a linear regression model. OLS finds the line that **minimizes the sum of the squared differences between the observed values and the predicted values**.
+
+## Ridge Regression
+
+Ridge regression is a type of regularized regression that adds a penalty term to the loss function:
+
+$$
+\text{Loss} = \sum (y_i - \hat{y}_i)^2 + \lambda \sum \beta_j^2
+$$
+
+This helps reduce overfitting in the presence of multicollinearity.
+
+## Lasso Regression
+
+Lasso (Least Absolute Shrinkage and Selection Operator) also adds a penalty term but uses the absolute value of coefficients:
+
+$$
+\text{Loss} = \sum (y_i - \hat{y}_i)^2 + \lambda \sum |\beta_j|
+$$
+
+## How to compute p-value from linear regression
+
+To compute a p-value for each coefficient in a linear regression model, we:
+
+1.  **Estimate the coefficient** $\hat{\beta}_i$ using OLS.
+2.  **Estimate the standard error** of $\hat{\beta}_i$.
+3.  **Compute the t-statistic**:
+
+$$
+t_i = \frac{\hat{\beta}_i}{SE(\hat{\beta}_i)}
+$$
+
+4.  **Calculate the p-value** using the **t-distribution** with $n - k$ degrees of freedom, where:
+    -   $n$ is the number of observations
+    -   $k$ is the number of predictors (including the intercept)
+
+## Why OLS is Best for Inference and p-values
+
+OLS is the **most appropriate method** for computing p-values in linear regression because:
+
+-   **OLS provides unbiased and efficient estimates** of the coefficients under the classical linear model assumptions (Gauss-Markov theorem).
+-   The **distributional results (like the t-distribution of the coefficients)** are derived assuming OLS estimation.
+-   OLS allows direct computation of **standard errors**, **confidence intervals**, and **p-values** using well-established statistical theory.
+-   Alternative methods like **Ridge** or **Lasso** do not provide unbiased estimates, so their p-values (if computed at all) are **not valid** in the traditional frequentist sense.
+
+## OLS p-value Computing Statistics
+
+To compute p-values in OLS regression, we use the following core statistics:
+
+1.  **Estimated Coefficients** $\hat{\beta}$
+    -   Obtained by minimizing the residual sum of squares:\
+        $$
+        \hat{\beta} = (X^TX)^{-1}X^Ty
+        $$
+2.  **Residual Standard Error** $\hat{\sigma}$
+    -   Measures the variability in residuals:\
+        $$
+        \hat{\sigma} = \sqrt{\frac{1}{n - k} \sum (y_i - \hat{y}_i)^2}
+        $$
+3.  **Standard Error of Coefficients**
+    -   Derived from the variance-covariance matrix:\
+        $$
+        SE(\hat{\beta}_j) = \sqrt{\hat{\sigma}^2 (X^TX)^{-1}_{jj}}
+        $$
+4.  **t-statistic**
+    -   Tests whether each coefficient is significantly different from zero:\
+        $$
+        t_j = \frac{\hat{\beta}_j}{SE(\hat{\beta}_j)}
+        $$
+5.  **Degrees of Freedom**
+    -   Defined as $n - k$, where $n$ is number of observations and $k$ is number of parameters (including intercept).
+
+6.  **p-value**
+    -   Computed from the t-distribution:\
+        $$
+        p\text{-value} = 2 \cdot P(T > |t_j|), \quad T \sim t_{n-k}
+        $$
+
+A critical step in OLS is computing the inverse of the matrix $X^TX$, which is needed to estimate coefficients and their standard errors. However, this matrix becomes **singular (non-invertible)** or **nearly singular (ill-conditioned)** when predictors are **highly collinear** that is, when one or more predictors are linearly dependent or strongly correlated.
+
+In such cases, the computation of $X^TX$ approaches zero, making $(X^TX)^{-1}$ either impossible to compute or extremely unstable, which in turn leads to unreliable and highly sensitive coefficient estimates.
+
+## Collinearity & Near-perfect collinearity case
+
+Collinearity occurs when two or more predictor variables are highly correlated, meaning that in the stoat case every regression table are collinear.
+
+```{r collinearity, echo=TRUE, message=FALSE}
+# Set seed for reproducibility
+set.seed(123)
+
+# X1 can be any continuous variable
+X1 <- runif(100, 0, 1)
+
+# Make X2 perfectly collinear with X1
+X2 <- X1  # now X2 = X1 exactly
+
+# Response variable Y
+Y <- 5 + 2*X1 + rnorm(100, sd = 0.1)
+
+# Fit linear model with perfectly colliPredictors
+model2 <- lm(Y ~ X1 + X2)
+summary(model2)
+```
+
+When predictors are nearly perfectly collinear, the model may fail to estimate coefficients properly (this case can happend when the number of column are \> 2 and at 2 column are identical) :
+
+```{r near-perfect-collinearity, echo=TRUE, message=FALSE}
+set.seed(123)
+n <- 100
+
+# First column
+X1 <- runif(n, 0, 1)
+
+# Second column is exactly the same as the first
+X2 <- X1  # perfect collinearity
+
+# Third column ensures rows sum to 1
+X3 <- 1 - (X1 + X2)
+
+# Response variable
+Y <- 5 + 2*X1 + 3*X2 + rnorm(n)
+
+# Fit linear model
+df <- data.frame(Y = Y, X1 = X1, X2 = X2, X3 = X3)
+model <- lm(Y ~ ., data = df)
+summary(model)
+```
+
+To handle this special case of collinearity, one of the strategies we will examine in this report is to removing the last column of each predictor matrix $X$, and merging columns that are perfectly redundant.
+
+# Linear Regression Test Methods
+
+In this section, we test three different methods for computing ordinary least squares (OLS) linear regression:
+
+1. **STOAT Implementation**  
+   - Uses `eigen` and Boost libraries for robust computation of the inverse of \(X^TX\).  
+   - Designed for numerical stability and efficiency on large datasets.  
+   - Particularly robust against collinearity and near-singular matrices.
+
+2. **Mathematical Implementation**  
+   - Directly implements the OLS formula: \(\hat{\beta} = (X^TX)^{-1} X^T y\).  
+   - Provides a clear demonstration of the mathematical foundations of linear regression.  
+   - Useful for understanding step-by-step computation and verifying other implementations.
+
+3. **RVTEST OLS Implementation**  
+   - A specialized OLS implementation often used in genomics and high-dimensional data.  
+   - Optimized for large-scale regression tasks, potentially with additional model diagnostics.  
+   - Offers an alternative reference for coefficient estimates and p-values.
+
+These three implementations are compared against R’s standard `lm()` function, which serves as the "ground truth" for this analysis. The comparison focuses on:
+
+- **coefficients**: checking if the estimates are consistent across methods.
+- **p-values**: evaluating statistical significance and comparing results across implementations.
+- **robustness to collinearity**: assessing how each method handles near-singular matrices.
+
+```{r import, echo=FALSE, message=FALSE, warning=FALSE}
+# install.packages("RcppEigen", repos = "https://cloud.r-project.org")   # if not installed
+# install.packages("RcppGSL", repos = "https://cloud.r-project.org")     # if not installed
+
+suppressPackageStartupMessages({
+library(Rcpp)
+library(RcppEigen)
+# library(RcppGSL)
+library(ggplot2)
+library(reshape2)
+})
+
+Sys.setenv("CXX14FLAGS"="-std=gnu++14")
+```
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Load C++ implementations
+sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_maths.cpp")
+sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_stoat.cpp")
+sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_rvtest.cpp")
+
+# Simulation parameters
+set.seed(123)
+n_sims <- 1000 # number of simulation
+n <- 1000 # sample number
+k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
+vals <- c(0.5, 1)
+p_threshold <- 0.01 # pvalue threshold
+intercept <- 1 # intercept value
+sigma <- 1 # noise level
+beta_1 <- 0.5 # beta 1 coef
+beta_lin <- c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2)
+
+results_beta <- data.frame(
+  Beta      = numeric(n_sims * length(beta_lin)),
+  N         = integer(n_sims * length(beta_lin)),
+  K         = integer(n_sims * length(beta_lin)),
+  Coef_R    = numeric(n_sims * length(beta_lin)),
+  P_R       = numeric(n_sims * length(beta_lin)),
+  Coef_Maths = numeric(n_sims * length(beta_lin)),
+  P_Maths   = numeric(n_sims * length(beta_lin)),
+  Diff_P_Maths   = numeric(n_sims * length(beta_lin)),
+  Diff_Coef_Maths = numeric(n_sims * length(beta_lin)),
+  Coef_Stoat = numeric(n_sims * length(beta_lin)),
+  P_Stoat   = numeric(n_sims * length(beta_lin)),
+  Diff_P_Stoat   = numeric(n_sims * length(beta_lin)),
+  Diff_Coef_Stoat = numeric(n_sims * length(beta_lin)),
+  Coef_RVTest = numeric(n_sims * length(beta_lin)),
+  P_RVTest    = numeric(n_sims * length(beta_lin)),
+  Diff_P_RVTest   = numeric(n_sims * length(beta_lin)),
+  Diff_Coef_RVTest = numeric(n_sims * length(beta_lin))
+)
+```
+
+```{r function, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Generate one constrained path row (sum of Paths = 1)
+gen_row <- function(num_path) {
+  row <- rep(0, num_path)
+  if (runif(1) < 0.5) {
+    # 50% chance: pick one index and set it to 1
+    idx <- sample(num_path, 1)
+    row[idx] <- 1
+  } else {
+    # 50% chance: pick two distinct indices and set both to 0.5
+    idxs <- sample(num_path, 2)
+    row[idxs] <- 0.5
+  }
+  return(row)
+}
+
+# Function to count NA or non-numeric entries in a vector
+count_invalid <- function(x) {
+  sum(is.na(x) | !is.numeric(x))
+}
+
+# Function to check invalid counts and stop if any are > 0
+check_invalid_counts <- function(...) {
+  # Count all invalid values across all provided arguments
+  total_invalid <- sum(sapply(list(...), count_invalid))
+  if (total_invalid > 0) {
+    warning("Found ", total_invalid, " NA or non-numeric values in results.")
+  }
+}
+
+# Function to summarize and print percentage differences
+summarize_pct_diff <- function(pct_diff, method_name = "Method") {
+  if (!is.numeric(pct_diff)) stop("Input must be numeric")
+  
+  stats <- data.frame(
+    Method = method_name,
+    Min  = min(pct_diff, na.rm = TRUE),
+    Mean = mean(pct_diff, na.rm = TRUE),
+    Max  = max(pct_diff, na.rm = TRUE)
+  )
+  
+  print(stats)
+  invisible(stats)  # Return stats invisibly if needed
+}
+
+# Fixed function that simulates lr for all methods
+run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
+                                  significant = TRUE, collinearity = FALSE, 
+                                  merge = FALSE) {
+  # Storage for simulation results - main results per simulation
+  results <- data.frame(
+    P_R = numeric(n_sims),
+    P_Maths = numeric(n_sims),
+    P_Stoat = numeric(n_sims),
+    P_RVTest = numeric(n_sims),
+    Coef_R = numeric(n_sims),
+    Coef_Maths = numeric(n_sims),
+    Coef_Stoat = numeric(n_sims),
+    Coef_RVTest = numeric(n_sims),
+    Diff_Coef_Maths = numeric(n_sims),
+    Diff_Coef_Stoat = numeric(n_sims),
+    Diff_Coef_RVTest = numeric(n_sims),
+    Diff_P_Maths = numeric(n_sims),
+    Diff_P_Stoat = numeric(n_sims),
+    Diff_P_RVTest = numeric(n_sims),
+    N = integer(n_sims),
+    K = integer(n_sims)
+  )
+  
+  # Separate storage for all p-values (will be longer than n_sims)
+  all_pvals <- list(
+    P_R_all = list(),
+    P_Maths_all = list(),
+    P_Stoat_all = list(),
+    P_RVTest_all = list(),
+    Method = character(),
+    Simulation = integer()
+  )
+    
+  for (i in seq_len(n_sims)) {
+    
+    results$N[i] <- n
+    results$K[i] <- k
+    beta_ <- beta_1
+    
+    # Step 1: Generate X matrix
+    X <- matrix(
+      t(replicate(n, gen_row(k - 1))),
+      nrow = n,
+      ncol = k - 1
+    )
+    
+  if (collinearity) {
+    X <- cbind(X, matrix(0, nrow = n, ncol = 2))
+    
+    # Determine number of last rows (between 1 and 10% of n)
+    number_last_element <- 100
+    start_row <- n - number_last_element + 1
+    
+    # Set selected rows to 0
+    X[start_row:n, ] <- 0
+    
+    # Set last two columns to 0.5
+    last_cols <- (ncol(X)-1):ncol(X)
+    X[start_row:n, last_cols] <- 0.5
+    
+    # Change one specific row to 0,1 in the last two columns
+    # specific_row <- start_row  # for example, the first row of the modified block
+    # X[specific_row, last_cols] <- c(0, 1)
+
+    beta_ <- beta_ + k - 1
+    
+  }
+    
+    if (any(rowSums(X) != 1)) stop("Some rows do not sum to 1!")
+    
+    beta <- rep(0, ncol(X))
+    beta[1] <- if (significant) beta_ else 0
+    Y <- as.vector(X %*% beta + rnorm(n, sd = sigma))
+    df <- data.frame(Y = Y, X)
+    
+    # Fit R model
+    fit_r <- lm(Y ~ ., data = df)
+    r_summary <- summary(fit_r)
+    coefs <- coef(r_summary)
+    coef_r <- coef(fit_r)[2]
+    pvals_r <- coefs[-1, "Pr(>|t|)"]
+    p_r <- pvals_r[1]
+    
+    if (is.na(p_r)) {
+      print(r_summary)
+      stop("P-value is NA. Exiting.")
+    }
+    
+    if (merge) {
+      dup_cols <- duplicated(as.data.frame(t(X)))
+      X <- X[, !dup_cols, drop = FALSE]
+    }
+    X <- X[, -ncol(X), drop = FALSE]
+    
+    # Fit other methods
+    res_maths <- cpp_linear_regression_maths(X, Y)
+    coef_maths <- unlist(res_maths$coefficients)[2]
+    p_maths <- unlist(res_maths$p_values)[2]
+    maths_pvals <- unlist(res_maths$p_values[2:length(res_maths$p_values)])
+    
+    res_stoat <- cpp_linear_regression_stoat(X, Y)
+    coef_stoat <- unlist(res_stoat$coefficients)[2]
+    p_stoat <- unlist(res_stoat$p_values)[2]
+    stoat_pvals <- unlist(res_stoat$p_values[2:length(res_stoat$p_values)])
+    
+    res_rvtest <- cpp_linear_regression_rvtest(X, Y)
+    coef_rvtest <- unlist(res_rvtest$coefficients)[2]
+    p_rvtest <- unlist(res_rvtest$p_values)[2]
+    rvtest_pvals <- unlist(res_rvtest$p_values[2:length(res_rvtest$p_values)])
+    
+    # Store all p-values for other methods
+    #all_pvals$P_R_all <- c(all_pvals$P_R_all, pvals_r)
+    #all_pvals$Method <- c(all_pvals$Method, rep("P_R", length(pvals_r)))
+    #all_pvals$Simulation <- c(all_pvals$Simulation, rep(i, length(pvals_r)))
+    #all_pvals$P_Maths_all[[length(all_pvals$P_Maths_all) + 1]] <- maths_pvals
+    #all_pvals$P_Stoat_all[[length(all_pvals$P_Stoat_all) + 1]] <- stoat_pvals
+    #all_pvals$P_RVTest_all[[length(all_pvals$P_RVTest_all) + 1]] <- rvtest_pvals
+
+    # Store main results
+    results$Coef_R[i] <- coef_r
+    results$P_R[i] <- p_r
+    results$Coef_Maths[i] <- coef_maths
+    results$P_Maths[i] <- p_maths
+    results$Diff_Coef_Maths[i] <- abs(coef_maths - coef_r)
+    results$Diff_P_Maths[i] <- abs(p_maths - p_r)
+    results$Coef_Stoat[i] <- coef_stoat
+    results$P_Stoat[i] <- p_stoat
+    results$Diff_Coef_Stoat[i] <- abs(coef_stoat - coef_r)
+    results$Diff_P_Stoat[i] <- abs(p_stoat - p_r)
+    results$Coef_RVTest[i] <- coef_rvtest
+    results$P_RVTest[i] <- p_rvtest
+    results$Diff_Coef_RVTest[i] <- abs(coef_rvtest - coef_r)
+    results$Diff_P_RVTest[i] <- abs(p_rvtest - p_r)
+  }
+  
+  cat("Number of NA per methods:\n")
+  cat("Maths : ", sum(is.na(results$P_Maths)), "\n")
+  cat("Stoat : ", sum(is.na(results$P_Stoat)), "\n")
+  cat("Rvtest : ", sum(is.na(results$P_RVTest)), "\n")
+  
+  # Return both main results and all p-values
+  return(list(
+    main_results = results,
+    all_pvals = as.data.frame(all_pvals)
+  ))
+}
+
+```
+
+```{r plots-function, echo=FALSE, message=FALSE, warning=FALSE}
+
+plot_linear_simulation_results <- function(results_result_all, null = FALSE, title_prefix = "") {
+  
+  plots <- list()
+  
+  # Extract main results and all p-values from the new structure
+  results <- results_result_all$main_results
+  all_pvals <- results_result_all$all_pvals
+
+  # ----- Check validity -----
+  check_invalid_counts(
+      results$Coef_R, results$P_R,
+      results$Coef_Maths, results$P_Maths,
+      results$Coef_Stoat, results$P_Stoat,
+      results$Coef_RVTest, results$P_RVTest
+    )
+  
+  cat("P-value distribution [min/max/mean] : \n")
+  P_stats <- data.frame(
+    Method = c("PR"),
+    Min = min(results$P_R, na.rm = TRUE),
+    Mean = mean(results$P_R, na.rm = TRUE),
+    Max = max(results$P_R, na.rm = TRUE)
+  )
+  print(P_stats)
+  
+  # ----- P-value distributions (main results - one per simulation) -----
+  df_pvals_long <- melt(
+    data.frame(
+      P_R      = results$P_R,
+      P_Maths  = results$P_Maths,
+      P_Stoat  = results$P_Stoat,
+      P_RVTest = results$P_RVTest
+    ),
+    variable.name = "Method",
+    value.name = "PValue"
+  )
+  
+  # ----- All P-values (multiple per simulation) -----
+  # Check if all methods have the same number of p-values
+  cat("Number of p-values per method:\n")
+  cat("P_R:", length(all_pvals$P_R_all), "\n")
+  cat("P_Maths:", length(all_pvals$P_Maths_all), "\n")
+  cat("P_Stoat:", length(all_pvals$P_Stoat_all), "\n")
+  cat("P_RVTest:", length(all_pvals$P_RVTest_all), "\n")
+  
+  # Option 1: Use minimum length to ensure equal numbers
+  min_length <- min(length(all_pvals$P_R_all),
+                    length(all_pvals$P_Maths_all),
+                    length(all_pvals$P_Stoat_all),
+                    length(all_pvals$P_RVTest_all))
+  
+  cat("min_length : ", min_length)
+  
+  # Convert list of p-value vectors into long format
+  df_pvals_long_all_equal <- data.frame()
+  
+  methods <- c("P_R", "P_Maths", "P_Stoat", "P_RVTest")
+  for (method in methods) {
+    method_list <- all_pvals[[paste0(method, "_all")]]
+    
+    for (i in seq_along(method_list)) {
+      df_pvals_long_all_equal <- rbind(df_pvals_long_all_equal,
+        data.frame(
+          Method = method,
+          Replicate = paste0("Run", i),
+          PValue = method_list[[i]]
+        )
+      )
+    }
+  }
+  
+  df_pvals_long_all_equal$Replicate <- as.factor(df_pvals_long_all_equal$Replicate)
+  
+  plots$pval_hist <- ggplot(df_pvals_long, aes(x = PValue, fill = Method)) +
+    geom_histogram(alpha = 0.5, position = "dodge", bins = 50) +
+    theme_bw() +
+    labs(title = paste("P-value Distributions by Method", title_prefix),
+         x = "P-value", y = "Frequency")
+  
+  # Extract mean for y-axis centering
+  mean_pr <- P_stats$Mean
+  y_lower <- max(0, mean_pr - (mean_pr*0.1))
+  y_upper <- min(1, mean_pr + (mean_pr*0.1))
+  
+  # Boxplot with equal numbers (Option 1 - recommended for comparison)
+  # plots$pval_box_equal <- ggplot(df_pvals_long_all_equal, aes(x = Method, y = PValue, fill = Replicate)) +
+  # geom_boxplot(position = position_dodge(width = 0.75), outlier.size = 1) +
+  # ylim(y_lower, y_upper) +
+  # theme_bw() +
+  # labs(title = paste("Distribution of P-values by Method and Replicate", title_prefix),
+  #      x = "Method", y = "P-value", fill = "Replicate") +
+  # theme(legend.position = "right")
+
+  if (null) {
+    # ECDF for null pvalue
+    plots$pval_ecdf <- ggplot(df_pvals_long, aes(x = PValue, color = Method)) +
+    stat_ecdf(linewidth = 1) +
+    theme_bw() +
+    labs(
+      title = paste("Empirical CDF of P-values by Method", title_prefix),
+      x = "P-value",
+      y = "ECDF"
+    ) +
+    geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")
+
+  } else {
+
+    # Filtered P-values (0 to 0.0001)
+    df_pvals_long_small <- subset(df_pvals_long, PValue <= 0.0001)
+    plots$pval_hist_small <- ggplot(df_pvals_long_small, aes(x = PValue, fill = Method)) +
+      geom_histogram(alpha = 0.5, position = "dodge", bins = 30) +
+      theme_bw() +
+      labs(title = paste("P-value Distributions (0 to 0.0001)", title_prefix),
+          x = "P-value", y = "Frequency")
+  }
+
+  # ----- P-value differences vs R -----
+  df_pvalue_diff_pvalue_long <- melt(
+    data.frame(
+      P_R = results$P_R,
+      Maths  = results$Diff_P_Maths,
+      Stoat  = results$Diff_P_Stoat,
+      RVTest = results$Diff_P_RVTest
+    ),
+    id.vars = "P_R",
+    variable.name = "Method",
+    value.name = "Diff_P"
+  )
+
+  plots$pval_diff_vs_R <- ggplot(df_pvalue_diff_pvalue_long,
+                                 aes(x = P_R, y = Diff_P, color = Method)) +
+    geom_point(alpha = 0.6) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+    theme_bw(base_size = 14) +
+    labs(title = paste("Difference in P-values vs R", title_prefix),
+         x = "P-value (R lm)",
+         y = "Difference in P-value (Method - R)",
+         color = "Method")
+  
+  # ----- P-value differences hist -----
+  df_pdiff_long <- melt(
+    data.frame(
+      Diff_P_Maths  = results$Diff_P_Maths,
+      Diff_P_Stoat  = results$Diff_P_Stoat,
+      Diff_P_RVTest = results$Diff_P_RVTest
+    ),
+    variable.name = "Method",
+    value.name = "PValueDiff"
+  )
+  
+  plots$pval_diff_hist <- ggplot(df_pdiff_long, aes(x = PValueDiff, fill = Method)) +
+    geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+    theme_bw() +
+    labs(title = paste("Difference in P-values vs R lm", title_prefix),
+         x = "C++ P-value - R P-value", y = "Frequency")
+  
+  # ----- Coefficient distributions -----
+  df_coef_long <- melt(
+    data.frame(
+      Coef_R      = results$Coef_R,
+      Coef_Maths  = results$Coef_Maths,
+      Coef_Stoat  = results$Coef_Stoat,
+      Coef_RVTest = results$Coef_RVTest
+    ),
+    variable.name = "Method",
+    value.name = "Coefficient"
+  )
+  
+  plots$coef_hist <- ggplot(df_coef_long, aes(x = Coefficient, fill = Method)) +
+    geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+    theme_bw() +
+    labs(title = paste("Coefficient Distributions", title_prefix),
+         x = "Coefficient", y = "Frequency")
+  
+  # ----- Coefficient differences -----
+  df_diff_long <- melt(
+    data.frame(
+      Diff_Coef_Maths  = results$Diff_Coef_Maths,
+      Diff_Coef_Stoat  = results$Diff_Coef_Stoat,
+      Diff_Coef_RVTest = results$Diff_Coef_RVTest
+    ),
+    variable.name = "Method",
+    value.name = "CoefDiff"
+  )
+  
+  plots$coef_diff_hist <- ggplot(df_diff_long, aes(x = CoefDiff, fill = Method)) +
+    geom_histogram(bins = 50, alpha = 0.5, position = "dodge") +
+    theme_bw() +
+    labs(title = paste("Difference in Coefficients vs R lm", title_prefix),
+         x = "C++ Coefficient - R Coefficient", y = "Frequency")
+  
+  # ---- SIGNIFICANCE proportion ----
+  p_threshold <- 0.01
+  sig_props <- sapply(results[, c("P_R", "P_Maths", "P_Stoat", "P_RVTest")],
+                      function(p) mean(p < p_threshold, na.rm = TRUE) * 100)
+
+  cat("% of p-value significant per method:\n")
+  print(sig_props)
+  cat("\n")
+
+  # ---- Difference p-value proportion ----
+  cat("Difference in P-values per method [min/max/mean %]:\n")
+  
+  results$PctDiff_Maths  <- 100 * abs(results$P_Maths  - results$P_R) / results$P_R
+  results$PctDiff_Stoat  <- 100 * abs(results$P_Stoat  - results$P_R) / results$P_R
+  results$PctDiff_RVTest <- 100 * abs(results$P_RVTest - results$P_R) / results$P_R
+  
+  summarize_pct_diff <- function(x, name) {
+    cat(paste0(name, " : min = ", round(min(x, na.rm = TRUE), 4),
+               ", mean = ", round(mean(x, na.rm = TRUE), 4),
+               ", max = ", round(max(x, na.rm = TRUE), 4), "\n"))
+  }
+  
+  summarize_pct_diff(results$PctDiff_Maths, "Maths")
+  summarize_pct_diff(results$PctDiff_Stoat, "Stoat")
+  summarize_pct_diff(results$PctDiff_RVTest, "RVTest")
+
+  return(plots)
+}
+```
+
+## All variant plot significant
+
+```{r plot1, echo=FALSE, message=FALSE, warning=FALSE}
+results_all_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=FALSE, merge=FALSE)
+plots_all_significant <- plot_linear_simulation_results(results=results_all_significant, null=FALSE, title_prefix = "[All variant type + Significant]")
+plots_all_significant
+```
+
+## All variant plot no significant
+
+```{r plot2, echo=FALSE, message=FALSE, warning=FALSE}
+results_all_no_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=FALSE, merge=FALSE)
+plots_all_no_sig <- plot_linear_simulation_results(results_all_no_significant, null = TRUE, title_prefix = "[All variant type + No Significant]")
+plots_all_no_sig
+```
+
+## Perfect collinearity without merging significant
+
+```{r plot3, echo=FALSE, message=FALSE, warning=FALSE}
+results_colinearity_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=FALSE)
+plots_colinearity_significant <- plot_linear_simulation_results(results_colinearity_significant, null = FALSE, title_prefix = "[Collinear + no merged + Significant]")
+plots_colinearity_significant
+```
+
+## Perfect collinearity without merging no significant
+
+```{r plot4, echo=FALSE, message=FALSE, warning=FALSE}
+results_colinearity_no_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=FALSE)
+plots_colinearity_no_significant <- plot_linear_simulation_results(results_colinearity_no_significant, null = TRUE, title_prefix = "[Collinear + no merged + No Significant]")
+plots_colinearity_no_significant
+```
+
+## Perfect collinearity with merging significant
+
+```{r plot5, echo=FALSE, message=FALSE, warning=FALSE}
+results_colinearity_significant_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=TRUE)
+plots_colinearity_significant_merge <- plot_linear_simulation_results(results_colinearity_significant_merge, null = FALSE, title_prefix = "[Collinear + merged + Significant]")
+plots_colinearity_significant_merge
+```
+
+## Perfect collinearity with merging no significant
+
+```{r plot6, echo=FALSE, message=FALSE, warning=FALSE}
+results_colinearity_no_significant_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=TRUE)
+plots_colinearity_no_significant_merge <- plot_linear_simulation_results(results_colinearity_no_significant_merge, null = TRUE, title_prefix = "[Collinear + merged + No Significant]")
+plots_colinearity_no_significant_merge
+```
+
+## Beta simulation
+
+```{r function-beta, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Main simulation function
+run_beta_simulations <- function(beta_lin, results, n_sims = 100, n = 1000, k = 5, sigma = 1) {
+  
+  row_idx <- 1
+  for (beta_n in beta_lin) {
+    for (i in seq_len(n_sims)) {
+      
+      # Step 1: Generate X safely
+      X <- matrix(
+        t(replicate(n, gen_row(k - 1))),
+        nrow = n,
+        ncol = k - 1
+      )
+      
+      # Ensure rows sum to 1
+      if(any(abs(rowSums(X) - 1) > 1e-8)) stop("Some rows do not sum to 1!")
+      
+      # Step 2: Generate Y
+      beta_true <- rep(0, ncol(X))
+      beta_true[1] <- beta_n
+      Y <- as.vector(X %*% beta_true + rnorm(n, sd = sigma))
+      df <- data.frame(Y = Y, X)
+      
+      # Step 3: R Linear Regression
+      fit_r <- lm(Y ~ ., data = df)
+      
+      r_summary <- summary(fit_r)
+      coefs <- coef(r_summary)
+      coef_r <- coef(fit_r)[2]
+      p_r <- coefs[2, "Pr(>|t|)"]
+      
+      results$Beta[row_idx] <- beta_n
+      results$N[row_idx] <- n
+      results$K[row_idx] <- k
+      
+      results$Coef_R[row_idx] <- coef_r
+      results$P_R[row_idx] <- p_r
+
+      # Step 4: Prepare X for C++ regressions (avoid singularity)
+      X_maths <- X[, -ncol(X), drop = FALSE]  # drop one column
+      
+      # Step 5: C++ Maths Regression
+      res_maths <- cpp_linear_regression_maths(X_maths, Y)
+      results$Coef_Maths[row_idx] <- res_maths$coefficients[2]
+      results$P_Maths[row_idx] <- res_maths$p_values[2]
+      results$Diff_P_Maths[row_idx] <- abs(results$P_Maths[row_idx] - results$P_R[row_idx])
+      results$Diff_Coef_Maths[row_idx] <- abs(results$Coef_Maths[row_idx] - results$Coef_R[row_idx])
+      
+      # Step 6: C++ Stoat Regression
+      res_stoat <- cpp_linear_regression_stoat(X_maths, Y)
+      results$Coef_Stoat[row_idx] <- res_stoat$coefficients[2]
+      results$P_Stoat[row_idx] <- res_stoat$p_values[2]
+      results$Diff_P_Stoat[row_idx] <- abs(results$P_Stoat[row_idx] - results$P_R[row_idx])
+      results$Diff_Coef_Stoat[row_idx] <- abs(results$Coef_Stoat[row_idx] - results$Coef_R[row_idx])
+      
+      # Step 7: C++ RVTest Regression
+      res_rvtest <- cpp_linear_regression_rvtest(X_maths, Y)
+      results$Coef_RVTest[row_idx] <- res_rvtest$coefficients[2]
+      results$P_RVTest[row_idx] <- res_rvtest$p_values[2]
+      results$Diff_P_RVTest[row_idx] <- abs(results$P_RVTest[row_idx] - results$P_R[row_idx])
+      results$Diff_Coef_RVTest[row_idx] <- abs(results$Coef_RVTest[row_idx] - results$Coef_R[row_idx])
+      
+      row_idx <- row_idx + 1
+    }
+  }
+  
+  return(results)
+}
+
+```
+
+```{r plot7, echo=FALSE, message=FALSE, warning=FALSE}
+results_beta_simulations <- run_beta_simulations(beta_lin, results_beta, n_sims, n, k, sigma)
+
+df_pvals_long_beta <- melt(
+  results_beta_simulations,
+  id.vars = c("Beta", "N", "K"),
+  measure.vars = c("P_R", "P_Maths", "P_Stoat", "P_RVTest"),
+  variable.name = "Method",
+  value.name = "PValue"
+)
+
+ggplot(df_pvals_long_beta, aes(x = Beta, y = PValue, color = Method)) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.2) +      # mean P-value per beta
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.1) +  # error bars
+  scale_y_continuous(trans = "log10") +  # log-scale for p-values
+  theme_bw() +
+  labs(
+    title = "Impact of Beta on P-values by Method",
+    x = expression(beta),
+    y = "P-value (log10 scale)"
+  ) +
+  geom_hline(yintercept = 0.05, linetype = "dashed", color = "gray") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16),
+    axis.title = element_text(size = 14)
+  )
+```

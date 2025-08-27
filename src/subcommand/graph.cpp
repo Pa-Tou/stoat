@@ -39,8 +39,8 @@ void print_help_graph() {
         << "options:" << endl
         << "  -t, --threads N                    Number of threads to use" << endl
         << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [exact]" << endl
-        //<< "  -p, --p-value-threshold FLOAT      What is the threshold p-value to be considered significant? [0.05]" << endl
-        //<< "                                     When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
+        //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << endl
+        //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
         //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl

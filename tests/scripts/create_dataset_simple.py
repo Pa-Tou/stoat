@@ -56,7 +56,8 @@ def generate_paths(start_node):
     ref_path = f">{str(start_node)}>{str(start_node + 2)}>{str(start_node + 3)}"
     alt_path = f">{str(start_node)}>{str(start_node + 1)}>{str(start_node + 3)}"
     paths = f"{ref_path},{alt_path}"
-    return paths, start_node + 4
+    snarl_id = f"{str(start_node)}_{str(start_node + 3)}"
+    return snarl_id, paths, start_node + 4
 
 def generate_chr_reference(chr_number, chr_file):
     chroms = [str(i+1) for i in range(chr_number)]
@@ -80,7 +81,7 @@ def generate_vcf_and_paths(chr_number, num_samples, num_variants, vcf_file, path
         vcf.write("\t".join([f"sample{i+1}" for i in range(num_samples)]) + "\n")
 
         # TSV header
-        paths.write("CHR\tSTART_POS\tEND_POS\tSNARL\tPATHS\tTYPE\tREF\n")
+        paths.write("CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tTYPE\tREF\tDEPTH\n")
 
         current_node = 2
         variants_per_chrom = num_variants // chr_number
@@ -90,18 +91,19 @@ def generate_vcf_and_paths(chr_number, num_samples, num_variants, vcf_file, path
         fmt = "GT"
 
         # Fake net handle 
-        net = 0
+        net = 1
 
         for chrom in chroms:
             for i in range(variants_per_chrom):
                 pos = (i + 10) * 10000
-                all_paths, current_node = generate_paths(current_node)
+                snarl_id, all_paths, current_node = generate_paths(current_node)
                 at_info = f"AT={all_paths}"
 
                 genotypes = '\t'.join([random_genotype() for _ in range(num_samples)])
                 var_id = f"{chrom}_{i+1}"
                 vcf.write(f"{chrom}\t{pos}\trs{var_id}\t{ref}\t{alt}\t.\tPASS\t{at_info}\t{fmt}\t{genotypes}\n")
-                paths.write(f"{chrom}\t{pos}\t{pos+1}\t{net}\t{var_id}\t{all_paths}\t{ref},{alt}\t0\n")
+                paths.write(f"{chrom}\t{pos}\t{pos+1}\t{net}\t{snarl_id}\t{all_paths}\t1,1\t1\t1\n")
+                net += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate phenotype, VCF, and path info for simulated pangenome variants.")
@@ -109,10 +111,10 @@ if __name__ == "__main__":
     parser.add_argument("num_variants", type=int, default=100000, help="Total number of variants (must be divisible by 10)")
     parser.add_argument("number_of_genes", type=int, default=100, help="Total number of genes (must be divisible by 10)")
     parser.add_argument("chr_number", type=int, default=10, help="Total number of chr (must be divisible by 10)")
-    parser.add_argument("--vcf_file", default="variants.vcf", help="Output VCF file")
-    parser.add_argument("--paths_file", default="paths_snarl.tsv", help="Output paths/snarl file")
+    parser.add_argument("--vcf_file", default="merged_output.vcf", help="Output VCF file")
+    parser.add_argument("--paths_file", default="snarl_analyse.tsv", help="Output paths/snarl file")
     parser.add_argument("--chr_file", default="chr_reference.tsv", help="Output chr reference file")
-    parser.add_argument("--covar_file", default="covar.tsv", help="Output covariate file")
+    parser.add_argument("--covar_file", default="covariate.tsv", help="Output covariate file")
     parser.add_argument("--qtl", default="qtl.tsv", help="Output qtl file")
     parser.add_argument("--gene_position", default="gene_position.tsv", help="Output gene position file")
     
@@ -138,4 +140,5 @@ if __name__ == "__main__":
     generate_covar(args.num_samples, args.covar_file)
     generate_vcf_and_paths(args.chr_number, args.num_samples, args.num_variants, args.vcf_file, args.paths_file)
 
-# python3 create_dataset.py 200 100000 1000 10 -q
+# python3 create_dataset_simple.py 200 100000 1000 10 -q
+# python3 create_dataset_simple.py 200 100000 1000 10 -b

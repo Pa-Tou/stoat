@@ -34,10 +34,10 @@ std::string add_suffix_to_filename(const std::string& filename, const std::strin
 void write_gaf_lines(const std::string& sequence_name, const std::string& path, int length, double prop, ofstream& outfile);
 
 std::vector<size_t> decompose_snarl(const std::string& snarl);
-int calcul_path_length(bdsg::PackedGraph& pg, const std::string& snarl);
+int calcul_path_length(handlegraph::PathHandleGraph& graph, const std::string& snarl);
 void write_gaf_lines(const std::string& sequence_name, const std::string& path, int length, double prop, ofstream& outfile);
 void gaf_creation(const std::string& input_file, std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& snarl_chr,
-    bdsg::PackedGraph& pg, const std::string& output_file);
+    handlegraph::PathHandleGraph& graph, const std::string& output_file);
 
 } //end stoat namespace
 

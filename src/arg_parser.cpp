@@ -17,7 +17,6 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     file.close();
     return reference;
 }
-
 std::vector<bool> parse_binary_pheno(
     const std::string& file_path,
     std::vector<std::string>& list_samples) {
@@ -27,53 +26,54 @@ std::vector<bool> parse_binary_pheno(
     }
     
     std::unordered_map<std::string, bool> binary_pheno;
-    
     std::ifstream file(file_path);
     std::string line;
+
+    // Header is assumed already read and validated externally
+    std::getline(file, line);
+    std::istringstream header_stream(line);
+    std::string fid, iid, phenoStr;
+    header_stream >> fid >> iid >> phenoStr;
+    if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
+        stoat::LOG_FATAL("Invalid header: " + line);
+    }
+
+    // --- Read and process data ---
     int count_controls = 0;
     int count_cases = 0;
-    bool firstLine = true;
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string fid, iid, phenoStr;
+        std::string fid_val, iid_val, phenoStr_val;
 
-        if (!(iss >> fid >> iid >> phenoStr)) {
+        if (!(iss >> fid_val >> iid_val >> phenoStr_val)) {
             stoat::LOG_FATAL("Malformed line: " + line);
         }
 
-        if (firstLine) {
-            firstLine = false;
-            // Check that the header contains FID, IID, and PHENO
-            if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
-                stoat::LOG_FATAL("Invalid header: " + line);
-            }
-            continue;
+        int pheno;
+        try {
+            pheno = std::stoi(phenoStr_val);
+        } catch (...) {
+            stoat::LOG_FATAL("Bad phenotype type: " + phenoStr_val);
         }
 
-        int pheno = -1;
-        try {
-            pheno = std::stoi(phenoStr);
-        } catch (...) {
-            stoat::LOG_FATAL("Bad phenotype type : " + phenoStr);
-        }
         if (pheno == 1) {
-            count_controls++;
-            binary_pheno[iid] = static_cast<bool>(false);
+            ++count_controls;
+            binary_pheno[iid_val] = false;
         } else if (pheno == 2) {
-            count_cases++;
-            binary_pheno[iid] = static_cast<bool>(true);
+            ++count_cases;
+            binary_pheno[iid_val] = true;
         } else {
-            stoat::LOG_FATAL("Binary phenotype must be 1 or 2");
+            stoat::LOG_FATAL("Binary phenotype must be 1 or 2, got: " + std::to_string(pheno));
         }
         if (fill_in_samples) {
             list_samples.emplace_back(iid);
         }
     }
 
-    stoat::LOG_INFO("Binary phenotypes founds : " + std::to_string(count_controls+count_cases)
-        + " (Control : " + std::to_string(count_controls) 
-        + ", Case : " + std::to_string(count_cases) + ")");
+    stoat::LOG_INFO("Binary phenotypes found: " + std::to_string(count_controls + count_cases)
+        + " (Control: " + std::to_string(count_controls)
+        + ", Case: " + std::to_string(count_cases) + ")");
 
     file.close();
 
@@ -93,8 +93,6 @@ std::vector<bool> parse_binary_pheno(
 
     return vector_binary_pheno;
 }
-
-// Function to parse the phenotype file
 std::vector<double> parse_quantitative_pheno(
     const std::string& file_path, 
     const std::vector<std::string>& list_samples) {
@@ -103,39 +101,41 @@ std::vector<double> parse_quantitative_pheno(
 
     std::ifstream file(file_path);
     std::string line;
+
+    // Read and validate header (assumes file open and first line exists)
+    std::getline(file, line);
+    std::istringstream header_stream(line);
+    std::string fid, iid, phenoStr;
+    header_stream >> fid >> iid >> phenoStr;
+    if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
+        stoat::LOG_FATAL("In parsing phenotype, invalid header: " + line);
+    }
+
     int count_pheno = 0;
-    bool firstLine = true;
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string fid, iid, phenoStr;
+        std::string fid_val, iid_val, phenoStr_val;
 
-        if (!(iss >> fid >> iid >> phenoStr)) {
+        if (!(iss >> fid_val >> iid_val >> phenoStr_val)) {
             stoat::LOG_FATAL("In parsing phenotype, malformed line: " + line);
         }
 
-        if (firstLine) {
-            firstLine = false;
-            // Check that the header contains FID, IID, and PHENO
-            if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
-                stoat::LOG_FATAL("In parsing phenotype, invalid header: " + line);
-            }
-            continue;
+        try {
+            quantitative_pheno[iid_val] = std::stod(phenoStr_val);
+        } catch (...) {
+            stoat::LOG_FATAL("Bad phenotype type: " + phenoStr_val);
         }
 
-        try {
-            quantitative_pheno[iid] = std::stod(phenoStr);
-        } catch(...) {
-            stoat::LOG_FATAL("Bad phenotype type : " + phenoStr);
-        }
-        count_pheno++;
+        ++count_pheno;
     }
 
-    stoat::LOG_INFO("Quantitative phenotypes founds : " + std::to_string(count_pheno));
+    stoat::LOG_INFO("Quantitative phenotypes found: " + std::to_string(count_pheno));
 
     file.close();
 
     check_match_samples(quantitative_pheno, list_samples);
+
     std::vector<double> vector_quantitative_pheno;
     vector_quantitative_pheno.reserve(list_samples.size());
 
@@ -195,7 +195,7 @@ template <typename T>
 void check_match_samples(const std::unordered_map<std::string, T>& map, const std::vector<std::string>& keys) {
     for (const auto& key : keys) {
         if (map.find(key) == map.end()) {
-            stoat::LOG_FATAL("Key '" + key + "' not found in the phenotype file");
+            stoat::LOG_FATAL("Sample '" + key + "' not found in the phenotype file");
         }
     }
     if (map.size() != keys.size()) {
@@ -244,29 +244,37 @@ std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_g
     std::ifstream file(filename);
     std::string line;
 
-    // parse and check header
+    // Read and validate header (assumes file and first line already checked)
     std::getline(file, line);
     std::stringstream ss_header(line);
     std::string gene, chrom, startStr, endStr;
-    if (!std::getline(ss_header, gene, '\t') || !std::getline(ss_header, chrom, '\t') || !std::getline(ss_header, startStr, '\t') || !std::getline(ss_header, endStr, '\t') ||
-         gene != "gene_name" || chrom != "chr" || startStr != "start" || endStr != "end") {
-        stoat::LOG_FATAL("In parsing gene position file, invalid header format. Expected: gene_name\tchr\tstart\tend");
+    std::getline(ss_header, gene, '\t');
+    std::getline(ss_header, chrom, '\t');
+    std::getline(ss_header, startStr, '\t');
+    std::getline(ss_header, endStr, '\t');
+
+    if (gene != "gene_name" || chrom != "chr" || startStr != "start" || endStr != "end") {
+        stoat::LOG_FATAL("In parsing gene position file, invalid header. Expected: gene_name\tchr\tstart\tend");
     }
 
-    // Check for required columns
+    // Parse content
     while (std::getline(file, line)) {
         std::stringstream ss(line);
-        std::getline(ss, gene, '\t');
-        std::getline(ss, chrom, '\t');
-        std::getline(ss, startStr, '\t');
-        std::getline(ss, endStr, '\t');
+        std::string gene_val, chrom_val, start_val, end_val;
+
+        if (!std::getline(ss, gene_val, '\t') ||
+            !std::getline(ss, chrom_val, '\t') ||
+            !std::getline(ss, start_val, '\t') ||
+            !std::getline(ss, end_val, '\t')) {
+            stoat::LOG_FATAL("In parsing gene position file, malformed line: " + line);
+        }
 
         try {
-            int start = std::stoi(startStr);
-            int end = std::stoi(endStr);
-            geneMap[gene] = std::make_tuple(chrom, start, end);
+            size_t start = std::stoul(start_val);
+            size_t end = std::stoul(end_val);
+            geneMap[gene_val] = std::make_tuple(chrom_val, start, end);
         } catch (...) {
-            stoat::LOG_FATAL("In parsing gene position file, invalid line " + line);
+            stoat::LOG_FATAL("In parsing gene position file, invalid numeric value in line: " + line);
         }
     }
 
@@ -283,35 +291,33 @@ std::unordered_map<std::string, std::vector<double>> parse_qtl_file(
     std::unordered_map<std::string, std::vector<double>> geneExpressions;
 
     std::string line;
-    bool isHeader = true;
 
+    // --- Parse and validate header ---
+    std::getline(file, line);
+    std::stringstream ss_header(line);
+    std::string token;
+
+    std::getline(ss_header, token, '\t'); // Skip the first column (gene name)
+
+    std::vector<std::string> sampleNames;
+    while (std::getline(ss_header, token, '\t')) {
+        sampleNames.push_back(token);
+    }
+
+    // Validate sample names
+    for (const auto& sample : sampleNames) {
+        if (std::find(list_samples.begin(), list_samples.end(), sample) == list_samples.end()) {
+            stoat::LOG_FATAL("Sample " + sample + " not found in the list of samples.");
+        }
+    }
+
+    if (sampleNames.size() != list_samples.size()) {
+        stoat::LOG_WARN("Number of samples in the QTL file does not match the number of samples in the VCF.");
+    }
+
+    // --- Parse expression values ---
     while (std::getline(file, line)) {
         std::stringstream ss(line);
-        std::string token;
-
-        if (isHeader) {
-            std::getline(ss, token, '\t');  // Skip the first column (gene name)
-            std::vector<std::string> sampleNames;
-            while (std::getline(ss, token, '\t')) {
-                sampleNames.push_back(token);
-            }
-
-            // Check if all sample names are present in the list_samples
-            for (const auto& sample : sampleNames) {
-                if (std::find(list_samples.begin(), list_samples.end(), sample) == list_samples.end()) {
-                    stoat::LOG_FATAL("Sample " + sample + " not found in the list of samples.");
-                }
-            }
-
-            // warning if the number of samples in the file does not match the number of samples in the list
-            if (sampleNames.size() != list_samples.size()) {
-                stoat::LOG_WARN("Number of samples in the qtl file is greater that the number of samples in the VCF.");
-            }
-
-            isHeader = false;  // Skip header
-            continue;
-        }
-
         std::string geneName;
         std::vector<double> expressions;
 
@@ -323,6 +329,7 @@ std::unordered_map<std::string, std::vector<double>> parse_qtl_file(
                 stoat::LOG_FATAL("Invalid expression value for gene " + geneName + ": " + token);
             }
         }
+
         geneExpressions[geneName] = expressions;
     }
 
@@ -346,6 +353,7 @@ std::vector<std::vector<double>> parse_covariates(
     std::istringstream headerStream(line);
     std::vector<std::string> headers;
     std::string col;
+
     while (headerStream >> col) {
         headers.push_back(col);
     }
@@ -355,6 +363,7 @@ std::vector<std::vector<double>> parse_covariates(
     if (it_iid == headers.end()) {
         stoat::LOG_FATAL("header must include 'IID' column.\n");
     }
+
     size_t iid_index = std::distance(headers.begin(), it_iid);
 
     std::unordered_map<std::string, size_t> col_index;
@@ -412,6 +421,7 @@ std::vector<std::vector<double>> parse_covariates(
 void check_file(const std::string& file_path) {
     
     std::string line;
+
     // Check if file is a file
     if (!fs::is_regular_file(file_path)) {
         stoat::LOG_FATAL("File " + file_path + " does not exist.");

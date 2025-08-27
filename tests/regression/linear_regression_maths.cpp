@@ -1,3 +1,5 @@
+// [[Rcpp::plugins(cpp14)]]
+
 #include <iostream>
 #include <vector>
 #include <cmath>

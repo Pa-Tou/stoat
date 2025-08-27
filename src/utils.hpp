@@ -40,7 +40,7 @@ bool is_na(const std::string& s);
 double string_to_pvalue(const std::string& p1);
 
 bool isPValueSignificant(const double& pvalue_threshold, const std::string& pvalue_str);
-void retain_indices(std::vector<double>& vec, const std::unordered_set<size_t>& indices_to_keep);
+void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep);
 std::vector<double> adjusted_holm(const std::vector<double>& p_values);
 
 template <typename T>
@@ -119,7 +119,7 @@ bool is_equal(T a, T b, T e = std::numeric_limits<T>::epsilon()) {
     return std::fabs(a-b) <= e;
 };
 
-enum phenotype_type_t { BINARY = 1, QUANTITATIVE, EQTL };
+enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // namespace stoat
 

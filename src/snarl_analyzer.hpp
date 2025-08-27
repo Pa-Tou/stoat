@@ -63,7 +63,7 @@ public:
         size_t &num_paths_ch);
 
     /// For the given snarl, analyze the snarl and write it to outf
-    virtual void analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf) = 0;
+    virtual bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf) = 0;
 
     /// Write the header of the output tsv file
     /// This should ideally call a write_header() function from writer.hpp to keep things consistent
@@ -107,7 +107,7 @@ public:
         const size_t& min_haplotypes,
         const std::string& regression_dir);
 
-    void analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
+    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
 
     void write_header(std::ofstream &outf);
 
@@ -134,7 +134,7 @@ public:
         const size_t& min_haplotypes,
         const std::string& regression_dir);
 
-    void analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
+    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
 
     void write_header(std::ofstream &outf);
 
@@ -161,7 +161,7 @@ public:
         const size_t& min_haplotypes,
         const std::string& regression_dir);
 
-    void analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf) ;
+    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf) ;
 
     void write_header(std::ofstream &outf);
 
@@ -189,7 +189,7 @@ public:
         const size_t& min_haplotypes,
         const std::string& regression_dir);
 
-    void analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
+    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
 
     void write_header(std::ofstream &outf);
 
@@ -206,6 +206,9 @@ protected:
     const size_t& windows_gene_threshold;
     LinearRegression lr;
 };
+
+void combine_identical_columns_quantitative_table(
+    std::vector<std::vector<double>>& df);
 
 void remove_empty_columns_binary_table(
     std::vector<size_t>& g0, 
