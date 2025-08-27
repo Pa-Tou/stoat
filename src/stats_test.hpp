@@ -90,7 +90,7 @@ class LogisticRegression {
         inline double clamp(double x, double lo, double hi);
 
         // GLM Implementation with Iteratively Reweighted Least Squares (IRLS)
-        std::tuple<std::string, std::string, std::string, std::string> logistic_regression(
+        std::tuple<std::string, std::string, std::string> logistic_regression(
             const std::vector<std::vector<double>>& variant_data,
             const std::vector<bool>& phenotype,
             const std::vector<std::vector<double>>& covariates);

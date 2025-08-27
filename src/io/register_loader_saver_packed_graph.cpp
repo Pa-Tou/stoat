@@ -13,7 +13,7 @@ namespace stoat {
 
 namespace io {
 
-    using namespace vg::io;
+using namespace vg::io;
 using namespace handlegraph;
 
 void register_loader_saver_packed_graph() {

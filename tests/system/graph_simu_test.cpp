@@ -17,7 +17,6 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
     SECTION("Test tsv output") {
 
-
         clean_output_dir(output_dir);
 
         std::string cmd = "../bin/stoat graph";
@@ -30,8 +29,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -43,11 +43,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         //bool passed = compare_output_dirs(output_dir, expected_dir);
         //REQUIRE(passed);
 
-
     }
 
     SECTION("Test chi2 fasta output") {
-
 
         clean_output_dir(output_dir);
 
@@ -61,8 +59,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -75,8 +74,6 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
         REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
-
-
     }
 
     SECTION("Test exact fasta output") {
@@ -94,8 +91,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -108,9 +106,8 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         REQUIRE(is_valid_fasta(output_dir+"/associated.fasta"));
         REQUIRE(is_valid_fasta(output_dir+"/unassociated.fasta"));
-
-
     }
+
     clean_output_dir(output_dir);
 }
 
@@ -121,7 +118,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     std::vector<std::string> samples_of_interest = {"path1", "path3"};
 
     SECTION("Test chi2 tsv output") {
-
 
         clean_output_dir(output_dir);
 
@@ -135,8 +131,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -144,27 +141,23 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
         REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t1\t2\t1_4\t1/1\t1.0000\t1.0000\t1.0000\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0\t3\t6\t4_8\t0/3\t1.0000\t0.2482\t0.3723\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0/1\t0.3333\t0.0833\t0.2499\t0:1,2:0\t2");
-
+        truth_lines.emplace_back("path0\t1\t2\t1_4\t1,1\t1.0000\t1.0000\t1.0000\t1:1,1:1\t1");
+        truth_lines.emplace_back("path0\t3\t6\t4_8\t0,3\t1.0000\t0.2482\t0.3723\t2:1,0:1\t1");
+        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\t0.3333\t0.0833\t0.2499\t0:1,2:0\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
 
         truth_lines.clear();
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
         REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
-
-
     }
-    SECTION("Test exact tsv output") {
 
+    SECTION("Test exact tsv output") {
 
         clean_output_dir(output_dir);
 
@@ -178,8 +171,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -192,18 +186,16 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0/1\tNA\tNA\t1.0000\tNA\t2");
+        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\tNA\tNA\t1.0000\tNA\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
 
         truth_lines.clear();
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
         REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
-
     }
 
     SECTION("Test chi2 fasta output") {
-
 
         clean_output_dir(output_dir);
 
@@ -217,8 +209,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -251,10 +244,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path1:4-4", "");
         truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path3:4-4", "");
         REQUIRE(fasta_equal(output_dir+"/associated.fasta", truth_fasta));
-
     }
-    SECTION("Test exact fasta output") {
 
+    SECTION("Test exact fasta output") {
 
         clean_output_dir(output_dir);
 
@@ -268,8 +260,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -289,16 +282,14 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         REQUIRE(fasta_equal(output_dir+"/unassociated.fasta", truth_fasta));
 
-
         // Test associated
         truth_fasta.clear();
 
         truth_fasta.emplace_back(1, ">snarl:5-7|path0:4-5|path1:4-4", "");
         truth_fasta.emplace_back(1, ">snarl:5-7|path0:4-5|path3:4-4", "");
         REQUIRE(fasta_equal(output_dir+"/associated.fasta", truth_fasta));
-
-
     }
+
     clean_output_dir(output_dir);
 }
 
@@ -321,8 +312,9 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -330,23 +322,19 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             REQUIRE( false);
         }
 
-
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
         REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3/4\t0.3333\t0.0833\t0.1666\t0:1,2:0\t1");
-        truth_lines.emplace_back("path0\t11\t12\t2_4\t0/1\t1.0000\t0.2482\t0.2482\t1:1,2:0\t2");
-
+        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\t0.3333\t0.0833\t0.1666\t0:1,2:0\t1");
+        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\t1.0000\t0.2482\t0.2482\t1:1,2:0\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
 
         truth_lines.clear();
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
         REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
-
-
     }
 
     SECTION("Test exact tsv output") {
@@ -362,8 +350,9 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
@@ -371,22 +360,18 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             REQUIRE( false);
         }
 
-
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
         REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3/4\tNA\tNA\t1.0000\tNA\t1");
-
+        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\tNA\tNA\t1.0000\tNA\t1");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
 
         truth_lines.clear();
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
         REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
-
-
     }
 
     SECTION("Test chi2 fasta output") {
@@ -402,15 +387,15 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
             std::cerr << "Command failed: " << cmd << "\n";
             REQUIRE( false);
         }
-
 
         REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
         REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
@@ -436,6 +421,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
 
         REQUIRE(fasta_equal(output_dir+"/associated.fasta", truth_fasta));
     }
+
     SECTION("Test exact fasta output") {
 
         clean_output_dir(output_dir);
@@ -449,15 +435,15 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             cmd += " -s " + sample;
         }
 
-
         cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
 
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
             std::cerr << "Command failed: " << cmd << "\n";
             REQUIRE( false);
         }
-
 
         REQUIRE(std::filesystem::exists(output_dir+"/associated.fasta"));
         REQUIRE(std::filesystem::exists(output_dir+"/unassociated.fasta"));
@@ -475,9 +461,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
 
         REQUIRE(fasta_equal(output_dir+"/unassociated.fasta", truth_fasta));
-
     }
-
 
     clean_output_dir(output_dir);
 }

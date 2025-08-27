@@ -14,8 +14,7 @@ class TestPathPartitioner : PathPartitioner {
     using PathPartitioner::get_start_edge_sets;
 };
 
-TEST_CASE( "Path association finder one node",
-          "[path_finder]" ) {
+TEST_CASE( "Path association finder one node", "[path_finder]" ) {
 
 
     bdsg::HashGraph graph;
@@ -95,7 +94,6 @@ TEST_CASE( "Path association finder nested bubbles",
     //// vg isn't included so the distance index can only be built from the command line
     //graph.serialize("../tests/graph_test/simple_nested_chain.hg");
     //int built = system("vg index -j ../tests/graph_test/simple_nested_chain.dist ../tests/graph_test/simple_nested_chain.hg"); 
-
 
     graph.deserialize("../tests/graph_test/simple_nested_chain.hg");
     bdsg::SnarlDistanceIndex distance_index;
@@ -190,8 +188,7 @@ TEST_CASE( "Path association finder nested bubbles",
 
 }
 
-TEST_CASE( "Path association finder looping snarl",
-          "[path_finder]" ) {
+TEST_CASE( "Path association finder looping snarl", "[path_finder]" ) {
 
     /*
 

@@ -6,7 +6,7 @@ std::string set_precision(const double& value) {
     std::ostringstream oss;
     oss << std::setprecision(4);
 
-    if (value < 1e-4) {
+    if (std::abs(value) < 1e-4) {
         oss << std::scientific << value; // Scientific notation with 4 decimals
     } else {
         oss << std::fixed << value; // Fixed-point notation with 4 decimals
@@ -83,7 +83,7 @@ std::vector<double> adjusted_holm(const std::vector<double>& p_values) {
     return reordered;
 }
 
-void retain_indices(std::vector<double>& vec, const std::unordered_set<size_t>& indices_to_keep) {
+void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep) {
     size_t write_idx = 0;
     for (size_t read_idx = 0; read_idx < vec.size(); ++read_idx) {
         if (indices_to_keep.count(read_idx)) {
@@ -355,7 +355,7 @@ std::pair<size_t, size_t> find_snarl_id(const bdsg::SnarlDistanceIndex& stree, c
     size_t end_node_id_size_t = static_cast<size_t>(end_node_id);
 
     // Construct the snarl ID
-    std::pair<size_t, size_t> snarl_id(end_node_id_size_t, start_node_id_size_t);
+    std::pair<size_t, size_t> snarl_id(start_node_id_size_t, end_node_id_size_t);
 
     return snarl_id;  // Return the generated snarl ID as a std::string
 }
