@@ -150,7 +150,7 @@ X2 <- X1  # now X2 = X1 exactly
 # Response variable Y
 Y <- 5 + 2*X1 + rnorm(100, sd = 0.1)
 
-# Fit linear model with perfectly collinear predictors
+# Fit linear model with perfectly colliPredictors
 model2 <- lm(Y ~ X1 + X2)
 summary(model2)
 ```
@@ -358,7 +358,7 @@ run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
     X <- cbind(X, matrix(0, nrow = n, ncol = 2))
     
     # Determine number of last rows (between 1 and 10% of n)
-    number_last_element <- sample(1:ceiling(n * 0.1), 1)
+    number_last_element <- 100
     start_row <- n - number_last_element + 1
     
     # Set selected rows to 0
@@ -367,7 +367,13 @@ run_linear_simulation <- function(n_sims, n, k, beta_1, sigma,
     # Set last two columns to 0.5
     last_cols <- (ncol(X)-1):ncol(X)
     X[start_row:n, last_cols] <- 0.5
+    
+    # Change one specific row to 0,1 in the last two columns
+    # specific_row <- start_row  # for example, the first row of the modified block
+    # X[specific_row, last_cols] <- c(0, 1)
+
     beta_ <- beta_ + k - 1
+    
   }
     
     if (any(rowSums(X) != 1)) stop("Some rows do not sum to 1!")
@@ -690,7 +696,7 @@ plots_all_no_sig <- plot_linear_simulation_results(results_all_no_significant, n
 plots_all_no_sig
 ```
 
-## Near perfect collinearity without merging significant
+## Perfect collinearity without merging significant
 
 ```{r plot3, echo=FALSE, message=FALSE, warning=FALSE}
 results_colinearity_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=FALSE)
@@ -698,7 +704,7 @@ plots_colinearity_significant <- plot_linear_simulation_results(results_colinear
 plots_colinearity_significant
 ```
 
-## Near perfect collinearity without merging no significant
+## Perfect collinearity without merging no significant
 
 ```{r plot4, echo=FALSE, message=FALSE, warning=FALSE}
 results_colinearity_no_significant <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=FALSE)
@@ -706,7 +712,7 @@ plots_colinearity_no_significant <- plot_linear_simulation_results(results_colin
 plots_colinearity_no_significant
 ```
 
-## Near perfect collinearity with merging significant
+## Perfect collinearity with merging significant
 
 ```{r plot5, echo=FALSE, message=FALSE, warning=FALSE}
 results_colinearity_significant_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=TRUE, collinearity=TRUE, merge=TRUE)
@@ -714,7 +720,7 @@ plots_colinearity_significant_merge <- plot_linear_simulation_results(results_co
 plots_colinearity_significant_merge
 ```
 
-## Near perfect collinearity with merging no significant
+## Perfect collinearity with merging no significant
 
 ```{r plot6, echo=FALSE, message=FALSE, warning=FALSE}
 results_colinearity_no_significant_merge <- run_linear_simulation(n_sims, n, k, beta_1, sigma, significant=FALSE, collinearity=TRUE, merge=TRUE)
