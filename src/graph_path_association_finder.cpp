@@ -10,23 +10,21 @@ namespace stoat_graph {
 AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
                                      const bdsg::SnarlDistanceIndex& distance_index,
                                      std::shared_ptr<Partitioner> partitioner,
-                                     const std::set<std::string>& samples_of_interest, 
+                                     const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                                      const std::string& reference_sample,
                                      const std::string& test_method,
                                      const std::string& output_format,
                                      size_t allele_size_limit,
-                                     std::ostream& out_associated,
-                                     std::ostream& out_unassociated) :
+                                     std::ostream& out_associated) :
     graph(graph), 
     distance_index(distance_index), 
     partitioner(std::move(partitioner)),
-    samples_of_interest(samples_of_interest), 
+    sample_sets(sample_sets),
     reference_sample(reference_sample),
     test_method(test_method),
     output_format(output_format),
     allele_size_limit(allele_size_limit),
     out_associated(out_associated),
-    out_unassociated(out_unassociated),
     check_distances(distance_index.has_distances())
     {}
 
@@ -82,8 +80,12 @@ void AssociationFinder::test_snarls() const {
                 bool test_nested_snarls = true;
 
                 #ifdef DEBUG_ASSOCIATION_FINDER
-                    cerr << "\tTRUTH" << endl;
-                    for (const std::string& sample : samples_of_interest) {
+                    cerr << "\tTRUTH 1" << endl;
+                    for (const auto& sample : sample_sets.first) {
+                        cerr << "\t\t" << sample << endl;
+                    }
+                    cerr << "\tTRUTH 2" << endl;
+                    for (const auto& sample : sample_sets.second) {
                         cerr << "\t\t" << sample << endl;
                     }
 
@@ -105,7 +107,7 @@ void AssociationFinder::test_snarls() const {
 
 
                         for (const std::set<std::string>& partition : sample_partitions) {
-                            if (partition == samples_of_interest) {
+                            if (partition == sample_sets.first || partition == sample_sets.second) {
 
                                 // For the exact test, since we already know the result of the test, write only those snarls that pass the test
                                 write_output = true;
@@ -133,9 +135,9 @@ void AssociationFinder::test_snarls() const {
                         for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
                             const std::set<std::string> sample_set = sample_partitions[i];
                             for (const std::string sample : sample_set) {
-                                if (samples_of_interest.count(sample) != 0) {
+                                if (sample_sets.first.count(sample) == 1) {
                                     genotype_associated[i]++;
-                                } else {
+                                } else if (sample_sets.second.count(sample) == 1) {
                                     genotype_unassociated[i]++;
                                 }
                             }
@@ -183,7 +185,7 @@ void AssociationFinder::test_snarls() const {
 
                             # pragma omp critical (out_associated) 
                             {
-                                stoat::write_fasta(out_associated, out_unassociated, graph, distance_index, snarl, samples_to_write, reference_sample);
+                                stoat::write_fasta(out_associated, graph, distance_index, snarl, samples_to_write, reference_sample);
                             }
                         }
                     }
