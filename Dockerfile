@@ -31,7 +31,8 @@ WORKDIR /stoat
 COPY . /stoat
 
 RUN git submodule update --init --recursive && \
-    mkdir build \
+    rm -rf build \
+    && mkdir build \
     && cd build \
     && cmake .. \
     && make -j$(nproc)

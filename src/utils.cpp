@@ -330,7 +330,7 @@ std::tuple<std::string, size_t, size_t> get_name_and_offsets_of_snarl_path_range
                                                                                  const bdsg::SnarlDistanceIndex& distance_index, 
                                                                                  const path_range_t& range) {
     return {graph.get_path_name(graph.get_path_handle_of_step(range.start)),
-            graph.get_position_of_step(range.start) + distance_index.minimum_length(distance_index.get_net(graph.get_handle_of_step(range.start), &graph)),
+            graph.get_position_of_step(range.start) + graph.get_sequence(graph.get_handle_of_step(range.start)).size(),
             graph.get_position_of_step(range.end)};
 }
 
@@ -358,6 +358,24 @@ std::pair<size_t, size_t> find_snarl_id(const bdsg::SnarlDistanceIndex& stree, c
     std::pair<size_t, size_t> snarl_id(start_node_id_size_t, end_node_id_size_t);
 
     return snarl_id;  // Return the generated snarl ID as a std::string
+}
+
+void print_nodes_in_snarl(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl) {
+    std::vector<handlegraph::net_handle_t> to_print;
+    to_print.emplace_back(snarl);
+    while (!to_print.empty()) {
+        handlegraph::net_handle_t net = std::move(to_print.back());
+        to_print.pop_back();
+
+        if (distance_index.is_node(net)) {
+            cerr << distance_index.node_id(net) << endl;
+        } else {
+            distance_index.for_each_child(net, [&](const handlegraph::net_handle_t& child) {
+                to_print.emplace_back(child);
+                return true;
+            });
+        }
+    }
 }
 
 } // end namespace stoat
