@@ -31,12 +31,13 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
 
 // This is supposed to partition the paths in the snarl by the walks they take through the netgraph.
 // Instead of explicitly enumerating the paths, it actually finds the sets of edges that each path takes.
-// But since paths may loop, it also takes into account the order and number of outgoing edges from each node.
+// But since paths may loop, it actually finds the order and number of outgoing edges from each node.
 // I think this is equivalent to partitioning by the actual sets of unique walks.
 std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, 
                                                                    const bdsg::SnarlDistanceIndex& distance_index,
                                                                    const handlegraph::net_handle_t& snarl,
                                                                    bool only_bound) const {
+
     stoat::LOG_TRACE((string) "Get walk sets of " + distance_index.net_handle_as_string(snarl));
 
     // Make a vector of the paths 
@@ -49,23 +50,25 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     }
 
     // For each path (along all_samples), the index of the set it is currently in
-    // Everything starts out in the same set
+    // Everything starts out in the same set, 0, which represents not being in the snarl
     std::vector<size_t> old_sets (all_samples.size(), 0);
     size_t old_set_count = 1;
 
-    // First, check for paths that don't go through this snarl
-    std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
-                                                  handlegraph::PathSense::REFERENCE,
-                                                  handlegraph::PathSense::HAPLOTYPE};
-    
-    //TODO: This could also use steps_of_handle() but it doesn't seem to work 
-    for (const auto& sense : senses) {
-        graph.for_each_step_of_sense(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph),
-            sense, [&](const handlegraph::step_handle_t& step) {
-            old_sets[sample_to_index[stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step))]] = 1;
-            old_set_count = 2;
-        });
-    }
+    // TODO: I think this is unnecessary
+    //// First, check for paths that don't go through this snarl
+    //std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
+    //                                              handlegraph::PathSense::REFERENCE,
+    //                                              handlegraph::PathSense::HAPLOTYPE};
+    //
+    ////TODO: This could also use steps_of_handle() but it doesn't seem to work 
+    //for (const auto& sense : senses) {
+    //    graph.for_each_step_of_sense(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph),
+    //        sense, [&](const handlegraph::step_handle_t& step) {
+    //        old_sets[sample_to_index[stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step))]] = 1;
+    //        old_set_count = 2;
+    //    });
+    //}
+
 
     // A struct representing a path's edge going out from child
     // Represents the next node and orientation and the offset along the path of the edge
@@ -113,6 +116,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
         for (const auto& sense : senses) {
             graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
                 // For each step on the node handle, keep track of which paths take different steps
+
                 stoat::LOG_TRACE( "\ton path " + graph.get_path_name(graph.get_path_handle_of_step(step)));
         
                 //Do we go forwards in the path? We need to check the direction of the handle in the path
@@ -159,7 +163,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
                     additional_steps.emplace_back(std::move(edge));
                 }
         
-            return true;
+                return true;
             });
         }
         
@@ -200,9 +204,14 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
         // We now have an old set and an intermediate set for each path
         // Assign the path to a new set. Everything gets a new set
         vector<size_t> new_sets (intermediate_sets.size(), std::numeric_limits<size_t>::max());
-        size_t new_set_count = 0;
+
         // Map pairs of <old_set, intermediate_set> to new set number
         std::map<std::pair<size_t, size_t>, size_t>  old_to_new_set;
+
+        // Reserve 0 for paths that didn't go through this snarl
+        old_to_new_set[std::make_pair(0,0)] = 0;
+        size_t new_set_count = 1;
+
         for (size_t path_i = 0 ; path_i < new_sets.size() ; path_i++) {
             std::pair<size_t, size_t> old_set (old_sets[path_i], intermediate_sets[path_i]);
             if (old_to_new_set.count(old_set) == 0) {
@@ -221,6 +230,8 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
         } 
     };
 
+    // Now do the work of going through the edges for the start bound and each child in both directions
+
     check_outgoing_edges(distance_index.get_bound(snarl, false, true), false);
 
     if (!only_bound) {
@@ -238,10 +249,13 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     // We have now partitioned the paths into equivalence sets based on the edges they take in this netgraph,
     // stored in old_sets.
     // Return actual sets of paths.
+    // Don't return anything with a set number of 0, which means that the path didn't go through this snarl
 
-    std::vector<std::set<stoat::sample_hap_t>> sample_sets (old_set_count);
+    std::vector<std::set<stoat::sample_hap_t>> sample_sets (old_set_count-1);
     for (size_t i = 0 ; i < all_samples.size() ; i++) {
-        sample_sets[old_sets[i]].emplace(all_samples[i]);
+        if (old_sets[i] != 0) {
+            sample_sets[old_sets[i]-1].emplace(all_samples[i]);
+        }
     }
     stoat::LOG_TRACE("Found walk sets ");
     for (const auto& s : sample_sets) {

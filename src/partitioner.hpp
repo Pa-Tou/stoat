@@ -45,8 +45,7 @@ class PathPartitioner : public Partitioner {
 
 
         /// Given a snarl, partition the paths going through the snarl based on the walks they take in the netgraph.
-        /// Unlike get_start_edge_sets, any path not in the snarl will also be returned as a separate set
-        /// TODO: Maybe it shouldn't but I included it since there may be tips
+        /// Unlike get_start_edge_sets, any path that doesn't traverse the snarl will not be included in any set
         /// Returns sets of samples + haplotypes
         std::vector<std::set<stoat::sample_hap_t>> get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const bdsg::net_handle_t& snarl, bool only_bound) const;
 
