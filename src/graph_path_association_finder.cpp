@@ -3,8 +3,6 @@
 #include "writer.hpp"
 #include "binary_table.hpp"
 
-//#define DEBUG_ASSOCIATION_FINDER
-
 namespace stoat_graph {
 
 AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
@@ -53,9 +51,7 @@ void AssociationFinder::test_snarls() const {
 
             //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
             if (distance_index.is_snarl(snarl) && snarl_is_eligible(snarl) ) {
-                #ifdef DEBUG_ASSOCIATION_FINDER
-                    cerr << "Test snarl " << distance_index.net_handle_as_string(snarl) << endl;
-                #endif
+                stoat::LOG_TRACE( "Test snarl " + distance_index.net_handle_as_string(snarl));
 
                 // Should we write this?
                 bool write_output = false;
@@ -80,23 +76,21 @@ void AssociationFinder::test_snarls() const {
                 // Do we test nested snarls? Don't test snarls that are already flagged as significant
                 bool test_nested_snarls = true;
 
-                #ifdef DEBUG_ASSOCIATION_FINDER
-                    cerr << "\tTRUTH 1" << endl;
-                    for (const auto& sample : sample_sets.first) {
-                        cerr << "\t\t" << sample << endl;
-                    }
-                    cerr << "\tTRUTH 2" << endl;
-                    for (const auto& sample : sample_sets.second) {
-                        cerr << "\t\t" << sample << endl;
-                    }
+                stoat::LOG_TRACE( "\tTRUTH 1" );
+                for (const auto& sample : sample_sets.first) {
+                    stoat::LOG_TRACE( "\t\t"  +sample );
+                }
+                stoat::LOG_TRACE( "\tTRUTH 2" );
+                for (const auto& sample : sample_sets.second) {
+                    stoat::LOG_TRACE( "\t\t"  +sample );
+                }
 
-                    for (const std::set<std::string>& partition : sample_partitions) {
-                        cerr << "\tPARTITION" << endl;
-                        for (const std::string& sample : partition) {
-                            cerr << "\t\t" << sample << endl;
-                        }
+                for (const std::set<std::string>& partition : sample_partitions) {
+                    stoat::LOG_TRACE( "\tPARTITION" );
+                    for (const std::string& sample : partition) {
+                        stoat::LOG_TRACE( "\t\t" + sample );
                     }
-                #endif
+                }
 
                 if (sample_partitions.size() > 1) {
 

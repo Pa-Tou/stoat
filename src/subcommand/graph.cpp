@@ -201,11 +201,11 @@ int main_stoat_graph(int argc, char *argv[]) {
     }
 
     //Output trace info
-    stoat::LOG_TRACE("Found sample set 1: ");
+    stoat::LOG_TRACE("Truth sample set 1: ");
     for (auto& sample : sample_sets.first) {
         stoat::LOG_TRACE("\t" + sample);
     }
-    stoat::LOG_TRACE("Found sample set 2: ");
+    stoat::LOG_TRACE("Truth sample set 2: ");
     for (auto& sample : sample_sets.second) {
         stoat::LOG_TRACE("\t" + sample);
     }

@@ -1,31 +1,25 @@
 #include "partitioner.hpp"
 
-//#define DEBUG_PATH_PARTITIONER
-
 using namespace std;
 namespace stoat_graph {
 
 std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                const bdsg::SnarlDistanceIndex& distance_index,
                                                                                const handlegraph::net_handle_t& snarl) const {
-    #ifdef DEBUG_PATH_PARTITIONER
-        cerr << "Get sample partitions of " << distance_index.net_handle_as_string(snarl) << " by its paths" << endl;
-    #endif
+    stoat::LOG_TRACE("Get sample partitions of " + distance_index.net_handle_as_string(snarl) + " by its paths" );
 
     //Get the partition of paths, depending on if the snarl is simple or not
     std::vector<std::set<stoat::sample_hap_t>> sample_sets = distance_index.is_regular_snarl(snarl, &graph) 
                                                                 ? get_start_edge_sets(graph, distance_index, snarl)
                                                                 : get_walk_sets(graph, distance_index, snarl);
 
-    #ifdef DEBUG_PATH_PARTITIONER
-        cerr << "Found sets of paths using " << ( distance_index.is_regular_snarl(snarl, &graph) ? "edges from the start node" : "walk sets") << endl;
-        for (const std::set<stoat::sample_hap_t>& sample_set : sample_sets) {
-            cerr << "SET "<< endl;
-            for (const stoat::sample_hap_t& sample : sample_set) {
-                cerr << "\t" << sample.sample << endl;
-            }
+    stoat::LOG_TRACE((string) "Found sets of paths using " + ( distance_index.is_regular_snarl(snarl, &graph) ? "edges from the start node" : "walk sets"));
+    for (const std::set<stoat::sample_hap_t>& sample_set : sample_sets) {
+        stoat::LOG_TRACE("SET ");
+        for (const stoat::sample_hap_t& sample : sample_set) {
+            stoat::LOG_TRACE("\t" + sample.sample );
         }
-    #endif
+    }
 
     std::vector<std::set<std::string>> sample_name_sets (sample_sets.size());
     for (size_t i = 0 ; i < sample_sets.size() ; i++) {
@@ -43,9 +37,7 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
 std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, 
                                                                    const bdsg::SnarlDistanceIndex& distance_index,
                                                                    const handlegraph::net_handle_t& snarl) const {
-    #ifdef DEBUG_PATH_PARTITIONER
-    cerr << "Get walk sets of " << distance_index.net_handle_as_string(snarl) << endl;
-    #endif
+    stoat::LOG_TRACE((string) "Get walk sets of " + distance_index.net_handle_as_string(snarl));
 
     // Make a vector of the paths 
     std::vector<stoat::sample_hap_t> all_samples(all_sample_haplotypes.begin(), all_sample_haplotypes.end());
@@ -96,9 +88,8 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     // TODO: This is doubling the work because each edges is looked at twice
     distance_index.for_each_child(snarl, [&] (const handlegraph::net_handle_t& child) {
         for (bool go_left : {true, false}) {
-            #ifdef DEBUG_PATH_PARTITIONER
-            cerr << "At snarl child " << distance_index.net_handle_as_string(child) << " going " << (go_left ? "left" : "right") << endl;
-            #endif
+
+            stoat::LOG_TRACE( (string) "At snarl child " + distance_index.net_handle_as_string(child) + " going " + (go_left ? "left" : "right"));
 
             std::vector<path_edge_t> next_steps (all_samples.size());
             // For paths that 
@@ -115,9 +106,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
             for (const auto& sense : senses) {
                 graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
                     // For each step on the node handle, keep track of which paths take different steps
-                    #ifdef DEBUG_PATH_PARTITIONER
-                    cerr << "\ton path " << graph.get_path_name(graph.get_path_handle_of_step(step)) << endl;
-                    #endif
+                    stoat::LOG_TRACE( "\ton path " + graph.get_path_name(graph.get_path_handle_of_step(step)));
 
                     //Do we go forwards in the path? We need to check the direction of the handle in the path
                     bool go_forwards = graph.get_is_reverse(handle) == graph.get_is_reverse(graph.get_handle_of_step(step));
@@ -131,9 +120,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
                     handlegraph::step_handle_t next_step = go_forwards ? graph.get_next_step(step) : graph.get_previous_step(step);
                     handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
 
-                    #ifdef DEBUG_PATH_PARTITIONER
-                    cerr << "\t\tgoing to " << graph.get_id(next_handle) << endl;
-                    #endif
+                    stoat::LOG_TRACE((std::stringstream) "\t\tgoing to " << graph.get_id(next_handle));
 
                     path_edge_t edge (graph.get_position_of_step(step), 
                                       std::numeric_limits<size_t>::max(),
@@ -198,12 +185,10 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
                     intermediate_sets[path_i] = edge_to_intermediate_set[edge_list];
                 }
             }
-            #ifdef DEBUG_PATH_PARTITIONER
-            cerr << "Intermediate sets: " << endl;
+            stoat::LOG_TRACE( "Intermediate sets: ");
             for (size_t i = 0 ; i < all_samples.size() ; i++) {
-                cerr << "\t" << all_samples[i] << ": " << intermediate_sets[i] << endl;
+                stoat::LOG_TRACE((std::stringstream) "\t" << all_samples[i] << ": " << intermediate_sets[i]);
             } 
-            #endif
 
             // We now have an old set and an intermediate set for each path
             // Assign the path to a new set. Everything gets a new set
@@ -223,12 +208,10 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
             old_sets = std::move(new_sets);
             old_set_count = new_set_count;
 
-            #ifdef DEBUG_PATH_PARTITIONER
-            cerr << "New sets: " << endl;
+            stoat::LOG_TRACE("New sets: ");
             for (size_t i = 0 ; i < all_samples.size() ; i++) {
-                cerr << "\t" << all_samples[i] << ": " << old_sets[i] << endl;
+                stoat::LOG_TRACE((std::stringstream) "\t" << all_samples[i] << ": " << old_sets[i]);
             } 
-            #endif
 
         } //end for each direction going out of the node
         return true;
@@ -242,15 +225,13 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     for (size_t i = 0 ; i < all_samples.size() ; i++) {
         sample_sets[old_sets[i]].emplace(all_samples[i]);
     }
-    #ifdef DEBUG_PATH_PARTITIONER
-    cerr << "Found walk sets " << endl;
+    stoat::LOG_TRACE("Found walk sets ");
     for (const auto& s : sample_sets) {
-        cerr << "Set" << endl;
+        stoat::LOG_TRACE( "Set");
         for (const auto& x : s) {
-            cerr << "\t" << x << endl;;
+            stoat::LOG_TRACE((std::stringstream) "\t" << x );
         }
     }
-    #endif
     return sample_sets;
 }
 
@@ -258,9 +239,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_start_edge_sets(
                                                                          const bdsg::SnarlDistanceIndex& distance_index,
                                                                          const bdsg::net_handle_t& snarl) const {
 
-    #ifdef DEBUG_PATH_PARTITIONER
-    cerr << "Get start edge sets of " << distance_index.net_handle_as_string(snarl) << endl;
-    #endif
+    stoat::LOG_TRACE((string) "Get start edge sets of " + distance_index.net_handle_as_string(snarl));
 
     // Map an edge (as the handle reached from the start of the snarl) to a set of paths that took that edge
     std::map<handlegraph::handle_t, std::set<stoat::sample_hap_t>> edge_to_sample_set;
