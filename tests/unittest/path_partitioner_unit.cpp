@@ -397,7 +397,7 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
 
     */
 
-//stoat::Logger::instance().setLevel(stoat::LogLevel::Trace);
+stoat::Logger::instance().setLevel(stoat::LogLevel::Trace);
     bdsg::HashGraph graph;
 
     //std::vector<std::string> sequences = {"AAAAAAAAAA", "A", "G", "C", "T",  "AAAAAAAAA"};

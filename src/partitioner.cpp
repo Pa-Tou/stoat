@@ -83,137 +83,150 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     };
 
 
+    // Helper function to check the edges leaving child
+    // This gets called in for_each_child, and also from the start node going in
+    auto check_outgoing_edges = [&] (const handlegraph::net_handle_t& child, bool go_left) {
+
+        stoat::LOG_TRACE( (string) "At snarl child " + distance_index.net_handle_as_string(child) + " going " + (go_left ? "left" : "right"));
+        
+        std::vector<path_edge_t> next_steps (all_samples.size());
+        // For paths that go through multiple steps 
+        std::vector<path_edge_t> additional_steps;
+        
+        // Get a handle to the end of the child
+        handlegraph::handle_t handle;
+        if ( distance_index.is_trivial_chain(child)) {
+            handle =  (go_left ? graph.flip(distance_index.get_handle(child, &graph)) 
+                               : distance_index.get_handle(child, &graph));
+        } else if (distance_index.is_sentinel(child)) {
+            handle = distance_index.get_handle(child, &graph);
+        } else {
+            handle = distance_index.get_handle(distance_index.get_bound(child, go_left, false), &graph);
+        }
+        
+        std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
+                                                      handlegraph::PathSense::REFERENCE,
+                                                      handlegraph::PathSense::HAPLOTYPE};
+        stoat::LOG_TRACE( (std::stringstream) "" << "\tgraph handle " << graph.get_id(handle) << " " << graph.get_is_reverse(handle));
+        for (const auto& sense : senses) {
+            graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
+                // For each step on the node handle, keep track of which paths take different steps
+                stoat::LOG_TRACE( "\ton path " + graph.get_path_name(graph.get_path_handle_of_step(step)));
+        
+                //Do we go forwards in the path? We need to check the direction of the handle in the path
+                bool go_forwards = graph.get_is_reverse(handle) == graph.get_is_reverse(graph.get_handle_of_step(step));
+        
+                //In the case where a path doesn't go all the way through the snarl, stop when the path stops
+                if ((go_forwards && !graph.has_next_step(step)) || (!go_forwards && !graph.has_previous_step(step))){
+                    return true;
+                }
+        
+                //Get the next step and make an edge
+                handlegraph::step_handle_t next_step = go_forwards ? graph.get_next_step(step) : graph.get_previous_step(step);
+                handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
+        
+                stoat::LOG_TRACE((std::stringstream) "" << "\t\tgoing to " << graph.get_id(next_handle));
+        
+                path_edge_t edge (graph.get_position_of_step(step), 
+                                  std::numeric_limits<size_t>::max(),
+                                  graph.get_id(next_handle), 
+                                  graph.get_is_reverse(next_handle));
+        
+                size_t sample_num = sample_to_index[stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step))];
+        
+                if (next_steps[sample_num].id == 0) {
+                    // If this path hasn't been seen before
+                    next_steps[sample_num] = std::move(edge);
+                } else if (next_steps[sample_num].offset > edge.offset) {
+                    // If the new edge comes before the edge stored in the vector, replace it
+                    edge.additional_edge = additional_steps.size();
+                    additional_steps.emplace_back(std::move(next_steps[sample_num]));
+                    next_steps[sample_num] = std::move(edge);
+                } else {
+                    // If the new edge comes after something in additional_steps, walk through the linked list to find its place
+                    path_edge_t& old_edge = next_steps[sample_num];
+                    while (old_edge.additional_edge != std::numeric_limits<size_t>::max() &&
+                           additional_steps[old_edge.additional_edge].offset < edge.offset) {
+                        size_t next = old_edge.additional_edge; 
+                        old_edge = additional_steps[next];
+                    }
+                    //Old_edge_i now points to the item just smaller than edge
+                    size_t old_additional_edge = old_edge.additional_edge;
+                    old_edge.additional_edge = additional_steps.size();
+                    edge.additional_edge = old_additional_edge;
+                    additional_steps.emplace_back(std::move(edge));
+                }
+        
+            return true;
+            });
+        }
+        
+        // We now have the edges for all paths going out of the node in one direction
+        // Now we want get an "intermediate set" for each path based on the edge(s) it took from this node/direction
+        // Equality in this case is that the edges (as node id and orientation) are in the same order along the path
+        // This is later used to split the paths into sets for each pair of old_set and intermediate_set
+        
+        //This maps each edge list for this node/direction to the intermediate set index
+        std::map<std::vector<std::pair<handlegraph::nid_t, bool>>, size_t> edge_to_intermediate_set;
+        //Everything starts in the same set, representing not going through this node
+        vector<size_t> intermediate_sets (old_sets.size(), 0);
+        size_t intermediate_set_count = 1;
+        for (size_t path_i = 0 ; path_i < next_steps.size() ; path_i++) {
+            const path_edge_t& edge = next_steps[path_i];
+            if (edge.id != 0) {
+                //If this is a real edge
+                std::vector<std::pair<handlegraph::nid_t, bool>> edge_list;
+                edge_list.emplace_back(edge.id, edge.rev);
+                size_t next_i = edge.additional_edge;
+                while (next_i != std::numeric_limits<size_t>::max()) {
+                    edge_list.emplace_back(additional_steps[next_i].id, additional_steps[next_i].rev);
+                    auto& new_edge = additional_steps[next_i]; 
+                    next_i = new_edge.additional_edge;
+                }
+                if (edge_to_intermediate_set.count(edge_list) == 0) {
+                    edge_to_intermediate_set[edge_list] = intermediate_set_count;
+                    intermediate_set_count++;
+                }
+                intermediate_sets[path_i] = edge_to_intermediate_set[edge_list];
+            }
+        }
+        stoat::LOG_TRACE( "Intermediate sets: ");
+        for (size_t i = 0 ; i < all_samples.size() ; i++) {
+            stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << intermediate_sets[i]);
+        } 
+        
+        // We now have an old set and an intermediate set for each path
+        // Assign the path to a new set. Everything gets a new set
+        vector<size_t> new_sets (intermediate_sets.size(), std::numeric_limits<size_t>::max());
+        size_t new_set_count = 0;
+        // Map pairs of <old_set, intermediate_set> to new set number
+        std::map<std::pair<size_t, size_t>, size_t>  old_to_new_set;
+        for (size_t path_i = 0 ; path_i < new_sets.size() ; path_i++) {
+            std::pair<size_t, size_t> old_set (old_sets[path_i], intermediate_sets[path_i]);
+            if (old_to_new_set.count(old_set) == 0) {
+                old_to_new_set[old_set] = new_set_count;
+                new_set_count++;
+            }
+            new_sets[path_i] = old_to_new_set[old_set];
+        }
+        
+        old_sets = std::move(new_sets);
+        old_set_count = new_set_count;
+        
+        stoat::LOG_TRACE("New sets: ");
+        for (size_t i = 0 ; i < all_samples.size() ; i++) {
+            stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << old_sets[i]);
+        } 
+    };
+
+    check_outgoing_edges(distance_index.get_bound(snarl, false, true), false);
     // Go through each child of the snarl and check the paths on outgoing edges.
     // Split up sets if the paths have different edges leaving this child
     // TODO: This is doubling the work because each edges is looked at twice
     distance_index.for_each_child(snarl, [&] (const handlegraph::net_handle_t& child) {
         for (bool go_left : {true, false}) {
-
-            stoat::LOG_TRACE( (string) "At snarl child " + distance_index.net_handle_as_string(child) + " going " + (go_left ? "left" : "right"));
-
-            std::vector<path_edge_t> next_steps (all_samples.size());
-            // For paths that 
-            std::vector<path_edge_t> additional_steps;
-
-            // Get a handle to the end of the child
-            handlegraph::handle_t handle = distance_index.is_trivial_chain(child) ? (go_left ? graph.flip(distance_index.get_handle(child, &graph)) 
-                                                                       : distance_index.get_handle(child, &graph))
-                                                            : distance_index.get_handle(distance_index.get_bound(child, go_left, false), &graph);
-
-            std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
-                                                          handlegraph::PathSense::REFERENCE,
-                                                          handlegraph::PathSense::HAPLOTYPE};
-            for (const auto& sense : senses) {
-                graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
-                    // For each step on the node handle, keep track of which paths take different steps
-                    stoat::LOG_TRACE( "\ton path " + graph.get_path_name(graph.get_path_handle_of_step(step)));
-
-                    //Do we go forwards in the path? We need to check the direction of the handle in the path
-                    bool go_forwards = graph.get_is_reverse(handle) == graph.get_is_reverse(graph.get_handle_of_step(step));
-
-                    //In the case where a path doesn't go all the way through the snarl, stop when the path stops
-                    if ((go_forwards && !graph.has_next_step(step)) || (!go_forwards && !graph.has_previous_step(step))){
-                        return true;
-                    }
-
-                    //Get the next step and make an edge
-                    handlegraph::step_handle_t next_step = go_forwards ? graph.get_next_step(step) : graph.get_previous_step(step);
-                    handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
-
-                    stoat::LOG_TRACE((std::stringstream) "" << "\t\tgoing to " << graph.get_id(next_handle));
-
-                    path_edge_t edge (graph.get_position_of_step(step), 
-                                      std::numeric_limits<size_t>::max(),
-                                      graph.get_id(next_handle), 
-                                      graph.get_is_reverse(next_handle));
-
-                    size_t sample_num = sample_to_index[stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step))];
-
-                    if (next_steps[sample_num].id == 0) {
-                        // If this path hasn't been seen before
-                        next_steps[sample_num] = std::move(edge);
-                    } else if (next_steps[sample_num].offset > edge.offset) {
-                        // If the new edge comes before the edge stored in the vector, replace it
-                        edge.additional_edge = additional_steps.size();
-                        additional_steps.emplace_back(std::move(next_steps[sample_num]));
-                        next_steps[sample_num] = std::move(edge);
-                    } else {
-                        // If the new edge comes after something in additional_steps, walk through the linked list to find its place
-                        path_edge_t& old_edge = next_steps[sample_num];
-                        while (old_edge.additional_edge != std::numeric_limits<size_t>::max() &&
-                               additional_steps[old_edge.additional_edge].offset < edge.offset) {
-                            size_t next = old_edge.additional_edge; 
-                            old_edge = additional_steps[next];
-                        }
-                        //Old_edge_i now points to the item just smaller than edge
-                        size_t old_additional_edge = old_edge.additional_edge;
-                        old_edge.additional_edge = additional_steps.size();
-                        edge.additional_edge = old_additional_edge;
-                        additional_steps.emplace_back(std::move(edge));
-                    }
-
-                return true;
-                });
-            }
-
-            // We now have the edges for all paths going out of the node in one direction
-            // Now we want get an "intermediate set" for each path based on the edge(s) it took from this node/direction
-            // Equality in this case is that the edges (as node id and orientation) are in the same order along the path
-            // This is later used to split the paths into sets for each pair of old_set and intermediate_set
-
-            //This maps each edge list for this node/direction to the intermediate set index
-            std::map<std::vector<std::pair<handlegraph::nid_t, bool>>, size_t> edge_to_intermediate_set;
-            //Everything starts in the same set, representing not going through this node
-            vector<size_t> intermediate_sets (old_sets.size(), 0);
-            size_t intermediate_set_count = 1;
-            for (size_t path_i = 0 ; path_i < next_steps.size() ; path_i++) {
-                const path_edge_t& edge = next_steps[path_i];
-                if (edge.id != 0) {
-                    //If this is a real edge
-                    std::vector<std::pair<handlegraph::nid_t, bool>> edge_list;
-                    edge_list.emplace_back(edge.id, edge.rev);
-                    size_t next_i = edge.additional_edge;
-                    while (next_i != std::numeric_limits<size_t>::max()) {
-                        edge_list.emplace_back(additional_steps[next_i].id, additional_steps[next_i].rev);
-                        auto& new_edge = additional_steps[next_i]; 
-                        next_i = new_edge.additional_edge;
-                    }
-                    if (edge_to_intermediate_set.count(edge_list) == 0) {
-                        edge_to_intermediate_set[edge_list] = intermediate_set_count;
-                        intermediate_set_count++;
-                    }
-                    intermediate_sets[path_i] = edge_to_intermediate_set[edge_list];
-                }
-            }
-            stoat::LOG_TRACE( "Intermediate sets: ");
-            for (size_t i = 0 ; i < all_samples.size() ; i++) {
-                stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << intermediate_sets[i]);
-            } 
-
-            // We now have an old set and an intermediate set for each path
-            // Assign the path to a new set. Everything gets a new set
-            vector<size_t> new_sets (intermediate_sets.size(), std::numeric_limits<size_t>::max());
-            size_t new_set_count = 0;
-            // Map pairs of <old_set, intermediate_set> to new set number
-            std::map<std::pair<size_t, size_t>, size_t>  old_to_new_set;
-            for (size_t path_i = 0 ; path_i < new_sets.size() ; path_i++) {
-                std::pair<size_t, size_t> old_set (old_sets[path_i], intermediate_sets[path_i]);
-                if (old_to_new_set.count(old_set) == 0) {
-                    old_to_new_set[old_set] = new_set_count;
-                    new_set_count++;
-                }
-                new_sets[path_i] = old_to_new_set[old_set];
-            }
-
-            old_sets = std::move(new_sets);
-            old_set_count = new_set_count;
-
-            stoat::LOG_TRACE("New sets: ");
-            for (size_t i = 0 ; i < all_samples.size() ; i++) {
-                stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << old_sets[i]);
-            } 
-
-        } //end for each direction going out of the node
+            check_outgoing_edges(child, go_left);
+        }
         return true;
     });// end for_each_child of the snarl
 
