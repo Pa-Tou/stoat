@@ -120,7 +120,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
                     handlegraph::step_handle_t next_step = go_forwards ? graph.get_next_step(step) : graph.get_previous_step(step);
                     handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
 
-                    stoat::LOG_TRACE((std::stringstream) "\t\tgoing to " << graph.get_id(next_handle));
+                    stoat::LOG_TRACE((std::stringstream) "" << "\t\tgoing to " << graph.get_id(next_handle));
 
                     path_edge_t edge (graph.get_position_of_step(step), 
                                       std::numeric_limits<size_t>::max(),
@@ -187,7 +187,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
             }
             stoat::LOG_TRACE( "Intermediate sets: ");
             for (size_t i = 0 ; i < all_samples.size() ; i++) {
-                stoat::LOG_TRACE((std::stringstream) "\t" << all_samples[i] << ": " << intermediate_sets[i]);
+                stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << intermediate_sets[i]);
             } 
 
             // We now have an old set and an intermediate set for each path
@@ -210,7 +210,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
 
             stoat::LOG_TRACE("New sets: ");
             for (size_t i = 0 ; i < all_samples.size() ; i++) {
-                stoat::LOG_TRACE((std::stringstream) "\t" << all_samples[i] << ": " << old_sets[i]);
+                stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << old_sets[i]);
             } 
 
         } //end for each direction going out of the node
@@ -229,7 +229,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     for (const auto& s : sample_sets) {
         stoat::LOG_TRACE( "Set");
         for (const auto& x : s) {
-            stoat::LOG_TRACE((std::stringstream) "\t" << x );
+            stoat::LOG_TRACE((std::stringstream) "" << "\t" << x );
         }
     }
     return sample_sets;

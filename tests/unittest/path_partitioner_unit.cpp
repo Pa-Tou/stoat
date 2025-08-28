@@ -2,8 +2,10 @@
 #include <bdsg/hash_graph.hpp>
 #include <bdsg/overlays/overlay_helper.hpp>
 #include "../../src/partitioner.hpp"
+#include "../../src/log.hpp"
 
 namespace stoat_graph{
+
 
 class TestPathPartitioner : PathPartitioner {
     public: 
@@ -14,7 +16,7 @@ class TestPathPartitioner : PathPartitioner {
     using PathPartitioner::get_start_edge_sets;
 };
 
-TEST_CASE( "Path association finder one node", "[path_finder]" ) {
+TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
 
 
     bdsg::HashGraph graph;
@@ -36,15 +38,15 @@ TEST_CASE( "Path association finder one node", "[path_finder]" ) {
 
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph,graph.get_path_handle("path"))});
 
-    SECTION("Make association finder") {
+    SECTION("Make partitioner finder") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
         TestPathPartitioner af(all_samples);
     }
 
 }
 
-TEST_CASE( "Path association finder nested bubbles",
-          "[path_finder][bug]" ) {
+TEST_CASE( "Path partitioner finder nested bubbles",
+          "[path_partitioner]" ) {
 
     /*
                        5
@@ -188,7 +190,7 @@ TEST_CASE( "Path association finder nested bubbles",
 
 }
 
-TEST_CASE( "Path association finder looping snarl", "[path_finder]" ) {
+TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
 
     /*
 
@@ -252,8 +254,6 @@ TEST_CASE( "Path association finder looping snarl", "[path_finder]" ) {
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
 
 
-    // This file is meant to test the base association finder but since it is technically an interface with some implementations,
-    // build the path version and only test the base functions
     std::set<std::string> samples ({"path1", "path2"});
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph, paths[0]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[1]),
@@ -281,7 +281,7 @@ TEST_CASE( "Path association finder looping snarl", "[path_finder]" ) {
     }
     SECTION("get_start_edge_set") {
 
-        // Should be {0,22 and {1,2}
+        // Should be {0,2} and {1,2}
         std::vector<std::set<stoat::sample_hap_t>> edges2 = af.get_start_edge_sets(*path_graph, distance_index, snarl2);
         REQUIRE(edges2.size() == 2);
         for ( const auto& set : edges2) {
@@ -291,11 +291,194 @@ TEST_CASE( "Path association finder looping snarl", "[path_finder]" ) {
         }
     }
 
-    // Remember to clean up the files made here
-    int removed = system("rm -f test.hg test.dist"); 
+}
+TEST_CASE( "Path partitioner finder bubble with three nodes",
+          "[path_partitioner]" ) {
+
+    /*
+           1    
+         /   \
+        0--2--4
+         \   /
+           3
+
+    */
+
+    bdsg::HashGraph graph;
+
+    //std::vector<std::string> sequences = {"AAAAAAAAAA", "A", "G", "C",  "AAAAAAAAA"};
+
+    //std::vector<handlegraph::handle_t> nodes;
+    //for (auto& seq : sequences) {
+    //    nodes.emplace_back(graph.create_handle(seq));
+    //}
+
+    //graph.create_edge(nodes[0], nodes[1]);
+    //graph.create_edge(nodes[0], nodes[2]);
+    //graph.create_edge(nodes[0], nodes[3]);
+    //graph.create_edge(nodes[1], nodes[4]);
+    //graph.create_edge(nodes[2], nodes[4]);
+    //graph.create_edge(nodes[3], nodes[4]);
+
+
+    //// Two paths go through node 2, path 2 is associated
+    //std::vector<std::vector<std::size_t>> path_seqs = { {0, 1, 4}, {0, 1, 4}, {0, 2, 4}, {0, 3, 4}};
+    //std::vector<handlegraph::path_handle_t> paths;
+
+    //for (int path_i = 0 ; path_i < path_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path"+std::to_string(path_i)));
+    //    for (size_t node_i : path_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+
+    //// vg isn't included so the distance index can only be built from the command line
+    //graph.serialize("../tests/graph_test/simple_bubble.hg");
+    //int built = system("vg index -j ../tests/graph_test/simple_bubble.dist ../tests/graph_test/simple_bubble.hg"); 
+
+    graph.deserialize("../tests/graph_test/simple_bubble.hg");
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/simple_bubble.dist");
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&graph);
+
+
+    handlegraph::net_handle_t snarl = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(3)));
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < 4 ; path_i++) {
+        paths.emplace_back(graph.get_path_handle("path"+std::to_string(path_i)));
+    }
+
+
+    // This file is meant to test the base association finder but since it is technically an interface with some implementations,
+    // build the path version and only test the base functions
+    std::set<std::string> samples ({"path2"});
+    std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph, paths[0]),
+                                         stoat::get_sample_and_haplotype(*path_graph, paths[1]),
+                                         stoat::get_sample_and_haplotype(*path_graph, paths[2]),
+                                         stoat::get_sample_and_haplotype(*path_graph, paths[3])});
+
+    TestPathPartitioner af(all_samples);
+
+    SECTION("get_walk_set") {
+        // This isn't really a good test because all the snarls are regular
+
+        // Should be {0,1} {2} {3}
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl);
+        REQUIRE(walks1.size() == 3);
+        for ( const auto& set : walks1) {
+            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})) || 
+                     (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[2])})) || 
+                     (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[3])}))));
+        }
+    }
+    SECTION("get_start_edge_set") {
+
+        // Should be {0,1} {2} {3}
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl);
+        REQUIRE(walks1.size() == 3);
+        for ( const auto& set : walks1) {
+            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})) || 
+                     (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[2])})) || 
+                     (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[3])}))));
+        }
+    }
+}
+TEST_CASE( "Path partitioner finder looping snarl same edges different order ", "[path_partitioner][bug]" ) {
+
+    /*
+
+             --------
+            |   2    |
+            \ / \    /
+        0 ---1---3--4----5
+
+    */
+
+//stoat::Logger::instance().setLevel(stoat::LogLevel::Trace);
+    bdsg::HashGraph graph;
+
+    //std::vector<std::string> sequences = {"AAAAAAAAAA", "A", "G", "C", "T",  "AAAAAAAAA"};
+
+    //std::vector<handlegraph::handle_t> nodes;
+    //for (auto& seq : sequences) {
+    //    nodes.emplace_back(graph.create_handle(seq));
+    //}
+
+    //graph.create_edge(nodes[0], nodes[1]);
+    //graph.create_edge(nodes[1], nodes[2]);
+    //graph.create_edge(nodes[1], nodes[3]);
+    //graph.create_edge(nodes[2], nodes[3]);
+    //graph.create_edge(nodes[3], nodes[4]);
+    //graph.create_edge(nodes[4], nodes[1]);
+    //graph.create_edge(nodes[4], nodes[5]);
+
+
+    //// path 0 takes the deletion then the insertion, path 1 takes the insertion then the deletion
+    //std::vector<std::vector<std::size_t>> path_seqs = { {0, 1, 3, 4, 1, 2, 3, 4, 5}, {0, 1, 2, 3, 4, 1, 3, 4, 5}};
+    //std::vector<handlegraph::path_handle_t> paths;
+
+    //for (int path_i = 0 ; path_i < path_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path"+std::to_string(path_i)));
+    //    for (size_t node_i : path_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+
+    //// vg isn't included so the distance index can only be built from the command line
+    //graph.serialize("../tests/graph_test/loop_with_indel_two_paths.hg");
+    //int built = system("vg index -j ../tests/graph_test/loop_with_indel_two_paths.dist ../tests/graph_test/loop_with_indel_two_paths.hg"); 
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/loop_with_indel_two_paths.dist");
+
+    graph.deserialize("../tests/graph_test/loop_with_indel_two_paths.hg");
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&graph);
+
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < 2 ; path_i++) {
+        paths.emplace_back(graph.get_path_handle("path"+std::to_string(path_i)));
+    }
+
+    // Nested snarl
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(3)));
+    // Duplication snarl
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(snarl2));
+    handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
+
+
+    // This file is meant to test the base association finder but since it is technically an interface with some implementations,
+    // build the path version and only test the base functions
+    std::set<std::string> samples ({"path0", "path1"});
+    std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph, paths[0]),
+                                                stoat::get_sample_and_haplotype(*path_graph, paths[1])});
+    TestPathPartitioner af(all_samples);
+
+
+    SECTION("get_walk_set") {
+        // This isn't really a good test because all the snarls are regular
+
+        // Outer snarl, hould be {0, 1}
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl1);
+        REQUIRE(walks1.size() == 1);
+        REQUIRE( (walks1[0] == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})));
+
+        // Inner snarl, should be {0} and {1}
+        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, distance_index, snarl2);
+        REQUIRE(walks2.size() == 2);
+        for ( const auto& set : walks2) {
+            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0])})) || 
+                      (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[1])}))));
+        }
+    }
+
 }
 TEST_CASE( "Path association finder bubble with three nodes",
-          "[path_finder]" ) {
+          "[path_partitioner]" ) {
 
     /*
            1    
