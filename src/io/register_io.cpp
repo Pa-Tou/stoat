@@ -13,7 +13,6 @@
 
 #include "register_io.hpp"
 
-
 namespace stoat {
 
 namespace io {

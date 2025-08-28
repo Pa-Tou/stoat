@@ -378,8 +378,49 @@ std::pair<std::string, std::string> FisherKhi2::fisher_khi2(const std::vector<si
 }
 // ------------------------ Linear regression ------------------------
 
+Eigen::MatrixXd 
+    LinearRegression::pseudoInverse(
+    const Eigen::MatrixXd& X, 
+    double tol = 1e-6) {
+
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd(X, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    Eigen::VectorXd singularValues_inv = svd.singularValues();
+
+    for (int i = 0; i < singularValues_inv.size(); ++i) {
+        singularValues_inv(i) = (singularValues_inv(i) > tol) ? 1.0 / singularValues_inv(i) : 0.0;
+    }
+
+    return svd.matrixV() * singularValues_inv.asDiagonal() * svd.matrixU().transpose();
+}
+
+Eigen::MatrixXd 
+    LinearRegression::computeXtXinverse(
+    const Eigen::MatrixXd& X, 
+    double tol = 1e-10) {
+
+    Eigen::MatrixXd XtX = X.transpose() * X;
+    Eigen::LDLT<Eigen::MatrixXd> ldlt(XtX);
+
+    Eigen::VectorXd D = ldlt.vectorD();
+    bool rank_deficient = false;
+    for (int i = 0; i < D.size(); ++i) {
+        if (std::abs(D(i)) < tol) {
+            rank_deficient = true;
+            break;
+        }
+    }
+
+    if (rank_deficient) {
+        return pseudoInverse(XtX);
+    }
+
+    // Return actual inverse: XtX⁻¹ = ldlt.solve(I)
+    return ldlt.solve(Eigen::MatrixXd::Identity(XtX.rows(), XtX.cols()));
+}
+
 // Linear regression function OLS with intercept + covariate
-std::tuple<std::string, std::string, std::string, std::string> LinearRegression::linear_regression(
+std::tuple<std::string, std::string, std::string, std::string> 
+    LinearRegression::linear_regression(
     const std::vector<std::vector<double>>& df,
     const std::vector<double>& quantitative_phenotype,
     const std::vector<std::vector<double>>& covar) {
@@ -408,9 +449,11 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
             X(i, col++) = covar[i][j];
         }
     }
-    
-    // Coefficients beta
-    Eigen::VectorXd beta = (X.transpose() * X).ldlt().solve(X.transpose() * y);
+
+    Eigen::MatrixXd XtXinverse = computeXtXinverse(X);
+
+    // Compute beta using the pseudo-inverse
+    Eigen::VectorXd beta = XtXinverse * (X.transpose() * y);
     Eigen::VectorXd y_pred = X * beta;
     Eigen::VectorXd residuals = y - y_pred;
 
@@ -424,23 +467,16 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     double mse = rss / df_res;
 
     // Standard errors
-    Eigen::MatrixXd cov_matrix = (X.transpose() * X).inverse();    
-    Eigen::VectorXd se = (cov_matrix.diagonal() * mse).array().sqrt().matrix();
-
-    // change cov_matrix calcul if X.transpose() * X might be ill-conditioned or nearly singular
-    if (se.hasNaN()) {
-        Eigen::MatrixXd XtX = X.transpose() * X;
-        Eigen::MatrixXd cov_matrix = XtX.ldlt().solve(Eigen::MatrixXd::Identity(X.cols(), X.cols()));
-        se = (cov_matrix.diagonal() * mse).array().sqrt().matrix();
-    }
+    Eigen::VectorXd se = (XtXinverse.diagonal() * mse).array().sqrt().matrix();
 
     // t-statistics
     Eigen::VectorXd t_stats = beta.array() / se.array();
     boost::math::students_t t_dist(df_res);
  
     std::vector<double> p_values;
-    for (int i = 1; i < num_features - num_covariates; ++i) { // i = 1 avoid const p-value
+    for (int i = 1; i < num_variants+1; ++i) { // i = 1 avoid const p-value
         if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) { // Special case
+            cout <<
             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
             continue;
         }

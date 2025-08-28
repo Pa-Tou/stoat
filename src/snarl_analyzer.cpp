@@ -452,7 +452,7 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
         std::stringstream data;
     
         auto [p_value, beta, se, r2] = lr.linear_regression(df, phenotype_filtered, covariate);
-        
+
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
             std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
             stoat::writeSignificantTableToTSV(df, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);

@@ -71,6 +71,14 @@ class LinearRegression {
             const std::vector<std::vector<double>>& df,
             const std::vector<double>& quantitative_phenotype,
             const std::vector<std::vector<double>>& covar);
+
+        Eigen::MatrixXd pseudoInverse(
+            const Eigen::MatrixXd& X, 
+            double tol);
+
+        Eigen::MatrixXd computeXtXinverse(
+            const Eigen::MatrixXd& X, 
+            double tol);
 };
 
 class LogisticRegression {
