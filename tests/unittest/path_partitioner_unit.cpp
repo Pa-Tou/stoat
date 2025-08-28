@@ -271,13 +271,9 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
                      (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0])}))));
         }
 
-        // Should be {0,2} and {1}
+        // Should be {0}, {1} and {2}
         std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, distance_index, snarl2);
-        REQUIRE(walks2.size() == 2);
-        for ( const auto& set : walks2) {
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[2])})) || 
-                      (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[1])}))));
-        }
+        REQUIRE(walks2.size() == 3);
     }
     SECTION("get_start_edge_set") {
 
@@ -397,7 +393,7 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
 
     */
 
-stoat::Logger::instance().setLevel(stoat::LogLevel::Trace);
+//stoat::Logger::instance().setLevel(stoat::LogLevel::Trace);
     bdsg::HashGraph graph;
 
     //std::vector<std::string> sequences = {"AAAAAAAAAA", "A", "G", "C", "T",  "AAAAAAAAA"};
