@@ -22,7 +22,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -S " + data_path + "/phenotype.tsv"
+            + " -b " + data_path + "/phenotype.tsv"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -49,7 +49,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -S " + data_path + "/phenotype.tsv"
+            + " -b " + data_path + "/phenotype.tsv"
             + " -T chi2 -r ref -O fasta";
 
         cmd += " --output " + output_dir;
@@ -78,7 +78,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -S " + data_path + "/phenotype.tsv"
+            + " -b " + data_path + "/phenotype.tsv"
             + " -T exact -r ref -O fasta";
 
 
@@ -111,15 +111,16 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
     std::vector<std::string> other_samples = {"path0", "path2"};
     
     string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
-    std::system(write_cmd.c_str());
+    int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
         write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
-        std::system(write_cmd.c_str());
+        ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
         write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
-        std::system(write_cmd.c_str());
+        ignore = std::system(write_cmd.c_str());
     }
+
 
     SECTION("Test chi2 tsv output") {
 
@@ -129,7 +130,7 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T chi2 -r path0 -V 4";
 
 
@@ -167,7 +168,7 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T exact -r path0";
 
 
@@ -203,7 +204,7 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T chi2 -r path0 -O fasta";
 
 
@@ -249,7 +250,7 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T exact -r path0 -O fasta";
 
 
@@ -292,14 +293,14 @@ TEST_CASE("Output loop with snarl", "[graph]") {
     const std::string samples_file = "./samples.tsv";
     
     string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
-    std::system(write_cmd.c_str());
+    int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
         write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
-        std::system(write_cmd.c_str());
+        ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
         write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
-        std::system(write_cmd.c_str());
+        ignore = std::system(write_cmd.c_str());
     }
 
     SECTION("Test chi2 tsv output") {
@@ -309,7 +310,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::string cmd = "../bin/stoat graph";
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T chi2 -r path0";
 
 
@@ -345,7 +346,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::string cmd = "../bin/stoat graph";
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T exact -r path0";
 
 
@@ -380,7 +381,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::string cmd = "../bin/stoat graph";
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T chi2 -r path0 -O fasta";
 
 
@@ -425,7 +426,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::string cmd = "../bin/stoat graph";
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -S " + samples_file
+            + " -b " + samples_file
             + " -T exact -r path0 -O fasta";
 
 

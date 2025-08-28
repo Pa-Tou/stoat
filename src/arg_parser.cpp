@@ -67,7 +67,7 @@ std::vector<bool> parse_binary_pheno(
             stoat::LOG_FATAL("Binary phenotype must be 1 or 2, got: " + std::to_string(pheno));
         }
         if (fill_in_samples) {
-            list_samples.emplace_back(iid);
+            list_samples.emplace_back(iid_val);
         }
     }
 

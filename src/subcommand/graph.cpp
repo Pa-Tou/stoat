@@ -16,22 +16,24 @@
 #include "../post_processing.hpp"
 #include "../arg_parser.hpp"
 
-#define USE_CALLGRIND
+//#define USE_CALLGRIND
 
-// #ifdef USE_CALLGRIND
-//     #include <valgrind/callgrind.h>
-// #endif
+#ifdef USE_CALLGRIND
+    #include <valgrind/callgrind.h>
+#endif
 
 using namespace std;
 namespace stoat_command {
 
 void print_help_graph() {
-    std::cerr << "usage: stoat graph [options]" << endl
+    std::cerr << "usage: stoat graph -g [graph] -d [distance index] -b [phenotype file] [options]" << endl
+        << "Find associated variants based on the haplotype paths in the graph"<< endl
         << endl
         << "input:" << endl
-        << "  -g, --graph FILE                   use this graph (only hash graph works for now) (required)" << endl
+        << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << endl
         << "  -d, --distance-index FILE          Use this distance index (required)" << endl
-        << "  -S, --samples-file NAME            A file with the names of the sample with the trait of interest, one per line (instead of -s, may repeat once)" << endl
+        << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required)" << endl
+        << endl
         << "output:" << endl
         << "  -o, --output DIR                   Output directory name [output]" << endl
         << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
@@ -45,7 +47,7 @@ void print_help_graph() {
         //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
         << "  -r, --reference-sample NAME        If there is no reference in the graph, use this sample as the reference" << endl
-        << "  -b, --skip-bh-correction           Don't do BH correction" << endl
+        << "  -B, --skip-bh-correction           Don't do BH correction (does BH correction by default)" << endl
         << "  -h, --help                         Print this help message" << endl;
 }
 
@@ -83,18 +85,17 @@ int main_stoat_graph(int argc, char *argv[]) {
                 //{"p-value", required_argument, 0, 'p'},
                 //{"method", required_argument, 0, 'm'},
                 {"reference-sample", required_argument, 0, 'r'},
-                {"sample-of-interest", required_argument, 0, 's'},
-                {"samples-file", required_argument, 0, 'S'},
+                {"binary-pheno", required_argument, 0, 'b'},
                 {"output", required_argument, 0, 'o'},
                 {"output-format", required_argument, 0, 'O'},
                 {"verbose", required_argument, 0, 'V'},
-                {"skip-bh-correction", no_argument, 0, 'b'},
+                {"skip-bh-correction", no_argument, 0, 'B'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:T:r:S:V:o:O:bh",
+        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:V:o:O:Bh",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -143,7 +144,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             case 'r':
                 reference_sample = optarg;
                 break;
-            case 'S':
+            case 'b':
                 samples_filename = optarg;
                 break;
             case 'o':
@@ -152,7 +153,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             case 'O':
                 output_format = optarg;
                 break;
-            case 'b':
+            case 'B':
                 skip_bh = true; 
                 break;
             case 'h':
@@ -197,6 +198,16 @@ int main_stoat_graph(int argc, char *argv[]) {
         } else {
             sample_sets.second.emplace(samples[i]);
         }
+    }
+
+    //Output trace info
+    stoat::LOG_TRACE("Found sample set 1: ");
+    for (auto& sample : sample_sets.first) {
+        stoat::LOG_TRACE("\t" + sample);
+    }
+    stoat::LOG_TRACE("Found sample set 2: ");
+    for (auto& sample : sample_sets.second) {
+        stoat::LOG_TRACE("\t" + sample);
     }
 
 
@@ -255,9 +266,9 @@ int main_stoat_graph(int argc, char *argv[]) {
         return EXIT_FAILURE; 
     }
 
-// #ifdef USE_CALLGRIND
-//     CALLGRIND_START_INSTRUMENTATION;
-// #endif
+#ifdef USE_CALLGRIND
+    CALLGRIND_START_INSTRUMENTATION;
+#endif
 
     stoat_graph::AssociationFinder af (*graph, 
                                    distance_index,
