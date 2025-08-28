@@ -1,4 +1,5 @@
 #include "partitioner.hpp"
+#include "log.hpp"
 
 using namespace std;
 namespace stoat_graph {
@@ -8,10 +9,8 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
                                                                                const handlegraph::net_handle_t& snarl) const {
     stoat::LOG_TRACE("Get sample partitions of " + distance_index.net_handle_as_string(snarl) + " by its paths" );
 
-    //Get the partition of paths, depending on if the snarl is simple or not
-    std::vector<std::set<stoat::sample_hap_t>> sample_sets = distance_index.is_regular_snarl(snarl, &graph) 
-                                                                ? get_start_edge_sets(graph, distance_index, snarl)
-                                                                : get_walk_sets(graph, distance_index, snarl);
+    //Get the partition of paths. If the snarl is regular, then only check the edges leaving the start node
+    std::vector<std::set<stoat::sample_hap_t>> sample_sets = get_walk_sets(graph, distance_index, snarl, distance_index.is_regular_snarl(snarl, &graph));
 
     stoat::LOG_TRACE((string) "Found sets of paths using " + ( distance_index.is_regular_snarl(snarl, &graph) ? "edges from the start node" : "walk sets"));
     for (const std::set<stoat::sample_hap_t>& sample_set : sample_sets) {
@@ -36,7 +35,8 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
 // I think this is equivalent to partitioning by the actual sets of unique walks.
 std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, 
                                                                    const bdsg::SnarlDistanceIndex& distance_index,
-                                                                   const handlegraph::net_handle_t& snarl) const {
+                                                                   const handlegraph::net_handle_t& snarl,
+                                                                   bool only_bound) const {
     stoat::LOG_TRACE((string) "Get walk sets of " + distance_index.net_handle_as_string(snarl));
 
     // Make a vector of the paths 
@@ -107,7 +107,9 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
         std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
                                                       handlegraph::PathSense::REFERENCE,
                                                       handlegraph::PathSense::HAPLOTYPE};
-        stoat::LOG_TRACE( (std::stringstream) "" << "\tgraph handle " << graph.get_id(handle) << " " << graph.get_is_reverse(handle));
+
+        stoat::LOG_TRACE( (std::stringstream) "" << "\tgraph handle " << graph.get_id(handle) << " going " << (graph.get_is_reverse(handle) ? "left" : "right"));
+
         for (const auto& sense : senses) {
             graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
                 // For each step on the node handle, keep track of which paths take different steps
@@ -220,15 +222,18 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     };
 
     check_outgoing_edges(distance_index.get_bound(snarl, false, true), false);
-    // Go through each child of the snarl and check the paths on outgoing edges.
-    // Split up sets if the paths have different edges leaving this child
-    // TODO: This is doubling the work because each edges is looked at twice
-    distance_index.for_each_child(snarl, [&] (const handlegraph::net_handle_t& child) {
-        for (bool go_left : {true, false}) {
-            check_outgoing_edges(child, go_left);
-        }
-        return true;
-    });// end for_each_child of the snarl
+
+    if (!only_bound) {
+        // Go through each child of the snarl and check the paths on outgoing edges.
+        // Split up sets if the paths have different edges leaving this child
+        // TODO: This is doubling the work because each edges is looked at twice
+        distance_index.for_each_child(snarl, [&] (const handlegraph::net_handle_t& child) {
+            for (bool go_left : {true, false}) {
+                check_outgoing_edges(child, go_left);
+            }
+            return true;
+        });// end for_each_child of the snarl
+    }
 
     // We have now partitioned the paths into equivalence sets based on the edges they take in this netgraph,
     // stored in old_sets.
@@ -247,50 +252,4 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     }
     return sample_sets;
 }
-
-std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_start_edge_sets(const handlegraph::PathPositionHandleGraph& graph, 
-                                                                         const bdsg::SnarlDistanceIndex& distance_index,
-                                                                         const bdsg::net_handle_t& snarl) const {
-
-    stoat::LOG_TRACE((string) "Get start edge sets of " + distance_index.net_handle_as_string(snarl));
-
-    // Map an edge (as the handle reached from the start of the snarl) to a set of paths that took that edge
-    std::map<handlegraph::handle_t, std::set<stoat::sample_hap_t>> edge_to_sample_set;
-
-    // The start node going into the snarl
-    handlegraph::handle_t start_node = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
-
-
-    std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
-                                                  handlegraph::PathSense::REFERENCE,
-                                                  handlegraph::PathSense::HAPLOTYPE};
-    for (const auto& sense : senses) {
-
-        graph.for_each_step_of_sense(start_node, sense, [&](const handlegraph::step_handle_t& step) {
-
-            handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
-
-            // is the step handle is going in the same direction as the original handle?
-            bool go_forward = graph.get_is_reverse(graph.get_handle_of_step(step)) == graph.get_is_reverse(start_node);
-
-            if ((go_forward && graph.has_next_step(step)) ||  (!go_forward && graph.has_previous_step(step))) {
-                handlegraph::handle_t next_node = go_forward ? graph.get_handle_of_step(graph.get_next_step(step))
-                                                             : graph.get_handle_of_step(graph.get_previous_step(step));
-                if (edge_to_sample_set.count(next_node) == 0) {
-                    edge_to_sample_set[next_node] = std::set<stoat::sample_hap_t>();
-                }
-                edge_to_sample_set[next_node].emplace(stoat::get_sample_and_haplotype(graph, path));
-            }
-        });
-    }
-
-
-    std::vector<std::set<stoat::sample_hap_t>> edge_sets;
-    for (auto& edge_to_set : edge_to_sample_set) {
-        //TODO: idk if this will mess up the map by moving things inside it
-        edge_sets.emplace_back(std::move(edge_to_set.second)); 
-    }
-    return edge_sets;
-}
-
 }

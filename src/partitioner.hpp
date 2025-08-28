@@ -46,15 +46,9 @@ class PathPartitioner : public Partitioner {
 
         /// Given a snarl, partition the paths going through the snarl based on the walks they take in the netgraph.
         /// Unlike get_start_edge_sets, any path not in the snarl will also be returned as a separate set
-        /// Returns sets of samples + haplotypes
         /// TODO: Maybe it shouldn't but I included it since there may be tips
-        std::vector<std::set<stoat::sample_hap_t>> get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const bdsg::net_handle_t& snarl) const;
-
-        /// Given a snarl, partition the paths going through the snarl based on the edges going into the snarl from the start bound.
-        /// If a path traverses the snarl multiple times, it may appear in multiple sets
-        /// Returns sets of sample + haplotypes
-        /// TODO: I'm also not sure if this is the correct behavior
-        std::vector<std::set<stoat::sample_hap_t>> get_start_edge_sets(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const bdsg::net_handle_t& snarl) const;
+        /// Returns sets of samples + haplotypes
+        std::vector<std::set<stoat::sample_hap_t>> get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const bdsg::net_handle_t& snarl, bool only_bound) const;
 
 
 };
