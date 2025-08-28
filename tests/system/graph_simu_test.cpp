@@ -22,7 +22,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype.tsv"
+            + " -b " + data_path + "/phenotype_samples.tsv"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -34,6 +34,12 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             std::cerr << "Command failed: " << cmd << "\n";
             REQUIRE( false);
         }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::ifstream testfile;
+        testfile.open(output_dir+"/binary_table_graph.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
 
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
@@ -49,7 +55,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype.tsv"
+            + " -b " + data_path + "/phenotype_samples.tsv"
             + " -T chi2 -r ref -O fasta";
 
         cmd += " --output " + output_dir;
@@ -63,6 +69,11 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         }
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        std::ifstream testfile;
+        testfile.open(output_dir+"/binary_output.fasta");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
+
 
         REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
 
@@ -78,7 +89,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype.tsv"
+            + " -b " + data_path + "/phenotype_samples.tsv"
             + " -T exact -r ref -O fasta";
 
 
@@ -93,6 +104,10 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         }
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        std::ifstream testfile;
+        testfile.open(output_dir+"/binary_output.fasta");
+        //REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
 
         REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
 
@@ -330,7 +345,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
         truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\t0.3333\t0.0833\t0.1666\t0:1,2:0\t1");
-        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\t1.0000\t0.2482\t0.2482\t1:1,2:0\t2");
+        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\t0.2231\t0.2231\t0:1,1:0,1:0\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
 
@@ -406,15 +421,15 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path1:10-16", "ACTACT");
         truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
 
+        // For snarl 2-4, each path is in a different group, and there needs to be one of each
         truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
-        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path2:11-11", "");
-        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path2:14-15", "G");
 
         truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
         truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
 
-        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path2:11-11", "");
-        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path2:14-15", "G");
+        truth_fasta.emplace_back(6, ">snarl:2-4|path0:11-12|path2:11-12", "G");
+        truth_fasta.emplace_back(7, ">snarl:2-4|path0:11-12|path2:15-15", "");
+
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
     }

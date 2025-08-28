@@ -256,6 +256,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         }
         return true;
     });
+    assert(all_sample_haplotypes.size() >= sample_sets.first.size() + sample_sets.second.size());
 
     // Make the partitioner
     std::shared_ptr<stoat_graph::Partitioner> partitioner;
