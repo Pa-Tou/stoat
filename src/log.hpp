@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <mutex>
+#include <sstream>
 
 namespace stoat {
 
@@ -35,6 +36,15 @@ public:
     void error(const std::string& msg);
     void fatal(const std::string& msg);  // logs error and exits
     void trace(const std::string& msg);
+
+    void log(LogLevel level, const std::stringstream& message);
+
+    void debug(const std::stringstream& msg);
+    void info(const std::stringstream& msg);
+    void warn(const std::stringstream& msg);
+    void error(const std::stringstream& msg);
+    void fatal(const std::stringstream& msg);  // logs error and exits
+    void trace(const std::stringstream& msg);
 
 private:
     LogLevel logLevel = LogLevel::Info;

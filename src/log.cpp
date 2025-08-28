@@ -33,11 +33,21 @@ void Logger::warn(const std::string& msg)  { log(LogLevel::Warning, msg); }
 void Logger::error(const std::string& msg) { log(LogLevel::Error, msg); }
 void Logger::trace(const std::string& msg) { log(LogLevel::Trace, msg); }
 
+
 void Logger::fatal(const std::string& msg) {
     log(LogLevel::Error, msg);
     throw std::runtime_error("Fatal error. Exiting.");
     // log(LogLevel::Error, "Fatal error. Exiting.");
     // std::exit(EXIT_FAILURE);
 }
+
+// Do the same thing with stringstreams
+void Logger::log(LogLevel level, const std::stringstream& message) { log(level, message.str()); }
+void Logger::debug(const std::stringstream& msg) { debug(msg.str()); }
+void Logger::info(const std::stringstream& msg)  { info(msg.str()); }
+void Logger::warn(const std::stringstream& msg)  { warn(msg.str()); }
+void Logger::error(const std::stringstream& msg) { error(msg.str()); }
+void Logger::trace(const std::stringstream& msg) { trace(msg.str()); }
+void Logger::fatal(const std::stringstream& msg) { fatal(msg.str()); }
 
 } // end namespace
