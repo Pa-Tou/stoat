@@ -19,8 +19,12 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
 }
 std::vector<bool> parse_binary_pheno(
     const std::string& file_path,
-    const std::vector<std::string>& list_samples) {
-
+    std::vector<std::string>& list_samples) {
+    bool fill_in_samples = false;
+    if (list_samples.size() == 0) {
+        fill_in_samples = true;
+    }
+    
     std::unordered_map<std::string, bool> binary_pheno;
     std::ifstream file(file_path);
     std::string line;
@@ -62,6 +66,9 @@ std::vector<bool> parse_binary_pheno(
         } else {
             throw std::invalid_argument("Binary phenotype must be 1 or 2, got: " + std::to_string(pheno));
         }
+        if (fill_in_samples) {
+            list_samples.emplace_back(iid_val);
+        }
     }
 
     stoat::LOG_INFO("Binary phenotypes found: " + std::to_string(count_controls + count_cases)
@@ -70,8 +77,10 @@ std::vector<bool> parse_binary_pheno(
 
     file.close();
 
-    check_match_samples(binary_pheno, list_samples);
-
+    if (!fill_in_samples) {
+        // If we were given samples, make sure that they check the phenotype file
+        check_match_samples(binary_pheno, list_samples);
+    }
     std::vector<bool> vector_binary_pheno;
     vector_binary_pheno.reserve(list_samples.size());
 
