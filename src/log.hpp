@@ -8,7 +8,6 @@
 
 namespace stoat {
 
-#define LOG_FATAL(msg)   Logger::instance().fatal((msg))
 #define LOG_ERROR(msg)   Logger::instance().error((msg))
 #define LOG_WARN(msg)    Logger::instance().warn((msg))
 #define LOG_INFO(msg)    Logger::instance().info((msg))
@@ -41,7 +40,6 @@ public:
     void info(const std::string& msg);
     void warn(const std::string& msg);
     void error(const std::string& msg);
-    void fatal(const std::string& msg);  // logs error and exits
     void trace(const std::string& msg);
 
     void log(LogLevel level, const std::stringstream& message);
@@ -50,7 +48,6 @@ public:
     void info(const std::stringstream& msg);
     void warn(const std::stringstream& msg);
     void error(const std::stringstream& msg);
-    void fatal(const std::stringstream& msg);  // logs error and exits
     void trace(const std::stringstream& msg);
 
 private:

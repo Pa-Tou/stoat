@@ -32,7 +32,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
             std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE( false);
+            REQUIRE(false);
         }
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
@@ -160,19 +160,14 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
         }
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
-        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t1\t2\t1_4\t1,1\t1.0000\t1.0000\t1.0000\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0\t3\t6\t4_8\t0,3\t1.0000\t0.2482\t0.3723\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\t0.3333\t0.0833\t0.2499\t0:1,2:0\t2");
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
+        truth_lines.emplace_back("path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
+        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
-
-        truth_lines.clear();
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
     }
 
     SECTION("Test exact tsv output") {
@@ -198,17 +193,12 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
         }
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
-        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\tNA\tNA\t1.0000\tNA\t2");
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
-
-        truth_lines.clear();
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
     }
 
     SECTION("Test chi2 fasta output") {
@@ -340,18 +330,13 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         }
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
-        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\t0.3333\t0.0833\t0.1666\t0:1,2:0\t1");
-        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\t0.2231\t0.2231\t0:1,1:0,1:0\t2");
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\t0.3333\t8.3265e-02\t0:1,2:0\t1");
+        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\t0.2231\t0:1,1:0,1:0\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
-
-        truth_lines.clear();
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
     }
 
     SECTION("Test exact tsv output") {
@@ -376,17 +361,12 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         }
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
-        REQUIRE(std::filesystem::exists(output_dir+"/top_variant_binary_graph.tsv"));
 
         std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\tNA\tNA\t1.0000\tNA\t1");
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\tNA\tNA\tNA\t1");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
-
-        truth_lines.clear();
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH");
-        REQUIRE(files_equal(output_dir+"/top_variant_binary_graph.tsv", truth_lines));
     }
 
     SECTION("Test chi2 fasta output") {

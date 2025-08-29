@@ -42,7 +42,7 @@ void AssociationFinder::test_snarls() const {
         return true;
     });
 
-    FisherKhi2 fisher_chi2_tester;
+    stoat::FisherKhi2 fisher_chi2_tester;
     while (!chains.empty()) {
         handlegraph::net_handle_t chain = chains.back();
         chains.pop_back();
@@ -98,8 +98,6 @@ void AssociationFinder::test_snarls() const {
                     std::unordered_map<std::string, bool> samples_to_write;
 
                     if (test_method == "exact") {
-
-
 
                         for (const std::set<std::string>& partition : sample_partitions) {
                             if (partition == sample_sets.first || partition == sample_sets.second) {
@@ -174,7 +172,7 @@ void AssociationFinder::test_snarls() const {
                             # pragma omp critical (out_associated) 
                             {
                                 // Leave adjusted p-value blank, to be filled in later
-                                stoat::write_binary(out_associated, chr, snarl_data_s, path_lengths, fastfisher_p_value, chi2_p_value, "",  group_paths);
+                                stoat::write_binary(out_associated, chr, snarl_data_s, path_lengths, fastfisher_p_value, chi2_p_value, group_paths);
                             }
                         } else if (output_format == "fasta") {
 

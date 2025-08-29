@@ -26,6 +26,7 @@
 #include "subcommand/vcf.hpp"
 #include "subcommand/graph.hpp"
 #include "subcommand/bh_correct.hpp"
+#include "log.hpp"
 
 // Global variable
 const std::string VERSION = "v0.0.3";
@@ -39,7 +40,7 @@ void print_help() {
                 << "  -- version       version information\n"
                 << "\n"
                 << "post-processing:\n"
-                << "  -- BHcorrect    apply the Benjamini-Hochberg procedure for multiple testing to a tsv file\n"
+                << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file\n"
                 << "                   (this already done by `stoat vcf` and `stoat graph` by default)\n";     
 }
 
@@ -50,7 +51,8 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-   std::string subcommand = argv[1];
+    std::string subcommand = argv[1];
+    stoat::LogLevel verbosity = stoat::LogLevel::Info;  // default level info
 
     // Shift argv to skip the subcommand itself
     argc -= 1;
@@ -60,13 +62,13 @@ int main(int argc, char* argv[]) {
     omp_set_num_threads(1);
 
     if (subcommand == "vcf") {
-        stoat_command::main_stoat(argc, argv);
+        stoat_command::main_stoat(argc, argv, verbosity);
 
     } else if (subcommand == "graph") {
-        stoat_command::main_stoat_graph(argc, argv);
+        stoat_command::main_stoat_graph(argc, argv, verbosity);
 
     } else if (subcommand == "BHcorrect") {
-        stoat_command::main_stoat_bh_correct(argc, argv);
+        stoat_command::main_stoat_bh_correct(argc, argv, verbosity);
 
     } else if (subcommand == "version") {
         std::cout << "stoat: GWAS analysis tool, version " << VERSION;

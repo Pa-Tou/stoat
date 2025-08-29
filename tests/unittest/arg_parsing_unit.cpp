@@ -9,14 +9,6 @@
 #include "../../src/arg_parser.hpp"  // adjust path as needed
 #include "../../src/log.hpp"  // adjust path as needed
 
-void report_fatal(const std::string& msg, bool fatal = true) {
-    if (fatal) {
-        stoat::LOG_FATAL(msg);
-    } else {
-        throw std::runtime_error(msg);
-    }
-}
-
 // Helper to write minimal VCF content to file
 void write_vcf_file(const std::string& path, const std::string& content) {
     std::filesystem::create_directories("test_data");
@@ -71,7 +63,7 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
             "F1 I1 1\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
     }
 
     SECTION("Non-binary phenotype value") {
@@ -82,7 +74,7 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
             "F1 I1 3\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
     }
 
     SECTION("Malformed line") {
@@ -93,7 +85,7 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
             "F1 I1\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
     }
 
     SECTION("Non-integer phenotype") {
@@ -104,7 +96,7 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
             "F1 I1 X\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
     }
 }
 
@@ -140,7 +132,7 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
             "F1 I1 1.5\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
     }
 
     SECTION("Non-numeric phenotype value") {
@@ -151,7 +143,7 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
             "F1 I1 abc\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
     }
 
     SECTION("Malformed line in quantitative phenotype file") {
@@ -162,7 +154,7 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
             "F1 I1\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
     }
 }
 
@@ -197,14 +189,14 @@ TEST_CASE("VCF Parsing", "[parse_vcf][stoat_vcf::parseHeader]") {
         std::string vcf_path = "test_data/test_invalid.vcf";
         write_vcf_file(vcf_path, vcf_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parseHeader(vcf_path), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parseHeader(vcf_path), std::invalid_argument);
     }
 
     SECTION("Empty VCF should throw error on header read") {
         std::string vcf_path = "test_data/test_empty.vcf";
         write_vcf_file(vcf_path, "");  // Empty file
 
-        REQUIRE_THROWS_AS(stoat_vcf::parseHeader(vcf_path), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parseHeader(vcf_path), std::invalid_argument);
     }
 }
 
@@ -233,14 +225,14 @@ TEST_CASE("Check sample matching", "[check_match_samples]") {
         REQUIRE_NOTHROW(stoat_vcf::check_match_samples<double>(pheno, vcf_samples));
     }
 
-    SECTION("Missing key throws runtime_error") {
+    SECTION("Missing key throws invalid_argument") {
         std::unordered_map<std::string, bool> pheno = {
             {"sample1", true},
             {"sample2", false}
         };
         std::vector<std::string> vcf_samples = {"sample1", "sample2", "sample3"};
 
-        REQUIRE_THROWS_AS(stoat_vcf::check_match_samples<bool>(pheno, vcf_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::check_match_samples<bool>(pheno, vcf_samples), std::invalid_argument);
     }
 }
 
@@ -275,7 +267,7 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
         std::vector<std::string> column_covars = {"age", "sex"};
         std::vector<std::string> list_samples = {"samp0", "samp1", "samp2"};
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::invalid_argument);
     }
 
     SECTION("Missing covariate column") {
@@ -286,7 +278,7 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
         std::vector<std::string> column_covars = {"height"}; // not present
         std::vector<std::string> list_samples = {"samp0", "samp1", "samp2"};
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::invalid_argument);
     }
 
     SECTION("Non-numeric value in covariate field") {
@@ -297,6 +289,6 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
         std::vector<std::string> column_covars = {"age", "sex"};
         std::vector<std::string> list_samples = {"samp0"};
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::runtime_error);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::invalid_argument);
     }
 }
