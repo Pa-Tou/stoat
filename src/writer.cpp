@@ -86,7 +86,7 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
 
 }
 
-void write_fasta(std::ostream& outstream_associated, std::ostream& outstream_unassociated, const handlegraph::PathPositionHandleGraph& graph,
+void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
                  const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, 
                  const std::unordered_map<std::string, bool>& samples, const string& reference_name) {
     
@@ -136,7 +136,6 @@ void write_fasta(std::ostream& outstream_associated, std::ostream& outstream_una
         string sample_name = stoat::get_sample_name_from_path(graph, path);
         if (samples.empty() || samples.count(sample_name) != 0) {
             //If we aren't checking samples, or if this is a sample we want
-            ostream& outstream = samples.at(sample_name) ? outstream_associated : outstream_unassociated;
     
             std::tuple<std::string, size_t, size_t> range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, distance_index, path_range);
             // Print the header

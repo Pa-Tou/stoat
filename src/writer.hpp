@@ -32,9 +32,8 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
                     const std::string& gene_name, const std::string& p_value, const std::string& r2,
                     const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths);
 
-// Write the fasta for paths in a snarl. If samples is given, only write the fast for samples present to outstream_associated if the sample maps to true, and
-// to outstream_unassociated if it maps to false. If samples is not given, write all samples.
-void write_fasta(std::ostream& outstream_associated, std::ostream& outstream_unassociated, const handlegraph::PathPositionHandleGraph& graph, 
+// Write the fasta for paths in a snarl. If samples is given, only write the fast for samples present to outstream. If samples is not given, write all samples.
+void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph, 
                  const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, 
                  const std::unordered_map<std::string, bool>& samples, const string& reference_name);
 
