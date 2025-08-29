@@ -98,7 +98,7 @@ stoat vcf -p <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -q <phenotype.txt>
 - Use `stoat graph` if you want to find associations with paths in the graph : 
 
 ```bash
-stoat graph -g <graph> -d <dist.dist> -S <samples.tsv>
+stoat graph -g <graph> -d <dist.dist> -b <phenotype.tsv>
 ```
 ### Wiki
 
