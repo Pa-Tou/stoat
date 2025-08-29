@@ -58,7 +58,7 @@ std::string addSuffixToFilename(const std::string& filename, const std::string& 
 void writeGafLines(const std::string& sequenceName, const std::string& path, 
                     int length, int proportion, std::ofstream& outFile) {
     if (!outFile.is_open()) {
-        stoat::LOG_FATAL("Error: Output file stream is not open.");
+        throw std::runtime_error("Error: Output file stream is not open.");
     }
     
     outFile << sequenceName << "\t" << length << "\t0\t" << length << "\t+\t"
@@ -116,7 +116,7 @@ void gaf_creation(const std::string& input_file,
     ifstream infile(input_file);
     ofstream outfile1(output_file_1), outfile2(output_file_2);
     if (!infile || !outfile1 || !outfile2) {
-        stoat::LOG_FATAL("Error opening files");
+        throw std::runtime_error("Error opening files");
     }
 
     std::string line;

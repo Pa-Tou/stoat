@@ -31,6 +31,8 @@
 using namespace std;
 using boost::multiprecision::cpp_dec_float_50;
 
+namespace stoat {
+
 // ------------------------ Regression class ------------------------
 
 class FisherKhi2 {
@@ -121,5 +123,7 @@ class LMM {
         //     const stoat_vcf::KinshipMatrix& kinship,
         //     const std::vector<std::vector<double>>& covariates);
 };
+
+} // namespace stoat
 
 #endif 

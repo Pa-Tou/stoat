@@ -11,6 +11,11 @@ TEST_CASE("set_precision handles small and normal values") {
     REQUIRE(set_precision(0.123456) == "0.1235");
 }
 
+TEST_CASE("set_precision handles small and normal values 2") {
+    REQUIRE(set_precision(0.00001234567890123456789) == "1.2346e-05");
+    REQUIRE(set_precision(0.34567890123456789) == "0.3457");
+}
+
 TEST_CASE("set_precision_float_50 handles small and large cpp_dec_float_50 values") {
     cpp_dec_float_50 small("0.00001234567890123456789");
     cpp_dec_float_50 normal("0.34567890123456789");

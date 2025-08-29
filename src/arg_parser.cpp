@@ -31,7 +31,7 @@ std::vector<bool> parse_binary_pheno(
     std::string fid, iid, phenoStr;
     header_stream >> fid >> iid >> phenoStr;
     if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
-        stoat::LOG_FATAL("Invalid header: " + line);
+        throw std::invalid_argument("Invalid header: " + line);
     }
 
     // --- Read and process data ---
@@ -43,14 +43,14 @@ std::vector<bool> parse_binary_pheno(
         std::string fid_val, iid_val, phenoStr_val;
 
         if (!(iss >> fid_val >> iid_val >> phenoStr_val)) {
-            stoat::LOG_FATAL("Malformed line: " + line);
+            throw std::invalid_argument("Malformed line: " + line);
         }
 
         int pheno;
         try {
             pheno = std::stoi(phenoStr_val);
         } catch (...) {
-            stoat::LOG_FATAL("Bad phenotype type: " + phenoStr_val);
+            throw std::invalid_argument("Bad phenotype type: " + phenoStr_val);
         }
 
         if (pheno == 1) {
@@ -60,7 +60,7 @@ std::vector<bool> parse_binary_pheno(
             ++count_cases;
             binary_pheno[iid_val] = true;
         } else {
-            stoat::LOG_FATAL("Binary phenotype must be 1 or 2, got: " + std::to_string(pheno));
+            throw std::invalid_argument("Binary phenotype must be 1 or 2, got: " + std::to_string(pheno));
         }
     }
 
@@ -99,7 +99,7 @@ std::vector<double> parse_quantitative_pheno(
     std::string fid, iid, phenoStr;
     header_stream >> fid >> iid >> phenoStr;
     if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
-        stoat::LOG_FATAL("In parsing phenotype, invalid header: " + line);
+        throw std::invalid_argument("In parsing phenotype, invalid header: " + line);
     }
 
     int count_pheno = 0;
@@ -109,13 +109,13 @@ std::vector<double> parse_quantitative_pheno(
         std::string fid_val, iid_val, phenoStr_val;
 
         if (!(iss >> fid_val >> iid_val >> phenoStr_val)) {
-            stoat::LOG_FATAL("In parsing phenotype, malformed line: " + line);
+            throw std::invalid_argument("In parsing phenotype, malformed line: " + line);
         }
 
         try {
             quantitative_pheno[iid_val] = std::stod(phenoStr_val);
         } catch (...) {
-            stoat::LOG_FATAL("Bad phenotype type: " + phenoStr_val);
+            throw std::invalid_argument("Bad phenotype type: " + phenoStr_val);
         }
 
         ++count_pheno;
@@ -149,7 +149,7 @@ std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> parse_vcf(const std::string& vcf_path)
     bcf_hdr_t *hdr = bcf_hdr_read(ptr_vcf);
     if (!hdr) {
         bcf_close(ptr_vcf);
-        stoat::LOG_FATAL("Could not read VCF header");
+        throw std::invalid_argument("Could not read VCF header");
     }
 
     // Initialize a record
@@ -157,7 +157,7 @@ std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> parse_vcf(const std::string& vcf_path)
     if (!rec) {
         bcf_hdr_destroy(hdr);
         bcf_close(ptr_vcf);
-        stoat::LOG_FATAL("Failed to allocate memory for VCF record");
+        throw std::invalid_argument("Failed to allocate memory for VCF record");
     }
 
     // Return the three initialized pointers
@@ -186,7 +186,7 @@ template <typename T>
 void check_match_samples(const std::unordered_map<std::string, T>& map, const std::vector<std::string>& keys) {
     for (const auto& key : keys) {
         if (map.find(key) == map.end()) {
-            stoat::LOG_FATAL("Sample '" + key + "' not found in the phenotype file");
+            throw std::invalid_argument("Sample '" + key + "' not found in the phenotype file");
         }
     }
     if (map.size() != keys.size()) {
@@ -214,7 +214,7 @@ std::unordered_map<std::string, std::vector<Qtl_data>> parse_qtl_gene_file(
             Qtl_data qtl_info(gene, expression_vector, start, end);
             qtl_map[chrom].emplace_back(qtl_info);
         } else {
-            stoat::LOG_FATAL("Gene " + gene + " not found in gene positions.");
+            throw std::invalid_argument("Gene " + gene + " not found in gene positions.");
         }
     }
   
@@ -245,7 +245,7 @@ std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_g
     std::getline(ss_header, endStr, '\t');
 
     if (gene != "gene_name" || chrom != "chr" || startStr != "start" || endStr != "end") {
-        stoat::LOG_FATAL("In parsing gene position file, invalid header. Expected: gene_name\tchr\tstart\tend");
+        throw std::invalid_argument("In parsing gene position file, invalid header. Expected: gene_name\tchr\tstart\tend");
     }
 
     // Parse content
@@ -257,7 +257,7 @@ std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_g
             !std::getline(ss, chrom_val, '\t') ||
             !std::getline(ss, start_val, '\t') ||
             !std::getline(ss, end_val, '\t')) {
-            stoat::LOG_FATAL("In parsing gene position file, malformed line: " + line);
+            throw std::invalid_argument("In parsing gene position file, malformed line: " + line);
         }
 
         try {
@@ -265,7 +265,7 @@ std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_g
             size_t end = std::stoul(end_val);
             geneMap[gene_val] = std::make_tuple(chrom_val, start, end);
         } catch (...) {
-            stoat::LOG_FATAL("In parsing gene position file, invalid numeric value in line: " + line);
+            throw std::invalid_argument("In parsing gene position file, invalid numeric value in line: " + line);
         }
     }
 
@@ -298,7 +298,7 @@ std::unordered_map<std::string, std::vector<double>> parse_qtl_file(
     // Validate sample names
     for (const auto& sample : sampleNames) {
         if (std::find(list_samples.begin(), list_samples.end(), sample) == list_samples.end()) {
-            stoat::LOG_FATAL("Sample " + sample + " not found in the list of samples.");
+            throw std::invalid_argument("Sample " + sample + " not found in the list of samples.");
         }
     }
 
@@ -317,7 +317,7 @@ std::unordered_map<std::string, std::vector<double>> parse_qtl_file(
             try {
                 expressions.push_back(std::stod(token));
             } catch (...) {
-                stoat::LOG_FATAL("Invalid expression value for gene " + geneName + ": " + token);
+                throw std::invalid_argument("Invalid expression value for gene " + geneName + ": " + token);
             }
         }
 
@@ -352,7 +352,7 @@ std::vector<std::vector<double>> parse_covariates(
     // Check for required columns
     auto it_iid = std::find(headers.begin(), headers.end(), "IID");
     if (it_iid == headers.end()) {
-        stoat::LOG_FATAL("header must include 'IID' column.\n");
+        throw std::invalid_argument("header must include 'IID' column.\n");
     }
 
     size_t iid_index = std::distance(headers.begin(), it_iid);
@@ -365,7 +365,7 @@ std::vector<std::vector<double>> parse_covariates(
     // Check header for covariate names
     for (const auto& name : covar_names) {
         if (col_index.find(name) == col_index.end()) {
-            stoat::LOG_FATAL("covariate column '" + name + "' not found in file.\n");
+            throw std::invalid_argument("covariate column '" + name + "' not found in file.\n");
         }
     }
 
@@ -388,7 +388,7 @@ std::vector<std::vector<double>> parse_covariates(
                 selected.push_back(val);
             }
         } catch (...) {
-            stoat::LOG_FATAL("Individual " + iid + " got an non-numeric value\n");
+            throw std::invalid_argument("Individual " + iid + " got an non-numeric value\n");
         }
         covariate_map[iid] = selected;
     }
@@ -401,7 +401,7 @@ std::vector<std::vector<double>> parse_covariates(
         if (it != covariate_map.end()) {
             covariate.push_back(it->second);
         } else {
-            stoat::LOG_FATAL("Sample " + sample + " not found in the covariate file.");
+            throw std::invalid_argument("Sample " + sample + " not found in the covariate file.");
         }
     }
     file.close();
@@ -415,18 +415,18 @@ void check_file(const std::string& file_path) {
 
     // Check if file is a file
     if (!fs::is_regular_file(file_path)) {
-        stoat::LOG_FATAL("File " + file_path + " does not exist.");
+        throw std::invalid_argument("File " + file_path + " does not exist.");
     }
 
     // Check if file can be open
     std::ifstream file(file_path);
     if (!file.is_open()) {
-        stoat::LOG_FATAL("Unable to open the file " + file_path);
+        throw std::invalid_argument("Unable to open the file " + file_path);
     }
 
     // Check if file can be read and not empty file
     if (!std::getline(file, line)) {
-        stoat::LOG_FATAL("File " + file_path + "is empty or failed to read header.");
+        throw std::invalid_argument("File " + file_path + "is empty or failed to read header.");
     }
 
     file.close();

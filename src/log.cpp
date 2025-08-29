@@ -5,7 +5,6 @@
 // stoat::LOG_DEBUG("Loaded " + std::to_string(node_count) + " nodes");
 // stoat::LOG_WARN("Using fallback parameter");
 // stoat::LOG_ERROR("Cannot open file");
-// stoat::LOG_FATAL("File not found: " + filename);
 // stoat::LOG_TRACE("Detailed trace info...");
 
 namespace stoat {
@@ -32,12 +31,5 @@ void Logger::info(const std::string& msg)  { log(LogLevel::Info, msg); }
 void Logger::warn(const std::string& msg)  { log(LogLevel::Warning, msg); }
 void Logger::error(const std::string& msg) { log(LogLevel::Error, msg); }
 void Logger::trace(const std::string& msg) { log(LogLevel::Trace, msg); }
-
-void Logger::fatal(const std::string& msg) {
-    log(LogLevel::Error, msg);
-    throw std::runtime_error("Fatal error. Exiting.");
-    // log(LogLevel::Error, "Fatal error. Exiting.");
-    // std::exit(EXIT_FAILURE);
-}
 
 } // end namespace

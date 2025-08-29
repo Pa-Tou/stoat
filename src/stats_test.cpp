@@ -14,6 +14,8 @@ using boost::math::chi_squared_distribution;
 #  define S_CAST(type, val) (static_cast<type>(val))
 #endif
 
+namespace stoat {
+
 // ------------------------ Logistic regression ------------------------
 
 // Standard normal cumulative distribution function
@@ -472,11 +474,10 @@ std::tuple<std::string, std::string, std::string, std::string>
     // t-statistics
     Eigen::VectorXd t_stats = beta.array() / se.array();
     boost::math::students_t t_dist(df_res);
- 
+
     std::vector<double> p_values;
     for (int i = 1; i < num_variants+1; ++i) { // i = 1 avoid const p-value
         if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) { // Special case
-            cout <<
             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
             continue;
         }
@@ -487,13 +488,13 @@ std::tuple<std::string, std::string, std::string, std::string>
     double beta_adjusted = beta[1];
     double se_adjusted = se[1];
 
-    if (p_values.size() > 1) {
-        std::vector<double> p_values_adjusted = stoat::adjusted_holm(p_values);
-        size_t min_index = std::distance(p_values_adjusted.begin(), std::min_element(p_values_adjusted.begin(), p_values_adjusted.end()));
-        p_value_adjusted = p_values_adjusted[min_index];
-        beta_adjusted = beta[min_index+1];
-        se_adjusted = se[min_index+1];
-    }
+    // if (p_values.size() > 1) {
+    //     std::vector<double> p_values_adjusted = stoat::adjusted_holm(p_values);
+    //     size_t min_index = std::distance(p_values_adjusted.begin(), std::min_element(p_values_adjusted.begin(), p_values_adjusted.end()));
+    //     p_value_adjusted = p_values_adjusted[min_index];
+    //     beta_adjusted = beta[min_index+1];
+    //     se_adjusted = se[min_index+1];
+    // }
 
     // set precision : 4 digit
     std::string p_value_str = stoat::set_precision(p_value_adjusted);
@@ -503,3 +504,5 @@ std::tuple<std::string, std::string, std::string, std::string>
 
     return std::make_tuple(p_value_str, beta_str, se_str, r2_str);
 }
+
+} // namespace stoat

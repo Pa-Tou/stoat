@@ -4,24 +4,27 @@ namespace stoat {
 
 std::string set_precision(const double& value) {
     std::ostringstream oss;
-    oss << std::setprecision(4);
-
-    if (std::abs(value) < 1e-4) {
-        oss << std::scientific << value; // Scientific notation with 4 decimals
+    if (std::abs(value) < 1e-1 && value != 0.0) {
+        oss << std::scientific << std::setprecision(4);
     } else {
-        oss << std::fixed << value; // Fixed-point notation with 4 decimals
+        oss << std::defaultfloat << std::setprecision(4);
     }
+
+    oss << value;
     return oss.str();
 }
 
 std::string set_precision_float_50(const boost::multiprecision::cpp_dec_float_50& value) {
     std::ostringstream oss;
-    oss << std::setprecision(4);
-    if (value < boost::multiprecision::cpp_dec_float_50("1e-4")) {
-        oss << std::scientific << value;
+
+    // Use scientific notation only for very small values
+    if (value != 0 && abs(value) < boost::multiprecision::cpp_dec_float_50("1e-1")) {
+        oss << std::scientific << std::setprecision(4);
     } else {
-        oss << std::fixed << value;
+        oss << std::defaultfloat << std::setprecision(4);  // Avoid trailing zeros
     }
+
+    oss << value;
     return oss.str();
 }
 
@@ -49,7 +52,7 @@ bool isPValueSignificant(const double& pvalue_threshold, const std::string& pval
             pvalue = std::stod(pvalue_str);
         }
     } catch (const std::exception& e) {
-        LOG_FATAL("Error parsing pvalue std::string : " + pvalue_str + " " + e.what());
+        throw std::runtime_error("Error parsing pvalue std::string : " + pvalue_str + " " + e.what());
     }
     return pvalue < pvalue_threshold;
 }
@@ -120,7 +123,7 @@ std::vector<T> stringToVector(const std::string& str) {
         T value;
         tokenStream >> value;
         if (tokenStream.fail()) {
-            LOG_FATAL("Failed to parse token: " + token);
+            throw std::runtime_error("Failed to parse token: " + token);
         }
         result.push_back(value);
     }
