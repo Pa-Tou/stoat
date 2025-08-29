@@ -30,6 +30,13 @@ public:
     void setLevel(LogLevel level);
     void log(LogLevel level, const std::string& message);
 
+    /// Is the logger at least at this level of verbosity?
+    bool at_level(const LogLevel& level) const { return logLevel >= level; }
+
+    /// Check an assertion and if it is false, print the message to the appropriate log level
+    /// This should only really be used with at_level() so that the assertion check doesn't happen all the time
+    void log_assert(LogLevel level, bool assertion, const std::string& message);
+
     void debug(const std::string& msg);
     void info(const std::string& msg);
     void warn(const std::string& msg);

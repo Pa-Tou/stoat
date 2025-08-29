@@ -257,6 +257,12 @@ int main_stoat_graph(int argc, char *argv[]) {
         return true;
     });
 
+    if (stoat::Logger::instance().at_level(stoat::LogLevel::Error)) {
+        stoat::Logger::instance().log_assert(stoat::LogLevel::Error, 
+                                             all_sample_haplotypes.size() >= sample_sets.first.size() + sample_sets.second.size(), 
+                                             "there are more samples given than haplotypes in the graph");
+    }
+
     // Make the partitioner
     std::shared_ptr<stoat_graph::Partitioner> partitioner;
     if (method_name == "paths") {
