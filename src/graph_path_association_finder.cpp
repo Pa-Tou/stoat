@@ -103,8 +103,6 @@ void AssociationFinder::test_snarls() const {
 
                     if (test_method == "exact") {
 
-
-
                         for (const std::set<std::string>& partition : sample_partitions) {
                             if (partition == samples_of_interest) {
 

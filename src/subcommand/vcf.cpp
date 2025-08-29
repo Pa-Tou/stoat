@@ -22,7 +22,7 @@ namespace stoat_command {
 
 void print_help_vcf() {
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -p, --graph FILE                Path to the packed graph file (.graph)\n"
+              << "  -p, --graph FILE             Path to the packed graph file (.graph)\n"
               << "  -d, --dist FILE              Path to the packed distance index file [vg index] (.dist)\n"
               << "  -v, --vcf FILE               Path to the VCF file (.vcf or .vcf.gz)\n"
               << "  -s, --snarl FILE             Path to the snarl file (.txt or .tsv)\n"
@@ -393,10 +393,6 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
                                                                                         : "/eqtl_table_vcf.tsv"));
 
     snarl_analyzer->process_snarls_by_chromosome_chunk(ptr_vcf, hdr, rec, output_tsv);
-
-    std::string output_significative = output_dir + (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR ? "/top_variant_binary_vcf.tsv" : 
-                                                    (phenotype_type == stoat::QUANTITATIVE ? "/top_variant_quantitative_vcf.tsv" 
-                                                                                                : "/top_variant_eqtl_vcf.tsv"));
 
     if (phenotype_type == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");

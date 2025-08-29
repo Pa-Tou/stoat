@@ -41,7 +41,7 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         REQUIRE(fk.chi2_2xN(g0, g1) == "1.6974e-04");
     }
 
-    SECTION("Chi-square fail (N row 1.0000)") {
+    SECTION("Chi-square fail (N row 1)") {
         std::vector<size_t> g0 = {10, 10, 10, 10, 10};
         std::vector<size_t> g1 = {10, 10, 10, 10, 10};
         REQUIRE(fk.chi2_2xN(g0, g1) == "1");
@@ -89,7 +89,7 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t c = g1[0];
         size_t d = g1[1];
         REQUIRE(fk.chi2_2x2(a, b, c, d)  == "0.1573");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1.0000");
+        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1");
     }
 
     SECTION("Chi-square & Fisher test (strange but correct)") {
@@ -100,7 +100,7 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t c = g1[0];
         size_t d = g1[1];
         REQUIRE(fk.chi2_2x2(a, b, c, d)  == "0.8857");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1.0000");
+        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1");
     }
 
     SECTION("Chi-square & Fisher test (very significative)") {

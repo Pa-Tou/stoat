@@ -310,7 +310,7 @@ std::string FisherKhi2::fastFishersExactTest(size_t m11, size_t m12,
         cur12 -= 1;
         cur21 -= 1;
         if (cur_prob > DBL_MAX) {
-        return "0.0";
+        return "0";
         }
         if (cur_prob < kExactTestBias) {
         tprob += cur_prob;
@@ -320,7 +320,7 @@ std::string FisherKhi2::fastFishersExactTest(size_t m11, size_t m12,
     }
 
     if (cprob == 0) {
-        return "1.0000";
+        return "1";
     }
 
     while (cur12 > 0.5) {
