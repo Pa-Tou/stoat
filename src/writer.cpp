@@ -5,24 +5,24 @@
 namespace stoat {
 
 void write_binary_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tP_ADJUSTED\tGROUP_PATHS\tDEPTH" << std::endl;
+    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH" << std::endl;
 }
 
 void write_binary_covar_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tP_ADJUSTED\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
 void write_quantitative_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tP_ADJUSTED\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
 void write_eqtl_header(std::ostream& outstream) {
-    outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tP_ADJUSTED\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
 void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& p_value_adjusted, 
-                         const std::string& group_paths) {
+                        const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths) {
+
     outstream << chr << "\t"
               << snarl_data_s.start_positions << "\t"
               << snarl_data_s.end_positions << "\t"
@@ -30,68 +30,63 @@ void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_d
               << type_var_str << "\t"
               << fastfisher_p_value << "\t"
               << chi2_p_value << "\t"
-              << p_value_adjusted << "\t"
               << group_paths << "\t"
               << snarl_data_s.depth << endl;
 }
 
 void write_binary_covar(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value, const std::string& p_value_adjusted,
-                        const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+                        const std::string& p_value, const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
 
-    outstream << chr << "\t" 
-              << snarl_data_s.start_positions << "\t" 
-              << snarl_data_s.end_positions << "\t" 
-              << stoat::pairToString(snarl_data_s.snarl_ids) << "\t" 
-              << type_var_str << "\t" 
-              << p_value << "\t" 
-              << p_value_adjusted << "\t" 
-              << beta << "\t" 
-              << se << "\t" 
+    outstream << chr << "\t"
+              << snarl_data_s.start_positions << "\t"
+              << snarl_data_s.end_positions << "\t"
+              << stoat::pairToString(snarl_data_s.snarl_ids) << "\t"
+              << type_var_str << "\t"
+              << p_value << "\t"
+              << beta << "\t"
+              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << endl;
 }
 
 void write_quantitative(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value, const std::string& p_value_adjusted, const std::string& r2,
-                        const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+                        const std::string& p_value,  const std::string& r2, const std::string& beta, const std::string& se, 
+                        const std::vector<size_t>& allele_paths) {
 
-    outstream << chr << "\t" 
-              << snarl_data_s.start_positions << "\t" 
-              << snarl_data_s.end_positions << "\t" 
-              << stoat::pairToString(snarl_data_s.snarl_ids) << "\t" 
-              << type_var_str << "\t" 
-              << p_value  << "\t" 
-              << p_value_adjusted << "\t" 
-              << r2 << "\t" 
-              << beta << "\t" 
-              << se << "\t" 
+    outstream << chr << "\t"
+              << snarl_data_s.start_positions << "\t"
+              << snarl_data_s.end_positions << "\t"
+              << stoat::pairToString(snarl_data_s.snarl_ids) << "\t"
+              << type_var_str << "\t"
+              << p_value  << "\t"
+              << r2 << "\t"
+              << beta << "\t"
+              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << "\n";
 
 }
 
 void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                   const std::string& gene_name, const std::string& p_value, const std::string& p_value_adjusted, const std::string& r2,
+                   const std::string& gene_name, const std::string& p_value,  const std::string& r2,
                    const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
 
-    outstream << chr << "\t" 
-              << snarl_data_s.start_positions << "\t" 
-              << snarl_data_s.end_positions << "\t" 
-              << stoat::pairToString(snarl_data_s.snarl_ids) << "\t" 
-              << type_var_str << "\t" 
-              << gene_name << "\t" 
-              << p_value  << "\t" 
-              << p_value_adjusted << "\t" 
-              << r2 << "\t" 
-              << beta << "\t" 
-              << se << "\t" 
+    outstream << chr << "\t"
+              << snarl_data_s.start_positions << "\t"
+              << snarl_data_s.end_positions << "\t"
+              << stoat::pairToString(snarl_data_s.snarl_ids) << "\t"
+              << type_var_str << "\t"
+              << gene_name << "\t"
+              << p_value  << "\t"
+              << r2 << "\t"
+              << beta << "\t"
+              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << endl;
 
 }
 
-void write_fasta(std::ostream& outstream_associated, std::ostream& outstream_unassociated, const handlegraph::PathPositionHandleGraph& graph,
+void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
                  const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, 
                  const std::unordered_map<std::string, bool>& samples, const string& reference_name) {
     
@@ -141,7 +136,6 @@ void write_fasta(std::ostream& outstream_associated, std::ostream& outstream_una
         string sample_name = stoat::get_sample_name_from_path(graph, path);
         if (samples.empty() || samples.count(sample_name) != 0) {
             //If we aren't checking samples, or if this is a sample we want
-            ostream& outstream = samples.at(sample_name) ? outstream_associated : outstream_unassociated;
     
             std::tuple<std::string, size_t, size_t> range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, distance_index, path_range);
             // Print the header

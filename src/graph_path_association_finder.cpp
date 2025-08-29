@@ -3,30 +3,26 @@
 #include "writer.hpp"
 #include "binary_table.hpp"
 
-//#define DEBUG_ASSOCIATION_FINDER
-
 namespace stoat_graph {
 
 AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
                                      const bdsg::SnarlDistanceIndex& distance_index,
                                      std::shared_ptr<Partitioner> partitioner,
-                                     const std::set<std::string>& samples_of_interest, 
+                                     const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                                      const std::string& reference_sample,
                                      const std::string& test_method,
                                      const std::string& output_format,
                                      size_t allele_size_limit,
-                                     std::ostream& out_associated,
-                                     std::ostream& out_unassociated) :
+                                     std::ostream& out_associated) :
     graph(graph), 
     distance_index(distance_index), 
     partitioner(std::move(partitioner)),
-    samples_of_interest(samples_of_interest), 
+    sample_sets(sample_sets),
     reference_sample(reference_sample),
     test_method(test_method),
     output_format(output_format),
     allele_size_limit(allele_size_limit),
     out_associated(out_associated),
-    out_unassociated(out_unassociated),
     check_distances(distance_index.has_distances())
     {}
 
@@ -46,7 +42,7 @@ void AssociationFinder::test_snarls() const {
         return true;
     });
 
-    FisherKhi2 fisher_chi2_tester;
+    stoat::FisherKhi2 fisher_chi2_tester;
     while (!chains.empty()) {
         handlegraph::net_handle_t chain = chains.back();
         chains.pop_back();
@@ -55,9 +51,7 @@ void AssociationFinder::test_snarls() const {
 
             //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
             if (distance_index.is_snarl(snarl) && snarl_is_eligible(snarl) ) {
-                #ifdef DEBUG_ASSOCIATION_FINDER
-                    cerr << "Test snarl " << distance_index.net_handle_as_string(snarl) << endl;
-                #endif
+                stoat::LOG_TRACE( "Test snarl " + distance_index.net_handle_as_string(snarl));
 
                 // Should we write this?
                 bool write_output = false;
@@ -82,19 +76,21 @@ void AssociationFinder::test_snarls() const {
                 // Do we test nested snarls? Don't test snarls that are already flagged as significant
                 bool test_nested_snarls = true;
 
-                #ifdef DEBUG_ASSOCIATION_FINDER
-                    cerr << "\tTRUTH" << endl;
-                    for (const std::string& sample : samples_of_interest) {
-                        cerr << "\t\t" << sample << endl;
-                    }
+                stoat::LOG_TRACE( "\tTRUTH 1" );
+                for (const auto& sample : sample_sets.first) {
+                    stoat::LOG_TRACE( "\t\t"  +sample );
+                }
+                stoat::LOG_TRACE( "\tTRUTH 2" );
+                for (const auto& sample : sample_sets.second) {
+                    stoat::LOG_TRACE( "\t\t"  +sample );
+                }
 
-                    for (const std::set<std::string>& partition : sample_partitions) {
-                        cerr << "\tPARTITION" << endl;
-                        for (const std::string& sample : partition) {
-                            cerr << "\t\t" << sample << endl;
-                        }
+                for (const std::set<std::string>& partition : sample_partitions) {
+                    stoat::LOG_TRACE( "\tPARTITION" );
+                    for (const std::string& sample : partition) {
+                        stoat::LOG_TRACE( "\t\t" + sample );
                     }
-                #endif
+                }
 
                 if (sample_partitions.size() > 1) {
 
@@ -103,10 +99,8 @@ void AssociationFinder::test_snarls() const {
 
                     if (test_method == "exact") {
 
-
-
                         for (const std::set<std::string>& partition : sample_partitions) {
-                            if (partition == samples_of_interest) {
+                            if (partition == sample_sets.first || partition == sample_sets.second) {
 
                                 // For the exact test, since we already know the result of the test, write only those snarls that pass the test
                                 write_output = true;
@@ -134,9 +128,9 @@ void AssociationFinder::test_snarls() const {
                         for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
                             const std::set<std::string> sample_set = sample_partitions[i];
                             for (const std::string sample : sample_set) {
-                                if (samples_of_interest.count(sample) != 0) {
+                                if (sample_sets.first.count(sample) == 1) {
                                     genotype_associated[i]++;
-                                } else {
+                                } else if (sample_sets.second.count(sample) == 1) {
                                     genotype_unassociated[i]++;
                                 }
                             }
@@ -178,13 +172,13 @@ void AssociationFinder::test_snarls() const {
                             # pragma omp critical (out_associated) 
                             {
                                 // Leave adjusted p-value blank, to be filled in later
-                                stoat::write_binary(out_associated, chr, snarl_data_s, path_lengths, fastfisher_p_value, chi2_p_value, "",  group_paths);
+                                stoat::write_binary(out_associated, chr, snarl_data_s, path_lengths, fastfisher_p_value, chi2_p_value, group_paths);
                             }
                         } else if (output_format == "fasta") {
 
                             # pragma omp critical (out_associated) 
                             {
-                                stoat::write_fasta(out_associated, out_unassociated, graph, distance_index, snarl, samples_to_write, reference_sample);
+                                stoat::write_fasta(out_associated, graph, distance_index, snarl, samples_to_write, reference_sample);
                             }
                         }
                     }

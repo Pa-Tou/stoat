@@ -24,14 +24,13 @@ class AssociationFinder {
         // a distance index, the names of the samples we are interested in, and, optionally, the name of the reference
         const handlegraph::PathPositionHandleGraph& graph;
         const bdsg::SnarlDistanceIndex& distance_index; 
-        const std::set<std::string>& samples_of_interest;
+        const std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
         const std::string& reference_sample;
         const std::string& test_method;
         const std::string& output_format;
         size_t total_sample_count;
         size_t allele_size_limit;
         std::ostream& out_associated = std::cout;
-        std::ostream& out_unassociated = std::cout;
         bool check_distances;
 
 
@@ -43,18 +42,17 @@ class AssociationFinder {
 
         /// Create an association finder with the graph and distance index, a set of samples of interest for which we want associated
         /// variants, a string of the reference sample name (may be empty), the output format (tsv or fasta), 
-        /// filenames for writing associated alleles and unassociated alleles, and a size limit for the minimum length of snarl reported,
+        /// filenames for writing alleles, and a size limit for the minimum length of snarl reported,
         /// measured as the "maximum" length of a snarl
         AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
                           const bdsg::SnarlDistanceIndex& distance_index, 
                           std::shared_ptr<Partitioner> partitioner,
-                          const std::set<std::string>& samples_of_interest, 
+                          const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                           const std::string& reference_sample,
                           const std::string& test_method,
                           const std::string& output_format,
                           size_t allele_size_limit,
-                          std::ostream& out_associated,
-                          std::ostream& out_unassociated);
+                          std::ostream& out_associated);
 
         
         /// Main function that gets called to go through all snarls in the graph, check if they are eligible with snarl_is_eligible(),

@@ -42,7 +42,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
             oss << header_fields[i];
             if (i < header_fields.size() - 1) oss << "\t";
         }
-        stoat::LOG_FATAL(oss.str());
+        throw std::runtime_error(oss.str());
     }
 
     // Process each line
@@ -187,7 +187,7 @@ std::string pairToString(const std::pair<size_t, size_t>& name) {
 std::pair<size_t, size_t> stringToPair(const std::string& str) {
     size_t underscorePos = str.find('_');
     if (underscorePos == std::string::npos) {
-        stoat::LOG_FATAL("Input std::string does not contain an underscore separator");
+        throw std::runtime_error("Input std::string does not contain an underscore separator");
     }
 
     std::string firstPart = str.substr(0, underscorePos);
@@ -354,7 +354,7 @@ std::tuple<
 
     // Tell the IO library about libvg types.
     if (!stoat::io::register_libvg_io()) {
-        stoat::LOG_FATAL("error[stoat vgio]: Could not register libvg types with libvgio");
+        throw std::runtime_error("error[stoat vgio]: Could not register libvg types with libvgio");
     }
 
 
@@ -762,7 +762,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
     stoat::LOG_INFO("Total number of paths filtered : " + std::to_string(paths_fail));
 
     if (paths_number_analysis == 0) {
-        stoat::LOG_FATAL("Total number of paths = 0. This may indicate that the graph does not contain a flagged reference path. Please use -r/--chr to specify the reference paths.");
+        throw std::runtime_error("Total number of paths = 0. This may indicate that the graph does not contain a flagged reference path. Please use -r/--chr to specify the reference paths.");
     }
 
     for (const auto& [chr, snarls] : chr_snarl_matrix) {

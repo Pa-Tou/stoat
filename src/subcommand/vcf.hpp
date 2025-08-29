@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "../log.hpp"
+
 namespace stoat_command {
 
 void print_help_vcf();
 
-int main_stoat(int argc, char* argv[]);
+int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity);
 
 } // end stoat

@@ -31,6 +31,8 @@
 using namespace std;
 using boost::multiprecision::cpp_dec_float_50;
 
+namespace stoat {
+
 // ------------------------ Regression class ------------------------
 
 class FisherKhi2 {
@@ -71,6 +73,14 @@ class LinearRegression {
             const std::vector<std::vector<double>>& df,
             const std::vector<double>& quantitative_phenotype,
             const std::vector<std::vector<double>>& covar);
+
+        Eigen::MatrixXd pseudoInverse(
+            const Eigen::MatrixXd& X, 
+            double tol);
+
+        Eigen::MatrixXd computeXtXinverse(
+            const Eigen::MatrixXd& X, 
+            double tol);
 };
 
 class LogisticRegression {
@@ -113,5 +123,7 @@ class LMM {
         //     const stoat_vcf::KinshipMatrix& kinship,
         //     const std::vector<std::vector<double>>& covariates);
 };
+
+} // namespace stoat
 
 #endif 

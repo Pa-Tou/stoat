@@ -78,10 +78,12 @@ std::vector<std::vector<double>> parse_covariates(
     const std::vector<std::string>& covar_names,
     const std::vector<std::string>& list_samples);
 
-// Parses the group file and fills the group_0 and group_1 maps with sample data.
+// Parse a binary phenotype file, formatted FID, IID, phenotype
+// If list_samples is given, then it is const and the samples in the phenotype file will be checked against it.
+// If list_samples is empty, then fill it in with the samples in the phenotype file 
 std::vector<bool> parse_binary_pheno(
     const std::string& file_path,
-    const std::vector<std::string>& list_samples);
+    std::vector<std::string>& list_samples);
 
 // Parses the phenotype file and returns a map with IID as keys and PHENO as float values.
 std::vector<double> parse_quantitative_pheno(
