@@ -30,23 +30,29 @@ void Logger::log_assert(LogLevel level, bool assertion, const std::string& messa
     if (assertion ) {
         return;
     }
+
     switch (level) {
-        // TODO: There isn't a log level that will stop the run so use fatal if the level is error
-        case LogLevel::Error: fatal(message);
+        case LogLevel::Error: error(message);
         case LogLevel::Warning: warn(message);
         case LogLevel::Info: info(message);
         case LogLevel::Debug: debug(message);
         case LogLevel::Trace: trace(message);
-        default: error( "unknown LogLevel " + levelToString(level));
+        default: error("Unknown LogLevel " + levelToString(level));
     }
 }
 
-  // Do the same thing with stringstreams
-void Logger::log(LogLevel level, const std::stringstream& message) { log(level, message.str()); }
 void Logger::debug(const std::string& msg) { log(LogLevel::Debug, msg); }
 void Logger::info(const std::string& msg)  { log(LogLevel::Info, msg); }
 void Logger::warn(const std::string& msg)  { log(LogLevel::Warning, msg); }
 void Logger::error(const std::string& msg) { log(LogLevel::Error, msg); }
 void Logger::trace(const std::string& msg) { log(LogLevel::Trace, msg); }
+
+// Do the same thing with stringstreams
+void Logger::log(LogLevel level, const std::stringstream& message) { log(level, message.str()); }
+void Logger::debug(const std::stringstream& msg) { debug(msg.str()); }
+void Logger::info(const std::stringstream& msg)  { info(msg.str()); }
+void Logger::warn(const std::stringstream& msg)  { warn(msg.str()); }
+void Logger::error(const std::stringstream& msg) { error(msg.str()); }
+void Logger::trace(const std::stringstream& msg) { trace(msg.str()); }
 
 } // end namespace

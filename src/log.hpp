@@ -48,7 +48,6 @@ public:
     void info(const std::stringstream& msg);
     void warn(const std::stringstream& msg);
     void error(const std::stringstream& msg);
-    void fatal(const std::stringstream& msg);  // logs error and exits
     void trace(const std::stringstream& msg);
 
 private:
