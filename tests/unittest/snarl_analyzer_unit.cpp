@@ -124,12 +124,12 @@ TEST_CASE("filtration_quantitative_table basic filtering") {
     };
 
     SECTION("Valid data, should NOT be filtered") {
-        bool result = filtration_quantitative_table(df, 2, 0.1);
+        bool result = filtration_quantitative_table(df, 2, 2, 0.1);
         REQUIRE(result == false);
     }
 
     SECTION("Not enough individuals, should be filtered") {
-        bool result = filtration_quantitative_table({{1.0, 1.0}}, 2, 0.1);
+        bool result = filtration_quantitative_table({{1.0, 1.0}}, 2, 2, 0.1);
         REQUIRE(result == true);
     }
 
@@ -138,7 +138,7 @@ TEST_CASE("filtration_quantitative_table basic filtering") {
             {0.1, 0.1},
             {0.1, 0.1}
         };
-        bool result = filtration_quantitative_table(low_sum, 2, 0.1);
+        bool result = filtration_quantitative_table(low_sum, 2, 2, 0.1);
         REQUIRE(result == true);
     }
 
@@ -147,7 +147,7 @@ TEST_CASE("filtration_quantitative_table basic filtering") {
             {1.9, 0.1},
             {1.9, 0.1}
         };
-        bool result = filtration_quantitative_table(low_maf, 2, 0.4);
+        bool result = filtration_quantitative_table(low_maf, 2, 2, 0.4);
         REQUIRE(result == true);
     }
 }

@@ -495,9 +495,8 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
 
     std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
     auto [df, index_filtered, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
-    
+
     remove_empty_columns_quantitative_table(df);
-    
     bool filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
     
     if (!filtration) { // snarl ok
