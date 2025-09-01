@@ -159,7 +159,7 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
     double se_adjusted = se(1);
 
     if (p_values.size() > 1) { // case > 3 column/path
-        auto [p_value_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
+        auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
         beta_adjusted = beta[min_index+1];
         se_adjusted = se[min_index+1];
     }
@@ -488,7 +488,7 @@ std::tuple<std::string, std::string, std::string, std::string>
     double se_adjusted = se[1];
 
     if (p_values.size() > 1) {
-        auto [p_value_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
+        auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
         beta_adjusted = beta[min_index+1];
         se_adjusted = se[min_index+1];
     }

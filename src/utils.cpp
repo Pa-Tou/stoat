@@ -59,7 +59,7 @@ bool isPValueSignificant(const double& pvalue_threshold, const std::string& pval
 
 // Adjust p-values using Hochberg correction
 std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values) {
-    int m = p_values.size();
+    size_t m = p_values.size();
 
     // Pair each p-value with its original index
     std::vector<std::pair<double, size_t>> indexed;
@@ -68,33 +68,33 @@ std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values)
         indexed.emplace_back(p_values[i], i);
     }
 
-    // Sort by descending p-value
+    // Sort by ASCENDING p-value (Hochberg requires ascending sort)
     std::sort(indexed.begin(), indexed.end(), [](const auto& a, const auto& b) {
-        return a.first > b.first;
+        return a.first < b.first;
     });
 
-    // Hochberg step-down adjustment
+    // Apply Hochberg step-down correction
     std::vector<double> adjusted(m);
-    for (size_t i = 0; i < m; ++i) {
-        adjusted[i] = std::min(1.0, indexed[i].first * (m - i));
+    for (int i = m - 1; i >= 0; --i) {
+        size_t rank = m - i;
+        adjusted[i] = indexed[i].first * rank;
+        if (i < static_cast<int>(m - 1)) {
+            adjusted[i] = std::min(adjusted[i], adjusted[i + 1]);
+        }
+        adjusted[i] = std::min(adjusted[i], 1.0);
     }
 
-    // Enforce monotonicity (non-increasing) from top to bottom
-    for (int i = m - 2; i >= 0; --i) {
-        adjusted[i] = std::min(adjusted[i], adjusted[i + 1]);
-    }
-
-    // Reorder to original order
+    // Reorder adjusted p-values back to original order
     std::vector<double> reordered(m);
-    for (int i = 0; i < m; ++i) {
+    for (size_t i = 0; i < m; ++i) {
         reordered[indexed[i].second] = adjusted[i];
     }
 
-    // Find minimum adjusted p-value and its index in original order
+    // Return minimum adjusted p-value and its index in original order
     auto min_iter = std::min_element(reordered.begin(), reordered.end());
     size_t min_index = std::distance(reordered.begin(), min_iter);
     
-    return {reordered[min_index], min_index};
+    return {*min_iter, min_index};
 }
 
 void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep) {

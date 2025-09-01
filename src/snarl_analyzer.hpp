@@ -230,7 +230,8 @@ bool filtration_quantitative_table(
 bool filtration_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1,
-    const size_t& totalSum, 
+    const size_t& totalSum,
+    const size_t& individuals_included,
     const size_t& min_individuals,
     const size_t& min_haplotypes,
     const double& maf);

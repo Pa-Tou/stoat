@@ -41,33 +41,31 @@ TEST_CASE("isPValueSignificant handles correct parsing and NA") {
     REQUIRE(isPValueSignificant(0.05, "NA") == false);
 }
 
-TEST_CASE("adjusted_hochberg produces correct order and monotonicity") {
+TEST_CASE("adjusted_hochberg basic example") {
     std::vector<double> raw = {0.02, 0.15, 0.03, 0.001, 0.25, 0.05};
-    auto adj = adjusted_hochberg(raw);
-    REQUIRE(adj[0] == 0.1);
-    REQUIRE(adj[1] == 0.25);
-    REQUIRE(adj[2] == 0.12);
-    REQUIRE(adj[3] == 0.006);
-    REQUIRE(adj[4] == 0.25);
-    REQUIRE(adj[5] == 0.15);
+    std::pair<double, size_t> expected = {0.006, 3};
+
+    auto [pvalue, index] = adjusted_hochberg(raw);
+    REQUIRE(pvalue == expected.first);
+    REQUIRE(index == expected.second);
 }
 
-TEST_CASE("adjusted_hochberg maintains monotonicity") {
-    std::vector<double> raw = {0.0001, 0.1};
-    auto adj = adjusted_hochberg(raw);
-    REQUIRE(adj[0] == 0.0002);
-    REQUIRE(adj[1] == 0.1);
+TEST_CASE("adjusted_hochberg with descending input") {
+    std::vector<double> raw = {0.5, 0.04, 0.03, 0.02, 0.001};
+    std::pair<double, size_t> expected = {0.005, 4};
+
+    auto [pvalue, index] = adjusted_hochberg(raw);
+    REQUIRE(pvalue == expected.first);
+    REQUIRE(index == expected.second);
 }
 
-TEST_CASE("adjusted_hochberg maintains monotonicity") {
-    std::vector<double> raw = {0.00000001, 0.1, 0.32, 0.00002, 0.234, 0.5};
-    auto adj = adjusted_hochberg(raw);
-    REQUIRE(adj[0] == 0.00000006);
-    REQUIRE(adj[1] == 0.4);
-    REQUIRE(adj[2] == 0.5);
-    REQUIRE(adj[3] == 0.0001);
-    REQUIRE(adj[4] == 0.5);
-    REQUIRE(adj[5] == 0.5);
+TEST_CASE("adjusted_hochberg with one low p-value and others near 0.1") {
+    std::vector<double> raw = {0.000001, 0.09, 0.08, 0.07};
+    std::pair<double, size_t> expected = {0.000004, 0};
+
+    auto [pvalue, index] = adjusted_hochberg(raw);
+    REQUIRE(pvalue == expected.first);
+    REQUIRE(index == expected.second);
 }
 
 TEST_CASE("retain_indices keeps only specified elements") {
