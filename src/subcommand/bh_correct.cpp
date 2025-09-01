@@ -12,8 +12,7 @@ using namespace std;
 namespace stoat_command {
 
 void print_help_bh_correct() {
-    std::cerr << "usage: stoat BHcorrect [options] " << endl
-              << endl
+    std::cerr << "usage: stoat BHcorrect [options] " << endl << endl
               << "options:" << endl
               << "  -t, --tsv FILE                  The TSV file to be processed" << endl
               << "  -p, --p-index N                 The column of the p-value in the tsv (1-indexed)" << endl
