@@ -57,33 +57,44 @@ bool isPValueSignificant(const double& pvalue_threshold, const std::string& pval
     return pvalue < pvalue_threshold;
 }
 
-// Adjust p-values using Holm-Bonferroni correction
-std::vector<double> adjusted_holm(const std::vector<double>& p_values) {
-    int m = p_values.size();
-    std::vector<std::pair<double, int>> indexed;
-    for (int i = 0; i < m; ++i) {
+// Adjust p-values using Hochberg correction
+std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values) {
+    size_t m = p_values.size();
+
+    // Pair each p-value with its original index
+    std::vector<std::pair<double, size_t>> indexed;
+    indexed.reserve(m);
+    for (size_t i = 0; i < m; ++i) {
         indexed.emplace_back(p_values[i], i);
     }
 
-    // Sort by p-value
-    std::sort(indexed.begin(), indexed.end());
+    // Sort by ASCENDING p-value (Hochberg requires ascending sort)
+    std::sort(indexed.begin(), indexed.end(), [](const auto& a, const auto& b) {
+        return a.first < b.first;
+    });
 
+    // Apply Hochberg step-down correction
     std::vector<double> adjusted(m);
-    double prev = 0.0;
-    for (int i = 0; i < m; ++i) {
-        double raw = (m - i) * indexed[i].first;
-        raw = std::min(raw, 1.0);
-        adjusted[i] = std::max(prev, raw); // ensure monotonicity
-        prev = adjusted[i];
+    for (int i = m - 1; i >= 0; --i) {
+        size_t rank = m - i;
+        adjusted[i] = indexed[i].first * rank;
+        if (i < static_cast<int>(m - 1)) {
+            adjusted[i] = std::min(adjusted[i], adjusted[i + 1]);
+        }
+        adjusted[i] = std::min(adjusted[i], 1.0);
     }
 
-    // Reorder to original positions
+    // Reorder adjusted p-values back to original order
     std::vector<double> reordered(m);
-    for (int i = 0; i < m; ++i) {
+    for (size_t i = 0; i < m; ++i) {
         reordered[indexed[i].second] = adjusted[i];
     }
 
-    return reordered;
+    // Return minimum adjusted p-value and its index in original order
+    auto min_iter = std::min_element(reordered.begin(), reordered.end());
+    size_t min_index = std::distance(reordered.begin(), min_iter);
+    
+    return {*min_iter, min_index};
 }
 
 void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep) {

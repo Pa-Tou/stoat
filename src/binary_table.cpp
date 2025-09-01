@@ -16,7 +16,7 @@ std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<
     return result;
 }
 
-size_t create_binary_table(
+std::pair<size_t, size_t> create_binary_table(
     std::vector<size_t>& g0, std::vector<size_t>& g1,
     const std::vector<bool>& binary_phenotype, 
     const std::vector<stoat::Path_traversal_t>& list_path_snarl, 
@@ -25,6 +25,7 @@ size_t create_binary_table(
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
     size_t total_sum = 0;
+    std::vector<bool> sample_included(number_samples, false);
     for (size_t idx_g = 0; idx_g < number_paths; ++idx_g) {
         const stoat::Path_traversal_t& path_snarl = list_path_snarl[idx_g];
         std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
@@ -32,6 +33,7 @@ size_t create_binary_table(
 
         for (size_t idx : idx_srr_save) {
             bool group = binary_phenotype[idx / 2];
+            sample_included[idx / 2] = true;
             if (group) {
                 g1[idx_g] += 1;
             } else {
@@ -40,7 +42,14 @@ size_t create_binary_table(
             total_sum++;
         }
     }
-    return total_sum;
+
+    // Count the number of individuals included
+    size_t individuals_included = 0;
+    for (bool included : sample_included) {
+        if (included) individuals_included++;
+    }
+
+    return {total_sum, individuals_included};
 }
 
 } // namespace stoat

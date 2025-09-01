@@ -35,8 +35,8 @@ void print_help_vcf() {
               << "  -C, --covar-name NAME        Covariate column name(s) used for GWAS (comma-separated if multiple)\n"
               << "  -k, --kinship FILE           Path to the kinship matrix file (.txt or .tsv)\n"
               << "  -g, --gaf                    Generate a GAF file from GWAS results\n"
-              << "  -I, --min-individuals INT    Minimum number of individuals per snarl (default: 3)\n"
-              << "  -H, --min-haplotypes INT     Minimum number of haplotypes per snarl (default: 5)\n"
+              << "  -I, --min-individuals INT    Minimum number of individuals per snarl (default: 0)\n"
+              << "  -E  --exclude-paths          Exclude paths that containt\n"
               << "  -i, --children INT           Max number of children per snarl in decomposition (default: 50)\n"
               << "  -y, --cycle INT              Max number of authorized cycles in snarl decomposition (default: 1)\n"
               << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition (default: 10,000)\n"
@@ -61,12 +61,12 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
     size_t phenotype = 0;
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
-    size_t min_individuals = 3;
-    size_t min_haplotypes = 5;
+    size_t min_individuals = 0;
+    size_t min_haplotypes = 0;
     size_t path_length_threshold = 10000;
     size_t windows_gene_threshold = 1000000;
     double table_threshold = -1;
-    double maf_threshold = 0.05;
+    double maf_threshold = 0.01;
     bool gaf = false;
     bool only_snarl_parsing = false;
     bool show_help = false;

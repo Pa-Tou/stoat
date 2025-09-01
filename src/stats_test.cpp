@@ -159,9 +159,7 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
     double se_adjusted = se(1);
 
     if (p_values.size() > 1) { // case > 3 column/path
-        std::vector<double> p_values_adjusted = stoat::adjusted_holm(p_values);
-        size_t min_index = std::distance(p_values_adjusted.begin(), std::min_element(p_values_adjusted.begin(), p_values_adjusted.end()));
-        p_value_adjusted = p_values_adjusted[min_index];
+        auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
         beta_adjusted = beta[min_index+1];
         se_adjusted = se[min_index+1];
     }
@@ -488,13 +486,11 @@ std::tuple<std::string, std::string, std::string, std::string>
     double beta_adjusted = beta[1];
     double se_adjusted = se[1];
 
-    // if (p_values.size() > 1) {
-    //     std::vector<double> p_values_adjusted = stoat::adjusted_holm(p_values);
-    //     size_t min_index = std::distance(p_values_adjusted.begin(), std::min_element(p_values_adjusted.begin(), p_values_adjusted.end()));
-    //     p_value_adjusted = p_values_adjusted[min_index];
-    //     beta_adjusted = beta[min_index+1];
-    //     se_adjusted = se[min_index+1];
-    // }
+    if (p_values.size() > 1) {
+        auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
+        beta_adjusted = beta[min_index+1];
+        se_adjusted = se[min_index+1];
+    }
 
     // set precision : 4 digit
     std::string p_value_str = stoat::set_precision(p_value_adjusted);

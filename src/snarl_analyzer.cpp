@@ -371,9 +371,9 @@ bool BinarySnarlAnalyzer::analyze_and_write_snarl(
     std::vector<size_t> g0(paths_number, 0);
     std::vector<size_t> g1(paths_number, 0);
 
-    size_t total_sum = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
+    auto [total_sum, individuals_included] = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
     remove_empty_columns_binary_table(g0, g1);
-    bool filtration = filtration_binary_table(g0, g1, total_sum, min_individuals, min_haplotypes, maf_threshold);
+    bool filtration = filtration_binary_table(g0, g1, total_sum, individuals_included, min_individuals, min_haplotypes, maf_threshold);
 
     // Binary analysis single test
     if (!filtration) { // good table
@@ -562,9 +562,9 @@ bool filtration_quantitative_table(
         }
     }
 
-    if (totalSum < min_haplotypes) { // not good because 0.5 only in row can append
-        return true;
-    }
+    // if (totalSum < min_haplotypes) { // not good because 0.5 only in row can append
+    //     return true;
+    // }
 
     int count_above_threshold = 0;
     for (size_t i = 0; i < numPaths; ++i) {
@@ -705,18 +705,18 @@ void remove_empty_columns_binary_table(
 bool filtration_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1,
-    const size_t& totalSum, 
+    const size_t& totalSum,
+    const size_t& individuals_included, 
     const size_t& min_individuals,
     const size_t& min_haplotypes,
     const double& maf_threshold) {
 
     // Not enougth individuals OR not enougth haplotypes OR number of paths < 2
-    if (totalSum/2 < min_individuals || totalSum < min_haplotypes || g0.size() < 2) { // not good don't take account on 1 allele only in a nested snarl
+    if (individuals_included < min_individuals || g0.size() < 2) { // totalSum < min_haplotypes ||
         return true; // Empty or invalid input → filter
     }
 
     int count_above_threshold = 0;
-
     for (size_t i = 0; i < g0.size(); ++i) {
         size_t columnSum = g0[i] + g1[i];
 
