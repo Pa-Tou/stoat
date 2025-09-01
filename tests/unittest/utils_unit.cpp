@@ -41,24 +41,33 @@ TEST_CASE("isPValueSignificant handles correct parsing and NA") {
     REQUIRE(isPValueSignificant(0.05, "NA") == false);
 }
 
-TEST_CASE("adjusted_holm produces correct order and monotonicity") {
-    std::vector<double> raw = {0.01, 0.03, 0.02, 0.05};
-    auto adj = adjusted_holm(raw);
-
-    REQUIRE(adj.size() == raw.size());
-
-    for (double val : adj) {
-        REQUIRE(val <= 1.0);
-        REQUIRE(val >= 0.0);
-    }
+TEST_CASE("adjusted_hochberg produces correct order and monotonicity") {
+    std::vector<double> raw = {0.02, 0.15, 0.03, 0.001, 0.25, 0.05};
+    auto adj = adjusted_hochberg(raw);
+    REQUIRE(adj[0] == 0.1);
+    REQUIRE(adj[1] == 0.25);
+    REQUIRE(adj[2] == 0.12);
+    REQUIRE(adj[3] == 0.006);
+    REQUIRE(adj[4] == 0.25);
+    REQUIRE(adj[5] == 0.15);
 }
 
-TEST_CASE("adjusted_holm maintains monotonicity") {
-    std::vector<double> raw = {0.01, 0.01, 0.01, 0.01};
-    auto adj = adjusted_holm(raw);
-    REQUIRE(adj[0] <= adj[1]);
-    REQUIRE(adj[1] <= adj[2]);
-    REQUIRE(adj[2] <= adj[3]);
+TEST_CASE("adjusted_hochberg maintains monotonicity") {
+    std::vector<double> raw = {0.0001, 0.1};
+    auto adj = adjusted_hochberg(raw);
+    REQUIRE(adj[0] == 0.0002);
+    REQUIRE(adj[1] == 0.1);
+}
+
+TEST_CASE("adjusted_hochberg maintains monotonicity") {
+    std::vector<double> raw = {0.00000001, 0.1, 0.32, 0.00002, 0.234, 0.5};
+    auto adj = adjusted_hochberg(raw);
+    REQUIRE(adj[0] == 0.00000006);
+    REQUIRE(adj[1] == 0.4);
+    REQUIRE(adj[2] == 0.5);
+    REQUIRE(adj[3] == 0.0001);
+    REQUIRE(adj[4] == 0.5);
+    REQUIRE(adj[5] == 0.5);
 }
 
 TEST_CASE("retain_indices keeps only specified elements") {
