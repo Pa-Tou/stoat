@@ -411,6 +411,7 @@ Eigen::MatrixXd
     }
 
     if (rank_deficient) {
+        LOG_DEBUG("Using pseudo-inverse.");
         return pseudoInverse(XtX);
     }
 
@@ -477,6 +478,7 @@ std::tuple<std::string, std::string, std::string, std::string>
     for (int i = 1; i < num_variants+1; ++i) { // i = 1 avoid const p-value
         if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) { // Special case
             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
+            LOG_DEBUG("Invalid t-statistic encountered");
             continue;
         }
         p_values.push_back(2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stats[i])))); // two-tailed

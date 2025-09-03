@@ -25,9 +25,6 @@ X = sm.add_constant(X)
 # Target variable
 y = df["PHENO"]
 
-print("X : ", X)
-print("y : ", y)
-
 # Fit OLS model
 model = sm.OLS(y, X).fit()
 

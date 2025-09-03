@@ -220,6 +220,9 @@ void remove_empty_columns_quantitative_table(
 void remove_last_columns_quantitative_table(
     std::vector<std::vector<double>>& df);
 
+bool check_last_columns_quantitative_table(
+    const std::vector<std::vector<double>>& df);
+
 /// Return true if snarl must be filtered
 bool filtration_quantitative_table(
     const std::vector<std::vector<double>>& df,
