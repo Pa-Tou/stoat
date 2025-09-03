@@ -477,6 +477,7 @@ std::tuple<std::string, std::string, std::string, std::string>
     std::vector<double> p_values;
     for (int i = 1; i < num_variants+1; ++i) { // i = 1 avoid const p-value
         if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) { // Special case
+            LOG_WARN("t-statistics is NaN or Inf, likely due to zero variance in genotype data. Setting p-value to 1.0.");
             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
             LOG_DEBUG("Invalid t-statistic encountered");
             continue;
