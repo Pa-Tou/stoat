@@ -666,8 +666,7 @@ cat(quantitative_output, sep = "\n")
 df_quantitative_vcf <- read_stoat(file_list$quantitative_vcf)
 
 # ---- Plots ----
-histogram_plot(df=df_quantitative_vcf, subtitle="Quantitative [stoat vcf]", "P")
-qq_plot(df_quantitative_vcf, "P", subtitle="Quantitative [stoat vcf]")
+histogram_plot(df=df_quantitative_vcf, subtitle="Quantitative [stoat vcf]", "P")#qq_plot(df_quantitative_vcf, "P", subtitle="Quantitative [stoat vcf]")
 
 #manhattan_plot(df_quantitative_vcf, subtitle="on Quantitative [stoat vcf]", "P", "P_ADJUSTED")
 #volcano_plot(df_quantitative_vcf, subtitle="Quantitative [stoat vcf]")

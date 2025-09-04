@@ -1,8 +1,10 @@
 # --- Load libraries ---
 args <- commandArgs(trailingOnly = TRUE)
 
-library(readr)
-library(dplyr)
+suppressPackageStartupMessages({
+  library(readr)
+  library(dplyr)
+})
 
 # --- Load input files ---
 feature_file <- args[1]
@@ -27,10 +29,13 @@ X <- df %>%
 
 y <- df$PHENO
 
-# --- Run model ---
-model <- lm(y ~ ., data = X)
+df_model <- X
+df_model$PHENO <- y
+
+model <- lm(PHENO ~ ., data = df_model)
 summary(model)
 
 # Run it in terminal like:
 # remove the last column header if column empty
 # Rscript linear_regression_arg.R ../../output/regression/1_4.tsv ../../data/quantitative/phenotype.tsv
+# Rscript tests/regression/linear_regression_arg.R output_droso/regression/7165_7162.tsv ../lab/droso/data/pangenome_pheno.tsv

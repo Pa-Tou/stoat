@@ -393,7 +393,7 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
     std::ostringstream oss;
-
+    bool filtration = false;
     for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
         if (i != 0) oss << ",";
         oss << snarl_data_s.type_variants[i];
@@ -404,25 +404,35 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
     auto [df, phenotype_filtered, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
     remove_empty_columns_quantitative_table(df);
     
-    bool filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
+    filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
 
-    if (!filtration) { // snarl ok
+    if (filtration) {
+        stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
+        return filtration;
+    }
 
-        combine_identical_columns_quantitative_table(df);
-        remove_last_columns_quantitative_table(df);
+    combine_identical_columns_quantitative_table(df);
+    remove_last_columns_quantitative_table(df);
 
-        // logistic regression with covariates if not empty
-        const auto& [p_value, beta, se] = lr.logistic_regression(df, phenotype_filtered, covariate);
+    filtration = check_last_columns_quantitative_table(df);
 
-        // Plot regression table
-        if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
-            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(df,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
-        }
-        #pragma omp critical (outf) 
-        {
-            stoat::write_binary_covar(outf, chr, snarl_data_s, type_var_str, p_value, beta, se, allele_paths);
-        }
+    if (filtration) {
+        stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
+        return filtration;
+    }
+
+    // logistic regression with covariates if not empty
+    const auto& [p_value, beta, se] = lr.logistic_regression(df, phenotype_filtered, covariate);
+
+    // Plot regression table
+    if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
+        std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
+        stoat::writeSignificantTableToTSV(df, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
+    }
+
+    #pragma omp critical (outf) 
+    {
+        stoat::write_binary_covar(outf, chr, snarl_data_s, type_var_str, p_value, beta, se, allele_paths);
     }
     return filtration;
 }
@@ -431,37 +441,50 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
 bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
+    if (stoat::pairToString(snarl_data_s.snarl_ids) != "1193_1190") {
+        return false;
+    }
+
+    bool filtration = false;
     auto [df, phenotype_filtered, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
     remove_empty_columns_quantitative_table(df);
 
-    bool filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
+    filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
 
-    if (!filtration) { // snarl ok
+    if (filtration) {
+        stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
+        return filtration;
+    }
 
-        combine_identical_columns_quantitative_table(df);
-        remove_last_columns_quantitative_table(df);
+    combine_identical_columns_quantitative_table(df);
+    remove_last_columns_quantitative_table(df);
+    filtration = check_last_columns_quantitative_table(df);
 
-        // make a std::string separated by ',' from a vector of std::string
-        std::ostringstream oss;
-        for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
-            if (i != 0) oss << ","; // Add comma before all elements except the first
-            oss << snarl_data_s.type_variants[i];
-        }
+    if (filtration) {
+        stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
+        return filtration;
+    }
 
-        std::string type_var_str = oss.str();
-        std::stringstream data;
-        
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, phenotype_filtered, covariate);
+    // make a std::string separated by ',' from a vector of std::string
+    std::ostringstream oss;
+    for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
+        if (i != 0) oss << ","; // Add comma before all elements except the first
+        oss << snarl_data_s.type_variants[i];
+    }
 
-        if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
-            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(df, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
-        }
+    std::string type_var_str = oss.str();
+    std::stringstream data;
+    
+    auto [p_value, beta, se, r2] = lr.linear_regression(df, phenotype_filtered, covariate);
 
-        #pragma omp critical (outf)
-        {
-            stoat::write_quantitative(outf, chr, snarl_data_s, type_var_str, p_value,  r2, beta, se, allele_paths);
-        }
+    if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
+        std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
+        stoat::writeSignificantTableToTSV(df, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
+    }
+
+    #pragma omp critical (outf)
+    {
+        stoat::write_quantitative(outf, chr, snarl_data_s, type_var_str, p_value,  r2, beta, se, allele_paths);
     }
     return filtration;
 }
@@ -493,29 +516,39 @@ std::vector<size_t> found_gene_snarl(
 bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
+    bool filtration = false;
     std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
     auto [df, index_filtered, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
 
     remove_empty_columns_quantitative_table(df);
-    bool filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
+    filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
     
-    if (!filtration) { // snarl ok
+    if (filtration) {
+        stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
+        return filtration;
+    }
 
-        combine_identical_columns_quantitative_table(df);
-        remove_last_columns_quantitative_table(df);
+    combine_identical_columns_quantitative_table(df);
+    remove_last_columns_quantitative_table(df);
+    filtration = check_last_columns_quantitative_table(df);
 
-        for (size_t i = 0; i < list_gene_index.size(); ++i) {
-            size_t gene_idx = list_gene_index[i];
-            std::string gene_name = eqtl_map.at(chr)[gene_idx].geneName;
-            std::vector<double> gene_expression = eqtl_map.at(chr)[gene_idx].sampleExpresion;
-            stoat::retain_indices(gene_expression, index_filtered);
+    if (filtration) {
+        stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
+        return filtration;
+    }
 
-            // make a std::string separated by ',' from a vector of std::string
-            std::ostringstream oss;
-            for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
-                if (i != 0) oss << ","; // Add comma before all elements except the first
-                oss << snarl_data_s.type_variants[i];
-            }
+    for (size_t i = 0; i < list_gene_index.size(); ++i) {
+        size_t gene_idx = list_gene_index[i];
+        std::string gene_name = eqtl_map.at(chr)[gene_idx].geneName;
+        std::vector<double> gene_expression = eqtl_map.at(chr)[gene_idx].sampleExpresion;
+        stoat::retain_indices(gene_expression, index_filtered);
+
+        // make a std::string separated by ',' from a vector of std::string
+        std::ostringstream oss;
+        for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i) {
+            if (i != 0) oss << ","; // Add comma before all elements except the first
+            oss << snarl_data_s.type_variants[i];
+        }
 
         std::string type_var_str = oss.str();
         std::stringstream data;
@@ -530,8 +563,6 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
         #pragma omp critical (outf)
         {
             stoat::write_eqtl(outf, chr, snarl_data_s, type_var_str, gene_name, p_value, r2, beta, se, allele_paths);
-        }
-
         }
     }
     return filtration;
@@ -614,6 +645,23 @@ void remove_empty_columns_quantitative_table(
 
     // Replace original df with filtered one
     df = std::move(df_filtered);
+}
+
+bool check_last_columns_quantitative_table(
+    const std::vector<std::vector<double>>& df) {
+
+    if (df[0].size() > 1) return false;
+
+    size_t num_rows = df.size();
+
+    // Check if the lonely columns have identical values
+    for (size_t r = 1; r < num_rows-1; ++r) {
+        if (df[r][0] != df[0][0]) {
+            return false; // Not identical, keep
+        }
+    }
+
+    return true; // Identical, filter out
 }
 
 void combine_identical_columns_quantitative_table(

@@ -54,7 +54,7 @@ bool isPValueSignificant(const double& pvalue_threshold, const std::string& pval
     } catch (const std::exception& e) {
         throw std::runtime_error("Error parsing pvalue std::string : " + pvalue_str + " " + e.what());
     }
-    return pvalue < pvalue_threshold;
+    return pvalue <= pvalue_threshold;
 }
 
 // Adjust p-values using Hochberg correction
@@ -93,8 +93,8 @@ std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values)
     // Return minimum adjusted p-value and its index in original order
     auto min_iter = std::min_element(reordered.begin(), reordered.end());
     size_t min_index = std::distance(reordered.begin(), min_iter);
-    
-    ret urn {*min_iter, min_index};
+
+    return {*min_iter, min_index};
 }
 
 void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep) {
