@@ -401,20 +401,20 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
 
     std::string type_var_str = oss.str();
 
-    auto [df, phenotype_filtered, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
-    remove_empty_columns_quantitative_table(df);
+    auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
+    remove_empty_columns_quantitative_table(X);
     
-    filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
+    filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
 
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
         return filtration;
     }
 
-    combine_identical_columns_quantitative_table(df);
-    remove_last_columns_quantitative_table(df);
+    combine_identical_columns_quantitative_table(X);
+    remove_last_columns_quantitative_table(X);
 
-    filtration = check_last_columns_quantitative_table(df);
+    filtration = check_last_columns_quantitative_table(X);
 
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
@@ -422,12 +422,12 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
     }
 
     // logistic regression with covariates if not empty
-    const auto& [p_value, beta, se] = lr.logistic_regression(df, phenotype_filtered, covariate);
+    const auto& [p_value, beta, se] = lr.logistic_regression(X, Y, covariate);
 
     // Plot regression table
     if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
         std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-        stoat::writeSignificantTableToTSV(df, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
+        stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
     }
 
     #pragma omp critical (outf) 
@@ -439,26 +439,28 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
 
 // Quantitative Table Generation
 bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
-    const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
+    const stoat::Snarl_data_t& snarl_data_s, 
+    const std::string& chr, 
+    std::ofstream& outf) {
 
     if (stoat::pairToString(snarl_data_s.snarl_ids) != "1193_1190") {
         return false;
     }
 
     bool filtration = false;
-    auto [df, phenotype_filtered, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
-    remove_empty_columns_quantitative_table(df);
+    auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
+    remove_empty_columns_quantitative_table(X);
 
-    filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
+    filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
 
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
         return filtration;
     }
 
-    combine_identical_columns_quantitative_table(df);
-    remove_last_columns_quantitative_table(df);
-    filtration = check_last_columns_quantitative_table(df);
+    combine_identical_columns_quantitative_table(X);
+    remove_last_columns_quantitative_table(X);
+    filtration = check_last_columns_quantitative_table(X);
 
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
@@ -475,11 +477,11 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     std::string type_var_str = oss.str();
     std::stringstream data;
     
-    auto [p_value, beta, se, r2] = lr.linear_regression(df, phenotype_filtered, covariate);
+    auto [p_value, beta, se, r2] = lr.linear_regression(X, Y, covariate);
 
     if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
         std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-        stoat::writeSignificantTableToTSV(df, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
+        stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
     }
 
     #pragma omp critical (outf)
@@ -518,19 +520,19 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
 
     bool filtration = false;
     std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
-    auto [df, index_filtered, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
+    auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
 
-    remove_empty_columns_quantitative_table(df);
-    filtration = filtration_quantitative_table(df, min_individuals, min_haplotypes, maf_threshold);
+    remove_empty_columns_quantitative_table(X);
+    filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
     
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
         return filtration;
     }
 
-    combine_identical_columns_quantitative_table(df);
-    remove_last_columns_quantitative_table(df);
-    filtration = check_last_columns_quantitative_table(df);
+    combine_identical_columns_quantitative_table(X);
+    remove_last_columns_quantitative_table(X);
+    filtration = check_last_columns_quantitative_table(X);
 
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
@@ -553,11 +555,11 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
         std::string type_var_str = oss.str();
         std::stringstream data;
 
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, gene_expression, covariate);
+        auto [p_value, beta, se, r2] = lr.linear_regression(X, gene_expression, covariate);
 
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
             std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(df,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
+            stoat::writeSignificantTableToTSV(X,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
         }
 
         #pragma omp critical (outf)
@@ -570,22 +572,22 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
 
 // Return true when snarl must be filtered and false if not
 bool filtration_quantitative_table(
-    const std::vector<std::vector<double>>& df,
+    const std::vector<std::vector<double>>& X,
     const size_t& min_individuals,
     const size_t& min_haplotypes, 
     const double& maf_threshold) {
     
     // number of path < 2 OR not enougth individuals
-    if (df.empty() || df[0].size() < 2 || df.size() < min_individuals) {
+    if (X.empty() || X[0].size() < 2 || X.size() < min_individuals) {
         return true; // Not enough data → filter out
     }
 
-    size_t numPaths = df[0].size();
+    size_t numPaths = X[0].size();
     std::vector<double> table(numPaths, 0.0);
     double totalSum = 0.0;
 
     // Compute column sums and total sum
-    for (const auto& row : df) {
+    for (const auto& row : X) {
         for (size_t i = 0; i < numPaths; ++i) {
             table[i] += row[i];
             totalSum += row[i];
@@ -609,19 +611,19 @@ bool filtration_quantitative_table(
 }
 
 void remove_empty_columns_quantitative_table(
-    std::vector<std::vector<double>>& df) {
+    std::vector<std::vector<double>>& X) {
 
-    if (df.empty()) return;
+    if (X.empty()) return;
 
-    size_t num_rows = df.size();
-    size_t num_cols = df[0].size();
+    size_t num_rows = X.size();
+    size_t num_cols = X[0].size();
 
     // Identify non-empty columns
     std::vector<bool> keep_column(num_cols, false);
 
     for (size_t col = 0; col < num_cols; ++col) {
         for (size_t row = 0; row < num_rows; ++row) {
-            double val = df[row][col];
+            double val = X[row][col];
             if (val != 0.0 && !std::isnan(val)) {
                 keep_column[col] = true;
                 break;
@@ -629,7 +631,7 @@ void remove_empty_columns_quantitative_table(
         }
     }
 
-    // Create filtered df
+    // Create filtered X
     std::vector<std::vector<double>> df_filtered;
     df_filtered.reserve(num_rows);
 
@@ -637,26 +639,26 @@ void remove_empty_columns_quantitative_table(
         std::vector<double> new_row;
         for (size_t col = 0; col < num_cols; ++col) {
             if (keep_column[col]) {
-                new_row.push_back(df[row][col]);
+                new_row.push_back(X[row][col]);
             }
         }
         df_filtered.push_back(std::move(new_row));
     }
 
-    // Replace original df with filtered one
-    df = std::move(df_filtered);
+    // Replace original X with filtered one
+    X = std::move(df_filtered);
 }
 
 bool check_last_columns_quantitative_table(
-    const std::vector<std::vector<double>>& df) {
+    const std::vector<std::vector<double>>& X) {
 
-    if (df[0].size() > 1) return false;
+    if (X[0].size() > 1) return false;
 
-    size_t num_rows = df.size();
+    size_t num_rows = X.size();
 
     // Check if the lonely columns have identical values
     for (size_t r = 1; r < num_rows-1; ++r) {
-        if (df[r][0] != df[0][0]) {
+        if (X[r][0] != X[0][0]) {
             return false; // Not identical, keep
         }
     }
@@ -665,10 +667,10 @@ bool check_last_columns_quantitative_table(
 }
 
 void combine_identical_columns_quantitative_table(
-    std::vector<std::vector<double>>& df) {
+    std::vector<std::vector<double>>& X) {
 
-    size_t num_rows = df.size();
-    size_t num_cols = df[0].size();
+    size_t num_rows = X.size();
+    size_t num_cols = X[0].size();
 
     if (num_cols < 3) {return;} // avoid creation of unique column
 
@@ -678,11 +680,11 @@ void combine_identical_columns_quantitative_table(
     for (size_t i = 0; i < num_cols; ++i) {
         if (merged[i]) continue;
 
-        std::vector<double> new_col = df[0][i] == df[0][i] ? std::vector<double>(num_rows, 0.0) : df[0]; // Init new column
+        std::vector<double> new_col = X[0][i] == X[0][i] ? std::vector<double>(num_rows, 0.0) : X[0]; // Init new column
 
         // Start with current column
         for (size_t r = 0; r < num_rows; ++r) {
-            new_col[r] = df[r][i];
+            new_col[r] = X[r][i];
         }
 
         // Try to find identical columns
@@ -691,7 +693,7 @@ void combine_identical_columns_quantitative_table(
 
             bool identical = true;
             for (size_t r = 0; r < num_rows; ++r) {
-                if (df[r][j] != df[r][i]) {
+                if (X[r][j] != X[r][i]) {
                     identical = false;
                     break;
                 }
@@ -700,7 +702,7 @@ void combine_identical_columns_quantitative_table(
             // If identical, sum the column into new_col
             if (identical) {
                 for (size_t r = 0; r < num_rows; ++r) {
-                    new_col[r] += df[r][j];
+                    new_col[r] += X[r][j];
                 }
                 merged[j] = true;
             }
@@ -709,7 +711,7 @@ void combine_identical_columns_quantitative_table(
         new_cols.push_back(std::move(new_col));
     }
 
-    // Rebuild df from new_cols (transpose)
+    // Rebuild X from new_cols (transpose)
     std::vector<std::vector<double>> result(num_rows, std::vector<double>(new_cols.size()));
     for (size_t r = 0; r < num_rows; ++r) {
         for (size_t c = 0; c < new_cols.size(); ++c) {
@@ -717,13 +719,13 @@ void combine_identical_columns_quantitative_table(
         }
     }
 
-    df = std::move(result);
+    X = std::move(result);
 }
 
-void remove_last_columns_quantitative_table(std::vector<std::vector<double>>& df) {
-    if (df.empty() || df[0].empty()) return;
+void remove_last_columns_quantitative_table(std::vector<std::vector<double>>& X) {
+    if (X.empty() || X[0].empty()) return;
 
-    for (auto& row : df) {
+    for (auto& row : X) {
         if (!row.empty()) {
             row.pop_back(); // Remove last column from each row
         }
