@@ -441,6 +441,10 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
 bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
 
+    if (stoat::pairToString(snarl_data_s.snarl_ids) != "1193_1190") {
+        return false;
+    }
+
     bool filtration = false;
     auto [df, phenotype_filtered, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
     remove_empty_columns_quantitative_table(df);
