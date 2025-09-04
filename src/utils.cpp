@@ -94,7 +94,7 @@ std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values)
     auto min_iter = std::min_element(reordered.begin(), reordered.end());
     size_t min_index = std::distance(reordered.begin(), min_iter);
     
-    return {*min_iter, min_index};
+    ret urn {*min_iter, min_index};
 }
 
 void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep) {
