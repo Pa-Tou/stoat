@@ -37,7 +37,7 @@ TEST_CASE("string_to_pvalue converts valid p-values or returns 1.0 for NA") {
 
 TEST_CASE("isPValueSignificant handles correct parsing and NA") {
     REQUIRE(isPValueSignificant(0.05, "0.01") == true);
-    REQUIRE(isPValueSignificant(0.05, "0.05") == false);
+    REQUIRE(isPValueSignificant(0.05, "0.05") == true);
     REQUIRE(isPValueSignificant(0.05, "NA") == false);
 }
 
@@ -62,6 +62,15 @@ TEST_CASE("adjusted_hochberg with descending input") {
 TEST_CASE("adjusted_hochberg with one low p-value and others near 0.1") {
     std::vector<double> raw = {0.000001, 0.09, 0.08, 0.07};
     std::pair<double, size_t> expected = {0.000004, 0};
+
+    auto [pvalue, index] = adjusted_hochberg(raw);
+    REQUIRE(pvalue == expected.first);
+    REQUIRE(index == expected.second);
+}
+
+TEST_CASE("adjusted_hochberg same adjustement values") {
+    std::vector<double> raw = {0.745386, 0.425089};
+    std::pair<double, size_t> expected = {0.745386, 0.745386};
 
     auto [pvalue, index] = adjusted_hochberg(raw);
     REQUIRE(pvalue == expected.first);

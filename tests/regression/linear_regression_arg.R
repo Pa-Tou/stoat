@@ -1,8 +1,10 @@
 # --- Load libraries ---
 args <- commandArgs(trailingOnly = TRUE)
 
-library(readr)
-library(dplyr)
+suppressPackageStartupMessages({
+  library(readr)
+  library(dplyr)
+})
 
 # --- Load input files ---
 feature_file <- args[1]

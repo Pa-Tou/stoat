@@ -421,7 +421,7 @@ if __name__ == "__main__":
 
     """
     python3 tests/scripts/verify_truth.py --freq data/quantitative/pg.snarls.freq.tsv \
-    --p_value output/quantitative_table_vcf.tsv --paths output/snarl_analyse.tsv -q --output tests/scripts/quantitative_output
+    --p_value output_quantitative/quantitative_table_vcf.tsv --paths output_quantitative/snarl_analyse.tsv -q --output tests/scripts/quantitative_output
 
     python3 tests/scripts/verify_truth.py --freq data/quantitative/pg.snarls.freq.tsv \
     --p_value output/quantitative_table_covar_vcf.tsv --paths output/snarl_analyse.tsv -q --output tests/scripts/quantitative_covar_output
