@@ -78,14 +78,14 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<std::s
     const auto& [genotypes, index_used, allele_paths] = 
     process_table_quantitative(number_samples, column_headers, matrix);
 
-    std::vector<std::vector<double>> genotypes_filtered;
-    genotypes_filtered.reserve(index_used.size());
+    std::vector<std::vector<double>> genotypes_update;
+    genotypes_update.reserve(index_used.size());
 
-    std::vector<T> phenotype_filtered;
-    phenotype_filtered.reserve(index_used.size());
+    std::vector<T> phenotype_update;
+    phenotype_update.reserve(index_used.size());
 
-    std::vector<std::string> sample_names;
-    sample_names.reserve(index_used.size());
+    std::vector<std::string> sample_update;
+    sample_update.reserve(index_used.size());
 
     for (size_t i : index_used) {
         const auto& row = genotypes[i];
@@ -99,15 +99,15 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<std::s
             normalized_row.push_back(row[j] > 0.0 ? row[j] / row_sum : 0.0);
         }
 
-        genotypes_filtered.push_back(std::move(normalized_row));
-        phenotype_filtered.push_back(phenotype[i]);
-        sample_names.push_back(matrix.sampleNames[i]);
+        genotypes_update.push_back(std::move(normalized_row));
+        phenotype_update.push_back(phenotype[i]);
+        sample_update.push_back(matrix.sampleNames[i]);
     }
 
-    return {genotypes_filtered, phenotype_filtered, sample_names, allele_paths};
+    return {genotypes_update, phenotype_update, sample_update, allele_paths};
 }
 
-std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<size_t>> create_eqtl_table(
+std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<std::string>, std::vector<size_t>> create_eqtl_table(
     const size_t& number_samples,
     const std::vector<stoat::Path_traversal_t>& column_headers,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
@@ -115,8 +115,11 @@ std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<size_
     const auto& [genotypes, index_used, allele_paths] = 
     process_table_quantitative(number_samples, column_headers, matrix);
 
-    std::vector<std::vector<double>> genotypes_filtered;
-    genotypes_filtered.reserve(index_used.size());
+    std::vector<std::vector<double>> genotypes_update;
+    genotypes_update.reserve(index_used.size());
+
+    std::vector<std::string> sample_update;
+    sample_update.reserve(index_used.size());
 
     for (size_t i : index_used) {
         const auto& row = genotypes[i];
@@ -130,10 +133,11 @@ std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<size_
             normalized_row.push_back(row[j] > 0.0 ? row[j] / row_sum : 0.0);
         }
 
-        genotypes_filtered.push_back(std::move(normalized_row));
+        genotypes_update.push_back(std::move(normalized_row));
+        sample_update.push_back(matrix.sampleNames[i]);
     }
 
-    return {genotypes_filtered, index_used, allele_paths};
+    return {genotypes_update, index_used, sample_update, allele_paths};
 }
 
 } // namespace stoat

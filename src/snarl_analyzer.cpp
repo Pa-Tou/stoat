@@ -401,7 +401,7 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
 
     std::string type_var_str = oss.str();
 
-    auto [X, Y, sample_names, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
+    auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
     remove_empty_columns_quantitative_table(X);
     
     filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
@@ -427,7 +427,7 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
     // Plot regression table
     if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
         std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-        stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), sample_names, variant_file_name);
+        stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
     }
 
     #pragma omp critical (outf) 
@@ -439,10 +439,16 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
 
 // Quantitative Table Generation
 bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
-    const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
+    const stoat::Snarl_data_t& snarl_data_s, 
+    const std::string& chr, 
+    std::ofstream& outf) {
+
+    if (stoat::pairToString(snarl_data_s.snarl_ids) != "1193_1190") {
+        return false;
+    }
 
     bool filtration = false;
-    auto [X, Y, sample_names, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
+    auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
     remove_empty_columns_quantitative_table(X);
 
     filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
@@ -470,12 +476,12 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
 
     std::string type_var_str = oss.str();
     std::stringstream data;
-
+    
     auto [p_value, beta, se, r2] = lr.linear_regression(X, Y, covariate);
 
     if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
         std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-        stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), sample_names, variant_file_name);
+        stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
     }
 
     #pragma omp critical (outf)
@@ -514,7 +520,7 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
 
     bool filtration = false;
     std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
-    auto [X, index_filtered, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
+    auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
 
     remove_empty_columns_quantitative_table(X);
     filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
@@ -553,7 +559,7 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
 
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value)) {
             std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(X,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), edge_matrix.sampleNames, variant_file_name);
+            stoat::writeSignificantTableToTSV(X,stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
         }
 
         #pragma omp critical (outf)
@@ -626,8 +632,8 @@ void remove_empty_columns_quantitative_table(
     }
 
     // Create filtered X
-    std::vector<std::vector<double>> X_filtered;
-    X_filtered.reserve(num_rows);
+    std::vector<std::vector<double>> df_filtered;
+    df_filtered.reserve(num_rows);
 
     for (size_t row = 0; row < num_rows; ++row) {
         std::vector<double> new_row;
@@ -640,7 +646,7 @@ void remove_empty_columns_quantitative_table(
     }
 
     // Replace original X with filtered one
-    X = std::move(X_filtered);
+    X = std::move(df_filtered);
 }
 
 bool check_last_columns_quantitative_table(
