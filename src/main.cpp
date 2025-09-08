@@ -125,7 +125,8 @@ int main(int argc, char* argv[]) {
 
 // BINARY
 // ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -b ../data/binary/phenotype_samples.tsv -T chi2 -r ref --output ../output_binary_graph
-
+// awk 'BEGIN{OFS=FS="\t"} !/^#/ {split($4, a, "_"); print a[1], $0}' binary_table_graph.tsv | sort -k1,1nr | cut -f2- > binary_table_graph.modify.tsv
+//  
 // -------------------------------------------------------------- DECONSTRUCT --------------------------------------------------------------
 
 // BINARY DECONSTRUCT

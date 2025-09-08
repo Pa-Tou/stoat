@@ -443,10 +443,6 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     const std::string& chr, 
     std::ofstream& outf) {
 
-    if (stoat::pairToString(snarl_data_s.snarl_ids) != "1193_1190") {
-        return false;
-    }
-
     bool filtration = false;
     auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
     remove_empty_columns_quantitative_table(X);
@@ -642,7 +638,7 @@ void remove_empty_columns_quantitative_table(
                 new_row.push_back(X[row][col]);
             }
         }
-        X_filtered.push_back(std::move(new_row));
+        df_filtered.push_back(std::move(new_row));
     }
 
     // Replace original X with filtered one
