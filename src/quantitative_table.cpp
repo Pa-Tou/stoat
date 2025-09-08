@@ -5,14 +5,14 @@ using namespace std;
 namespace stoat_vcf {
 
 // Explicit template instantiations
-template std::tuple<std::vector<std::vector<double>>, std::vector<double>, std::vector<size_t>>
+template std::tuple<std::vector<std::vector<double>>, std::vector<double>, std::vector<std::string>, std::vector<size_t>>
     create_quantitative_table<double>(
         const size_t&,
         const std::vector<stoat::Path_traversal_t>&,
         const std::vector<double>&,
         const stoat_vcf::EdgeBySampleMatrix&);
 
-template std::tuple<std::vector<std::vector<double>>, std::vector<bool>, std::vector<size_t>>
+template std::tuple<std::vector<std::vector<double>>, std::vector<bool>, std::vector<std::string>, std::vector<size_t>>
     create_quantitative_table<bool>(
         const size_t&,
         const std::vector<stoat::Path_traversal_t>&,
@@ -69,7 +69,7 @@ std::set<size_t>, std::vector<size_t>> process_table_quantitative(
 
 // Function template definition
 template<typename T>
-std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<size_t>> create_quantitative_table(
+std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<std::string>, std::vector<size_t>> create_quantitative_table(
     const size_t& number_samples,
     const std::vector<stoat::Path_traversal_t>& column_headers,
     const std::vector<T>& phenotype,
@@ -83,6 +83,9 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<size_t
 
     std::vector<T> phenotype_filtered;
     phenotype_filtered.reserve(index_used.size());
+
+    std::vector<std::string> sample_names;
+    sample_names.reserve(index_used.size());
 
     for (size_t i : index_used) {
         const auto& row = genotypes[i];
@@ -98,9 +101,10 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<size_t
 
         genotypes_filtered.push_back(std::move(normalized_row));
         phenotype_filtered.push_back(phenotype[i]);
+        sample_names.push_back(matrix.sampleNames[i]);
     }
 
-    return {genotypes_filtered, phenotype_filtered, allele_paths};
+    return {genotypes_filtered, phenotype_filtered, sample_names, allele_paths};
 }
 
 std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<size_t>> create_eqtl_table(

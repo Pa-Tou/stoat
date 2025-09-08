@@ -38,7 +38,7 @@ process_table_quantitative(
 // - phenotype_filtered: the phenotypes for each genotype 
 // - allele_paths: the number of samples that take each path through the snarl (per column) 
 template <typename T>
-std::tuple<std::vector<std::vector<double>>, std::vector<T>, std::vector<size_t>>
+std::tuple<std::vector<std::vector<double>>, std::vector<T>, std::vector<std::string>, std::vector<size_t>>
 create_quantitative_table(
     const size_t& number_samples,
     const std::vector<stoat::Path_traversal_t>& column_headers,

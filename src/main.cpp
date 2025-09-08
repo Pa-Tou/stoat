@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
 // -------------------------------------------------------------- GRAPH --------------------------------------------------------------
 
 // BINARY
-// ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -T chi2 -r ref -S ../data/binary/samples.g0.tsv -o ../output_binary_graph
+// ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -b ../data/binary/phenotype_samples.tsv -T chi2 -r ref --output ../output_binary_graph
 
 // -------------------------------------------------------------- DECONSTRUCT --------------------------------------------------------------
 

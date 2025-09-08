@@ -94,6 +94,9 @@ It containt 2 modes :
 # # EQTL + COVARIATE
 # system("stoat vcf -s data/eqtl/snarl_analyse.tsv -v data/eqtl/merged_output.vcf.gz -e data/eqtl/qtl.tsv --gene-position data/eqtl/gene_position.tsv --covariate data/eqtl/covariate.tsv --covar-name SEX,PC1,PC2,PC3 --output output_eqtl_covar")
 
+# # BINARY DECONSTRUCT
+# system("stoat vcf -p ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/pg.full.deconstruct.change2.vcf -b ../data/binary/phenotype.tsv --output ../output_binary_deconstruct")
+
 # # BINARY GRAPH
 # system("stoat graph -g data/binary/pg.full.pg -d data/binary/pg.full.dist -T chi2 -r ref -S data/binary/samples.g0.tsv -o output_binary_graph")
 ```
