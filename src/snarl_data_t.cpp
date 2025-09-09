@@ -213,27 +213,26 @@ std::vector<stoat::Path_traversal_t> stringToVectorPath(std::string& input) {
     std::istringstream iss(input);
     std::string path_str;
 
-    // Split by commas to get individual Path_traversal_t strings
     while (std::getline(iss, path_str, ',')) {
-        Path_traversal_t path;
+        stoat::Path_traversal_t path;
         size_t i = 0;
+        const size_t len = path_str.size();
 
-        while (i < path_str.size()) {
+        while (i < len) {
+            // Assume direction is always present and correct
+            bool is_reverse = (path_str[i] == '<');
+            ++i; // Move past '<' or '>'
+
             // Parse node_id
             size_t node_id = 0;
-            while (i < path_str.size() && std::isdigit(path_str[i])) {
-                node_id = node_id * 10 + (path_str[i] - '0');
-                ++i;
+            while (i < len && path_str[i] >= '0' && path_str[i] <= '9') {
+                node_id = node_id * 10 + (path_str[i++] - '0');
             }
 
-            bool is_reverse = (path_str[i] == '<');
-            ++i;
-
-            Node_traversal_t node(node_id, is_reverse);
-            path.add_node_traversal_t(node);
+            path.add_node_traversal_t(stoat::Node_traversal_t(node_id, is_reverse));
         }
 
-        vec_paths.push_back(path);
+        vec_paths.emplace_back(std::move(path));
     }
 
     return vec_paths;

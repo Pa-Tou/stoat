@@ -6,14 +6,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_OSX_DEPLOYMENT_TARGET "12.7") # IOS fix
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12.7") # MACOS fix
 
 set(deps_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
 # Put the executables in a bin directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-# To change OPTIMIZE use : cmake -DOPTIMIZE=OFF ..
+# To change to OPTIMIZE=OFF use : cmake -DOPTIMIZE=OFF ..
 option(OPTIMIZE "Build with optimization [default: on]" ON)
 message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
 
@@ -21,9 +21,6 @@ message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
 OPTION(USE_INSTALLED_LIBHANDLEGRAPH "Use the version of libhandlegraph installed on the system, if it exists, instead of the bundled version [default: off]" OFF)
 
 # DEBUG STEP : 
-# cmake -DCMAKE_BUILD_TYPE=Debug .
-# make -j 8
-# cd ../bin
 # gdb --args ./stoat ... (command that you want to test)
 # (gdb) run
 

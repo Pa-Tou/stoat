@@ -67,6 +67,7 @@ void linear_regression(
 
     // change cov_matrix calcul if X.transpose() * X might be ill-conditioned or nearly singular
     if (se.hasNaN()) {
+        std::cout << "Warning: X'X is ill-conditioned, using pseudo-inverse for SE calculation." << std::endl;
         Eigen::MatrixXd XtX = X.transpose() * X;
         Eigen::MatrixXd cov_matrix = XtX.ldlt().solve(Eigen::MatrixXd::Identity(X.cols(), X.cols()));
         se = (cov_matrix.diagonal() * mse).array().sqrt().matrix();

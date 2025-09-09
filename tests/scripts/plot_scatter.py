@@ -1,8 +1,5 @@
-import json
 import matplotlib.pyplot as plt
-import matplotlib.patches as mplpatches
 from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
 #from sklearn.linear_model import LinearRegression
 import argparse
 import gzip
@@ -47,8 +44,8 @@ for line in f:
             label = ""
         if not label in label_to_points:
             label_to_points[label] = [[], []]
-        label_to_points[label][0].append(float(l[args.x_col]))
-        label_to_points[label][1].append(float(l[args.y_col]))
+        label_to_points[label][0].append(l[args.x_col])
+        label_to_points[label][1].append(l[args.y_col])
 
 f.close()
 

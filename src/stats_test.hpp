@@ -70,17 +70,34 @@ class LinearRegression {
         ~LinearRegression() = default;
 
         std::tuple<std::string, std::string, std::string, std::string> linear_regression(
-            const std::vector<std::vector<double>>& df,
-            const std::vector<double>& quantitative_phenotype,
-            const std::vector<std::vector<double>>& covar);
+            const std::vector<std::vector<double>>& X_raw,
+            const std::vector<double>& y,
+            const std::vector<std::vector<double>>& covariates);
+        
+        std::vector<std::vector<double>> inverse(
+            const std::vector<std::vector<double>> &A, 
+            double tol = 1e-10);
 
-        Eigen::MatrixXd pseudoInverse(
-            const Eigen::MatrixXd& X, 
-            double tol);
+        std::vector<std::vector<double>> pseudoInverse(
+            const std::vector<std::vector<double>>& A, 
+            double tol = 1e-10);
+        
+        std::vector<std::vector<double>> fromEigenMatrix(
+            const Eigen::MatrixXd& mat);
+        
+        Eigen::MatrixXd toEigenMatrix(
+            const std::vector<std::vector<double>>& mat);
+        
+        std::vector<std::vector<double>> transpose(
+            const std::vector<std::vector<double>> &A);
 
-        Eigen::MatrixXd computeXtXinverse(
-            const Eigen::MatrixXd& X, 
-            double tol);
+        std::vector<double> matvec(
+            const std::vector<std::vector<double>> &A, 
+            const std::vector<double> &b);
+
+        std::vector<std::vector<double>> matmul(
+            const std::vector<std::vector<double>> &A, 
+            const std::vector<std::vector<double>> &B);
 };
 
 class LogisticRegression {

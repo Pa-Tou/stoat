@@ -224,14 +224,14 @@ Sys.setenv("CXX14FLAGS"="-std=gnu++14")
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
 
 # Load C++ implementations
-sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_maths.cpp")
-sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_stoat.cpp")
-sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_rvtest.cpp")
+sourceCpp("/Users/matisalias/Desktop/stoat/tests/regression/linear_regression_maths.cpp")
+sourceCpp("/Users/matisalias/Desktop/stoat/tests/regression/linear_regression_stoat.cpp")
+sourceCpp("/Users/matisalias/Desktop/stoat/tests/regression/linear_regression_rvtest.cpp")
 
 # Simulation parameters
 set.seed(123)
-n_sims <- 1000 # number of simulation
-n <- 1000 # sample number
+n_sims <- 10000 # number of simulation
+n <- 200 # sample number
 k <- 5 # total predictors incl. intercept [default : 2 path] + intercept
 vals <- c(0.5, 1)
 p_threshold <- 0.01 # pvalue threshold
@@ -569,9 +569,9 @@ plot_linear_simulation_results <- function(results_result_all, null = FALSE, tit
     # Filtered P-values (0 to 0.0001)
     df_pvals_long_small <- subset(df_pvals_long, PValue <= 0.0001)
     plots$pval_hist_small <- ggplot(df_pvals_long_small, aes(x = PValue, fill = Method)) +
-      geom_histogram(alpha = 0.5, position = "dodge", bins = 30) +
+      geom_histogram(alpha = 0.5, position = "dodge", bins = 100) +
       theme_bw() +
-      labs(title = paste("P-value Distributions (0 to 0.0001)", title_prefix),
+      labs(title = paste("P-value Distributions (0 to 0.000001)", title_prefix),
           x = "P-value", y = "Frequency")
   }
 

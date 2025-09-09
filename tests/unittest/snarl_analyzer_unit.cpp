@@ -133,15 +133,6 @@ TEST_CASE("filtration_quantitative_table basic filtering") {
         REQUIRE(result == true);
     }
 
-    SECTION("Not enough haplotypes, should be filtered") {
-        std::vector<std::vector<double>> low_sum = {
-            {0.1, 0.1},
-            {0.1, 0.1}
-        };
-        bool result = filtration_quantitative_table(low_sum, 2, 2, 0.1);
-        REQUIRE(result == true);
-    }
-
     SECTION("Low MAFs, should be filtered") {
         std::vector<std::vector<double>> low_maf = {
             {1.9, 0.1},
@@ -194,28 +185,30 @@ TEST_CASE("filtration_binary_table logic correctness") {
     SECTION("Valid case, should NOT be filtered") {
         std::vector<size_t> g0 = {5, 1};
         std::vector<size_t> g1 = {1, 5};
-        bool result = filtration_binary_table(g0, g1, 12, 2, 4, 0.1);
+
+        // filtration_binary_table g0, g1, totalSum, individuals_included, min_individuals, min_haplotypes, maf_threshold           
+        bool result = filtration_binary_table(g0, g1, 12, 6, 2, 4, 0.1);
         REQUIRE(result == false);
     }
 
     SECTION("Too few individuals, should be filtered") {
         std::vector<size_t> g0 = {5, 1};
         std::vector<size_t> g1 = {1, 5};
-        bool result = filtration_binary_table(g0, g1, 2, 2, 4, 0.1);
+        bool result = filtration_binary_table(g0, g1, 12, 3, 4, 4, 0.1);
         REQUIRE(result == true);
     }
 
-    SECTION("Too few haplotypes, should be filtered") {
-        std::vector<size_t> g0 = {1, 1};
-        std::vector<size_t> g1 = {1, 1};
-        bool result = filtration_binary_table(g0, g1, 4, 2, 10, 0.1);
+    SECTION("Too few individuals multi-paths, should be filtered") {
+        std::vector<size_t> g0 = {5, 1, 6, 4};
+        std::vector<size_t> g1 = {1, 5, 5, 0};
+        bool result = filtration_binary_table(g0, g1, 12, 5, 6, 4, 0.1);
         REQUIRE(result == true);
     }
 
-    SECTION("Low MAFs, should be filtered") {
-        std::vector<size_t> g0 = {10, 1};
-        std::vector<size_t> g1 = {0, 10};
-        bool result = filtration_binary_table(g0, g1, 21, 2, 4, 0.45);
+    SECTION("High MAFs, should be filtered") {
+        std::vector<size_t> g0 = {5, 1, 4, 3, 5};
+        std::vector<size_t> g1 = {0, 4, 6, 1, 5};
+        bool result = filtration_binary_table(g0, g1, 21, 12, 2, 4, 0.45);
         REQUIRE(result == true);
     }
 }

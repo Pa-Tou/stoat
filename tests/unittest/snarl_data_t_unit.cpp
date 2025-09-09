@@ -38,6 +38,25 @@ void check_snarl(
     REQUIRE(target->type_variants == expected_types);
 }
 
+TEST_CASE("Test parsing input format", "[Path parsing]") {
+
+    SECTION("Dual paths") {
+        std::string path_str = ">1>2>3,<4>5>6";
+        std::vector<stoat::Path_traversal_t> paths = stoat::stringToVectorPath(path_str);
+
+        REQUIRE(paths.size() == 2);
+        REQUIRE(stoat::vectorPathToString(paths) == path_str);
+    }
+
+    SECTION("Triple paths") {
+        std::string path_str = "<30>40,>5<0>70,<8<902<0>10";
+        std::vector<stoat::Path_traversal_t> paths = stoat::stringToVectorPath(path_str);
+
+        REQUIRE(paths.size() == 3);
+        REQUIRE(stoat::vectorPathToString(paths) == path_str);
+    }
+}
+
 TEST_CASE("Test input format", "[Path]") {
 
     std::unique_ptr<bdsg::SnarlDistanceIndex> stree;

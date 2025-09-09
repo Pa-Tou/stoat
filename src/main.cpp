@@ -124,8 +124,9 @@ int main(int argc, char* argv[]) {
 // -------------------------------------------------------------- GRAPH --------------------------------------------------------------
 
 // BINARY
-// ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -T chi2 -r ref -S ../data/binary/samples.g0.tsv -o ../output_binary_graph
-
+// ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -b ../data/binary/phenotype_samples.tsv -T chi2 -r ref --output ../output_binary_graph
+// awk 'BEGIN{OFS=FS="\t"} !/^#/ {split($4, a, "_"); print a[1], $0}' binary_table_graph.tsv | sort -k1,1nr | cut -f2- > binary_table_graph.modify.tsv
+//  
 // -------------------------------------------------------------- DECONSTRUCT --------------------------------------------------------------
 
 // BINARY DECONSTRUCT
@@ -138,6 +139,7 @@ int main(int argc, char* argv[]) {
 // plink --bfile ../output/genotype --pheno ../data/simu/phenotypes.txt --pheno-name PHENO --assoc --allow-no-sex --allow-extra-chr --out ../output/plink
 
 // DROSO
+// ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv -v ../../lab/droso/data/merging.vcf -q ../../lab/droso/data/pangenome_pheno.tsv --output ../output_droso
 // ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv --output ../output_droso
 // ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging.vcf -q ../../lab/droso/data/pangenome_pheno.tsv --output ../output_droso
 
