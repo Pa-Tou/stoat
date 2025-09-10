@@ -9,8 +9,7 @@
 
 ## Project Overview
 
-<img src="pictures/stoat_rep.png">
-
+<img src="pictures/STOAT_schema.png">
 
 ## Dependency
 
