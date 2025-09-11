@@ -50,11 +50,16 @@ public:
     void error(const std::stringstream& msg);
     void trace(const std::stringstream& msg);
 
+    void setLogFile(const std::string& filename);
+
 private:
     LogLevel logLevel = LogLevel::Info;
     std::mutex mutex;
 
     Logger() = default;
+
+    std::ofstream logFile;
+    bool fileLoggingEnabled = false;
 
     std::string levelToString(LogLevel level) const {
         switch (level) {

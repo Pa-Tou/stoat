@@ -65,8 +65,10 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
     size_t min_haplotypes = 0;
     size_t path_length_threshold = 10000;
     size_t windows_gene_threshold = 1000000;
+
     double table_threshold = -1;
     double maf_threshold = 0.01;
+
     bool gaf = false;
     bool only_snarl_parsing = false;
     bool show_help = false;
@@ -227,6 +229,7 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
     std::filesystem::create_directory(output_dir);
     std::unordered_set<std::string> ref_chr = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
     std::string regression_dir = output_dir + "/regression";
+    stoat::Logger::instance().setLogFile(output_dir + "/stoat_vcf.log");
 
     if (table_threshold != -1) {
         //stoat::LOG_TRACE("Create_directory(regression_dir)");
