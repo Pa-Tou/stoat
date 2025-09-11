@@ -39,4 +39,14 @@ RUN git submodule update --init --recursive && \
 
 ENV PATH=$PATH:/stoat/bin/
 
+# Make libbdsg so that the python script will work
+WORKDIR /stoat/deps/libbdsg
+
+RUN mkdir build \
+    && cd build \
+    && cmake .. -DRUN_DOXYGEN=OFF \
+    && make -j$(nproc)
+
+RUN echo 'export PYTHONPATH="${PYTHONPATH}:/stoat/deps/libbdsg/lib"' >>~/.bashrc
+
 WORKDIR /home
