@@ -139,9 +139,17 @@ int main(int argc, char* argv[]) {
 // plink --bfile ../output/genotype --pheno ../data/simu/phenotypes.txt --pheno-name PHENO --assoc --allow-no-sex --allow-extra-chr --out ../output/plink
 
 // DROSO
-// ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv -v ../../lab/droso/data/merging.vcf -q ../../lab/droso/data/pangenome_pheno.tsv --output ../output_droso
+// ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv -v ../../lab/droso/data/merging.light.vcf-q ../../lab/droso/data/fly.phenotype.tsv --output ../output_droso
 // ./stoat vcf -p ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv --output ../output_droso
-// ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging.vcf -q ../../lab/droso/data/pangenome_pheno.tsv --output ../output_droso
+// sed -i 's/dm6#0#chr2L/1/g' ../output_droso/snarl_analyse.tsv
+// sed -i 's/dm6#0#chr2R/2/g' ../output_droso/snarl_analyse.tsv
+// sed -i 's/dm6#0#chr3L/3/g' ../output_droso/snarl_analyse.tsv
+// sed -i 's/dm6#0#chr3R/4/g' ../output_droso/snarl_analyse.tsv
+// sed -i 's/dm6#0#chr4/5/g' ../output_droso/snarl_analyse.tsv
+// sed -i 's/dm6#0#chrX/6/g' ../output_droso/snarl_analyse.tsv
+// sed -i 's/dm6#0#chrY/7/g' ../output_droso/snarl_analyse.tsv
+// sed -i 's/dm6#0#chrM/8/g' ../output_droso/snarl_analyse.tsv
+// ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging.light.vcf -q ../../lab/droso/data/fly.phenotype.tsv --output ../output_droso
 
 // -------------------------------------------------------------- DEBUG --------------------------------------------------------------
 
