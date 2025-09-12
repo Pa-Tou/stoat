@@ -44,7 +44,7 @@ void print_help_vcf() {
               << "  -w, --windows-gene INT       Window length from gene boundaries for snarl inclusion in eQTL (default: 1,000,000)\n"
               << "  -T, --table-threshold FLOAT  P-value threshold for regression table output (default: disabled)\n"
               << "  -M, --maf FLOAT              Minimum allele frequency threshold (default: 0.01)\n"
-              << "  -t, --thread INT             Number of threads to use (default: 1)\n"
+              << "  -t, --threads INT            Number of threads to use (default: 1)\n"
               << "  -V, --verbose INT            Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)\n"
               << "  -o, --output DIR             Output directory name (VCF GWAS mode)\n"
               << "  -h, --help                   Print this help message\n";
