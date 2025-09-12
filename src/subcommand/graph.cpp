@@ -216,8 +216,14 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     // Load the graph and make it a PathPositionHandleGraph
     unique_ptr<handlegraph::PathHandleGraph> path_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
 
+    // Get a list of paths to include in the path position overlay
+    std::unordered_set<std::string> paths_set;
+    path_graph.for_each_path_matching(nullptr, nullptr, nullptr, [&](const path_handle_t& path_handle) {
+        paths_set.push_back(path_handle);
+    });
+
     bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get());
+    bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get(), paths_set);
 
     // Load the distance index
     bdsg::SnarlDistanceIndex distance_index;
