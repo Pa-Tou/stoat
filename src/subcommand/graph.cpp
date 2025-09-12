@@ -218,8 +218,8 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
 
     // Get a list of paths to include in the path position overlay
     std::unordered_set<std::string> paths_set;
-    path_graph.for_each_path_matching(nullptr, nullptr, nullptr, [&](const path_handle_t& path_handle) {
-        paths_set.push_back(path_handle);
+    path_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&](const handlegraph::path_handle_t& path_handle) {
+        paths_set.emplace(path_graph->get_path_name(path_handle));
     });
 
     bdsg::PathPositionOverlayHelper overlay_helper;
