@@ -118,6 +118,13 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
                 // For each step on the node handle, keep track of which paths take different steps
 
                 stoat::LOG_TRACE( "\ton path " + graph.get_path_name(graph.get_path_handle_of_step(step)));
+
+                sample_hap_t step_sample_haplotype = stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step));
+
+                // If this is not a sample of interest, skip it
+                if (!all_sample_haplotypes.count(step_sample_haplotype)) {
+                    return true;
+                }
         
                 //Do we go forwards in the path? We need to check the direction of the handle in the path
                 bool go_forwards = graph.get_is_reverse(handle) == graph.get_is_reverse(graph.get_handle_of_step(step));
@@ -138,7 +145,7 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
                                   graph.get_id(next_handle), 
                                   graph.get_is_reverse(next_handle));
         
-                size_t sample_num = sample_to_index[stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step))];
+                size_t sample_num = sample_to_index[step_sample_haplotype];
         
                 if (next_steps[sample_num].id == 0) {
                     // If this path hasn't been seen before
