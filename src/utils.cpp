@@ -142,7 +142,7 @@ std::vector<T> stringToVector(const std::string& str) {
     return result;
 }
 
-std::string get_sample_name_from_path(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::path_handle_t& path) {
+std::string get_sample_name_from_path(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path) {
 
     if (graph.get_sense(path) == handlegraph::PathSense::GENERIC) {
         // Generic paths only have a locus, so return whatever that is
@@ -153,7 +153,7 @@ std::string get_sample_name_from_path(const handlegraph::PathPositionHandleGraph
 
 }
 
-sample_hap_t get_sample_and_haplotype(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::path_handle_t& path) {
+sample_hap_t get_sample_and_haplotype(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path) {
     sample_hap_t result;
 
     if (graph.get_sense(path) == handlegraph::PathSense::GENERIC) {

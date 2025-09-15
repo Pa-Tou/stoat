@@ -50,7 +50,7 @@ template <typename T>
 std::vector<T> stringToVector(const std::string& str);
 
 // Given a path, return its sample name
-std::string get_sample_name_from_path(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::path_handle_t& path);
+std::string get_sample_name_from_path(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
 
 // This stores a sample name and haplotype number
 struct sample_hap_t {
@@ -74,7 +74,7 @@ inline std::ostream& operator<<(std::ostream& out, const sample_hap_t& sample) {
 }
 
 // Given a path, return its sample name and haplotype 
-sample_hap_t get_sample_and_haplotype(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::path_handle_t& path);
+sample_hap_t get_sample_and_haplotype(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
 
 // A struct for holding a range along the path
 struct path_range_t {
