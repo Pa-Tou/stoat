@@ -12,7 +12,7 @@ bool run_test_snarl(
     const std::string& data_path) {
 
     std::string cmd = stoat_command + " vcf"
-    + " -p " + data_path + "/pg.full.pg"
+    + " -g " + data_path + "/pg.full.pg"
     + " -d " + data_path + "/pg.full.dist"
     + " -r " + data_path + "/pg.chromosome"
     + " --output " + output_dir;
@@ -90,7 +90,7 @@ bool run_test_full(
     bool use_covariate = false) {
 
     std::string cmd = stoat_command + " vcf"
-    + " -p " + data_path + "/pg.full.pg"
+    + " -g " + data_path + "/pg.full.pg"
     + " -d " + data_path + "/pg.full.dist"
     + " -r " + data_path + "/pg.chromosome"
     + " -v " + data_path + "/merged_output.vcf.gz";
