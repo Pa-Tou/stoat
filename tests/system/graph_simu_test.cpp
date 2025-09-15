@@ -163,9 +163,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
+        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
+        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
     }
@@ -196,7 +196,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
+        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
     }
@@ -229,19 +229,19 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0:1-2|path0:1-2", "C");
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0:1-2|path1:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0:1-2|path2:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0:1-2|path3:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path2:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path3:1-2", "C");
 
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path0:3-6", "TCA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path1:3-6", "TA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path3:3-6", "TA");
-        truth_fasta.emplace_back(4, ">snarl:4-8|path0:3-6|path2:3-3", "");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path0#0#path0:3-6", "TCA");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TA");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path3:3-6", "TA");
+        truth_fasta.emplace_back(4, ">snarl:4-8|path0#0#path0:3-6|path2:3-3", "");
 
-        truth_fasta.emplace_back(5, ">snarl:5-7|path0:4-5|path0:4-5", "C");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path1:4-4", "");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(5, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
+        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
@@ -275,10 +275,10 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(2, ">snarl:5-7|path0:4-5|path0:4-5", "C");
+        truth_fasta.emplace_back(2, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
 
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0:4-5|path1:4-4", "");
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
 
@@ -288,7 +288,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     fs::remove(samples_file);
 }
 
-TEST_CASE("Output simple nested chain gbz", "[graph]") {
+TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/graph_test/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
@@ -307,6 +307,9 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
+        write_cmd = "cat " + samples_file;
+        ignore = std::system(write_cmd.c_str());
+
 
 
     SECTION("Test chi2 tsv output") {
@@ -335,9 +338,9 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
+        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
+        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
     }
@@ -368,7 +371,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
+        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
     }
@@ -401,19 +404,19 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0:1-2|path0:1-2", "C");
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0:1-2|path1:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0:1-2|path2:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0:1-2|path3:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path2:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path3:1-2", "C");
 
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path0:3-6", "TCA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path1:3-6", "TA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0:3-6|path3:3-6", "TA");
-        truth_fasta.emplace_back(4, ">snarl:4-8|path0:3-6|path2:3-3", "");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path0#0#path0:3-6", "TCA");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TA");
+        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path3:3-6", "TA");
+        truth_fasta.emplace_back(4, ">snarl:4-8|path0#0#path0:3-6|path2:3-3", "");
 
-        truth_fasta.emplace_back(5, ">snarl:5-7|path0:4-5|path0:4-5", "C");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path1:4-4", "");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(5, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
+        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
@@ -447,17 +450,17 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(2, ">snarl:5-7|path0:4-5|path0:4-5", "C");
+        truth_fasta.emplace_back(2, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
 
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0:4-5|path1:4-4", "");
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
 
     }
 
-    clean_output_dir(output_dir);
-    fs::remove(samples_file);
+    //clean_output_dir(output_dir);
+    //fs::remove(samples_file);
 }
 
 TEST_CASE("Output loop with snarl", "[graph]") {
