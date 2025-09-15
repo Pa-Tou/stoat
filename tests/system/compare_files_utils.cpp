@@ -328,6 +328,8 @@ bool fasta_equal(const std::string& file,
         actual_record_count ++;
     }
     infile.close();
+
+    std::ifstream reinfile(file);
     for (size_t i = 1 ; i < record_count+1 ; i++) {
         if (!has_record[i]) {
             cerr << i << endl;
@@ -335,9 +337,14 @@ bool fasta_equal(const std::string& file,
             for (const auto& header : set_to_header.at(i)) {
                 cerr << "\t" << header << endl;
             }
+            cerr << "Fasta output:" << endl;
+            while (std::getline(reinfile, line)) {
+                cerr << line << endl;
+            }
             return false;
         }
     }
+    reinfile.close();
 
     if (actual_record_count != record_count) {
         cerr << "Fasta output has " << actual_record_count << " records, should have " << record_count << endl;
