@@ -22,7 +22,7 @@ namespace stoat_command {
 
 void print_help_vcf() {
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -p, --graph FILE             Path to the packed graph file (.graph)\n"
+              << "  -g, --graph FILE             Path to the packed graph file (.graph)\n"
               << "  -d, --dist FILE              Path to the packed distance index file [vg index] (.dist)\n"
               << "  -v, --vcf FILE               Path to the VCF file (.vcf or .vcf.gz)\n"
               << "  -s, --snarl FILE             Path to the snarl file (.txt or .tsv)\n"
@@ -34,17 +34,17 @@ void print_help_vcf() {
               << "  -c, --covariate FILE         Path to the covariate file (.txt or .tsv)\n"
               << "  -C, --covar-name NAME        Covariate column name(s) used for GWAS (comma-separated if multiple)\n"
               << "  -k, --kinship FILE           Path to the kinship matrix file (.txt or .tsv)\n"
-              << "  -g, --gaf                    Generate a GAF file from GWAS results\n"
+              << "  -G, --gaf                    Generate a GAF file from GWAS results\n"
               << "  -I, --min-individuals INT    Minimum number of individuals per snarl (default: 0)\n"
               << "  -E  --exclude-paths          Exclude paths that containt\n"
               << "  -i, --children INT           Max number of children per snarl in decomposition (default: 50)\n"
               << "  -y, --cycle INT              Max number of authorized cycles in snarl decomposition (default: 1)\n"
               << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition (default: 10,000)\n"
-              << "  -G, --gene-position FILE     Path to the gene position file (.txt or .tsv)\n"
+              << "  -P, --gene-position FILE     Path to the gene position file (.txt or .tsv)\n"
               << "  -w, --windows-gene INT       Window length from gene boundaries for snarl inclusion in eQTL (default: 1,000,000)\n"
               << "  -T, --table-threshold FLOAT  P-value threshold for regression table output (default: disabled)\n"
               << "  -M, --maf FLOAT              Minimum allele frequency threshold (default: 0.01)\n"
-              << "  -t, --thread INT             Number of threads to use (default: 1)\n"
+              << "  -t, --threads INT            Number of threads to use (default: 1)\n"
               << "  -V, --verbose INT            Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)\n"
               << "  -o, --output DIR             Output directory name (VCF GWAS mode)\n"
               << "  -h, --help                   Print this help message\n";
@@ -65,8 +65,10 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
     size_t min_haplotypes = 0;
     size_t path_length_threshold = 10000;
     size_t windows_gene_threshold = 1000000;
+
     double table_threshold = -1;
     double maf_threshold = 0.01;
+
     bool gaf = false;
     bool only_snarl_parsing = false;
     bool show_help = false;
@@ -80,7 +82,7 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
     static struct option long_options[] = {
         {"vcf", required_argument, 0, 'v'},
         {"snarl", required_argument, 0, 's'},
-        {"graph", required_argument, 0, 'p'},
+        {"graph", required_argument, 0, 'g'},
         {"dist", required_argument, 0, 'd'},
         {"chr", required_argument, 0, 'r'},
         {"binary", required_argument, 0, 'b'},
@@ -90,13 +92,13 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {"covariate", required_argument, 0, 'c'},
         {"covar-name", required_argument, 0, 'C'},
         {"kinship", required_argument, 0, 'k'},
-        {"gaf", no_argument, 0, 'g'},
+        {"gaf", no_argument, 0, 'G'},
         {"min-individuals", required_argument, 0, 'I'},
         {"min-haplotypes", required_argument, 0, 'H'},
         {"children", required_argument, 0, 'i'},
         {"cycle", required_argument, 0, 'y'},
         {"path-length", required_argument, 0, 'l'},
-        {"gene-position", required_argument, 0, 'G'},
+        {"gene-position", required_argument, 0, 'P'},
         {"windows-gene", required_argument, 0, 'w'},
         {"table-threshold", required_argument, 0, 'T'},
         {"maf", required_argument, 0, 'M'},
@@ -107,11 +109,11 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:p:d:r:b:q:e:c:C:k:i:y:l:G:w:T:M:t:V:I:H:o:gmh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:k:i:y:l:P:w:T:M:t:V:I:H:o:Gmh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
-            case 'p': graph_path = optarg; stoat_vcf::check_file(graph_path); break;
+            case 'g': graph_path = optarg; stoat_vcf::check_file(graph_path); break;
             case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
             case 'r': chromosome_path = optarg; stoat_vcf::check_file(chromosome_path); break;
             case 'b': binary_path = optarg; phenotype++; stoat_vcf::check_file(binary_path); break;
@@ -126,7 +128,7 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
                 break;
             }
             case 'k': kinship_path = optarg; stoat_vcf::check_file(kinship_path); break;
-            case 'g': gaf = true; break;
+            case 'G': gaf = true; break;
             case 'I':
                 min_individuals = std::stoi(optarg);
                 if (min_individuals < 2) {
@@ -157,7 +159,7 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
                     throw std::runtime_error("Error: [stoat vcf] Path length threshold must be > 1");
                 }
                 break;
-            case 'G': gene_position_path = optarg; stoat_vcf::check_file(gene_position_path); break;
+            case 'P': gene_position_path = optarg; stoat_vcf::check_file(gene_position_path); break;
             case 'w':
                 windows_gene_threshold = std::stoi(optarg);
                 if (windows_gene_threshold < 1) {
@@ -227,6 +229,7 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
     std::filesystem::create_directory(output_dir);
     std::unordered_set<std::string> ref_chr = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
     std::string regression_dir = output_dir + "/regression";
+    stoat::Logger::instance().setLogFile(output_dir + "/stoat_vcf.log");
 
     if (table_threshold != -1) {
         //stoat::LOG_TRACE("Create_directory(regression_dir)");

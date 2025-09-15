@@ -213,12 +213,21 @@ std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> SnarlAnalyzer::make_edge_matrix(htsFil
         int32_t *gt = nullptr;
         ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
 
+        if (ngt <= 0 || gt == nullptr) {
+            throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec->pos + 1));
+        }
+
         // Extract AT field from INFO
         char *at_str = nullptr;
         int nat = 0;
         nat = bcf_get_info_string(hdr, rec, "AT", &at_str, &nat);
-        std::vector<std::string> path_list;
 
+        if (nat <= 0 || !at_str) {
+            // AT field is mandatory, throw an error
+            throw std::invalid_argument("AT field is missing in VCF at position " + std::to_string(rec->pos + 1));
+        }
+
+        std::vector<std::string> path_list;
         std::string at_value(at_str);  // Convert C-string to C++ std::string
         free(at_str);  // Free HTSlib-allocated memory
 

@@ -81,16 +81,16 @@ STOAT supports both binary and quantitative phenotypes:
 
 ```bash
 # decompose pangenome
-stoat vcf -p <pg.full.pg> -d <dist.dist> -o <paths.txt>
+stoat vcf -g <pg.full.pg> -d <dist.dist> -o <paths.txt>
 
 # binary trait with already decompose pangenome
 stoat vcf -s <paths.txt> -v <vcf_file.vcf.gz> -b <phenotype.txt> --chr <ref.tsv> -o output
 
 # decompose pangenome + binary trait
-stoat vcf -p <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -b <phenotype.txt> --chr <ref.tsv> -o output
+stoat vcf -g <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -b <phenotype.txt> --chr <ref.tsv> -o output
 
 # decompose pangenome + quantative trait
-stoat vcf -p <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -q <phenotype.txt> --chr <ref.tsv> -o output
+stoat vcf -g <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -q <phenotype.txt> --chr <ref.tsv> -o output
 ```
 
 

@@ -20,7 +20,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         std::string cmd = "../bin/stoat graph";
 
-        cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
             + " -T chi2 -r ref";

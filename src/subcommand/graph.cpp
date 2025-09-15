@@ -177,14 +177,17 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
 
     // Make the output directory
     std::filesystem::create_directory(output_dir);
+    stoat::Logger::instance().setLogFile(output_dir + "/stoat_graph.log");
 
     // Load the samples from a file
     if (samples_filename.empty()) {
         stoat::LOG_ERROR("[stoat graph]: stoat graph requires samples of interest");
         return EXIT_FAILURE; 
     }
+
     std::vector<bool> phenotypes = stoat_vcf::parse_binary_pheno(samples_filename, samples);
     std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
+
     for (size_t i = 0 ; i < samples.size() ; i++ ) {
         if (phenotypes[i]) {
             sample_sets.first.emplace(samples[i]);

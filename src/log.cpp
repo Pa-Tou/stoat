@@ -21,8 +21,14 @@ void Logger::setLevel(LogLevel level) {
 void Logger::log(LogLevel level, const std::string& message) {
     if (level <= logLevel) {
         std::lock_guard<std::mutex> lock(mutex);
+        const std::string formatted = levelToString(level) + message;
+
         std::ostream& out = (level == LogLevel::Error) ? std::cerr : std::cout;
-        out << levelToString(level) << message << std::endl;
+        out << formatted << std::endl;
+
+        if (fileLoggingEnabled && logFile.is_open()) {
+            logFile << formatted << std::endl;
+        }
     }
 }
 
@@ -38,6 +44,16 @@ void Logger::log_assert(LogLevel level, bool assertion, const std::string& messa
         case LogLevel::Debug: debug(message);
         case LogLevel::Trace: trace(message);
         default: error("Unknown LogLevel " + levelToString(level));
+    }
+}
+
+void Logger::setLogFile(const std::string& filename) {
+    std::lock_guard<std::mutex> lock(mutex);
+    logFile.open(filename, std::ios::out | std::ios::app);
+    if (logFile.is_open()) {
+        fileLoggingEnabled = true;
+    } else {
+        std::cerr << "Logger Error: Failed to open log file: " << filename << std::endl;
     }
 }
 
