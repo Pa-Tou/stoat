@@ -43,8 +43,8 @@ void print_help_graph() {
         //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << endl
         //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
-        //<< "  -m, --method NAME                What method is used to find associations? (paths) [paths]" << endl
-        << "  -I, --min-individuals INT          Minimum number of individuals per snarl [0]\n"
+        //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << endl
+        //<< "  -I, --min-individuals INT          Minimum number of individuals per snarl [0]\n"
         << "  -M, --maf FLOAT                    Minimum allele frequency threshold [0.05]" << endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
         << "  -r, --reference-sample NAME        If there is no reference in the graph, use this sample as the reference" << endl

@@ -100,6 +100,7 @@ void AssociationFinder::test_snarls() const {
 
                     // If we are writing a fasta, then pick one sample from each partition to write
                     std::unordered_map<std::string, bool> samples_to_write;
+                    bool filtration = false;
 
                     if (test_method == "exact") {
 
@@ -146,7 +147,7 @@ void AssociationFinder::test_snarls() const {
 
                         // Filtration added
                         stoat::remove_empty_columns_binary_table(genotype_associated, genotype_unassociated);
-                        bool filtration = stoat::filtration_binary_table(genotype_associated, genotype_unassociated, individuals_included, min_individuals, maf_threshold);
+                        filtration = stoat::filtration_binary_table(genotype_associated, genotype_unassociated, individuals_included, min_individuals, maf_threshold);
 
                         // Get a bunch of strings that get used for the output
                         group_paths = stoat_vcf::format_group_paths(genotype_associated, genotype_unassociated);
@@ -154,18 +155,18 @@ void AssociationFinder::test_snarls() const {
                         if (!filtration) {
                             // Run the statistical test
                             std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(genotype_associated, genotype_unassociated);
-                        }
 
-                        if (output_format == "fasta") {
-                            // Figure out which samples we want to write
-                            // Since we don't know which partition is actually associated, just write everything to one file
-                            for (const std::set<std::string>& partition : sample_partitions) {
-                                samples_to_write[*partition.begin()] = true;
+                            if (output_format == "fasta") {
+                                // Figure out which samples we want to write
+                                // Since we don't know which partition is actually associated, just write everything to one file
+                                for (const std::set<std::string>& partition : sample_partitions) {
+                                    samples_to_write[*partition.begin()] = true;
+                                }
                             }
                         }
                     }
                 
-                    if (write_output) {
+                    if (write_output && !filtration) {
                         if (output_format == "tsv") {
 
                             string chr = "NA"; 
