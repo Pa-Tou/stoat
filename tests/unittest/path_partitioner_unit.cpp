@@ -45,7 +45,7 @@ TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
 }
 
 TEST_CASE( "Path partitioner nested bubbles",
-          "[path_partitioner]" ) {
+          "[path_partitioner][bug]" ) {
 
     /*
                        5
@@ -58,7 +58,7 @@ TEST_CASE( "Path partitioner nested bubbles",
 
    */
 
-    bdsg::HashGraph graph;
+    //bdsg::HashGraph graph;
 
     //std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A", "C", "A", "A"};
 
@@ -95,16 +95,30 @@ TEST_CASE( "Path partitioner nested bubbles",
     //// vg isn't included so the distance index can only be built from the command line
     //graph.serialize("../tests/graph_test/simple_nested_chain.hg");
     //int built = system("vg index -j ../tests/graph_test/simple_nested_chain.dist ../tests/graph_test/simple_nested_chain.hg"); 
+    //
+    ////Change sense of paths
+    //built = system("vg convert --hap-locus path0 --new-sample path0 ../tests/graph_test/simple_nested_chain.hg >../tests/graph_test/simple_nested_chain1.hg"); 
+    //built = system("vg convert --hap-locus path1 --new-sample path1 ../tests/graph_test/simple_nested_chain1.hg >../tests/graph_test/simple_nested_chain2.hg"); 
+    //built = system("vg convert --ref-sample path0 ../tests/graph_test/simple_nested_chain2.hg | vg convert -a - >../tests/graph_test/simple_nested_chain3.hg"); 
+    //built = system("mv ../tests/graph_test/simple_nested_chain3.hg ../tests/graph_test/simple_nested_chain.hg"); 
+    //built = system("rm ../tests/graph_test/simple_nested_chain1.hg"); 
+    //built = system("rm ../tests/graph_test/simple_nested_chain2.hg"); 
+    //built = system("vg gbwt -x ../tests/graph_test/simple_nested_chain.hg -E --gbz-format -g ../tests/graph_test/simple_nested_chain.gbz "); 
 
-    graph.deserialize("../tests/graph_test/simple_nested_chain.hg");
+
+
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
 
+    bdsg::HashGraph graph;
+    graph.deserialize("../tests/graph_test/simple_nested_chain.hg");
+
     std::vector<handlegraph::path_handle_t> paths;
 
-    for (int path_i = 0 ; path_i < 4 ; path_i++) {
-        paths.emplace_back(graph.get_path_handle("path"+std::to_string(path_i)));
-    }
+    paths.emplace_back(graph.get_path_handle("path0#0#path0"));
+    paths.emplace_back(graph.get_path_handle("path1#0#path1#0"));
+    paths.emplace_back(graph.get_path_handle("path2"));
+    paths.emplace_back(graph.get_path_handle("path3"));
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);

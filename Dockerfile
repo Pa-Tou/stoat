@@ -47,6 +47,6 @@ RUN mkdir build \
     && cmake .. -DRUN_DOXYGEN=OFF \
     && make -j$(nproc)
 
-RUN echo 'export PYTHONPATH="${PYTHONPATH}:/stoat/deps/libbdsg/lib"' >>~/.bashrc
+ENV PYTHONPATH=/stoat/deps/libbdsg/lib
 
 WORKDIR /home

@@ -219,8 +219,35 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     // Load the graph and make it a PathPositionHandleGraph
     unique_ptr<handlegraph::PathHandleGraph> path_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
 
+
+    /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names
+    /// that we want to be included in the index.
+    /// We also want a list of all samples and haplotypes that we include in the analysis
+    /// Get both at the same time by going through all paths in the graph and checking if the sample is one of our samples of interest
+
+    // Get a list of paths to include in the path position overlay
+    std::unordered_set<std::string> paths_set;
+
+    // A set of the samples+haplotypes in the graph that match the ones from the phenotype file
+    std::set<stoat::sample_hap_t> all_sample_haplotypes;
+
+    path_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+        std::string sample_name = stoat::get_sample_name_from_path(*path_graph, path);
+        if (sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
+            paths_set.emplace(path_graph->get_path_name(path));
+            all_sample_haplotypes.emplace(stoat::get_sample_and_haplotype(*path_graph, path));
+        }
+        return true;
+    });
+
+    if (stoat::Logger::instance().at_level(stoat::LogLevel::Error)) {
+        stoat::Logger::instance().log_assert(stoat::LogLevel::Error, 
+                                             all_sample_haplotypes.size() >= sample_sets.first.size() + sample_sets.second.size(), 
+                                             "there are more samples given than haplotypes in the graph");
+    }
+
     bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get());
+    bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get(), paths_set);
 
     // Load the distance index
     bdsg::SnarlDistanceIndex distance_index;
@@ -242,22 +269,6 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     std::ofstream out_stream;
     out_stream.open(filename);
 
-    // A set of the samples+haplotypes in the graph that match the ones from the phenotype file
-    std::set<stoat::sample_hap_t> all_sample_haplotypes;
-
-    graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-        std::string sample_name = stoat::get_sample_name_from_path(*graph, path);
-        if (sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
-            all_sample_haplotypes.emplace(stoat::get_sample_and_haplotype(*graph, path));
-        }
-        return true;
-    });
-
-    if (stoat::Logger::instance().at_level(stoat::LogLevel::Error)) {
-        stoat::Logger::instance().log_assert(stoat::LogLevel::Error, 
-                                             all_sample_haplotypes.size() >= sample_sets.first.size() + sample_sets.second.size(), 
-                                             "there are more samples given than haplotypes in the graph");
-    }
 
     // Make the partitioner
     std::shared_ptr<stoat_graph::Partitioner> partitioner;
