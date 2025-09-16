@@ -141,6 +141,35 @@ class LMM {
         //     const std::vector<std::vector<double>>& covariates);
 };
 
+void combine_identical_columns_quantitative_table(
+    std::vector<std::vector<double>>& df);
+
+void remove_empty_columns_binary_table(
+    std::vector<size_t>& g0, 
+    std::vector<size_t>& g1);
+
+void remove_empty_columns_quantitative_table(
+    std::vector<std::vector<double>>& df);
+
+void remove_last_columns_quantitative_table(
+    std::vector<std::vector<double>>& df);
+
+bool check_last_columns_quantitative_table(
+    const std::vector<std::vector<double>>& df);
+
+/// Return true if snarl must be filtered
+bool filtration_quantitative_table(
+    const std::vector<std::vector<double>>& df,
+    const size_t& min_individuals,
+    const double& maf);
+
+bool filtration_binary_table(
+    std::vector<size_t>& g0, 
+    std::vector<size_t>& g1,
+    const size_t& individuals_included,
+    const size_t& min_individuals,
+    const double& maf);
+
 } // namespace stoat
 
 #endif 

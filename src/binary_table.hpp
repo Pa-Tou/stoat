@@ -34,8 +34,8 @@ std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<
 
 /// Given two vectors of genotypes representing two groups (with length number_paths), fill them in with counts of the number of times each path is seen  
 /// g0 and g1 can be used in binary_stat_test()
-/// Return the total number of haplotypes and the total number of individuals represented in the table
-std::pair<size_t, size_t> create_binary_table(
+/// Returns the total number of individual seen
+size_t create_binary_table(
     std::vector<size_t>& g0, std::vector<size_t>& g1,
     const std::vector<bool>& binary_phenotype, 
     const std::vector<stoat::Path_traversal_t>& list_path_snarl, 
