@@ -46,6 +46,9 @@ void print_help_graph() {
         //<< "  -m, --method NAME                What method is used to find associations? (paths) [paths]" << endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
         << "  -r, --reference-sample NAME        If there is no reference in the graph, use this sample as the reference" << endl
+        << "  -I, --min-individuals INT          Minimum number of individuals per snarl [0]" << endl
+        << "  -H, --min-haplotypes INT           Minimum number of haplotypes per snarl [0]" << endl
+        << "  -M, --maf FLOAT                    Minor allele frequency threshold for including a snarl. Must be between 0 and 1 [0.01]" << endl
         << "  -h, --help                         Print this help message" << endl;
 }
 
@@ -68,6 +71,10 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     std::string output_format= "tsv";
     std::string output_dir="output";
 
+    size_t min_individuals = 1;
+    size_t min_haplotypes = 1;
+    double maf_threshold = 0.01;
+
     int c = 0;
     optind = 1;
     while (true) {
@@ -85,13 +92,15 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                 {"output", required_argument, 0, 'o'},
                 {"output-format", required_argument, 0, 'O'},
                 {"verbose", required_argument, 0, 'V'},
-                {"skip-bh-correction", no_argument, 0, 'B'},
+                {"min-individuals", required_argument, 0, 'I'},
+                {"min-haplotypes", required_argument, 0, 'H'},
+                {"maf", required_argument, 0, 'M'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:V:o:O:h",
+        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:V:I:H:M:o:O:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -148,6 +157,19 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                 break;
             case 'O':
                 output_format = optarg;
+                break;
+            case 'I':
+                min_individuals = std::stoi(optarg);
+                break;
+            case 'H':
+                min_haplotypes = std::stoi(optarg);
+                break;
+            case 'M':
+                maf_threshold = std::stod(optarg);
+                if (maf_threshold < 0 || maf_threshold > 1) {
+                    throw std::runtime_error("Error: [stoat vcf] MAF must be in [0,1]");
+                }
+
                 break;
             case 'h':
                 print_help_graph();
@@ -291,6 +313,9 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                                    test_method,
                                    output_format,
                                    allele_size_limit,
+                                   min_individuals,
+                                   min_haplotypes,
+                                   maf_threshold,
                                    out_stream);
     af.test_snarls();
 

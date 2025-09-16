@@ -28,8 +28,15 @@ class AssociationFinder {
         const std::string& reference_sample;
         const std::string& test_method;
         const std::string& output_format;
+
+        // Minor allele frequency threshold for considering a snarl
+        double maf_threshold;
         size_t total_sample_count;
         size_t allele_size_limit;
+        // Minimum number of individuals for considering a snarl
+        size_t min_individuals;
+        // Minimum number of haplotypes for considering a snarl
+        size_t min_haplotypes;
         std::ostream& out_associated = std::cout;
         bool check_distances;
 
@@ -52,6 +59,9 @@ class AssociationFinder {
                           const std::string& test_method,
                           const std::string& output_format,
                           size_t allele_size_limit,
+                          size_t min_individuals,
+                          size_t min_haplotypes,
+                          double maf_threshold,
                           std::ostream& out_associated);
 
         

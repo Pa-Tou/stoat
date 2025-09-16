@@ -2,6 +2,7 @@
 #include "utils.hpp"
 #include "writer.hpp"
 #include "binary_table.hpp"
+#include "snarl_analyzer.hpp"
 
 namespace stoat_graph {
 
@@ -12,7 +13,10 @@ AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph&
                                      const std::string& reference_sample,
                                      const std::string& test_method,
                                      const std::string& output_format,
-                                     size_t allele_size_limit,
+                                     size_t allele_size_limit, 
+                                     size_t min_individuals, 
+                                     size_t min_haplotypes, 
+                                     double maf_threshold,
                                      std::ostream& out_associated) :
     graph(graph), 
     distance_index(distance_index), 
@@ -22,6 +26,9 @@ AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph&
     test_method(test_method),
     output_format(output_format),
     allele_size_limit(allele_size_limit),
+    min_individuals(min_individuals),
+    min_haplotypes(min_haplotypes),
+    maf_threshold(maf_threshold),
     out_associated(out_associated),
     check_distances(distance_index.has_distances())
     {}
@@ -120,11 +127,13 @@ void AssociationFinder::test_snarls() const {
 
                         // If we are using a real statistical test, then always write the output because the BH correction will need all the p-values
                         // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
-                        write_output = true;
 
                         // Fill in the genotypes. Each item in these vectors is an allele (path/sample partition)
                         std::vector<size_t> genotype_associated(sample_partitions.size(), 0);
                         std::vector<size_t> genotype_unassociated(sample_partitions.size(), 0);
+                        size_t haplotype_count = 0;
+                        size_t individual_count = 0;
+                        //TODO: make haplotypes and individuals different
                         for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
                             const std::set<std::string> sample_set = sample_partitions[i];
                             for (const std::string sample : sample_set) {
@@ -133,23 +142,29 @@ void AssociationFinder::test_snarls() const {
                                 } else if (sample_sets.second.count(sample) == 1) {
                                     genotype_unassociated[i]++;
                                 }
+                                haplotype_count++;
+                                individual_count++;
                             }
                         }
+                        if (stoat_vcf::filtration_binary_table(genotype_associated, genotype_unassociated, haplotype_count, individual_count, min_individuals, min_haplotypes, maf_threshold)) {
+                            write_output = true;
 
-                        //Get a bunch of strings that get used for the output
-                        // TODO: This function should probably be part of the output function
+                            //Get a bunch of strings that get used for the output
+                            // TODO: This function should probably be part of the output function
 
-                        //Get a bunch of strings that get used for the output
-                        group_paths = stoat_vcf::format_group_paths(genotype_associated, genotype_unassociated);
  
-                        // Run the statistical test
-                        std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(genotype_associated, genotype_unassociated);
+                            // Run the statistical test
+                            std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(genotype_associated, genotype_unassociated);
 
-                        if (output_format == "fasta") {
-                            // Figure out which samples we want to write
-                            // Since we don't know which partition is actually associated, just write everything to one file
-                            for (const std::set<std::string>& partition : sample_partitions) {
-                                samples_to_write[*partition.begin()] = true;
+                            //Get a bunch of strings that get used for the output
+                            group_paths = stoat_vcf::format_group_paths(genotype_associated, genotype_unassociated);
+
+                            if (output_format == "fasta") {
+                                // Figure out which samples we want to write
+                                // Since we don't know which partition is actually associated, just write everything to one file
+                                for (const std::set<std::string>& partition : sample_partitions) {
+                                    samples_to_write[*partition.begin()] = true;
+                                }
                             }
                         }
 
