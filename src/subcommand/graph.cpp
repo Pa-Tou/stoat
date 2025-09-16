@@ -44,6 +44,8 @@ void print_help_graph() {
         //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
         //<< "  -m, --method NAME                What method is used to find associations? (paths) [paths]" << endl
+        << "  -I, --min-individuals INT          Minimum number of individuals per snarl [0]\n"
+        << "  -M, --maf FLOAT                    Minimum allele frequency threshold [0.05]" << endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
         << "  -r, --reference-sample NAME        If there is no reference in the graph, use this sample as the reference" << endl
         << "  -h, --help                         Print this help message" << endl;
@@ -68,6 +70,9 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     std::string output_format= "tsv";
     std::string output_dir="output";
 
+    double maf_threshold = 0.05;
+    size_t min_individuals = 0;
+
     int c = 0;
     optind = 1;
     while (true) {
@@ -76,6 +81,8 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                 {"graph", required_argument, 0, 'g'},
                 {"distance-index", required_argument, 0, 'd'},
                 {"allele-size-limit", required_argument, 0, 'l'},
+                {"maf", required_argument, 0, 'M'},
+                //{"min-individuals", required_argument, 0, 'I'},
                 {"threads", required_argument, 0, 't'},
                 {"test", required_argument, 0, 'T'},
                 //{"p-value", required_argument, 0, 'p'},
@@ -91,7 +98,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:V:o:O:h",
+        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:V:I:M:o:O:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -149,6 +156,18 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
             case 'O':
                 output_format = optarg;
                 break;
+            case 'M':
+                maf_threshold = std::stod(optarg);
+                if (maf_threshold < 0 || maf_threshold > 1) {
+                    throw std::runtime_error("Error: [stoat graph] MAF must be in [0,1]");
+                }
+                break;
+            // case 'I':
+            //     min_individuals = std::stoi(optarg);
+            //     if (min_individuals < 2) {
+            //         throw std::runtime_error("Error: [stoat graph] min_individuals threshold must be > 1");
+            //     }
+            //     break;
             case 'h':
                 print_help_graph();
                 return EXIT_SUCCESS;
@@ -201,6 +220,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     for (auto& sample : sample_sets.first) {
         stoat::LOG_TRACE("\t" + sample);
     }
+
     stoat::LOG_TRACE("Truth sample set 2: ");
     for (auto& sample : sample_sets.second) {
         stoat::LOG_TRACE("\t" + sample);
@@ -280,6 +300,8 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                                    test_method,
                                    output_format,
                                    allele_size_limit,
+                                   maf_threshold,
+                                   min_individuals,
                                    out_stream);
     af.test_snarls();
 

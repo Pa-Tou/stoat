@@ -28,15 +28,14 @@ class AssociationFinder {
         const std::string& reference_sample;
         const std::string& test_method;
         const std::string& output_format;
-        size_t total_sample_count;
-        size_t allele_size_limit;
+        const size_t& allele_size_limit;
+        const double& maf_threshold;
+        const size_t& min_individuals;
         std::ostream& out_associated = std::cout;
         bool check_distances;
 
-
         // object for finding partitions of samples in a snarl
         std::shared_ptr<Partitioner> partitioner;
-
 
     public:
 
@@ -51,23 +50,22 @@ class AssociationFinder {
                           const std::string& reference_sample,
                           const std::string& test_method,
                           const std::string& output_format,
-                          size_t allele_size_limit,
+                          const size_t& allele_size_limit,
+                          const double& maf_threshold,
+                          const size_t& min_individuals,
                           std::ostream& out_associated);
 
-        
         /// Main function that gets called to go through all snarls in the graph, check if they are eligible with snarl_is_eligible(),
         /// use the Tester::test_snarl on each eligible snarl, then use the Writer to write snarls that pass the Tester/MultipleTester
         void test_snarls() const;
 
     protected:
 
-       //////////////////////////////// Other helper functions
-
+        //////////////////////////////// Other helper functions
         // Do we care about this snarl? Based on allele_size_limit
         bool snarl_is_eligible(const handlegraph::net_handle_t& snarl) const;
 
 };
-
 
 }
 
