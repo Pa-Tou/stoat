@@ -32,8 +32,9 @@ namespace stoat_vcf {
 // Write a std::string of: g0[0]:g1[1],g0[1]:g1[1],g0[2]:g1[2]...
 std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
-// Given two vectors of genotypes representing two groups (with length number_paths), fill them in with counts of the number of times each path is seen  
-// g0 and g1 can be used in binary_stat_test()
+/// Given two vectors of genotypes representing two groups (with length number_paths), fill them in with counts of the number of times each path is seen  
+/// g0 and g1 can be used in binary_stat_test()
+/// Return the total number of haplotypes and the total number of individuals represented in the table
 std::pair<size_t, size_t> create_binary_table(
     std::vector<size_t>& g0, std::vector<size_t>& g1,
     const std::vector<bool>& binary_phenotype, 
