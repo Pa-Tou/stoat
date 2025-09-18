@@ -49,12 +49,14 @@ void Logger::log_assert(LogLevel level, bool assertion, const std::string& messa
 
 void Logger::setLogFile(const std::string& filename) {
     std::lock_guard<std::mutex> lock(mutex);
-    logFile.open(filename, std::ios::out | std::ios::app);
-    if (logFile.is_open()) {
-        fileLoggingEnabled = true;
-    } else {
+
+    logFile.open(filename, std::ios::out | std::ios::trunc);
+    if (!logFile.is_open()) {
         std::cerr << "Logger Error: Failed to open log file: " << filename << std::endl;
+        return;
     }
+
+    fileLoggingEnabled = true;
 }
 
 void Logger::debug(const std::string& msg) { log(LogLevel::Debug, msg); }

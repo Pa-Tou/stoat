@@ -206,11 +206,17 @@ bool filtration_binary_table(
         return true; // Empty or invalid input → filter
     }
 
+    size_t haplotype_count = 0;
+    for (size_t i = 0 ; i < g0.size() ; i++) {
+        haplotype_count += g0[i];
+        haplotype_count += g1[i];
+    }
+
     int count_above_threshold = 0;
     for (size_t i = 0; i < g0.size(); ++i) {
         size_t columnSum = g0[i] + g1[i];
 
-        double freq1 = static_cast<double>(g1[i]) / columnSum;
+        double freq1 = static_cast<double>(columnSum) / haplotype_count;
         double maf = std::min(freq1, 1.0 - freq1);
 
         if (maf > maf_threshold) {

@@ -50,7 +50,7 @@ void print_help_vcf() {
               << "  -h, --help                   Print this help message\n";
 }
 
-int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
+int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     
     // Declare variables to hold argument values
     std::string vcf_path, snarl_path, graph_path, dist_path, 
