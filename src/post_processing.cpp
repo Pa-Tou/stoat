@@ -91,15 +91,15 @@ void add_BH_adjusted_column(
     // Look for a column with a P-value. Always choose the "P" column. Prioritize "P-CHI2" over "P_FISHER"
     if (find_column) {
         for (size_t i = 0 ; i < headers.size() ; i++) {
-            if ( headers[p_col_index] == "P") {
+            if ( headers[i] == "P") {
                 // Always pick column "P"
                 p_col_index = i;
                 break;
-            } else if (headers[p_col_index] == "P_CHI2") {
+            } else if (headers[i] == "P_CHI2") {
                 // Always pick column "P_CHI2"
                 p_col_index = i;
                 break;
-            } else if (headers[p_col_index] == "P_FISHER" && p_col_index == std::numeric_limits<size_t>::max()) {
+            } else if (headers[i] == "P_FISHER" && p_col_index == std::numeric_limits<size_t>::max()) {
                 // Pick column "P_FISHER" if we don't have anything else but let it be overridden if there's something better
                 p_col_index = i;
             }
