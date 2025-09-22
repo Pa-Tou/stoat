@@ -16,7 +16,7 @@ void print_help_bh_correct() {
               << "options:" << endl
               << "  -t, --tsv FILE                  The TSV file to be processed" << endl
               << "  -p, --p-index N                 The column of the p-value in the tsv (1-indexed)" << endl
-              << "  -a, --adjusted-p-index N        The column number of the adjusted p-value in the tsv (1-indexed)" << endl
+              << "                                  If a header is present then this will be the column with the appropriate label by default" << endl
               << "  -v, --top-variant-file FILE     Write the most significant variants to this file" << endl
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
               << "  -o, --output-directory DIR      Put the output in this directory" << endl;
@@ -31,7 +31,6 @@ int main_stoat_bh_correct(int argc, char *argv[], stoat::LogLevel &verbosity) {
 
     std::string tsv_name;
     size_t p_index = std::numeric_limits<size_t>::max();
-    size_t adjusted_p_index = std::numeric_limits<size_t>::max();
     std::string top_variant;
     std::string output_dir;
 
@@ -42,7 +41,6 @@ int main_stoat_bh_correct(int argc, char *argv[], stoat::LogLevel &verbosity) {
             {
                 {"tsv", required_argument, 0, 't'},
                 {"p-index", required_argument, 0, 'p'},
-                {"adjusted-p-index", required_argument, 0, 'a'},
                 {"top-variant-file", required_argument, 0, 'v'},
                 {"verbose", required_argument, 0, 'V'},
                 {"output-directory", required_argument, 0, 'o'},
@@ -51,7 +49,7 @@ int main_stoat_bh_correct(int argc, char *argv[], stoat::LogLevel &verbosity) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "t:p:a:v:V:o:h",
+        c = getopt_long(argc, argv, "t:p:v:V:o:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -62,9 +60,6 @@ int main_stoat_bh_correct(int argc, char *argv[], stoat::LogLevel &verbosity) {
                 break;
             case 'p':
                 p_index = std::stoi(optarg);
-                break;
-            case 'a':
-                adjusted_p_index = std::stoi(optarg);
                 break;
             case 'v':
                 top_variant = optarg;
@@ -107,19 +102,9 @@ int main_stoat_bh_correct(int argc, char *argv[], stoat::LogLevel &verbosity) {
         print_help_bh_correct();
         return EXIT_FAILURE;
     }
-    if (p_index == std::numeric_limits<size_t>::max()) {
-        stoat::LOG_ERROR("[stoat BHcorrect] stoat BHcorrect requires a p-value column");
-        print_help_bh_correct();
-        return EXIT_FAILURE;
-    }
-    if (adjusted_p_index == std::numeric_limits<size_t>::max()) {
-        stoat::LOG_ERROR("[stoat BHcorrect] stoat BHcorrect requires an adjusted p-value column");
-        print_help_bh_correct();
-        return EXIT_FAILURE;
-    }
     // Add the BH adjusted column
     // Indices are 1-indexed by the subcommand, 0-indexed by the actual function
-    stoat::add_BH_adjusted_column(tsv_name, output_dir, top_variant, p_index-1, adjusted_p_index-1);
+    stoat::add_BH_adjusted_column(tsv_name, output_dir, top_variant, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);
 
     return EXIT_SUCCESS;
 }

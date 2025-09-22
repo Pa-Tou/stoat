@@ -52,7 +52,7 @@ void add_BH_adjusted_column(
         adjusted_col_index = 6;
     }
 
-    add_BH_adjusted_column(input_file, output_dir, output_file_significant, adjusted_col_index-1, adjusted_col_index);
+    add_BH_adjusted_column(input_file, output_dir, output_file_significant, adjusted_col_index-1);
 }
 
 // Main Function
@@ -60,7 +60,7 @@ void add_BH_adjusted_column(
     const std::string& input_file,
     const std::string& output_dir,
     const std::string& output_file_significant,
-    size_t p_col_index, size_t adjusted_col_index) {
+    size_t p_col_index) {
 
     std::ifstream infile(input_file);
     std::string col;
@@ -77,6 +77,34 @@ void add_BH_adjusted_column(
     std::vector<std::string> headers;
     while (std::getline(header_ss, col, '\t')) {
         headers.push_back(col);
+    }
+
+    // Get the column number of the p-value or check that the given column is a p-value
+    bool find_column = true;
+    if (p_col_index != std::numeric_limits<size_t>::max() && 
+        (headers[p_col_index] == "P" || headers[p_col_index] == "P_FISHER" || headers[p_col_index] == "P_CHI2")) {
+        find_column = false;
+    } else if (p_col_index != std::numeric_limits<size_t>::max()) {
+        cerr << "warning [stoat BHcorrect]: given column with header " << headers[p_col_index] << " is not a valid p-value. Checking header for a valid column" << endl;
+        p_col_index = std::numeric_limits<size_t>::max();
+    }
+    // Look for a column with a P-value. Always choose the "P" column. Prioritize "P-CHI2" over "P_FISHER"
+    if (find_column) {
+        for (size_t i = 0 ; i < headers.size() ; i++) {
+            if ( headers[i] == "P") {
+                // Always pick column "P"
+                p_col_index = i;
+                break;
+            } else if (headers[i] == "P_CHI2") {
+                // Always pick column "P_CHI2"
+                p_col_index = i;
+                break;
+            } else if (headers[i] == "P_FISHER" && p_col_index == std::numeric_limits<size_t>::max()) {
+                // Pick column "P_FISHER" if we don't have anything else but let it be overridden if there's something better
+                p_col_index = i;
+            }
+
+        }
     }
 
     while (std::getline(infile, line)) {
@@ -108,8 +136,21 @@ void add_BH_adjusted_column(
     std::ofstream outfile_significant(output_file_significant);
 
     // Write headers
-    outfile << header_line << '\n';
-    outfile_significant << header_line << '\n';
+    for (size_t i = 0 ; i < headers.size() ; i++ ) {
+        outfile << headers[i];
+        if (i == p_col_index) {
+            outfile << "\t" << "P_ADJUSTED";
+            outfile_significant << "\t" << "P_ADJUSTED";
+        } 
+
+        if (i == headers.size()-1) {
+            outfile << endl;
+            outfile_significant << endl;
+        } else {
+            outfile << "\t";
+            outfile_significant << "\t";
+        }
+    }
 
     std::getline(infile, line); // Skip header again
     line_index = 0;
@@ -125,11 +166,13 @@ void add_BH_adjusted_column(
 
         double adjusted_p = std::get<1>(pvalues[line_index]);
         std::string adj_str = stoat::set_precision(adjusted_p);
-        columns[adjusted_col_index] = adj_str;
 
         // Write updated line
         for (size_t i = 0; i < columns.size(); ++i) {
             outfile << columns[i];
+            if (i == p_col_index) {
+                outfile << "\t" << adj_str;
+            }
             if (i != columns.size() - 1) outfile << '\t';
         }
 
