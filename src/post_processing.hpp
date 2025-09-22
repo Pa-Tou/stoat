@@ -28,12 +28,15 @@ void add_BH_adjusted_column(
     const std::string& output_file_significant,
     const stoat::phenotype_type_t& phenotype_type);
 
-// The same, but specify the column number (0-indexed) of the p-value and the adjusted p-value
+// The same, but specify the column number (0-indexed) of the p-value
+// If p_col is std::numeric_limits<size_t>::max(), then check the header for the column number.
+// If p_col is given, then still check the header to make sure that the column label is some sort of P-value
+// Add the adjusted p-value column after the p-value column
 void add_BH_adjusted_column(
     const std::string& input_file,
     const std::string& output_dir,
     const std::string& output_file_significant,
-    size_t p_col, size_t adjusted_col_index);
+    size_t p_col);
 
 } // namespace stoat_vcf
 
