@@ -102,14 +102,9 @@ int main_stoat_bh_correct(int argc, char *argv[], stoat::LogLevel &verbosity) {
         print_help_bh_correct();
         return EXIT_FAILURE;
     }
-    if (p_index == std::numeric_limits<size_t>::max()) {
-        stoat::LOG_ERROR("[stoat BHcorrect] stoat BHcorrect requires a p-value column");
-        print_help_bh_correct();
-        return EXIT_FAILURE;
-    }
     // Add the BH adjusted column
     // Indices are 1-indexed by the subcommand, 0-indexed by the actual function
-    stoat::add_BH_adjusted_column(tsv_name, output_dir, top_variant, p_index-1);
+    stoat::add_BH_adjusted_column(tsv_name, output_dir, top_variant, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);
 
     return EXIT_SUCCESS;
 }
