@@ -10,9 +10,9 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
     stoat::LOG_TRACE("Get sample partitions of " + distance_index.net_handle_as_string(snarl) + " by its paths" );
 
     //Get the partition of paths. If the snarl is regular, then only check the edges leaving the start node
-    std::vector<std::set<stoat::sample_hap_t>> sample_sets = get_walk_sets(graph, distance_index, snarl, distance_index.is_regular_snarl(snarl, &graph));
+    std::vector<std::set<stoat::sample_hap_t>> sample_sets = get_walk_sets(graph, distance_index, snarl, distance_index.is_regular_snarl(snarl, true, &graph));
 
-    stoat::LOG_TRACE((string) "Found sets of paths using " + ( distance_index.is_regular_snarl(snarl, &graph) ? "edges from the start node" : "walk sets"));
+    stoat::LOG_TRACE((string) "Found sets of paths using " + ( distance_index.is_regular_snarl(snarl, true, &graph) ? "edges from the start node" : "walk sets"));
     for (const std::set<stoat::sample_hap_t>& sample_set : sample_sets) {
         stoat::LOG_TRACE("SET ");
         for (const stoat::sample_hap_t& sample : sample_set) {
