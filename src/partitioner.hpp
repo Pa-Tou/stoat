@@ -12,7 +12,7 @@ using namespace stoat;
 namespace stoat_graph {
 
 /***
-    General template class for finding partitions of samples  in a snarl.
+    General template class for finding partitions of samples in a snarl and serializing the sample partitions.
 ***/
 class Partitioner {
 
@@ -23,14 +23,34 @@ class Partitioner {
         /// The main function of this class
         /// Given a snarl, return a partition of samples that will be used to determine association with samples of interest.
         /// This is a template function that must be implemented by inherited classes
+        /// If save_partitions (member variable of class) is true, then this should add the result to snarl_to_partitions 
         virtual std::vector<std::set<std::string>> partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                               const bdsg::SnarlDistanceIndex& distance_index, 
                                                                               const handlegraph::net_handle_t& snarl) const = 0;
+        
+        void serialize(const std::string& filename);
+        void deserialize(const std::string& filename);
 
     protected:
 
         /// A set of all samples+haplotypes in the graph
         std::set<stoat::sample_hap_t> all_sample_haplotypes;
+
+        /// If this is true, then partition_samples_in_snarl should also add its results 
+        bool save_partitions;
+        // If we want to serialize the snarls we found
+
+        //TODO: Use indices instead of actual sample names 
+        /// A data structure to store all information about a snarl
+        /// - size (as the "maximum" length of the snarl)
+        /// - partitions of samples
+        struct snarl_sample_partition_t {
+            size_t max_length;
+            std::vector<std::set<sample_hap_t>> partitions;
+        };
+        
+        std::unordered_map<std::pair<size_t, size_t>, snarl_sample_partition_t> snarl_to_partitions;
+
 
 };
 

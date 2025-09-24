@@ -273,4 +273,11 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     }
     return sample_sets;
 }
+
+void Partitioner::serialize(const std::string& filename) {
+    return;
+}
+void Partitioner::deserialize(const std::string& filename) {
+    return;
+}
 }
