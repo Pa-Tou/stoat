@@ -547,6 +547,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
         size_t minimum_distance=0;
         size_t maximun_distance=0;
         std::vector<size_t> size_node;
+        bool case_star = false;
         size_node.resize(path.size(), 0);
 
         for (int i=0; i<path.size(); i++) {
@@ -603,9 +604,11 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                 
                 if (!(chain_2node && child_count == 2)) {
                     ppath.addNode(0, true);
+                    case_star = true;
                 } else {
                     size_node[i] = sum_node;
                 }
+
                 ppath.addNodeHandle(nodr, distance_index);
 
                 // Fail case 
@@ -621,7 +624,8 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
             }
         }
 
-        if (ppath.nreversed() > ppath.size() / 2) {
+        // Flip the path if more than half of the nodes are reversed OR if we are in a star case and the first node id is greatter than the last node id
+        if (ppath.nreversed() > ppath.size() / 2 || (case_star && ppath.nreversed() == ppath.size() / 2 && ppath.print().get_paths()[0].get_node_id() > ppath.print().get_paths().back().get_node_id())) {
             ppath.flip();
         }
 

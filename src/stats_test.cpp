@@ -26,6 +26,7 @@ bool filtration_quantitative_table(
     
     // number of path < 2 OR not enougth individuals
     if (X.empty() || X[0].size() < 2 || X.size() < min_individuals) {
+        stoat::LOG_DEBUG("filtration cause : Not enough paths or min_individuals too low");
         return true; // Not enough data → filter out
     }
 

@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
 // sed -i 's/dm6#0#chrX/6/g' ../output_droso/snarl_analyse.tsv
 // sed -i 's/dm6#0#chrY/7/g' ../output_droso/snarl_analyse.tsv
 // sed -i 's/dm6#0#chrM/8/g' ../output_droso/snarl_analyse.tsv
-// ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging.light.vcf -q ../../lab/droso/data/fly.phenotype.tsv --output ../output_droso
+// ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging_stoat.vcf -q ../../lab/droso/data/fly.phenotype.tsv --output ../output_droso
 
 // -------------------------------------------------------------- DEBUG --------------------------------------------------------------
 
