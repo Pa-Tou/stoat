@@ -6,3 +6,4 @@ output*
 bin/*
 plot_script/.Rdata
 *~
+data/quantitative/merged_output.vcf.gz
