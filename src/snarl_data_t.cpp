@@ -132,6 +132,29 @@ std::string Node_traversal_t::to_string() const {
 size_t Node_traversal_t::get_node_id() const { return node_id; }
 bool Node_traversal_t::get_is_reverse() const { return is_reverse; }
 
+// Check and flip the edge if necessary to ensure consistent orientation
+void Edge_t::check_flip() {
+    // Check if the edge is already in the good orientation (aka min ID >> max ID)
+    if (edge.first.get_node_id() > edge.second.get_node_id()) {
+        // flip the edge
+        edge_flip();
+    }
+}
+
+// Flip the Edge_t
+void Edge_t::edge_flip() {
+    // Extract the current nodes
+    Node_traversal_t first = edge.first;
+    Node_traversal_t second = edge.second;
+
+    // Create flipped nodes with reversed orientations
+    Node_traversal_t flipped_first(second.get_node_id(), !second.get_is_reverse());
+    Node_traversal_t flipped_second(first.get_node_id(), !first.get_is_reverse());
+
+    // Assign the flipped pair back to edge
+    edge = std::make_pair(flipped_first, flipped_second);
+}
+
 bool Node_traversal_t::operator==(const Node_traversal_t& other) const {
     return node_id == other.node_id && is_reverse == other.is_reverse;
 }
@@ -625,9 +648,9 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
         }
 
         // Flip the path if more than half of the nodes are reversed OR if we are in a star case and the first node id is greatter than the last node id
-        if (ppath.nreversed() > ppath.size() / 2 || (case_star && ppath.nreversed() == ppath.size() / 2 && ppath.print().get_paths()[0].get_node_id() > ppath.print().get_paths().back().get_node_id())) {
-            ppath.flip();
-        }
+        // if (ppath.nreversed() > ppath.size() / 2) {
+        //     ppath.flip();
+        // }
 
         for (size_t i = 1; i < size_node.size()-1; ++i) {
             maximun_distance += size_node[i];

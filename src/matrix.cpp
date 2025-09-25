@@ -35,7 +35,6 @@ size_t EdgeBySampleMatrix::getOrAddIndex(const stoat::Edge_t& key, const size_t&
     }
 }
 
-
 // Add True to the matrix if edge is found
 void EdgeBySampleMatrix::push_matrix(const stoat::Edge_t& EdgePath, size_t indexColumn) {
 
@@ -49,7 +48,6 @@ void EdgeBySampleMatrix::push_matrix(const stoat::Edge_t& EdgePath, size_t index
 
     set(idxSnarl, indexColumn);
 }
-
 
 // Getter row number
 size_t EdgeBySampleMatrix::getMaxElement() const {

@@ -69,6 +69,10 @@ struct Edge_t { // 128 bits per edge
         // Converter
         std::pair<size_t, size_t> print_pair_edge() const;
         std::string print_string_edge() const;
+        
+        // Check and flip the edge if necessary to ensure consistent orientation
+        void check_flip();
+        void edge_flip();
 
         // Accessor to edge, useful for hashing and comparison
         const std::pair<Node_traversal_t, Node_traversal_t>& get_edge() const;

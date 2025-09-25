@@ -270,7 +270,9 @@ std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t
     edges.reserve(length_s - 1); // Reserve memory
 
     for (size_t i = 0; i < length_s - 1; ++i) {
-        edges.emplace_back(list_nodes[i], list_nodes[i + 1]);
+        stoat::Edge_t edge(list_nodes[i], list_nodes[i + 1]);
+        edge.check_flip();
+        edges.emplace_back(edge);
     }
 
     return edges;
@@ -299,7 +301,9 @@ std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string& s) {
     }
 
     for (size_t j = 0; j + 1 < nodes.size(); ++j) {
-        edges.emplace_back(nodes[j], nodes[j + 1]);
+        stoat::Edge_t edge(nodes[j], nodes[j + 1]);
+        edge.check_flip();
+        edges.emplace_back(edge);
     }
 
     return edges;
