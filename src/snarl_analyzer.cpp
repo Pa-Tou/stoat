@@ -17,7 +17,6 @@ SnarlAnalyzer::SnarlAnalyzer(
     const double& maf_threshold, 
     const double& table_threshold,
     const size_t& min_individuals,
-    const size_t& min_haplotypes,
     const std::string& regression_dir) :
 
         chr_to_snarl_data(chr_to_snarl_data), 
@@ -27,7 +26,6 @@ SnarlAnalyzer::SnarlAnalyzer(
         maf_threshold(maf_threshold), 
         table_threshold(table_threshold),
         min_individuals(min_individuals),
-        min_haplotypes(min_haplotypes),
         regression_dir(regression_dir)
         {};
 
@@ -39,10 +37,9 @@ BinarySnarlAnalyzer::BinarySnarlAnalyzer(
     const double& table_threshold,
     const std::vector<bool>& binary_phenotype,
     const size_t& min_individuals,
-    const size_t& min_haplotypes,
     const std::string& regression_dir) :
 
-        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, {}, maf_threshold, table_threshold, min_individuals, min_haplotypes, regression_dir), 
+        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, {}, maf_threshold, table_threshold, min_individuals, regression_dir), 
         binary_phenotype(binary_phenotype), fk() {};
 
 BinaryCovarSnarlAnalyzer::BinaryCovarSnarlAnalyzer(
@@ -54,10 +51,9 @@ BinaryCovarSnarlAnalyzer::BinaryCovarSnarlAnalyzer(
     const double& table_threshold,
     const std::vector<bool>& binary_phenotype,
     const size_t& min_individuals,
-    const size_t& min_haplotypes,
     const std::string& regression_dir) :
 
-        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, covariate, maf_threshold, table_threshold, min_individuals, min_haplotypes, regression_dir), 
+        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir), 
         binary_phenotype(binary_phenotype), lr() {};
 
 QuantitativeSnarlAnalyzer::QuantitativeSnarlAnalyzer(
@@ -69,10 +65,9 @@ QuantitativeSnarlAnalyzer::QuantitativeSnarlAnalyzer(
     const double& table_threshold,
     const std::vector<double>& quantitative_phenotype,
     const size_t& min_individuals,
-    const size_t& min_haplotypes,
     const std::string& regression_dir) :
 
-        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, covariate, maf_threshold, table_threshold, min_individuals, min_haplotypes, regression_dir), 
+        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir), 
         quantitative_phenotype(quantitative_phenotype), lr() {};
 
 EQTLSnarlAnalyzer::EQTLSnarlAnalyzer(
@@ -85,10 +80,9 @@ EQTLSnarlAnalyzer::EQTLSnarlAnalyzer(
     const std::unordered_map<std::string, std::vector<stoat_vcf::Qtl_data>>& eqtl_map,
     const size_t& windows_gene_threshold,
     const size_t& min_individuals,
-    const size_t& min_haplotypes,
     const std::string& regression_dir) :
 
-        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, covariate, maf_threshold, table_threshold, min_individuals, min_haplotypes, regression_dir), 
+        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir), 
         eqtl_map(eqtl_map), windows_gene_threshold(windows_gene_threshold), lr() {};
 
 void BinarySnarlAnalyzer::write_header(std::ofstream& outf) {
@@ -380,9 +374,9 @@ bool BinarySnarlAnalyzer::analyze_and_write_snarl(
     std::vector<size_t> g0(paths_number, 0);
     std::vector<size_t> g1(paths_number, 0);
 
-    auto [total_sum, individuals_included] = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
-    remove_empty_columns_binary_table(g0, g1);
-    bool filtration = filtration_binary_table(g0, g1, total_sum, individuals_included, min_individuals, min_haplotypes, maf_threshold);
+    size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
+    stoat::remove_empty_columns_binary_table(g0, g1);
+    bool filtration = stoat::filtration_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
 
     // Binary analysis single test
     if (!filtration) { // good table
@@ -411,22 +405,22 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
     std::string type_var_str = oss.str();
 
     auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
-    remove_empty_columns_quantitative_table(X);
+    stoat::remove_empty_columns_quantitative_table(X);
     
-    filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
+    filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
+        stoat::LOG_DEBUG("filtration by -> stoat::filtration_quantitative_table");
         return filtration;
     }
 
-    combine_identical_columns_quantitative_table(X);
-    remove_last_columns_quantitative_table(X);
+    stoat::combine_identical_columns_quantitative_table(X);
+    stoat::remove_last_columns_quantitative_table(X);
 
-    filtration = check_last_columns_quantitative_table(X);
+    filtration = stoat::check_last_columns_quantitative_table(X);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
+        stoat::LOG_DEBUG("filtration by -> stoat::check_last_columns_quantitative_table");
         return filtration;
     }
 
@@ -454,18 +448,18 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
 
     bool filtration = false;
     auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
-    remove_empty_columns_quantitative_table(X);
+    stoat::remove_empty_columns_quantitative_table(X);
 
-    filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
+    filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
         return filtration;
     }
 
-    combine_identical_columns_quantitative_table(X);
-    remove_last_columns_quantitative_table(X);
-    filtration = check_last_columns_quantitative_table(X);
+    stoat::combine_identical_columns_quantitative_table(X);
+    stoat::remove_last_columns_quantitative_table(X);
+    filtration = stoat::check_last_columns_quantitative_table(X);
 
     if (filtration) {
         stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
@@ -527,20 +521,20 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
     std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
     auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
 
-    remove_empty_columns_quantitative_table(X);
-    filtration = filtration_quantitative_table(X, min_individuals, min_haplotypes, maf_threshold);
+    stoat::remove_empty_columns_quantitative_table(X);
+    filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
     
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
+        stoat::LOG_DEBUG("filtration by -> stoat::filtration_quantitative_table");
         return filtration;
     }
 
-    combine_identical_columns_quantitative_table(X);
-    remove_last_columns_quantitative_table(X);
-    filtration = check_last_columns_quantitative_table(X);
+    stoat::combine_identical_columns_quantitative_table(X);
+    stoat::remove_last_columns_quantitative_table(X);
+    filtration = stoat::check_last_columns_quantitative_table(X);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
+        stoat::LOG_DEBUG("filtration by -> stoat::check_last_columns_quantitative_table");
         return filtration;
     }
 
@@ -573,216 +567,6 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
         }
     }
     return filtration;
-}
-
-// Return true when snarl must be filtered and false if not
-bool filtration_quantitative_table(
-    const std::vector<std::vector<double>>& X,
-    const size_t& min_individuals,
-    const size_t& min_haplotypes, 
-    const double& maf_threshold) {
-    
-    // number of path < 2 OR not enougth individuals
-    if (X.empty() || X[0].size() < 2 || X.size() < min_individuals) {
-        return true; // Not enough data → filter out
-    }
-
-    size_t numPaths = X[0].size();
-    std::vector<double> table(numPaths, 0.0);
-    double totalSum = 0.0;
-
-    // Compute column sums and total sum
-    for (const auto& row : X) {
-        for (size_t i = 0; i < numPaths; ++i) {
-            table[i] += row[i];
-            totalSum += row[i];
-        }
-    }
-
-    // if (totalSum < min_haplotypes) { // not good because 0.5 only in row can append
-    //     return true;
-    // }
-
-    int count_above_threshold = 0;
-    for (size_t i = 0; i < numPaths; ++i) {
-        double freq = table[i] / totalSum;
-        double maf = std::min(freq, 1.0 - freq);
-        if (maf > maf_threshold) {
-            ++count_above_threshold;
-        }
-    }
-
-    return count_above_threshold < 2;
-}
-
-void remove_empty_columns_quantitative_table(
-    std::vector<std::vector<double>>& X) {
-
-    if (X.empty()) return;
-
-    size_t num_rows = X.size();
-    size_t num_cols = X[0].size();
-
-    // Identify non-empty columns
-    std::vector<bool> keep_column(num_cols, false);
-
-    for (size_t col = 0; col < num_cols; ++col) {
-        for (size_t row = 0; row < num_rows; ++row) {
-            double val = X[row][col];
-            if (val != 0.0 && !std::isnan(val)) {
-                keep_column[col] = true;
-                break;
-            }
-        }
-    }
-
-    // Create filtered X
-    std::vector<std::vector<double>> df_filtered;
-    df_filtered.reserve(num_rows);
-
-    for (size_t row = 0; row < num_rows; ++row) {
-        std::vector<double> new_row;
-        for (size_t col = 0; col < num_cols; ++col) {
-            if (keep_column[col]) {
-                new_row.push_back(X[row][col]);
-            }
-        }
-        df_filtered.push_back(std::move(new_row));
-    }
-
-    // Replace original X with filtered one
-    X = std::move(df_filtered);
-}
-
-bool check_last_columns_quantitative_table(
-    const std::vector<std::vector<double>>& X) {
-
-    if (X[0].size() > 1) return false;
-
-    size_t num_rows = X.size();
-
-    // Check if the lonely columns have identical values
-    for (size_t r = 1; r < num_rows-1; ++r) {
-        if (X[r][0] != X[0][0]) {
-            return false; // Not identical, keep
-        }
-    }
-
-    return true; // Identical, filter out
-}
-
-void combine_identical_columns_quantitative_table(
-    std::vector<std::vector<double>>& X) {
-
-    size_t num_rows = X.size();
-    size_t num_cols = X[0].size();
-
-    if (num_cols < 3) {return;} // avoid creation of unique column
-
-    std::vector<bool> merged(num_cols, false);
-    std::vector<std::vector<double>> new_cols;
-
-    for (size_t i = 0; i < num_cols; ++i) {
-        if (merged[i]) continue;
-
-        std::vector<double> new_col = X[0][i] == X[0][i] ? std::vector<double>(num_rows, 0.0) : X[0]; // Init new column
-
-        // Start with current column
-        for (size_t r = 0; r < num_rows; ++r) {
-            new_col[r] = X[r][i];
-        }
-
-        // Try to find identical columns
-        for (size_t j = i + 1; j < num_cols; ++j) {
-            if (merged[j]) continue;
-
-            bool identical = true;
-            for (size_t r = 0; r < num_rows; ++r) {
-                if (X[r][j] != X[r][i]) {
-                    identical = false;
-                    break;
-                }
-            }
-
-            // If identical, sum the column into new_col
-            if (identical) {
-                for (size_t r = 0; r < num_rows; ++r) {
-                    new_col[r] += X[r][j];
-                }
-                merged[j] = true;
-            }
-        }
-
-        new_cols.push_back(std::move(new_col));
-    }
-
-    // Rebuild X from new_cols (transpose)
-    std::vector<std::vector<double>> result(num_rows, std::vector<double>(new_cols.size()));
-    for (size_t r = 0; r < num_rows; ++r) {
-        for (size_t c = 0; c < new_cols.size(); ++c) {
-            result[r][c] = new_cols[c][r];
-        }
-    }
-
-    X = std::move(result);
-}
-
-void remove_last_columns_quantitative_table(std::vector<std::vector<double>>& X) {
-    if (X.empty() || X[0].empty()) return;
-
-    for (auto& row : X) {
-        if (!row.empty()) {
-            row.pop_back(); // Remove last column from each row
-        }
-    }
-}
-
-void remove_empty_columns_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1) {
-
-    std::vector<size_t> g0_filtered;
-    std::vector<size_t> g1_filtered;
-
-    for (size_t i = 0; i < g0.size(); ++i) {
-        if (g0[i] + g1[i] != 0) {
-            g0_filtered.push_back(g0[i]);
-            g1_filtered.push_back(g1[i]);
-        }
-    }
-
-    g0 = std::move(g0_filtered);
-    g1 = std::move(g1_filtered);
-}
-
-// true : filtration on; false : no filtration
-bool filtration_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1,
-    const size_t& totalSum,
-    const size_t& individuals_included, 
-    const size_t& min_individuals,
-    const size_t& min_haplotypes,
-    const double& maf_threshold) {
-
-    // Not enougth individuals OR not enougth haplotypes OR number of paths < 2
-    if (individuals_included < min_individuals || g0.size() < 2) { // totalSum < min_haplotypes ||
-        return true; // Empty or invalid input → filter
-    }
-
-    int count_above_threshold = 0;
-    for (size_t i = 0; i < g0.size(); ++i) {
-        size_t columnSum = g0[i] + g1[i];
-
-        double freq1 = static_cast<double>(g1[i]) / columnSum;
-        double maf = std::min(freq1, 1.0 - freq1);
-
-        if (maf > maf_threshold) {
-            ++count_above_threshold;
-        }
-    }
-
-    return count_above_threshold < 2; // Keep if at least two MAFs path > MAF threshold
 }
 
 } // end namespace stoat

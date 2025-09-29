@@ -22,31 +22,31 @@ namespace stoat_command {
 
 void print_help_vcf() {
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -g, --graph FILE             Path to the packed graph file (.graph)\n"
-              << "  -d, --dist FILE              Path to the packed distance index file [vg index] (.dist)\n"
-              << "  -v, --vcf FILE               Path to the VCF file (.vcf or .vcf.gz)\n"
-              << "  -s, --snarl FILE             Path to the snarl file (.txt or .tsv)\n"
-              << "  -r, --chr FILE               Path to the chromosome reference file (.txt)\n"
-              << "  -b, --binary FILE            Path to the binary phenotype group file (.txt or .tsv)\n"
-              << "  -q, --quantitative FILE      Path to the quantitative phenotype file (.txt or .tsv)\n"
-              << "  -e, --eqtl FILE              Path to the Expression Quantitative Trait Loci file (.txt or .tsv)\n"
+              << "  -g, --graph FILE             Path to the packed graph file\n"
+              << "  -d, --dist FILE              Path to the packed distance index file\n"
+              << "  -v, --vcf FILE               Path to the VCF file\n"
+              << "  -s, --snarl FILE             Path to the snarl file\n"
+              << "  -r, --chr FILE               Path to the chromosome reference file\n"
+              << "  -b, --binary FILE            Path to the binary phenotype group file\n"
+              << "  -q, --quantitative FILE      Path to the quantitative phenotype file\n"
+              << "  -e, --eqtl FILE              Path to the Expression Quantitative Trait Loci file\n"
               << "  -m, --make-bed               Create plink format files (.bed, .bim, .fam)\n"
-              << "  -c, --covariate FILE         Path to the covariate file (.txt or .tsv)\n"
-              << "  -C, --covar-name NAME        Covariate column name(s) used for GWAS (comma-separated if multiple)\n"
-              << "  -k, --kinship FILE           Path to the kinship matrix file (.txt or .tsv)\n"
+              << "  -c, --covariate FILE         Path to the covariate file\n"
+              << "  -C, --covar-name NAME        Covariate column name(s) used for GWAS\n"
+              << "  -k, --kinship FILE           Path to the kinship matrix file\n"
               << "  -G, --gaf                    Generate a GAF file from GWAS results\n"
-              << "  -I, --min-individuals INT    Minimum number of individuals per snarl (default: 0)\n"
+              << "  -I, --min-individuals INT    Minimum number of individuals per snarl [0]\n"
               << "  -E  --exclude-paths          Exclude paths that containt\n"
-              << "  -i, --children INT           Max number of children per snarl in decomposition (default: 50)\n"
-              << "  -y, --cycle INT              Max number of authorized cycles in snarl decomposition (default: 1)\n"
-              << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition (default: 10,000)\n"
-              << "  -P, --gene-position FILE     Path to the gene position file (.txt or .tsv)\n"
-              << "  -w, --windows-gene INT       Window length from gene boundaries for snarl inclusion in eQTL (default: 1,000,000)\n"
-              << "  -T, --table-threshold FLOAT  P-value threshold for regression table output (default: disabled)\n"
-              << "  -M, --maf FLOAT              Minimum allele frequency threshold (default: 0.01)\n"
-              << "  -t, --threads INT            Number of threads to use (default: 1)\n"
+              << "  -i, --children INT           Max number of children per snarl in decomposition [50]\n"
+              << "  -y, --cycle INT              Max number of authorized cycles in snarl decomposition [1]\n"
+              << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition [10,000]\n"
+              << "  -P, --gene-position FILE     Path to the gene position file\n"
+              << "  -w, --windows-gene INT       Window length from gene boundaries for snarl inclusion in eQTL [1,000,000]\n"
+              << "  -T, --table-threshold FLOAT  P-value threshold for regression table output [disabled]\n"
+              << "  -M, --maf FLOAT              Minimum allele frequency threshold [0.05]\n"
+              << "  -t, --threads INT            Number of threads to use [1]\n"
               << "  -V, --verbose INT            Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)\n"
-              << "  -o, --output DIR             Output directory name (VCF GWAS mode)\n"
+              << "  -o, --output DIR             Output directory name\n"
               << "  -h, --help                   Print this help message\n";
 }
 
@@ -62,12 +62,11 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
     size_t min_individuals = 0;
-    size_t min_haplotypes = 0;
     size_t path_length_threshold = 10000;
     size_t windows_gene_threshold = 1000000;
 
     double table_threshold = -1;
-    double maf_threshold = 0.01;
+    double maf_threshold = 0.05;
 
     bool gaf = false;
     bool only_snarl_parsing = false;
@@ -94,7 +93,6 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {"kinship", required_argument, 0, 'k'},
         {"gaf", no_argument, 0, 'G'},
         {"min-individuals", required_argument, 0, 'I'},
-        {"min-haplotypes", required_argument, 0, 'H'},
         {"children", required_argument, 0, 'i'},
         {"cycle", required_argument, 0, 'y'},
         {"path-length", required_argument, 0, 'l'},
@@ -109,7 +107,7 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:k:i:y:l:P:w:T:M:t:V:I:H:o:Gmh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:k:i:y:l:P:w:T:M:t:V:I:o:Gmh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -133,12 +131,6 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
                 min_individuals = std::stoi(optarg);
                 if (min_individuals < 2) {
                     throw std::runtime_error("Error: [stoat vcf] min_individuals threshold must be > 1");
-                }
-                break;
-            case 'H':
-                min_haplotypes = std::stoi(optarg);                
-                if (min_haplotypes < 2) {
-                    throw std::runtime_error("Error: [stoat vcf] min_haplotypes threshold must be > 1");
                 }
                 break;
             case 'i':
@@ -372,20 +364,20 @@ int main_stoat(int argc, char* argv[], stoat::LogLevel &verbosity) {
         // binary
         if (!covariate.empty()){
             // Binary covariate
-            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, binary_phenotype, min_individuals, min_haplotypes, regression_dir));
+            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));
             phenotype_type = stoat::BINARY_COVAR; // need it in the BH adjusted
         } else {
             // Binary without covariate
-            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, maf_threshold, table_threshold, binary_phenotype, min_individuals, min_haplotypes, regression_dir));
+            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));
             phenotype_type = stoat::BINARY;
         }
     } else if (!quantitative_path.empty()) {
         // Quantitative
-        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, quantitative_phenotype, min_individuals, min_haplotypes, regression_dir));
+        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, quantitative_phenotype, min_individuals, regression_dir));
         phenotype_type = stoat::QUANTITATIVE; 
     } else if (!eqtl_path.empty()) {
         // EQTL
-        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, eqtl_phenotype, windows_gene_threshold, min_individuals, min_haplotypes, regression_dir));
+        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, eqtl_phenotype, windows_gene_threshold, min_individuals, regression_dir));
         phenotype_type = stoat::EQTL; 
     }
 

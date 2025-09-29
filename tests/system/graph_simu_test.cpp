@@ -23,7 +23,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -T chi2 -r ref";
+            + " -M 0.0 -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
 
@@ -56,7 +56,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -T chi2 -r ref -O fasta";
+            + " -M 0.0 -T chi2 -r ref -O fasta";
 
         cmd += " --output " + output_dir;
 
@@ -90,7 +90,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -T exact -r ref -O fasta";
+            + " -M 0.0 -T exact -r ref -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -146,7 +146,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T chi2 -r path0 -V 4";
+            + " -M 0.0 -T chi2 -r path0 -V 4";
 
 
         cmd += " --output " + output_dir;
@@ -179,7 +179,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T exact -r path0";
+            + " -M 0.0 -T exact -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -210,7 +210,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T chi2 -r path0 -O fasta";
+            + " -M 0.0 -T chi2 -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -256,7 +256,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T exact -r path0 -O fasta";
+            + " -M 0.0 -T exact -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -321,7 +321,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T chi2 -r path0 -V 4";
+            + " -M 0.0 -T chi2 -r path0 -V 4";
 
 
         cmd += " --output " + output_dir;
@@ -354,7 +354,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T exact -r path0";
+            + " -M 0.0 -T exact -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -385,7 +385,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T chi2 -r path0 -O fasta";
+            + " -M 0.0 -T chi2 -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -431,7 +431,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T exact -r path0 -O fasta";
+            + " -M 0.0 -T exact -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -491,7 +491,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T chi2 -r path0";
+            + " -M 0.0 -T chi2 -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -522,7 +522,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T exact -r path0";
+            + " -M 0.0 -T exact -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -552,7 +552,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T chi2 -r path0 -O fasta";
+            + " -M 0.0 -T chi2 -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -597,7 +597,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -T exact -r path0 -O fasta";
+            + " -M 0.0 -T exact -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;

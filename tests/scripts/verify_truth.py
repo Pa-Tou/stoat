@@ -107,6 +107,7 @@ def check_valid_snarl(start_node_1, next_node_1, start_node_2, next_node_2, snar
     return contains_first_pair and contains_second_pair
 
 def match_snarl(freq_path_list, true_labels, list_diff, p_value_file, paths_file, save_sv_snarl, type_):
+
     # Read both files
     p_value_df = pd.read_csv(p_value_file, sep='\t')
     paths_df = pd.read_csv(paths_file, sep='\t')[['SNARL', 'PATHS']]
