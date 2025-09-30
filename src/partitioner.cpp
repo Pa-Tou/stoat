@@ -4,7 +4,7 @@
 using namespace std;
 namespace stoat_graph {
 
-std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
+std::vector<std::set<std::string>> SnarlTraverserAndPathPartitioner::partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                const bdsg::SnarlDistanceIndex& distance_index,
                                                                                const handlegraph::net_handle_t& snarl) const {
     stoat::LOG_TRACE("Get sample partitions of " + distance_index.net_handle_as_string(snarl) + " by its paths" );
@@ -33,7 +33,7 @@ std::vector<std::set<std::string>> PathPartitioner::partition_samples_in_snarl(c
 // Instead of explicitly enumerating the paths, it actually finds the sets of edges that each path takes.
 // But since paths may loop, it actually finds the order and number of outgoing edges from each node.
 // I think this is equivalent to partitioning by the actual sets of unique walks.
-std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, 
+std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, 
                                                                    const bdsg::SnarlDistanceIndex& distance_index,
                                                                    const handlegraph::net_handle_t& snarl,
                                                                    bool only_bound) const {
@@ -274,10 +274,87 @@ std::vector<std::set<stoat::sample_hap_t>> PathPartitioner::get_walk_sets(const 
     return sample_sets;
 }
 
-void Partitioner::serialize(const std::string& filename) {
+
+
+// Run iteratee on all snarls, either from the distance index or in snarl_to_partitions
+void SnarlTraverserAndPartitioner::for_each_snarl(const handlegraph::PathPositionHandleGraph& graph, 
+                                                  const std::function<bool(const std::pair<size_t, size_t>& snarl_id, const snarl_partition_t& snarl_info)>& iteratee,
+                                                  const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible) {
+    if (distance_index != nullptr) {
+        // If the distance index is given, then use that
+
+        // Get a list of all chains in root
+        std::vector<handlegraph::net_handle_t> chains;
+        chains.reserve(graph.get_node_count()/100);
+        handlegraph::net_handle_t root = distance_index.get_root();
+        distance_index.for_each_child(root, [&] (handlegraph::net_handle_t chain) {
+            chains.emplace_back(chain);
+            return true;
+        });
+        // TODO: Multithread here?
+        while (!chains.empty()) {
+            handlegraph::net_handle_t chain = chains.back();
+            chains.pop_back();
+            
+            distance_index.for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
+            
+                //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
+                if (distance_index.is_snarl(snarl)) {
+
+                    stoat::LOG_TRACE( "Test snarl " + distance_index.net_handle_as_string(snarl));
+
+                    // Make a snarl_partition_t and call iteratee on it
+                    snarl_partition_t snarl_info(snarl, graph, *distance_index);
+                    if (check_distances) {
+                        snarl_info.min_length = distance_index->minimum_length(snarl);
+                        snarl_info.max_length = distance_index->maximum_length(snarl);
+                    }
+
+                    // Get the offsets of the start and end nodes along the reference
+                    std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
+                    std::vector<size_t> start_positions;
+                    std::vector<size_t> end_positions;
+                    if (ranges.size() != 0) {
+                        std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, distance_index, ranges.front());
+                    }
+
+                    // Now get the partitions
+                    snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
+
+                    // And call iteratee
+                    std::pair<size_t, size_t> snarl_id = find_snarl_id(graph, snarl);
+                    iteratee(snarl_id, snarl_info);
+
+                    if (save_partitions) {
+                        // If we are going to serialize the snarls, then save the snarl to snarl_to_partitions
+                        // TODO :or just write it directly
+                        snarl_to_partitions[snarl_id] = std::move(snarl_info);
+                    }
+
+                    if (test_nested_snarls) {
+                        // Add the child chains to the stack
+                        distance_index.for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
+                            chains.emplace_back(child);
+                            return true;
+                        });
+                    }
+
+                }
+                return true;
+            });
+        }
+
+    } else {
+        // If the distance index is not given, then go through snarl_to_partitions
+        for (const auto& itr : snarl_to_partitions) {
+            iteratee(itr->first, itr->second);
+        }
+    }
+}
+void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     return;
 }
-void Partitioner::deserialize(const std::string& filename) {
+void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
     return;
 }
 }
