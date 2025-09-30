@@ -132,29 +132,6 @@ std::string Node_traversal_t::to_string() const {
 size_t Node_traversal_t::get_node_id() const { return node_id; }
 bool Node_traversal_t::get_is_reverse() const { return is_reverse; }
 
-// Check and flip the edge if necessary to ensure consistent orientation
-void Edge_t::check_flip() {
-    // Check if the edge is already in the good orientation (aka min ID >> max ID)
-    if (edge.first.get_node_id() > edge.second.get_node_id()) {
-        // flip the edge
-        edge_flip();
-    }
-}
-
-// Flip the Edge_t
-void Edge_t::edge_flip() {
-    // Extract the current nodes
-    Node_traversal_t first = edge.first;
-    Node_traversal_t second = edge.second;
-
-    // Create flipped nodes with reversed orientations
-    Node_traversal_t flipped_first(second.get_node_id(), !second.get_is_reverse());
-    Node_traversal_t flipped_second(first.get_node_id(), !first.get_is_reverse());
-
-    // Assign the flipped pair back to edge
-    edge = std::make_pair(flipped_first, flipped_second);
-}
-
 bool Node_traversal_t::operator==(const Node_traversal_t& other) const {
     return node_id == other.node_id && is_reverse == other.is_reverse;
 }
@@ -186,6 +163,26 @@ bool Edge_t::operator==(const Edge_t &other) const {
 // add a node traversal to the path
 void Path_traversal_t::add_node_traversal_t(const Node_traversal_t &node) {
     this->paths.push_back(node);
+}
+
+// Check and flip the path if necessary to ensure consistent orientation
+void Path_traversal_t::check_path_flip() {
+    // Check if the path is already in the good orientation (aka min ID >> max ID)
+
+    if (paths[0].get_node_id() > paths.back().get_node_id()) {
+        // flip the path
+        path_flip();
+    }
+}
+
+// Flip the Path_traversal_t
+void Path_traversal_t::path_flip() {
+    std::reverse(paths.begin(), paths.end());
+
+    for (size_t i = 0; i < paths.size(); ++i) {
+
+        paths[i].set_is_reverse(!paths[i].get_is_reverse());    
+    }
 }
 
 // convert Path_traversal_t to path representation
@@ -657,7 +654,10 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
             minimum_distance += size_node[i];
         }
 
-        pretty_paths.push_back(ppath.print());
+        Path_traversal_t pppath = ppath.print();
+        pppath.check_path_flip();
+
+        pretty_paths.push_back(pppath);
         // The number of nodes (may be chains) in the path, including boundary nodes
         size_t size_path = ppath.size();
         seq_net_paths.push_back(std::make_tuple(minimum_distance, maximun_distance, size_path));

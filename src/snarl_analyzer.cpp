@@ -264,6 +264,7 @@ std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> SnarlAnalyzer::make_edge_matrix(htsFil
 
 // Decompose path stoat::Path_traversal_t to vectorstoat::Edge_t
 std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t& list_paths) {
+
     std::vector<stoat::Edge_t> edges;
     const std::vector<stoat::Node_traversal_t>& list_nodes = list_paths.get_paths();
     size_t length_s = list_nodes.size();
@@ -271,7 +272,6 @@ std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t
 
     for (size_t i = 0; i < length_s - 1; ++i) {
         stoat::Edge_t edge(list_nodes[i], list_nodes[i + 1]);
-        edge.check_flip();
         edges.emplace_back(edge);
     }
 
@@ -281,28 +281,29 @@ std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t
 // Decompose path std::string to vectorstoat::Edge_t
 std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string& s) {
     std::vector<stoat::Edge_t> edges;
-    std::vector<stoat::Node_traversal_t> nodes;
+    stoat::Path_traversal_t nodes;
 
     size_t i = 0;
     while (i < s.size()) {
         if (s[i] == '>' || s[i] == '<') {
             bool is_rev = (s[i] == '<');
             ++i;
-
+            
             size_t node_id = 0;
             while (i < s.size() && isdigit(s[i])) {
                 node_id = node_id * 10 + (s[i] - '0');
                 ++i;
             }
-            nodes.emplace_back(node_id, is_rev);
+            nodes.add_node_traversal_t({node_id, is_rev});
         } else {
             ++i; // Skip invalid characters
         }
     }
 
-    for (size_t j = 0; j + 1 < nodes.size(); ++j) {
-        stoat::Edge_t edge(nodes[j], nodes[j + 1]);
-        edge.check_flip();
+    nodes.check_path_flip();
+
+    for (size_t j = 0; j + 1 < nodes.get_paths().size(); ++j) {
+        stoat::Edge_t edge(nodes.get_paths()[j], nodes.get_paths()[j + 1]);
         edges.emplace_back(edge);
     }
 
@@ -330,16 +331,17 @@ std::vector<size_t> identify_path(
     // Map snarl names to row indices
     for (const stoat::Edge_t& edge : list_edge_path) {
         const auto& [node_id_1, node_id_2] = edge.print_pair_edge(); // Convertstoat::Edge_t to std::pair<size_t, size_t>
-        
+
         // Skip if snarl contains '*' (here * == 0) aka complex path
         if (node_id_1 == 0 || node_id_2 == 0) {
             continue;
         }
+
         size_t row_index = edge_matrix.find_edge(edge);
         if (row_index != std::numeric_limits<size_t>::max()) {
             rows_to_check.push_back(row_index);
         } else {
-            return {}; // If any snarl isn't found, abort early
+            return {}; // If at least one edge not found, abort early te path
         }
     }
 
@@ -449,6 +451,12 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     const stoat::Snarl_data_t& snarl_data_s, 
     const std::string& chr, 
     std::ofstream& outf) {
+
+    if (stoat::pairToString(snarl_data_s.snarl_ids) != "123093_123074") {
+        return true; // skip this snarl
+    } else {
+        std::cout << "Analyzing snarl 123093_123074" << std::endl;
+    }
 
     bool filtration = false;
     auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);

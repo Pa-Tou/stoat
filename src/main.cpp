@@ -141,7 +141,6 @@ int main(int argc, char* argv[]) {
 // plink --bfile ../output/genotype --pheno ../data/simu/phenotypes.txt --pheno-name PHENO --assoc --allow-no-sex --allow-extra-chr --out ../output/plink
 
 // DROSO
-// ./stoat vcf -g ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv -v ../../lab/droso/data/merging.light.vcf-q ../../lab/droso/data/fly.phenotype.tsv --output ../output_droso
 // ./stoat vcf -g ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv --output ../output_droso
 // sed -i 's/dm6#0#chr2L/1/g' ../output_droso/snarl_analyse.tsv
 // sed -i 's/dm6#0#chr2R/2/g' ../output_droso/snarl_analyse.tsv
