@@ -32,8 +32,8 @@ class SnarlTraverserAndPartitioner {
         /// This runs the function iteratee for every snarl, either using the distance index or, if given, the serialized snarls
         /// If using the distance index, check if the snarl is eligible before computing snarl_info.
         /// If using the distance index and save_partitions is true, then also serialize the snarl
-        void for_each_snarl(const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
-                            const std::function<void(const std::pair<size_t, size_t>& snarl_id, const snarl_partition_t& snarl_info)>& iteratee);
+        void for_each_snarl_partition(const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
+                            const std::function<void(const snarl_partition_t& snarl_info)>& iteratee);
 
         
         /// Serialize all the snarl_partition_t's
@@ -71,6 +71,9 @@ class SnarlTraverserAndPartitioner {
         /// Map snarl ids to snarl info.
         /// If we are not loading or saving the snarls, then this doesn't get filled in
         std::unordered_map<std::pair<size_t, size_t>, snarl_partition_t> snarl_to_partitions;
+
+        /// This goes at the beginning of a serialized file to ensure that it is the right file type and version
+        const static std::string file_header = "#SNARL_PARTITIONS_v1.0" 
 
 
         //////////////////////////////////////////////////////////// protected functions

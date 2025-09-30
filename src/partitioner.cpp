@@ -277,8 +277,8 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
 
 
 // Run iteratee on all snarls, either from the distance index or in snarl_to_partitions
-void SnarlTraverserAndPartitioner::for_each_snarl(const handlegraph::PathPositionHandleGraph& graph, 
-                                                  const std::function<bool(const std::pair<size_t, size_t>& snarl_id, const snarl_partition_t& snarl_info)>& iteratee,
+void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph, 
+                                                  const std::function<bool(const snarl_partition_t& snarl_info)>& iteratee,
                                                   const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible) {
     if (distance_index != nullptr) {
         // If the distance index is given, then use that
@@ -291,7 +291,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl(const handlegraph::PathPositio
             chains.emplace_back(chain);
             return true;
         });
-        // TODO: Multithread here?
+        // TODO: Multithread here? don't forget to put a lock on chains
         while (!chains.empty()) {
             handlegraph::net_handle_t chain = chains.back();
             chains.pop_back();
@@ -322,8 +322,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl(const handlegraph::PathPositio
                     snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
 
                     // And call iteratee
-                    std::pair<size_t, size_t> snarl_id = find_snarl_id(graph, snarl);
-                    iteratee(snarl_id, snarl_info);
+                    iteratee(snarl_info);
 
                     if (save_partitions) {
                         // If we are going to serialize the snarls, then save the snarl to snarl_to_partitions
@@ -346,15 +345,45 @@ void SnarlTraverserAndPartitioner::for_each_snarl(const handlegraph::PathPositio
 
     } else {
         // If the distance index is not given, then go through snarl_to_partitions
-        for (const auto& itr : snarl_to_partitions) {
-            iteratee(itr->first, itr->second);
+        for (const snarl_partition_t& snarl_info : snarl_to_partitions) {
+            iteratee(snarl_info);
         }
     }
 }
+
+/////////////////////////////////////////// Serializing and de-serializing the snarl partitions
+/*
+This needs to hold snarl_partition_t's which contain:
+net_handle_t snarl; 
+std::pair<size_t, size_t> snarl_ids;
+std::string ref_path (as an index);
+size_t min_length;
+size_t max_length;
+size_t start_positions;
+size_t end_positions;
+size_t depth;
+std::vector<std::set<sample_hap_t>> partitions (as indices);
+std::vector<std::string> type_variants; (can get from partitions I think) 
+
+Start with header containing all sample/haplotypes. The order will be the index for sample/haplotypes used when storing partitions
+Then a second list of reference path names. The order will be the index for ref_path
+
+Each snarl_partition_t is then stored, one per line, as a vector of integers.
+the first 9 items are fixed length.
+The 10th item is the number of sample_hap_t's in the first partition, followed by that number of entries for the sample_hap_t. And so on
+
+*/
 void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
+    ofstream outstream;
+    ofstream.open(filename);
+    // Write the header
+    outstream << file_header << endl;
+
+    outstream.close();
     return;
 }
 void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
+    // Read the first line, which must match the header
     return;
 }
 }
