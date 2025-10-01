@@ -3,17 +3,17 @@
 #include <fstream>
 
 using namespace std;
+using namespace stoat;
 namespace stoat_graph {
 
-std::vector<std::set<std::string>> SnarlTraverserAndPathPartitioner::partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
-                                                                               const bdsg::SnarlDistanceIndex& distance_index,
+std::vector<std::set<sample_hap_t>> SnarlTraverserAndPathPartitioner::partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                const handlegraph::net_handle_t& snarl) const {
-    stoat::LOG_TRACE("Get sample partitions of " + distance_index.net_handle_as_string(snarl) + " by its paths" );
+    stoat::LOG_TRACE("Get sample partitions of " + distance_index->net_handle_as_string(snarl) + " by its paths" );
 
     //Get the partition of paths. If the snarl is regular, then only check the edges leaving the start node
-    std::vector<std::set<stoat::sample_hap_t>> sample_sets = get_walk_sets(graph, distance_index, snarl, distance_index.is_regular_snarl(snarl, true, &graph));
+    std::vector<std::set<stoat::sample_hap_t>> sample_sets = get_walk_sets(graph, snarl, distance_index->is_regular_snarl(snarl, true, &graph));
 
-    stoat::LOG_TRACE((string) "Found sets of paths using " + ( distance_index.is_regular_snarl(snarl, true, &graph) ? "edges from the start node" : "walk sets"));
+    stoat::LOG_TRACE((string) "Found sets of paths using " + ( distance_index->is_regular_snarl(snarl, true, &graph) ? "edges from the start node" : "walk sets"));
     for (const std::set<stoat::sample_hap_t>& sample_set : sample_sets) {
         stoat::LOG_TRACE("SET ");
         for (const stoat::sample_hap_t& sample : sample_set) {
@@ -21,13 +21,7 @@ std::vector<std::set<std::string>> SnarlTraverserAndPathPartitioner::partition_s
         }
     }
 
-    std::vector<std::set<std::string>> sample_name_sets (sample_sets.size());
-    for (size_t i = 0 ; i < sample_sets.size() ; i++) {
-        for (const stoat::sample_hap_t& sample : sample_sets[i]) {
-            sample_name_sets[i].emplace(sample.sample);
-        }
-    }
-    return sample_name_sets;
+    return sample_sets;
 }
 
 // This is supposed to partition the paths in the snarl by the walks they take through the netgraph.
@@ -35,11 +29,10 @@ std::vector<std::set<std::string>> SnarlTraverserAndPathPartitioner::partition_s
 // But since paths may loop, it actually finds the order and number of outgoing edges from each node.
 // I think this is equivalent to partitioning by the actual sets of unique walks.
 std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get_walk_sets(const handlegraph::PathPositionHandleGraph& graph, 
-                                                                   const bdsg::SnarlDistanceIndex& distance_index,
                                                                    const handlegraph::net_handle_t& snarl,
                                                                    bool only_bound) const {
 
-    stoat::LOG_TRACE((string) "Get walk sets of " + distance_index.net_handle_as_string(snarl));
+    stoat::LOG_TRACE((string) "Get walk sets of " + distance_index->net_handle_as_string(snarl));
 
     // Make a vector of the paths 
     std::vector<stoat::sample_hap_t> all_samples(all_sample_haplotypes.begin(), all_sample_haplotypes.end());
@@ -63,7 +56,7 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
     //
     ////TODO: This could also use steps_of_handle() but it doesn't seem to work 
     //for (const auto& sense : senses) {
-    //    graph.for_each_step_of_sense(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph),
+    //    graph.for_each_step_of_sense(distance_index->get_handle(distance_index->get_node_from_sentinel(distance_index->get_bound(snarl, false, true)), &graph),
     //        sense, [&](const handlegraph::step_handle_t& step) {
     //        old_sets[sample_to_index[stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step))]] = 1;
     //        old_set_count = 2;
@@ -91,7 +84,7 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
     // This gets called in for_each_child, and also from the start node going in
     auto check_outgoing_edges = [&] (const handlegraph::net_handle_t& child, bool go_left) {
 
-        stoat::LOG_TRACE( (string) "At snarl child " + distance_index.net_handle_as_string(child) + " going " + (go_left ? "left" : "right"));
+        stoat::LOG_TRACE( (string) "At snarl child " + distance_index->net_handle_as_string(child) + " going " + (go_left ? "left" : "right"));
         
         std::vector<path_edge_t> next_steps (all_samples.size());
         // For paths that go through multiple steps 
@@ -99,13 +92,13 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
         
         // Get a handle to the end of the child
         handlegraph::handle_t handle;
-        if ( distance_index.is_trivial_chain(child)) {
-            handle =  (go_left ? graph.flip(distance_index.get_handle(child, &graph)) 
-                               : distance_index.get_handle(child, &graph));
-        } else if (distance_index.is_sentinel(child)) {
-            handle = distance_index.get_handle(child, &graph);
+        if ( distance_index->is_trivial_chain(child)) {
+            handle =  (go_left ? graph.flip(distance_index->get_handle(child, &graph)) 
+                               : distance_index->get_handle(child, &graph));
+        } else if (distance_index->is_sentinel(child)) {
+            handle = distance_index->get_handle(child, &graph);
         } else {
-            handle = distance_index.get_handle(distance_index.get_bound(child, go_left, false), &graph);
+            handle = distance_index->get_handle(distance_index->get_bound(child, go_left, false), &graph);
         }
         
         std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
@@ -240,13 +233,13 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
 
     // Now do the work of going through the edges for the start bound and each child in both directions
 
-    check_outgoing_edges(distance_index.get_bound(snarl, false, true), false);
+    check_outgoing_edges(distance_index->get_bound(snarl, false, true), false);
 
     if (!only_bound) {
         // Go through each child of the snarl and check the paths on outgoing edges.
         // Split up sets if the paths have different edges leaving this child
         // TODO: This is doubling the work because each edges is looked at twice
-        distance_index.for_each_child(snarl, [&] (const handlegraph::net_handle_t& child) {
+        distance_index->for_each_child(snarl, [&] (const handlegraph::net_handle_t& child) {
             for (bool go_left : {true, false}) {
                 check_outgoing_edges(child, go_left);
             }
@@ -278,17 +271,17 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
 
 
 // Run iteratee on all snarls, either from the distance index or in snarl_partitions
-void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph, 
-                                                  const std::function<bool(const snarl_partition_t& snarl_info)>& iteratee,
-                                                  const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible) {
+void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph,
+                                                  const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
+                                                  const std::function<void(const snarl_partition_t& snarl_info)>& iteratee) {
     if (distance_index != nullptr) {
         // If the distance index is given, then use that
 
         // Get a list of all chains in root
         std::vector<handlegraph::net_handle_t> chains;
         chains.reserve(graph.get_node_count()/100);
-        handlegraph::net_handle_t root = distance_index.get_root();
-        distance_index.for_each_child(root, [&] (handlegraph::net_handle_t chain) {
+        handlegraph::net_handle_t root = distance_index->get_root();
+        distance_index->for_each_child(root, [&] (handlegraph::net_handle_t chain) {
             chains.emplace_back(chain);
             return true;
         });
@@ -297,12 +290,12 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             handlegraph::net_handle_t chain = chains.back();
             chains.pop_back();
             
-            distance_index.for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
+            distance_index->for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
             
                 //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
-                if (distance_index.is_snarl(snarl)) {
+                if (distance_index->is_snarl(snarl)) {
 
-                    stoat::LOG_TRACE( "Test snarl " + distance_index.net_handle_as_string(snarl));
+                    stoat::LOG_TRACE( "Test snarl " + distance_index->net_handle_as_string(snarl));
 
                     // Make a snarl_partition_t and call iteratee on it
                     snarl_partition_t snarl_info(snarl, graph, *distance_index);
@@ -316,7 +309,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                     std::vector<size_t> start_positions;
                     std::vector<size_t> end_positions;
                     if (ranges.size() != 0) {
-                        std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, distance_index, ranges.front());
+                        std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, *distance_index, ranges.front());
                     }
 
                     // Now get the partitions
@@ -332,13 +325,11 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                         all_references.emplace(snarl_info.ref_path);
                     }
 
-                    if (test_nested_snarls) {
-                        // Add the child chains to the stack
-                        distance_index.for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
-                            chains.emplace_back(child);
-                            return true;
-                        });
-                    }
+                    // Add the child chains to the stack
+                    distance_index->for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
+                        chains.emplace_back(child);
+                        return true;
+                    });
 
                 }
                 return true;
@@ -378,7 +369,7 @@ The 10th item is the number of sample_hap_t's in the first partition, followed b
 */
 void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     ofstream outstream;
-    ofstream.open(filename);
+    outstream.open(filename);
     // Write the header
     outstream << file_header << endl;
     
@@ -429,18 +420,18 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
 }
 void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
     ifstream instream;
-    ifstream.open(filename);
+    instream.open(filename);
 
     string line;
 
     // Read the first line, which must match the header
     std::getline(instream, line);
     if (line != file_header) {
-        stoat::LOG_FATAL("Snarl partitions file " +filename+ " contains the wrong header: " + line);
+        stoat::LOG_ERROR("Snarl partitions file " +filename+ " contains the wrong header: " + line);
     }
     std::getline(instream, line);
     if (line != "#SAMPLES") {
-        stoat::LOG_FATAL("Snarl partitions file " +filename+ " is not formatted correctly");
+        stoat::LOG_ERROR("Snarl partitions file " +filename+ " is not formatted correctly");
     }
 
     // Get the sample/haplotype from the index
@@ -470,46 +461,47 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
         std::stringstream linestream(line);
         string part;
         //Snarl net handle
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().snarl = handlegraph::as_net_handle(std::stoll(part));
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().snarl = handlegraph::as_net_handle(std::stoll(part));
         // snarl start id
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().snarl_ids.first = std::stoi(part);
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().snarl_ids.first = std::stoi(part);
         //snarl end id
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().snarl_ids.second = std::stoi(part);
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().snarl_ids.second = std::stoi(part);
         //reference path
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().ref_path = refs[std::stoi(part)];
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().ref_path = refs[std::stoi(part)];
         // min lenght
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().min_length = std::stoi(part);
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().min_length = std::stoi(part);
         // max length
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().max_length = std::stoi(part);
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().max_length = std::stoi(part);
         // start pos
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().start_positions = std::stoi(part);
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().start_positions = std::stoi(part);
         // end pos 
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().end_positions = std::stoi(part);
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().end_positions = std::stoi(part);
         // depth
-        std::getline(linestream, part, '\t')
-        snarl_partition.back().depth = std::stoi(part);
+        std::getline(linestream, part, '\t');
+        snarl_partitions.back().depth = std::stoi(part);
 
         //Next is the list of partitions
+        std::vector<std::set<sample_hap_t>>& partitions = snarl_partitions.back().partitions;
         while (std::getline(linestream, part, '\t')) {
-            snarl_partition.partitions.emplace_back();
+            partitions.emplace_back();
             size_t sample_count = std::stoi(part);
             for (size_t i = 0 ; i < sample_count ; i++) {
-                std::getline(linestream, part, '\t')
-                snarl_partitions.back().emplace(samples[std::stoi[part]]);
+                std::getline(linestream, part, '\t');
+                partitions.back().emplace(samples[std::stoi(part)]);
             }
         }
     }
 
 
-    ifstream.close();
+    instream.close();
     return;
 }
 }

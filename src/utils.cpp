@@ -414,13 +414,3 @@ void print_nodes_in_snarl(const bdsg::SnarlDistanceIndex& distance_index, const 
 
 } // end namespace stoat
 
-namespace std {
-    // Define hash for sample_hap_t
-    template <>
-    struct hash<stoat::sample_hap_t> {
-        size_t operator()(const stoat::sample_hap_t& sample_hap) const {
-            return std::hash<std::string>{}(sample_hap.sample + ":" + std::to_string(sample_hap.haplotype));
-        }
-    };
-
-}

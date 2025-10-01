@@ -271,9 +271,9 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
 
 
     // Make the partitioner
-    std::shared_ptr<stoat_graph::Partitioner> partitioner;
+    std::shared_ptr<stoat_graph::SnarlTraverserAndPartitioner> partitioner;
     if (method_name == "paths") {
-        partitioner.reset(new stoat_graph::PathPartitioner(all_sample_haplotypes));
+        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, &distance_index, reference_sample, false));
     } else {
         stoat::LOG_ERROR("[stoat graph] unknown method " + method_name);
         return EXIT_FAILURE; 

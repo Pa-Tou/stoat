@@ -3,11 +3,12 @@
 #include "writer.hpp"
 #include "binary_table.hpp"
 
+using namespace stoat;
 namespace stoat_graph {
 
 AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
                                      const bdsg::SnarlDistanceIndex& distance_index,
-                                     std::shared_ptr<Partitioner> partitioner,
+                                     std::shared_ptr<SnarlTraverserAndPartitioner> partitioner,
                                      const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                                      const std::string& reference_sample,
                                      const std::string& test_method,
@@ -35,7 +36,12 @@ void AssociationFinder::test_snarls() const {
     }
 
     stoat::FisherKhi2 fisher_chi2_tester;
-    partitioner.for_each_snarl(snarl_is_eligible, [&] (const std::pair<size_t, size_t>& snarl_id, const snarl_partition_t& snarl_info) {
+    partitioner->for_each_snarl_partition(graph, 
+    [&] (const handlegraph::net_handle_t& net) {
+        // Function checking if the net handle is eligible
+        return snarl_is_eligible(net);
+    }, 
+    [&] (const SnarlTraverserAndPartitioner::snarl_partition_t& snarl_info) {
 
 
         // Should we write this?
@@ -56,7 +62,7 @@ void AssociationFinder::test_snarls() const {
         string path_lengths = ss.str();
 
         // Each set represents a partition of samples that takes the same path through the snarl's netgraph
-        const std::vector<std::set<samle_hap_t>>& sample_partitions = snarl_info.partitions;
+        const std::vector<std::set<sample_hap_t>>& sample_partitions = snarl_info.partitions;
 
         // Do we test nested snarls? Don't test snarls that are already flagged as significant
         bool test_nested_snarls = true;
@@ -70,10 +76,10 @@ void AssociationFinder::test_snarls() const {
             stoat::LOG_TRACE( "\t\t"  +sample );
         }
 
-        for (const std::set<std::string>& partition : sample_partitions) {
+        for (const std::set<sample_hap_t>& partition : sample_partitions) {
             stoat::LOG_TRACE( "\tPARTITION" );
-            for (const std::string& sample : partition) {
-                stoat::LOG_TRACE( "\t\t" + sample );
+            for (const sample_hap_t& sample : partition) {
+                stoat::LOG_TRACE( "\t\t" + sample.sample );
             }
         }
 
@@ -84,7 +90,14 @@ void AssociationFinder::test_snarls() const {
 
             if (test_method == "exact") {
 
-                for (const std::set<std::string>& partition : sample_partitions) {
+                for (const std::set<sample_hap_t>& sample_hap_partition : sample_partitions) {
+
+                    // Make a set of just the sample names
+                    // TODO: This isn't super efficient
+                    std::set<std::string> partition;
+                    for (const sample_hap_t& sample : sample_hap_partition) {
+                        partition.emplace(sample.sample);
+                    }
                     if (partition == sample_sets.first || partition == sample_sets.second) {
 
                         // For the exact test, since we already know the result of the test, write only those snarls that pass the test
@@ -111,11 +124,11 @@ void AssociationFinder::test_snarls() const {
                 std::vector<size_t> genotype_associated(sample_partitions.size(), 0);
                 std::vector<size_t> genotype_unassociated(sample_partitions.size(), 0);
                 for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
-                    const std::set<std::string> sample_set = sample_partitions[i];
-                    for (const std::string sample : sample_set) {
-                        if (sample_sets.first.count(sample) == 1) {
+                    const std::set<sample_hap_t>& sample_set = sample_partitions[i];
+                    for (const sample_hap_t sample : sample_set) {
+                        if (sample_sets.first.count(sample.sample) == 1) {
                             genotype_associated[i]++;
-                        } else if (sample_sets.second.count(sample) == 1) {
+                        } else if (sample_sets.second.count(sample.sample) == 1) {
                             genotype_unassociated[i]++;
                         }
                     }
@@ -133,8 +146,8 @@ void AssociationFinder::test_snarls() const {
                 if (output_format == "fasta") {
                     // Figure out which samples we want to write
                     // Since we don't know which partition is actually associated, just write everything to one file
-                    for (const std::set<std::string>& partition : sample_partitions) {
-                        samples_to_write[*partition.begin()] = true;
+                    for (const std::set<sample_hap_t>& partition : sample_partitions) {
+                        samples_to_write[partition.begin()->sample] = true;
                     }
                 }
 
@@ -153,7 +166,7 @@ void AssociationFinder::test_snarls() const {
 
                     # pragma omp critical (out_associated) 
                     {
-                        stoat::write_fasta(out_associated, graph, distance_index, snarl, samples_to_write, reference_sample);
+                        stoat::write_fasta(out_associated, graph, distance_index, snarl_info.snarl, samples_to_write, reference_sample);
                     }
                 }
             }

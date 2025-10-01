@@ -98,6 +98,7 @@ struct Path_traversal_t {
 struct Snarl_data_t {
     public:
         // Constructor definition
+        Snarl_data_t() {};
         Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index);
         Snarl_data_t(net_handle_t snarl_,
                     std::pair<size_t, size_t> snarl_ids_,

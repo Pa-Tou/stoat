@@ -57,6 +57,10 @@ struct sample_hap_t {
     std::string sample;
     std::size_t haplotype;
 
+    sample_hap_t() {};
+    sample_hap_t(std::string samp, std::size_t hap) :
+        sample(std::move(samp)), haplotype(std::move(hap)) {};
+
     const inline bool operator==(const sample_hap_t& other) const {
         return (sample==other.sample && haplotype==other.haplotype);
     }
@@ -127,5 +131,16 @@ bool is_equal(T a, T b, T e = std::numeric_limits<T>::epsilon()) {
 enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // namespace stoat
+namespace std {
+    // Define hash for sample_hap_t
+    template <>
+    struct hash<stoat::sample_hap_t> {
+        size_t operator()(const stoat::sample_hap_t& sample_hap) const {
+            return std::hash<std::string>()(sample_hap.sample + ":" + std::to_string(sample_hap.haplotype));
+        }
+    };
+
+}
+
 
 #endif

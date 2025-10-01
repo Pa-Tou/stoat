@@ -35,7 +35,7 @@ class AssociationFinder {
 
 
         // object for finding partitions of samples in a snarl
-        std::shared_ptr<Partitioner> partitioner;
+        std::shared_ptr<SnarlTraverserAndPartitioner> partitioner;
 
 
     public:
@@ -46,7 +46,7 @@ class AssociationFinder {
         /// measured as the "maximum" length of a snarl
         AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
                           const bdsg::SnarlDistanceIndex& distance_index, 
-                          std::shared_ptr<Partitioner> partitioner,
+                          std::shared_ptr<SnarlTraverserAndPartitioner> partitioner,
                           const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                           const std::string& reference_sample,
                           const std::string& test_method,
