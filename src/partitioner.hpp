@@ -68,9 +68,13 @@ class SnarlTraverserAndPartitioner {
         /// A set of all samples+haplotypes in the graph
         std::set<stoat::sample_hap_t> all_sample_haplotypes;
 
-        /// Map snarl ids to snarl info.
+        /// This holds all snarl info.
         /// If we are not loading or saving the snarls, then this doesn't get filled in
-        std::unordered_map<std::pair<size_t, size_t>, snarl_partition_t> snarl_to_partitions;
+        std::vector<snarl_partition_t> snarl_partitions;
+
+        // The names of the references we use to output snarl coordinates
+        // This is only filled in if we're going to save the snarls
+        std::set<std::string> all_references;
 
         /// This goes at the beginning of a serialized file to ensure that it is the right file type and version
         const static std::string file_header = "#SNARL_PARTITIONS_v1.0" 

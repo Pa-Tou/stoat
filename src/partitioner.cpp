@@ -1,5 +1,6 @@
 #include "partitioner.hpp"
 #include "log.hpp"
+#include <fstream>
 
 using namespace std;
 namespace stoat_graph {
@@ -276,7 +277,7 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
 
 
 
-// Run iteratee on all snarls, either from the distance index or in snarl_to_partitions
+// Run iteratee on all snarls, either from the distance index or in snarl_partitions
 void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph, 
                                                   const std::function<bool(const snarl_partition_t& snarl_info)>& iteratee,
                                                   const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible) {
@@ -325,9 +326,10 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                     iteratee(snarl_info);
 
                     if (save_partitions) {
-                        // If we are going to serialize the snarls, then save the snarl to snarl_to_partitions
+                        // If we are going to serialize the snarls, then save the snarl to snarl_partitions
                         // TODO :or just write it directly
-                        snarl_to_partitions[snarl_id] = std::move(snarl_info);
+                        snarl_partitions.emplace_back(std::move(snarl_info));
+                        all_references.emplace(snarl_info.ref_path);
                     }
 
                     if (test_nested_snarls) {
@@ -344,8 +346,8 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
         }
 
     } else {
-        // If the distance index is not given, then go through snarl_to_partitions
-        for (const snarl_partition_t& snarl_info : snarl_to_partitions) {
+        // If the distance index is not given, then go through snarl_partitions
+        for (const snarl_partition_t& snarl_info : snarl_partitions) {
             iteratee(snarl_info);
         }
     }
@@ -365,7 +367,8 @@ size_t depth;
 std::vector<std::set<sample_hap_t>> partitions (as indices);
 std::vector<std::string> type_variants; (can get from partitions I think) 
 
-Start with header containing all sample/haplotypes. The order will be the index for sample/haplotypes used when storing partitions
+Start with all sample/haplotypes. The order will be the index for sample/haplotypes used when storing partitions
+
 Then a second list of reference path names. The order will be the index for ref_path
 
 Each snarl_partition_t is then stored, one per line, as a vector of integers.
@@ -378,12 +381,135 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     ofstream.open(filename);
     // Write the header
     outstream << file_header << endl;
+    
+    // Next will be a list of sample/haplotypes. Also keep a dict mapping sample/haplotype to the index that is used to store it
+    outstream << "#SAMPLES" << endl;
+    std::unordered_map<stoat::sample_hap_t, size_t> sample_to_index;
+    size_t i = 0;
+    for (const auto& sample : all_sample_haplotypes) {
+        outstream << sample.sample << "\t" << sample.haplotype << endl;
+        sample_to_index[sample] = i;
+        i++;
+    }
+    // Next will be a list of reference path names. Also keep a dict mapping reference path names the index that is used to store it
+    outstream << "#REFS" << endl;
+    std::unordered_map<string, size_t> ref_to_index;
+    size_t ref_index = 0;
+    i = 0;
+    for (const auto& ref : all_references) {
+        outstream << ref << endl;
+        ref_to_index[ref] = i;
+        i++;
+    }
+
+    //Finally the snarls
+    outstream << "#SNARLS" << endl;
+    for (const snarl_partition_t& snarl_partition : snarl_partitions) {
+        outstream << handlegraph::as_integer(snarl_partition.snarl) << "\t"
+                  << snarl_partition.snarl_ids.first << "\t"
+                  << snarl_partition.snarl_ids.second << "\t"
+                  << ref_to_index[snarl_partition.ref_path] << "\t"
+                  << snarl_partition.min_length << "\t"
+                  << snarl_partition.max_length << "\t"
+                  << snarl_partition.start_positions << "\t"
+                  << snarl_partition.end_positions << "\t"
+                  << snarl_partition.depth << "\t";
+        for (const std::set<sample_hap_t> partition : snarl_partition.partitions) {
+            outstream << partition.size() << "\t";
+            for (const sample_hap_t& sample : partition) {
+                outstream << sample_to_index[sample] << "\t"; 
+            }
+        }
+        outstream << endl;
+    }
+
 
     outstream.close();
     return;
 }
 void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
+    ifstream instream;
+    ifstream.open(filename);
+
+    string line;
+
     // Read the first line, which must match the header
+    std::getline(instream, line);
+    if (line != file_header) {
+        stoat::LOG_FATAL("Snarl partitions file " +filename+ " contains the wrong header: " + line);
+    }
+    std::getline(instream, line);
+    if (line != "#SAMPLES") {
+        stoat::LOG_FATAL("Snarl partitions file " +filename+ " is not formatted correctly");
+    }
+
+    // Get the sample/haplotype from the index
+    std::vector<stoat::sample_hap_t> samples;
+    while (line != "#REFS") {
+        std::getline(instream, line);
+        std::stringstream linestream(line);
+        string sample_name;
+        std::getline(linestream, sample_name, '\t');
+        string hap_num;
+        std::getline(linestream, hap_num, '\t');
+        samples.emplace_back(sample_name, std::stoi(hap_num));
+    }
+
+    // Get the reference path names from the index
+    std::vector<std::string> refs;
+    while (line != "#SNARLS") {
+        std::getline(instream, line);
+        refs.emplace_back(std::move(line));
+    }
+
+    // Get the snarls
+    while (std::getline(instream,line)) {
+
+        snarl_partitions.emplace_back();
+
+        std::stringstream linestream(line);
+        string part;
+        //Snarl net handle
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().snarl = handlegraph::as_net_handle(std::stoll(part));
+        // snarl start id
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().snarl_ids.first = std::stoi(part);
+        //snarl end id
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().snarl_ids.second = std::stoi(part);
+        //reference path
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().ref_path = refs[std::stoi(part)];
+        // min lenght
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().min_length = std::stoi(part);
+        // max length
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().max_length = std::stoi(part);
+        // start pos
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().start_positions = std::stoi(part);
+        // end pos 
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().end_positions = std::stoi(part);
+        // depth
+        std::getline(linestream, part, '\t')
+        snarl_partition.back().depth = std::stoi(part);
+
+        //Next is the list of partitions
+        while (std::getline(linestream, part, '\t')) {
+            snarl_partition.partitions.emplace_back();
+            size_t sample_count = std::stoi(part);
+            for (size_t i = 0 ; i < sample_count ; i++) {
+                std::getline(linestream, part, '\t')
+                snarl_partitions.back().emplace(samples[std::stoi[part]]);
+            }
+        }
+    }
+
+
+    ifstream.close();
     return;
 }
 }
