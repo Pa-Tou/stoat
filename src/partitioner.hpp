@@ -33,11 +33,11 @@ class SnarlTraverserAndPartitioner {
         /// - the reference path and offsets of the snarl along the reference path
         /// - partitions of samples
         // TODO: Take snarl_paths out of snarl_data_t and put it in a generic struct that both inherit, make writer use generic struct
+        // TODO: Also ignoring type_variants
         //TODO: Use indices instead of actual sample names 
         // This also includes the following fields inherited from Snarl_data_t:
-        // std::vector<std::string> type_variants;
         // std::vector<Path_traversal_t> snarl_paths;
-        // net_handle_t snarl; // handlegraph::subrange_t Snarl_data_t::snarl_i    d
+        // net_handle_t snarl; 
         // std::pair<size_t, size_t> snarl_ids;
         // size_t start_positions;
         // size_t end_positions;
@@ -52,6 +52,24 @@ class SnarlTraverserAndPartitioner {
             snarl_partition_t() {};
             snarl_partition_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) :
                 Snarl_data_t(snarl_, graph, distance_index) {};
+            snarl_partition_t(bdsg::net_handle_t snarl_,
+                              std::pair<size_t, size_t> snarl_ids_,
+                              size_t start_pos_,
+                              size_t end_pos_,
+                              size_t depth_,
+                              size_t min_length,
+                              size_t max_length,
+                              std::string ref_path,
+                              std::vector<std::set<sample_hap_t>> partitions) :
+                              Snarl_data_t(), min_length(min_length), max_length(max_length),
+                              ref_path(std::move(ref_path)), partitions(std::move(partitions)) {
+                                snarl=snarl_;
+                                snarl_ids=snarl_ids_;
+                                start_positions=start_pos_;
+                                end_positions=end_pos_;
+                                depth=depth_;
+                              };
+
 
         };
 

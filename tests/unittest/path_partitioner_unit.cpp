@@ -220,6 +220,68 @@ TEST_CASE( "Path partitioner nested bubbles",
             partitions.emplace_back(snarl_info);
         });
         REQUIRE(partitions.size() == 4);
+
+        // Make the set of true partitions of snarls
+        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t>truth_partitions;
+        std::vector<std::set<stoat::sample_hap_t>> temp_partitions;
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path0", 0);
+        temp_partitions.back().emplace("path1", 0);
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path2", std::numeric_limits<size_t>::max());
+        temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
+        truth_partitions.emplace_back(snarl1, std::make_pair<size_t, size_t>(1,4), 1, 2, 1, 1, 1, "path0#0#path0", temp_partitions); 
+
+        temp_partitions.clear();
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path2", std::numeric_limits<size_t>::max());
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path0", 0);
+        temp_partitions.back().emplace("path1", 0);
+        temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
+        truth_partitions.emplace_back(snarl2, std::make_pair<size_t, size_t>(4,8), 3, 6, 1, 0, 3, "path0#0#path0", temp_partitions); 
+
+        temp_partitions.clear();
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path0", 0);
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path1", 0);
+        temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
+        truth_partitions.emplace_back(snarl3, std::make_pair<size_t, size_t>(5,7), 4, 5, 2, 0, 1, "path0#0#path0", temp_partitions); 
+
+        temp_partitions.clear();
+        truth_partitions.emplace_back(snarl4, std::make_pair<size_t, size_t>(8,10), 0, 0, 1, 0, 1, "N/A", temp_partitions); 
+
+        for (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& test_partition : partitions) {
+            TestSnarlTraverserAndPathPartitioner::snarl_partition_t& truth_partition = truth_partitions[0];
+            if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl1) {
+                truth_partition = truth_partitions[0];
+            } else if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl2) {
+                truth_partition = truth_partitions[1];
+            } else if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl3) {
+                truth_partition = truth_partitions[2];
+            } else {
+                REQUIRE(distance_index.start_end_traversal_of(test_partition.snarl) == snarl4);
+                truth_partition = truth_partitions[3];
+           }
+
+           REQUIRE(test_partition.snarl_ids == truth_partition.snarl_ids);
+           REQUIRE(test_partition.start_positions == truth_partition.start_positions);
+           REQUIRE(test_partition.end_positions == truth_partition.end_positions);
+           REQUIRE(test_partition.depth == truth_partition.depth);
+           REQUIRE(test_partition.min_length == truth_partition.min_length);
+           REQUIRE(test_partition.max_length == truth_partition.max_length);
+           REQUIRE(test_partition.ref_path == truth_partition.ref_path);
+           
+           REQUIRE(test_partition.partitions.size() == truth_partition.partitions.size());
+           if (truth_partition.partitions.size() != 0) {
+
+                REQUIRE((test_partition.partitions[0] == truth_partition.partitions[0] || 
+                         test_partition.partitions[0] == truth_partition.partitions[1]));
+                REQUIRE((test_partition.partitions[1] == truth_partition.partitions[0] || 
+                         test_partition.partitions[1] == truth_partition.partitions[1]));
+           }
+        }
     }
     SECTION("Serialize partitioner") {
         TestSnarlTraverserAndPathPartitioner af_serialized(all_samples, &distance_index, "path0", true);
