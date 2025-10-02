@@ -98,6 +98,10 @@ void AssociationFinder::test_snarls() const {
                     for (const sample_hap_t& sample : sample_hap_partition) {
                         partition.emplace(sample.sample);
                     }
+
+                    // If one partition exactly matches one group we want, then all other partitions combined (including things not in the snarl) will match
+                    // the other.
+                    // TODO: This could be better but I don't think it's worth working on it yet
                     if (partition == sample_sets.first || partition == sample_sets.second) {
 
                         // For the exact test, since we already know the result of the test, write only those snarls that pass the test

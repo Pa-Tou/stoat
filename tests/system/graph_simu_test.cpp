@@ -540,6 +540,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
         truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\tNA\tNA\tNA\t1");
+        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\tNA\tNA\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
     }
@@ -620,6 +621,18 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
 
         truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
+
+        // Snarl 2
+        // Path0 goes through once with insertion node 3
+        // Path 1 goes through twice with deletion
+        // Path 2 goes through twice, with insertion then with deletion 
+        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
+
+        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
+        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
+
+        truth_fasta.emplace_back(6, ">snarl:2-4|path0:11-12|path2:11-12", "G");
+        truth_fasta.emplace_back(7, ">snarl:2-4|path0:11-12|path2:15-15", "");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
