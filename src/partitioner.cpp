@@ -436,21 +436,25 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
 
     // Get the sample/haplotype from the index
     std::vector<stoat::sample_hap_t> samples;
+    std::getline(instream, line);
     while (line != "#REFS") {
-        std::getline(instream, line);
+        cerr << line << endl;
         std::stringstream linestream(line);
         string sample_name;
         std::getline(linestream, sample_name, '\t');
-        string hap_num;
-        std::getline(linestream, hap_num, '\t');
-        samples.emplace_back(sample_name, std::stoi(hap_num));
+        string hap_str;
+        std::getline(linestream, hap_str, '\t');
+        cerr << " deserialize " << hap_str << " "  << std::stoull(hap_str) << endl;
+        samples.emplace_back(sample_name, std::stoull(hap_str));
+        std::getline(instream, line);
     }
 
     // Get the reference path names from the index
     std::vector<std::string> refs;
+    std::getline(instream, line);
     while (line != "#SNARLS") {
-        std::getline(instream, line);
         refs.emplace_back(std::move(line));
+        std::getline(instream, line);
     }
 
     // Get the snarls
@@ -465,37 +469,37 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
         snarl_partitions.back().snarl = handlegraph::as_net_handle(std::stoll(part));
         // snarl start id
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().snarl_ids.first = std::stoi(part);
+        snarl_partitions.back().snarl_ids.first = std::stoull(part);
         //snarl end id
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().snarl_ids.second = std::stoi(part);
+        snarl_partitions.back().snarl_ids.second = std::stoull(part);
         //reference path
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().ref_path = refs[std::stoi(part)];
+        snarl_partitions.back().ref_path = refs[std::stoull(part)];
         // min lenght
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().min_length = std::stoi(part);
+        snarl_partitions.back().min_length = std::stoull(part);
         // max length
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().max_length = std::stoi(part);
+        snarl_partitions.back().max_length = std::stoull(part);
         // start pos
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().start_positions = std::stoi(part);
+        snarl_partitions.back().start_positions = std::stoull(part);
         // end pos 
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().end_positions = std::stoi(part);
+        snarl_partitions.back().end_positions = std::stoull(part);
         // depth
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().depth = std::stoi(part);
+        snarl_partitions.back().depth = std::stoull(part);
 
         //Next is the list of partitions
         std::vector<std::set<sample_hap_t>>& partitions = snarl_partitions.back().partitions;
         while (std::getline(linestream, part, '\t')) {
             partitions.emplace_back();
-            size_t sample_count = std::stoi(part);
+            size_t sample_count = std::stoull(part);
             for (size_t i = 0 ; i < sample_count ; i++) {
                 std::getline(linestream, part, '\t');
-                partitions.back().emplace(samples[std::stoi(part)]);
+                partitions.back().emplace(samples[std::stoull(part)]);
             }
         }
     }
