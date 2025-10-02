@@ -392,7 +392,6 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
         ref_to_index[ref] = i;
         i++;
     }
-
     //Finally the snarls
     outstream << "#SNARLS" << endl;
     for (const snarl_partition_t& snarl_partition : snarl_partitions) {
@@ -438,13 +437,11 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
     std::vector<stoat::sample_hap_t> samples;
     std::getline(instream, line);
     while (line != "#REFS") {
-        cerr << line << endl;
         std::stringstream linestream(line);
         string sample_name;
         std::getline(linestream, sample_name, '\t');
         string hap_str;
         std::getline(linestream, hap_str, '\t');
-        cerr << " deserialize " << hap_str << " "  << std::stoull(hap_str) << endl;
         samples.emplace_back(sample_name, std::stoull(hap_str));
         std::getline(instream, line);
     }

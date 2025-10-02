@@ -34,6 +34,15 @@ class SnarlTraverserAndPartitioner {
         /// - partitions of samples
         // TODO: Take snarl_paths out of snarl_data_t and put it in a generic struct that both inherit, make writer use generic struct
         //TODO: Use indices instead of actual sample names 
+        // This also includes the following fields inherited from Snarl_data_t:
+        // std::vector<std::string> type_variants;
+        // std::vector<Path_traversal_t> snarl_paths;
+        // net_handle_t snarl; // handlegraph::subrange_t Snarl_data_t::snarl_i    d
+        // std::pair<size_t, size_t> snarl_ids;
+        // size_t start_positions;
+        // size_t end_positions;
+        // size_t depth;
+
         struct snarl_partition_t : stoat::Snarl_data_t {
             size_t min_length;
             size_t max_length;

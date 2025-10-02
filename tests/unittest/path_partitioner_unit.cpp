@@ -11,8 +11,12 @@ class TestSnarlTraverserAndPathPartitioner : SnarlTraverserAndPathPartitioner {
     public: 
     TestSnarlTraverserAndPathPartitioner(std::set<stoat::sample_hap_t> all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool     save_partitions) :
         SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index, reference_sample, save_partitions) {} 
+    using SnarlTraverserAndPathPartitioner::snarl_partition_t;
     using SnarlTraverserAndPathPartitioner::partition_samples_in_snarl;
     using SnarlTraverserAndPathPartitioner::get_walk_sets;
+    using SnarlTraverserAndPathPartitioner::for_each_snarl_partition;
+    using SnarlTraverserAndPathPartitioner::serialize;
+    using SnarlTraverserAndPathPartitioner::deserialize;
 };
 
 TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
@@ -37,9 +41,19 @@ TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
 
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph,graph.get_path_handle("path"))});
 
-    SECTION("Make partitioner finder") {
+    SECTION("Make partitioner") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
         TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+    }
+    SECTION("Serialize partitioner") {
+        // There isn't much to do with one node so just make sure we can run the constructor without crashing
+        TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", true);
+        af.serialize("./test.snarl_partitions.txt");
+        
+        TestSnarlTraverserAndPathPartitioner af_loaded(all_samples, nullptr, "path0", false);
+        af_loaded.deserialize("./test.snarl_partitions.txt");
+
+        int rm = system("rm ./test.snarl_partitions.txt"); 
     }
 
 }
@@ -198,6 +212,46 @@ TEST_CASE( "Path partitioner nested bubbles",
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0])}) ) ||
                       (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[1]), stoat::get_sample_and_haplotype(*path_graph, paths[3])}))));
         }
+    }
+    SECTION ("Traverse snarls" ) {
+        // Get all the snarl partitions
+        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t> partitions;
+        af.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& snarl_info) {
+            partitions.emplace_back(snarl_info);
+        });
+        REQUIRE(partitions.size() == 4);
+    }
+    SECTION("Serialize partitioner") {
+        TestSnarlTraverserAndPathPartitioner af_serialized(all_samples, &distance_index, "path0", true);
+
+
+        // Get all the snarl partitions
+        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t> serialized_partitions;
+        af_serialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& snarl_info) {
+            serialized_partitions.emplace_back(snarl_info);
+        });
+
+        //Serialize it
+        af_serialized.serialize("./test.snarl_partitions.txt");
+
+
+        TestSnarlTraverserAndPathPartitioner af_deserialized(all_samples, nullptr, "path0", false);
+        af_deserialized.deserialize("./test.snarl_partitions.txt");
+
+        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t> deserialized_partitions;
+        af_deserialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& snarl_info) {
+            deserialized_partitions.emplace_back(snarl_info);
+        });
+
+        REQUIRE(serialized_partitions.size() == deserialized_partitions.size());
+
+        // The serialized and deserialized snarls should be the same
+        // The order isn't required to be the same but it will be
+        for (size_t i = 0 ; i < serialized_partitions.size() ; i++ ) {
+            REQUIRE(serialized_partitions[i].partitions == deserialized_partitions[i].partitions);
+        }
+
+        int rm = system("rm ./test.snarl_partitions.txt"); 
     }
 
 }
