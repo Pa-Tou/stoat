@@ -89,7 +89,7 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
 void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
                  const snarl_partition_t& snarl_info, const std::unordered_map<std::string, bool>& samples, const string& reference_name) {
     
-    string ref_coordinates = snarl_info.ref_path + std::to_string(snarl_info.start_positions) + "-" + std::to_string(snarl_info.end_positions);
+    string ref_coordinates = snarl_info.ref_path + ":" + std::to_string(snarl_info.start_positions) + "-" + std::to_string(snarl_info.end_positions);
 
     
     // Now go through each path that goes through the snarl and print the sequence
@@ -102,7 +102,7 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
     
             std::tuple<std::string, size_t, size_t> range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
             // Print the header
-            outstream << ">snarl_" << graph.get_id(snarl_info.start_handle) << "-" << graph.get_id(snarl_info.end_handle) << "|"
+            outstream << ">snarl:" << graph.get_id(snarl_info.start_handle) << "-" << graph.get_id(snarl_info.end_handle) << "|"
                 << ref_coordinates << "|"
                 << std::get<0>(range_coordinates) << ":"
                 << std::get<1>(range_coordinates) << "-"    
