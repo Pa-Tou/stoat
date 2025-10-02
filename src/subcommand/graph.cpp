@@ -289,10 +289,12 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
 
 
     bdsg::SnarlDistanceIndex* distance_index_ptr = nullptr;
+    bdsg::SnarlDistanceIndex distance_index;
     if (!distance_name.empty()) {
         // Load the distance index
-        bdsg::SnarlDistanceIndex distance_index;
+        cerr << " LOAD DISTANCE INDEX" << endl;
         distance_index.deserialize(distance_name);
+        distance_index_ptr = &distance_index;
     }
 
     auto end_1 = std::chrono::high_resolution_clock::now();

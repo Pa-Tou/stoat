@@ -108,7 +108,7 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
 /// Given a path_range_t representing a path going through a snarl (with the start and end step_handle_t's representing the boundary nodes)
 /// Return the path name and range in the path of the snarl, not including the boundary nodes
 std::tuple<std::string, size_t, size_t> get_name_and_offsets_of_snarl_path_range(const handlegraph::PathPositionHandleGraph& graph, 
-                                                                                 const bdsg::SnarlDistanceIndex& distance_index, const path_range_t& range);
+                                                                                 const path_range_t& range);
 
 // TODO: Make this a struct
 //struct snarl_id {

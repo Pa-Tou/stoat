@@ -11,7 +11,6 @@ class TestSnarlTraverserAndPathPartitioner : SnarlTraverserAndPathPartitioner {
     public: 
     TestSnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool     save_partitions) :
         SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index, reference_sample, save_partitions) {} 
-    using SnarlTraverserAndPathPartitioner::snarl_partition_t;
     using SnarlTraverserAndPathPartitioner::partition_samples_in_snarl;
     using SnarlTraverserAndPathPartitioner::get_walk_sets;
     using SnarlTraverserAndPathPartitioner::for_each_snarl_partition;
@@ -215,14 +214,14 @@ TEST_CASE( "Path partitioner nested bubbles",
     }
     SECTION ("Traverse snarls" ) {
         // Get all the snarl partitions
-        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t> partitions;
-        af.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& snarl_info) {
+        std::vector<stoat::snarl_partition_t> partitions;
+        af.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
             partitions.emplace_back(snarl_info);
         });
         REQUIRE(partitions.size() == 4);
 
         // Make the set of true partitions of snarls
-        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t>truth_partitions;
+        std::vector<stoat::snarl_partition_t>truth_partitions;
         std::vector<std::set<stoat::sample_hap_t>> temp_partitions;
         temp_partitions.emplace_back();
         temp_partitions.back().emplace("path0", 0);
@@ -230,7 +229,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         temp_partitions.emplace_back();
         temp_partitions.back().emplace("path2", std::numeric_limits<size_t>::max());
         temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
-        truth_partitions.emplace_back(snarl1, std::make_pair<size_t, size_t>(1,4), 1, 2, 1, 1, 1, "path0#0#path0", temp_partitions); 
+        truth_partitions.emplace_back(snarl1, graph.get_handle(1, false), graph.get_handle(4, true), 1, 2, 1, 1, 1, "path0#0#path0", temp_partitions); 
 
         temp_partitions.clear();
         temp_partitions.emplace_back();
@@ -239,7 +238,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         temp_partitions.back().emplace("path0", 0);
         temp_partitions.back().emplace("path1", 0);
         temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
-        truth_partitions.emplace_back(snarl2, std::make_pair<size_t, size_t>(4,8), 3, 6, 1, 0, 3, "path0#0#path0", temp_partitions); 
+        truth_partitions.emplace_back(snarl2, graph.get_handle(4, false), graph.get_handle(8, true), 3, 6, 1, 0, 3, "path0#0#path0", temp_partitions); 
 
         temp_partitions.clear();
         temp_partitions.emplace_back();
@@ -247,13 +246,13 @@ TEST_CASE( "Path partitioner nested bubbles",
         temp_partitions.emplace_back();
         temp_partitions.back().emplace("path1", 0);
         temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
-        truth_partitions.emplace_back(snarl3, std::make_pair<size_t, size_t>(5,7), 4, 5, 2, 0, 1, "path0#0#path0", temp_partitions); 
+        truth_partitions.emplace_back(snarl3, graph.get_handle(5, false), graph.get_handle(7, true), 4, 5, 2, 0, 1, "path0#0#path0", temp_partitions); 
 
         temp_partitions.clear();
-        truth_partitions.emplace_back(snarl4, std::make_pair<size_t, size_t>(8,10), 0, 0, 1, 0, 1, "N/A", temp_partitions); 
+        truth_partitions.emplace_back(snarl4, graph.get_handle(8, false), graph.get_handle(10, true), 0, 0, 1, 0, 1, "N/A", temp_partitions); 
 
-        for (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& test_partition : partitions) {
-            TestSnarlTraverserAndPathPartitioner::snarl_partition_t& truth_partition = truth_partitions[0];
+        for (const stoat::snarl_partition_t& test_partition : partitions) {
+            stoat::snarl_partition_t& truth_partition = truth_partitions[0];
             if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl1) {
                 truth_partition = truth_partitions[0];
             } else if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl2) {
@@ -265,7 +264,8 @@ TEST_CASE( "Path partitioner nested bubbles",
                 truth_partition = truth_partitions[3];
            }
 
-           REQUIRE(test_partition.snarl_ids == truth_partition.snarl_ids);
+           REQUIRE(test_partition.start_handle == truth_partition.start_handle);
+           REQUIRE(test_partition.end_handle == truth_partition.end_handle);
            REQUIRE(test_partition.start_positions == truth_partition.start_positions);
            REQUIRE(test_partition.end_positions == truth_partition.end_positions);
            REQUIRE(test_partition.depth == truth_partition.depth);
@@ -288,8 +288,8 @@ TEST_CASE( "Path partitioner nested bubbles",
 
 
         // Get all the snarl partitions
-        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t> serialized_partitions;
-        af_serialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& snarl_info) {
+        std::vector<stoat::snarl_partition_t> serialized_partitions;
+        af_serialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
             serialized_partitions.emplace_back(snarl_info);
         });
 
@@ -300,8 +300,8 @@ TEST_CASE( "Path partitioner nested bubbles",
         TestSnarlTraverserAndPathPartitioner af_deserialized(all_samples, nullptr, "path0", false);
         af_deserialized.deserialize("./test.snarl_partitions.txt");
 
-        std::vector<TestSnarlTraverserAndPathPartitioner::snarl_partition_t> deserialized_partitions;
-        af_deserialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const TestSnarlTraverserAndPathPartitioner::snarl_partition_t& snarl_info) {
+        std::vector<stoat::snarl_partition_t> deserialized_partitions;
+        af_deserialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
             deserialized_partitions.emplace_back(snarl_info);
         });
 

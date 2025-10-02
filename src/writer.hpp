@@ -34,8 +34,7 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
 
 // Write the fasta for paths in a snarl. If samples is given, only write the fast for samples present to outstream. If samples is not given, write all samples.
 void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph, 
-                 const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, 
-                 const std::unordered_map<std::string, bool>& samples, const string& reference_name);
+                 const snarl_partition_t& snarl_info, const std::unordered_map<std::string, bool>& samples, const string& reference_name);
 
 void writeSignificantTableToTSV(
     const std::vector<std::vector<double>>& table,

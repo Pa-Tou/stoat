@@ -307,7 +307,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                     // Get the offsets of the start and end nodes along the reference
                     std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
                     if (ranges.size() != 0) {
-                        std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, *distance_index, ranges.front());
+                        std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
                     } else {
                         snarl_info.ref_path = "N/A";
                         snarl_info.start_positions = 0;
@@ -398,8 +398,8 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     outstream << "#SNARLS" << endl;
     for (const snarl_partition_t& snarl_partition : snarl_partitions) {
         outstream << handlegraph::as_integer(snarl_partition.snarl) << "\t"
-                  << snarl_partition.snarl_ids.first << "\t"
-                  << snarl_partition.snarl_ids.second << "\t"
+                  << handlegraph::as_integer(snarl_partition.start_handle) << "\t"
+                  << handlegraph::as_integer(snarl_partition.start_handle) << "\t"
                   << ref_to_index[snarl_partition.ref_path] << "\t"
                   << snarl_partition.min_length << "\t"
                   << snarl_partition.max_length << "\t"
@@ -468,10 +468,10 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
         snarl_partitions.back().snarl = handlegraph::as_net_handle(std::stoll(part));
         // snarl start id
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().snarl_ids.first = std::stoull(part);
+        snarl_partitions.back().start_handle = handlegraph::as_handle(std::stoull(part));
         //snarl end id
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().snarl_ids.second = std::stoull(part);
+        snarl_partitions.back().end_handle = handlegraph::as_handle(std::stoull(part));
         //reference path
         std::getline(linestream, part, '\t');
         snarl_partitions.back().ref_path = refs[std::stoull(part)];

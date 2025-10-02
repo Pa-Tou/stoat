@@ -41,7 +41,7 @@ void AssociationFinder::test_snarls() const {
         // Function checking if the net handle is eligible
         return snarl_is_eligible(net);
     }, 
-    [&] (const SnarlTraverserAndPartitioner::snarl_partition_t& snarl_info) {
+    [&] (const stoat::snarl_partition_t& snarl_info) {
 
 
         // Should we write this?
@@ -170,7 +170,7 @@ void AssociationFinder::test_snarls() const {
 
                     # pragma omp critical (out_associated) 
                     {
-                        stoat::write_fasta(out_associated, graph, distance_index, snarl_info.snarl, samples_to_write, reference_sample);
+                        stoat::write_fasta(out_associated, graph, snarl_info, samples_to_write, reference_sample);
                     }
                 }
             }

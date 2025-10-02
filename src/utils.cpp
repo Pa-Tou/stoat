@@ -361,7 +361,6 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
 }
 
 std::tuple<std::string, size_t, size_t> get_name_and_offsets_of_snarl_path_range(const handlegraph::PathPositionHandleGraph& graph, 
-                                                                                 const bdsg::SnarlDistanceIndex& distance_index, 
                                                                                  const path_range_t& range) {
     return {graph.get_path_name(graph.get_path_handle_of_step(range.start)),
             graph.get_position_of_step(range.start) + graph.get_sequence(graph.get_handle_of_step(range.start)).size(),
