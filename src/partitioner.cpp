@@ -279,7 +279,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
 
         // Get a list of all chains in root
         std::vector<handlegraph::net_handle_t> chains;
-        chains.reserve(graph.get_node_count()/100);
+        chains.reserve(50);
         handlegraph::net_handle_t root = distance_index->get_root();
         distance_index->for_each_child(root, [&] (handlegraph::net_handle_t chain) {
             chains.emplace_back(chain);
@@ -306,10 +306,12 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
 
                     // Get the offsets of the start and end nodes along the reference
                     std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
-                    std::vector<size_t> start_positions;
-                    std::vector<size_t> end_positions;
                     if (ranges.size() != 0) {
                         std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, *distance_index, ranges.front());
+                    } else {
+                        snarl_info.ref_path = "N/A";
+                        snarl_info.start_positions = 0;
+                        snarl_info.end_positions = 0;
                     }
 
                     // Now get the partitions

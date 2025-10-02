@@ -21,8 +21,8 @@ namespace stoat_graph {
 class SnarlTraverserAndPartitioner {
 
     public:
-        SnarlTraverserAndPartitioner(std::set<stoat::sample_hap_t> all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool save_partitions) :
-            all_sample_haplotypes(std::move(all_sample_haplotypes)),
+        SnarlTraverserAndPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool save_partitions) :
+            all_sample_haplotypes(all_sample_haplotypes),
             distance_index(distance_index),
             reference_sample(reference_sample),
             save_partitions(save_partitions),
@@ -80,6 +80,9 @@ class SnarlTraverserAndPartitioner {
         // The reference sample that we try to get coordinates against
         const std::string& reference_sample;
 
+        /// A set of all samples+haplotypes in the graph
+        const std::set<stoat::sample_hap_t>& all_sample_haplotypes;
+
         // Does the distance index contain distances?
         bool check_distances;
 
@@ -87,8 +90,6 @@ class SnarlTraverserAndPartitioner {
         bool save_partitions;
 
         
-        /// A set of all samples+haplotypes in the graph
-        std::set<stoat::sample_hap_t> all_sample_haplotypes;
 
         /// This holds all snarl info.
         /// If we are not loading or saving the snarls, then this doesn't get filled in
@@ -118,8 +119,8 @@ class SnarlTraverserAndPartitioner {
 class SnarlTraverserAndPathPartitioner : public SnarlTraverserAndPartitioner {
     public:
         
-        SnarlTraverserAndPathPartitioner(std::set<stoat::sample_hap_t> all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool save_partitions)
-            : SnarlTraverserAndPartitioner(std::move(all_sample_haplotypes), distance_index, reference_sample, save_partitions) {}
+        SnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool save_partitions)
+            : SnarlTraverserAndPartitioner(all_sample_haplotypes, distance_index, reference_sample, save_partitions) {}
 
     protected:
 

@@ -9,7 +9,7 @@ namespace stoat_graph{
 
 class TestSnarlTraverserAndPathPartitioner : SnarlTraverserAndPathPartitioner {
     public: 
-    TestSnarlTraverserAndPathPartitioner(std::set<stoat::sample_hap_t> all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool     save_partitions) :
+    TestSnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool     save_partitions) :
         SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index, reference_sample, save_partitions) {} 
     using SnarlTraverserAndPathPartitioner::snarl_partition_t;
     using SnarlTraverserAndPathPartitioner::partition_samples_in_snarl;
