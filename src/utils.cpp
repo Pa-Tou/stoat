@@ -176,8 +176,8 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
     if (!sample_name.empty() || get_reference) {
         handlegraph::net_handle_t ancestor_snarl = snarl;
         while (!distance_index.is_root(ancestor_snarl)) {
-            handlegraph::net_handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, false, true)), &graph);
-            handlegraph::net_handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, true, true)), &graph);
+            handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, false, true)), &graph);
+            handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, true, true)), &graph);
             if (!sample_name.empty()) {
                 ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, sample_name, false);
             }
@@ -191,8 +191,8 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
             ancestor_snarl = distance_index.get_parent(distance_index.get_parent(ancestor_snarl));
         }
     }
-    handlegraph::net_handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
-    handlegraph::net_handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, true)), &graph);
+    handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
+    handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, true)), &graph);
     if (get_all_paths) {
         //If we just want all paths, return that
         ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, "", true);
@@ -218,7 +218,7 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
         //Now go through the end node and find a path that also goes through the start node
         
         for (const auto& sense : senses) {
-            graph.for_each_step_of_sense(distance_index.get_handle(end_handle, &graph), sense, [&](const handlegraph::step_handle_t& step) {
+            graph.for_each_step_of_sense(end_handle, sense, [&](const handlegraph::step_handle_t& step) {
                 if (start_paths.count(graph.get_path_handle_of_step(step)) != 0) {
                     new_sample_name = graph.get_path_name(graph.get_path_handle_of_step(step));
                     return false;
@@ -237,8 +237,8 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
     }
 }
 
-std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::net_handle_t& start_handle, 
-                                                          const handlegraph::net_handle_t& end_handle, bool get_reference, std::string sample_name, bool get_all_paths) {
+std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle, 
+                                                          const handlegraph::handle_t& end_handle, bool get_reference, std::string sample_name, bool get_all_paths) {
     #ifdef DEBUG
         cerr << "Get coordinates of snarl between " << start_handle << " and " << end_handle << endl;
         if (get_reference) {
@@ -254,9 +254,6 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
             assert(sample_name.empty());
         }
     #endif
-    // Bound nodes going into of the snarl
-     = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
-    handlegraph::net_handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, true)), &graph);
 
     // Map path to the steps on the path that traverse the snarl bounds
     std::map<handlegraph::path_handle_t, std::vector<handlegraph::step_handle_t>> path_to_steps;

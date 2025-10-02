@@ -101,7 +101,7 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
 
 /// The function that gets called by get_coordinates_of_snarl
 /// This either looks for a particular sample, or a reference-sense path, or all paths
-/// It finds paths between two nodes, which should be the start and end bounds of a snarl
+/// It finds paths between two nodes, which should be the start and end bounds of a snarl, pointing into each other
 std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle,
                                                           const handlegraph::handle_t& end_handle, bool get_reference, std::string sample_name, bool get_all_paths);
 
