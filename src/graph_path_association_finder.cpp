@@ -7,7 +7,6 @@ using namespace stoat;
 namespace stoat_graph {
 
 AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
-                                     const bdsg::SnarlDistanceIndex& distance_index,
                                      std::shared_ptr<SnarlTraverserAndPartitioner> partitioner,
                                      const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                                      const std::string& reference_sample,
@@ -16,15 +15,13 @@ AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph&
                                      size_t allele_size_limit,
                                      std::ostream& out_associated) :
     graph(graph), 
-    distance_index(distance_index), 
     partitioner(std::move(partitioner)),
     sample_sets(sample_sets),
     reference_sample(reference_sample),
     test_method(test_method),
     output_format(output_format),
     allele_size_limit(allele_size_limit),
-    out_associated(out_associated),
-    check_distances(distance_index.has_distances())
+    out_associated(out_associated)
     {}
 
 void AssociationFinder::test_snarls() const {
@@ -37,9 +34,9 @@ void AssociationFinder::test_snarls() const {
 
     stoat::FisherKhi2 fisher_chi2_tester;
     partitioner->for_each_snarl_partition(graph, 
-    [&] (const handlegraph::net_handle_t& net) {
+    [&] (const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {
         // Function checking if the net handle is eligible
-        return snarl_is_eligible(net);
+        return snarl_is_eligible(dist_index, net);
     }, 
     [&] (const stoat::snarl_partition_t& snarl_info) {
 
@@ -53,7 +50,7 @@ void AssociationFinder::test_snarls() const {
         string chi2_p_value = "NA";
         // Get the path lengths, except since we don't know the lengths of the alleles, it's just the min and max length of the snarl
         std::stringstream ss;
-        if (check_distances) {
+        if (snarl_info.min_length == std::numeric_limits<size_t>::max() && snarl_info.max_length == std::numeric_limits<size_t>::max()) {
             ss << snarl_info.min_length << "," << snarl_info.max_length;
         } else {
             ss << "NA,NA";
@@ -178,8 +175,9 @@ void AssociationFinder::test_snarls() const {
     });
 }
 
-bool AssociationFinder::snarl_is_eligible(const handlegraph::net_handle_t& snarl) const {
-    if (!check_distances) {
+bool AssociationFinder::snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl) const {
+    //TODO: Don't check has_distances here
+    if (!distance_index.has_distances()) {
         // If the distance index doesn't let us check distances, just return true
         return true;
     } else {

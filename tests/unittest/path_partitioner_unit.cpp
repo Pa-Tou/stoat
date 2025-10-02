@@ -215,7 +215,7 @@ TEST_CASE( "Path partitioner nested bubbles",
     SECTION ("Traverse snarls" ) {
         // Get all the snarl partitions
         std::vector<stoat::snarl_partition_t> partitions;
-        af.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
+        af.for_each_snarl_partition(*path_graph, [&](const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
             partitions.emplace_back(snarl_info);
         });
         REQUIRE(partitions.size() == 4);
@@ -289,7 +289,7 @@ TEST_CASE( "Path partitioner nested bubbles",
 
         // Get all the snarl partitions
         std::vector<stoat::snarl_partition_t> serialized_partitions;
-        af_serialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
+        af_serialized.for_each_snarl_partition(*path_graph, [&](const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
             serialized_partitions.emplace_back(snarl_info);
         });
 
@@ -301,7 +301,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         af_deserialized.deserialize("./test.snarl_partitions.txt");
 
         std::vector<stoat::snarl_partition_t> deserialized_partitions;
-        af_deserialized.for_each_snarl_partition(*path_graph, [&](const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
+        af_deserialized.for_each_snarl_partition(*path_graph, [&](const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
             deserialized_partitions.emplace_back(snarl_info);
         });
 

@@ -272,7 +272,7 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
 
 // Run iteratee on all snarls, either from the distance index or in snarl_partitions
 void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph,
-                                                  const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
+                                                  const std::function<bool(const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
                                                   const std::function<void(const snarl_partition_t& snarl_info)>& iteratee) {
     if (distance_index != nullptr) {
         // If the distance index is given, then use that
@@ -292,6 +292,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             
             distance_index->for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
             
+                //TODO: Actually use is_eligible
                 //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
                 if (distance_index->is_snarl(snarl)) {
 

@@ -113,7 +113,69 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
     }
 
+    SECTION("Test serialization of snarls") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -b " + data_path + "/phenotype_samples.tsv"
+            + " -s " + data_path + "/" + graph_base + "saved_snarls"
+            + " -T chi2 -r ref";
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::ifstream testfile;
+        testfile.open(output_dir+"/binary_table_graph.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
+
+        // Now run it again but using the saved snarls
+
+        cmd = "../bin/stoat graph";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+            + " -b " + data_path + "/phenotype_samples.tsv"
+            + " -s " + data_path + "/" + graph_base + "saved_snarls"
+            + " -T chi2 -r ref";
+
+        cmd += " --output " + output_dir + "_loaded";
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"_loaded/binary_table_graph.tsv"));
+        testfile;
+        testfile.open(output_dir+"_loaded/binary_table_graph.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", output_dir+"_loaded/binary_table_graph.tsv"));
+
+        // TODO: Add something that actually checks this
+        //bool passed = compare_output_dirs(output_dir, expected_dir);
+        //REQUIRE(passed);
+
+    }
+
     clean_output_dir(output_dir);
+    clean_output_dir(output_dir+"_loaded");
 }
 
 TEST_CASE("Output simple nested chain", "[graph]") {

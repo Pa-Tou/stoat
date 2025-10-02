@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <handlegraph/path_position_handle_graph.hpp>
-#include <bdsg/snarl_distance_index.hpp>
 #include "partitioner.hpp"
 
 using namespace std;
@@ -23,7 +22,6 @@ class AssociationFinder {
         // At a minimum, an AssociationFinder must have a graph (with path information for printing reference coordinates),
         // a distance index, the names of the samples we are interested in, and, optionally, the name of the reference
         const handlegraph::PathPositionHandleGraph& graph;
-        const bdsg::SnarlDistanceIndex& distance_index; 
         const std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
         const std::string& reference_sample;
         const std::string& test_method;
@@ -45,7 +43,6 @@ class AssociationFinder {
         /// filenames for writing alleles, and a size limit for the minimum length of snarl reported,
         /// measured as the "maximum" length of a snarl
         AssociationFinder(const handlegraph::PathPositionHandleGraph& graph, 
-                          const bdsg::SnarlDistanceIndex& distance_index, 
                           std::shared_ptr<SnarlTraverserAndPartitioner> partitioner,
                           const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                           const std::string& reference_sample,
@@ -64,7 +61,7 @@ class AssociationFinder {
        //////////////////////////////// Other helper functions
 
         // Do we care about this snarl? Based on allele_size_limit
-        bool snarl_is_eligible(const handlegraph::net_handle_t& snarl) const;
+        bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& snarl) const;
 
 };
 

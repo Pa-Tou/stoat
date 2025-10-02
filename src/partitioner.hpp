@@ -33,7 +33,7 @@ class SnarlTraverserAndPartitioner {
         /// If using the distance index, check if the snarl is eligible before computing snarl_info.
         /// If using the distance index and save_partitions is true, then also serialize the snarl
         void for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph, 
-                            const std::function<bool(const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
+                            const std::function<bool(const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
                             const std::function<void(const snarl_partition_t& snarl_info)>& iteratee);
 
         

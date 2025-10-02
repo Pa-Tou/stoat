@@ -334,7 +334,6 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         // If we actually want to do the analysis
         // TODO: Double check that the distance index isn't actually used
         stoat_graph::AssociationFinder af (*graph, 
-                                       *distance_index_ptr,
                                        partitioner,
                                        sample_sets,
                                        reference_sample,
@@ -348,7 +347,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         // The first function says which snarls to include - all of them
         // The second function says what to do with the partitions - nothing because it saves them automatically 
         partitioner->for_each_snarl_partition(*graph, 
-            [](const net_handle_t& net) {return true;},
+            [](const bdsg::SnarlDistanceIndex& dist_index, const net_handle_t& net) {return true;},
             [&](const auto& snarl_info) { return; });
     }
 
