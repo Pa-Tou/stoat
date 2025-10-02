@@ -27,11 +27,16 @@ namespace stoat_command {
 void print_help_graph() {
     std::cerr << "usage: stoat graph -g [graph] -d [distance index] -b [phenotype file] [options]" << endl
         << "Find associated variants based on the haplotype paths in the graph"<< endl
+        << "Computing the snarls from the distance index may be slow, so they can be saved with -s." << endl
+        << "Requires either -b to compute the associations, or -s to save the snarls in the graph. Or both to do both" << endl 
         << endl
         << "input:" << endl
         << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << endl
-        << "  -d, --distance-index FILE          Use this distance index (required)" << endl
-        << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required)" << endl
+        << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << endl
+        << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required if -s is not given)" << endl
+        << "                                     If this is not give, then -s is required to save the snarls." << endl
+        << "  -s, --snarls FILE                  If this is file is empty, then save the snarl paths in the graph to this file. (required if -b is not given) " << endl
+        << "                                     If this is file is not empty, then load the snarl paths from this file instead of recomputing them. " << endl
         << endl
         << "output:" << endl
         << "  -o, --output DIR                   Output directory name [output]" << endl
@@ -64,6 +69,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     std::string test_method = "exact";
     std::string reference_sample;
     std::string samples_filename;
+    std::string snarls_filename;
     std::vector<std::string> samples;
     std::string output_format= "tsv";
     std::string output_dir="output";
@@ -82,6 +88,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                 //{"method", required_argument, 0, 'm'},
                 {"reference-sample", required_argument, 0, 'r'},
                 {"binary-pheno", required_argument, 0, 'b'},
+                {"snarls", required_argument, 0, 's'},
                 {"output", required_argument, 0, 'o'},
                 {"output-format", required_argument, 0, 'O'},
                 {"verbose", required_argument, 0, 'V'},
@@ -91,7 +98,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:V:o:O:h",
+        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:s:V:o:O:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -143,6 +150,9 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
             case 'b':
                 samples_filename = optarg;
                 break;
+            case 's':
+                snarls_filename = optarg;
+                break;
             case 'o':
                 output_dir = optarg;
                 break;
@@ -165,8 +175,8 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         return EXIT_FAILURE; 
     }
 
-    if (distance_name.empty()) {
-        stoat::LOG_ERROR("[stoat graph] stoat graph requires a distance index file");
+    if (distance_name.empty() && snarls_filename.empty()) {
+        stoat::LOG_ERROR("[stoat graph] stoat graph requires a distance index file or saved snarls");
         return EXIT_FAILURE; 
     }
 
@@ -180,9 +190,37 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     stoat::Logger::instance().setLogFile(output_dir + "/stoat_graph.log");
 
     // Load the samples from a file
-    if (samples_filename.empty()) {
-        stoat::LOG_ERROR("[stoat graph]: stoat graph requires samples of interest");
+    if (samples_filename.empty() && snarls_filename.empty()) {
+        stoat::LOG_ERROR("[stoat graph]: stoat graph requires samples of interest to compute associations or an empty snarls file to pre-compute the snarls");
         return EXIT_FAILURE; 
+    }
+
+
+    // If we want to save the snarls, then double check that the file is empty
+    // If we want to use the snarls, then double check that the file is not empty.
+    // Either way, tell the user what we're doing
+    bool save_snarls = false;
+    bool load_snarls = false;
+    if (!snarls_filename.empty()) {
+        if (std::filesystem::exists(snarls_filename)) {
+            if (samples_filename.empty()) {
+                // If this file already exists but we wanted to write it (no -b), then tell the user and error
+                stoat::LOG_ERROR("[stoat graph] --binary-pheno was not given but --snarls is not empty.\n\tstoat will not overwrite the snarls file. Please delete it if you want to re-write it.");
+            } else {
+                // Otherwise, we are going to use the precomputed snarls
+                stoat::LOG_INFO("[stoat graph] using precomputed snarl paths from " + snarls_filename);
+                load_snarls = true;
+            }
+        } else {
+            //conversely, if the file doesn't exist and we don't have a distance index then also error
+            if (distance_name.empty()) {
+                stoat::LOG_ERROR("[stoat graph] --snarls file is empty. --distance-index is required to compute the snarls");
+            } else {
+                // Otherwise, we are going to write snarls
+                stoat::LOG_INFO("[stoat graph] write computed snarl paths to " + snarls_filename);
+                save_snarls = true;
+            }
+        }
     }
 
     std::vector<bool> phenotypes = stoat_vcf::parse_binary_pheno(samples_filename, samples);
@@ -249,9 +287,13 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     bdsg::PathPositionOverlayHelper overlay_helper;
     bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get(), paths_set);
 
-    // Load the distance index
-    bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize(distance_name);
+
+    bdsg::SnarlDistanceIndex* distance_index_ptr = nullptr;
+    if (!distance_name.empty()) {
+        // Load the distance index
+        bdsg::SnarlDistanceIndex distance_index;
+        distance_index.deserialize(distance_name);
+    }
 
     auto end_1 = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Sample haplotype time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
@@ -273,7 +315,10 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     // Make the partitioner
     std::shared_ptr<stoat_graph::SnarlTraverserAndPartitioner> partitioner;
     if (method_name == "paths") {
-        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, &distance_index, reference_sample, false));
+        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index_ptr, reference_sample, save_snarls));
+        if (load_snarls) {
+            partitioner->deserialize(snarls_filename);
+        }
     } else {
         stoat::LOG_ERROR("[stoat graph] unknown method " + method_name);
         return EXIT_FAILURE; 
@@ -283,16 +328,32 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     CALLGRIND_START_INSTRUMENTATION;
 #endif
 
-    stoat_graph::AssociationFinder af (*graph, 
-                                   distance_index,
-                                   partitioner,
-                                   sample_sets,
-                                   reference_sample,
-                                   test_method,
-                                   output_format,
-                                   allele_size_limit,
-                                   out_stream);
-    af.test_snarls();
+    if (!samples_filename.empty()) {
+        // If we actually want to do the analysis
+        // TODO: Double check that the distance index isn't actually used
+        stoat_graph::AssociationFinder af (*graph, 
+                                       *distance_index_ptr,
+                                       partitioner,
+                                       sample_sets,
+                                       reference_sample,
+                                       test_method,
+                                       output_format,
+                                       allele_size_limit,
+                                       out_stream);
+        af.test_snarls();
+    } else if (save_snarls) {
+        // If we just want to precompute the snarls
+        // The first function says which snarls to include - all of them
+        // The second function says what to do with the partitions - nothing because it saves them automatically 
+        partitioner->for_each_snarl_partition(*graph, 
+            [](const net_handle_t& net) {return true;},
+            [&](const auto& snarl_info) { return; });
+    }
+
+    if (save_snarls) {
+        // Save the snarls
+        partitioner->serialize(snarls_filename);
+    }
 
     //Close streams
     out_stream.close();
