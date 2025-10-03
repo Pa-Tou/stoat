@@ -286,57 +286,78 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             return true;
         });
         // TODO: Multithread here? don't forget to put a lock on chains
-        while (!chains.empty()) {
-            handlegraph::net_handle_t chain = chains.back();
-            chains.pop_back();
-            
-            distance_index->for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
-            
-                //TODO: Actually use is_eligible
-                //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
-                if (distance_index->is_snarl(snarl)) {
+        // TODO: this could end up not parallel if the list of chains is empty but then gets filled by another thread
+        // Go through the contents of chains in parallel
+        #pragma omp parallel shared(chains, all_references, snarl_partitions)
+        {
+            // The actual while loop is run on a single thread
+            #pragma omp single
+            {
+                while (!chains.empty()) {
+                    handlegraph::net_handle_t chain = chains.back();
+                    chains.pop_back();
 
-                    stoat::LOG_TRACE( "Test snarl " + distance_index->net_handle_as_string(snarl));
+                    // Everything in here is parallelized
+                    #pragma omp task
+                    {
+                        
+                        distance_index->for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
+                        
+                            //TODO: Actually use is_eligible
+                            //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
+                            if (distance_index->is_snarl(snarl)) {
 
-                    // Make a snarl_partition_t and call iteratee on it
-                    snarl_partition_t snarl_info(snarl, graph, *distance_index);
-                    if (check_distances) {
-                        snarl_info.min_length = distance_index->minimum_length(snarl);
-                        snarl_info.max_length = distance_index->maximum_length(snarl);
+                                stoat::LOG_TRACE( "Test snarl " + distance_index->net_handle_as_string(snarl));
+
+                                // Make a snarl_partition_t and call iteratee on it
+                                snarl_partition_t snarl_info(snarl, graph, *distance_index);
+                                if (check_distances) {
+                                    snarl_info.min_length = distance_index->minimum_length(snarl);
+                                    snarl_info.max_length = distance_index->maximum_length(snarl);
+                                }
+
+                                // Get the offsets of the start and end nodes along the reference
+                                std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
+                                if (ranges.size() != 0) {
+                                    std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
+                                } else {
+                                    snarl_info.ref_path = "NA";
+                                    snarl_info.start_positions = 0;
+                                    snarl_info.end_positions = 0;
+                                }
+
+                                // Now get the partitions
+                                snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
+
+                                // And call iteratee
+                                iteratee(snarl_info);
+
+                                #pragma omp critical 
+                                {
+                                    if (save_partitions) {
+                                        // If we are going to serialize the snarls, then save the snarl to snarl_partitions
+                                        // TODO :or just write it directly
+                                        all_references.emplace(snarl_info.ref_path);
+                                        snarl_partitions.emplace_back(std::move(snarl_info));
+                                    }
+
+                                    // Add the child chains to the stack
+                                    distance_index->for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
+
+                                        chains.emplace_back(child);
+                                        return true;
+                                    });
+                                }
+
+                            }
+                            return true;
+                        });
                     }
 
-                    // Get the offsets of the start and end nodes along the reference
-                    std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
-                    if (ranges.size() != 0) {
-                        std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
-                    } else {
-                        snarl_info.ref_path = "NA";
-                        snarl_info.start_positions = 0;
-                        snarl_info.end_positions = 0;
-                    }
-
-                    // Now get the partitions
-                    snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
-
-                    // And call iteratee
-                    iteratee(snarl_info);
-
-                    if (save_partitions) {
-                        // If we are going to serialize the snarls, then save the snarl to snarl_partitions
-                        // TODO :or just write it directly
-                        all_references.emplace(snarl_info.ref_path);
-                        snarl_partitions.emplace_back(std::move(snarl_info));
-                    }
-
-                    // Add the child chains to the stack
-                    distance_index->for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
-                        chains.emplace_back(child);
-                        return true;
-                    });
-
+                    // Wait for tasks to complete
+                    #pragma omp taskwait
                 }
-                return true;
-            });
+            }
         }
 
     } else {
