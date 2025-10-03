@@ -224,7 +224,11 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         }
     }
 
-    std::vector<bool> phenotypes = stoat_vcf::parse_binary_pheno(samples_filename, samples);
+    
+    std::vector<bool> phenotypes;
+    if (!samples_filename.empty()) {
+        phenotypes = stoat_vcf::parse_binary_pheno(samples_filename, samples);
+    }
     std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
 
     for (size_t i = 0 ; i < samples.size() ; i++ ) {
