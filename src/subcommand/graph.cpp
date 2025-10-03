@@ -44,7 +44,7 @@ void print_help_graph() {
         << "                                     Output will be written to DIR/binary_table_graph.tsv or DIR/binary_output.fasta" << endl
         << "options:" << endl
         << "  -t, --threads N                    Number of threads to use" << endl
-        << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [exact]" << endl
+        << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << endl
         //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << endl
         //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
@@ -66,7 +66,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     size_t allele_size_limit = 0;
     //double p_value = 0.05;
     std::string method_name = "paths";
-    std::string test_method = "exact";
+    std::string test_method = "chi2";
     std::string reference_sample;
     std::string samples_filename;
     std::string snarls_filename;
