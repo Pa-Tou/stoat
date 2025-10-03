@@ -310,7 +310,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                     if (ranges.size() != 0) {
                         std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
                     } else {
-                        snarl_info.ref_path = "N/A";
+                        snarl_info.ref_path = "NA";
                         snarl_info.start_positions = 0;
                         snarl_info.end_positions = 0;
                     }
@@ -324,8 +324,8 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                     if (save_partitions) {
                         // If we are going to serialize the snarls, then save the snarl to snarl_partitions
                         // TODO :or just write it directly
-                        snarl_partitions.emplace_back(std::move(snarl_info));
                         all_references.emplace(snarl_info.ref_path);
+                        snarl_partitions.emplace_back(std::move(snarl_info));
                     }
 
                     // Add the child chains to the stack
@@ -400,7 +400,7 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     for (const snarl_partition_t& snarl_partition : snarl_partitions) {
         outstream << handlegraph::as_integer(snarl_partition.snarl) << "\t"
                   << handlegraph::as_integer(snarl_partition.start_handle) << "\t"
-                  << handlegraph::as_integer(snarl_partition.start_handle) << "\t"
+                  << handlegraph::as_integer(snarl_partition.end_handle) << "\t"
                   << ref_to_index[snarl_partition.ref_path] << "\t"
                   << snarl_partition.min_length << "\t"
                   << snarl_partition.max_length << "\t"

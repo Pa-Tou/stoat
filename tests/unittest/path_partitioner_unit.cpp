@@ -249,7 +249,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         truth_partitions.emplace_back(snarl3, graph.get_handle(5, false), graph.get_handle(7, true), 4, 5, 2, 0, 1, "path0#0#path0", temp_partitions); 
 
         temp_partitions.clear();
-        truth_partitions.emplace_back(snarl4, graph.get_handle(8, false), graph.get_handle(10, true), 0, 0, 1, 0, 1, "N/A", temp_partitions); 
+        truth_partitions.emplace_back(snarl4, graph.get_handle(8, false), graph.get_handle(10, true), 0, 0, 1, 0, 1, "NA", temp_partitions); 
 
         for (const stoat::snarl_partition_t& test_partition : partitions) {
             stoat::snarl_partition_t& truth_partition = truth_partitions[0];
@@ -264,14 +264,15 @@ TEST_CASE( "Path partitioner nested bubbles",
                 truth_partition = truth_partitions[3];
            }
 
+           REQUIRE(handlegraph::as_integer(test_partition.snarl) == handlegraph::as_integer(truth_partition.snarl));
            REQUIRE(test_partition.start_handle == truth_partition.start_handle);
            REQUIRE(test_partition.end_handle == truth_partition.end_handle);
+           REQUIRE(test_partition.ref_path == truth_partition.ref_path);
            REQUIRE(test_partition.start_positions == truth_partition.start_positions);
            REQUIRE(test_partition.end_positions == truth_partition.end_positions);
            REQUIRE(test_partition.depth == truth_partition.depth);
            REQUIRE(test_partition.min_length == truth_partition.min_length);
            REQUIRE(test_partition.max_length == truth_partition.max_length);
-           REQUIRE(test_partition.ref_path == truth_partition.ref_path);
            
            REQUIRE(test_partition.partitions.size() == truth_partition.partitions.size());
            if (truth_partition.partitions.size() != 0) {
@@ -311,6 +312,14 @@ TEST_CASE( "Path partitioner nested bubbles",
         // The order isn't required to be the same but it will be
         for (size_t i = 0 ; i < serialized_partitions.size() ; i++ ) {
             REQUIRE(serialized_partitions[i].partitions == deserialized_partitions[i].partitions);
+            REQUIRE(serialized_partitions[i].start_positions == deserialized_partitions[i].start_positions);
+            REQUIRE(serialized_partitions[i].end_positions == deserialized_partitions[i].end_positions);
+            REQUIRE(serialized_partitions[i].start_handle == deserialized_partitions[i].start_handle);
+            REQUIRE(serialized_partitions[i].end_handle == deserialized_partitions[i].end_handle);
+            REQUIRE(serialized_partitions[i].min_length == deserialized_partitions[i].min_length);
+            REQUIRE(serialized_partitions[i].max_length == deserialized_partitions[i].max_length);
+            REQUIRE(serialized_partitions[i].depth == deserialized_partitions[i].depth);
+            REQUIRE(serialized_partitions[i].ref_path == deserialized_partitions[i].ref_path);
         }
 
         int rm = system("rm ./test.snarl_partitions.txt"); 
