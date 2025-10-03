@@ -322,7 +322,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     // Make the partitioner
     std::shared_ptr<stoat_graph::SnarlTraverserAndPartitioner> partitioner;
     if (method_name == "paths") {
-        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index_ptr, reference_sample, save_snarls));
+        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index_ptr, reference_sample, allele_size_limit, save_snarls));
         if (load_snarls) {
             partitioner->deserialize(snarls_filename, *graph);
         }
@@ -344,15 +344,12 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                                        reference_sample,
                                        test_method,
                                        output_format,
-                                       allele_size_limit,
                                        out_stream);
         af.test_snarls();
     } else if (save_snarls) {
         // If we just want to precompute the snarls
-        // The first function says which snarls to include - all of them
-        // The second function says what to do with the partitions - nothing because it saves them automatically 
+        // The function says what to do with the partitions - nothing because it saves them automatically 
         partitioner->for_each_snarl_partition(*graph, 
-            [](const bdsg::SnarlDistanceIndex& dist_index, const net_handle_t& net) {return true;},
             [&](const auto& snarl_info) { return; });
     }
 

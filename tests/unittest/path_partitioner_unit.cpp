@@ -9,8 +9,8 @@ namespace stoat_graph{
 
 class TestSnarlTraverserAndPathPartitioner : SnarlTraverserAndPathPartitioner {
     public: 
-    TestSnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool     save_partitions) :
-        SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index, reference_sample, save_partitions) {} 
+    TestSnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions) :
+        SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index, reference_sample, allele_size_limit, save_partitions) {} 
     using SnarlTraverserAndPathPartitioner::partition_samples_in_snarl;
     using SnarlTraverserAndPathPartitioner::get_walk_sets;
     using SnarlTraverserAndPathPartitioner::for_each_snarl_partition;
@@ -42,14 +42,14 @@ TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
 
     SECTION("Make partitioner") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
-        TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+        TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
     }
     SECTION("Serialize partitioner") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
-        TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", true);
+        TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, true);
         af.serialize("./test.snarl_partitions.txt");
         
-        TestSnarlTraverserAndPathPartitioner af_loaded(all_samples, nullptr, "path0", false);
+        TestSnarlTraverserAndPathPartitioner af_loaded(all_samples, nullptr, "path0", 0, false);
         af_loaded.deserialize("./test.snarl_partitions.txt", *path_graph);
 
         int rm = system("rm ./test.snarl_partitions.txt"); 
@@ -151,7 +151,7 @@ TEST_CASE( "Path partitioner nested bubbles",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
 
     SECTION("get_walk_set") {
@@ -215,7 +215,7 @@ TEST_CASE( "Path partitioner nested bubbles",
     SECTION ("Traverse snarls" ) {
         // Get all the snarl partitions
         std::vector<stoat::snarl_partition_t> partitions;
-        af.for_each_snarl_partition(*path_graph, [&](const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
+        af.for_each_snarl_partition(*path_graph,  [&] (const stoat::snarl_partition_t& snarl_info) {
             partitions.emplace_back(snarl_info);
         });
         REQUIRE(partitions.size() == 4);
@@ -285,12 +285,12 @@ TEST_CASE( "Path partitioner nested bubbles",
         }
     }
     SECTION("Serialize partitioner") {
-        TestSnarlTraverserAndPathPartitioner af_serialized(all_samples, &distance_index, "path0", true);
+        TestSnarlTraverserAndPathPartitioner af_serialized(all_samples, &distance_index, "path0", 0, true);
 
 
         // Get all the snarl partitions
         std::vector<stoat::snarl_partition_t> serialized_partitions;
-        af_serialized.for_each_snarl_partition(*path_graph, [&](const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
+        af_serialized.for_each_snarl_partition(*path_graph,  [&] (const stoat::snarl_partition_t& snarl_info) {
             serialized_partitions.emplace_back(snarl_info);
         });
 
@@ -298,11 +298,11 @@ TEST_CASE( "Path partitioner nested bubbles",
         af_serialized.serialize("./test.snarl_partitions.txt");
 
 
-        TestSnarlTraverserAndPathPartitioner af_deserialized(all_samples, nullptr, "path0", false);
+        TestSnarlTraverserAndPathPartitioner af_deserialized(all_samples, nullptr, "path0", 0, false);
         af_deserialized.deserialize("./test.snarl_partitions.txt", *path_graph);
 
         std::vector<stoat::snarl_partition_t> deserialized_partitions;
-        af_deserialized.for_each_snarl_partition(*path_graph, [&](const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
+        af_deserialized.for_each_snarl_partition(*path_graph,  [&] (const stoat::snarl_partition_t& snarl_info) {
             deserialized_partitions.emplace_back(snarl_info);
         });
 
@@ -372,7 +372,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
 
     SECTION("get_walk_set") {
@@ -509,7 +509,7 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph, paths[0]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[1]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2])});
-    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
@@ -602,7 +602,7 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
@@ -698,7 +698,7 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
     std::set<std::string> samples ({"path0", "path1"});
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph, paths[0]),
                                                 stoat::get_sample_and_haplotype(*path_graph, paths[1])});
-    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
 
     SECTION("get_walk_set") {
@@ -787,7 +787,7 @@ TEST_CASE( "Path association finder bubble with three nodes",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", false);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular

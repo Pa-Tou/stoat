@@ -21,10 +21,11 @@ namespace stoat_graph {
 class SnarlTraverserAndPartitioner {
 
     public:
-        SnarlTraverserAndPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool save_partitions) :
+        SnarlTraverserAndPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions) :
             all_sample_haplotypes(all_sample_haplotypes),
             distance_index(distance_index),
             reference_sample(reference_sample),
+            allele_size_limit(allele_size_limit),
             save_partitions(save_partitions),
             check_distances(distance_index == nullptr ? false : distance_index->has_distances()) {}
 
@@ -33,7 +34,6 @@ class SnarlTraverserAndPartitioner {
         /// If using the distance index, check if the snarl is eligible before computing snarl_info.
         /// If using the distance index and save_partitions is true, then also serialize the snarl
         void for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph, 
-                            const std::function<bool(const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
                             const std::function<void(const snarl_partition_t& snarl_info)>& iteratee);
 
         
@@ -57,6 +57,9 @@ class SnarlTraverserAndPartitioner {
 
         /// A set of all samples+haplotypes in the graph
         const std::set<stoat::sample_hap_t>& all_sample_haplotypes;
+
+        /// Skip snarls if their maximum length is smaller than this
+        size_t allele_size_limit;
 
         // Does the distance index contain distances?
         bool check_distances;
@@ -88,14 +91,18 @@ class SnarlTraverserAndPartitioner {
         virtual std::vector<std::set<sample_hap_t>> partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                               const handlegraph::net_handle_t& snarl) const = 0;
 
+        // Do we care about this snarl? Based on allele_size_limit
+        bool snarl_is_eligible(const handlegraph::net_handle_t& snarl) const;
+
+
 
 };
 
 class SnarlTraverserAndPathPartitioner : public SnarlTraverserAndPartitioner {
     public:
         
-        SnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, bool save_partitions)
-            : SnarlTraverserAndPartitioner(all_sample_haplotypes, distance_index, reference_sample, save_partitions) {}
+        SnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions)
+            : SnarlTraverserAndPartitioner(all_sample_haplotypes, distance_index, reference_sample, allele_size_limit, save_partitions) {}
 
     protected:
 

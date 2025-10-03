@@ -272,7 +272,6 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
 
 // Run iteratee on all snarls, either from the distance index or in snarl_partitions
 void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph,
-                                                  const std::function<bool(const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net)>& snarl_is_eligible, 
                                                   const std::function<void(const snarl_partition_t& snarl_info)>& iteratee) {
     if (distance_index != nullptr) {
         // If the distance index is given, then use that
@@ -285,8 +284,6 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             chains.emplace_back(chain);
             return true;
         });
-        // TODO: Multithread here? don't forget to put a lock on chains
-        // TODO: this could end up not parallel if the list of chains is empty but then gets filled by another thread
         // Go through the contents of chains in parallel
         #pragma omp parallel shared(chains, all_references, snarl_partitions)
         {
@@ -305,7 +302,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                         
                             //TODO: Actually use is_eligible
                             //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
-                            if (distance_index->is_snarl(snarl)) {
+                            if (distance_index->is_snarl(snarl) && snarl_is_eligible(snarl)) {
 
                                 stoat::LOG_TRACE( "Test snarl " + distance_index->net_handle_as_string(snarl));
 
@@ -367,6 +364,14 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
         }
     }
 }
+bool SnarlTraverserAndPartitioner::snarl_is_eligible(const handlegraph::net_handle_t& snarl) const {
+    if (!check_distances) {
+        // If the distance index doesn't let us check distances, just return true
+        return true;
+    } else {
+        return distance_index->maximum_length(snarl) >= allele_size_limit;
+    }
+}
 
 /////////////////////////////////////////// Serializing and de-serializing the snarl partitions
 /*
@@ -382,13 +387,23 @@ size_t depth;
 std::vector<std::set<sample_hap_t>> partitions (as indices);
 std::vector<std::string> type_variants; (can get from partitions I think) 
 
-Start with all sample/haplotypes. The order will be the index for sample/haplotypes used when storing partitions
+Start with the header (SnarlTraverserAndPartitioner::file_header)
+
+Next the limits for testing snarls, in case we skipped small snarls for example:
+length_limit:N
+child_count_limit:N
+
+Next all sample/haplotypes. The order will be the index for sample/haplotypes used when storing partitions
+This section starts with #SAMPLES
 
 Then a second list of reference path names. The order will be the index for ref_path
+This section starts with #REFS
 
 Each snarl_partition_t is then stored, one per line, as a vector of integers.
 the first 9 items are fixed length.
 The 10th item is the number of sample_hap_t's in the first partition, followed by that number of entries for the sample_hap_t. And so on
+This section starts with #SNARLS
+//TODO: Everything is an int so store the bytes
 
 */
 void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
