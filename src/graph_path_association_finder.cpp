@@ -51,9 +51,9 @@ void AssociationFinder::test_snarls() const {
         // Get the path lengths, except since we don't know the lengths of the alleles, it's just the min and max length of the snarl
         std::stringstream ss;
         if (snarl_info.min_length == std::numeric_limits<size_t>::max() && snarl_info.max_length == std::numeric_limits<size_t>::max()) {
-            ss << snarl_info.min_length << "," << snarl_info.max_length;
-        } else {
             ss << "NA,NA";
+        } else {
+            ss << snarl_info.min_length << "," << snarl_info.max_length;
         }
 
         string path_lengths = ss.str();
