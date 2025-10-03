@@ -390,8 +390,7 @@ std::vector<std::string> type_variants; (can get from partitions I think)
 Start with the header (SnarlTraverserAndPartitioner::file_header)
 
 Next the limits for testing snarls, in case we skipped small snarls for example:
-length_limit:N
-child_count_limit:N
+allele_size_limit:N
 
 Next all sample/haplotypes. The order will be the index for sample/haplotypes used when storing partitions
 This section starts with #SAMPLES
@@ -414,6 +413,8 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     }
     // Write the header
     outstream << file_header << endl;
+
+    outstream << "allele_size_limit:" << allele_size_limit << endl;
     
     // Next will be a list of sample/haplotypes. Also keep a dict mapping sample/haplotype to the index that is used to store it
     outstream << "#SAMPLES" << endl;
@@ -471,6 +472,18 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename, cons
     if (line != file_header) {
         throw std::runtime_error("stoat: Snarl partitions file " +filename+ " contains the wrong header: " + line);
     }
+
+    // Next should be the allele size limit
+    std::getline(instream, line);
+    std::stringstream linestream(line);
+    string allele_limit_str;
+    std::getline(linestream, allele_limit_str, ':');
+    std::getline(linestream, allele_limit_str, ':');
+    if (allele_size_limit < std::stoull(allele_limit_str)) {
+        cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << endl;;
+    }
+
+
     std::getline(instream, line);
     if (line != "#SAMPLES") {
         throw std::runtime_error("stoat: Snarl partitions file " +filename+ " is not formatted correctly");
