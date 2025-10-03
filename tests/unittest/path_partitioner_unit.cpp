@@ -50,7 +50,7 @@ TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
         af.serialize("./test.snarl_partitions.txt");
         
         TestSnarlTraverserAndPathPartitioner af_loaded(all_samples, nullptr, "path0", false);
-        af_loaded.deserialize("./test.snarl_partitions.txt");
+        af_loaded.deserialize("./test.snarl_partitions.txt", *path_graph);
 
         int rm = system("rm ./test.snarl_partitions.txt"); 
     }
@@ -229,7 +229,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         temp_partitions.emplace_back();
         temp_partitions.back().emplace("path2", std::numeric_limits<size_t>::max());
         temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
-        truth_partitions.emplace_back(snarl1, graph.get_handle(1, false), graph.get_handle(4, true), 1, 2, 1, 1, 1, "path0#0#path0", temp_partitions); 
+        truth_partitions.emplace_back(snarl1, graph.get_handle(1, false), graph.get_handle(4, true), std::make_pair<size_t, size_t> (1,4), 1, 2, 1, 1, 1, "path0#0#path0", temp_partitions); 
 
         temp_partitions.clear();
         temp_partitions.emplace_back();
@@ -238,7 +238,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         temp_partitions.back().emplace("path0", 0);
         temp_partitions.back().emplace("path1", 0);
         temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
-        truth_partitions.emplace_back(snarl2, graph.get_handle(4, false), graph.get_handle(8, true), 3, 6, 1, 0, 3, "path0#0#path0", temp_partitions); 
+        truth_partitions.emplace_back(snarl2, graph.get_handle(4, false), graph.get_handle(8, true), std::make_pair<size_t, size_t> (4,8), 3, 6, 1, 0, 3, "path0#0#path0", temp_partitions); 
 
         temp_partitions.clear();
         temp_partitions.emplace_back();
@@ -246,10 +246,10 @@ TEST_CASE( "Path partitioner nested bubbles",
         temp_partitions.emplace_back();
         temp_partitions.back().emplace("path1", 0);
         temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
-        truth_partitions.emplace_back(snarl3, graph.get_handle(5, false), graph.get_handle(7, true), 4, 5, 2, 0, 1, "path0#0#path0", temp_partitions); 
+        truth_partitions.emplace_back(snarl3, graph.get_handle(5, false), graph.get_handle(7, true), std::make_pair<size_t, size_t> (5,7), 4, 5, 2, 0, 1, "path0#0#path0", temp_partitions); 
 
         temp_partitions.clear();
-        truth_partitions.emplace_back(snarl4, graph.get_handle(8, false), graph.get_handle(10, true), 0, 0, 1, 0, 1, "NA", temp_partitions); 
+        truth_partitions.emplace_back(snarl4, graph.get_handle(8, false), graph.get_handle(10, true), std::make_pair<size_t, size_t> (8, 10), 0, 0, 1, 0, 1, "NA", temp_partitions); 
 
         for (const stoat::snarl_partition_t& test_partition : partitions) {
             stoat::snarl_partition_t& truth_partition = truth_partitions[0];
@@ -299,7 +299,7 @@ TEST_CASE( "Path partitioner nested bubbles",
 
 
         TestSnarlTraverserAndPathPartitioner af_deserialized(all_samples, nullptr, "path0", false);
-        af_deserialized.deserialize("./test.snarl_partitions.txt");
+        af_deserialized.deserialize("./test.snarl_partitions.txt", *path_graph);
 
         std::vector<stoat::snarl_partition_t> deserialized_partitions;
         af_deserialized.for_each_snarl_partition(*path_graph, [&](const bdsg::SnarlDistanceIndex& dist_index, const handlegraph::net_handle_t& net) {return true;}, [&] (const stoat::snarl_partition_t& snarl_info) {
