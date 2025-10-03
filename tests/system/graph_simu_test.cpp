@@ -6,7 +6,7 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
+TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
@@ -116,13 +116,16 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
     SECTION("Test serialization of snarls") {
 
         clean_output_dir(output_dir);
+        string output_dir_loaded = output_dir + "_loaded";
+        clean_output_dir(output_dir_loaded);
+        std::filesystem::create_directory(output_dir_loaded);
 
         std::string cmd = "../bin/stoat graph";
 
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -s " + data_path + "/" + graph_base + "saved_snarls"
+            + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -135,6 +138,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             REQUIRE(false);
         }
 
+        REQUIRE(std::filesystem::exists(output_dir_loaded+"/" + graph_base + ".saved_snarls"));
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
         std::ifstream testfile;
         testfile.open(output_dir+"/binary_table_graph.tsv");
@@ -147,10 +151,10 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -s " + data_path + "/" + graph_base + "saved_snarls"
+            + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
             + " -T chi2 -r ref";
 
-        cmd += " --output " + output_dir + "_loaded";
+        cmd += " --output " + output_dir_loaded;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -160,13 +164,13 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"_loaded/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir_loaded+"/binary_table_graph.tsv"));
         testfile;
-        testfile.open(output_dir+"_loaded/binary_table_graph.tsv");
+        testfile.open(output_dir_loaded+"/binary_table_graph.tsv");
         REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", output_dir+"_loaded/binary_table_graph.tsv"));
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", output_dir_loaded+"/binary_table_graph.tsv"));
 
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
@@ -174,8 +178,8 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
     }
 
-    clean_output_dir(output_dir);
-    clean_output_dir(output_dir+"_loaded");
+    //clean_output_dir(output_dir);
+    //clean_output_dir(output_dir_loaded);
 }
 
 TEST_CASE("Output simple nested chain", "[graph]") {
@@ -350,7 +354,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     fs::remove(samples_file);
 }
 
-TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
+TEST_CASE("Output simple nested chain gbz", "[graph]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/graph_test/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";

@@ -373,6 +373,9 @@ The 10th item is the number of sample_hap_t's in the first partition, followed b
 void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     ofstream outstream;
     outstream.open(filename);
+    if (!outstream.good()) {
+        throw std::runtime_error("stoat: could not open file " + filename + " for writing");
+    }
     // Write the header
     outstream << file_header << endl;
     
@@ -430,11 +433,11 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename, cons
     // Read the first line, which must match the header
     std::getline(instream, line);
     if (line != file_header) {
-        stoat::LOG_ERROR("Snarl partitions file " +filename+ " contains the wrong header: " + line);
+        throw std::runtime_error("stoat: Snarl partitions file " +filename+ " contains the wrong header: " + line);
     }
     std::getline(instream, line);
     if (line != "#SAMPLES") {
-        stoat::LOG_ERROR("Snarl partitions file " +filename+ " is not formatted correctly");
+        throw std::runtime_error("stoat: Snarl partitions file " +filename+ " is not formatted correctly");
     }
 
     // Get the sample/haplotype from the index

@@ -340,7 +340,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
 
    */
 
-    int built = system("vg index --snarl-limit 0 -j ../tests/graph_test/simple_nested_chain.nodist.dist ../tests/graph_test/simple_nested_chain.hg"); 
+    //int built = system("vg index --snarl-limit 0 -j ../tests/graph_test/simple_nested_chain.nodist.dist ../tests/graph_test/simple_nested_chain.hg"); 
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/graph_test/simple_nested_chain.nodist.dist");
 
