@@ -276,7 +276,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
 
     path_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
         std::string sample_name = stoat::get_sample_name_from_path(*path_graph, path);
-        if (sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
+        if (samples_filename.empty() || sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
             paths_set.emplace(path_graph->get_path_name(path));
             all_sample_haplotypes.emplace(stoat::get_sample_and_haplotype(*path_graph, path));
         }
