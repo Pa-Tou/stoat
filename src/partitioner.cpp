@@ -420,7 +420,8 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     outstream.close();
     return;
 }
-void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
+
+void SnarlTraverserAndPartitioner::deserialize(const std::string& filename, const handlegraph::PathPositionHandleGraph& graph) {
     ifstream instream;
     instream.open(filename);
 
@@ -473,6 +474,9 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename) {
         //snarl end id
         std::getline(linestream, part, '\t');
         snarl_partitions.back().end_handle = handlegraph::as_handle(std::stoull(part));
+        // Put together the ids from the handles
+        snarl_partitions.back().snarl_ids = std::make_pair<size_t, size_t>(graph.get_id(snarl_partitions.back().start_handle),
+                                                                           graph.get_id(snarl_partitions.back().end_handle));
         //reference path
         std::getline(linestream, part, '\t');
         snarl_partitions.back().ref_path = refs[std::stoull(part)];

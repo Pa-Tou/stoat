@@ -142,13 +142,18 @@ struct snarl_partition_t : stoat::Snarl_data_t {
     std::vector<std::set<sample_hap_t>> partitions;
 
     snarl_partition_t() {};
+
+    // Make it from a snarl
     snarl_partition_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) :
         Snarl_data_t(snarl_, graph, distance_index),
         start_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl_, false, true)), &graph)),
         end_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl_, true, true)), &graph)){};
+
+    // Make it from values
     snarl_partition_t(bdsg::net_handle_t snarl_,
                       handlegraph::handle_t start_handle,
                       handlegraph::handle_t end_handle,
+                      std::pair<size_t, size_t> snarl_ids_,
                       size_t start_pos_,
                       size_t end_pos_,
                       size_t depth_,
@@ -163,6 +168,7 @@ struct snarl_partition_t : stoat::Snarl_data_t {
                           start_positions=start_pos_;
                           end_positions=end_pos_;
                           depth=depth_;
+                          snarl_ids = snarl_ids_;
                       };
 };
 

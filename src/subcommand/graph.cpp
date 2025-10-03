@@ -219,6 +219,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                 // Otherwise, we are going to write snarls
                 stoat::LOG_INFO("[stoat graph] write computed snarl paths to " + snarls_filename);
                 save_snarls = true;
+                // TODO: Make sure that the directory exists
             }
         }
     }
@@ -319,7 +320,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     if (method_name == "paths") {
         partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index_ptr, reference_sample, save_snarls));
         if (load_snarls) {
-            partitioner->deserialize(snarls_filename);
+            partitioner->deserialize(snarls_filename, *graph);
         }
     } else {
         stoat::LOG_ERROR("[stoat graph] unknown method " + method_name);

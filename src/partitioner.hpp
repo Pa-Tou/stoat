@@ -40,8 +40,9 @@ class SnarlTraverserAndPartitioner {
         /// Serialize all the snarl_partition_t's
         void serialize(const std::string& filename);
 
-        /// Desrialize all the snarl_partition_t's
-        void deserialize(const std::string& filename);
+        /// Deserialize all the snarl_partition_t's
+        // TODO: the graph is needed to get the ids from the handles even though it isn't necessary
+        void deserialize(const std::string& filename, const handlegraph::PathPositionHandleGraph& graph);
 
 
     protected:
