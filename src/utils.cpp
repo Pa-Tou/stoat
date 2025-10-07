@@ -1,6 +1,8 @@
 #include "utils.hpp"
 #include <string>
 
+//#include DEBUG
+
 namespace stoat {
 
 std::string set_precision(const double& value) {
@@ -240,7 +242,7 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
 std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle, 
                                                           const handlegraph::handle_t& end_handle, bool get_reference, std::string sample_name, bool get_all_paths) {
     #ifdef DEBUG
-        cerr << "Get coordinates of snarl between " << start_handle << " and " << end_handle << endl;
+        cerr << "Get coordinates of snarl between " << graph.get_id(start_handle) << " and " << graph.get_id(end_handle) << endl;
         if (get_reference) {
             assert(sample_name.empty());
             assert(!get_all_paths);
@@ -335,17 +337,18 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
             });
 
             #ifdef DEBUG
-                for (size_t step_i = 0 ; step_i < steps.size() ; step_i++) {
-                    if (step_i % 2 == 0) {
-                        // If this is an even number, then the path should go into the snarl
-                        assert(graph.get_handle_of_step(steps[step_i]) == start_handle ||
-                            graph.get_handle_of_step(steps[step_i]) == end_handle);
-                    } else {
-                        //If this is an odd number, it should go out of the snarl
-                        assert(graph.get_handle_of_step(steps[step_i]) == graph.flip(start_handle) ||
-                            graph.get_handle_of_step(steps[step_i]) == graph.flip(end_handle));
-                    }
-                }
+                // TODO : I think this needs to be checking the orientation
+                //for (size_t step_i = 0 ; step_i < steps.size() ; step_i++) {
+                //    if (step_i % 2 == 0) {
+                //        // If this is an even number, then the path should go into the snarl
+                //        assert(graph.get_handle_of_step(steps[step_i]) == start_handle ||
+                //            graph.get_handle_of_step(steps[step_i]) == end_handle);
+                //    } else {
+                //        //If this is an odd number, it should go out of the snarl
+                //        assert(graph.get_handle_of_step(steps[step_i]) == graph.flip(start_handle) ||
+                //            graph.get_handle_of_step(steps[step_i]) == graph.flip(end_handle));
+                //    }
+                //}
             #endif
             for (size_t i = 0 ; i < steps.size() ; i += 2) {
                 ranges.push_back({steps[i], steps[i+1]});
