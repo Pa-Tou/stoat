@@ -4,5 +4,5 @@
 GRAPH=$1
 
 printf "FID\tIID\tPHENO\n" 
-vg paths -M -x $GRAPH | tail -n +2 | awk '{ if ( $3 == "NO_SAMPLE_NAME") {print $5} else {print $3}}' | sed -r 's/(.*)/\1\t\1\t1/g'
+vg paths -M -x $GRAPH | tail -n +2 | awk '{ if ( $3 == "NO_SAMPLE_NAME") {print $5} else {print $3}}' | sort | uniq | sed -r 's/(.*)/\1\t\1\t1/g'
 
