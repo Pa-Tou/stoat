@@ -39,7 +39,7 @@ std::set<size_t>, std::vector<size_t>> process_table_quantitative(
         const stoat::Path_traversal_t& path_snarl = column_headers[col_idx];
         std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
 
-        //Get the indices of all samples that take this path
+        // Get the index of all samples that take this path
         std::vector<size_t> idx_srr_save = identify_path(list_edge_path, matrix, number_samples * 2);
 
         if (idx_srr_save.empty())
@@ -75,8 +75,7 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<std::s
     const std::vector<T>& phenotype,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
-    const auto& [genotypes, index_used, allele_paths] = 
-    process_table_quantitative(number_samples, column_headers, matrix);
+    const auto& [genotypes, index_used, allele_paths] = process_table_quantitative(number_samples, column_headers, matrix);
 
     std::vector<std::vector<double>> genotypes_update;
     genotypes_update.reserve(index_used.size());
@@ -112,8 +111,7 @@ std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<std::
     const std::vector<stoat::Path_traversal_t>& column_headers,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
-    const auto& [genotypes, index_used, allele_paths] = 
-    process_table_quantitative(number_samples, column_headers, matrix);
+    const auto& [genotypes, index_used, allele_paths] = process_table_quantitative(number_samples, column_headers, matrix);
 
     std::vector<std::vector<double>> genotypes_update;
     genotypes_update.reserve(index_used.size());

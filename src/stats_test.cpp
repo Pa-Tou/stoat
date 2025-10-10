@@ -26,8 +26,20 @@ bool filtration_quantitative_table(
     
     // number of path < 2 OR not enougth individuals
     if (X.empty() || X[0].size() < 2 || X.size() < min_individuals) {
-        stoat::LOG_DEBUG("filtration cause : Not enough paths or min_individuals too low");
-        return true; // Not enough data → filter out
+        if (X.empty()) {
+            stoat::LOG_DEBUG("Filtration cause: X is empty.");
+            return true;
+        }
+
+        if (X[0].size() < 2) {
+            stoat::LOG_DEBUG("Filtration cause: Not enough paths (" + std::to_string(X[0].size()) + " < 2)");
+            return true;
+        }
+
+        if (X.size() < min_individuals) {
+            stoat::LOG_DEBUG("Filtration cause: Not enough individuals (" + std::to_string(X.size()) + " < " + std::to_string(min_individuals) + ")");
+            return true;
+        }
     }
 
     size_t numPaths = X[0].size();
@@ -57,7 +69,7 @@ bool filtration_quantitative_table(
 void remove_empty_columns_quantitative_table(
     std::vector<std::vector<double>>& X) {
 
-    if (X.empty()) return;
+    if (X.empty() || X[0].size() < 2) return;
 
     size_t num_rows = X.size();
     size_t num_cols = X[0].size();

@@ -26,7 +26,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 
     const std::vector<std::string> expected_header = {
         "CHR", "START_POS", "END_POS", "SNARL_HANDLEGRAPH",
-        "SNARL", "PATHS", "TYPE", "REF", "DEPTH"
+        "SNARL", "PATHS", "PATH_LENGTHS", "REF", "DEPTH"
     };
 
     if (header_fields != expected_header) {
@@ -62,8 +62,8 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
         std::istringstream path_stream(path_list);
         std::istringstream type_stream(type_var);
         std::vector<std::string> type;
-        size_t start_pos = std::stoi(start_pos_str);
-        size_t end_pos = std::stoi(end_pos_str);
+        size_t start_pos = std::stoull(start_pos_str);
+        size_t end_pos = std::stoull(end_pos_str);
         std::string paths_str;
         bool first = true;
 
@@ -90,7 +90,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 
         std::pair<size_t, size_t> snarl_ids = stringToPair(snarl_id);
         std::vector<stoat::Path_traversal_t> paths = stringToVectorPath(paths_str);
-        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoi(depth));
+        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoull(depth));
         snarl_paths.push_back(snarl_path);
     }
 
@@ -112,7 +112,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 }
 
 void write_snarl_data_output(std::ostream& outstream) {
-    outstream << "CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tTYPE\tREF\tDEPTH" << std::endl;
+    outstream << "CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tPATH_LENGTHS\tREF\tDEPTH" << std::endl;
 }
 
 void write_snarl_data_fail(std::ostream& outstream) {
@@ -213,8 +213,8 @@ std::pair<size_t, size_t> stringToPair(const std::string& str) {
     std::string firstPart = str.substr(0, underscorePos);
     std::string secondPart = str.substr(underscorePos + 1);
 
-    size_t first = std::stoul(firstPart);
-    size_t second = std::stoul(secondPart);
+    size_t first = std::stoull(firstPart);
+    size_t second = std::stoull(secondPart);
 
     return {first, second};
 }
