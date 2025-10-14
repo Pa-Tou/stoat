@@ -87,59 +87,22 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
 }
 
 void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
-                 const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, 
-                 const std::unordered_map<std::string, bool>& samples, const string& reference_name) {
+                 const snarl_partition_t& snarl_info, const std::unordered_map<std::string, bool>& samples, const string& reference_name) {
     
-    // A handle_t of the start bound facing in
-    handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
-    
-    // Get a unique name for the snarl, as the start and end ids
-    // I think even in the case of a looping chain where there is another snarl on the other end, the order of node ids will be flipped
-    std::string snarl_name = "snarl:" +
-                             std::to_string((int)graph.get_id(start_handle)) +
-                             "-" +
-                             std::to_string((int)distance_index.node_id(distance_index.get_bound(snarl, true, false)));
-    
-    // Get a reference range for the snarl.
-    // If the reference goes through the snarl multiple times, get the largest interval
-    std::vector<stoat::path_range_t> ref_ranges = get_coordinates_of_snarl(graph, distance_index, snarl, true, reference_name, false);
-    std::string ref_coordinates  = "NOREF:?:?";
-    int start_offset = std::numeric_limits<int>::max();
-    int end_offset = 0;
-    //Only get the coordinates for one path, but the max range through the snarl, in case it loops
-    bool first = true;
-    handlegraph::path_handle_t ref_path;
-    for (const stoat::path_range_t& ref_range : ref_ranges){
-        if (first) {
-            first = false;
-            ref_path = graph.get_path_handle_of_step(ref_range.start);
-        } else if (graph.get_path_handle_of_step(ref_range.start) != ref_path) {
-            continue;
-        }
+    string ref_coordinates = snarl_info.ref_path + ":" + std::to_string(snarl_info.start_positions) + "-" + std::to_string(snarl_info.end_positions);
 
-        // Get the path name, start offset (of the end of the snarl boundary), and end offset from the range
-        std::tuple<std::string, size_t, size_t> range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, distance_index, ref_range);
-        ref_coordinates = std::get<0>(range_coordinates);
-        start_offset = std::min(start_offset,
-                                (int)std::get<1>(range_coordinates));
-        end_offset = std::max(end_offset, (int)std::get<2>(range_coordinates));
-    }
-    
-    if (ref_ranges.size() != 0) {
-        ref_coordinates += ":" + std::to_string(start_offset) + "-" + std::to_string(end_offset);
-    }
     
     // Now go through each path that goes through the snarl and print the sequence
-    std::vector<stoat::path_range_t> path_ranges = get_coordinates_of_snarl(graph, distance_index, snarl, false, "", true);
+    std::vector<stoat::path_range_t> path_ranges = get_coordinates_between_nodes(graph, snarl_info.start_handle, snarl_info.end_handle, false, "", true);
     for (const stoat::path_range_t& path_range : path_ranges) {
         handlegraph::path_handle_t path = graph.get_path_handle_of_step(path_range.start);
         string sample_name = stoat::get_sample_name_from_path(graph, path);
         if (samples.empty() || samples.count(sample_name) != 0) {
             //If we aren't checking samples, or if this is a sample we want
     
-            std::tuple<std::string, size_t, size_t> range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, distance_index, path_range);
+            std::tuple<std::string, size_t, size_t> range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
             // Print the header
-            outstream << ">" << snarl_name << "|"
+            outstream << ">snarl:" << graph.get_id(snarl_info.start_handle) << "-" << graph.get_id(snarl_info.end_handle) << "|"
                 << ref_coordinates << "|"
                 << std::get<0>(range_coordinates) << ":"
                 << std::get<1>(range_coordinates) << "-"    

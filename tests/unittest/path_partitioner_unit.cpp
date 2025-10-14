@@ -7,12 +7,15 @@
 namespace stoat_graph{
 
 
-class TestPathPartitioner : PathPartitioner {
+class TestSnarlTraverserAndPathPartitioner : SnarlTraverserAndPathPartitioner {
     public: 
-    TestPathPartitioner(std::set<stoat::sample_hap_t> all_sample_haplotypes) :
-        PathPartitioner(all_sample_haplotypes) {} 
-    using PathPartitioner::partition_samples_in_snarl;
-    using PathPartitioner::get_walk_sets;
+    TestSnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions) :
+        SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index, reference_sample, allele_size_limit, save_partitions) {} 
+    using SnarlTraverserAndPathPartitioner::partition_samples_in_snarl;
+    using SnarlTraverserAndPathPartitioner::get_walk_sets;
+    using SnarlTraverserAndPathPartitioner::for_each_snarl_partition;
+    using SnarlTraverserAndPathPartitioner::serialize;
+    using SnarlTraverserAndPathPartitioner::deserialize;
 };
 
 TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
@@ -37,9 +40,19 @@ TEST_CASE( "Path partitioner finder one node", "[path_partitioner]" ) {
 
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph,graph.get_path_handle("path"))});
 
-    SECTION("Make partitioner finder") {
+    SECTION("Make partitioner") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
-        TestPathPartitioner af(all_samples);
+        TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
+    }
+    SECTION("Serialize partitioner") {
+        // There isn't much to do with one node so just make sure we can run the constructor without crashing
+        TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, true);
+        af.serialize("./test.snarl_partitions.txt");
+        
+        TestSnarlTraverserAndPathPartitioner af_loaded(all_samples, nullptr, "path0", 0, false);
+        af_loaded.deserialize("./test.snarl_partitions.txt", *path_graph);
+
+        int rm = system("rm ./test.snarl_partitions.txt"); 
     }
 
 }
@@ -138,14 +151,14 @@ TEST_CASE( "Path partitioner nested bubbles",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestPathPartitioner af(all_samples);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl1, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl1, false);
         REQUIRE(walks1.size() == 2);
         for ( const auto& walk_set : walks1) {
             REQUIRE(walk_set.size() == 2);
@@ -154,7 +167,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         }
 
         // Should be {0,1,3} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, distance_index, snarl2, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, snarl2, false);
         REQUIRE(walks2.size() == 2);
         for ( const auto& set : walks2) {
             REQUIRE(((set.size() == 3) || (set.size() == 1)));
@@ -163,7 +176,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         }
 
         // Should be {0}, {1,3}. 2 didn't go through this snarl
-        std::vector<std::set<stoat::sample_hap_t>> walks3 = af.get_walk_sets(*path_graph, distance_index, snarl3, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks3 = af.get_walk_sets(*path_graph, snarl3, false);
         REQUIRE(walks3.size() == 2);
         for ( const auto& set : walks3) {
             REQUIRE(((set.size() == 2) || (set.size() == 1)));
@@ -173,7 +186,7 @@ TEST_CASE( "Path partitioner nested bubbles",
     }
     SECTION("get start edge sets") {
         // Should be {0,1} and {2,3}
-        std::vector<std::set<stoat::sample_hap_t>> edges1 = af.get_walk_sets(*path_graph, distance_index, snarl1, true);
+        std::vector<std::set<stoat::sample_hap_t>> edges1 = af.get_walk_sets(*path_graph, snarl1, true);
         REQUIRE(edges1.size() == 2);
         for ( const auto& set : edges1) {
             REQUIRE(set.size() == 2);
@@ -182,7 +195,7 @@ TEST_CASE( "Path partitioner nested bubbles",
         }
 
         // Should be {0,1,3} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> edges2 = af.get_walk_sets(*path_graph, distance_index, snarl2, true);
+        std::vector<std::set<stoat::sample_hap_t>> edges2 = af.get_walk_sets(*path_graph, snarl2, true);
         REQUIRE(edges2.size() == 2);
         for ( const auto& set : edges2) {
             REQUIRE(((set.size() == 3) || (set.size() == 1)));
@@ -191,13 +204,125 @@ TEST_CASE( "Path partitioner nested bubbles",
         }
 
         // Should be {0} and {1,3}
-        std::vector<std::set<stoat::sample_hap_t>> edges3 = af.get_walk_sets(*path_graph, distance_index, snarl3, true);
+        std::vector<std::set<stoat::sample_hap_t>> edges3 = af.get_walk_sets(*path_graph, snarl3, true);
         REQUIRE(edges3.size() == 2);
         for ( const auto& set : edges3) {
             REQUIRE(((set.size() == 2) || (set.size() == 1)));
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0])}) ) ||
                       (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[1]), stoat::get_sample_and_haplotype(*path_graph, paths[3])}))));
         }
+    }
+    SECTION ("Traverse snarls" ) {
+        // Get all the snarl partitions
+        std::vector<stoat::snarl_partition_t> partitions;
+        af.for_each_snarl_partition(*path_graph,  [&] (const stoat::snarl_partition_t& snarl_info) {
+            partitions.emplace_back(snarl_info);
+        });
+        REQUIRE(partitions.size() == 4);
+
+        // Make the set of true partitions of snarls
+        std::vector<stoat::snarl_partition_t>truth_partitions;
+        std::vector<std::set<stoat::sample_hap_t>> temp_partitions;
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path0", 0);
+        temp_partitions.back().emplace("path1", 0);
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path2", std::numeric_limits<size_t>::max());
+        temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
+        truth_partitions.emplace_back(snarl1, graph.get_handle(1, false), graph.get_handle(4, true), std::make_pair<size_t, size_t> (1,4), 1, 2, 1, 1, 1, "path0#0#path0", temp_partitions); 
+
+        temp_partitions.clear();
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path2", std::numeric_limits<size_t>::max());
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path0", 0);
+        temp_partitions.back().emplace("path1", 0);
+        temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
+        truth_partitions.emplace_back(snarl2, graph.get_handle(4, false), graph.get_handle(8, true), std::make_pair<size_t, size_t> (4,8), 3, 6, 1, 0, 3, "path0#0#path0", temp_partitions); 
+
+        temp_partitions.clear();
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path0", 0);
+        temp_partitions.emplace_back();
+        temp_partitions.back().emplace("path1", 0);
+        temp_partitions.back().emplace("path3", std::numeric_limits<size_t>::max());
+        truth_partitions.emplace_back(snarl3, graph.get_handle(5, false), graph.get_handle(7, true), std::make_pair<size_t, size_t> (5,7), 4, 5, 2, 0, 1, "path0#0#path0", temp_partitions); 
+
+        temp_partitions.clear();
+        truth_partitions.emplace_back(snarl4, graph.get_handle(8, false), graph.get_handle(10, true), std::make_pair<size_t, size_t> (8, 10), 0, 0, 1, 0, 1, "NA", temp_partitions); 
+
+        for (const stoat::snarl_partition_t& test_partition : partitions) {
+            stoat::snarl_partition_t& truth_partition = truth_partitions[0];
+            if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl1) {
+                truth_partition = truth_partitions[0];
+            } else if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl2) {
+                truth_partition = truth_partitions[1];
+            } else if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl3) {
+                truth_partition = truth_partitions[2];
+            } else {
+                REQUIRE(distance_index.start_end_traversal_of(test_partition.snarl) == snarl4);
+                truth_partition = truth_partitions[3];
+           }
+
+           REQUIRE(handlegraph::as_integer(test_partition.snarl) == handlegraph::as_integer(truth_partition.snarl));
+           REQUIRE(test_partition.start_handle == truth_partition.start_handle);
+           REQUIRE(test_partition.end_handle == truth_partition.end_handle);
+           REQUIRE(test_partition.ref_path == truth_partition.ref_path);
+           REQUIRE(test_partition.start_positions == truth_partition.start_positions);
+           REQUIRE(test_partition.end_positions == truth_partition.end_positions);
+           REQUIRE(test_partition.depth == truth_partition.depth);
+           REQUIRE(test_partition.min_length == truth_partition.min_length);
+           REQUIRE(test_partition.max_length == truth_partition.max_length);
+           
+           REQUIRE(test_partition.partitions.size() == truth_partition.partitions.size());
+           if (truth_partition.partitions.size() != 0) {
+
+                REQUIRE((test_partition.partitions[0] == truth_partition.partitions[0] || 
+                         test_partition.partitions[0] == truth_partition.partitions[1]));
+                REQUIRE((test_partition.partitions[1] == truth_partition.partitions[0] || 
+                         test_partition.partitions[1] == truth_partition.partitions[1]));
+           }
+        }
+    }
+    SECTION("Serialize partitioner") {
+        TestSnarlTraverserAndPathPartitioner af_serialized(all_samples, &distance_index, "path0", 0, true);
+
+
+        // Get all the snarl partitions
+        std::vector<stoat::snarl_partition_t> serialized_partitions;
+        af_serialized.for_each_snarl_partition(*path_graph,  [&] (const stoat::snarl_partition_t& snarl_info) {
+            serialized_partitions.emplace_back(snarl_info);
+        });
+
+        //Serialize it
+        af_serialized.serialize("./test.snarl_partitions.txt");
+
+
+        TestSnarlTraverserAndPathPartitioner af_deserialized(all_samples, nullptr, "path0", 0, false);
+        af_deserialized.deserialize("./test.snarl_partitions.txt", *path_graph);
+
+        std::vector<stoat::snarl_partition_t> deserialized_partitions;
+        af_deserialized.for_each_snarl_partition(*path_graph,  [&] (const stoat::snarl_partition_t& snarl_info) {
+            deserialized_partitions.emplace_back(snarl_info);
+        });
+
+        REQUIRE(serialized_partitions.size() == deserialized_partitions.size());
+
+        // The serialized and deserialized snarls should be the same
+        // The order isn't required to be the same but it will be
+        for (size_t i = 0 ; i < serialized_partitions.size() ; i++ ) {
+            REQUIRE(serialized_partitions[i].partitions == deserialized_partitions[i].partitions);
+            REQUIRE(serialized_partitions[i].start_positions == deserialized_partitions[i].start_positions);
+            REQUIRE(serialized_partitions[i].end_positions == deserialized_partitions[i].end_positions);
+            REQUIRE(serialized_partitions[i].start_handle == deserialized_partitions[i].start_handle);
+            REQUIRE(serialized_partitions[i].end_handle == deserialized_partitions[i].end_handle);
+            REQUIRE(serialized_partitions[i].min_length == deserialized_partitions[i].min_length);
+            REQUIRE(serialized_partitions[i].max_length == deserialized_partitions[i].max_length);
+            REQUIRE(serialized_partitions[i].depth == deserialized_partitions[i].depth);
+            REQUIRE(serialized_partitions[i].ref_path == deserialized_partitions[i].ref_path);
+        }
+
+        int rm = system("rm ./test.snarl_partitions.txt"); 
     }
 
 }
@@ -215,7 +340,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
 
    */
 
-    int built = system("vg index --snarl-limit 0 -j ../tests/graph_test/simple_nested_chain.nodist.dist ../tests/graph_test/simple_nested_chain.hg"); 
+    //int built = system("vg index --snarl-limit 0 -j ../tests/graph_test/simple_nested_chain.nodist.dist ../tests/graph_test/simple_nested_chain.hg"); 
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/graph_test/simple_nested_chain.nodist.dist");
 
@@ -247,14 +372,14 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestPathPartitioner af(all_samples);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl1, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl1, false);
         REQUIRE(walks1.size() == 2);
         for ( const auto& walk_set : walks1) {
             REQUIRE(walk_set.size() == 2);
@@ -263,21 +388,21 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
         }
 
         // Should be {0,1,3} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, distance_index, snarl2, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, snarl2, false);
         REQUIRE(walks2.size() == 2);
         for ( const auto& set : walks2) {
             REQUIRE(((set.size() == 3) || (set.size() == 1)));
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1]), stoat::get_sample_and_haplotype(*path_graph, paths[3])})) || 
                       (set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[2])}))));
         }
-        std::vector<std::set<std::string>> partitions2 = af.partition_samples_in_snarl(*path_graph, distance_index, snarl2);
+        std::vector<std::set<stoat::sample_hap_t>> partitions2 = af.partition_samples_in_snarl(*path_graph, snarl2);
         REQUIRE(partitions2.size() == 2);
         for ( const auto& set : partitions2) {
             REQUIRE(((set.size() == 3) || (set.size() == 1)));
         }
 
         // Should be {0}, {1,3}. 2 didn't go through this snarl
-        std::vector<std::set<stoat::sample_hap_t>> walks3 = af.get_walk_sets(*path_graph, distance_index, snarl3, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks3 = af.get_walk_sets(*path_graph, snarl3, false);
         REQUIRE(walks3.size() == 2);
         for ( const auto& set : walks3) {
             REQUIRE(((set.size() == 2) || (set.size() == 1)));
@@ -287,7 +412,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
     }
     SECTION("get start edge sets") {
         // Should be {0,1} and {2,3}
-        std::vector<std::set<stoat::sample_hap_t>> edges1 = af.get_walk_sets(*path_graph, distance_index, snarl1, true);
+        std::vector<std::set<stoat::sample_hap_t>> edges1 = af.get_walk_sets(*path_graph, snarl1, true);
         REQUIRE(edges1.size() == 2);
         for ( const auto& set : edges1) {
             REQUIRE(set.size() == 2);
@@ -296,7 +421,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
         }
 
         // Should be {0,1,3} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> edges2 = af.get_walk_sets(*path_graph, distance_index, snarl2, true);
+        std::vector<std::set<stoat::sample_hap_t>> edges2 = af.get_walk_sets(*path_graph, snarl2, true);
         REQUIRE(edges2.size() == 2);
         for ( const auto& set : edges2) {
             REQUIRE(((set.size() == 3) || (set.size() == 1)));
@@ -305,7 +430,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
         }
 
         // Should be {0} and {1,3}
-        std::vector<std::set<stoat::sample_hap_t>> edges3 = af.get_walk_sets(*path_graph, distance_index, snarl3, true);
+        std::vector<std::set<stoat::sample_hap_t>> edges3 = af.get_walk_sets(*path_graph, snarl3, true);
         REQUIRE(edges3.size() == 2);
         for ( const auto& set : edges3) {
             REQUIRE(((set.size() == 2) || (set.size() == 1)));
@@ -384,13 +509,13 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph, paths[0]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[1]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2])});
-    TestPathPartitioner af(all_samples);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0} and {1,2}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl1, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl1, false);
         REQUIRE(walks1.size() == 2);
         for ( const auto& set : walks1) {
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[1]), stoat::get_sample_and_haplotype(*path_graph, paths[2])})) || 
@@ -398,13 +523,13 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
         }
 
         // Should be {0}, {1} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, distance_index, snarl2, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, snarl2, false);
         REQUIRE(walks2.size() == 3);
     }
     SECTION("only check start edge") {
 
         // Should be {0,2} and {1,2}
-        std::vector<std::set<stoat::sample_hap_t>> edges2 = af.get_walk_sets(*path_graph, distance_index, snarl2, true);
+        std::vector<std::set<stoat::sample_hap_t>> edges2 = af.get_walk_sets(*path_graph, snarl2, true);
         REQUIRE(edges2.size() == 3);
     }
 
@@ -477,13 +602,13 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestPathPartitioner af(all_samples);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} {2} {3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl, false);
         REQUIRE(walks1.size() == 3);
         for ( const auto& set : walks1) {
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})) || 
@@ -494,7 +619,7 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
     SECTION("only check start edge") {
 
         // Should be {0,1} {2} {3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl, false);
         REQUIRE(walks1.size() == 3);
         for ( const auto& set : walks1) {
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})) || 
@@ -573,19 +698,19 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
     std::set<std::string> samples ({"path0", "path1"});
     std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph, paths[0]),
                                                 stoat::get_sample_and_haplotype(*path_graph, paths[1])});
-    TestPathPartitioner af(all_samples);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
 
         // Outer snarl, hould be {0, 1}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl1, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl1, false);
         REQUIRE(walks1.size() == 1);
         REQUIRE( (walks1[0] == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})));
 
         // Inner snarl, should be {0} and {1}
-        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, distance_index, snarl2, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks2 = af.get_walk_sets(*path_graph, snarl2, false);
         REQUIRE(walks2.size() == 2);
         for ( const auto& set : walks2) {
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0])})) || 
@@ -662,13 +787,13 @@ TEST_CASE( "Path association finder bubble with three nodes",
                                          stoat::get_sample_and_haplotype(*path_graph, paths[2]),
                                          stoat::get_sample_and_haplotype(*path_graph, paths[3])});
 
-    TestPathPartitioner af(all_samples);
+    TestSnarlTraverserAndPathPartitioner af(all_samples, &distance_index, "path0", 0, false);
 
     SECTION("get_walk_set") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} {2} {3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl, false);
         REQUIRE(walks1.size() == 3);
         for ( const auto& set : walks1) {
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})) || 
@@ -679,7 +804,7 @@ TEST_CASE( "Path association finder bubble with three nodes",
     SECTION("only check start edge") {
 
         // Should be {0,1} {2} {3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, distance_index, snarl, false);
+        std::vector<std::set<stoat::sample_hap_t>> walks1 = af.get_walk_sets(*path_graph, snarl, false);
         REQUIRE(walks1.size() == 3);
         for ( const auto& set : walks1) {
             REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::get_sample_and_haplotype(*path_graph, paths[0]), stoat::get_sample_and_haplotype(*path_graph, paths[1])})) || 
