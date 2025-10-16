@@ -21,17 +21,19 @@ namespace stoat_graph {
 class SnarlTraverserAndPartitioner {
 
     public:
-        SnarlTraverserAndPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions) :
+        SnarlTraverserAndPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions, bool use_loaded_partitions) :
             all_sample_haplotypes(all_sample_haplotypes),
             distance_index(distance_index),
             reference_sample(reference_sample),
             allele_size_limit(allele_size_limit),
             save_partitions(save_partitions),
+            use_loaded_partitions(use_loaded_partitions),
             check_distances(distance_index == nullptr ? false : distance_index->has_distances()) {}
 
 
         /// This runs the function iteratee for every snarl, either using the distance index or, if given, the serialized snarls
         /// If using the distance index, check if the snarl is eligible before computing snarl_info.
+        /// If use_loaded_partitions is true, then don't recompute the snarls
         /// If using the distance index and save_partitions is true, then also serialize the snarl
         void for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph, 
                             const std::function<void(const snarl_partition_t& snarl_info)>& iteratee);
@@ -67,6 +69,9 @@ class SnarlTraverserAndPartitioner {
         /// If this is true, then we want to serialize the snarls we found
         bool save_partitions;
 
+        /// If this is true, then we want to use loaded partitions
+        bool use_loaded_partitions;
+
         
 
         /// This holds all snarl info.
@@ -101,8 +106,8 @@ class SnarlTraverserAndPartitioner {
 class SnarlTraverserAndPathPartitioner : public SnarlTraverserAndPartitioner {
     public:
         
-        SnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions)
-            : SnarlTraverserAndPartitioner(all_sample_haplotypes, distance_index, reference_sample, allele_size_limit, save_partitions) {}
+        SnarlTraverserAndPathPartitioner(const std::set<stoat::sample_hap_t>& all_sample_haplotypes, const bdsg::SnarlDistanceIndex* distance_index, const std::string& reference_sample, size_t allele_size_limit, bool save_partitions, bool use_loaded_partitions)
+            : SnarlTraverserAndPartitioner(all_sample_haplotypes, distance_index, reference_sample, allele_size_limit, save_partitions, use_loaded_partitions) {}
 
     protected:
 

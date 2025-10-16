@@ -322,7 +322,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     // Make the partitioner
     std::shared_ptr<stoat_graph::SnarlTraverserAndPartitioner> partitioner;
     if (method_name == "paths") {
-        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index_ptr, reference_sample, allele_size_limit, save_snarls));
+        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index_ptr, reference_sample, allele_size_limit, save_snarls, load_snarls));
         if (load_snarls) {
             partitioner->deserialize(snarls_filename, *graph);
         }
