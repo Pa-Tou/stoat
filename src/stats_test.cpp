@@ -769,10 +769,7 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
 
     // --- F-test computation (no p-value, no covariate/intercept) ---
     // double ssr = sst - sse;  // Regression sum of squares
-    // int p = num_variants;    // Only count the variants, not intercept/covariates
-
-    // double df_reg = (p > 0) ? p : 1;
-    // double msr = ssr / df_reg;
+    // double msr = ssr / num_variants;
     // double mse = sse / df_resid;
     // double f_stat = msr / mse;
 
