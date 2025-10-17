@@ -772,6 +772,8 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     // double msr = ssr / num_variants;
     // double mse = sse / df_resid;
     // double f_stat = msr / mse;
+    // boost::math::fisher_f dist(num_variants, df_resid);
+    // double p_value = 1 - boost::math::cdf(dist, f_stat);
 
     boost::math::students_t dist(df_resid);
     std::vector<double> p_values_vector(num_variants, 0.0);
