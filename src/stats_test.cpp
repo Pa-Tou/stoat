@@ -767,6 +767,15 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     double df_resid = (n - num_features > 0) ? n - num_features : 1;
     double sigma2 = sse / df_resid;
 
+    // --- F-test computation (no p-value, no covariate/intercept) ---
+    // double ssr = sst - sse;  // Regression sum of squares
+    // int p = num_variants;    // Only count the variants, not intercept/covariates
+
+    // double df_reg = (p > 0) ? p : 1;
+    // double msr = ssr / df_reg;
+    // double mse = sse / df_resid;
+    // double f_stat = msr / mse;
+
     boost::math::students_t dist(df_resid);
     std::vector<double> p_values_vector(num_variants, 0.0);
     std::vector<double> beta_vector(num_variants, 0.0);
