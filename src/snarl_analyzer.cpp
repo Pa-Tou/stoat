@@ -29,6 +29,13 @@ SnarlAnalyzer::SnarlAnalyzer(
         regression_dir(regression_dir)
         {};
 
+VcfSnarlAnalyzer::VcfSnarlAnalyzer(
+    const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
+    EdgeBySampleMatrix& edge_matrix,
+    const std::vector<std::string>& list_samples) :
+
+        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, {}, 0, 0, 0, ""), 
+
 BinarySnarlAnalyzer::BinarySnarlAnalyzer(
     const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
     EdgeBySampleMatrix& edge_matrix,
@@ -362,6 +369,26 @@ std::vector<size_t> identify_path(
         }
     }
     return idx_srr_save;
+}
+
+void VcfSnarlAnalyzer::analyze_and_write_snarl(
+    const stoat::Snarl_data_t& snarl_data_s, const std::string& chr, std::ofstream& outf) {
+
+    std::ostringstream ref_alt;
+    ref_alt << "A"*snarl_data_s.type_variants[0] << "\t";
+    size_t pos = snarl_data_s.start_positions;
+    std::string genotype = stoat_vcf::create_vcf_table(snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
+
+    for (size_t i = 1; i < snarl_data_s.type_variants.size(); ++i) {
+        ref_alt << "A"*snarl_data_s.type_variants[i];
+        if (i+1 < snarl_data_s.type_variants.size()) {
+            ref_alt << ",";
+    }
+
+    # pragma omp critical (outf) 
+    {
+        stoat::write_vcf(outf, chr, pos, ref, alt, genotype);
+    }
 }
 
 bool BinarySnarlAnalyzer::analyze_and_write_snarl(
