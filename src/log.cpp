@@ -1,6 +1,7 @@
 #include "log.hpp"
 
 // EXAMPLE :
+// stoat::LOG_SILENT("something only present in log file");
 // stoat::LOG_INFO("Program started");
 // stoat::LOG_DEBUG("Loaded " + std::to_string(node_count) + " nodes");
 // stoat::LOG_WARN("Using fallback parameter");
@@ -32,6 +33,14 @@ void Logger::log(LogLevel level, const std::string& message) {
     }
 }
 
+// Inside the Logger class (public section)
+void Logger::silente_log(const std::string& message) {
+    std::lock_guard<std::mutex> lock(mutex);
+    if (fileLoggingEnabled && logFile.is_open()) {
+        logFile << message << std::endl;  // INFO level by default
+    }
+}
+
 void Logger::log_assert(LogLevel level, bool assertion, const std::string& message) {
     if (assertion ) {
         return;
@@ -49,12 +58,14 @@ void Logger::log_assert(LogLevel level, bool assertion, const std::string& messa
 
 void Logger::setLogFile(const std::string& filename) {
     std::lock_guard<std::mutex> lock(mutex);
-    logFile.open(filename, std::ios::out | std::ios::app);
-    if (logFile.is_open()) {
-        fileLoggingEnabled = true;
-    } else {
+
+    logFile.open(filename, std::ios::out | std::ios::trunc);
+    if (!logFile.is_open()) {
         std::cerr << "Logger Error: Failed to open log file: " << filename << std::endl;
+        return;
     }
+
+    fileLoggingEnabled = true;
 }
 
 void Logger::debug(const std::string& msg) { log(LogLevel::Debug, msg); }
@@ -62,6 +73,7 @@ void Logger::info(const std::string& msg)  { log(LogLevel::Info, msg); }
 void Logger::warn(const std::string& msg)  { log(LogLevel::Warning, msg); }
 void Logger::error(const std::string& msg) { log(LogLevel::Error, msg); }
 void Logger::trace(const std::string& msg) { log(LogLevel::Trace, msg); }
+void Logger::silente(const std::string& msg) { silente_log(msg); }
 
 // Do the same thing with stringstreams
 void Logger::log(LogLevel level, const std::stringstream& message) { log(level, message.str()); }
@@ -70,5 +82,6 @@ void Logger::info(const std::stringstream& msg)  { info(msg.str()); }
 void Logger::warn(const std::stringstream& msg)  { warn(msg.str()); }
 void Logger::error(const std::stringstream& msg) { error(msg.str()); }
 void Logger::trace(const std::stringstream& msg) { trace(msg.str()); }
+void Logger::silente(const std::stringstream& msg) { silente(msg.str()); }
 
 } // end namespace

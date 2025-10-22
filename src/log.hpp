@@ -13,6 +13,7 @@ namespace stoat {
 #define LOG_INFO(msg)    Logger::instance().info((msg))
 #define LOG_DEBUG(msg)   Logger::instance().debug((msg))
 #define LOG_TRACE(msg)   Logger::instance().trace((msg))
+#define LOG_SILENTE(msg) Logger::instance().silente((msg))
 
 enum class LogLevel {
     Error = 0,
@@ -41,14 +42,17 @@ public:
     void warn(const std::string& msg);
     void error(const std::string& msg);
     void trace(const std::string& msg);
+    void silente(const std::string& msg);
 
     void log(LogLevel level, const std::stringstream& message);
+    void silente_log(const std::string& message);
 
     void debug(const std::stringstream& msg);
     void info(const std::stringstream& msg);
     void warn(const std::stringstream& msg);
     void error(const std::stringstream& msg);
     void trace(const std::stringstream& msg);
+    void silente(const std::stringstream& msg);
 
     void setLogFile(const std::string& filename);
 

@@ -17,6 +17,7 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     file.close();
     return reference;
 }
+
 std::vector<bool> parse_binary_pheno(
     const std::string& file_path,
     std::vector<std::string>& list_samples) {
@@ -81,6 +82,7 @@ std::vector<bool> parse_binary_pheno(
         // If we were given samples, make sure that they check the phenotype file
         check_match_samples(binary_pheno, list_samples);
     }
+
     std::vector<bool> vector_binary_pheno;
     vector_binary_pheno.reserve(list_samples.size());
 
@@ -93,6 +95,7 @@ std::vector<bool> parse_binary_pheno(
 
     return vector_binary_pheno;
 }
+
 std::vector<double> parse_quantitative_pheno(
     const std::string& file_path, 
     const std::vector<std::string>& list_samples) {
@@ -270,8 +273,8 @@ std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_g
         }
 
         try {
-            size_t start = std::stoul(start_val);
-            size_t end = std::stoul(end_val);
+            size_t start = std::stoull(start_val);
+            size_t end = std::stoull(end_val);
             geneMap[gene_val] = std::make_tuple(chrom_val, start, end);
         } catch (...) {
             throw std::invalid_argument("In parsing gene position file, invalid numeric value in line: " + line);

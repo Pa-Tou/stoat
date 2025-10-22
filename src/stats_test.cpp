@@ -16,6 +16,230 @@ using boost::math::chi_squared_distribution;
 
 namespace stoat {
 
+// ------------------------ Filtration Function ------------------------
+
+// Return true when snarl must be filtered and false if not
+bool filtration_quantitative_table(
+    const std::vector<std::vector<double>>& X,
+    const size_t& min_individuals,
+    const double& maf_threshold) {
+    
+    // number of path < 2 OR not enougth individuals
+    if (X.empty() || X[0].size() < 2 || X.size() < min_individuals) {
+        if (X.empty()) {
+            stoat::LOG_DEBUG("Filtration cause: X is empty.");
+            return true;
+        }
+
+        if (X[0].size() < 2) {
+            stoat::LOG_DEBUG("Filtration cause: Not enough paths (" + std::to_string(X[0].size()) + " < 2)");
+            return true;
+        }
+
+        if (X.size() < min_individuals) {
+            stoat::LOG_DEBUG("Filtration cause: Not enough individuals (" + std::to_string(X.size()) + " < " + std::to_string(min_individuals) + ")");
+            return true;
+        }
+    }
+
+    size_t numPaths = X[0].size();
+    std::vector<double> table(numPaths, 0.0);
+    double totalSum = 0.0;
+
+    // Compute column sums and total sum
+    for (const auto& row : X) {
+        for (size_t i = 0; i < numPaths; ++i) {
+            table[i] += row[i];
+            totalSum += row[i];
+        }
+    }
+
+    int count_above_threshold = 0;
+    for (size_t i = 0; i < numPaths; ++i) {
+        double freq = table[i] / totalSum;
+        double maf = std::min(freq, 1.0 - freq);
+        if (maf > maf_threshold) {
+            ++count_above_threshold;
+        }
+    }
+
+    return count_above_threshold < 2;
+}
+
+void remove_empty_columns_quantitative_table(
+    std::vector<std::vector<double>>& X) {
+
+    if (X.empty() || X[0].size() < 2) return;
+
+    size_t num_rows = X.size();
+    size_t num_cols = X[0].size();
+
+    // Identify non-empty columns
+    std::vector<bool> keep_column(num_cols, false);
+
+    for (size_t col = 0; col < num_cols; ++col) {
+        for (size_t row = 0; row < num_rows; ++row) {
+            double val = X[row][col];
+            if (val != 0.0 && !std::isnan(val)) {
+                keep_column[col] = true;
+                break;
+            }
+        }
+    }
+
+    // Create filtered X
+    std::vector<std::vector<double>> df_filtered;
+    df_filtered.reserve(num_rows);
+
+    for (size_t row = 0; row < num_rows; ++row) {
+        std::vector<double> new_row;
+        for (size_t col = 0; col < num_cols; ++col) {
+            if (keep_column[col]) {
+                new_row.push_back(X[row][col]);
+            }
+        }
+        df_filtered.push_back(std::move(new_row));
+    }
+
+    // Replace original X with filtered one
+    X = std::move(df_filtered);
+}
+
+bool check_last_columns_quantitative_table(
+    const std::vector<std::vector<double>>& X) {
+
+    if (X[0].size() > 1) return false;
+
+    size_t num_rows = X.size();
+
+    // Check if the lonely columns have identical values
+    for (size_t r = 1; r < num_rows-1; ++r) {
+        if (X[r][0] != X[0][0]) {
+            return false; // Not identical, keep
+        }
+    }
+
+    return true; // Identical, filter out
+}
+
+void combine_identical_columns_quantitative_table(
+    std::vector<std::vector<double>>& X) {
+
+    size_t num_rows = X.size();
+    size_t num_cols = X[0].size();
+
+    if (num_cols < 3) {return;} // avoid creation of unique column
+
+    std::vector<bool> merged(num_cols, false);
+    std::vector<std::vector<double>> new_cols;
+
+    for (size_t i = 0; i < num_cols; ++i) {
+        if (merged[i]) continue;
+
+        std::vector<double> new_col = X[0][i] == X[0][i] ? std::vector<double>(num_rows, 0.0) : X[0]; // Init new column
+
+        // Start with current column
+        for (size_t r = 0; r < num_rows; ++r) {
+            new_col[r] = X[r][i];
+        }
+
+        // Try to find identical columns
+        for (size_t j = i + 1; j < num_cols; ++j) {
+            if (merged[j]) continue;
+
+            bool identical = true;
+            for (size_t r = 0; r < num_rows; ++r) {
+                if (X[r][j] != X[r][i]) {
+                    identical = false;
+                    break;
+                }
+            }
+
+            // If identical, sum the column into new_col
+            if (identical) {
+                for (size_t r = 0; r < num_rows; ++r) {
+                    new_col[r] += X[r][j];
+                }
+                merged[j] = true;
+            }
+        }
+
+        new_cols.push_back(std::move(new_col));
+    }
+
+    // Rebuild X from new_cols (transpose)
+    std::vector<std::vector<double>> result(num_rows, std::vector<double>(new_cols.size()));
+    for (size_t r = 0; r < num_rows; ++r) {
+        for (size_t c = 0; c < new_cols.size(); ++c) {
+            result[r][c] = new_cols[c][r];
+        }
+    }
+
+    X = std::move(result);
+}
+
+void remove_last_columns_quantitative_table(std::vector<std::vector<double>>& X) {
+    if (X.empty() || X[0].empty()) return;
+
+    for (auto& row : X) {
+        if (!row.empty()) {
+            row.pop_back(); // Remove last column from each row
+        }
+    }
+}
+
+void remove_empty_columns_binary_table(
+    std::vector<size_t>& g0, 
+    std::vector<size_t>& g1) {
+
+    std::vector<size_t> g0_filtered;
+    std::vector<size_t> g1_filtered;
+
+    for (size_t i = 0; i < g0.size(); ++i) {
+        if (g0[i] + g1[i] != 0) {
+            g0_filtered.push_back(g0[i]);
+            g1_filtered.push_back(g1[i]);
+        }
+    }
+
+    g0 = std::move(g0_filtered);
+    g1 = std::move(g1_filtered);
+}
+
+// true : filtration on; false : no filtration
+bool filtration_binary_table(
+    std::vector<size_t>& g0, 
+    std::vector<size_t>& g1,
+    const size_t& individuals_included, 
+    const size_t& min_individuals,
+    const double& maf_threshold) {
+
+    // Not enougth individuals OR not enougth haplotypes OR number of paths < 2
+    if (individuals_included < min_individuals || g0.size() < 2) {
+        return true; // Empty or invalid input → filter
+    }
+
+    size_t haplotype_count = 0;
+    for (size_t i = 0 ; i < g0.size() ; i++) {
+        haplotype_count += g0[i];
+        haplotype_count += g1[i];
+    }
+
+    int count_above_threshold = 0;
+    for (size_t i = 0; i < g0.size(); ++i) {
+        size_t columnSum = g0[i] + g1[i];
+
+        double freq1 = static_cast<double>(columnSum) / haplotype_count;
+        double maf = std::min(freq1, 1.0 - freq1);
+
+        if (maf > maf_threshold) {
+            ++count_above_threshold;
+        }
+    }
+
+    return count_above_threshold < 2; // Keep if at least two MAFs path > MAF threshold
+}
+
 // ------------------------ Logistic regression ------------------------
 
 // Standard normal cumulative distribution function
@@ -542,6 +766,14 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
 
     double df_resid = (n - num_features > 0) ? n - num_features : 1;
     double sigma2 = sse / df_resid;
+
+    // --- F-test computation (no p-value, no covariate/intercept) ---
+    // double ssr = sst - sse;  // Regression sum of squares
+    // double msr = ssr / num_variants;
+    // double mse = sse / df_resid;
+    // double f_stat = msr / mse;
+    // boost::math::fisher_f dist(num_variants, df_resid);
+    // double p_value = 1 - boost::math::cdf(dist, f_stat);
 
     boost::math::students_t dist(df_resid);
     std::vector<double> p_values_vector(num_variants, 0.0);
