@@ -30,8 +30,9 @@ class AssociationFinder {
         std::ostream& out_associated = std::cout;
         bool check_distances;
 
+
         // object for finding partitions of samples in a snarl
-        std::shared_ptr<Partitioner> partitioner;
+        std::shared_ptr<SnarlTraverserAndPartitioner> partitioner;
 
 
     public:
@@ -48,11 +49,13 @@ class AssociationFinder {
                           const std::string& output_format,
                           std::ostream& out_associated);
 
+        
         /// Main function that gets called to go through all snarls in the graph, check if they are eligible with snarl_is_eligible(),
         /// use the Tester::test_snarl on each eligible snarl, then use the Writer to write snarls that pass the Tester/MultipleTester
         void test_snarls() const;
 
 };
+
 
 }
 
