@@ -223,6 +223,12 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     std::string regression_dir = output_dir + "/regression";
     stoat::Logger::instance().setLogFile(output_dir + "/stoat_vcf.log");
 
+    // add command launch in log file
+    std::stringstream ss;
+    ss << "stoat ";
+    for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
+    stoat::LOG_SILENTE(ss.str());
+
     if (table_threshold != -1) {
         //stoat::LOG_TRACE("Create_directory(regression_dir)");
         std::filesystem::create_directory(regression_dir);

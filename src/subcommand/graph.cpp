@@ -198,6 +198,12 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     std::filesystem::create_directory(output_dir);
     stoat::Logger::instance().setLogFile(output_dir + "/stoat_graph.log");
 
+    // add command launch in log file
+    std::stringstream ss;
+    ss << "stoat ";
+    for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
+    stoat::LOG_SILENTE(ss.str());
+
     // Load the samples from a file
     if (samples_filename.empty()) {
         stoat::LOG_ERROR("[stoat graph]: stoat graph requires samples of interest");
