@@ -75,7 +75,7 @@ STOAT supports both binary and quantitative phenotypes:
 
 ### Usage
   
-`stoat` has two main use cases, finding associations from a [VCF file](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf) and finding associations from [paths in the graph](https://github.com/Pa-Tou/stoat/wiki/stoat-graph).
+Stoat has two main use cases, finding associations from a [VCF file](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf) and finding associations from [paths in the graph](https://github.com/Pa-Tou/stoat/wiki/stoat-graph).
 
 - Use `stoat vcf` if you want to run a GWAS from a VCF file : 
 
