@@ -525,8 +525,73 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
     }
 
-    //clean_output_dir(output_dir);
-    //fs::remove(samples_file);
+    SECTION("Test chi2 tsv output with maf excluding one snarl") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=  " -g " + graph_base + ".gbz"
+            + " -d " + graph_base + ".dist"
+            + " -b " + samples_file
+            + " -M 0.26"
+            + " -T chi2 -r path0 -V 4";
+
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+
+        std::vector<std::string> truth_lines;
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
+        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+    }
+    SECTION("Test chi2 tsv output with individual count excluding one snarl") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=  " -g " + graph_base + ".gbz"
+            + " -d " + graph_base + ".dist"
+            + " -b " + samples_file
+            + " -I 4"
+            + " -T chi2 -r path0 -V 4";
+
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+
+        std::vector<std::string> truth_lines;
+        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
+        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
+        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+    }
+
+    clean_output_dir(output_dir);
+    fs::remove(samples_file);
 }
 
 TEST_CASE("Output loop with snarl", "[graph]") {
