@@ -96,6 +96,7 @@ struct path_range_t {
 /// If get_reference is false, try to find coordinates on a path containing the given sample name, or if it fails, with any path.
 /// If get_reference is false and sample_name is empty and get_all_paths is true, return all coordinates for all paths
 /// For finding a specific path or reference, if the snarl is not on the desired path, then walk up the snarl tree to find an ancestor snarl on the path
+/// An ancestor also takes priority over a different path, so if there is a reference-sense path of the snarl, but sample_name on the ancestor, return sample_name on the ancestor
 std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                    const handlegraph::net_handle_t& snarl, bool get_reference, std::string sample_name, bool get_all_paths);
 
