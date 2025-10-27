@@ -247,11 +247,43 @@ TEST_CASE("Snarl coordinates deeply nested snarls with deletion in reference, bu
 
    */
 
+    bdsg::HashGraph hash_graph;
+
+    std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A"};
+
+    std::vector<handlegraph::handle_t> nodes;
+    for (auto& seq : sequences) {
+        nodes.emplace_back(hash_graph.create_handle(seq));
+    }
+
+    hash_graph.create_edge(nodes[0], nodes[1]);
+    hash_graph.create_edge(nodes[0], nodes[6]);
+    hash_graph.create_edge(nodes[1], nodes[2]);
+    hash_graph.create_edge(nodes[1], nodes[5]);
+    hash_graph.create_edge(nodes[2], nodes[3]);
+    hash_graph.create_edge(nodes[2], nodes[4]);
+    hash_graph.create_edge(nodes[3], nodes[4]);
+    hash_graph.create_edge(nodes[4], nodes[5]);
+    hash_graph.create_edge(nodes[5], nodes[6]);
+
+    std::vector<std::vector<std::size_t>> paths_seqs = { {0, 6}, {0, 1, 5, 6}, {0, 1, 2, 3, 4, 5, 6}};
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+        if (path_i == 0) {
+            // Set first path with deletion as reference
+            paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0"));
+        } else {
+            paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0#0"));
+        }
+        for (size_t node_i : paths_seqs[path_i]) {
+            hash_graph.append_step(paths.back(), nodes[node_i]);
+        }
+    }
+
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/graph_test/deeply_nested_snarl.dist");
 
-    bdsg::HashGraph hash_graph;
-    hash_graph.deserialize("../tests/graph_test/deeply_nested_snarl.hg");
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto graph = overlay_helper.apply(&hash_graph);
