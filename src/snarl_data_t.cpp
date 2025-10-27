@@ -26,7 +26,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 
     const std::vector<std::string> expected_header = {
         "CHR", "START_POS", "END_POS", "SNARL_HANDLEGRAPH",
-        "SNARL", "PATHS", "TYPE", "REF", "DEPTH"
+        "SNARL", "PATHS", "PATH_LENGTHS", "REF", "DEPTH"
     };
 
     if (header_fields != expected_header) {
@@ -62,8 +62,8 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
         std::istringstream path_stream(path_list);
         std::istringstream type_stream(type_var);
         std::vector<std::string> type;
-        size_t start_pos = std::stoi(start_pos_str);
-        size_t end_pos = std::stoi(end_pos_str);
+        size_t start_pos = std::stoull(start_pos_str);
+        size_t end_pos = std::stoull(end_pos_str);
         std::string paths_str;
         bool first = true;
 
@@ -90,7 +90,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 
         std::pair<size_t, size_t> snarl_ids = stringToPair(snarl_id);
         std::vector<stoat::Path_traversal_t> paths = stringToVectorPath(paths_str);
-        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoi(depth));
+        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoull(depth));
         snarl_paths.push_back(snarl_path);
     }
 
@@ -112,7 +112,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(cons
 }
 
 void write_snarl_data_output(std::ostream& outstream) {
-    outstream << "CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tTYPE\tREF\tDEPTH" << std::endl;
+    outstream << "CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tPATH_LENGTHS\tREF\tDEPTH" << std::endl;
 }
 
 void write_snarl_data_fail(std::ostream& outstream) {
@@ -165,6 +165,26 @@ void Path_traversal_t::add_node_traversal_t(const Node_traversal_t &node) {
     this->paths.push_back(node);
 }
 
+// Check and flip the path if necessary to ensure consistent orientation
+void Path_traversal_t::check_path_flip() {
+    // Check if the path is already in the good orientation (aka min ID >> max ID)
+
+    if (paths[0].get_node_id() > paths.back().get_node_id()) {
+        // flip the path
+        path_flip();
+    }
+}
+
+// Flip the Path_traversal_t
+void Path_traversal_t::path_flip() {
+    std::reverse(paths.begin(), paths.end());
+
+    for (size_t i = 0; i < paths.size(); ++i) {
+
+        paths[i].set_is_reverse(!paths[i].get_is_reverse());    
+    }
+}
+
 // convert Path_traversal_t to path representation
 std::string Path_traversal_t::to_string() const {
     std::string result;
@@ -193,8 +213,8 @@ std::pair<size_t, size_t> stringToPair(const std::string& str) {
     std::string firstPart = str.substr(0, underscorePos);
     std::string secondPart = str.substr(underscorePos + 1);
 
-    size_t first = std::stoul(firstPart);
-    size_t second = std::stoul(secondPart);
+    size_t first = std::stoull(firstPart);
+    size_t second = std::stoull(secondPart);
 
     return {first, second};
 }
@@ -547,6 +567,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
         size_t minimum_distance=0;
         size_t maximun_distance=0;
         std::vector<size_t> size_node;
+        bool case_star = false;
         size_node.resize(path.size(), 0);
 
         for (int i=0; i<path.size(); i++) {
@@ -603,9 +624,11 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                 
                 if (!(chain_2node && child_count == 2)) {
                     ppath.addNode(0, true);
+                    case_star = true;
                 } else {
                     size_node[i] = sum_node;
                 }
+
                 ppath.addNodeHandle(nodr, distance_index);
 
                 // Fail case 
@@ -621,16 +644,20 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
             }
         }
 
-        if (ppath.nreversed() > ppath.size() / 2) {
-            ppath.flip();
-        }
+        // Flip the path if more than half of the nodes are reversed OR if we are in a star case and the first node id is greatter than the last node id
+        // if (ppath.nreversed() > ppath.size() / 2) {
+        //     ppath.flip();
+        // }
 
         for (size_t i = 1; i < size_node.size()-1; ++i) {
             maximun_distance += size_node[i];
             minimum_distance += size_node[i];
         }
 
-        pretty_paths.push_back(ppath.print());
+        Path_traversal_t pppath = ppath.print();
+        pppath.check_path_flip();
+
+        pretty_paths.push_back(pppath);
         // The number of nodes (may be chains) in the path, including boundary nodes
         size_t size_path = ppath.size();
         seq_net_paths.push_back(std::make_tuple(minimum_distance, maximun_distance, size_path));

@@ -273,7 +273,7 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
 // Run iteratee on all snarls, either from the distance index or in snarl_partitions
 void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::PathPositionHandleGraph& graph,
                                                   const std::function<void(const snarl_partition_t& snarl_info)>& iteratee) {
-    if (distance_index != nullptr) {
+    if (!use_loaded_partitions && distance_index != nullptr) {
         // If the distance index is given, then use that
 
         // Get a list of all chains in root

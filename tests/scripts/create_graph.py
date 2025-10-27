@@ -582,6 +582,25 @@ def create_looping_chain_graph(filename="looping_chain.hg"):
     vg_view(filename, 13)
     print("looping_chain graph created")
 
+def create_complex_big_graph(filename="complex_big.hg"):
+    gr = HashGraph()
+    seqs = ["TTTT", "AAAA", "A", "A", "G", "AA", "ACCCGCTT", "GAATG", "ACCCTTTT", "C", "ATCA", "A", "GGTG", "TTGG", "CTGG", "AAAA", "TTTT"]
+    nodes = [gr.create_handle(s) for s in seqs]
+
+    gr.create_edge(nodes[3], nodes[2]) # tailport=sw, headport=nw
+    gr.create_edge(nodes[10], nodes[11]) # tailport=ne, headport=nw
+    gr.create_edge(gr.flip(nodes[11]), nodes[1]) # tailport=sw, headport=se
+    gr.create_edge(nodes[5], gr.flip(nodes[6])) # tailport=ne, headport=se
+
+    path1 = gr.create_path_handle("ref")
+    for idx in [0, 1, 2, 3, 5, 6, 7, 8, 10, 11, 12]:
+        gr.append_step(path1, nodes[idx])
+
+    gr.serialize(filename)
+    vg_process(filename)
+    vg_view(filename, 13)
+    print("looping_chain graph created")
+
 # Example call to generate all
 if __name__ == "__main__":
 
@@ -617,6 +636,7 @@ if __name__ == "__main__":
     create_jean_graph(wrap_filename("jean.hg"))
     create_multicomponent_chain_graph(wrap_filename("multicomponent_chain.hg"))
     create_looping_chain_graph(wrap_filename("looping_chain.hg"))
+    create_complex_big_graph(wrap_filename("complex_big.hg"))
 
 # python3 scripts/create_graph.py
 

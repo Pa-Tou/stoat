@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     omp_set_num_threads(1);
 
     if (subcommand == "vcf") {
-        stoat_command::main_stoat(argc, argv, verbosity);
+        stoat_command::main_stoat_vcf(argc, argv, verbosity);
 
     } else if (subcommand == "graph") {
         stoat_command::main_stoat_graph(argc, argv, verbosity);
@@ -125,8 +125,10 @@ int main(int argc, char* argv[]) {
 
 // BINARY
 // ./stoat graph -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -b ../data/binary/phenotype_samples.tsv -T chi2 -r ref --output ../output_binary_graph
-// awk 'BEGIN{OFS=FS="\t"} !/^#/ {split($4, a, "_"); print a[1], $0}' binary_table_graph.tsv | sort -k1,1nr | cut -f2- > binary_table_graph.modify.tsv
-//  
+// echo "#CHR	START_POS	END_POS	SNARL	PATH_LENGTHS	P_FISHER	P_CHI2	GROUP_PATHS	DEPTH" > binary_table_graph.modify.tsv
+// awk 'BEGIN{OFS=FS="\t"} !/^#/ {split($4, a, "_"); print a[1], $0}' binary_table_graph.tsv | sort -k1,1nr | cut -f2- >> binary_table_graph.modify.tsv
+// mv binary_table_graph.modify.tsv binary_table_graph.tsv
+//
 // -------------------------------------------------------------- DECONSTRUCT --------------------------------------------------------------
 
 // BINARY DECONSTRUCT
@@ -139,7 +141,6 @@ int main(int argc, char* argv[]) {
 // plink --bfile ../output/genotype --pheno ../data/simu/phenotypes.txt --pheno-name PHENO --assoc --allow-no-sex --allow-extra-chr --out ../output/plink
 
 // DROSO
-// ./stoat vcf -g ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv -v ../../lab/droso/data/merging.light.vcf-q ../../lab/droso/data/fly.phenotype.tsv --output ../output_droso
 // ./stoat vcf -g ../../lab/droso/data/fly.pg -d ../../lab/droso/data/fly.dist -r ../../lab/droso/data/chromosome_ref.tsv --output ../output_droso
 // sed -i 's/dm6#0#chr2L/1/g' ../output_droso/snarl_analyse.tsv
 // sed -i 's/dm6#0#chr2R/2/g' ../output_droso/snarl_analyse.tsv
@@ -149,7 +150,7 @@ int main(int argc, char* argv[]) {
 // sed -i 's/dm6#0#chrX/6/g' ../output_droso/snarl_analyse.tsv
 // sed -i 's/dm6#0#chrY/7/g' ../output_droso/snarl_analyse.tsv
 // sed -i 's/dm6#0#chrM/8/g' ../output_droso/snarl_analyse.tsv
-// ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging.light.vcf -q ../../lab/droso/data/fly.phenotype.tsv --output ../output_droso
+// ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging_stoat.vcf -q ../../lab/droso/data/dgrpool.dm6.male.phenotype.tsv --output ../output_droso
 
 // -------------------------------------------------------------- DEBUG --------------------------------------------------------------
 

@@ -16,7 +16,7 @@ std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<
     return result;
 }
 
-std::pair<size_t, size_t> create_binary_table(
+size_t create_binary_table(
     std::vector<size_t>& g0, std::vector<size_t>& g1,
     const std::vector<bool>& binary_phenotype, 
     const std::vector<stoat::Path_traversal_t>& list_path_snarl, 
@@ -24,7 +24,6 @@ std::pair<size_t, size_t> create_binary_table(
     const size_t& number_samples,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
-    size_t total_sum = 0;
     std::vector<bool> sample_included(number_samples, false);
     for (size_t idx_g = 0; idx_g < number_paths; ++idx_g) {
         const stoat::Path_traversal_t& path_snarl = list_path_snarl[idx_g];
@@ -39,7 +38,6 @@ std::pair<size_t, size_t> create_binary_table(
             } else {
                 g0[idx_g] += 1;
             }
-            total_sum++;
         }
     }
 
@@ -49,7 +47,7 @@ std::pair<size_t, size_t> create_binary_table(
         if (included) individuals_included++;
     }
 
-    return {total_sum, individuals_included};
+    return individuals_included;
 }
 
 } // namespace stoat

@@ -48,6 +48,10 @@ struct Node_traversal_t { // 64 bits per node
     public:
         Node_traversal_t(const size_t &id, const bool &rev);
         
+        // Setter
+        void set_is_reverse(const bool &rev) { is_reverse = rev; };
+        void set_node_id(const size_t &id) { node_id = id; };
+
         // Getters
         size_t get_node_id() const;
         bool get_is_reverse() const;
@@ -86,6 +90,10 @@ struct Path_traversal_t {
         // add a node traversal to the path
         Path_traversal_t() = default;
         void add_node_traversal_t(const Node_traversal_t &paths);
+
+        // Check and flip the Path if necessary to ensure consistent orientation
+        void check_path_flip();
+        void path_flip();
 
         // Getters
         const std::vector<Node_traversal_t>& get_paths() const;

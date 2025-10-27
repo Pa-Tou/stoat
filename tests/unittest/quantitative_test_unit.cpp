@@ -23,7 +23,7 @@ TEST_CASE("Quantitative table modification") {
             {0, 0, 1}
         };
         
-        stoat_vcf::remove_empty_columns_quantitative_table(df);
+        stoat::remove_empty_columns_quantitative_table(df);
 
         std::vector<std::vector<double>> df_expected = {
             {0.5, 0.5},
@@ -45,7 +45,7 @@ TEST_CASE("Quantitative table modification") {
             {0, 1, 0}
         };
         
-        stoat_vcf::combine_identical_columns_quantitative_table(df);
+        stoat::combine_identical_columns_quantitative_table(df);
 
         std::vector<std::vector<double>> df_expected = {
             {1.0, 0.5},
@@ -66,7 +66,7 @@ TEST_CASE("Quantitative table modification") {
             {0.5}
         };
         
-        bool to_filter = stoat_vcf::check_last_columns_quantitative_table(df);
+        bool to_filter = stoat::check_last_columns_quantitative_table(df);
         REQUIRE(to_filter == true);
 
         std::vector<std::vector<double>> df2 = {
@@ -77,7 +77,7 @@ TEST_CASE("Quantitative table modification") {
             {0.5}
         };
         
-        bool to_filter2 = stoat_vcf::check_last_columns_quantitative_table(df2);
+        bool to_filter2 = stoat::check_last_columns_quantitative_table(df2);
         REQUIRE(to_filter2 == false);
     }
 
@@ -91,7 +91,7 @@ TEST_CASE("Quantitative table modification") {
             {0, 1}
         };
         
-        stoat_vcf::remove_last_columns_quantitative_table(df);
+        stoat::remove_last_columns_quantitative_table(df);
 
         std::vector<std::vector<double>> df_expected = {
             {0.5},

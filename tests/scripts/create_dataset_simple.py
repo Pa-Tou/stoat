@@ -81,7 +81,7 @@ def generate_vcf_and_paths(chr_number, num_samples, num_variants, vcf_file, path
         vcf.write("\t".join([f"sample{i+1}" for i in range(num_samples)]) + "\n")
 
         # TSV header
-        paths.write("CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tTYPE\tREF\tDEPTH\n")
+        paths.write("CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tPATH_LENGTHS\tREF\tDEPTH\n")
 
         current_node = 2
         variants_per_chrom = num_variants // chr_number

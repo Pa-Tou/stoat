@@ -40,7 +40,6 @@ public:
         const double& maf_threshold,
         const double& table_threshold,
         const size_t& min_individuals,
-        const size_t& min_haplotypes,
         const std::string& regression_dir);
 
     ~SnarlAnalyzer()=default;
@@ -87,7 +86,6 @@ protected:
     const double& maf_threshold; 
     const double& table_threshold;
     const size_t& min_individuals;
-    const size_t& min_haplotypes;
     const std::string& regression_dir;
     std::ofstream* outf;
 };
@@ -104,7 +102,6 @@ public:
         const double& table_threshold,
         const std::vector<bool>& binary_phenotype,
         const size_t& min_individuals,
-        const size_t& min_haplotypes,
         const std::string& regression_dir);
 
     bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
@@ -131,7 +128,6 @@ public:
         const double& table_threshold,
         const std::vector<bool>& binary_phenotype,
         const size_t& min_individuals,
-        const size_t& min_haplotypes,
         const std::string& regression_dir);
 
     bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
@@ -158,7 +154,6 @@ public:
         const double& table_threshold,
         const std::vector<double>& quantitative_phenotype,
         const size_t& min_individuals,
-        const size_t& min_haplotypes,
         const std::string& regression_dir);
 
     bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf) ;
@@ -186,7 +181,6 @@ public:
         const std::unordered_map<std::string, std::vector<Qtl_data>>& eqtl_map,
         const size_t& windows_gene_threshold,
         const size_t& min_individuals,
-        const size_t& min_haplotypes,
         const std::string& regression_dir);
 
     bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
@@ -206,38 +200,6 @@ protected:
     const size_t& windows_gene_threshold;
     stoat::LinearRegression lr;
 };
-
-void combine_identical_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-void remove_empty_columns_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1);
-
-void remove_empty_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-void remove_last_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-bool check_last_columns_quantitative_table(
-    const std::vector<std::vector<double>>& df);
-
-/// Return true if snarl must be filtered
-bool filtration_quantitative_table(
-    const std::vector<std::vector<double>>& df,
-    const size_t& min_individuals,
-    const size_t& min_haplotypes,
-    const double& maf);
-
-bool filtration_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1,
-    const size_t& totalSum,
-    const size_t& individuals_included,
-    const size_t& min_individuals,
-    const size_t& min_haplotypes,
-    const double& maf);
 
 std::vector<size_t> found_gene_snarl(
     const std::vector<Qtl_data>& gene_position, 
