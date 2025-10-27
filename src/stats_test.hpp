@@ -163,6 +163,7 @@ bool filtration_quantitative_table(
     const size_t& min_individuals,
     const double& maf);
 
+/// Return true if the snarl should be filtered out, false if it should be kept
 bool filtration_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1,

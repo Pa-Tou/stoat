@@ -27,6 +27,10 @@ class AssociationFinder {
         const std::string& test_method;
         const std::string& output_format;
         size_t total_sample_count;
+        // Ignore snarls whose maf if lower than this
+        double maf_threshold;
+        // Ignore snarls with fewer than this many individuals
+        size_t min_individuals;
         std::ostream& out_associated = std::cout;
         bool check_distances;
 
@@ -46,6 +50,8 @@ class AssociationFinder {
                           const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                           const std::string& reference_sample,
                           const std::string& test_method,
+                          double maf_threshold,
+                          size_t min_individuals,
                           const std::string& output_format,
                           std::ostream& out_associated);
 

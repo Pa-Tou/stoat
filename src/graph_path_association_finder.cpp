@@ -11,6 +11,8 @@ AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph&
                                      const std::pair<std::set<std::string>, std::set<std::string>>& sample_sets, 
                                      const std::string& reference_sample,
                                      const std::string& test_method,
+                                     double maf_threshold,
+                                     size_t min_individuals,
                                      const std::string& output_format,
                                      std::ostream& out_associated) :
     graph(graph), 
@@ -18,6 +20,8 @@ AssociationFinder::AssociationFinder(const handlegraph::PathPositionHandleGraph&
     sample_sets(sample_sets),
     reference_sample(reference_sample),
     test_method(test_method),
+    maf_threshold(maf_threshold),
+    min_individuals(min_individuals),
     output_format(output_format),
     out_associated(out_associated)
     {}
@@ -31,11 +35,13 @@ void AssociationFinder::test_snarls() const {
     }
 
     stoat::FisherKhi2 fisher_chi2_tester;
+
+    // Go through all snarls, which have already been partitioned by the partitioner
     partitioner->for_each_snarl_partition(graph, 
     [&] (const stoat::snarl_partition_t& snarl_info) {
 
 
-        // Should we write this?
+        // Should we write this snarl immediately?
         bool write_output = false;
 
         // the strings we are going to output
@@ -118,6 +124,9 @@ void AssociationFinder::test_snarls() const {
                 // Fill in the genotypes. Each item in these vectors is an allele (path/sample partition)
                 std::vector<size_t> genotype_associated(sample_partitions.size(), 0);
                 std::vector<size_t> genotype_unassociated(sample_partitions.size(), 0);
+
+                // How many individuals/samples are included?
+                std::unordered_set<std::string> seen_samples;
                 for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
                     const std::set<sample_hap_t>& sample_set = sample_partitions[i];
                     for (const sample_hap_t sample : sample_set) {
@@ -126,23 +135,29 @@ void AssociationFinder::test_snarls() const {
                         } else if (sample_sets.second.count(sample.sample) == 1) {
                             genotype_unassociated[i]++;
                         }
+                        seen_samples.insert(sample.sample);
                     }
                 }
+                if (stoat::filtration_binary_table(genotype_associated, genotype_unassociated, seen_samples.size(), min_individuals, maf_threshold)) {
+                    // If this didn't pass the filter
+                    write_output = false;
+                } else {
 
-                //Get a bunch of strings that get used for the output
-                // TODO: This function should probably be part of the output function
+                    //Get a bunch of strings that get used for the output
+                    // TODO: This function should probably be part of the output function
 
-                //Get a bunch of strings that get used for the output
-                group_paths = stoat_vcf::format_group_paths(genotype_associated, genotype_unassociated);
+                    //Get a bunch of strings that get used for the output
+                    group_paths = stoat_vcf::format_group_paths(genotype_associated, genotype_unassociated);
  
-                // Run the statistical test
-                std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(genotype_associated, genotype_unassociated);
+                    // Run the statistical test
+                    std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(genotype_associated, genotype_unassociated);
 
-                if (output_format == "fasta") {
-                    // Figure out which samples we want to write
-                    // Since we don't know which partition is actually associated, just write everything to one file
-                    for (const std::set<sample_hap_t>& partition : sample_partitions) {
-                        samples_to_write[partition.begin()->sample] = true;
+                    if (output_format == "fasta") {
+                        // Figure out which samples we want to write
+                        // Since we don't know which partition is actually associated, just write everything to one file
+                        for (const std::set<sample_hap_t>& partition : sample_partitions) {
+                            samples_to_write[partition.begin()->sample] = true;
+                        }
                     }
                 }
 
