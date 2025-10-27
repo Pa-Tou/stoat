@@ -350,9 +350,6 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                             return true;
                         });
                     }
-
-                    // Wait for tasks to complete
-                    #pragma omp taskwait
                 }
             }
         }
