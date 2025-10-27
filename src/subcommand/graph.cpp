@@ -49,7 +49,7 @@ void print_help_graph() {
         //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
         //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << endl
-        << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequency of at least two alleles is greater than FLOAT [0.05]" << endl
+        << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << endl
         << "  -I, --min-individuals INT          If there are fewer than INT individuals/samples in a snarl, then ignore the snarl [1]\n"
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
         << "  -r, --reference-sample NAME        If there is no reference in the graph, use this sample as the reference" << endl

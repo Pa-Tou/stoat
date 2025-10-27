@@ -27,7 +27,7 @@ class AssociationFinder {
         const std::string& test_method;
         const std::string& output_format;
         size_t total_sample_count;
-        // Ignore snarls whose maf if lower than this
+        // If fewer than two alleles in a snarl has MAF larger than this, filter it
         double maf_threshold;
         // Ignore snarls with fewer than this many individuals
         size_t min_individuals;

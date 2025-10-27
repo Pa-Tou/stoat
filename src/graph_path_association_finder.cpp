@@ -41,27 +41,11 @@ void AssociationFinder::test_snarls() const {
     [&] (const stoat::snarl_partition_t& snarl_info) {
 
 
-        // Should we write this snarl immediately?
-        bool write_output = false;
-
-        // the strings we are going to output
-        string group_paths = "NA";
-        string fastfisher_p_value = "NA";
-        string chi2_p_value = "NA";
-        // Get the path lengths, except since we don't know the lengths of the alleles, it's just the min and max length of the snarl
-        std::stringstream ss;
-        if (snarl_info.min_length == std::numeric_limits<size_t>::max() && snarl_info.max_length == std::numeric_limits<size_t>::max()) {
-            ss << "NA,NA";
-        } else {
-            ss << snarl_info.min_length << "," << snarl_info.max_length;
-        }
-
-        string path_lengths = ss.str();
-
         // Each set represents a partition of samples that takes the same path through the snarl's netgraph
         const std::vector<std::set<sample_hap_t>>& sample_partitions = snarl_info.partitions;
 
         // Do we test nested snarls? Don't test snarls that are already flagged as significant
+        // This can only be used for the exact test, so anything nested will not pass anyways
         bool test_nested_snarls = true;
 
         stoat::LOG_TRACE( "\tTRUTH 1" );
@@ -81,6 +65,24 @@ void AssociationFinder::test_snarls() const {
         }
 
         if (sample_partitions.size() > 1) {
+
+
+            // Should we write this snarl immediately?
+            bool write_output = false;
+
+            // the strings we are going to output
+            string group_paths = "NA";
+            string fastfisher_p_value = "NA";
+            string chi2_p_value = "NA";
+            // Get the path lengths, except since we don't know the lengths of the alleles, it's just the min and max length of the snarl
+            std::stringstream ss;
+            if (snarl_info.min_length == std::numeric_limits<size_t>::max() && snarl_info.max_length == std::numeric_limits<size_t>::max()) {
+                ss << "NA,NA";
+            } else {
+                ss << snarl_info.min_length << "," << snarl_info.max_length;
+            }
+
+            string path_lengths = ss.str();
 
             // If we are writing a fasta, then pick one sample from each partition to write
             std::unordered_map<std::string, bool> samples_to_write;
@@ -116,10 +118,7 @@ void AssociationFinder::test_snarls() const {
                 }
 
             } else {
-
-                // If we are using a real statistical test, then always write the output because the BH correction will need all the p-values
-                // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
-                write_output = true;
+                // Else we are doing chi2
 
                 // Fill in the genotypes. Each item in these vectors is an allele (path/sample partition)
                 std::vector<size_t> genotype_associated(sample_partitions.size(), 0);
@@ -127,6 +126,7 @@ void AssociationFinder::test_snarls() const {
 
                 // How many individuals/samples are included?
                 std::unordered_set<std::string> seen_samples;
+                // Put the sample partitions into genotype vectors (one entry in the vector is one allele/path/genotype)
                 for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
                     const std::set<sample_hap_t>& sample_set = sample_partitions[i];
                     for (const sample_hap_t sample : sample_set) {
@@ -138,10 +138,10 @@ void AssociationFinder::test_snarls() const {
                         seen_samples.insert(sample.sample);
                     }
                 }
-                if (stoat::filtration_binary_table(genotype_associated, genotype_unassociated, seen_samples.size(), min_individuals, maf_threshold)) {
-                    // If this didn't pass the filter
-                    write_output = false;
-                } else {
+                if (!stoat::filtration_binary_table(genotype_associated, genotype_unassociated, seen_samples.size(), min_individuals, maf_threshold)) {
+                    // If we are using a real statistical test, then always write the output because the BH correction will need all the p-values
+                    // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
+                    write_output = true;
 
                     //Get a bunch of strings that get used for the output
                     // TODO: This function should probably be part of the output function
