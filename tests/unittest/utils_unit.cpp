@@ -106,3 +106,207 @@ TEST_CASE("stringToVector throws on invalid input") {
     std::string s = "4,abc,6";
     REQUIRE_THROWS_AS(stringToVector<size_t>(s), std::runtime_error);
 }
+TEST_CASE("Snarl coordinates simple nested chain", "[snarl_info]") {
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
+    
+    bdsg::HashGraph hash_graph;
+    hash_graph.deserialize("../tests/graph_test/simple_nested_chain.hg");
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto graph = overlay_helper.apply(&hash_graph);
+
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(2)));
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(5)));
+    handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(6)));
+    handlegraph::net_handle_t snarl4 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(9)));
+
+    SECTION("reference path") {
+        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, "", false);
+        REQUIRE(snarl1_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
+        REQUIRE(std::get<0>(snarl1_coords) == "path0#0#path0");
+        REQUIRE(std::get<1>(snarl1_coords) == 1);
+        REQUIRE(std::get<2>(snarl1_coords) == 2);
+
+        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, "", false);
+        REQUIRE(snarl3_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
+        REQUIRE(std::get<0>(snarl3_coords) == "path0#0#path0");
+        REQUIRE(std::get<1>(snarl3_coords) == 4);
+        REQUIRE(std::get<2>(snarl3_coords) == 5);
+    }
+    SECTION("named path") {
+        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, false, "path2", false);
+        REQUIRE(snarl1_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
+        REQUIRE(std::get<0>(snarl1_coords) == "path2");
+        REQUIRE(std::get<1>(snarl1_coords) == 1);
+        REQUIRE(std::get<2>(snarl1_coords) == 2);
+
+        // Nested snarl off the reference
+        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, false, "path2", false);
+        REQUIRE(snarl3_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
+        REQUIRE(std::get<0>(snarl3_coords) == "path2");
+        REQUIRE(std::get<1>(snarl3_coords) == 3);
+        REQUIRE(std::get<2>(snarl3_coords) == 3);
+    }
+
+}
+TEST_CASE("Snarl coordinates deeply nested snarls with deletion in reference", "[snarl_info]") {
+    /*
+                      3
+                    /   \
+                   2 ----4  
+                 /         \
+               1  ----------5
+              /              \
+            0 ----------------6
+
+   */
+
+    bdsg::HashGraph hash_graph;
+
+    std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A"};
+
+    std::vector<handlegraph::handle_t> nodes;
+    for (auto& seq : sequences) {
+        nodes.emplace_back(hash_graph.create_handle(seq));
+    }
+
+    hash_graph.create_edge(nodes[0], nodes[1]);
+    hash_graph.create_edge(nodes[0], nodes[6]);
+    hash_graph.create_edge(nodes[1], nodes[2]);
+    hash_graph.create_edge(nodes[1], nodes[5]);
+    hash_graph.create_edge(nodes[2], nodes[3]);
+    hash_graph.create_edge(nodes[2], nodes[4]);
+    hash_graph.create_edge(nodes[3], nodes[4]);
+    hash_graph.create_edge(nodes[4], nodes[5]);
+    hash_graph.create_edge(nodes[5], nodes[6]);
+
+    std::vector<std::vector<std::size_t>> paths_seqs = { {0, 6}, {0, 1, 5, 6}, {0, 1, 2, 3, 4, 5, 6}};
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+        if (path_i == 0) {
+            // Set first path with deletion as reference
+            paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0"));
+        } else {
+            paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0#0"));
+        }
+        for (size_t node_i : paths_seqs[path_i]) {
+            hash_graph.append_step(paths.back(), nodes[node_i]);
+        }
+    }
+
+    // vg isn't included so the distance index can only be built from the command line
+    hash_graph.serialize("../tests/graph_test/deeply_nested_snarl.hg");
+    int built = system("vg index -j ../tests/graph_test/deeply_nested_snarl.dist ../tests/graph_test/deeply_nested_snarl.hg"); 
+
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/deeply_nested_snarl.dist");
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto graph = overlay_helper.apply(&hash_graph);
+
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(5)));
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(4)));
+    handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(3)));
+
+    SECTION("reference with deletion") {
+        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, "", false);
+        REQUIRE(snarl1_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
+        REQUIRE(std::get<0>(snarl1_coords) == "path0#0#0");
+        REQUIRE(std::get<1>(snarl1_coords) == 1);
+        REQUIRE(std::get<2>(snarl1_coords) == 1);
+
+        // Nested snarl off the reference
+        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, "", false);
+        REQUIRE(snarl3_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
+        REQUIRE(std::get<0>(snarl3_coords) == "path0#0#0");
+        REQUIRE(std::get<1>(snarl3_coords) == 1);
+        REQUIRE(std::get<2>(snarl3_coords) == 1);
+    }
+    int rm = system("rm ../tests/graph_test/deeply_nested_snarl.hg");
+    rm = system("rm ../tests/graph_test/deeply_nested_snarl.dist");
+}
+
+TEST_CASE("Snarl coordinates deeply nested snarls with deletion in reference, but no reference sense", "[snarl_info]") {
+    /*
+                      3
+                    /   \
+                   2 ----4  
+                 /         \
+               1  ----------5
+              /              \
+            0 ----------------6
+
+   */
+
+    bdsg::HashGraph hash_graph;
+
+    std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A"};
+
+    std::vector<handlegraph::handle_t> nodes;
+    for (auto& seq : sequences) {
+        nodes.emplace_back(hash_graph.create_handle(seq));
+    }
+
+    hash_graph.create_edge(nodes[0], nodes[1]);
+    hash_graph.create_edge(nodes[0], nodes[6]);
+    hash_graph.create_edge(nodes[1], nodes[2]);
+    hash_graph.create_edge(nodes[1], nodes[5]);
+    hash_graph.create_edge(nodes[2], nodes[3]);
+    hash_graph.create_edge(nodes[2], nodes[4]);
+    hash_graph.create_edge(nodes[3], nodes[4]);
+    hash_graph.create_edge(nodes[4], nodes[5]);
+    hash_graph.create_edge(nodes[5], nodes[6]);
+
+    std::vector<std::vector<std::size_t>> paths_seqs = { {0, 6}, {0, 1, 5, 6}, {0, 1, 2, 3, 4, 5, 6}};
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+        paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0#0"));
+        for (size_t node_i : paths_seqs[path_i]) {
+            hash_graph.append_step(paths.back(), nodes[node_i]);
+        }
+    }
+
+    // vg isn't included so the distance index can only be built from the command line
+    hash_graph.serialize("../tests/graph_test/deeply_nested_snarl.hg");
+    int built = system("vg index -j ../tests/graph_test/deeply_nested_snarl.dist ../tests/graph_test/deeply_nested_snarl.hg"); 
+
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/deeply_nested_snarl.dist");
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto graph = overlay_helper.apply(&hash_graph);
+
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(5)));
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(4)));
+    handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(3)));
+
+    SECTION("reference with deletion") {
+        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, "path0#0#0#0", false);
+        REQUIRE(snarl1_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
+        REQUIRE(std::get<0>(snarl1_coords) == "path0#0#0#0");
+        REQUIRE(std::get<1>(snarl1_coords) == 1);
+        REQUIRE(std::get<2>(snarl1_coords) == 1);
+
+        // Nested snarl off the reference
+        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, "path0#0#0#0", false);
+        REQUIRE(snarl3_paths.size() == 1);
+        std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
+        REQUIRE(std::get<0>(snarl3_coords) == "path0#0#0#0");
+        REQUIRE(std::get<1>(snarl3_coords) == 1);
+        REQUIRE(std::get<2>(snarl3_coords) == 1);
+    }
+    int rm = system("rm ../tests/graph_test/deeply_nested_snarl.hg");
+    rm = system("rm ../tests/graph_test/deeply_nested_snarl.dist");
+}
