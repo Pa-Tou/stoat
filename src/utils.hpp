@@ -57,6 +57,10 @@ struct sample_hap_t {
     std::string sample;
     std::size_t haplotype;
 
+    sample_hap_t() {};
+    sample_hap_t(std::string samp, std::size_t hap) :
+        sample(std::move(samp)), haplotype(std::move(hap)) {};
+
     const inline bool operator==(const sample_hap_t& other) const {
         return (sample==other.sample && haplotype==other.haplotype);
     }
@@ -97,14 +101,20 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
 
 /// The function that gets called by get_coordinates_of_snarl
 /// This either looks for a particular sample, or a reference-sense path, or all paths
-std::vector<path_range_t> get_coordinates_of_snarl_helper(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                                                          const handlegraph::net_handle_t& snarl, bool get_reference, std::string sample_name, bool get_all_paths);
+/// It finds paths between two nodes, which should be the start and end bounds of a snarl, pointing into each other
+std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle,
+                                                          const handlegraph::handle_t& end_handle, bool get_reference, std::string sample_name, bool get_all_paths);
 
 /// Given a path_range_t representing a path going through a snarl (with the start and end step_handle_t's representing the boundary nodes)
 /// Return the path name and range in the path of the snarl, not including the boundary nodes
 std::tuple<std::string, size_t, size_t> get_name_and_offsets_of_snarl_path_range(const handlegraph::PathPositionHandleGraph& graph, 
-                                                                                 const bdsg::SnarlDistanceIndex& distance_index, const path_range_t& range);
+                                                                                 const path_range_t& range);
 
+// TODO: Make this a struct
+//struct snarl_id {
+//    size_t start_id;
+//    size_t end_id;
+//}
 /// Function to find snarl ID- the start and end ids as a pair of size_t's
 std::pair<size_t, size_t> find_snarl_id(const bdsg::SnarlDistanceIndex& stree, const handlegraph::net_handle_t& snarl);
 
@@ -122,5 +132,16 @@ bool is_equal(T a, T b, T e = std::numeric_limits<T>::epsilon()) {
 enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // namespace stoat
+namespace std {
+    // Define hash for sample_hap_t
+    template <>
+    struct hash<stoat::sample_hap_t> {
+        size_t operator()(const stoat::sample_hap_t& sample_hap) const {
+            return std::hash<std::string>()(sample_hap.sample + ":" + std::to_string(sample_hap.haplotype));
+        }
+    };
+
+}
+
 
 #endif

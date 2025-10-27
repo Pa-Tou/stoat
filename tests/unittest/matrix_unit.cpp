@@ -7,7 +7,7 @@ class TestEdgeBySampleMatrix : stoat_vcf::EdgeBySampleMatrix {
     public:
     TestEdgeBySampleMatrix(const std::vector<std::string>& sampleNames, size_t rows, size_t cols) : EdgeBySampleMatrix(sampleNames, rows, cols) {}
 
-    using stoat_vcf::EdgeBySampleMatrix::matrix_1D;;
+    using stoat_vcf::EdgeBySampleMatrix::matrix_1D;
     using stoat_vcf::EdgeBySampleMatrix::operator();
     using stoat_vcf::EdgeBySampleMatrix::getMaxElement;
     using stoat_vcf::EdgeBySampleMatrix::expandMatrix;

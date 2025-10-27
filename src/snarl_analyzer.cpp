@@ -264,13 +264,15 @@ std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> SnarlAnalyzer::make_edge_matrix(htsFil
 
 // Decompose path stoat::Path_traversal_t to vectorstoat::Edge_t
 std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t& list_paths) {
+
     std::vector<stoat::Edge_t> edges;
     const std::vector<stoat::Node_traversal_t>& list_nodes = list_paths.get_paths();
     size_t length_s = list_nodes.size();
     edges.reserve(length_s - 1); // Reserve memory
 
     for (size_t i = 0; i < length_s - 1; ++i) {
-        edges.emplace_back(list_nodes[i], list_nodes[i + 1]);
+        stoat::Edge_t edge(list_nodes[i], list_nodes[i + 1]);
+        edges.emplace_back(edge);
     }
 
     return edges;
@@ -279,27 +281,30 @@ std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t
 // Decompose path std::string to vectorstoat::Edge_t
 std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string& s) {
     std::vector<stoat::Edge_t> edges;
-    std::vector<stoat::Node_traversal_t> nodes;
+    stoat::Path_traversal_t nodes;
 
     size_t i = 0;
     while (i < s.size()) {
         if (s[i] == '>' || s[i] == '<') {
             bool is_rev = (s[i] == '<');
             ++i;
-
+            
             size_t node_id = 0;
             while (i < s.size() && isdigit(s[i])) {
                 node_id = node_id * 10 + (s[i] - '0');
                 ++i;
             }
-            nodes.emplace_back(node_id, is_rev);
+            nodes.add_node_traversal_t({node_id, is_rev});
         } else {
             ++i; // Skip invalid characters
         }
     }
 
-    for (size_t j = 0; j + 1 < nodes.size(); ++j) {
-        edges.emplace_back(nodes[j], nodes[j + 1]);
+    nodes.check_path_flip();
+
+    for (size_t j = 0; j + 1 < nodes.get_paths().size(); ++j) {
+        stoat::Edge_t edge(nodes.get_paths()[j], nodes.get_paths()[j + 1]);
+        edges.emplace_back(edge);
     }
 
     return edges;
@@ -326,16 +331,17 @@ std::vector<size_t> identify_path(
     // Map snarl names to row indices
     for (const stoat::Edge_t& edge : list_edge_path) {
         const auto& [node_id_1, node_id_2] = edge.print_pair_edge(); // Convertstoat::Edge_t to std::pair<size_t, size_t>
-        
+
         // Skip if snarl contains '*' (here * == 0) aka complex path
         if (node_id_1 == 0 || node_id_2 == 0) {
             continue;
         }
+
         size_t row_index = edge_matrix.find_edge(edge);
         if (row_index != std::numeric_limits<size_t>::max()) {
             rows_to_check.push_back(row_index);
         } else {
-            return {}; // If any snarl isn't found, abort early
+            return {}; // If at least one edge not found, abort early te path
         }
     }
 
@@ -378,17 +384,20 @@ bool BinarySnarlAnalyzer::analyze_and_write_snarl(
     stoat::remove_empty_columns_binary_table(g0, g1);
     bool filtration = stoat::filtration_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
 
-    // Binary analysis single test
-    if (!filtration) { // good table
-        auto group_paths = format_group_paths(g0, g1);
-
-        auto [chi2_p_value, fastfisher_p_value] = fk.fisher_khi2(g0, g1);
-
-        # pragma omp critical (outf) 
-        {
-            stoat::write_binary(outf, chr, snarl_data_s, type_var_str, fastfisher_p_value, chi2_p_value, group_paths);
-        }
+    if (filtration) {
+        stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_binary_table");
+        return filtration;
     }
+
+    // Binary analysis single test
+    auto group_paths = format_group_paths(g0, g1);
+    auto [chi2_p_value, fastfisher_p_value] = fk.fisher_khi2(g0, g1);
+
+    # pragma omp critical (outf) 
+    {
+        stoat::write_binary(outf, chr, snarl_data_s, type_var_str, fastfisher_p_value, chi2_p_value, group_paths);
+    }
+
     return filtration;
 }
 
@@ -406,11 +415,11 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
 
     auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
     stoat::remove_empty_columns_quantitative_table(X);
-    
+
     filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> stoat::filtration_quantitative_table");
+        stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_quantitative_table");
         return filtration;
     }
 
@@ -420,10 +429,10 @@ bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
     filtration = stoat::check_last_columns_quantitative_table(X);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> stoat::check_last_columns_quantitative_table");
+        stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> check_last_columns_quantitative_table");
         return filtration;
     }
-
+    
     // logistic regression with covariates if not empty
     const auto& [p_value, beta, se] = lr.logistic_regression(X, Y, covariate);
 
@@ -453,7 +462,7 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> filtration_quantitative_table");
+        stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_quantitative_table");
         return filtration;
     }
 
@@ -462,7 +471,7 @@ bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
     filtration = stoat::check_last_columns_quantitative_table(X);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> check_last_columns_quantitative_table");
+        stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> check_last_columns_quantitative_table");
         return filtration;
     }
 
@@ -525,7 +534,7 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
     filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
     
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> stoat::filtration_quantitative_table");
+        stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_quantitative_table");
         return filtration;
     }
 
@@ -534,7 +543,7 @@ bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
     filtration = stoat::check_last_columns_quantitative_table(X);
 
     if (filtration) {
-        stoat::LOG_DEBUG("filtration by -> stoat::check_last_columns_quantitative_table");
+        stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> check_last_columns_quantitative_table");
         return filtration;
     }
 

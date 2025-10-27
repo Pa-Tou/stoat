@@ -6,7 +6,7 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
+TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
@@ -23,7 +23,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -M 0.0 -T chi2 -r ref";
+            + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
 
@@ -56,7 +56,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -M 0.0 -T chi2 -r ref -O fasta";
+            + " -T chi2 -r ref -O fasta";
 
         cmd += " --output " + output_dir;
 
@@ -90,7 +90,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -M 0.0 -T exact -r ref -O fasta";
+            + " -T exact -r ref -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -113,7 +113,73 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
     }
 
-    clean_output_dir(output_dir);
+    SECTION("Test serialization of snarls") {
+
+        clean_output_dir(output_dir);
+        string output_dir_loaded = output_dir + "_loaded";
+        clean_output_dir(output_dir_loaded);
+        std::filesystem::create_directory(output_dir_loaded);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -b " + data_path + "/phenotype_samples.tsv"
+            + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
+            + " -T chi2 -r ref";
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir_loaded+"/" + graph_base + ".saved_snarls"));
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::ifstream testfile;
+        testfile.open(output_dir+"/binary_table_graph.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
+
+        // Now run it again but using the saved snarls
+
+        cmd = "../bin/stoat graph";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+            + " -b " + data_path + "/phenotype_samples.tsv"
+            + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
+            + " -T chi2 -r ref";
+
+        cmd += " --output " + output_dir_loaded;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir_loaded+"/binary_table_graph.tsv"));
+        testfile;
+        testfile.open(output_dir_loaded+"/binary_table_graph.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
+
+        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", output_dir_loaded+"/binary_table_graph.tsv"));
+
+        // TODO: Add something that actually checks this
+        //bool passed = compare_output_dirs(output_dir, expected_dir);
+        //REQUIRE(passed);
+
+    }
+
+    //clean_output_dir(output_dir);
+    //clean_output_dir(output_dir_loaded);
 }
 
 TEST_CASE("Output simple nested chain", "[graph]") {
@@ -146,7 +212,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T chi2 -r path0 -V 4";
+            + " -T chi2 -r path0 -V 4";
 
 
         cmd += " --output " + output_dir;
@@ -179,7 +245,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T exact -r path0";
+            + " -T exact -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -210,7 +276,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T chi2 -r path0 -O fasta";
+            + " -T chi2 -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -256,7 +322,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T exact -r path0 -O fasta";
+            + " -T exact -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -288,7 +354,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     fs::remove(samples_file);
 }
 
-TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
+TEST_CASE("Output simple nested chain gbz", "[graph]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/graph_test/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
@@ -321,7 +387,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T chi2 -r path0 -V 4";
+            + " -T chi2 -r path0 -V 4";
 
 
         cmd += " --output " + output_dir;
@@ -354,7 +420,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T exact -r path0";
+            + " -T exact -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -385,7 +451,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T chi2 -r path0 -O fasta";
+            + " -T chi2 -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -431,7 +497,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph][bug]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T exact -r path0 -O fasta";
+            + " -T exact -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -491,7 +557,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T chi2 -r path0";
+            + " -T chi2 -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -522,7 +588,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T exact -r path0";
+            + " -T exact -r path0";
 
 
         cmd += " --output " + output_dir;
@@ -540,6 +606,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::vector<std::string> truth_lines;
         truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
         truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\tNA\tNA\tNA\t1");
+        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\tNA\tNA\t2");
 
         REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
     }
@@ -552,7 +619,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T chi2 -r path0 -O fasta";
+            + " -T chi2 -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -597,7 +664,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
-            + " -M 0.0 -T exact -r path0 -O fasta";
+            + " -T exact -r path0 -O fasta";
 
 
         cmd += " --output " + output_dir;
@@ -620,6 +687,18 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
 
         truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
+
+        // Snarl 2
+        // Path0 goes through once with insertion node 3
+        // Path 1 goes through twice with deletion
+        // Path 2 goes through twice, with insertion then with deletion 
+        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
+
+        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
+        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
+
+        truth_fasta.emplace_back(6, ">snarl:2-4|path0:11-12|path2:11-12", "G");
+        truth_fasta.emplace_back(7, ">snarl:2-4|path0:11-12|path2:15-15", "");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 

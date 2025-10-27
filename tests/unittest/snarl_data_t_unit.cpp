@@ -234,7 +234,7 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 2);
 
-        check_snarl(snarls_chr, "ref", "6_2", {">2>6", ">2>3>0>5>6"}, 8, 14, {"0", "6"}, *stree);
+        check_snarl(snarls_chr, "ref", "6_2", {">2>6", ">2>3<0>5>6"}, 8, 14, {"0", "6"}, *stree);
         check_snarl(snarls_chr, "ref", "5_3", {">3>4>5", ">3<4>5"}, 9, 11, {"2", "2"}, *stree);
     }
 
@@ -249,7 +249,7 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 3);
 
-        check_snarl(snarls_chr, "ref", "9_2", {">2>9", ">2>3>0>8>9"}, 8, 8, {"0", "9/10"}, *stree);
+        check_snarl(snarls_chr, "ref", "9_2", {">2>9", ">2>3<0>8>9"}, 8, 8, {"0", "9/10"}, *stree);
         check_snarl(snarls_chr, "ref", "8_6", {">6>8", ">6>7>8"}, 8, 8, {"0", "1"}, *stree);
         check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 8, 8, {"1", "1"}, *stree);
     }
@@ -395,7 +395,7 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 2);
 
-        check_snarl(snarls_chr, "ref", "8_2", {">2>8", ">2>3>0>6>7>8", ">2>3>0>6>8"}, 8, 12, {"0", "5", "4"}, *stree);
+        check_snarl(snarls_chr, "ref", "8_2", {">2>8", ">2>3<0>6>7>8", ">2>3<0>6>8"}, 8, 12, {"0", "5", "4"}, *stree);
         check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 9, 11, {"2", "2"}, *stree);
     }
 }

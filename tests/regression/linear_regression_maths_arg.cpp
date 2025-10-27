@@ -175,53 +175,62 @@ void linear_regression(
 
     double df_resid = (n - num_features > 0) ? n - num_features : 1;
     double sigma2 = sse / df_resid;
-    boost::math::students_t dist(df_resid);
-    std::vector<double> p_values_vector(num_variants, 0.0);
-    std::vector<double> beta_vector(num_variants, 0.0);
-    std::vector<double> se_vector(num_variants, 0.0);
 
-    for (int i = 1; i < num_variants+1; ++i) {
-        double safe_diagonal = XtX_inv[i][i] > 0 ? XtX_inv[i][i] : 0.0;
-        double se = std::sqrt(sigma2 * safe_diagonal);
-        double t_stat = beta[i] / se;
-        double pval;
-        if (std::isnan(t_stat) || std::isinf(t_stat)) { // Special case
-            pval = 1.0; // Assign a high p-value for invalid t-statistics
-            // LOG_DEBUG("Invalid t-statistic encountered");
-            continue;
-        } else {
-            pval = 2 * boost::math::cdf(boost::math::complement(dist, std::fabs(t_stat)));
-        }
+    // --- F-test computation (no p-value, no covariate/intercept) ---
+    double ssr = sst - sse;  // Regression sum of squares
+    double msr = ssr / num_variants;
+    double mse = sse / df_resid;
+    double f_stat = msr / mse;
 
-        // Store results
-        beta_vector[i-1] = beta[i];
-        se_vector[i-1] = se;
-        p_values_vector[i-1] = pval;
+    std::cout << "f_stat : " << f_stat << std::endl;
 
-        // Print results
-        std::cout << "beta[" << i << "] = " << beta[i]
-            << ", SE = " << se
-            << ", t = " << t_stat
-            << ", p = " << pval << '\n';
-    }
+    // boost::math::students_t dist(df_resid);
+    // std::vector<double> p_values_vector(num_variants, 0.0);
+    // std::vector<double> beta_vector(num_variants, 0.0);
+    // std::vector<double> se_vector(num_variants, 0.0);
 
-    std::cout << "R² = " << r2 << std::endl;
+    // for (int i = 1; i < num_variants+1; ++i) {
+    //     double safe_diagonal = XtX_inv[i][i] > 0 ? XtX_inv[i][i] : 0.0;
+    //     double se = std::sqrt(sigma2 * safe_diagonal);
+    //     double t_stat = beta[i] / se;
+    //     double pval;
+    //     if (std::isnan(t_stat) || std::isinf(t_stat)) { // Special case
+    //         pval = 1.0; // Assign a high p-value for invalid t-statistics
+    //         // LOG_DEBUG("Invalid t-statistic encountered");
+    //         continue;
+    //     } else {
+    //         pval = 2 * boost::math::cdf(boost::math::complement(dist, std::fabs(t_stat)));
+    //     }
 
-    double p_value_adjusted = p_values_vector[0];
-    double beta_adjusted = beta_vector[0];
-    double se_adjusted = se_vector[0];
+    //     // Store results
+    //     beta_vector[i-1] = beta[i];
+    //     se_vector[i-1] = se;
+    //     p_values_vector[i-1] = pval;
 
-    if (p_values_vector.size() > 1) {
-        // auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
-        // beta_adjusted = beta_vector[min_index];
-        // se_adjusted = se_vector[min_index];
-    }
+    //     // Print results
+    //     std::cout << "beta[" << i << "] = " << beta[i]
+    //         << ", SE = " << se
+    //         << ", t = " << t_stat
+    //         << ", p = " << pval << '\n';
+    // }
 
-    // set precision : 4 digit
-    // std::string p_value_str = stoat::set_precision(p_value_adjusted);
-    // std::string beta_str = stoat::set_precision(beta_adjusted);
-    // std::string se_str = stoat::set_precision(se_adjusted);
-    // std::string r2_str = stoat::set_precision(r2);
+    // std::cout << "R² = " << r2 << std::endl;
+
+    // double p_value_adjusted = p_values_vector[0];
+    // double beta_adjusted = beta_vector[0];
+    // double se_adjusted = se_vector[0];
+
+    // if (p_values_vector.size() > 1) {
+    //     // auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
+    //     // beta_adjusted = beta_vector[min_index];
+    //     // se_adjusted = se_vector[min_index];
+    // }
+
+    // // set precision : 4 digit
+    // // std::string p_value_str = stoat::set_precision(p_value_adjusted);
+    // // std::string beta_str = stoat::set_precision(beta_adjusted);
+    // // std::string se_str = stoat::set_precision(se_adjusted);
+    // // std::string r2_str = stoat::set_precision(r2);
 
 }
 

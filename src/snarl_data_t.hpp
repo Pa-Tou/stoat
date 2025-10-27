@@ -48,6 +48,10 @@ struct Node_traversal_t { // 64 bits per node
     public:
         Node_traversal_t(const size_t &id, const bool &rev);
         
+        // Setter
+        void set_is_reverse(const bool &rev) { is_reverse = rev; };
+        void set_node_id(const size_t &id) { node_id = id; };
+
         // Getters
         size_t get_node_id() const;
         bool get_is_reverse() const;
@@ -87,6 +91,10 @@ struct Path_traversal_t {
         Path_traversal_t() = default;
         void add_node_traversal_t(const Node_traversal_t &paths);
 
+        // Check and flip the Path if necessary to ensure consistent orientation
+        void check_path_flip();
+        void path_flip();
+
         // Getters
         const std::vector<Node_traversal_t>& get_paths() const;
         
@@ -98,6 +106,7 @@ struct Path_traversal_t {
 struct Snarl_data_t {
     public:
         // Constructor definition
+        Snarl_data_t() {};
         Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index);
         Snarl_data_t(net_handle_t snarl_,
                     std::pair<size_t, size_t> snarl_ids_,
@@ -109,10 +118,66 @@ struct Snarl_data_t {
         std::vector<std::string> type_variants;
         std::vector<Path_traversal_t> snarl_paths;
         net_handle_t snarl; // handlegraph::subrange_t Snarl_data_t::snarl_id
+        //TODO: Make this a node_traversal_t
         std::pair<size_t, size_t> snarl_ids;
         size_t start_positions;
         size_t end_positions;
         size_t depth;
+};
+
+/// This stores additional information (and also less information) about a snarl and the partitions of paths going through it
+/// - size (as the "maximum" length of the snarl)
+/// - the reference path and offsets of the snarl along the reference path
+/// - partitions of samples
+// TODO: Take snarl_paths out of snarl_data_t and put it in a generic struct that both inherit, make writer use generic struct
+// TODO: Also ignoring type_variants
+//TODO: Use indices instead of actual sample names 
+// This also includes the following fields inherited from Snarl_data_t:
+// std::vector<Path_traversal_t> snarl_paths;
+// net_handle_t snarl; 
+// std::pair<size_t, size_t> snarl_ids;
+// size_t start_positions;
+// size_t end_positions;
+// size_t depth;
+
+struct snarl_partition_t : stoat::Snarl_data_t {
+    size_t min_length;
+    size_t max_length;
+    // The start and end bounds of the snarl, pointing in
+    handlegraph::handle_t start_handle;
+    handlegraph::handle_t end_handle;
+    std::string ref_path; //TODO: I think this could get pretty big, might want to save it as an index into a list of reference paths
+    std::vector<std::set<sample_hap_t>> partitions;
+
+    snarl_partition_t() {};
+
+    // Make it from a snarl
+    snarl_partition_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) :
+        Snarl_data_t(snarl_, graph, distance_index),
+        start_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl_, false, true)), &graph)),
+        end_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl_, true, true)), &graph)){};
+
+    // Make it from values
+    snarl_partition_t(bdsg::net_handle_t snarl_,
+                      handlegraph::handle_t start_handle,
+                      handlegraph::handle_t end_handle,
+                      std::pair<size_t, size_t> snarl_ids_,
+                      size_t start_pos_,
+                      size_t end_pos_,
+                      size_t depth_,
+                      size_t min_length,
+                      size_t max_length,
+                      std::string ref_path,
+                      std::vector<std::set<sample_hap_t>> partitions) :
+                      Snarl_data_t(), min_length(min_length), max_length(max_length),
+                      start_handle(start_handle), end_handle(end_handle),
+                      ref_path(std::move(ref_path)), partitions(std::move(partitions)) {
+                          snarl=snarl_;
+                          start_positions=start_pos_;
+                          end_positions=end_pos_;
+                          depth=depth_;
+                          snarl_ids = snarl_ids_;
+                      };
 };
 
 // Converter

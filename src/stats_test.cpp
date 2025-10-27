@@ -26,7 +26,20 @@ bool filtration_quantitative_table(
     
     // number of path < 2 OR not enougth individuals
     if (X.empty() || X[0].size() < 2 || X.size() < min_individuals) {
-        return true; // Not enough data → filter out
+        if (X.empty()) {
+            stoat::LOG_DEBUG("Filtration cause: X is empty.");
+            return true;
+        }
+
+        if (X[0].size() < 2) {
+            stoat::LOG_DEBUG("Filtration cause: Not enough paths (" + std::to_string(X[0].size()) + " < 2)");
+            return true;
+        }
+
+        if (X.size() < min_individuals) {
+            stoat::LOG_DEBUG("Filtration cause: Not enough individuals (" + std::to_string(X.size()) + " < " + std::to_string(min_individuals) + ")");
+            return true;
+        }
     }
 
     size_t numPaths = X[0].size();
@@ -56,7 +69,7 @@ bool filtration_quantitative_table(
 void remove_empty_columns_quantitative_table(
     std::vector<std::vector<double>>& X) {
 
-    if (X.empty()) return;
+    if (X.empty() || X[0].size() < 2) return;
 
     size_t num_rows = X.size();
     size_t num_cols = X[0].size();
@@ -206,11 +219,17 @@ bool filtration_binary_table(
         return true; // Empty or invalid input → filter
     }
 
+    size_t haplotype_count = 0;
+    for (size_t i = 0 ; i < g0.size() ; i++) {
+        haplotype_count += g0[i];
+        haplotype_count += g1[i];
+    }
+
     int count_above_threshold = 0;
     for (size_t i = 0; i < g0.size(); ++i) {
         size_t columnSum = g0[i] + g1[i];
 
-        double freq1 = static_cast<double>(g1[i]) / columnSum;
+        double freq1 = static_cast<double>(columnSum) / haplotype_count;
         double maf = std::min(freq1, 1.0 - freq1);
 
         if (maf > maf_threshold) {
@@ -747,6 +766,14 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
 
     double df_resid = (n - num_features > 0) ? n - num_features : 1;
     double sigma2 = sse / df_resid;
+
+    // --- F-test computation (no p-value, no covariate/intercept) ---
+    // double ssr = sst - sse;  // Regression sum of squares
+    // double msr = ssr / num_variants;
+    // double mse = sse / df_resid;
+    // double f_stat = msr / mse;
+    // boost::math::fisher_f dist(num_variants, df_resid);
+    // double p_value = 1 - boost::math::cdf(dist, f_stat);
 
     boost::math::students_t dist(df_resid);
     std::vector<double> p_values_vector(num_variants, 0.0);
