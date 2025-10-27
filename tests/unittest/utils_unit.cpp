@@ -270,12 +270,7 @@ TEST_CASE("Snarl coordinates deeply nested snarls with deletion in reference, bu
     std::vector<handlegraph::path_handle_t> paths;
 
     for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
-        if (path_i == 0) {
-            // Set first path with deletion as reference
-            paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0"));
-        } else {
-            paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0#0"));
-        }
+        paths.emplace_back(hash_graph.create_path_handle("path"+std::to_string(path_i)+"#0#0#0"));
         for (size_t node_i : paths_seqs[path_i]) {
             hash_graph.append_step(paths.back(), nodes[node_i]);
         }
