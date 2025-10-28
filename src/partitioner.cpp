@@ -293,6 +293,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                 while (!chains.empty()) {
                     handlegraph::net_handle_t chain = chains.back();
                     chains.pop_back();
+                    cerr << "At chain " << distance_index->net_handle_as_string(chain) << endl;
 
                     // Everything in here is parallelized
                     #pragma omp task
@@ -303,6 +304,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                             //TODO: Actually use is_eligible
                             //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
                             if (distance_index->is_snarl(snarl) && snarl_is_eligible(snarl)) {
+                                cerr << "Test snarl " << distance_index->net_handle_as_string(snarl) << endl;
 
                                 stoat::LOG_TRACE( "Test snarl " + distance_index->net_handle_as_string(snarl));
 
@@ -312,9 +314,11 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                     snarl_info.min_length = distance_index->minimum_length(snarl);
                                     snarl_info.max_length = distance_index->maximum_length(snarl);
                                 }
+                                cerr << "Add lengths" << endl;
 
                                 // Get the offsets of the start and end nodes along the reference
                                 std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
+                                cerr << "Get coordinates" << endl;
                                 if (ranges.size() != 0) {
                                     std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
                                 } else {
@@ -322,9 +326,12 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                     snarl_info.start_positions = 0;
                                     snarl_info.end_positions = 0;
                                 }
+                                cerr << "Add string" << endl;
 
                                 // Now get the partitions
                                 snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
+
+                                cerr << "Call iteratee" << endl;
 
                                 // And call iteratee
                                 iteratee(snarl_info);
@@ -340,6 +347,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
 
                                     // Add the child chains to the stack
                                     distance_index->for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
+                                        cerr << "Add child " << distance_index->net_handle_as_string(child) << endl;
 
                                         chains.emplace_back(child);
                                         return true;
@@ -348,11 +356,15 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
 
                             }
                             return true;
-                        });
+                        }); //end for each child
+                    }// end omp task
+                    if (chains.empty()) {
+                        // Wait for tasks to complete
+                        #pragma omp taskwait
                     }
-                }
-            }
-        }
+                }// end while loop
+            }// End omp single
+        }//end omp shared
 
     } else {
         // If the distance index is not given, then go through snarl_partitions
