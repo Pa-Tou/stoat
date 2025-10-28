@@ -151,15 +151,15 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                     next_steps[sample_num] = std::move(edge);
                 } else {
                     // If the new edge comes after something in additional_steps, walk through the linked list to find its place
-                    path_edge_t& old_edge = next_steps[sample_num];
-                    while (old_edge.additional_edge != std::numeric_limits<size_t>::max() &&
-                           additional_steps[old_edge.additional_edge].offset < edge.offset) {
-                        size_t next = old_edge.additional_edge; 
-                        old_edge = additional_steps[next];
+                    path_edge_t* old_edge = &next_steps[sample_num];
+                    while (old_edge->additional_edge != std::numeric_limits<size_t>::max() &&
+                           additional_steps[old_edge->additional_edge].offset < edge.offset) {
+                        size_t next = old_edge->additional_edge; 
+                        old_edge = &additional_steps[next];
                     }
                     //Old_edge_i now points to the item just smaller than edge
-                    size_t old_additional_edge = old_edge.additional_edge;
-                    old_edge.additional_edge = additional_steps.size();
+                    size_t old_additional_edge = old_edge->additional_edge;
+                    old_edge->additional_edge = additional_steps.size();
                     edge.additional_edge = old_additional_edge;
                     additional_steps.emplace_back(std::move(edge));
                 }
