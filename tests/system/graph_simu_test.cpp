@@ -46,6 +46,113 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
         //REQUIRE(passed);
 
     }
+    SECTION("Test tsv output saving snarls") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -b " + data_path + "/phenotype_samples.tsv"
+            + " -M 0 -l 0 -s " + data_path + "/" + graph_base + ".snarls.txt" 
+            + " -T chi2 -r ref";
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::ifstream testfile;
+        testfile.open(output_dir+"/binary_table_graph.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
+
+        REQUIRE(std::filesystem::exists(data_path+"/"+graph_base+".snarls.txt"));
+        std::ifstream snarlsfile;
+        snarlsfile.open(data_path+"/"+graph_base+".snarls.txt");
+        REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+
+        size_t line_count = 0;
+        bool start_counting= false;
+        std::string line;
+        while (std::getline(snarlsfile, line)) {
+            // Only start counting snarls after proper header
+            if (start_counting) {
+                line_count++;
+            }
+            if (line == "#SNARLS") {
+                start_counting = true;
+            }
+        }
+        snarlsfile.close();
+        REQUIRE(line_count==1524);
+
+        // TODO: Add something that actually checks this
+        //bool passed = compare_output_dirs(output_dir, expected_dir);
+        //REQUIRE(passed);
+
+    }
+    SECTION("Test tsv output saving snarls multithreaded") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -b " + data_path + "/phenotype_samples.tsv"
+            + " -M 0 -l 0 -s " + data_path + "/" + graph_base + ".snarls.txt" 
+            + " -t 4"
+            + " -T chi2 -r ref";
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::ifstream testfile;
+        testfile.open(output_dir+"/binary_table_graph.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
+        testfile.close();
+
+        REQUIRE(std::filesystem::exists(data_path+"/"+graph_base+".snarls.txt"));
+        std::ifstream snarlsfile;
+        snarlsfile.open(data_path+"/"+graph_base+".snarls.txt");
+        REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+
+        size_t line_count = 0;
+        bool start_counting= false;
+        std::string line;
+        while (std::getline(snarlsfile, line)) {
+            // Only start counting snarls after proper header
+            if (start_counting) {
+                line_count++;
+            }
+            if (line == "#SNARLS") {
+                start_counting = true;
+            }
+        }
+        snarlsfile.close();
+        REQUIRE(line_count==1524);
+
+        // TODO: Add something that actually checks this
+        //bool passed = compare_output_dirs(output_dir, expected_dir);
+        //REQUIRE(passed);
+
+    }
 
     SECTION("Test chi2 fasta output") {
 
