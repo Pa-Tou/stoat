@@ -174,17 +174,25 @@ sample_hap_t get_sample_and_haplotype(const handlegraph::PathHandleGraph& graph,
 std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                    const handlegraph::net_handle_t& snarl, bool get_reference, std::string sample_name, bool get_all_paths) {
     std::vector<path_range_t> ranges;
+
+    // If we want the sample name first, then reference-sense next, check all ancestors for the sample_name, then all ancestors for the references-sense path.
+    // Save the reference from the first traversal so we don't have to traverse multiple times
+    std::vector<path_range_t> ref_ranges;
     // If a sample name is given, then always look for that first
     if (!sample_name.empty() || get_reference) {
         handlegraph::net_handle_t ancestor_snarl = snarl;
         while (!distance_index.is_root(ancestor_snarl)) {
             handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, false, true)), &graph);
             handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, true, true)), &graph);
+
+            // First, try to get the given sample name for this snarl
             if (!sample_name.empty()) {
                 ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, sample_name, false);
             }
-            if (ranges.empty() && get_reference) {
-                ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, true, "", false);
+            
+            // If that didn't work then get the reference-sense path for the lowest possible snarl
+            if (ranges.empty() && ref_ranges.empty() && get_reference) {
+                ref_ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, true, "", false);
             }
             if (!ranges.empty()) {
                 return ranges;
@@ -192,6 +200,9 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
             // If this snarl isn't on the path we want, go up the snarl tree until we find something
             ancestor_snarl = distance_index.get_parent(distance_index.get_parent(ancestor_snarl));
         }
+    }
+    if (!ref_ranges.empty()) {
+        return ref_ranges;
     }
     handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
     handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, true)), &graph);
