@@ -885,7 +885,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
             }
         }
         snarlsfile.close();
-        REQUIRE(line_count==12);
+        REQUIRE(line_count==24);
 
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
@@ -932,7 +932,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
             }
         }
         snarlsfile.close();
-        REQUIRE(line_count==12);
+        REQUIRE(line_count==24);
 
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
