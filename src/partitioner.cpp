@@ -290,9 +290,15 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             // The actual while loop is run on a single thread
             #pragma omp single
             {
+                // I think it is fine to check if chains is empty outside of a omp critical barrier since it isn't changing it, and it waits at the end of the loop
+                // for all threads to finish if chains was empty
                 while (!chains.empty()) {
-                    handlegraph::net_handle_t chain = chains.back();
+                    handlegraph::net_handle_t chain;
+                    #pragma omp critical
+                    {
+                    chain = chains.back();
                     chains.pop_back();
+                    }
 
                     // Everything in here is parallelized
                     #pragma omp task
@@ -326,6 +332,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                 // Now get the partitions
                                 snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
 
+
                                 // And call iteratee
                                 iteratee(snarl_info);
 
@@ -348,14 +355,15 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
 
                             }
                             return true;
-                        });
-                    }
-
-                    // Wait for tasks to complete
-                    #pragma omp taskwait
-                }
-            }
-        }
+                        }); //end for each child
+                    }// end omp task
+                    if (chains.empty()) {
+                        // Wait for tasks to complete
+                        #pragma omp taskwait
+                    } 
+                }// end while loop
+            }// End omp single
+        }//end omp shared
 
     } else {
         // If the distance index is not given, then go through snarl_partitions
