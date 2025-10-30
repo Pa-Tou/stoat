@@ -326,6 +326,158 @@ TEST_CASE( "Path partitioner nested bubbles",
     }
 
 }
+
+TEST_CASE( "Path partitioner multiple nested bubbles",
+          "[path_partitioner]" ) {
+
+    /*
+                       5
+                     /   \
+            1       4 ----6    8
+          /   \   /         \ / \
+        0       3  ----------7---9
+          \   /
+            2
+    this graph is duplicated 4x
+
+   */
+
+    //bdsg::HashGraph graph;
+
+    //std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A", "C", "A", "A", 
+    //                                       "C", "C", "C", "A", "T", "C", "A", "C", "A", "A",  
+    //                                       "C", "C", "C", "A", "T", "C", "A", "C", "A", "A",
+    //                                       "C", "C", "C", "A", "T", "C", "A", "C", "A", "A", 
+    //                                       "C", "C", "C", "A", "T", "C", "A", "C", "A", "A", 
+    //                                       "C", "C", "C", "A", "T", "C", "A", "C", "A", "A"};
+
+    //std::vector<handlegraph::handle_t> nodes;
+    //for (auto& seq : sequences) {
+    //    nodes.emplace_back(graph.create_handle(seq));
+    //}
+
+    //graph.create_edge(nodes[0], nodes[1]);
+    //graph.create_edge(nodes[0], nodes[2]);
+    //graph.create_edge(nodes[1], nodes[3]);
+    //graph.create_edge(nodes[2], nodes[3]);
+    //graph.create_edge(nodes[3], nodes[4]);
+    //graph.create_edge(nodes[3], nodes[7]);
+    //graph.create_edge(nodes[4], nodes[5]);
+    //graph.create_edge(nodes[4], nodes[6]);
+    //graph.create_edge(nodes[5], nodes[6]);
+    //graph.create_edge(nodes[6], nodes[7]);
+    //graph.create_edge(nodes[7], nodes[8]);
+    //graph.create_edge(nodes[7], nodes[9]);
+    //graph.create_edge(nodes[8], nodes[9]);
+
+    //graph.create_edge(nodes[9], nodes[10]);
+
+    //graph.create_edge(nodes[10], nodes[11]);
+    //graph.create_edge(nodes[10], nodes[12]);
+    //graph.create_edge(nodes[11], nodes[13]);
+    //graph.create_edge(nodes[12], nodes[13]);
+    //graph.create_edge(nodes[13], nodes[14]);
+    //graph.create_edge(nodes[13], nodes[17]);
+    //graph.create_edge(nodes[14], nodes[15]);
+    //graph.create_edge(nodes[14], nodes[16]);
+    //graph.create_edge(nodes[15], nodes[16]);
+    //graph.create_edge(nodes[16], nodes[17]);
+    //graph.create_edge(nodes[17], nodes[18]);
+    //graph.create_edge(nodes[17], nodes[19]);
+    //graph.create_edge(nodes[18], nodes[19]);
+
+
+    //graph.create_edge(nodes[20], nodes[21]);
+    //graph.create_edge(nodes[20], nodes[22]);
+    //graph.create_edge(nodes[21], nodes[23]);
+    //graph.create_edge(nodes[22], nodes[23]);
+    //graph.create_edge(nodes[23], nodes[24]);
+    //graph.create_edge(nodes[23], nodes[27]);
+    //graph.create_edge(nodes[24], nodes[25]);
+    //graph.create_edge(nodes[24], nodes[26]);
+    //graph.create_edge(nodes[25], nodes[26]);
+    //graph.create_edge(nodes[26], nodes[27]);
+    //graph.create_edge(nodes[27], nodes[28]);
+    //graph.create_edge(nodes[27], nodes[29]);
+    //graph.create_edge(nodes[28], nodes[29]);
+
+    //graph.create_edge(nodes[29], nodes[30]);
+
+    //graph.create_edge(nodes[30], nodes[31]);
+    //graph.create_edge(nodes[30], nodes[32]);
+    //graph.create_edge(nodes[31], nodes[33]);
+    //graph.create_edge(nodes[32], nodes[33]);
+    //graph.create_edge(nodes[33], nodes[34]);
+    //graph.create_edge(nodes[33], nodes[37]);
+    //graph.create_edge(nodes[34], nodes[35]);
+    //graph.create_edge(nodes[34], nodes[36]);
+    //graph.create_edge(nodes[35], nodes[36]);
+    //graph.create_edge(nodes[36], nodes[37]);
+    //graph.create_edge(nodes[37], nodes[38]);
+    //graph.create_edge(nodes[37], nodes[39]);
+    //graph.create_edge(nodes[38], nodes[39]);
+
+    //graph.create_edge(nodes[39], nodes[40]);
+
+    //graph.create_edge(nodes[40], nodes[41]);
+    //graph.create_edge(nodes[40], nodes[42]);
+    //graph.create_edge(nodes[41], nodes[43]);
+    //graph.create_edge(nodes[42], nodes[43]);
+    //graph.create_edge(nodes[43], nodes[44]);
+    //graph.create_edge(nodes[43], nodes[47]);
+    //graph.create_edge(nodes[44], nodes[45]);
+    //graph.create_edge(nodes[44], nodes[46]);
+    //graph.create_edge(nodes[45], nodes[46]);
+    //graph.create_edge(nodes[46], nodes[47]);
+    //graph.create_edge(nodes[47], nodes[48]);
+    //graph.create_edge(nodes[47], nodes[49]);
+    //graph.create_edge(nodes[48], nodes[49]);
+
+    //graph.create_edge(nodes[49], nodes[50]);
+
+    //graph.create_edge(nodes[50], nodes[51]);
+    //graph.create_edge(nodes[50], nodes[52]);
+    //graph.create_edge(nodes[51], nodes[53]);
+    //graph.create_edge(nodes[52], nodes[53]);
+    //graph.create_edge(nodes[53], nodes[54]);
+    //graph.create_edge(nodes[53], nodes[57]);
+    //graph.create_edge(nodes[54], nodes[55]);
+    //graph.create_edge(nodes[54], nodes[56]);
+    //graph.create_edge(nodes[55], nodes[56]);
+    //graph.create_edge(nodes[56], nodes[57]);
+    //graph.create_edge(nodes[57], nodes[58]);
+    //graph.create_edge(nodes[57], nodes[59]);
+    //graph.create_edge(nodes[58], nodes[59]);
+
+    //// TODO one of these should really be the reference but idk how to add reference paths to a graph
+    //std::vector<std::vector<std::size_t>> paths_seqs = { {0, 1, 3, 4, 5, 6, 7}, {0, 1, 3, 4, 6, 7}, {0, 2, 3, 7}, {0, 2, 3, 4, 6, 7},
+    //                                                      {10, 11, 13, 14, 15, 16, 17}, {10, 11, 13, 14, 16, 17}, {10, 12, 13, 17}, {10, 12, 13, 14, 16, 17},
+    //                                                      {20, 21, 23, 24, 25, 26, 27}, {20, 21, 23, 24, 26, 27}, {20, 22, 23, 27}, {20, 22, 23, 24, 26, 27},
+    //                                                      {30, 31, 33, 34, 35, 36, 37}, {30, 31, 33, 34, 36, 37}, {30, 32, 33, 37}, {30, 32, 33, 34, 36, 37},
+    //                                                      {39, 40, 41, 43, 44, 45, 46, 47}, {40, 41, 43, 44, 46, 47}, {40, 42, 43, 47}, {40, 42, 43, 44, 46, 47},
+    //                                                      {49, 50, 51, 53, 54, 55, 56, 57}, {50, 51, 53, 54, 56, 57}, {50, 52, 53, 57}, {50, 52, 53, 54, 56, 57}};
+    //std::vector<handlegraph::path_handle_t> paths;
+
+    //for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path"+std::to_string(path_i)+"#0#0#0"));
+    //    for (size_t node_i : paths_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+
+    //// vg isn't included so the distance index can only be built from the command line
+    //graph.serialize("../tests/graph_test/simple_nested_chains.hg");
+    //int built = system("vg index -j ../tests/graph_test/simple_nested_chains.dist ../tests/graph_test/simple_nested_chains.hg"); 
+    //   bdsg::SnarlDistanceIndex distance_index;
+    //distance_index.deserialize("../tests/graph_test/simple_nested_chains.dist");
+
+   // bdsg::HashGraph graph;
+   // graph.deserialize("../tests/graph_test/simple_nested_chains.hg");
+
+    //bdsg::PathPositionOverlayHelper overlay_helper;
+    //auto path_graph = overlay_helper.apply(&graph);
+
+}
 TEST_CASE( "Path partitioner nested bubbles distanceless index",
           "[path_partitioner]" ) {
 
