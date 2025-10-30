@@ -284,17 +284,17 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             chains.emplace_back(chain);
             return true;
         });
+        bool keep_going = !chains.empty();
         // Go through the contents of chains in parallel
-        #pragma omp parallel shared(chains, all_references, snarl_partitions)
+        // Everything touching chains needs to be in an omp critical block so they don't collide. 
+        #pragma omp parallel shared(chains, all_references, snarl_partitions, keep_going)
         {
             // The actual while loop is run on a single thread
             #pragma omp single
             {
-                // I think it is fine to check if chains is empty outside of a omp critical barrier since it isn't changing it, and it waits at the end of the loop
-                // for all threads to finish if chains was empty
-                while (!chains.empty()) {
+                while (keep_going) {
                     handlegraph::net_handle_t chain;
-                    #pragma omp critical
+                    #pragma omp critical(chain_loop)
                     {
                     chain = chains.back();
                     chains.pop_back();
@@ -336,7 +336,7 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                 // And call iteratee
                                 iteratee(snarl_info);
 
-                                #pragma omp critical 
+                                #pragma omp critical(chain_loop)
                                 {
                                     if (save_partitions) {
                                         // If we are going to serialize the snarls, then save the snarl to snarl_partitions
@@ -357,10 +357,21 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                             return true;
                         }); //end for each child
                     }// end omp task
-                    if (chains.empty()) {
+                    #pragma omp critical(chain_loop)
+                    {
+                        keep_going = !chains.empty();
+                    }
+
+                    if (!keep_going) {
                         // Wait for tasks to complete
                         #pragma omp taskwait
-                    } 
+
+                        #pragma omp critical(chain_loop)
+                        {
+                            // Check again if we're done or not
+                            keep_going = !chains.empty();
+                        }
+                    }
                 }// end while loop
             }// End omp single
         }//end omp shared
