@@ -151,16 +151,25 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                     next_steps[sample_num] = std::move(edge);
                 } else {
                     // If the new edge comes after something in additional_steps, walk through the linked list to find its place
-                    path_edge_t* old_edge = &next_steps[sample_num];
-                    while (old_edge->additional_edge != std::numeric_limits<size_t>::max() &&
-                           additional_steps[old_edge->additional_edge].offset < edge.offset) {
-                        size_t next = old_edge->additional_edge; 
-                        old_edge = &additional_steps[next];
+
+                    // The index into the linked list. Need a bool to know if it's an index into next_steps or additional_steps
+                    bool old_edge_first = true;
+                    size_t old_edge_index = sample_num;
+                    size_t old_next_edge = next_steps[old_edge_index].additional_edge;
+                    while (old_next_edge != std::numeric_limits<size_t>::max() &&
+                           additional_steps[old_next_edge].offset < edge.offset) {
+                        // Step through the linked list
+                        old_edge_first = false;
+                        old_edge_index = old_next_edge;
+                        old_next_edge = additional_steps[old_edge_index].additional_edge;
                     }
-                    //Old_edge_i now points to the item just smaller than edge
-                    size_t old_additional_edge = old_edge->additional_edge;
-                    old_edge->additional_edge = additional_steps.size();
-                    edge.additional_edge = old_additional_edge;
+                    //old_edge_index now points to the item just smaller than edge
+                    if (old_edge_first) {
+                        next_steps[old_edge_index].additional_edge = additional_steps.size();
+                    } else {
+                        additional_steps[old_edge_index].additional_edge = additional_steps.size();
+                    }
+                    edge.additional_edge = old_next_edge;
                     additional_steps.emplace_back(std::move(edge));
                 }
         
