@@ -284,15 +284,21 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             chains.emplace_back(chain);
             return true;
         });
+        bool keep_going = !chains.empty();
         // Go through the contents of chains in parallel
-        #pragma omp parallel shared(chains, all_references, snarl_partitions)
+        // Everything touching chains needs to be in an omp critical block so they don't collide. 
+        #pragma omp parallel shared(chains, all_references, snarl_partitions, keep_going)
         {
             // The actual while loop is run on a single thread
             #pragma omp single
             {
-                while (!chains.empty()) {
-                    handlegraph::net_handle_t chain = chains.back();
+                while (keep_going) {
+                    handlegraph::net_handle_t chain;
+                    #pragma omp critical(chain_loop)
+                    {
+                    chain = chains.back();
                     chains.pop_back();
+                    }
 
                     // Everything in here is parallelized
                     #pragma omp task
@@ -326,10 +332,11 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                 // Now get the partitions
                                 snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
 
+
                                 // And call iteratee
                                 iteratee(snarl_info);
 
-                                #pragma omp critical 
+                                #pragma omp critical(chain_loop)
                                 {
                                     if (save_partitions) {
                                         // If we are going to serialize the snarls, then save the snarl to snarl_partitions
@@ -348,14 +355,26 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
 
                             }
                             return true;
-                        });
+                        }); //end for each child
+                    }// end omp task
+                    #pragma omp critical(chain_loop)
+                    {
+                        keep_going = !chains.empty();
                     }
 
-                    // Wait for tasks to complete
-                    #pragma omp taskwait
-                }
-            }
-        }
+                    if (!keep_going) {
+                        // Wait for tasks to complete
+                        #pragma omp taskwait
+
+                        #pragma omp critical(chain_loop)
+                        {
+                            // Check again if we're done or not
+                            keep_going = !chains.empty();
+                        }
+                    }
+                }// end while loop
+            }// End omp single
+        }//end omp shared
 
     } else {
         // If the distance index is not given, then go through snarl_partitions
