@@ -231,6 +231,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
             if (samples_filename.empty()) {
                 // If this file already exists but we wanted to write it (no -b), then tell the user and error
                 stoat::LOG_ERROR("[stoat graph] --binary-pheno was not given but --snarls is not empty.\n\tstoat will not overwrite the snarls file. Please delete it if you want to re-write it.");
+                return EXIT_FAILURE;
             } else {
                 // Otherwise, we are going to use the precomputed snarls
                 stoat::LOG_INFO("[stoat graph] using precomputed snarl paths from " + snarls_filename);
@@ -240,6 +241,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
             //conversely, if the file doesn't exist and we don't have a distance index then also error
             if (distance_name.empty()) {
                 stoat::LOG_ERROR("[stoat graph] --snarls file is empty. --distance-index is required to compute the snarls");
+                return EXIT_FAILURE;
             } else {
                 // Otherwise, we are going to write snarls
                 stoat::LOG_INFO("[stoat graph] write computed snarl paths to " + snarls_filename);
@@ -283,7 +285,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     }
 
     auto start_1 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("Start Sample haplotype analysis...");
+    stoat::LOG_INFO("Loading graph and preparing indexes...");
 
     // Load the graph and make it a PathPositionHandleGraph
     unique_ptr<handlegraph::PathHandleGraph> path_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
@@ -323,15 +325,9 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     bdsg::SnarlDistanceIndex distance_index;
     if (!distance_name.empty()) {
         // Load the distance index
-        cerr << " LOAD DISTANCE INDEX" << endl;
         distance_index.deserialize(distance_name);
         distance_index_ptr = &distance_index;
     }
-
-    auto end_1 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("Sample haplotype time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
-    stoat::LOG_INFO("Start GWAS analysis...");
-    auto start_2 = std::chrono::high_resolution_clock::now();
 
     string filename = output_dir + "/";
     if (output_format == "tsv") {
@@ -356,6 +352,11 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         stoat::LOG_ERROR("[stoat graph] unknown method " + method_name);
         return EXIT_FAILURE; 
     }
+
+    auto end_1 = std::chrono::high_resolution_clock::now();
+    stoat::LOG_INFO("Graph loading time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
+    stoat::LOG_INFO("Start GWAS analysis...");
+    auto start_2 = std::chrono::high_resolution_clock::now();
 
 #ifdef USE_CALLGRIND
     CALLGRIND_START_INSTRUMENTATION;

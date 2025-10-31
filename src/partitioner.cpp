@@ -2,24 +2,30 @@
 #include "log.hpp"
 #include <fstream>
 
+//#define DEBUG_PARTITIONER
+
 using namespace std;
 using namespace stoat;
 namespace stoat_graph {
 
 std::vector<std::set<sample_hap_t>> SnarlTraverserAndPathPartitioner::partition_samples_in_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                const handlegraph::net_handle_t& snarl) const {
-    stoat::LOG_TRACE("Get sample partitions of " + distance_index->net_handle_as_string(snarl) + " by its paths" );
+    #ifdef DEBUG_PARTITIONER
+    cerr << "Get sample partitions of " << distance_index->net_handle_as_string(snarl) << " by its paths" << endl; 
+    #endif
 
     //Get the partition of paths. If the snarl is regular, then only check the edges leaving the start node
     std::vector<std::set<stoat::sample_hap_t>> sample_sets = get_walk_sets(graph, snarl, distance_index->is_regular_snarl(snarl, true, &graph));
 
-    stoat::LOG_TRACE((string) "Found sets of paths using " + ( distance_index->is_regular_snarl(snarl, true, &graph) ? "edges from the start node" : "walk sets"));
+    #ifdef DEBUG_PARTITIONER
+    cerr << "Found sets of paths using " << ( distance_index->is_regular_snarl(snarl, true, &graph) ? "edges from the start node" : "walk sets") << endl;
     for (const std::set<stoat::sample_hap_t>& sample_set : sample_sets) {
-        stoat::LOG_TRACE("SET ");
+        cerr << "SET" << endl;
         for (const stoat::sample_hap_t& sample : sample_set) {
-            stoat::LOG_TRACE("\t" + sample.sample );
+            cerr << "\t" + sample.sample << endl;
         }
     }
+    #endif
 
     return sample_sets;
 }
@@ -32,7 +38,9 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                                                                    const handlegraph::net_handle_t& snarl,
                                                                    bool only_bound) const {
 
-    stoat::LOG_TRACE((string) "Get walk sets of " + distance_index->net_handle_as_string(snarl));
+    #ifdef DEBUG_PARTITIONER
+    cerr <<  "Get walk sets of " << distance_index->net_handle_as_string(snarl) << endl;;
+    #endif
 
     // Make a vector of the paths 
     std::vector<stoat::sample_hap_t> all_samples(all_sample_haplotypes.begin(), all_sample_haplotypes.end());
@@ -84,7 +92,9 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
     // This gets called in for_each_child, and also from the start node going in
     auto check_outgoing_edges = [&] (const handlegraph::net_handle_t& child, bool go_left) {
 
-        stoat::LOG_TRACE( (string) "At snarl child " + distance_index->net_handle_as_string(child) + " going " + (go_left ? "left" : "right"));
+        #ifdef DEBUG_PARTITIONER
+        cerr << "At snarl child " << distance_index->net_handle_as_string(child) << " going " << (go_left ? "left" : "right") << endl;
+        #endif
         
         std::vector<path_edge_t> next_steps (all_samples.size());
         // For paths that go through multiple steps 
@@ -105,13 +115,17 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                                                       handlegraph::PathSense::REFERENCE,
                                                       handlegraph::PathSense::HAPLOTYPE};
 
-        stoat::LOG_TRACE( (std::stringstream) "" << "\tgraph handle " << graph.get_id(handle) << " going " << (graph.get_is_reverse(handle) ? "left" : "right"));
+        #ifdef DEBUG_PARTITIONER
+        cerr << "\tgraph handle " << graph.get_id(handle) << " going " << (graph.get_is_reverse(handle) ? "left" : "right") << endl;
+        #endif
 
         for (const auto& sense : senses) {
             graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
                 // For each step on the node handle, keep track of which paths take different steps
 
-                stoat::LOG_TRACE( "\ton path " + graph.get_path_name(graph.get_path_handle_of_step(step)));
+                #ifdef DEBUG_PARTITIONER
+                cerr << "\ton path " << graph.get_path_name(graph.get_path_handle_of_step(step)) << endl;
+                #endif
 
                 sample_hap_t step_sample_haplotype = stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step));
 
@@ -132,7 +146,9 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                 handlegraph::step_handle_t next_step = go_forwards ? graph.get_next_step(step) : graph.get_previous_step(step);
                 handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
         
-                stoat::LOG_TRACE((std::stringstream) "" << "\t\tgoing to " << graph.get_id(next_handle));
+                #ifdef DEBUG_PARTITIONER
+                cerr << "" << "\t\tgoing to " << graph.get_id(next_handle) << endl;
+                #endif
         
                 path_edge_t edge (graph.get_position_of_step(step), 
                                   std::numeric_limits<size_t>::max(),
@@ -181,9 +197,15 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
         // Now we want get an "intermediate set" for each path based on the edge(s) it took from this node/direction
         // Equality in this case is that the edges (as node id and orientation) are in the same order along the path
         // This is later used to split the paths into sets for each pair of old_set and intermediate_set
+
+        #ifdef DEBUG_PARTITIONER
+        // To check that we properly used all additional edges, count how many we follow
+        size_t additional_edge_count = 0;
+        #endif
         
         //This maps each edge list for this node/direction to the intermediate set index
         std::map<std::vector<std::pair<handlegraph::nid_t, bool>>, size_t> edge_to_intermediate_set;
+
         //Everything starts in the same set, representing not going through this node
         vector<size_t> intermediate_sets (old_sets.size(), 0);
         size_t intermediate_set_count = 1;
@@ -198,6 +220,9 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                     edge_list.emplace_back(additional_steps[next_i].id, additional_steps[next_i].rev);
                     auto& new_edge = additional_steps[next_i]; 
                     next_i = new_edge.additional_edge;
+                    #ifdef DEBUG_PARTITIONER
+                    additional_edge_count++;
+                    #endif
                 }
                 if (edge_to_intermediate_set.count(edge_list) == 0) {
                     edge_to_intermediate_set[edge_list] = intermediate_set_count;
@@ -206,10 +231,13 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                 intermediate_sets[path_i] = edge_to_intermediate_set[edge_list];
             }
         }
-        stoat::LOG_TRACE( "Intermediate sets: ");
+        #ifdef DEBUG_PARTITIONER
+        cerr << "Intermediate sets: " << endl;
         for (size_t i = 0 ; i < all_samples.size() ; i++) {
-            stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << intermediate_sets[i]);
+            cerr << "" << "\t" << all_samples[i] << ": " << intermediate_sets[i] << endl;
         } 
+        assert(additional_edge_count == additional_steps.size());
+        #endif
         
         // We now have an old set and an intermediate set for each path
         // Assign the path to a new set. Everything gets a new set
@@ -234,10 +262,12 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
         old_sets = std::move(new_sets);
         old_set_count = new_set_count;
         
-        stoat::LOG_TRACE("New sets: ");
+        #ifdef DEBUG_PARTITIONER
+        cerr << "New sets: " << endl;
         for (size_t i = 0 ; i < all_samples.size() ; i++) {
-            stoat::LOG_TRACE((std::stringstream) "" << "\t" << all_samples[i] << ": " << old_sets[i]);
+            cerr << "" << "\t" << all_samples[i] << ": " << old_sets[i] << endl;
         } 
+        #endif
     };
 
     // Now do the work of going through the edges for the start bound and each child in both directions
@@ -267,13 +297,15 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
             sample_sets[old_sets[i]-1].emplace(all_samples[i]);
         }
     }
-    stoat::LOG_TRACE("Found walk sets ");
+    #ifdef DEBUG_PARTITIONER
+    cerr << "Found walk sets " << endl;
     for (const auto& s : sample_sets) {
-        stoat::LOG_TRACE( "Set");
+        cerr <<  "Set" << endl;
         for (const auto& x : s) {
-            stoat::LOG_TRACE((std::stringstream) "" << "\t" << x );
+            cerr << "" << "\t" << x << endl;
         }
     }
+    #endif
     return sample_sets;
 }
 
@@ -293,10 +325,15 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             chains.emplace_back(chain);
             return true;
         });
+        // Count the number of chains that we added and the number of chains that we actually process,
+        // as a way of debugging the parallelization
+        size_t chains_added = chains.size();
+        size_t chains_processed = 0;
         bool keep_going = !chains.empty();
+
         // Go through the contents of chains in parallel
         // Everything touching chains needs to be in an omp critical block so they don't collide. 
-        #pragma omp parallel shared(chains, all_references, snarl_partitions, keep_going)
+        #pragma omp parallel shared(chains, all_references, snarl_partitions, keep_going, chains_added, chains_processed)
         {
             // The actual while loop is run on a single thread
             #pragma omp single
@@ -307,6 +344,9 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                     {
                     chain = chains.back();
                     chains.pop_back();
+                    #ifdef DEBUG_PARTITIONER
+                    chains_processed++;
+                    #endif
                     }
 
                     // Everything in here is parallelized
@@ -319,7 +359,9 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                             //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
                             if (distance_index->is_snarl(snarl) && snarl_is_eligible(snarl)) {
 
-                                stoat::LOG_TRACE( "Test snarl " + distance_index->net_handle_as_string(snarl));
+                                #ifdef DEBUG_PARTITIONER
+                                cerr << "Test snarl " << distance_index->net_handle_as_string(snarl) << endl;
+                                #endif
 
                                 // Make a snarl_partition_t and call iteratee on it
                                 snarl_partition_t snarl_info(snarl, graph, *distance_index);
@@ -358,6 +400,9 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                     distance_index->for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
 
                                         chains.emplace_back(child);
+                                        #ifdef DEBUG_PARTITIONER
+                                        chains_added++;
+                                        #endif
                                         return true;
                                     });
                                 }
@@ -384,6 +429,11 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                 }// end while loop
             }// End omp single
         }//end omp shared
+
+        #ifdef DEBUG_PARTITIONER
+        cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
+        assert(chains_added == chains_processed);
+        #endif
 
     } else {
         // If the distance index is not given, then go through snarl_partitions

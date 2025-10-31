@@ -3,6 +3,8 @@
 #include "writer.hpp"
 #include "binary_table.hpp"
 
+//#define DEBUG_GRAPH_SNARLS
+
 using namespace stoat;
 namespace stoat_graph {
 
@@ -48,21 +50,23 @@ void AssociationFinder::test_snarls() const {
         // This can only be used for the exact test, so anything nested will not pass anyways
         bool test_nested_snarls = true;
 
-        stoat::LOG_TRACE( "\tTRUTH 1" );
+        #ifdef DEBUG_GRAPH_SNARLS
+        cerr << "\tTRUTH 1" << endl;
         for (const auto& sample : sample_sets.first) {
-            stoat::LOG_TRACE( "\t\t"  +sample );
+            cerr << "\t\t" << sample << endl;
         }
-        stoat::LOG_TRACE( "\tTRUTH 2" );
+        cerr << "\tTRUTH 2" << endl;
         for (const auto& sample : sample_sets.second) {
-            stoat::LOG_TRACE( "\t\t"  +sample );
+            cerr << "\t\t" << sample << endl;
         }
 
         for (const std::set<sample_hap_t>& partition : sample_partitions) {
-            stoat::LOG_TRACE( "\tPARTITION" );
+            cerr << "\tPARTITION" << endl;
             for (const sample_hap_t& sample : partition) {
-                stoat::LOG_TRACE( "\t\t" + sample.sample );
+                cerr << "\t\t" << sample.sample << endl;
             }
         }
+        #endif
 
         if (sample_partitions.size() > 1) {
 
