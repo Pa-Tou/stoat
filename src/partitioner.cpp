@@ -197,9 +197,15 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
         // Now we want get an "intermediate set" for each path based on the edge(s) it took from this node/direction
         // Equality in this case is that the edges (as node id and orientation) are in the same order along the path
         // This is later used to split the paths into sets for each pair of old_set and intermediate_set
+
+        #ifdef DEBUG_PARTITIONER
+        // To check that we properly used all additional edges, count how many we follow
+        size_t additional_edge_count = 0;
+        #endif
         
         //This maps each edge list for this node/direction to the intermediate set index
         std::map<std::vector<std::pair<handlegraph::nid_t, bool>>, size_t> edge_to_intermediate_set;
+
         //Everything starts in the same set, representing not going through this node
         vector<size_t> intermediate_sets (old_sets.size(), 0);
         size_t intermediate_set_count = 1;
@@ -214,6 +220,9 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
                     edge_list.emplace_back(additional_steps[next_i].id, additional_steps[next_i].rev);
                     auto& new_edge = additional_steps[next_i]; 
                     next_i = new_edge.additional_edge;
+                    #ifdef DEBUG_PARTITIONER
+                    additional_edge_count++;
+                    #endif
                 }
                 if (edge_to_intermediate_set.count(edge_list) == 0) {
                     edge_to_intermediate_set[edge_list] = intermediate_set_count;
@@ -227,6 +236,7 @@ std::vector<std::set<stoat::sample_hap_t>> SnarlTraverserAndPathPartitioner::get
         for (size_t i = 0 ; i < all_samples.size() ; i++) {
             cerr << "" << "\t" << all_samples[i] << ": " << intermediate_sets[i] << endl;
         } 
+        assert(additional_edge_count == additional_steps.size());
         #endif
         
         // We now have an old set and an intermediate set for each path
