@@ -315,10 +315,15 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
             chains.emplace_back(chain);
             return true;
         });
+        // Count the number of chains that we added and the number of chains that we actually process,
+        // as a way of debugging the parallelization
+        size_t chains_added = chains.size();
+        size_t chains_processed = 0;
         bool keep_going = !chains.empty();
+
         // Go through the contents of chains in parallel
         // Everything touching chains needs to be in an omp critical block so they don't collide. 
-        #pragma omp parallel shared(chains, all_references, snarl_partitions, keep_going)
+        #pragma omp parallel shared(chains, all_references, snarl_partitions, keep_going, chains_added, chains_processed)
         {
             // The actual while loop is run on a single thread
             #pragma omp single
@@ -329,6 +334,9 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                     {
                     chain = chains.back();
                     chains.pop_back();
+                    #ifdef DEBUG_PARTITIONER
+                    chains_processed++;
+                    #endif
                     }
 
                     // Everything in here is parallelized
@@ -382,6 +390,9 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                     distance_index->for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
 
                                         chains.emplace_back(child);
+                                        #ifdef DEBUG_PARTITIONER
+                                        chains_added++;
+                                        #endif
                                         return true;
                                     });
                                 }
@@ -408,6 +419,11 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                 }// end while loop
             }// End omp single
         }//end omp shared
+
+        #ifdef DEBUG_PARTITIONER
+        cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
+        assert(chains_added == chains_processed);
+        #endif
 
     } else {
         // If the distance index is not given, then go through snarl_partitions
