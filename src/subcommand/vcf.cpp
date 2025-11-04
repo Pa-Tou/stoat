@@ -30,7 +30,7 @@ void print_help_vcf() {
               << "  -b, --binary FILE            Path to the binary phenotype group file\n"
               << "  -q, --quantitative FILE      Path to the quantitative phenotype file\n"
               << "  -e, --eqtl FILE              Path to the Expression Quantitative Trait Loci file\n"
-              << "  -m, --make-bed               Create plink format files (.bed, .bim, .fam)\n"
+              << "  -m, --make-vcf               Create a VCF that containt variation present in snarl\n"
               << "  -c, --covariate FILE         Path to the covariate file\n"
               << "  -C, --covar-name NAME        Covariate column name(s) used for GWAS\n"
               << "  -k, --kinship FILE           Path to the kinship matrix file\n"
@@ -71,7 +71,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     bool gaf = false;
     bool only_snarl_parsing = false;
     bool show_help = false;
-    bool make_bed = false;
+    bool make_vcf = false;
 
     std::vector<std::string> covar_names;
 
@@ -87,7 +87,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {"binary", required_argument, 0, 'b'},
         {"quantitative", required_argument, 0, 'q'},
         {"eqtl", required_argument, 0, 'e'},
-        {"make-bed", no_argument, 0, 'm'},
+        {"make-vcf", no_argument, 0, 'm'},
         {"covariate", required_argument, 0, 'c'},
         {"covar-name", required_argument, 0, 'C'},
         {"kinship", required_argument, 0, 'k'},
@@ -117,7 +117,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
             case 'b': binary_path = optarg; phenotype++; stoat_vcf::check_file(binary_path); break;
             case 'q': quantitative_path = optarg; phenotype++; stoat_vcf::check_file(quantitative_path); break;
             case 'e': eqtl_path = optarg; phenotype++; stoat_vcf::check_file(eqtl_path); break;
-            case 'm': make_bed = true; break;
+            case 'm': make_vcf = true; break;
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
             case 'C': {
                 std::stringstream ss(optarg);
@@ -239,9 +239,15 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         //stoat::LOG_TRACE("Case Gwas");
         // Case 1: snarl_path + vcf_path + phenotype
         // Case 2: graph_path + dist_path + vcf_path + phenotype
+    } else if ((!snarl_path.empty() || (!graph_path.empty() && !dist_path.empty())) && !vcf_path.empty() && make_vcf) {
+        if (phenotype == 1) {
+            stoat::LOG_WARN("make-vcf arg is provided, the phenotype file will not be parsed")
+        }
+        // stoat::LOG_TRACE("Case make VCF");
+        // Case 3: snarl_path + vcf_path + phenotype
     } else if (!graph_path.empty() && !dist_path.empty() && vcf_path.empty() && snarl_path.empty() && phenotype == 0) {
         //stoat::LOG_TRACE("Case Snarl path decomposition");
-        // Case 3: Only graph_path + dist_path
+        // Case 4: Only graph_path + dist_path
         only_snarl_parsing = true;
     } else {
         stoat::LOG_ERROR("[stoat vcf] " +
@@ -249,7 +255,8 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
             "There are only 3 ways to launch stoat vcf:\n" +
             "Case 1 (GWAS only): snarl_path + vcf_path + phenotype (+ optional file)\n" +
             "Case 2 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + phenotype (+ optional file)\n" +
-            "Case 3 (snarl path decomposition): graph_path + dist_path"
+            "Case 3 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + make-vcf (arg)\n" +
+            "Case 4 (snarl path decomposition): graph_path + dist_path"
         );
         print_help_vcf();
         return EXIT_FAILURE;
@@ -366,7 +373,10 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     stoat::LOG_INFO("Starting GWAS analysis...");
 
     // Decide which type of SnarlAnalyzer we want
-    if (!binary_path.empty()) {
+    if (make_vcf) {
+        // VCF maker
+        snarl_analyzer.reset(new stoat_vcf::VcfSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples));
+    } else if (!binary_path.empty()) {
         // binary
         if (!covariate.empty()){
             // Binary covariate

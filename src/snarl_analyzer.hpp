@@ -90,6 +90,17 @@ protected:
     std::ofstream* outf;
 };
 
+class VcfSnarlAnalyzer : public SnarlAnalyzer {
+    public:
+        VcfSnarlAnalyzer(
+            const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
+            EdgeBySampleMatrix& edge_matrix,
+            const std::vector<std::string>& list_samples);
+
+        bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
+        void write_header_vcf(std::ofstream &outf);
+};
+
 class BinarySnarlAnalyzer : public SnarlAnalyzer {
 
 public:
