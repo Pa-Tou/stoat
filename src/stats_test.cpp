@@ -722,14 +722,14 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
     const std::vector<double>& y,
     const std::vector<std::vector<double>>& covariates) {
 
-    int n = X_raw.size();
+    int num_samples = X_raw.size();
     int num_variants = X_raw[0].size();
     int num_covariates = covariates.empty() ? 0 : covariates[0].size();
     int num_features = 1 + num_variants + num_covariates; // intercept + variants + covariates
 
     // Build design matrix with intercept, X_raw, and covariates
-    std::vector<std::vector<double>> X(n, std::vector<double>(num_features, 1.0));
-    for (int i = 0; i < n; ++i) {
+    std::vector<std::vector<double>> X(num_samples, std::vector<double>(num_features, 1.0));
+    for (int i = 0; i < num_samples; ++i) {
         int col = 1;
         for (int j = 0; j < num_variants; ++j)
             X[i][col++] = X_raw[i][j];
@@ -750,7 +750,7 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
 
     std::vector<double> y_hat = matvec(X, beta);
     double sse = 0.0;
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < num_samples; ++i)
         sse += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
 
     // Compute mean of y
@@ -758,22 +758,22 @@ std::tuple<std::string, std::string, std::string, std::string> LinearRegression:
 
     // Compute SST (total sum of squares)
     double sst = 0.0;
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < num_samples; ++i)
         sst += (y[i] - y_mean) * (y[i] - y_mean);
 
     // Compute R²
     double r2 = (sst == 0.0) ? 1.0 : 1.0 - sse / sst;
-
-    double df_resid = (n - num_features > 0) ? n - num_features : 1;
+    double df_resid = (num_samples - num_features - 1 > 0) ? num_samples - num_features - 1 : 1; // Residual Degrees of Freedom
     double sigma2 = sse / df_resid;
 
     // --- F-test computation (no p-value, no covariate/intercept) ---
     // double ssr = sst - sse;  // Regression sum of squares
-    // double msr = ssr / num_variants;
-    // double mse = sse / df_resid;
-    // double f_stat = msr / mse;
-    // boost::math::fisher_f dist(num_variants, df_resid);
-    // double p_value = 1 - boost::math::cdf(dist, f_stat);
+    // double msr = ssr / num_variants; // Mean Square Regression
+    // double mse = sse / df_resid; // Mean Squared Error
+    // double f_stat = msr / mse;  // F-statistic
+
+    // boost::math::fisher_f dist(num_variants, df_resid); // F-distribution
+    // double p_value = 1 - boost::math::cdf(dist, f_stat); // p-value for F-test
 
     boost::math::students_t dist(df_resid);
     std::vector<double> p_values_vector(num_variants, 0.0);
