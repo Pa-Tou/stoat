@@ -20,6 +20,19 @@ void write_eqtl_header(std::ostream& outstream) {
     outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
+void write_vcf_header(std::ostream& outstream, const std::vector<std::string>& sample_names) {
+    outstream << "##fileformat=VCFv4.2\n"
+              << "##source=stoat\n"
+              << "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">\n"
+              << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n"
+              << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
+
+    for (const auto& name : sample_names) {
+        outstream << '\t' << name;
+    }
+    outstream << '\n';
+}
+
 void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
                         const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths) {
 
@@ -84,6 +97,44 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << endl;
 
+}
+
+void write_vcf(std::ostream& outstream,
+               const std::string& chr,
+               size_t pos,
+               const std::string& id,
+               const std::string& ref,
+               const std::string& alt,
+               const std::string& paths,
+               const std::vector<std::vector<char>>& genotype) {
+    
+    // Build genotype string for all samples (e.g., "0/1", "1/1", "0/0")
+    std::ostringstream gt_stream;
+    for (size_t i = 0; i < genotype.size(); ++i) {
+        const auto& sample_gt = genotype[i];
+        // Join alleles with '/'
+        for (size_t j = 0; j < sample_gt.size(); ++j) {
+            gt_stream << sample_gt[j];
+            if (j + 1 < sample_gt.size()) {
+                gt_stream << '/';
+            }
+        }
+        if (i + 1 < genotype.size()) {
+            gt_stream << '\t'; // separate multiple samples by tab
+        }
+    }
+
+    outstream << chr << '\t'
+              << pos << '\t'
+              << id << '\t'
+              << ref << '\t'
+              << alt << '\t'
+              << '.' << '\t'             // QUAL placeholder
+              << '.' << '\t'             // FILTER placeholder
+              << "AT=" << paths << '\t'  // INFO field
+              << "GT" << '\t'            // FORMAT field
+              << gt_stream.str()          // Sample genotypes
+              << '\n';
 }
 
 void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,

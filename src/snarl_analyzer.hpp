@@ -98,7 +98,7 @@ class VcfSnarlAnalyzer : public SnarlAnalyzer {
             const std::vector<std::string>& list_samples);
 
         bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
-        void write_header_vcf(std::ofstream &outf);
+        void write_header(std::ofstream &outf);
 };
 
 class BinarySnarlAnalyzer : public SnarlAnalyzer {
@@ -116,7 +116,6 @@ public:
         const std::string& regression_dir);
 
     bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
-
     void write_header(std::ofstream &outf);
 
 /////////////////// Private data members

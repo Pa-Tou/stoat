@@ -27,7 +27,7 @@ std::set<size_t>, std::vector<size_t>> process_table_quantitative(
 
     size_t length_column = column_headers.size();
     std::vector<size_t> allele_paths(length_column, 0);
-    std::vector<std::vector<double>> genotypes(number_samples);
+    std::vector<std::vector<double>> genotypes(number_samples); // TODO : CHANGE TO SIZE_T
 
     for (auto& row : genotypes) {row.reserve(length_column);}
 

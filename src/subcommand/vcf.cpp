@@ -241,7 +241,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         // Case 2: graph_path + dist_path + vcf_path + phenotype
     } else if ((!snarl_path.empty() || (!graph_path.empty() && !dist_path.empty())) && !vcf_path.empty() && make_vcf) {
         if (phenotype == 1) {
-            stoat::LOG_WARN("make-vcf arg is provided, the phenotype file will not be parsed")
+            stoat::LOG_WARN("make-vcf arg is provided, the phenotype file will not be parsed");
         }
         // stoat::LOG_TRACE("Case make VCF");
         // Case 3: snarl_path + vcf_path + phenotype
