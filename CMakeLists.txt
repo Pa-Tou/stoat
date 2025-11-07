@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(stoat VERSION 0.1.0 LANGUAGES CXX)
+project(stoat VERSION 0.3.0 LANGUAGES CXX)
 
 # C++ Standard Settings
 set(CMAKE_CXX_STANDARD 17)
@@ -140,6 +140,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/log.cpp
     src/binary_table.cpp
     src/quantitative_table.cpp
+    src/genotype_table.cpp
     src/stats_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp

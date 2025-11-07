@@ -20,14 +20,25 @@ void write_eqtl_header(std::ostream& outstream) {
     outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
-void write_vcf_header(std::ostream& outstream, const std::vector<std::string>& sample_names) {
-    outstream << "##fileformat=VCFv4.2\n"
-              << "##source=stoat\n"
-              << "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">\n"
-              << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n"
-              << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
+void write_vcf_header(std::ostream& outstream,
+                      const std::vector<std::string>& list_samples,
+                      const std::vector<std::string>& chr_list) {
 
-    for (const auto& name : sample_names) {
+    outstream   << "##fileformat=VCFv4.2\n"
+                << "##source=stoat_vcf\n"
+                << "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">\n"
+                << "##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency\">\n"
+                << "##FILTER=<ID=PASS,Description=\"All filters passed\">\n"
+                << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n";
+
+    // Add contig headers for each chromosome
+    for (const auto& chr : chr_list) {
+        outstream << "##contig=<ID=" << chr << ">\n";
+    }
+
+    // Column header line
+    outstream << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
+    for (const auto& name : list_samples) {
         outstream << '\t' << name;
     }
     outstream << '\n';
@@ -101,7 +112,7 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
 
 void write_vcf(std::ostream& outstream,
                const std::string& chr,
-               size_t pos,
+               const size_t& pos,
                const std::string& id,
                const std::string& ref,
                const std::string& alt,

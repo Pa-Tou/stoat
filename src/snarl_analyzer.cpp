@@ -8,8 +8,7 @@
 #include "writer.hpp"
 #include "omp.h"
 
-namespace stoat_vcf
-{
+namespace stoat_vcf {
 
     SnarlAnalyzer::SnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
@@ -20,15 +19,14 @@ namespace stoat_vcf
         const double &table_threshold,
         const size_t &min_individuals,
         const std::string &regression_dir) :
-
-                                             chr_to_snarl_data(chr_to_snarl_data),
-                                             edge_matrix(edge_matrix),
-                                             list_samples(list_samples),
-                                             covariate(covariate),
-                                             maf_threshold(maf_threshold),
-                                             table_threshold(table_threshold),
-                                             min_individuals(min_individuals),
-                                             regression_dir(regression_dir) {};
+                                            chr_to_snarl_data(chr_to_snarl_data),
+                                            edge_matrix(edge_matrix),
+                                            list_samples(list_samples),
+                                            covariate(covariate),
+                                            maf_threshold(maf_threshold),
+                                            table_threshold(table_threshold),
+                                            min_individuals(min_individuals),
+                                            regression_dir(regression_dir) {};
 
     VcfSnarlAnalyzer::VcfSnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
@@ -115,7 +113,13 @@ namespace stoat_vcf
 
     void VcfSnarlAnalyzer::write_header(std::ofstream &outf)
     {
-        stoat::write_vcf_header(outf);
+        std::vector<std::string> chr_list;
+        chr_list.reserve(chr_to_snarl_data.size());  // optimization
+
+        for (const auto& [chr, _] : chr_to_snarl_data) {
+            chr_list.push_back(chr);
+        }
+        stoat::write_vcf_header(outf, list_samples, chr_list);
     }
 
     void SnarlAnalyzer::process_snarls_by_chromosome_chunk(
@@ -179,7 +183,7 @@ namespace stoat_vcf
             auto start_2 = std::chrono::high_resolution_clock::now();
             size_t chr_number_snarl_filtered = 0;
 
-#pragma omp parallel for schedule(static)
+            #pragma omp parallel for schedule(static)
 
             // Make the snarl test analysis
             // Iterate over each snarl
@@ -429,7 +433,11 @@ namespace stoat_vcf
 
         // Assuming type_variants is a vector of sizes or counts — this code creates REF/ALT strings.
         // You can't multiply strings in C++; use std::string(count, char) instead.
-        std::string ref(snarl_data_s.type_variants[0], 'A');
+        const auto& s = snarl_data_s.type_variants[0];
+        size_t len = std::stoul(s.substr(0, s.find('/')));
+        bool deletion = false;
+        if (len == 0) {len = 1; deletion=true;}
+        std::string ref(len, 'A');
         ref_alt << ref << "\t";
 
         size_t pos = snarl_data_s.start_positions;
@@ -439,11 +447,14 @@ namespace stoat_vcf
         // Assuming these are defined somewhere in scope:
         // paths_number, list_samples, edge_matrix
         std::vector<std::vector<char>> genotype = stoat_vcf::create_genotype_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
-
+        
         std::ostringstream alt_stream;
         for (size_t i = 1; i < snarl_data_s.type_variants.size(); ++i)
         {
-            alt_stream << std::string(snarl_data_s.type_variants[i], 'T');
+            const auto& s = snarl_data_s.type_variants[i];
+            size_t len = std::stoul(s.substr(0, s.find('/')));
+            if (deletion) {alt_stream << 'A';}
+            alt_stream << std::string(len, 'T');
             if (i + 1 < snarl_data_s.type_variants.size())
             {
                 alt_stream << ",";
@@ -452,19 +463,20 @@ namespace stoat_vcf
 
         std::string alt = alt_stream.str();
 
+        size_t length_snarl_paths = snarl_data_s.snarl_paths.size();
         std::ostringstream paths_stream;
-        for (size_t i = 1; i < snarl_data_s.snarl_paths.size(); ++i)
+        for (size_t i = 0; i < length_snarl_paths; ++i)
         {
-            alt_stream << snarl_data_s.snarl_paths[i].to_string();
-            if (i + 1 < snarl_data_s.snarl_paths.size())
+            paths_stream << snarl_data_s.snarl_paths[i].to_string();
+            if (i + 1 < length_snarl_paths)
             {
-                alt_stream << ",";
+                paths_stream << ",";
             }
         }
 
         std::string paths = paths_stream.str();
 
-#pragma omp critical(outf)
+        #pragma omp critical(outf)
         {
             stoat::write_vcf(outf, chr, pos, id, ref, alt, paths, genotype);
         }
@@ -472,44 +484,44 @@ namespace stoat_vcf
         return false; // No filtration applied in VCF output
     }
 
-bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &snarl_data_s, 
-    const std::string &chr, std::ofstream &outf) {
+    bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &snarl_data_s, 
+        const std::string &chr, std::ofstream &outf) {
 
-        std::ostringstream oss;
+            std::ostringstream oss;
 
-        for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i)
-        {
-            if (i != 0)
-                oss << ",";
-            oss << snarl_data_s.type_variants[i];
-        }
+            for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i)
+            {
+                if (i != 0)
+                    oss << ",";
+                oss << snarl_data_s.type_variants[i];
+            }
 
-        std::string type_var_str = oss.str();
+            std::string type_var_str = oss.str();
 
-        size_t paths_number = snarl_data_s.snarl_paths.size();
-        std::vector<size_t> g0(paths_number, 0);
-        std::vector<size_t> g1(paths_number, 0);
+            size_t paths_number = snarl_data_s.snarl_paths.size();
+            std::vector<size_t> g0(paths_number, 0);
+            std::vector<size_t> g1(paths_number, 0);
 
-        size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
-        stoat::remove_empty_columns_binary_table(g0, g1);
-        bool filtration = stoat::filtration_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
+            size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
+            stoat::remove_empty_columns_binary_table(g0, g1);
+            bool filtration = stoat::filtration_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
 
-        if (filtration)
-        {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_binary_table");
+            if (filtration)
+            {
+                stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_binary_table");
+                return filtration;
+            }
+
+            // Binary analysis single test
+            auto group_paths = format_group_paths(g0, g1);
+            auto [chi2_p_value, fastfisher_p_value] = fk.fisher_khi2(g0, g1);
+
+            #pragma omp critical(outf)
+            {
+                stoat::write_binary(outf, chr, snarl_data_s, type_var_str, fastfisher_p_value, chi2_p_value, group_paths);
+            }
+
             return filtration;
-        }
-
-        // Binary analysis single test
-        auto group_paths = format_group_paths(g0, g1);
-        auto [chi2_p_value, fastfisher_p_value] = fk.fisher_khi2(g0, g1);
-
-#pragma omp critical(outf)
-        {
-            stoat::write_binary(outf, chr, snarl_data_s, type_var_str, fastfisher_p_value, chi2_p_value, group_paths);
-        }
-
-        return filtration;
     }
 
     bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
@@ -559,7 +571,7 @@ bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &sna
             stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
         }
 
-#pragma omp critical(outf)
+        #pragma omp critical(outf)
         {
             stoat::write_binary_covar(outf, chr, snarl_data_s, type_var_str, p_value, beta, se, allele_paths);
         }
@@ -615,7 +627,7 @@ bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &sna
             stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
         }
 
-#pragma omp critical(outf)
+        #pragma omp critical(outf)
         {
             stoat::write_quantitative(outf, chr, snarl_data_s, type_var_str, p_value, r2, beta, se, allele_paths);
         }
@@ -703,7 +715,7 @@ bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &sna
                 stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
             }
 
-#pragma omp critical(outf)
+            #pragma omp critical(outf)
             {
                 stoat::write_eqtl(outf, chr, snarl_data_s, type_var_str, gene_name, p_value, r2, beta, se, allele_paths);
             }

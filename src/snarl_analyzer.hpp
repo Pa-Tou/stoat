@@ -23,6 +23,7 @@
 #include "snarl_data_t.hpp"
 #include "binary_table.hpp"
 #include "quantitative_table.hpp"
+#include "genotype_table.hpp"
 #include "utils.hpp"
 #include "log.hpp"
 

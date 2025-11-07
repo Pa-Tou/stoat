@@ -397,11 +397,19 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         phenotype_type = stoat::EQTL; 
     }
 
-    std::string output_tsv = output_dir + (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR ? "/binary_table_vcf.tsv" : 
-                                            (phenotype_type == stoat::QUANTITATIVE ? "/quantitative_table_vcf.tsv" 
-                                                                                        : "/eqtl_table_vcf.tsv"));
+    std::string output_tsv;
 
-    snarl_analyzer->process_snarls_by_chromosome_chunk(ptr_vcf, hdr, rec, output_tsv);
+    if (make_vcf) {
+        output_tsv = output_dir + "/table_vcf.vcf";
+    } else {
+        if (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR)
+            output_tsv = output_dir + "/binary_table_vcf.tsv";
+        else if (phenotype_type == stoat::QUANTITATIVE)
+            output_tsv = output_dir + "/quantitative_table_vcf.tsv";
+        else
+            output_tsv = output_dir + "/eqtl_table_vcf.tsv";
+    }
+        snarl_analyzer->process_snarls_by_chromosome_chunk(ptr_vcf, hdr, rec, output_tsv);
 
     if (phenotype_type == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
