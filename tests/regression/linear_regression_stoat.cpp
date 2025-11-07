@@ -143,83 +143,84 @@ std::vector<std::vector<double>> inverse(
 }
 
 // [[Rcpp::export]]
-List cpp_linear_regression_stoat(NumericMatrix Xr, NumericVector yr) {
+List cpp_linear_regression_stoat(NumericMatrix Xr, NumericMatrix Xcovar, NumericVector yr) {
 
-    // Convert R data to std::vector<std::vector<double>>
-    std::vector<std::vector<double>> X_raw(Xr.nrow(), std::vector<double>(Xr.ncol()));
-    for (int i = 0; i < Xr.nrow(); ++i)
-        for (int j = 0; j < Xr.ncol(); ++j)
-            X_raw[i][j] = Xr(i,j);
+    int n = Xr.nrow();
+    int p = Xr.ncol();
+    int q = Xcovar.ncol();
 
     std::vector<double> y(yr.begin(), yr.end());
 
-    int num_samples = X_raw.size();
-    int num_variants = X_raw[0].size();
-    int num_features = 1 + num_variants; // intercept + variants + covariates
+    // ---- FULL MODEL ----
+    int k_full = 1 + p + q;
+    std::vector<std::vector<double>> Xfull(n, std::vector<double>(k_full, 1.0));
 
-    // Build design matrix with intercept, X_raw, and covariates
-    std::vector<std::vector<double>> X(num_samples, std::vector<double>(num_features, 1.0));
-    for (int i = 0; i < num_samples; ++i) {
-        int col = 1;
-        for (int j = 0; j < num_variants; ++j)
-            X[i][col++] = X_raw[i][j];
+    // Add X
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < p; ++j)
+            Xfull[i][1 + j] = Xr(i, j);
+
+    // Add covariates (if any)
+    if (q > 0) {
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < q; ++j)
+                Xfull[i][1 + p + j] = Xcovar(i, j);
     }
 
-    // OLS computations
-    auto Xt = transpose(X);
-    auto XtX = matmul(Xt, X);
-    auto XtX_inv = inverse(XtX);
+    // ---- Fit FULL model ----
+    auto Xt = transpose(Xfull);
+    auto XtX = matmul(Xt, Xfull);
+    auto XtXi = inverse(XtX);
     auto Xty = matvec(Xt, y);
+    auto beta = matvec(XtXi, Xty);
+    auto yhat = matvec(Xfull, beta);
 
-    std::vector<double> beta(num_features, 0.0);
-    for (int i = 0; i < num_features; ++i)
-        for (int j = 0; j < num_features; ++j)
-            beta[i] += XtX_inv[i][j] * Xty[j];
+    double SSE_full = 0.0;
+    for (int i = 0; i < n; ++i)
+        SSE_full += (y[i] - yhat[i]) * (y[i] - yhat[i]);
 
-    std::vector<double> y_hat = matvec(X, beta);
-    double sse = 0.0;
-    for (int i = 0; i < num_samples; ++i)
-        sse += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
+    // ---- Reduced SSE ----
+    double SSE_reduced = 0.0;
+    if (q > 0) {
+        // build reduced model: intercept + covariates
+        int k_red = 1 + q;
+        std::vector<std::vector<double>> Xred(n, std::vector<double>(k_red, 1.0));
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < q; ++j)
+                Xred[i][1 + j] = Xcovar(i, j);
 
-    // Compute mean of y
-    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / y.size();
+        auto Xt_r = transpose(Xred);
+        auto XtX_r = matmul(Xt_r, Xred);
+        auto XtXi_r = inverse(XtX_r);
+        auto Xty_r = matvec(Xt_r, y);
+        auto beta_r = matvec(XtXi_r, Xty_r);
+        auto yhat_r = matvec(Xred, beta_r);
 
-    // Compute SST (total sum of squares)
-    double sst = 0.0;
-    for (int i = 0; i < num_samples; ++i)
-        sst += (y[i] - y_mean) * (y[i] - y_mean);
+        for (int i = 0; i < n; ++i)
+            SSE_reduced += (y[i] - yhat_r[i]) * (y[i] - yhat_r[i]);
+    } else {
+        // no covariates: reduced model = intercept only
+        double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / y.size();
+        for (int i = 0; i < n; ++i)
+            SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);
+    }
 
-    // Compute R²
-    double r2 = (sst == 0.0) ? 1.0 : 1.0 - sse / sst; // R squared
-    double df_resid = (num_samples - num_features - 1 > 0) ? num_samples - num_features - 1 : 1; // Residual Degrees of Freedom
-    double sigma2 = sse / df_resid; // Residual Variance
+    // ---- F-statistic ----
+    int df_num = p;
+    int df_den = n - k_full;
+    double num = (SSE_reduced - SSE_full) / df_num;
+    double den = SSE_full / df_den;
+    double Fstat = num / den;
 
-    // --- F-test computation (no p-value, no covariate/intercept) ---
-    double ssr = sst - sse;  // Regression sum of squares
-    double msr = ssr / num_variants; // Mean Square Regression
-    double mse = sse / df_resid; // Mean Squared Error
-    double f_stat = msr / mse;  // F-statistic
+    if (SSE_reduced <= SSE_full) Fstat = 0.0;
 
-    boost::math::fisher_f dist(num_variants, df_resid); // F-distribution
-    double p_value = 1 - boost::math::cdf(dist, f_stat); // p-value for F-test
-
-    // std::cout << "P-value: " << p_value << std::endl;
-    // std::cout << "R²: " << r2 << std::endl;
-    // std::cout << "Residual Degrees of Freedom: " << df_resid << std::endl;
-    // std::cout << "Mean Squared Error (MSE): " << mse << std::endl;
+    boost::math::fisher_f dist(df_num, df_den);
+    double p_value = 1.0 - boost::math::cdf(dist, Fstat);
 
     return List::create(
-        _["r2"] = r2,
-        _["p_value"] = p_value
+        _["F_stat"]  = Fstat,
+        _["p_value"] = p_value,
+        _["df_num"]  = df_num,
+        _["df_den"]  = df_den
     );
-
 }
-
-// Error in `data.frame()`:
-// ! argument manquant, sans valeur associée par défaut
-// Backtrace:
-//     x
-//  1. \-base::data.frame(...)
-
-// Quitting from linear_simulation.rmd:116-147 [setup]
-// Exécution arrêtée
