@@ -1,7 +1,9 @@
 ---
 title: "F-stat regression"
-author: Matis A-B (based on Jean Monlong report)
-output: pdf_document
+author: "Matis Alias-Bagarre (based on Jean Monlong report)"
+output:
+  html_document:
+    df_print: paged
 linkcolor: NavyBlue
 urlcolor: NavyBlue
 documentclass: article
@@ -14,7 +16,7 @@ geometry: margin=2cm
 knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, fig.height=6, fig.width=10)
 ```
 
-The goal of this report is to compare different implementations of Ordinary Least Squares (OLS) linear regression, focusing on p-value computation (focus on p-value computed using F-stat) for multiple predictors.
+The goal of this report is to compare different implementations of Ordinary Least Squares (OLS) linear regression, with a focus on computing p-values for multiple predictors using the F-statistic.
 
 ## Linear Regression
 
@@ -36,63 +38,103 @@ Where:
 
 One of the method commun method for Multiple Linear Regression is Ordinary Least Squares (OLS), used to estimate the parameters (coefficients) of a linear regression model. OLS finds the line that **minimizes the sum of the squared differences between the observed values and the predicted values**.
 
-### New method "F-test" combining with the Fisher method
+## F-test p-value calculation in OLS regression
 
-We can apparently directly test for a subset of betas being non null using a F-statistic (see [this page](https://www.econometrics-with-r.org/7.3-joint-hypothesis-testing-using-the-f-statistic.html)).
-It might be more powerful than running *n* tests and combining the p-values
+### 1. **Estimated Coefficients** ($\hat{\beta}$)
 
-We can actually also combine the p-values using the [Fisher method](https://en.wikipedia.org/wiki/Fisher%27s_method), maybe more appropriate than the FWER correction.
+The OLS coefficients are obtained by minimizing the residual sum of squares (RSS):
 
-## OLS p-value Computing Statistics
+$$
+\hat{\beta} = (X^\top X)^{-1} X^\top y
+$$
 
-To compute p-values in OLS regression, we use the following core statistics:
+where $X$ is the design matrix (including the intercept), and $y$ is the response vector.
 
-1. **Estimated Coefficients** ($\hat{\beta}$)
-   * Obtained by minimizing the residual sum of squares:
+### 2. **Residual Standard Error** ($\hat{\sigma}$)
 
-     $\hat{\beta} = (X^TX)^{-1}X^Ty$
-2. **Residual Standard Error** ($\hat{\sigma}$)
-   * Measures the variability in residuals:
+The residual standard error measures the variability of the residuals:
 
-     $\hat{\sigma} = \sqrt{\frac{1}{n - k} \sum (y_i - \hat{y}_i)^2}$
-3. **Degrees of Freedom** ($DF$)
-   * Defined as $n - k - 1$, where $n$ is the number of observations and $k$ is the number of parameters (including the intercept).
+$$
+\hat{\sigma} = \sqrt{\frac{1}{n - k} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}
+$$
 
-4. **F-statistic** ($F$)
-   * Tests whether the model explains a significant portion of variance in $y$:
-     
-    $F = \frac{\text{Mean Square Regression (MSR)}}{\text{Mean Square Error (MSE)}} = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)}$
-     where,
+where $n$ is the sample size and $k$ is the number of estimated parameters (including the intercept).
 
-     $SSR$ = Regression Sum of Squares;
+### 3. **Degrees of Freedom (DF)**
 
-     $SSE$ = Residual (Error) Sum of Squares;
+For a model with $k$ estimated parameters (including the intercept):
 
-5. **P-value**
-   * Measures the probability of observing an F-statistic at least as extreme as the one computed, under the null hypothesis :
-     
-     $H_0: \beta_1 = \beta_2 = \dots = \beta_k = 0$;
+$$
+DF = n - k - 1
+$$
 
-     $p-value = 1 - F_{k, n-k-1}$ where,
-    
-     $F_{k, n-k-1}$ is the cumulative distribution function (CDF) of the **F-distribution** with $k$ and $n - k - 1$ degrees of freedom.
+The residual degrees of freedom are used to compute the mean squared error (MSE).
 
-A critical step in OLS is computing the inverse of the matrix $X^TX$, which is needed to estimate coefficients and their standard errors. However, this matrix becomes **singular (non-invertible)** or **nearly singular (ill-conditioned)** when predictors are **highly collinear** that is, when one or more predictors are linearly dependent or strongly correlated.
+### 4. **F-statistic (without Covariates)**
 
-In such cases, the computation of $X^TX$ approaches zero, making $(X^TX)^{-1}$ either impossible to compute or extremely unstable, which in turn leads to unreliable and highly sensitive coefficient estimates.
+When there are **no covariates**, the F-test checks whether all predictors ($X_1, X_2, \dots, X_p$) jointly explain variance in $y$ beyond the intercept-only model:
+
+$$
+H_0: \beta_1 = \beta_2 = \dots = \beta_p = 0
+$$
+
+The test statistic is:
+
+$$
+F = \frac{\text{Mean Square Regression (MSR)}}{\text{Mean Square Error (MSE)}} =
+\frac{(SSR / p)}{(SSE / (n - p - 1))}
+$$
+
+where:
+
+* $SSR = \sum (\hat{y}_i - \bar{y})^2$ is the **Regression Sum of Squares**,
+* $SSE = \sum (y_i - \hat{y}_i)^2$ is the **Residual Sum of Squares**,
+* $p$ is the number of predictors (excluding the intercept).
+
+### 5. **F-statistic (with Covariates)**
+
+When **covariates** (control variables) are present, the test evaluates whether a subset of predictors ($X$) provides a significant incremental contribution **after controlling for the covariates** ($Z$).
+
+The models are:
+
+* **Full model:**
+  $$
+  y = \beta_0 + X\beta + Z\gamma + \varepsilon
+  $$
+* **Reduced model:**
+  $$
+  y = \beta_0 + Z\gamma + \varepsilon
+  $$
+
+The F-statistic compares the reduction in residual variance:
+
+$$
+F = \frac{(SSE_R - SSE_F)/p}{SSE_F / (n - k_F)}
+$$
+
+where:
+
+* $SSE_R$: residual sum of squares of the **reduced model**,
+* $SSE_F$: residual sum of squares of the **full model**,
+* $p$: number of tested predictors (columns of $X$),
+* $k_F$: total number of parameters in the full model (intercept + all predictors + covariates),
+* $n - k_F$: residual degrees of freedom of the full model.
+
+This is the **extra sum-of-squares F-test** (also called a **nested model comparison test**), and it’s exactly what `car::linearHypothesis()` or the C++ implementation computes.
+
+### 6. **P-value**
+
+The p-value represents the probability of obtaining an F-statistic at least as large as the observed one, under the null hypothesis:
+
+$$
+p = 1 - F_{q, n - k_F}(F)
+$$
+
+where $F_{q, n - k_F}$ is the cumulative distribution function (CDF) of the F-distribution with numerator degrees of freedom $q = p$ and denominator degrees of freedom $n - k_F$.
 
 # Linear Regression Test Methods
 
-In this section, we test three different methods for computing ordinary least squares (OLS) linear regression:
-
-1. **STOAT Implementation**  
-   - Directly implements the OLS formula: $\hat{\beta} = (X^TX)^{-1} X^T y$.  
-   - Provides a clear demonstration of the mathematical foundations of linear regression.  
-   - Useful for understanding step-by-step computation and verifying other implementations.
-
-These implementation are compared against R’s standard `lm()` function, which serves as the "ground truth" for this analysis. The comparison focuses on:
-
-Note : R implementation can't not show p-value below 2.2e-16 due to numerical precision limits.
+The Stoat implementation is compared against R’s standard F-test using `lm()` combined with `car::linearHypothesis()` (testing the null hypothesis that all beta coefficients of the features—excluding covariates—are equal to 0). This serves as the “ground truth” for the analysis. The comparison focuses on the computed p-values.
 
 ```{r import, echo=FALSE, message=FALSE, warning=FALSE}
 # install.packages("RcppEigen", repos = "https://cloud.r-project.org")   # if not installed
@@ -128,9 +170,11 @@ V = 10000
 
 ```
 
-## Simulation 1: Effect on one variable/beta
+## Simulation 1 : Test with covariate
 
-```{r simu1, echo=FALSE, message=FALSE, warning=FALSE}
+### Simulation 1.1 : Effect on one variable/beta
+
+```{r simu1.1, echo=FALSE, message=FALSE, warning=FALSE}
 pv.df_1 <- mclapply(1:V, function(rr) {
   # Simulate data
   if (runif(1) < 0.01) {
@@ -154,40 +198,49 @@ pv.df_1 <- mclapply(1:V, function(rr) {
   # Prepare data
   X <- as.matrix(data[, c("x1", "x2", "x3", "x4")])
   Y <- data$y
+  Xcovar <- matrix(nrow = nrow(data), ncol = 0)  # <--- empty covariate matrix
 
-  # Fit R model and compute F-test p-value
+  # Fit R model
   fit_r <- lm(y ~ x1 + x2 + x3 + x4, data = data)
-  lh.o <- linearHypothesis(fit_r, c("x1=0", "x2=0", "x3=0", "x4=0"))
-  p_r <- lh.o[["Pr(>F)"]][2]
+
+  # Global F-test
+  summary_r <- summary(fit_r)
+  F_value <- as.numeric(summary_r$fstatistic["value"])
+  df1     <- as.numeric(summary_r$fstatistic["numdf"])
+  df2     <- as.numeric(summary_r$fstatistic["dendf"])
+  p_ftest_lm <- pf(F_value, df1, df2, lower.tail = FALSE)
+
+  # Linear hypothesis (x1..x4)
+  lh.o <- car::linearHypothesis(fit_r, c("x1=0","x2=0","x3=0","x4=0"))
+  p_ftest_car <- lh.o[["Pr(>F)"]][2]
 
   # Stoat regression
-  res_stoat <- cpp_linear_regression_stoat(X, Y)
-  p_stoat <- res_stoat$p_value  # or res_stoat[["p_value"]]
+  res_stoat <- cpp_linear_regression_stoat(X, Xcovar, Y)
+  p_stoat <- res_stoat$p_value
 
-  # Return tibble (always)
+  # Return tibble
   tibble(
     rep = rr,
     pv.stoat = p_stoat,
-    pv.ftest = p_r
+    pv.ftest_lm = p_ftest_lm,
+    pv.ftest_car = p_ftest_car
   )
 }, mc.cores = 12) %>%
   bind_rows()
 ```
 
-## Different between the two methods
-
-```{r plot1, echo=FALSE, message=FALSE, warning=FALSE}
-pv.df_1 %>% pivot_longer(c(-rep, -pv.ftest)) %>%
-  ggplot(aes(x=-log10(pv.ftest), y=-log10(value))) +
-  geom_abline(slope=1, linetype=2, color='red') + 
+```{r plot1.1, echo=FALSE, message=FALSE, warning=FALSE}
+pv.df_1 %>% pivot_longer(c(-rep, -pv.ftest_car)) %>%
+  ggplot(aes(x=-log10(pv.ftest_car), y=-log10(value))) +
+  geom_abline(slope=1, linetype=2, color='red') +
   geom_point(alpha=.1) + theme_bw() +
-  ylab('-log10(other pvalue)') + 
+  ylab('-log10(other pvalue)') +
   facet_wrap(~name)
 ```
 
-## Simulation 2: Effect on other variables/betas
+### Simulation 1.2 : Effect on other variables/betas
 
-```{r simu2, echo=FALSE, message=FALSE, warning=FALSE}
+```{r simu1.2, echo=FALSE, message=FALSE, warning=FALSE}
 pv.df_2 = mclapply(1:V, function(rr){
   if(runif(1) < .01){
     data <- tibble(y = rnorm(N)) %>%
@@ -208,50 +261,264 @@ pv.df_2 = mclapply(1:V, function(rr){
   # Prepare data
   X <- as.matrix(data[, c("x1", "x2", "x3", "x4")])
   Y <- data$y
+  Xcovar <- matrix(nrow = nrow(data), ncol = 0)  # empty covariate matrix
 
   # Fit R model and compute F-test p-value
   fit_r <- lm(y ~ x1 + x2 + x3 + x4, data = data)
-  lh.o <- linearHypothesis(fit_r, c("x1=0", "x2=0", "x3=0", "x4=0"))
-  p_r <- lh.o[["Pr(>F)"]][2]
 
-  # Stoat regression
-  res_stoat <- cpp_linear_regression_stoat(X, Y)
+  # Global F-test from lm summary
+  summary_r <- summary(fit_r)
+  p_lm <- summary_r$fstatistic
+
+  F_value <- as.numeric(summary_r$fstatistic["value"])
+  df1     <- as.numeric(summary_r$fstatistic["numdf"])
+  df2     <- as.numeric(summary_r$fstatistic["dendf"])
+  p_ftest_lm <- pf(F_value, df1, df2, lower.tail = FALSE)
+
+  # Linear hypothesis test (only for x1..x4)
+  lh.o <- car::linearHypothesis(
+    fit_r,
+    c("x1 = 0", "x2 = 0", "x3 = 0", "x4 = 0")
+  )
+  p_ftest_car <- lh.o[["Pr(>F)"]][2]
+
+  # -----------------------------
+  # Stoat (C++ implementation)
+  # -----------------------------
+  res_stoat <- cpp_linear_regression_stoat(X, Xcovar, Y)
   p_stoat <- res_stoat$p_value  # or res_stoat[["p_value"]]
 
-  # Return tibble (always)
+  # -----------------------------
+  # Return tibble
+  # -----------------------------
   tibble(
     rep = rr,
     pv.stoat = p_stoat,
-    pv.ftest = p_r
+    pv.ftest_lm = p_ftest_lm,
+    pv.ftest_car = p_ftest_car
   )
 }, mc.cores = 12) %>%
   bind_rows()
 ```
 
-## Different between the two methods
-
-```{r plot2, echo=FALSE, message=FALSE, warning=FALSE}
-pv.df_2 %>% pivot_longer(c(-rep, -pv.ftest)) %>%
-  ggplot(aes(x=-log10(pv.ftest), y=-log10(value))) +
+```{r plot1.2, echo=FALSE, message=FALSE, warning=FALSE}
+pv.df_2 %>% pivot_longer(c(-rep, -pv.ftest_car)) %>%
+  ggplot(aes(x=-log10(pv.ftest_car), y=-log10(value))) +
   geom_abline(slope=1, linetype=2, color='red') + 
   geom_point(alpha=.1) + theme_bw() +
   ylab('-log10(other pvalue)') + 
   facet_wrap(~name)
 ```
 
-## Simulation 3: Special case with ill-conditioned matrix
+## Simulation 2 : Test with covariate
 
-```{r simu3, echo=FALSE, message=FALSE, warning=FALSE}
+### Simulation 2.1 : Effect on one variable/beta (with no effect covariates)
 
+```{r simu2.1, echo=FALSE, message=FALSE, warning=FALSE}
+pv.df_1 <- mclapply(1:V, function(rr) {
+  # Simulate data
+  if (runif(1) < 0.01) {
+    # Case where X1 is correlated with Y (signal)
+    data <- tibble(y = rnorm(N)) %>%
+      mutate(
+        x1 = rnorm(N, y, sd = 3),
+        x2 = rnorm(N),
+        x3 = rnorm(N),
+        x4 = rnorm(N),
+        cov1 = rnorm(N),
+        cov2 = rnorm(N)
+      )
+  } else {
+    # Null case (no association)
+    data <- tibble(
+      y = rnorm(N),
+      x1 = rnorm(N),
+      x2 = rnorm(N),
+      x3 = rnorm(N),
+      x4 = rnorm(N),
+      cov1 = rnorm(N),
+      cov2 = rnorm(N)
+    )
+  }
+
+  # Prepare matrices
+  X <- as.matrix(data[, c("x1", "x2", "x3", "x4")])
+  Xcovar <- as.matrix(data[, c("cov1", "cov2")])
+  Y <- data$y
+
+  # -----------------------------
+  # Fit R model and F-tests
+  # -----------------------------
+  fit_r <- lm(y ~ x1 + x2 + x3 + x4 + cov1 + cov2, data = data)
+
+  # Global F-test from lm summary
+  summary_r <- summary(fit_r)
+  p_lm <- summary_r$fstatistic
+
+  F_value <- as.numeric(summary_r$fstatistic["value"])
+  df1     <- as.numeric(summary_r$fstatistic["numdf"])
+  df2     <- as.numeric(summary_r$fstatistic["dendf"])
+  p_ftest_lm <- pf(F_value, df1, df2, lower.tail = FALSE)
+
+  # Linear hypothesis test (only for x1..x4)
+  lh.o <- car::linearHypothesis(
+    fit_r,
+    c("x1 = 0", "x2 = 0", "x3 = 0", "x4 = 0")
+  )
+  p_ftest_car <- lh.o[["Pr(>F)"]][2]
+
+  # -----------------------------
+  # Stoat (C++ implementation)
+  # -----------------------------
+  res_stoat <- cpp_linear_regression_stoat(X, Xcovar, Y)
+  p_stoat <- res_stoat$p_value  # or res_stoat[["p_value"]]
+
+  # -----------------------------
+  # Return tibble
+  # -----------------------------
+  tibble(
+    rep = rr,
+    pv.stoat = p_stoat,
+    pv.ftest_lm = p_ftest_lm,
+    pv.ftest_car = p_ftest_car
+  )
+}, mc.cores = 12) %>%
+  bind_rows()
 ```
 
-## Different between the two methods
-
-```{r plot3, echo=FALSE, message=FALSE, warning=FALSE}
-pv.df_3 %>% pivot_longer(c(-rep, -pv.ftest)) %>%
-  ggplot(aes(x=-log10(pv.ftest), y=-log10(value))) +
+```{r plot2.1, echo=FALSE, message=FALSE, warning=FALSE}
+pv.df_1 %>% pivot_longer(c(-rep, -pv.ftest_car)) %>%
+  ggplot(aes(x=-log10(pv.ftest_car), y=-log10(value))) +
   geom_abline(slope=1, linetype=2, color='red') + 
   geom_point(alpha=.1) + theme_bw() +
   ylab('-log10(other pvalue)') + 
   facet_wrap(~name)
 ```
+
+### Simulation 2.2 : Effect on other variables/betas (with effect on covariates)
+
+```{r simu2.2, echo=FALSE, message=FALSE, warning=FALSE}
+## Simulation 2.2 : Effect on other variables/betas (with effect on covariates)
+pv.df_2 <- mclapply(1:V, function(rr) {
+  
+  # -----------------------------
+  # Simulate data
+  # -----------------------------
+  if (runif(1) < 0.01) {
+    data <- tibble(y = rnorm(N)) %>%
+      mutate(
+        x1 = rnorm(N, y, sd = 3),
+        x2 = rnorm(N, y, sd = 6),
+        x3 = rnorm(N, y, sd = 6),
+        x4 = rnorm(N),
+        cov1 = rnorm(N, y, sd = 4),  # covariate with effect
+        cov2 = rnorm(N)
+      )
+  } else {
+    data <- tibble(
+      y = rnorm(N),
+      x1 = rnorm(N),
+      x2 = rnorm(N),
+      x3 = rnorm(N),
+      x4 = rnorm(N),
+      cov1 = rnorm(N),
+      cov2 = rnorm(N)
+    )
+  }
+
+  # -----------------------------
+  # Prepare matrices
+  # -----------------------------
+  X <- as.matrix(data[, c("x1", "x2", "x3", "x4")])
+  Y <- data$y
+
+  covar_names <- c("cov1", "cov2")
+  Xcovar <- as.matrix(data[, covar_names])
+
+  # -----------------------------
+  # Fit R model
+  # -----------------------------
+  fit_r <- lm(y ~ x1 + x2 + x3 + x4 + cov1 + cov2, data = data)
+
+  # -----------------------------
+  # Global F-test from summary(lm)
+  # -----------------------------
+  summary_r <- summary(fit_r)
+  F_value <- as.numeric(summary_r$fstatistic["value"])
+  df1     <- as.numeric(summary_r$fstatistic["numdf"])
+  df2     <- as.numeric(summary_r$fstatistic["dendf"])
+  p_ftest_lm <- pf(F_value, df1, df2, lower.tail = FALSE)
+
+  # -----------------------------
+  # Partial F-test using car::linearHypothesis (only X)
+  # -----------------------------
+  lh.o <- car::linearHypothesis(
+    fit_r,
+    c("x1=0", "x2=0", "x3=0", "x4=0")
+  )
+  p_ftest_car <- lh.o[["Pr(>F)"]][2]
+
+  # -----------------------------
+  # Stoat regression
+  # -----------------------------
+  res_stoat <- cpp_linear_regression_stoat(X, Xcovar, Y)
+  p_stoat <- res_stoat$p_value
+
+  # -----------------------------
+  # Return tibble
+  # -----------------------------
+  tibble(
+    rep = rr,
+    pv.stoat = p_stoat,
+    pv.ftest_lm = p_ftest_lm,
+    pv.ftest_car = p_ftest_car,
+  )
+
+}, mc.cores = 12) %>%
+  bind_rows()
+```
+
+```{r plot2.2, echo=FALSE, message=FALSE, warning=FALSE}
+pv.df_2 %>% pivot_longer(c(-rep, -pv.ftest_car)) %>%
+  ggplot(aes(x=-log10(pv.ftest_car), y=-log10(value))) +
+  geom_abline(slope=1, linetype=2, color='red') +
+  geom_point(alpha=.1) + theme_bw() +
+  ylab('-log10(other pvalue)') +
+  facet_wrap(~name)
+```
+
+```{r plot2.3, echo=FALSE, message=FALSE, warning=FALSE}
+pv.df_2 %>%
+  mutate(p_ratio = pv.stoat / pv.ftest_car) %>%
+  ggplot(aes(x = -log10(pv.ftest_car), y = log10(p_ratio))) +
+  geom_hline(yintercept = 0, color = "red", linetype = 2) +
+  geom_point(alpha = 0.3) +
+  theme_bw() +
+  labs(
+    title = "Relative deviation of Stoat p-values",
+    x = expression(-log[10](p[R])),
+    y = expression(log[10](p[Stoat] / p[R]))
+  )
+```
+
+```{r plot_extreme, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+
+# Sort by smallest p-value (most significant)
+top10_stoat <- pv.df_2 %>%
+  arrange(pv.stoat) %>%
+  select(rep, pv.stoat, pv.ftest_car, pv.ftest_lm) %>%
+  head(10)
+
+top10_car <- pv.df_2 %>%
+  arrange(pv.ftest_car) %>%
+  select(rep, pv.ftest_car, pv.stoat, pv.ftest_lm) %>%
+  head(10)
+
+cat("🔹 Top 10 most significant p-values (Stoat):\n")
+print(top10_stoat)
+
+cat("\n🔹 Top 10 most significant p-values (CAR / R):\n")
+print(top10_car)
+``` 
+

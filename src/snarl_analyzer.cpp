@@ -619,7 +619,7 @@ namespace stoat_vcf {
         std::string type_var_str = oss.str();
         std::stringstream data;
 
-        auto [p_value, beta, se, r2] = lr.linear_regression(X, Y, covariate);
+        auto [p_value, r2] = lr.linear_regression(X, Y, covariate);
 
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
         {
@@ -629,7 +629,7 @@ namespace stoat_vcf {
 
         #pragma omp critical(outf)
         {
-            stoat::write_quantitative(outf, chr, snarl_data_s, type_var_str, p_value, r2, beta, se, allele_paths);
+            stoat::write_quantitative(outf, chr, snarl_data_s, type_var_str, p_value, r2, allele_paths);
         }
         return filtration;
     }
@@ -707,7 +707,7 @@ namespace stoat_vcf {
             std::string type_var_str = oss.str();
             std::stringstream data;
 
-            auto [p_value, beta, se, r2] = lr.linear_regression(X, gene_expression, covariate);
+            auto [p_value, r2] = lr.linear_regression(X, gene_expression, covariate);
 
             if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
             {
@@ -717,7 +717,7 @@ namespace stoat_vcf {
 
             #pragma omp critical(outf)
             {
-                stoat::write_eqtl(outf, chr, snarl_data_s, type_var_str, gene_name, p_value, r2, beta, se, allele_paths);
+                stoat::write_eqtl(outf, chr, snarl_data_s, type_var_str, gene_name, p_value, r2, allele_paths);
             }
         }
         return filtration;

@@ -117,15 +117,11 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         std::vector<std::vector<double>> covar;  // No covariates
 
         stoat::LinearRegression lr;
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
 
-        INFO("se = " << se);
-        INFO("beta = " << beta);
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(se == "9.128");
-        REQUIRE(beta == "25.45");
         REQUIRE(p_value == "0.2192");
         REQUIRE(r2 == "0.886");
     }
@@ -144,15 +140,11 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         std::vector<std::vector<double>> covar;
         
         stoat::LinearRegression lr;
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
 
-        INFO("se = " << se);
-        INFO("beta = " << beta);
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(std::stod(se) == 9.131);
-        REQUIRE(std::stod(beta) == 3.4);
         REQUIRE(std::stod(p_value) == 0.7454);
         REQUIRE(std::stod(r2) == 0.4272);
     }
@@ -171,15 +163,12 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         std::vector<std::vector<double>> covar;
         
         stoat::LinearRegression lr;
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
 
-        INFO("se = " << se);
-        INFO("beta = " << beta);
+
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(std::stod(se) == 24.56);
-        REQUIRE(std::stod(beta) == 21.5);
         REQUIRE(std::stod(p_value) == 0.5422);
         REQUIRE(std::stod(r2) == 0.108);
     }
@@ -202,15 +191,12 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         };
 
         stoat::LinearRegression lr;
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
 
-        INFO("se = " << se);
-        INFO("beta = " << beta);
+
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(se == "45.19");
-        REQUIRE(beta == "3.07");
         REQUIRE(p_value == "0.9568");
         REQUIRE(r2 == "0.1398");
     }
@@ -232,22 +218,14 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         };
 
         stoat::LinearRegression lr;
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
 
-        INFO("se = " << se);
-        INFO("beta = " << beta);
+
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(se == "7.447");
-        REQUIRE(beta == "-20.56");
         REQUIRE(p_value == "0.2212");
         REQUIRE(r2 == "0.9595");
-
-        // se = 7.447
-        // beta = -20.56
-        // p_value = 0.2212
-        // r2 = 0.9595
 
     }
 
@@ -267,21 +245,14 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         };
         
         stoat::LinearRegression lr;
-        auto [p_value, beta, se, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
 
-        INFO("se = " << se);
-        INFO("beta = " << beta);
+
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(std::stod(se) == 22.85);
-        REQUIRE(std::stod(beta) == 52.34);
         REQUIRE(std::stod(p_value) == 0.2621);
         REQUIRE(std::stod(r2) == 0.7563);
 
-        // se = 22.85
-        // beta = 52.34
-        // p_value = 0.2621
-        // r2 = 0.7563
     }
 }

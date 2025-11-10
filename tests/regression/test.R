@@ -1,46 +1,73 @@
-# Load required package
+suppressPackageStartupMessages({
+library(Rcpp)
+library(RcppEigen)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(reshape2)
+library(parallel)
 library(car)
+})
 
-# Simulate data
-set.seed(123)
-n <- 100
+Sys.setenv("CXX14FLAGS"="-std=gnu++14")
 
-# Covariates (independent variables)
-x1 <- rnorm(n, mean = 5, sd = 2)
-x2 <- rnorm(n, mean = 10, sd = 3)
-x3 <- rnorm(n, mean = 20, sd = 4)
-x4 <- rnorm(n, mean = 0, sd = 1)
+sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_stoat.cpp")
 
-# Control variable (a covariate)
-age <- rnorm(n, mean = 40, sd = 10)
+# -------------------------------
+# Single highly significant test
+# -------------------------------
 
-# Dependent variable influenced by x1, x2, and covariate age
-y <- 3 + 1.5*x1 - 1.6*x2 + rnorm(n, sd = 5)
+# Simulate one dataset with a strong effect
+set.seed(42)
+N <- 500
 
-# Combine into a data frame
-data <- data.frame(y, x1, x2, x3, x4)
-data_2 <- data.frame(y, x1, x2, x3, x4, age)
+data <- tibble(y = rnorm(N)) %>%
+  mutate(
+    # x1 strongly correlated with y → very significant
+    x1 = rnorm(N, y, sd = 2),
+    # other predictors random noise
+    x2 = rnorm(N),
+    x3 = rnorm(N),
+    x4 = rnorm(N)
+  )
 
-# Fit linear regression model including the covariate
+# Prepare matrices for Stoat
+X <- as.matrix(data[, c("x1", "x2", "x3", "x4")])
+Y <- data$y
+Xcovar <- matrix(nrow = nrow(data), ncol = 0)  # no covariates
+
+# -------------------------------
+# R implementation
+# -------------------------------
 fit_r <- lm(y ~ x1 + x2 + x3 + x4, data = data)
 
-# Show results
-print(summary(fit_r))
+# Global F-test (from summary)
+summary_r <- summary(fit_r)
+F_value <- as.numeric(summary_r$fstatistic["value"])
+df1 <- as.numeric(summary_r$fstatistic["numdf"])
+df2 <- as.numeric(summary_r$fstatistic["dendf"])
+p_ftest_lm <- pf(F_value, df1, df2, lower.tail = FALSE)
 
-# Test the joint hypothesis that x1, x2, x3, and x4 have no effect
-lh.o <- linearHypothesis(fit_r, c("x1 = 0", "x2 = 0", "x3 = 0", "x4 = 0"))
+# Linear hypothesis test (x1..x4)
+lh.o <- car::linearHypothesis(fit_r, c("x1=0", "x2=0", "x3=0", "x4=0"))
+p_ftest_car <- lh.o[["Pr(>F)"]][2]
 
-# Show results
-print(lh.o)
+# -------------------------------
+# Stoat implementation (C++)
+# -------------------------------
+res_stoat <- cpp_linear_regression_stoat(X, Xcovar, Y)
+p_stoat <- res_stoat$p_value
 
-# Fit linear regression model including the covariate
-fit_r <- lm(y ~ x1 + x2 + x3 + x4 + age, data = data_2)
+# -------------------------------
+# Compare results
+# -------------------------------
+cat("🔹 Global F-test (lm):", p_ftest_lm, "\n")
+cat("🔹 linearHypothesis (car):", p_ftest_car, "\n")
+cat("🔹 Stoat (C++):", p_stoat, "\n")
 
-# Show results
-print(summary(fit_r))
+# Optional: show -log10 comparison
+tibble(
+  Method = c("lm", "car", "Stoat"),
+  `-log10(p-value)` = -log10(c(p_ftest_lm, p_ftest_car, p_stoat))
+)
 
-# Test the joint hypothesis that x1, x2, x3, and x4 have no effect
-lh.o <- linearHypothesis(fit_r, c("x1 = 0", "x2 = 0", "x3 = 0", "x4 = 0"))
-
-# Show results
-print(lh.o)

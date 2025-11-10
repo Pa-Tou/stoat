@@ -22,6 +22,9 @@
 #include <chrono>
 
 #include <boost/math/distributions/fisher_f.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+
+using boost::multiprecision::cpp_dec_float_50;
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
@@ -212,15 +215,17 @@ List cpp_linear_regression_stoat(NumericMatrix Xr, NumericMatrix Xcovar, Numeric
     double den = SSE_full / df_den;
     double Fstat = num / den;
 
-    if (SSE_reduced <= SSE_full) Fstat = 0.0;
+    cpp_dec_float_50 Fstat_hp = Fstat;
+    cpp_dec_float_50 df_num_hp = df_num;
+    cpp_dec_float_50 df_den_hp = df_den;
 
-    boost::math::fisher_f dist(df_num, df_den);
-    double p_value = 1.0 - boost::math::cdf(dist, Fstat);
+    boost::math::fisher_f_distribution<cpp_dec_float_50> dist_hp(df_num_hp, df_den_hp);
+    cpp_dec_float_50 p_value_hp = cpp_dec_float_50(1) - boost::math::cdf(dist_hp, Fstat_hp);
 
     return List::create(
-        _["F_stat"]  = Fstat,
-        _["p_value"] = p_value,
-        _["df_num"]  = df_num,
-        _["df_den"]  = df_den
+    _["F_stat"]  = Fstat,
+    _["p_value"] = static_cast<double>(p_value_hp),
+    _["df_num"]  = df_num,
+    _["df_den"]  = df_den
     );
 }

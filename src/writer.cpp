@@ -13,11 +13,11 @@ void write_binary_covar_header(std::ostream& outstream) {
 }
 
 void write_quantitative_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
 void write_eqtl_header(std::ostream& outstream) {
-    outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
 void write_vcf_header(std::ostream& outstream,
@@ -74,8 +74,7 @@ void write_binary_covar(std::ostream& outstream, const std::string& chr, const S
 }
 
 void write_quantitative(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value,  const std::string& r2, const std::string& beta, const std::string& se, 
-                        const std::vector<size_t>& allele_paths) {
+                        const std::string& p_value,  const std::string& r2, const std::vector<size_t>& allele_paths) {
 
     outstream << chr << "\t"
               << snarl_data_s.start_positions << "\t"
@@ -84,16 +83,13 @@ void write_quantitative(std::ostream& outstream, const std::string& chr, const S
               << type_var_str << "\t"
               << p_value  << "\t"
               << r2 << "\t"
-              << beta << "\t"
-              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << "\n";
 
 }
 
 void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                   const std::string& gene_name, const std::string& p_value,  const std::string& r2,
-                   const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+                   const std::string& gene_name, const std::string& p_value,  const std::string& r2, const std::vector<size_t>& allele_paths) {
 
     outstream << chr << "\t"
               << snarl_data_s.start_positions << "\t"
@@ -103,8 +99,6 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
               << gene_name << "\t"
               << p_value  << "\t"
               << r2 << "\t"
-              << beta << "\t"
-              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << endl;
 

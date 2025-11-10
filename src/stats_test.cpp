@@ -717,106 +717,95 @@ std::vector<std::vector<double>> LinearRegression::inverse(
     return I;
 }
 
-std::tuple<std::string, std::string, std::string, std::string> LinearRegression::linear_regression(
+std::tuple<std::string, std::string> LinearRegression::linear_regression(
     const std::vector<std::vector<double>>& X_raw,
     const std::vector<double>& y,
     const std::vector<std::vector<double>>& covariates) {
 
-    int num_samples = X_raw.size();
-    int num_variants = X_raw[0].size();
-    int num_covariates = covariates.empty() ? 0 : covariates[0].size();
-    int num_features = 1 + num_variants + num_covariates; // intercept + variants + covariates
+    int n = X_raw.size();
+    int p = X_raw[0].size();
+    int q = covariates.empty() ? 0 : covariates[0].size();
 
-    // Build design matrix with intercept, X_raw, and covariates
-    std::vector<std::vector<double>> X(num_samples, std::vector<double>(num_features, 1.0));
-    for (int i = 0; i < num_samples; ++i) {
-        int col = 1;
-        for (int j = 0; j < num_variants; ++j)
-            X[i][col++] = X_raw[i][j];
-        for (int j = 0; j < num_covariates; ++j)
-            X[i][col++] = covariates[i][j];
-    }
+    // ---- FULL MODEL ----
+    int k_full = 1 + p + q; // intercept + X + covariates
+    std::vector<std::vector<double>> Xfull(n, std::vector<double>(k_full, 1.0));
 
-    // OLS computations
-    auto Xt = transpose(X);
-    auto XtX = matmul(Xt, X);
-    auto XtX_inv = inverse(XtX);
-    auto Xty = matvec(Xt, y);
+    // Fill columns efficiently
+    for (int i = 0; i < n; ++i) {
+        // Copy X_raw
+        std::copy(X_raw[i].begin(), X_raw[i].end(), Xfull[i].begin() + 1);
 
-    std::vector<double> beta(num_features, 0.0);
-    for (int i = 0; i < num_features; ++i)
-        for (int j = 0; j < num_features; ++j)
-            beta[i] += XtX_inv[i][j] * Xty[j];
-
-    std::vector<double> y_hat = matvec(X, beta);
-    double sse = 0.0;
-    for (int i = 0; i < num_samples; ++i)
-        sse += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
-
-    // Compute mean of y
-    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / y.size();
-
-    // Compute SST (total sum of squares)
-    double sst = 0.0;
-    for (int i = 0; i < num_samples; ++i)
-        sst += (y[i] - y_mean) * (y[i] - y_mean);
-
-    // Compute R²
-    double r2 = (sst == 0.0) ? 1.0 : 1.0 - sse / sst;
-    double df_resid = (num_samples - num_features - 1 > 0) ? num_samples - num_features - 1 : 1; // Residual Degrees of Freedom
-    double sigma2 = sse / df_resid;
-
-    // --- F-test computation (no p-value, no covariate/intercept) ---
-    // double ssr = sst - sse;  // Regression sum of squares
-    // double msr = ssr / num_variants; // Mean Square Regression
-    // double mse = sse / df_resid; // Mean Squared Error
-    // double f_stat = msr / mse;  // F-statistic
-
-    // boost::math::fisher_f dist(num_variants, df_resid); // F-distribution
-    // double p_value = 1 - boost::math::cdf(dist, f_stat); // p-value for F-test
-
-    boost::math::students_t dist(df_resid);
-    std::vector<double> p_values_vector(num_variants, 0.0);
-    std::vector<double> beta_vector(num_variants, 0.0);
-    std::vector<double> se_vector(num_variants, 0.0);
-
-    for (int i = 1; i < num_variants+1; ++i) {
-        double safe_diagonal = XtX_inv[i][i] > 0 ? XtX_inv[i][i] : 0.0;
-        double se = std::sqrt(sigma2 * safe_diagonal);
-        double t_stat = beta[i] / se;
-        double pval;
-
-        if (std::isnan(t_stat) || std::isinf(t_stat)) { // Special case
-            pval = 1.0; // Assign a high p-value for invalid t-statistics
-            LOG_DEBUG("Invalid t-statistic encountered");
-        } else {
-            pval = 2 * boost::math::cdf(boost::math::complement(dist, std::fabs(t_stat)));
+        // Copy covariates if present
+        if (q > 0) {
+            std::copy(covariates[i].begin(), covariates[i].end(), Xfull[i].begin() + 1 + p);
         }
-
-        // Store results
-        beta_vector[i-1] = beta[i];
-        se_vector[i-1] = se;
-        p_values_vector[i-1] = pval;
     }
 
-    double p_value_adjusted = p_values_vector[0];
-    double beta_adjusted = beta_vector[0];
-    double se_adjusted = se_vector[0];
+    // ---- Fit FULL model ----
+    auto Xt = transpose(Xfull);
+    auto XtX = matmul(Xt, Xfull);
+    auto XtXi = inverse(XtX);
+    auto Xty = matvec(Xt, y);
+    auto beta = matvec(XtXi, Xty);
+    auto yhat = matvec(Xfull, beta);
 
-    // case more that 2 originaly column/path
-    if (num_variants > 1) {
-        auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values_vector);
-        beta_adjusted = beta_vector[min_index];
-        se_adjusted = se_vector[min_index];
+    // SSE full
+    double SSE_full = 0.0;
+    for (int i = 0; i < n; ++i)
+        SSE_full += (y[i] - yhat[i]) * (y[i] - yhat[i]);
+
+    // ---- R² full model ----
+    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / n;
+    double SST = 0.0;
+    for (int i = 0; i < n; ++i)
+        SST += (y[i] - y_mean) * (y[i] - y_mean);
+
+    double R2 = 1.0 - SSE_full / SST;
+
+    // ---- Reduced SSE ----
+    double SSE_reduced = 0.0;
+    if (q > 0) {
+        // reduced model: intercept + covariates
+        int k_red = 1 + q;
+        std::vector<std::vector<double>> Xred(n, std::vector<double>(k_red, 1.0));
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < q; ++j)
+                Xred[i][1 + j] = covariates[i][j];
+
+        auto Xt_r = transpose(Xred);
+        auto XtX_r = matmul(Xt_r, Xred);
+        auto XtXi_r = inverse(XtX_r);
+        auto Xty_r = matvec(Xt_r, y);
+        auto beta_r = matvec(XtXi_r, Xty_r);
+        auto yhat_r = matvec(Xred, beta_r);
+
+        for (int i = 0; i < n; ++i)
+            SSE_reduced += (y[i] - yhat_r[i]) * (y[i] - yhat_r[i]);
+    } else {
+        // no covariates: reduced model = intercept only
+        for (int i = 0; i < n; ++i)
+            SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);
     }
 
-    // set precision : 4 digit
-    std::string p_value_str = stoat::set_precision(p_value_adjusted);
-    std::string beta_str = stoat::set_precision(beta_adjusted);
-    std::string se_str = stoat::set_precision(se_adjusted);
-    std::string r2_str = stoat::set_precision(r2);
+    // ---- F-statistic ----
+    int df_num = p;
+    int df_den = n - k_full;
+    double num = (SSE_reduced - SSE_full) / df_num;
+    double den = SSE_full / df_den;
+    double Fstat = num / den;
 
-    return std::make_tuple(p_value_str, beta_str, se_str, r2_str);
+    // ---- High-precision p-value ----
+    cpp_dec_float_50 Fstat_hp = Fstat;
+    cpp_dec_float_50 df_num_hp = df_num;
+    cpp_dec_float_50 df_den_hp = df_den;
+
+    boost::math::fisher_f_distribution<cpp_dec_float_50> dist_hp(df_num_hp, df_den_hp);
+    cpp_dec_float_50 p_value_hp = cpp_dec_float_50(1) - boost::math::cdf(dist_hp, Fstat_hp);
+
+    std::string p_value_str = stoat::set_precision_float_50(p_value_hp);
+    std::string r2_str = stoat::set_precision(R2);
+
+    return std::make_tuple(p_value_str, r2_str);
 }
 
 } // namespace stoat

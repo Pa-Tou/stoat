@@ -69,7 +69,7 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        std::tuple<std::string, std::string, std::string, std::string> linear_regression(
+        std::tuple<std::string, std::string> linear_regression(
             const std::vector<std::vector<double>>& X_raw,
             const std::vector<double>& y,
             const std::vector<std::vector<double>>& covariates);
