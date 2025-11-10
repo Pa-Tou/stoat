@@ -123,6 +123,12 @@ void write_snarl_data_fail(std::ostream& outstream) {
 Node_traversal_t::Node_traversal_t(const size_t &id, const bool &rev)
         : node_id(id), is_reverse(rev) {}
 
+// Node_traversal_t from a string
+Node_traversal_t::Node_traversal_t(const std::string &str) {
+    is_reverse = str[0] == "<";
+    node_id = std::stoi(str.begin()+1, str.end());
+}
+
 // Convert Node_traversal_t to node + path representation [string]
 std::string Node_traversal_t::to_string() const {
     return (is_reverse ? "<" : ">") + std::to_string(node_id);
