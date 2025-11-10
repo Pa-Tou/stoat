@@ -47,6 +47,7 @@ struct Node_traversal_t { // 64 bits per node
 
     public:
         Node_traversal_t(const size_t &id, const bool &rev);
+        Node_traversal_t(const std::string &str);
         
         // Setter
         void set_is_reverse(const bool &rev) { is_reverse = rev; };
@@ -115,7 +116,9 @@ struct Snarl_data_t {
                     std::vector<std::string> type_variants_,
                     size_t depth);  // Assuming path_nodes correspond to type_variants
 
+        // Type variant for each path: either 0 for deletion, length of the path, or min/max length of the path
         std::vector<std::string> type_variants;
+        // All possible walks through the snarl
         std::vector<Path_traversal_t> snarl_paths;
         net_handle_t snarl; // handlegraph::subrange_t Snarl_data_t::snarl_id
         //TODO: Make this a node_traversal_t
@@ -149,6 +152,8 @@ struct snarl_partition_t : stoat::Snarl_data_t {
     std::string ref_path; //TODO: I think this could get pretty big, might want to save it as an index into a list of reference paths
     std::vector<std::set<sample_hap_t>> partitions;
 
+
+
     snarl_partition_t() {};
 
     // Make it from a snarl
@@ -179,6 +184,7 @@ struct snarl_partition_t : stoat::Snarl_data_t {
                           snarl_ids = snarl_ids_;
                       };
 };
+
 
 // Converter
 std::string pairToString(const std::pair<size_t, size_t>& name);
