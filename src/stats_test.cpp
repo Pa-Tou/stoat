@@ -424,12 +424,9 @@ std::string FisherKhi2::chi2_2x2(const size_t& a, const size_t& b, const size_t&
     chi2_stat += std::pow((double)c - expected_c, 2) / expected_c;
     chi2_stat += std::pow((double)d - expected_d, 2) / expected_d;
 
-    if (chi2_stat > 85.0) {
-        cpp_dec_float_50 chi2_stat_float_50 = chi2_stat;
-        cpp_dec_float_50 pval = 1.0 - boost::math::cdf(cpp_dec_float_50_dist, chi2_stat_float_50);
-        return stoat::set_precision_float_50(pval.convert_to<double>());
-    }
-    return stoat::set_precision(1.0 - boost::math::cdf(chi_squared_dist, chi2_stat));
+    cpp_dec_float_50 chi2_stat_float_50 = chi2_stat;
+    cpp_dec_float_50 pval = cpp_dec_float_50(1) - boost::math::cdf(cpp_dec_float_50_dist, chi2_stat_float_50);
+    return stoat::set_precision_float_50(pval.convert_to<double>());
 }
 
 // Check if the observed matrix is valid (no zero rows/columns)
@@ -466,16 +463,10 @@ std::string FisherKhi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
     }
 
     size_t df = cols - 1;
-    if (chi2 > 85.0) { // avoiding case 0.000+00 precision
-        cpp_dec_float_50 chi2_stat_float_50 = chi2;
-        boost::math::chi_squared_distribution<cpp_dec_float_50> cpp_dec_float_50_dist_2xN(df);
-        cpp_dec_float_50 p_value = 1.0 - boost::math::cdf(cpp_dec_float_50_dist_2xN, chi2_stat_float_50);
-        return stoat::set_precision_float_50(p_value);
-    }
-
-    boost::math::chi_squared dist_2xN(df);
-    double pvalue = 1.0 - boost::math::cdf(dist_2xN, chi2);
-    return stoat::set_precision(pvalue);
+    cpp_dec_float_50 chi2_stat_float_50 = chi2;
+    boost::math::chi_squared_distribution<cpp_dec_float_50> cpp_dec_float_50_dist_2xN(df);
+    cpp_dec_float_50 p_value = cpp_dec_float_50(1) - boost::math::cdf(cpp_dec_float_50_dist_2xN, chi2_stat_float_50);
+    return stoat::set_precision_float_50(p_value);
 }
 
 // ------------------------ Fisher exact test ------------------------
@@ -717,90 +708,93 @@ std::vector<std::vector<double>> LinearRegression::inverse(
     return I;
 }
 
+// Performs linear regression and F-test for predictors only
 std::tuple<std::string, std::string> LinearRegression::linear_regression(
     const std::vector<std::vector<double>>& X_raw,
     const std::vector<double>& y,
     const std::vector<std::vector<double>>& covariates) {
 
-    int n = X_raw.size();
-    int p = X_raw[0].size();
-    int q = covariates.empty() ? 0 : covariates[0].size();
+    int num_samples = X_raw.size();                                     // number of observations
+    int num_predictors = X_raw[0].size();                               // number of predictors
+    int num_covariates = covariates.empty() ? 0 : covariates[0].size(); // number of covariates
 
     // ---- FULL MODEL ----
-    int k_full = 1 + p + q; // intercept + X + covariates
-    std::vector<std::vector<double>> Xfull(n, std::vector<double>(k_full, 1.0));
+    int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
+    std::vector<std::vector<double>> X_full(num_samples, std::vector<double>(num_params_full, 1.0));
 
-    // Fill columns efficiently
-    for (int i = 0; i < n; ++i) {
-        // Copy X_raw
-        std::copy(X_raw[i].begin(), X_raw[i].end(), Xfull[i].begin() + 1);
+    for (int i = 0; i < num_samples; ++i) {
+        // Copy predictor variables
+        std::copy(X_raw[i].begin(), X_raw[i].end(), X_full[i].begin() + 1);
 
         // Copy covariates if present
-        if (q > 0) {
-            std::copy(covariates[i].begin(), covariates[i].end(), Xfull[i].begin() + 1 + p);
+        if (num_covariates > 0) {
+            std::copy(covariates[i].begin(), covariates[i].end(), X_full[i].begin() + 1 + num_predictors);
         }
     }
 
     // ---- Fit FULL model ----
-    auto Xt = transpose(Xfull);
-    auto XtX = matmul(Xt, Xfull);
+    auto Xt = transpose(X_full);
+    auto XtX = matmul(Xt, X_full);
     auto XtXi = inverse(XtX);
     auto Xty = matvec(Xt, y);
     auto beta = matvec(XtXi, Xty);
-    auto yhat = matvec(Xfull, beta);
+    auto y_hat = matvec(X_full, beta);
 
-    // SSE full
+    // SSE (Sum of Squared Errors) for full model
     double SSE_full = 0.0;
-    for (int i = 0; i < n; ++i)
-        SSE_full += (y[i] - yhat[i]) * (y[i] - yhat[i]);
+    for (int i = 0; i < num_samples; ++i) {SSE_full += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);}
 
-    // ---- R² full model ----
-    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / n;
+    // ---- Compute R² ----
+    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / num_samples;
     double SST = 0.0;
-    for (int i = 0; i < n; ++i)
-        SST += (y[i] - y_mean) * (y[i] - y_mean);
-
+    for (int i = 0; i < num_samples; ++i) {SST += (y[i] - y_mean) * (y[i] - y_mean);}
     double R2 = 1.0 - SSE_full / SST;
 
-    // ---- Reduced SSE ----
+    // ---- REDUCED MODEL ----
     double SSE_reduced = 0.0;
-    if (q > 0) {
-        // reduced model: intercept + covariates
-        int k_red = 1 + q;
-        std::vector<std::vector<double>> Xred(n, std::vector<double>(k_red, 1.0));
-        for (int i = 0; i < n; ++i)
-            for (int j = 0; j < q; ++j)
-                Xred[i][1 + j] = covariates[i][j];
+    if (num_covariates > 0) {
+        // reduced model: intercept + covariates only
+        int num_params_reduced = 1 + num_covariates;
+        std::vector<std::vector<double>> X_reduced(num_samples, std::vector<double>(num_params_reduced, 1.0));
 
-        auto Xt_r = transpose(Xred);
-        auto XtX_r = matmul(Xt_r, Xred);
+        for (int i = 0; i < num_samples; ++i) {
+            for (int j = 0; j < num_covariates; ++j) {
+                X_reduced[i][1 + j] = covariates[i][j];
+            }
+        }
+
+        auto Xt_r = transpose(X_reduced);
+        auto XtX_r = matmul(Xt_r, X_reduced);
         auto XtXi_r = inverse(XtX_r);
         auto Xty_r = matvec(Xt_r, y);
         auto beta_r = matvec(XtXi_r, Xty_r);
-        auto yhat_r = matvec(Xred, beta_r);
+        auto y_hat_r = matvec(X_reduced, beta_r);
 
-        for (int i = 0; i < n; ++i)
-            SSE_reduced += (y[i] - yhat_r[i]) * (y[i] - yhat_r[i]);
+        for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_hat_r[i]) * (y[i] - y_hat_r[i]);}
     } else {
         // no covariates: reduced model = intercept only
-        for (int i = 0; i < n; ++i)
-            SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);
+        for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);}
     }
 
     // ---- F-statistic ----
-    int df_num = p;
-    int df_den = n - k_full;
-    double num = (SSE_reduced - SSE_full) / df_num;
-    double den = SSE_full / df_den;
-    double Fstat = num / den;
+    // Numerator df = number of tested predictors
+    // Denominator df = residual df in full model
+    int df_numerator = num_predictors;
+    int df_denominator = num_samples - num_params_full;
+
+    // Compute F-statistic:
+    // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]
+    double numerator = (SSE_reduced - SSE_full) / df_numerator;
+    double denominator = SSE_full / df_denominator;
+    double F_stat = numerator / denominator;
 
     // ---- High-precision p-value ----
-    cpp_dec_float_50 Fstat_hp = Fstat;
-    cpp_dec_float_50 df_num_hp = df_num;
-    cpp_dec_float_50 df_den_hp = df_den;
+    cpp_dec_float_50 F_stat_hp = F_stat;
+    cpp_dec_float_50 df_num_hp = df_numerator;
+    cpp_dec_float_50 df_den_hp = df_denominator;
 
     boost::math::fisher_f_distribution<cpp_dec_float_50> dist_hp(df_num_hp, df_den_hp);
-    cpp_dec_float_50 p_value_hp = cpp_dec_float_50(1) - boost::math::cdf(dist_hp, Fstat_hp);
+    cpp_dec_float_50 p_value_hp = cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_stat_hp);
 
     std::string p_value_str = stoat::set_precision_float_50(p_value_hp);
     std::string r2_str = stoat::set_precision(R2);

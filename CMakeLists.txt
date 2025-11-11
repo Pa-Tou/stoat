@@ -8,6 +8,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "12.7") # MACOS fix
 
+include_directories(BEFORE
+    ${PROJECT_SOURCE_DIR}/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/include
+)
+
 set(deps_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
 # Put the executables in a bin directory
