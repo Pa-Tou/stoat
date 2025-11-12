@@ -367,17 +367,6 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
         p_values.push_back(2.0 * (1.0 - normal_cdf(std::abs(z_score)))); // Two-sided
     }
 
-    // --- McFadden's R²
-    // double ll_full = calculate_log_likelihood(y, p);
-    // double p_null_val = clamp(y.mean(), epsilon, 1.0 - epsilon);
-    // Eigen::VectorXd p_null = Eigen::VectorXd::Constant(num_samples, p_null_val);
-    // double ll_null = calculate_log_likelihood(y, p_null);
-    // double r2 = 0.0;
-    // if (ll_null != 0.0) {
-    //     r2 = 1.0 - (ll_full / ll_null);
-    //     r2 = std::min(std::max(r2, 0.0), 1.0);  // clamp between 0 and 1
-    // }
-
     double p_value_adjusted = p_values[0];
     double beta_adjusted = beta(1);
     double se_adjusted = se(1);
@@ -780,7 +769,7 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
     // Numerator df = number of tested predictors
     // Denominator df = residual df in full model
     int df_numerator = num_predictors;
-    int df_denominator = num_samples - num_params_full;
+    int df_denominator = (num_samples - num_params_full) <= 0 ? 1 : num_samples - num_params_full;
 
     // Compute F-statistic:
     // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]
