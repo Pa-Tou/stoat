@@ -11,7 +11,7 @@ namespace stoat {
 SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                     size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit,
                     bool partition_requested,
-                    const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl, const std::vector<Path_traversal_t>& paths)>& find_sample_partitions,
+                    const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl)>& find_sample_partitions,
                     bool sequence_requested) :
                     allele_size_limit(allele_size_limit),
                     snarl_child_limit(snarl_child_limit),
@@ -41,7 +41,7 @@ SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGr
     
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_paths, snarl_to_partitions, snarl_to_sequences, reference_names, sample_haplotypes)
+    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_partitions, snarl_to_sequences, reference_names, sample_haplotypes)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
@@ -114,14 +114,16 @@ SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGr
                                 snarl_data.ref_index = std::numeric_limits<size_t>::max();
                             }
 
-                            // Get the paths through the snarl
-                            std::vector<stoat::Path_traversal_t> snarl_paths = get_walks_through_snarl(graph, distance_index, snarl);
+                            if (partition_requested) {
+                                // If we want partitions, then find them and then only enumerate walks and sequences in the partition
+                            } else {
+                                // If we don't want partitions, then enumerate all walks
+                                std::vector<stoat::Path_traversal_t> snarl_walks = get_walks_through_snarl(graph, distance_index, snarl);
+                            }
 
+                            // Get the sequences for each walk
     
-                            // Now get the partitions
-                            snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
-    
-                               #pragma omp critical(chain_loop)
+                            #pragma omp critical(chain_loop)
                             {
    
                                 // Add the child chains to the stack
@@ -166,8 +168,6 @@ SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGr
 
 std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> SnarlDataCollection::get_walks_through_snarl(graph, distance_index, snarl) {
 
-    // The final list of paths to return
-    std::vector<stoat::Path_traversal_t> path_traversals;
 
     // Path exploration
     std::vector<std::vector<handlegraph::net_handle_t>> paths = {
@@ -297,7 +297,7 @@ This section starts with #SAMPLES
 
 Each snarl_partition_t is then stored, one per line, as a tab-separated vector of integers/strings.
 the first 7 items are the contents of the snarl_data_internal_t.
-The 8th item is all of the paths, comma separated.
+The 8th item is all of the walks, comma separated.
 The haplotype partitions are stored next (if present). Each partition starts with the number of sample/haplotypes for that partition, followed with
 that number of entries for the sample_hap_t. There should be N partitions.
 The next N items (if present) are the sequences of the Path_traversal_t's. These can be distinguished from the haplotype partitions because they can only contain A/C/G/T/N, or may be empty
@@ -341,14 +341,14 @@ void SnarlDataCollection::save(const std::string& filename) {
                   << snarl_data.depth << "\t"
                   << snarl_data.variant_type << "\t";
 
-        // Next, always include the paths as a single comma-separated string
-        stoat::vectorPathToString(snarl_to_paths[snarl_data.start_node]);
+        // Next, always include the walks as a single comma-separated string
+        stoat::vectorPathToString(snarl_to_walks[snarl_data.start_node]);
 
         // Next add the partitions, if there are any
         // Each partition is saved as the number of items in it then the items
         if (!snarl_to_partitions.empty()) {
             #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(snarl_to_paths[snarl_data.start_node].size() == snarl_to_partitions[snarl_data.start_node].size());
+            assert(snarl_to_walks[snarl_data.start_node].size() == snarl_to_partitions[snarl_data.start_node].size());
             #endif
             for (const std::set<size_t>& partition : snarl_to_partitions[snarl_data.start_node]){
                 cerr << partition.size() << "\t";
@@ -361,7 +361,7 @@ void SnarlDataCollection::save(const std::string& filename) {
         // Add the sequences, if any, as comma separated strings
         if (!snarl_to_sequences.empty()) {
             #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(snarl_to_paths[snarl_data.start_node].size() == snarl_to_sequences[snarl_data.start_node].size());
+            assert(snarl_to_walks[snarl_data.start_node].size() == snarl_to_sequences[snarl_data.start_node].size());
             #endif
             for (const std::string& seq : snarl_to_sequences[snarl_data.start_node]){
                 cerr << seq << ",";
@@ -475,8 +475,8 @@ void SnarlDataCollection::load(const std::string& filename, const handlegraph::P
 
         // Next are the paths, all as one comma-separated string
         std::getline(linestream, part, '\t');
-        snarl_to_paths[all_snarl_data.back().start_node] = stoat::stringToVectorPath(part);
-        size_t path_count = snarl_to_paths[all_snarl_data.back().start_node].size();
+        snarl_to_walks[all_snarl_data.back().start_node] = stoat::stringToVectorPath(part);
+        size_t walk_count = snarl_to_walks[all_snarl_data.back().start_node].size();
 
         // This may be the end, or there may be partitions and/or sequences
         bool keep_going = std::getline(linestream, part, '\t');
@@ -488,7 +488,7 @@ void SnarlDataCollection::load(const std::string& filename, const handlegraph::P
             // If the next thing isn't a sequence then we need to get the partitions next
             std::vector<std::set<size_t>> partitions;
 
-            for (size_t i = 0 ; i < path_count ; i++) {
+            for (size_t i = 0 ; i < walk_count ; i++) {
 
                 partitions.emplace_back();
                 
@@ -505,7 +505,7 @@ void SnarlDataCollection::load(const std::string& filename, const handlegraph::P
             }
 
             #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(partitions.size() == path_count);
+            assert(partitions.size() == walk_count);
             #endif
 
             snarl_to_partitions[all_snarl_data.back().start_node] = std::move(partitions);
@@ -520,7 +520,7 @@ void SnarlDataCollection::load(const std::string& filename, const handlegraph::P
                 sequences.emplace_back(seq);
             }
             #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(sequences.size() == path_count);
+            assert(sequences.size() == walk_count);
             #endif
 
             snarl_to_sequences[all_snarl_data.back().start_node] = std::move(sequences);
