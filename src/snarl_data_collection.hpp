@@ -75,9 +75,9 @@ class SnarlDataCollection {
         /// If partition_requested is true, then call find_sample_partitions and save the output partitions.
         /// If sequence_requested is true, then find the sequence of each walk 
         SnarlDataCollection(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                            size_t snarl_length_limit, size_t snarl_child_limit, 
+                            size_t allele_size_limit, size_t snarl_child_limit, 
                             bool partition_requested,
-                            const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl, const std::vector<Path_traversal_t>& paths)>& find_sample_partitions, 
+                            const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl, const std::vector<Path_traversal_t>& paths)>& find_sample_partitions,
                             bool sequence_requested);
 
         
@@ -97,10 +97,11 @@ class SnarlDataCollection {
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(const snarl_data_t& snarl_info)>& iteratee) const;
 
-        /// Write the collection of snarls (as map from reference chromosome name to the snarl data on that path) to the given file
+        /// Write the collection of snarls to the given file
         void write_snarl_data_collection(const string& filename) const;
         
-        /// Load the collection of snarls (as map from reference chromosome name to the snarl data on that path) from the given file
+        /// Load the collection of snarls from the given file
+        /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
         void load_snarl_data_collection(const string& filename); 
 
     //////////////////////////////////////////// Private data members
@@ -128,7 +129,8 @@ class SnarlDataCollection {
             std::string variant_type;
 
         };
-        //////////////// The stuff holding the data 
+
+        //////////////////////////// The stuff holding the data 
 
         /// This holds the snarl data as a map from the chromosome name to the data
         //TODO: Make sure that this gets the chr name the way Matis did it
@@ -138,7 +140,7 @@ class SnarlDataCollection {
 
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the paths through the snarl.
-        std::unordered_map<stoat::Node_traversal_t, std::vector<Path_traversal_t> snarl_to_paths;
+        std::unordered_map<stoat::Node_traversal_t, std::vector<Path_traversal_t>> snarl_to_paths;
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the partitions.
         /// The vector follows the vector of paths in snarl_to_paths, meaning that each set in snarl_to_partitions
@@ -150,6 +152,7 @@ class SnarlDataCollection {
         /// Each string in the vector is the sequence for the path in the corresponding vector in snarl_to_paths. 
         std::unordered_map<stoat::Node_traversal_t, std::vector<std::string>> snarl_to_sequences;
 
+
         ///////////////// Lists of strings and stuff that are stored as indexes in the real data structures instead of duplicating them a bunch
 
         /// The string representations of reference paths
@@ -158,6 +161,19 @@ class SnarlDataCollection {
 
         /// This stores all sample_hap_t's that are stored as indexes by snarl_to_partitions
         vector<sample_hap_t> sample_haplotypes;
+
+
+        //////////////////////////// Extra housekeeping stuff
+
+        /// This goes at the beginning of the file to ensure that it is the right file type and version
+        inline const static std::string file_header = "#SNARL_DATA_v1.0";
+
+        /// Skip snarls if their maximum length is smaller than this
+        size_t allele_size_limit;
+
+        /// Skip snarls if they have more children than this
+        size_t snarl_child_limit;
+
 
     
 };
