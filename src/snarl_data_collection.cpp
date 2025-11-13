@@ -9,10 +9,14 @@ namespace stoat {
 
 // Constructor
 SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                    size_t allele_size_limit, size_t snarl_child_limit,
+                    size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit,
                     bool partition_requested,
                     const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl, const std::vector<Path_traversal_t>& paths)>& find_sample_partitions,
-                    bool sequence_requested) {:
+                    bool sequence_requested) :
+                    allele_size_limit(allele_size_limit),
+                    snarl_child_limit(snarl_child_limit),
+                    walk_cycle_limit(walk_cycle_limit),
+                    walk_steps_limit(walk_steps_limit) {
     
     check_distances = distance_index == nullptr ? false : distance_index->has_distances()
 
@@ -111,7 +115,7 @@ SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGr
                             }
 
                             // Get the paths through the snarl
-                            std::vector<stoat::Path_traversal_t> snarl_paths = get_snarl_paths(graph, distance_index, snarl);
+                            std::vector<stoat::Path_traversal_t> snarl_paths = get_walks_through_snarl(graph, distance_index, snarl);
 
     
                             // Now get the partitions
@@ -160,7 +164,11 @@ SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGr
     #endif
 }
 
-std::vector<stoat::Path_traversal_t> SnarlDataCollection::get_snarl_paths(graph, distance_index, snarl) {
+std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> SnarlDataCollection::get_walks_through_snarl(graph, distance_index, snarl) {
+
+    // The final list of paths to return
+    std::vector<stoat::Path_traversal_t> path_traversals;
+
     // Path exploration
     std::vector<std::vector<handlegraph::net_handle_t>> paths = {
         {distance_index.get_bound(snarl, false, true)}
@@ -168,9 +176,13 @@ std::vector<stoat::Path_traversal_t> SnarlDataCollection::get_snarl_paths(graph,
     
     std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;
     
-    size_t itr = 0;
+    // How many steps have we taken trying to enumerate paths? Includes all all paths
+    size_t steps_taken = 0;
+
     bool break_snarl = false;
     
+    // For each incomplete path in paths, walk out from the end and add a copy of the path plus each next step to paths
+    // Do this until the path reaches the end
     while (!paths.empty()) {
         std::vector<handlegraph::net_handle_t> path = std::move(paths.back());
         paths.pop_back();
@@ -179,61 +191,57 @@ std::vector<stoat::Path_traversal_t> SnarlDataCollection::get_snarl_paths(graph,
         bool cycle = false;
     
         for (const auto& net : path) {
-            if (++dict_path_occ[net] > cycle_threshold + 1) {
+            if (++dict_path_occ[net] > walk_cycle_limit + 1) {
                 cycle = true;
                 break;
             }
         }
     
-        if (itr++ > path_length_threshold) {
+        if (steps_taken++ > walk_steps_limit) {
             #pragma omp critical(out_fail)
             out_fail << snarl_id_str << "\titeration_calculation_out = " << children << " children\n";
             break_snarl = true;
-            paths_fail++;
             break;
         }
-    
-        follow_edges(distance_index, finished_paths, path, paths, graph, cycle);
+
+        // Follow edges from the last element in path
+        if (!path.empty()) {
+            distance_index.follow_net_edges(path.back(), &graph, false, [&](const handlegraph::net_handle_t& next_child) {
+                // If this is the bound of the snarl then we're done
+                if (distance_index.is_sentinel(next_child)) {
+
+                    size_t next_child_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(next_child));
+                    size_t first_element_path_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(path[0]));
+
+                    // Only keep the walk if it entered and exited the snarl at opposite sides
+                    if (next_child_node_id != first_element_path_node_id) {
+                        finished_paths.emplace_back(path);
+                        finished_paths.back().push_back(next_child);
+                    }
+            
+                } else {
+                    //TODO: Look for the cycle sooner
+            
+                    if (cycle) { // Case where we find a loop
+                        return false;
+                    }
+                    paths.emplace_back(path);
+                    paths.back().push_back(next_child);
+                }
+                return true;
+            };
+        }
     }
     
-    if (break_snarl) {continue;}
+    if (break_snarl) {
+        finished_paths.clear();
+    }
     
-    auto [pretty_paths, type_variants] = fill_pretty_paths(distance_index, graph, finished_paths);
+    // Transform the paths into the format we want
+    return fill_pretty_paths(distance_index, graph, finished_paths);
     
-    if (pretty_paths.size() < 2) {
-        snarl_fail++;
-        continue;
-    } // avoid special case single path
-
-    const std::string& chr = std::get<1>(snarl_path_pos);
-    if (chr.empty()) {continue;}
-
-    size_t start_pos = std::get<2>(snarl_path_pos);
-    size_t end_pos = std::get<3>(snarl_path_pos);
-    size_t depth = distance_index.get_depth(snarl);
-    std::string str_reference = std::get<4>(snarl_path_pos) ? "1" : "0";
-
-    // Output result
-    #pragma omp critical(out_snarl)
-    out_snarl << chr << "\t"
-                << start_pos << "\t"
-                << end_pos << "\t"
-                << handlegraph::as_integer(snarl) << "\t"
-                << snarl_id_str << "\t"
-                << vectorPathToString(pretty_paths) << "\t"
-                << stoat::vectorToString(type_variants) << "\t"
-                << str_reference << "\t"
-                << depth << "\n";
-    Snarl_data_t snarl_path(snarl, snarl_id, pretty_paths, start_pos, end_pos, type_variants, depth);
-
-    #pragma omp critical(chr_snarl_matrix)
-    chr_snarl_matrix[chr].emplace_back(std::move(snarl_path));
-
-    paths_number_analysis += pretty_paths.size();
 }
 
-
-}
 
 bool SnarlDataCollection::snarl_is_eligible(const handlegraph::net_handle_t& snarl) const {
     bool pass = true;

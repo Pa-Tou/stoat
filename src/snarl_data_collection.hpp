@@ -177,11 +177,19 @@ class SnarlDataCollection {
         /// Skip snarls if they have more children than this
         size_t snarl_child_limit;
 
+        /// Don't include walks that have more than this many cycles
+        size_t walk_cycle_limit;
+
+        /// Don't include snarls if enumerating all its walks takes more than this many steps
+        size_t walk_steps_limit;
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////// Private functions
     private:
-        std::vector<stoat::Path_traversal_t> get_snarl_paths(graph, distance_index, snarl) const;
+
+        // Given a snarl, enumerate the walks going through the snarl and get the variant_type string 
+        std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> get_walks_through_snarl(graph, distance_index, snarl) const;
     
 };
 }
