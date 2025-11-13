@@ -36,7 +36,7 @@ class SnarlDataCollection {
     
             // Constructor from elements
             snarl_data_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
-                         size_t start_position, size_t end_position, size_t depth, const std::string& variant_type, 
+                         size_t start_position, size_t end_position, size_t depth, const std::vector<std::string>& variant_type, 
                          const std::vector<Path_traversal_t>& snarl_walks, const std::vector<std::set<sample_hap_t>>& partitions, 
                          const std::vector<std::string>& sequences) :
 
@@ -55,8 +55,8 @@ class SnarlDataCollection {
             size_t end_position;
             size_t depth;
 
-            // The "variant type" of the snarl, which represents the min/max length (or 0 for a deletion) of each walk in snarl_walks
-            const std::string& variant_type;
+            // The "variant type" of the snarl, which represents the length (0 for a deletion) or min/max length of each walk in snarl_walks
+            const std::vector<std::string>& variant_type;
  
             // All possible walks through the snarl
             const std::vector<Path_traversal_t>& snarl_walks;
@@ -77,7 +77,7 @@ class SnarlDataCollection {
         /// If partition_requested is true, then call find_sample_partitions and save the output partitions.
         /// If sequence_requested is true, then find the sequence of each walk 
         SnarlDataCollection(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                            size_t allele_size_limit, size_t snarl_child_limit, 
+                            size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit, 
                             bool partition_requested,
                             const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl)>& find_sample_partitions,
                             bool sequence_requested);
@@ -190,6 +190,12 @@ class SnarlDataCollection {
 
         // Given a snarl, enumerate the walks going through the snarl and get the variant_type string 
         std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> get_walks_through_snarl(graph, distance_index, snarl) const;
+
+        // Given the partitions of haplotype paths in a snarl, find the walks as Path_traversal_t's, the variant_type (walk lengths as length or min/max per walk), 
+        //and the sequences corresponding to each partition.
+        std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>, std::vector<std::string>> SnarlDataCollection::get_walks_and_sequences_from_partitions(
+                const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const net_handle_t& snarl,
+                const std::vector<std::set<sample_hap_t>>& sample_partitions, bool sequence_requested) const; 
     
 };
 }
