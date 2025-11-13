@@ -2,15 +2,9 @@
 
 #include "../../src/quantitative_table.hpp"
 #include "../../src/stats_test.hpp"
-#include "../../src/arg_parser.hpp"  // Qtl_data
+#include "../../src/arg_parser.hpp"
 
 using namespace stoat_vcf;
-
-TEST_CASE("Quantitative table creation") {
-    SECTION("Creation 1") {
-
-    }
-}
 
 TEST_CASE("Quantitative table modification") {
     SECTION("Remove empty columns quantitative table") {
@@ -101,6 +95,82 @@ TEST_CASE("Quantitative table modification") {
             {0}
         };
         REQUIRE(df == df_expected);
+    }
+}
+
+TEST_CASE("Logistic Regression") {
+     SECTION("Logistic Regression 1 path - Perfect Relationship") {
+
+        std::vector<std::vector<double>> df = {
+            {0.5},
+            {1},
+            {0.5}
+        };
+
+        std::vector<bool> binary_phenotype = {0, 1, 0};
+        std::vector<std::vector<double>> covar;  // No covariates
+
+        stoat::LogisticRegression lr;
+        auto [p_value, beta, se] = lr.logistic_regression(df, binary_phenotype, covar);
+
+        INFO("p_value = " << p_value);
+        INFO("beta = " << beta);
+        INFO("se = " << se);
+
+        REQUIRE(std::stod(p_value) == 0.5038);
+        REQUIRE(std::stod(beta) == 21.41);
+        REQUIRE(std::stod(se) == 32.02);
+    }
+
+    SECTION("Logistic Regression 2 paths - Moderate") {
+
+        std::vector<std::vector<double>> df = {
+            {0.5, 0},
+            {0, 0.5},
+            {1, 0},
+            {0, 1},
+            {0, 0.5}
+        };
+
+        std::vector<bool> binary_phenotype = {0, 1, 0, 1, 1};
+        std::vector<std::vector<double>> covar;
+        
+        stoat::LogisticRegression lr;
+        auto [p_value, beta, se] = lr.logistic_regression(df, binary_phenotype, covar);
+
+        INFO("p_value = " << p_value);
+        INFO("beta = " << beta);
+        INFO("se = " << se);
+
+        REQUIRE(std::stod(p_value) == 0.8601);
+        REQUIRE(std::stod(beta) == -12.58);
+        REQUIRE(std::stod(se) == 71.38);
+
+    }
+
+    SECTION("Logistic Regression 3 paths - Moderate") {
+
+        std::vector<std::vector<double>> df = {
+            {0, 0.5, 0.5},
+            {0.5, 0, 0},
+            {0.25, 0.5, 0},
+            {0.5, 0, 0},
+            {0.333333, 0.333333, 0}
+        };
+
+        std::vector<bool> binary_phenotype = {0, 1, 0, 1, 1};
+        std::vector<std::vector<double>> covar;
+        
+        stoat::LogisticRegression lr;
+        auto [p_value, beta, se] = lr.logistic_regression(df, binary_phenotype, covar);
+
+        INFO("p_value = " << p_value);
+        INFO("beta = " << beta);
+        INFO("se = " << se);
+
+        REQUIRE(std::stod(p_value) == 0.7973);
+        REQUIRE(std::stod(beta) == 21.47);
+        REQUIRE(std::stod(se) == 83.62);
     }
 }
 

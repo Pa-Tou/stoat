@@ -390,7 +390,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         if (!covariate.empty()){
             // Binary covariate
             snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));
-            phenotype_type = stoat::BINARY_COVAR; // need it in the BH adjusted
+            phenotype_type = stoat::BINARY_COVAR;
         } else {
             // Binary without covariate
             snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));

@@ -296,7 +296,7 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
         }
 
         // Binary phenotype
-        // y(i) = phenotype[i] ? 1.0 : 0.0;
+        y(i) = phenotype[i] ? 1.0 : 0.0;
     }
 
     Eigen::VectorXd beta = Eigen::VectorXd::Zero(num_features);
