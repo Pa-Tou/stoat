@@ -6,6 +6,171 @@
 using namespace std;
 namespace stoat {
 
+
+// Constructor
+SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                    size_t allele_size_limit, size_t snarl_child_limit,
+                    bool partition_requested,
+                    const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl, const std::vector<Path_traversal_t>& paths)>& find_sample_partitions,
+                    bool sequence_requested) {:
+    
+    check_distances = distance_index == nullptr ? false : distance_index->has_distances()
+
+    // Get a list of all chains in root
+    std::vector<handlegraph::net_handle_t> chains;
+    chains.reserve(50);
+    handlegraph::net_handle_t root = distance_index->get_root();
+    distance_index->for_each_child(root, [&] (handlegraph::net_handle_t chain) {
+        chains.emplace_back(chain);
+        return true;
+    });
+
+    // Count the number of chains that we added and the number of chains that we actually process,
+    // as a way of debugging the parallelization. Not in ifdef because it needs to go in the omp parallel shared
+    size_t chains_added = chains.size();
+    size_t chains_processed = 0;
+
+    bool keep_going = !chains.empty();
+
+    // Keep track of which references we've seen and their index in reference_names
+    std::unordered_map<std::string, size_t> reference_name_to_index;
+    
+    // Go through the contents of chains in parallel
+    // Everything touching chains needs to be in an omp critical block so they don't collide. 
+    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_paths, snarl_to_partitions, snarl_to_sequences, reference_names, sample_haplotypes)
+    {
+        // The actual while loop is run on a single thread
+        #pragma omp single
+        {
+            while (keep_going) {
+                handlegraph::net_handle_t chain;
+                #pragma omp critical(chain_loop)
+                {
+                chain = chains.back();
+                chains.pop_back();
+                #ifdef DEBUG_SNARL_DATA_COLLECTION
+                chains_processed++;
+                #endif
+                }
+    
+                // Everything in here is parallelized
+                #pragma omp task
+                {
+                    
+                    distance_index->for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
+                    
+                        //TODO: Actually use is_eligible
+                        //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
+                        if (distance_index->is_snarl(snarl) && snarl_is_eligible(snarl)) {
+    
+                            #ifdef DEBUG_SNARL_DATA_COLLECTION
+                            cerr << "Test snarl " << distance_index->net_handle_as_string(snarl) << endl;
+                            #endif
+
+                            // Make the snarl_data_internal_t to fill in. Since it's multithreaded its better to move() it instead of adding it here
+                            snarl_data_internal_t snarl_data;
+
+                            // Get the start and end nodes
+                            // Do it through the graph because it's a pain to get the orientation from the distance index
+                            handlegraph::handle_t start_in = distance_index.get_handle(distance_index.get_bound(snarl, false, true), &graph);
+                            handlegraph::handle_t end_in = distance_index.get_handle(distance_index.get_bound(snarl, true, true), &graph);
+
+                            snarl_data.start_node = stoat::Node_traversal_t(graph.get_id(start_in),
+                                                                            graph.get_is_reverse(start_in));
+                            snarl_data.end_node = stoat::Node_traversal_t(graph.get_id(end_in),
+                                                                            graph.get_is_reverse(end_in));
+
+                            // Add the depth of the snarl
+                            snarl_data.depth = distance_index.get_depth(snarl);
+    
+    
+                            // Get the offsets of the start and end nodes along the reference
+                            std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
+                            if (ranges.size() != 0) {
+                                // Check if we have already seen the reference path and if not add it
+                                size_t ref_index;
+
+                                auto reference_range = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
+                                snarl_data.start_position = std::get<1>(reference_range);
+                                snarl_data.end_position = std::get<2>(reference_range);
+                                #pragma omp critical(chain_loop)
+                                {
+                                    if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
+                                        ref_index = reference_names.size();
+                                        reference_name_to_index[std::get<0>(reference_range)] = ref_index;
+                                        reference_names.emplace_back(std::move(std::get<0>(reference_range)));
+                                    } else {
+                                        ref_index = reference_name_to_index[std::get<0>(reference_range)];
+                                    }
+                                }
+
+                            } else {
+                                snarl_data.start_position = 0;
+                                snarl_data.end_position = 0;
+                                snarl_data.ref_index = std::numeric_limits<size_t>::max();
+                            }
+
+                            // Get the paths through the snarl
+
+    
+                            // Now get the partitions
+                            snarl_info.partitions = partition_samples_in_snarl(graph, snarl);
+    
+                               #pragma omp critical(chain_loop)
+                            {
+   
+                                // Add the child chains to the stack
+                                distance_index->for_each_child(snarl, [&] (handlegraph::net_handle_t child) {
+    
+                                    chains.emplace_back(child);
+                                    #ifdef DEBUG_SNARL_DATA_COLLECTION
+                                    chains_added++;
+                                    #endif
+                                    return true;
+                                });
+                            }
+    
+                        }
+                        return true;
+                    }); //end for each child
+                }// end omp task
+                #pragma omp critical(chain_loop)
+                {
+                    keep_going = !chains.empty();
+                }
+    
+                if (!keep_going) {
+                    // Wait for tasks to complete
+                    #pragma omp taskwait
+    
+                    #pragma omp critical(chain_loop)
+                    {
+                        // Check again if we're done or not
+                        keep_going = !chains.empty();
+                    }
+                }
+            }// end while loop
+        }// End omp single
+    }//end omp shared
+    
+    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
+    assert(chains_added == chains_processed);
+    #endif
+}
+
+bool SnarlDataCollection::snarl_is_eligible(const handlegraph::net_handle_t& snarl) const {
+    if (!check_distances) {
+        // If the distance index doesn't let us check distances, just return true
+        return true;
+    } else {
+        return distance_index->maximum_length(snarl) >= allele_size_limit;
+    }
+}
+
+
+
+
 /////////////////////////////////////////// Writing/reading the snarl data
 /*
 This needs to hold snarl_data_internal_t's which contain:
@@ -18,7 +183,7 @@ This needs to hold snarl_data_internal_t's which contain:
 - size_t depth;
 - string variant_type;
 
-Each snarl will also contain a vector of Path_traversal_t's, (optionally) a vector of haplotypes that take each Path_traversal_t, 
+Each snarl will also contain a vector of Path_traversal_t's, (optionally) a vector of sets of haplotypes that take each Path_traversal_t, 
 and (optionally) the sequences of each Path_traversal_t
 
 
@@ -272,3 +437,4 @@ void SnarlDataCollection::load(const std::string& filename, const handlegraph::P
     return;
 }
 }
+
