@@ -1,9 +1,8 @@
 .docker/
-.vscode/*
+.vscode
 .Rproj.user
 build/*
 output*
 bin/*
 plot_script/.Rdata
 *~
-data/quantitative/merged_output.vcf.gz

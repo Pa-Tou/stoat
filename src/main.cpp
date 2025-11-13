@@ -94,6 +94,9 @@ int main(int argc, char* argv[]) {
 // BINARY + COVARIATE
 // ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --covariate ../data/binary/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_binary_covar
 
+// BINARY + VCF
+// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --make-genotype vcf --output ../output_binary
+
 // QUANTITATIVE
 // ./stoat vcf -g ../data/quantitative/pg.full.pg -d ../data/quantitative/pg.full.dist -r ../data/quantitative/pg.chromosome -v ../data/quantitative/merged_output.vcf.gz -q ../data/quantitative/phenotype.tsv --output ../output_quantitative
 

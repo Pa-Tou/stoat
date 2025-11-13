@@ -136,7 +136,7 @@ bool run_test_full(
 TEST_CASE("Snarl decomposition", "[snarl]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_snarl";
-    const std::string expected_dir = "../tests/expected_output/vcf/snarl";
+    const std::string expected_dir = "../tests/expected_output/vcf/output_snarl";
     const std::string data_path = "../data/binary";
 
     SECTION("Binary decomposition") {
@@ -147,8 +147,8 @@ TEST_CASE("Snarl decomposition", "[snarl]") {
 TEST_CASE("Binary association tests vcf", "[binary]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_binary";
-    const std::string expected_dir = "../tests/expected_output/vcf/binary";
-    const std::string expected_dir_covar = "../tests/expected_output/vcf/binary_covar";
+    const std::string expected_dir = "../tests/expected_output/vcf/output_binary";
+    const std::string expected_dir_covar = "../tests/expected_output/vcf/output_binary_covar";
     const std::string data_path = "../data/binary";
     const std::string phenotype = "binary";
 
@@ -164,8 +164,8 @@ TEST_CASE("Binary association tests vcf", "[binary]") {
 TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_quantitative";
-    const std::string expected_dir = "../tests/expected_output/vcf/quantitative";
-    const std::string expected_dir_covar = "../tests/expected_output/vcf/quantitative_covar";
+    const std::string expected_dir = "../tests/expected_output/vcf/output_quantitative";
+    const std::string expected_dir_covar = "../tests/expected_output/vcf/output_quantitative_covar";
     const std::string data_path = "../data/quantitative";
     const std::string phenotype = "quantitative";
 
@@ -181,8 +181,8 @@ TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
 TEST_CASE("eQTL tests vcf", "[eqtl]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_eqtl";
-    const std::string expected_dir = "../tests/expected_output/vcf/eqtl";
-    const std::string expected_dir_covar = "../tests/expected_output/vcf/eqtl_covar";
+    const std::string expected_dir = "../tests/expected_output/vcf/output_eqtl";
+    const std::string expected_dir_covar = "../tests/expected_output/vcf/output_eqtl_covar";
     const std::string data_path = "../data/eqtl";
     const std::string phenotype = "eqtl";
 

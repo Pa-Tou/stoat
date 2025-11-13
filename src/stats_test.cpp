@@ -1,7 +1,7 @@
 #include "stats_test.hpp"
 
-using boost::multiprecision::cpp_dec_float_50;
-using boost::math::chi_squared_distribution;
+// using boost::multiprecision::cpp_dec_float_50;
+// using boost::math::chi_squared_distribution;
 
 // Fisher's Exact Test for 2x2 contingency table
 #ifndef DBL_MAX
@@ -242,12 +242,6 @@ bool filtration_binary_table(
 
 // ------------------------ Logistic regression ------------------------
 
-// Standard normal cumulative distribution function
-double LogisticRegression::normal_cdf(double z) {
-    static const boost::math::normal_distribution<> standard_normal(0.0, 1.0);
-    return boost::math::cdf(standard_normal, z);
-}
-
 // Sigmoid function
 inline double LogisticRegression::sigmoid(double x) {
     return 1.0 / (1.0 + std::exp(-x));
@@ -279,10 +273,10 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
     size_t num_variants = df[0].size();
     size_t num_covariates = 0;
     size_t num_features = num_variants + 1; // +1 for intercept
-    
+
     if (!covariates.empty()) {
-        size_t num_covariates = covariates[0].size();
-        size_t num_features =  num_variants + num_covariates + 1; // +1 for intercept
+        num_covariates = covariates[0].size();
+        num_features = num_variants + num_covariates + 1; // +1 for intercept
     }
 
     Eigen::MatrixXd X(num_samples, num_features);
@@ -362,21 +356,27 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
     // --- Wald Test (Normal approximation)
     std::vector<double> p_values;
     p_values.reserve(num_features - 1 - num_covariates);
-    for (size_t i = 1; i < num_features - num_covariates; ++i) { // skip intercept
-        double z_score = beta(i) / se(i);
-        p_values.push_back(2.0 * (1.0 - normal_cdf(std::abs(z_score)))); // Two-sided
-    }
+    for (size_t i = 1; i < num_features - num_covariates; ++i) {
 
-    // --- McFadden's R²
-    // double ll_full = calculate_log_likelihood(y, p);
-    // double p_null_val = clamp(y.mean(), epsilon, 1.0 - epsilon);
-    // Eigen::VectorXd p_null = Eigen::VectorXd::Constant(num_samples, p_null_val);
-    // double ll_null = calculate_log_likelihood(y, p_null);
-    // double r2 = 0.0;
-    // if (ll_null != 0.0) {
-    //     r2 = 1.0 - (ll_full / ll_null);
-    //     r2 = std::min(std::max(r2, 0.0), 1.0);  // clamp between 0 and 1
-    // }
+        const double z_score = beta(i) / se(i);
+
+        // --- Fast path (double precision) ---
+        const boost::math::normal_distribution<double> standard_normal(0.0, 1.0);
+        double p_value = 2.0 * (1.0 - boost::math::cdf(standard_normal, std::fabs(z_score)));
+
+        // --- Handle very significant (underflow) cases ---
+        if (p_value == 0.0 || !std::isfinite(p_value)) {
+
+            const boost::multiprecision::cpp_dec_float_50 z_hp = std::fabs(z_score);
+            const boost::math::normal_distribution<boost::multiprecision::cpp_dec_float_50> standard_normal_hp(0.0, 1.0);
+            boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(2) * (boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(standard_normal_hp, z_hp));
+
+            // convert to double (or keep string, depending on your output format)
+            p_values.push_back(p_hp.convert_to<double>());
+        } else {
+            p_values.push_back(p_value);
+        }
+    }
 
     double p_value_adjusted = p_values[0];
     double beta_adjusted = beta(1);
@@ -424,12 +424,25 @@ std::string FisherKhi2::chi2_2x2(const size_t& a, const size_t& b, const size_t&
     chi2_stat += std::pow((double)c - expected_c, 2) / expected_c;
     chi2_stat += std::pow((double)d - expected_d, 2) / expected_d;
 
-    if (chi2_stat > 85.0) {
-        cpp_dec_float_50 chi2_stat_float_50 = chi2_stat;
-        cpp_dec_float_50 pval = 1.0 - boost::math::cdf(cpp_dec_float_50_dist, chi2_stat_float_50);
-        return stoat::set_precision_float_50(pval.convert_to<double>());
+    // Degrees of freedom for 2×2 table
+    int df = 1;
+
+    // --- Compute p-value (double first) ---
+    boost::math::chi_squared_distribution<double> dist(df);
+    double p_value = 1.0 - boost::math::cdf(dist, chi2_stat);
+
+    if (p_value == 0.0 || !std::isfinite(p_value)) {
+
+        // Recompute in high precision if underflow occurs
+        boost::multiprecision::cpp_dec_float_50 chi2_hp = chi2_stat;
+        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
+
+        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
+        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
+        return stoat::set_precision_float_50(p_hp);
     }
-    return stoat::set_precision(1.0 - boost::math::cdf(chi_squared_dist, chi2_stat));
+
+    return stoat::set_precision(p_value);
 }
 
 // Check if the observed matrix is valid (no zero rows/columns)
@@ -466,16 +479,23 @@ std::string FisherKhi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
     }
 
     size_t df = cols - 1;
-    if (chi2 > 85.0) { // avoiding case 0.000+00 precision
-        cpp_dec_float_50 chi2_stat_float_50 = chi2;
-        boost::math::chi_squared_distribution<cpp_dec_float_50> cpp_dec_float_50_dist_2xN(df);
-        cpp_dec_float_50 p_value = 1.0 - boost::math::cdf(cpp_dec_float_50_dist_2xN, chi2_stat_float_50);
-        return stoat::set_precision_float_50(p_value);
+
+    // --- Fast path: double precision ---
+    boost::math::chi_squared_distribution<double> dist(df);
+    double p_value = 1.0 - boost::math::cdf(dist, chi2);
+
+    // If underflow or invalid, recompute in high precision
+    if (p_value == 0.0 || !std::isfinite(p_value)) {
+
+        boost::multiprecision::cpp_dec_float_50 chi2_hp = chi2;
+        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
+        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
+
+        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
+        return stoat::set_precision_float_50(p_hp);
     }
 
-    boost::math::chi_squared dist_2xN(df);
-    double pvalue = 1.0 - boost::math::cdf(dist_2xN, chi2);
-    return stoat::set_precision(pvalue);
+    return stoat::set_precision(p_value);
 }
 
 // ------------------------ Fisher exact test ------------------------
@@ -717,106 +737,110 @@ std::vector<std::vector<double>> LinearRegression::inverse(
     return I;
 }
 
-std::tuple<std::string, std::string, std::string, std::string> LinearRegression::linear_regression(
+// Performs linear regression and F-test for predictors only
+std::tuple<std::string, std::string> LinearRegression::linear_regression(
     const std::vector<std::vector<double>>& X_raw,
     const std::vector<double>& y,
     const std::vector<std::vector<double>>& covariates) {
 
-    int n = X_raw.size();
-    int num_variants = X_raw[0].size();
-    int num_covariates = covariates.empty() ? 0 : covariates[0].size();
-    int num_features = 1 + num_variants + num_covariates; // intercept + variants + covariates
+    int num_samples = X_raw.size();                                     // number of observations
+    int num_predictors = X_raw[0].size();                               // number of predictors
+    int num_covariates = covariates.empty() ? 0 : covariates[0].size(); // number of covariates
 
-    // Build design matrix with intercept, X_raw, and covariates
-    std::vector<std::vector<double>> X(n, std::vector<double>(num_features, 1.0));
-    for (int i = 0; i < n; ++i) {
-        int col = 1;
-        for (int j = 0; j < num_variants; ++j)
-            X[i][col++] = X_raw[i][j];
-        for (int j = 0; j < num_covariates; ++j)
-            X[i][col++] = covariates[i][j];
+    // ---- FULL MODEL ----
+    int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
+    std::vector<std::vector<double>> X_full(num_samples, std::vector<double>(num_params_full, 1.0));
+
+    for (int i = 0; i < num_samples; ++i) {
+        // Copy predictor variables
+        std::copy(X_raw[i].begin(), X_raw[i].end(), X_full[i].begin() + 1);
+
+        // Copy covariates if present
+        if (num_covariates > 0) {
+            std::copy(covariates[i].begin(), covariates[i].end(), X_full[i].begin() + 1 + num_predictors);
+        }
     }
 
-    // OLS computations
-    auto Xt = transpose(X);
-    auto XtX = matmul(Xt, X);
-    auto XtX_inv = inverse(XtX);
+    // ---- Fit FULL model ----
+    auto Xt = transpose(X_full);
+    auto XtX = matmul(Xt, X_full);
+    auto XtXi = inverse(XtX);
     auto Xty = matvec(Xt, y);
+    auto beta = matvec(XtXi, Xty);
+    auto y_hat = matvec(X_full, beta);
 
-    std::vector<double> beta(num_features, 0.0);
-    for (int i = 0; i < num_features; ++i)
-        for (int j = 0; j < num_features; ++j)
-            beta[i] += XtX_inv[i][j] * Xty[j];
+    // SSE (Sum of Squared Errors) for full model
+    double SSE_full = 0.0;
+    for (int i = 0; i < num_samples; ++i) {SSE_full += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);}
 
-    std::vector<double> y_hat = matvec(X, beta);
-    double sse = 0.0;
-    for (int i = 0; i < n; ++i)
-        sse += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
+    // ---- Compute R² ----
+    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / num_samples;
+    double SST = 0.0;
+    for (int i = 0; i < num_samples; ++i) {SST += (y[i] - y_mean) * (y[i] - y_mean);}
+    double R2 = 1.0 - SSE_full / SST;
 
-    // Compute mean of y
-    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / y.size();
+    // ---- REDUCED MODEL ----
+    double SSE_reduced = 0.0;
+    if (num_covariates > 0) {
+        // reduced model: intercept + covariates only
+        int num_params_reduced = 1 + num_covariates;
+        std::vector<std::vector<double>> X_reduced(num_samples, std::vector<double>(num_params_reduced, 1.0));
 
-    // Compute SST (total sum of squares)
-    double sst = 0.0;
-    for (int i = 0; i < n; ++i)
-        sst += (y[i] - y_mean) * (y[i] - y_mean);
-
-    // Compute R²
-    double r2 = (sst == 0.0) ? 1.0 : 1.0 - sse / sst;
-
-    double df_resid = (n - num_features > 0) ? n - num_features : 1;
-    double sigma2 = sse / df_resid;
-
-    // --- F-test computation (no p-value, no covariate/intercept) ---
-    // double ssr = sst - sse;  // Regression sum of squares
-    // double msr = ssr / num_variants;
-    // double mse = sse / df_resid;
-    // double f_stat = msr / mse;
-    // boost::math::fisher_f dist(num_variants, df_resid);
-    // double p_value = 1 - boost::math::cdf(dist, f_stat);
-
-    boost::math::students_t dist(df_resid);
-    std::vector<double> p_values_vector(num_variants, 0.0);
-    std::vector<double> beta_vector(num_variants, 0.0);
-    std::vector<double> se_vector(num_variants, 0.0);
-
-    for (int i = 1; i < num_variants+1; ++i) {
-        double safe_diagonal = XtX_inv[i][i] > 0 ? XtX_inv[i][i] : 0.0;
-        double se = std::sqrt(sigma2 * safe_diagonal);
-        double t_stat = beta[i] / se;
-        double pval;
-
-        if (std::isnan(t_stat) || std::isinf(t_stat)) { // Special case
-            pval = 1.0; // Assign a high p-value for invalid t-statistics
-            LOG_DEBUG("Invalid t-statistic encountered");
-        } else {
-            pval = 2 * boost::math::cdf(boost::math::complement(dist, std::fabs(t_stat)));
+        for (int i = 0; i < num_samples; ++i) {
+            for (int j = 0; j < num_covariates; ++j) {
+                X_reduced[i][1 + j] = covariates[i][j];
+            }
         }
 
-        // Store results
-        beta_vector[i-1] = beta[i];
-        se_vector[i-1] = se;
-        p_values_vector[i-1] = pval;
+        auto Xt_r = transpose(X_reduced);
+        auto XtX_r = matmul(Xt_r, X_reduced);
+        auto XtXi_r = inverse(XtX_r);
+        auto Xty_r = matvec(Xt_r, y);
+        auto beta_r = matvec(XtXi_r, Xty_r);
+        auto y_hat_r = matvec(X_reduced, beta_r);
+
+        for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_hat_r[i]) * (y[i] - y_hat_r[i]);}
+    } else {
+        // no covariates: reduced model = intercept only
+        for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);}
     }
 
-    double p_value_adjusted = p_values_vector[0];
-    double beta_adjusted = beta_vector[0];
-    double se_adjusted = se_vector[0];
+    // ---- F-statistic ----
+    // Numerator df = number of tested predictors
+    // Denominator df = residual df in full model
+    int df_numerator = num_predictors;
+    int df_denominator = (num_samples - num_params_full) <= 0 ? 1 : num_samples - num_params_full;
 
-    // case more that 2 originaly column/path
-    if (num_variants > 1) {
-        auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values_vector);
-        beta_adjusted = beta_vector[min_index];
-        se_adjusted = se_vector[min_index];
+    // Compute F-statistic:
+    // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]
+    double numerator = (SSE_reduced - SSE_full) / df_numerator;
+    double denominator = SSE_full / df_denominator;
+    double F_stat = numerator / denominator;
+
+    boost::math::fisher_f_distribution<double> dist(df_numerator, df_denominator);
+    double p_value = 1.0 - boost::math::cdf(dist, F_stat);
+
+    std::string p_value_str;
+
+    if (p_value == 0.0 || !std::isfinite(p_value)) {
+
+        // Recompute only if underflow or invalid result
+        const boost::multiprecision::cpp_dec_float_50 F_hp      = F_stat;
+        const boost::multiprecision::cpp_dec_float_50 df_n_hp   = df_numerator;
+        const boost::multiprecision::cpp_dec_float_50 df_d_hp   = df_denominator;
+
+        boost::math::fisher_f_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_n_hp, df_d_hp);
+        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_hp);
+
+        p_value_str = stoat::set_precision_float_50(p_hp);
+    
+    } else {
+        p_value_str = stoat::set_precision(p_value);
     }
 
-    // set precision : 4 digit
-    std::string p_value_str = stoat::set_precision(p_value_adjusted);
-    std::string beta_str = stoat::set_precision(beta_adjusted);
-    std::string se_str = stoat::set_precision(se_adjusted);
-    std::string r2_str = stoat::set_precision(r2);
-
-    return std::make_tuple(p_value_str, beta_str, se_str, r2_str);
+    // Format R² value
+    const std::string r2_str = stoat::set_precision(R2);
+    return std::make_tuple(p_value_str, r2_str);
 }
 
 } // namespace stoat
