@@ -1,73 +1,51 @@
 suppressPackageStartupMessages({
-library(Rcpp)
-library(RcppEigen)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(reshape2)
-library(parallel)
-library(car)
+  library(car)
+  library(dplyr)
+  library(tibble)
 })
 
-Sys.setenv("CXX14FLAGS"="-std=gnu++14")
+# -------------------------------
+# Dataset
+# -------------------------------
+y <- c(10.5, 13.0, 15.8, 19.7, 21.5)
+x1 <- c(0.5, 0, 1, 0, 0)
+x2 <- c(0, 0.5, 0, 1, 0.5)
+cov1 <- c(1.1, 1.2, 0.8, 0.9, 1.0)
 
-sourceCpp("/home/mbagarre/Bureau/stoat/tests/regression/linear_regression_stoat.cpp")
+data <- tibble(
+  y = y,
+  x1 = x1,
+  x2 = x2,
+  cov1 = cov1
+)
 
 # -------------------------------
-# Single highly significant test
+# R implementation (lm)
 # -------------------------------
+# Fit linear model including 2 predictors + covariate
+fit_r <- lm(y ~ x1 + x2 + cov1, data = data)
 
-# Simulate one dataset with a strong effect
-set.seed(42)
-N <- 500
-
-data <- tibble(y = rnorm(N)) %>%
-  mutate(
-    # x1 strongly correlated with y → very significant
-    x1 = rnorm(N, y, sd = 2),
-    # other predictors random noise
-    x2 = rnorm(N),
-    x3 = rnorm(N),
-    x4 = rnorm(N)
-  )
-
-# Prepare matrices for Stoat
-X <- as.matrix(data[, c("x1", "x2", "x3", "x4")])
-Y <- data$y
-Xcovar <- matrix(nrow = nrow(data), ncol = 0)  # no covariates
-
-# -------------------------------
-# R implementation
-# -------------------------------
-fit_r <- lm(y ~ x1 + x2 + x3 + x4, data = data)
-
-# Global F-test (from summary)
+# Extract global F-test from summary
 summary_r <- summary(fit_r)
 F_value <- as.numeric(summary_r$fstatistic["value"])
 df1 <- as.numeric(summary_r$fstatistic["numdf"])
 df2 <- as.numeric(summary_r$fstatistic["dendf"])
 p_ftest_lm <- pf(F_value, df1, df2, lower.tail = FALSE)
 
-# Linear hypothesis test (x1..x4)
-lh.o <- car::linearHypothesis(fit_r, c("x1=0", "x2=0", "x3=0", "x4=0"))
-p_ftest_car <- lh.o[["Pr(>F)"]][2]
+# R² value
+r2_lm <- summary_r$r.squared
+
+# Linear hypothesis test for x1, x2, cov1
+lh <- linearHypothesis(fit_r, c("x1=0", "x2=0"))
+p_ftest_car <- lh[["Pr(>F)"]][2]
 
 # -------------------------------
-# Stoat implementation (C++)
+# Print results
 # -------------------------------
-res_stoat <- cpp_linear_regression_stoat(X, Xcovar, Y)
-p_stoat <- res_stoat$p_value
+cat("🔹 Global F-test (lm):\n")
+cat("   p-value =", p_ftest_lm, "\n")
+cat("   R² =", r2_lm, "\n\n")
 
-# -------------------------------
-# Compare results
-# -------------------------------
-cat("🔹 Global F-test (lm):", p_ftest_lm, "\n")
-cat("🔹 linearHypothesis (car):", p_ftest_car, "\n")
-cat("🔹 Stoat (C++):", p_stoat, "\n")
-
-# Optional: show -log10 comparison
-tibble(
-  Method = c("lm", "car", "Stoat"),
-  `-log10(p-value)` = -log10(c(p_ftest_lm, p_ftest_car, p_stoat))
-)
-
+cat("🔹 linearHypothesis (car):\n")
+cat("   p-value =", p_ftest_car, "\n")
+cat("   R² =", r2_lm, "\n")

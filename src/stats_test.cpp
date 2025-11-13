@@ -779,8 +779,8 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
     // ---- F-statistic ----
     // Numerator df = number of tested predictors
     // Denominator df = residual df in full model
-    int df_numerator = num_predictors;
-    int df_denominator = num_samples - num_params_full;
+    size_t df_numerator = num_predictors;
+    size_t df_denominator = (num_samples - num_params_full) <= 0 ? 1 : num_samples - num_params_full;
 
     // Compute F-statistic:
     // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]

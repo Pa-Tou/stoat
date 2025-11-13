@@ -30,7 +30,7 @@ void print_help_vcf() {
               << "  -b, --binary FILE            Path to the binary phenotype group file\n"
               << "  -q, --quantitative FILE      Path to the quantitative phenotype file\n"
               << "  -e, --eqtl FILE              Path to the Expression Quantitative Trait Loci file\n"
-              << "  -m, --make-vcf               Create a VCF that containt variation present in snarl\n"
+              << "  -m, --make-genotype          Create an genotyping file that containt variation present in snarl (stoat/vcf) [stoat]\n"
               << "  -c, --covariate FILE         Path to the covariate file\n"
               << "  -C, --covar-name NAME        Covariate column name(s) used for GWAS\n"
               << "  -k, --kinship FILE           Path to the kinship matrix file\n"
@@ -45,7 +45,7 @@ void print_help_vcf() {
               << "  -T, --table-threshold FLOAT  P-value threshold for regression table output [disabled]\n"
               << "  -M, --maf FLOAT              Minimum allele frequency threshold [0.05]\n"
               << "  -t, --threads INT            Number of threads to use [1]\n"
-              << "  -V, --verbose INT            Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)\n"
+              << "  -V, --verbose INT            Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output DIR             Output directory name\n"
               << "  -h, --help                   Print this help message\n";
 }
@@ -71,7 +71,8 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     bool gaf = false;
     bool only_snarl_parsing = false;
     bool show_help = false;
-    bool make_vcf = false;
+    bool make_genotype_vcf = false;
+    bool make_genotype_stoat = false;
 
     std::vector<std::string> covar_names;
 
@@ -87,7 +88,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {"binary", required_argument, 0, 'b'},
         {"quantitative", required_argument, 0, 'q'},
         {"eqtl", required_argument, 0, 'e'},
-        {"make-vcf", no_argument, 0, 'm'},
+        {"make-genotype", no_argument, 0, 'm'},
         {"covariate", required_argument, 0, 'c'},
         {"covar-name", required_argument, 0, 'C'},
         {"kinship", required_argument, 0, 'k'},
@@ -107,7 +108,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:k:i:y:l:P:w:T:M:t:V:I:o:Gmh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:k:i:y:l:P:w:T:M:t:V:I:o:m:Gh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -117,7 +118,15 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
             case 'b': binary_path = optarg; phenotype++; stoat_vcf::check_file(binary_path); break;
             case 'q': quantitative_path = optarg; phenotype++; stoat_vcf::check_file(quantitative_path); break;
             case 'e': eqtl_path = optarg; phenotype++; stoat_vcf::check_file(eqtl_path); break;
-            case 'm': make_vcf = true; break;
+            case 'm':
+                if (strcmp(optarg, "vcf") == 0) {
+                    make_genotype_vcf = true;
+                } else if (strcmp(optarg, "stoat") == 0) {
+                    make_genotype_stoat = true;
+                } else {
+                    throw std::runtime_error("Error: [stoat vcf] Only stoat or vcf is available for genotyping output format");
+                }
+                break;
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
             case 'C': {
                 std::stringstream ss(optarg);
@@ -239,9 +248,9 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         //stoat::LOG_TRACE("Case Gwas");
         // Case 1: snarl_path + vcf_path + phenotype
         // Case 2: graph_path + dist_path + vcf_path + phenotype
-    } else if ((!snarl_path.empty() || (!graph_path.empty() && !dist_path.empty())) && !vcf_path.empty() && make_vcf) {
+    } else if ((!snarl_path.empty() || (!graph_path.empty() && !dist_path.empty())) && !vcf_path.empty() && make_genotype_vcf) {
         if (phenotype == 1) {
-            stoat::LOG_WARN("make-vcf arg is provided, the phenotype file will not be parsed");
+            stoat::LOG_WARN("make-genotype arg is provided, the phenotype file will not be parsed");
         }
         // stoat::LOG_TRACE("Case make VCF");
         // Case 3: snarl_path + vcf_path + phenotype
@@ -255,7 +264,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
             "There are only 3 ways to launch stoat vcf:\n" +
             "Case 1 (GWAS only): snarl_path + vcf_path + phenotype (+ optional file)\n" +
             "Case 2 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + phenotype (+ optional file)\n" +
-            "Case 3 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + make-vcf (arg)\n" +
+            "Case 3 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + make-genotype (arg)\n" +
             "Case 4 (snarl path decomposition): graph_path + dist_path"
         );
         print_help_vcf();
@@ -373,7 +382,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     stoat::LOG_INFO("Starting GWAS analysis...");
 
     // Decide which type of SnarlAnalyzer we want
-    if (make_vcf) {
+    if (make_genotype_vcf) {
         // VCF maker
         snarl_analyzer.reset(new stoat_vcf::VcfSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples));
     } else if (!binary_path.empty()) {
@@ -399,8 +408,8 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
 
     std::string output_tsv;
 
-    if (make_vcf) {
-        output_tsv = output_dir + "/table_vcf.vcf";
+    if (make_genotype_vcf || make_genotype_stoat) {
+        output_tsv = output_dir + "/table_genotyping.vcf";
     } else {
         if (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR)
             output_tsv = output_dir + "/binary_table_vcf.tsv";

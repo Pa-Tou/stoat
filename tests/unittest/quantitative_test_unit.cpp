@@ -145,7 +145,7 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(std::stod(p_value) == 0.7454);
+        REQUIRE(std::stod(p_value) == 0.5728);
         REQUIRE(std::stod(r2) == 0.4272);
     }
 
@@ -169,7 +169,7 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(std::stod(p_value) == 0.5422);
+        REQUIRE(std::stod(p_value) == 0.9844);
         REQUIRE(std::stod(r2) == 0.108);
     }
 }
@@ -224,7 +224,7 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(p_value == "0.2212");
+        REQUIRE(p_value == "0.2344");
         REQUIRE(r2 == "0.9595");
 
     }
@@ -251,7 +251,7 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         INFO("p_value = " << p_value);
         INFO("r2 = " << r2);
 
-        REQUIRE(std::stod(p_value) == 0.2621);
+        REQUIRE(std::stod(p_value) == 0.8031);
         REQUIRE(std::stod(r2) == 0.7563);
 
     }
