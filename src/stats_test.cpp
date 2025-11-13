@@ -1,7 +1,7 @@
 #include "stats_test.hpp"
 
-using boost::multiprecision::cpp_dec_float_50;
-using boost::math::chi_squared_distribution;
+// using boost::multiprecision::cpp_dec_float_50;
+// using boost::math::chi_squared_distribution;
 
 // Fisher's Exact Test for 2x2 contingency table
 #ifndef DBL_MAX
@@ -242,12 +242,6 @@ bool filtration_binary_table(
 
 // ------------------------ Logistic regression ------------------------
 
-// Standard normal cumulative distribution function
-double LogisticRegression::normal_cdf(double z) {
-    static const boost::math::normal_distribution<> standard_normal(0.0, 1.0);
-    return boost::math::cdf(standard_normal, z);
-}
-
 // Sigmoid function
 inline double LogisticRegression::sigmoid(double x) {
     return 1.0 / (1.0 + std::exp(-x));
@@ -279,10 +273,10 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
     size_t num_variants = df[0].size();
     size_t num_covariates = 0;
     size_t num_features = num_variants + 1; // +1 for intercept
-    
+
     if (!covariates.empty()) {
-        size_t num_covariates = covariates[0].size();
-        size_t num_features =  num_variants + num_covariates + 1; // +1 for intercept
+        num_covariates = covariates[0].size();
+        num_features = num_variants + num_covariates + 1; // +1 for intercept
     }
 
     Eigen::MatrixXd X(num_samples, num_features);
@@ -302,7 +296,7 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
         }
 
         // Binary phenotype
-        y(i) = phenotype[i] ? 1.0 : 0.0;
+        // y(i) = phenotype[i] ? 1.0 : 0.0;
     }
 
     Eigen::VectorXd beta = Eigen::VectorXd::Zero(num_features);
@@ -362,9 +356,26 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
     // --- Wald Test (Normal approximation)
     std::vector<double> p_values;
     p_values.reserve(num_features - 1 - num_covariates);
-    for (size_t i = 1; i < num_features - num_covariates; ++i) { // skip intercept
-        double z_score = beta(i) / se(i);
-        p_values.push_back(2.0 * (1.0 - normal_cdf(std::abs(z_score)))); // Two-sided
+    for (size_t i = 1; i < num_features - num_covariates; ++i) {
+
+        const double z_score = beta(i) / se(i);
+
+        // --- Fast path (double precision) ---
+        const boost::math::normal_distribution<double> standard_normal(0.0, 1.0);
+        double p_value = 2.0 * (1.0 - boost::math::cdf(standard_normal, std::fabs(z_score)));
+
+        // --- Handle very significant (underflow) cases ---
+        if (p_value == 0.0 || !std::isfinite(p_value)) {
+
+            const boost::multiprecision::cpp_dec_float_50 z_hp = std::fabs(z_score);
+            const boost::math::normal_distribution<boost::multiprecision::cpp_dec_float_50> standard_normal_hp(0.0, 1.0);
+            boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(2) * (boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(standard_normal_hp, z_hp));
+
+            // convert to double (or keep string, depending on your output format)
+            p_values.push_back(p_hp.convert_to<double>());
+        } else {
+            p_values.push_back(p_value);
+        }
     }
 
     double p_value_adjusted = p_values[0];
@@ -413,9 +424,25 @@ std::string FisherKhi2::chi2_2x2(const size_t& a, const size_t& b, const size_t&
     chi2_stat += std::pow((double)c - expected_c, 2) / expected_c;
     chi2_stat += std::pow((double)d - expected_d, 2) / expected_d;
 
-    cpp_dec_float_50 chi2_stat_float_50 = chi2_stat;
-    cpp_dec_float_50 pval = cpp_dec_float_50(1) - boost::math::cdf(cpp_dec_float_50_dist, chi2_stat_float_50);
-    return stoat::set_precision_float_50(pval.convert_to<double>());
+    // Degrees of freedom for 2×2 table
+    int df = 1;
+
+    // --- Compute p-value (double first) ---
+    boost::math::chi_squared_distribution<double> dist(df);
+    double p_value = 1.0 - boost::math::cdf(dist, chi2_stat);
+
+    if (p_value == 0.0 || !std::isfinite(p_value)) {
+
+        // Recompute in high precision if underflow occurs
+        boost::multiprecision::cpp_dec_float_50 chi2_hp = chi2_stat;
+        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
+
+        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
+        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
+        return stoat::set_precision_float_50(p_hp);
+    }
+
+    return stoat::set_precision(p_value);
 }
 
 // Check if the observed matrix is valid (no zero rows/columns)
@@ -452,10 +479,23 @@ std::string FisherKhi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
     }
 
     size_t df = cols - 1;
-    cpp_dec_float_50 chi2_stat_float_50 = chi2;
-    boost::math::chi_squared_distribution<cpp_dec_float_50> cpp_dec_float_50_dist_2xN(df);
-    cpp_dec_float_50 p_value = cpp_dec_float_50(1) - boost::math::cdf(cpp_dec_float_50_dist_2xN, chi2_stat_float_50);
-    return stoat::set_precision_float_50(p_value);
+
+    // --- Fast path: double precision ---
+    boost::math::chi_squared_distribution<double> dist(df);
+    double p_value = 1.0 - boost::math::cdf(dist, chi2);
+
+    // If underflow or invalid, recompute in high precision
+    if (p_value == 0.0 || !std::isfinite(p_value)) {
+
+        boost::multiprecision::cpp_dec_float_50 chi2_hp = chi2;
+        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
+        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
+
+        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
+        return stoat::set_precision_float_50(p_hp);
+    }
+
+    return stoat::set_precision(p_value);
 }
 
 // ------------------------ Fisher exact test ------------------------
@@ -777,17 +817,29 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
     double denominator = SSE_full / df_denominator;
     double F_stat = numerator / denominator;
 
-    // ---- High-precision p-value ----
-    cpp_dec_float_50 F_stat_hp = F_stat;
-    cpp_dec_float_50 df_num_hp = df_numerator;
-    cpp_dec_float_50 df_den_hp = df_denominator;
+    boost::math::fisher_f_distribution<double> dist(df_numerator, df_denominator);
+    double p_value = 1.0 - boost::math::cdf(dist, F_stat);
 
-    boost::math::fisher_f_distribution<cpp_dec_float_50> dist_hp(df_num_hp, df_den_hp);
-    cpp_dec_float_50 p_value_hp = cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_stat_hp);
+    std::string p_value_str;
 
-    std::string p_value_str = stoat::set_precision_float_50(p_value_hp);
-    std::string r2_str = stoat::set_precision(R2);
+    if (p_value == 0.0 || !std::isfinite(p_value)) {
 
+        // Recompute only if underflow or invalid result
+        const boost::multiprecision::cpp_dec_float_50 F_hp      = F_stat;
+        const boost::multiprecision::cpp_dec_float_50 df_n_hp   = df_numerator;
+        const boost::multiprecision::cpp_dec_float_50 df_d_hp   = df_denominator;
+
+        boost::math::fisher_f_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_n_hp, df_d_hp);
+        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_hp);
+
+        p_value_str = stoat::set_precision_float_50(p_hp);
+    
+    } else {
+        p_value_str = stoat::set_precision(p_value);
+    }
+
+    // Format R² value
+    const std::string r2_str = stoat::set_precision(R2);
     return std::make_tuple(p_value_str, r2_str);
 }
 

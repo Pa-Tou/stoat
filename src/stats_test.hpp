@@ -28,9 +28,6 @@
 #include "matrix.hpp"
 #include "utils.hpp"
 
-using namespace std;
-using boost::multiprecision::cpp_dec_float_50;
-
 namespace stoat {
 
 // ------------------------ Regression class ------------------------
@@ -61,7 +58,7 @@ class FisherKhi2 {
 
         // Chi-squared distribution
         const boost::math::chi_squared chi_squared_dist;
-        const boost::math::chi_squared_distribution<cpp_dec_float_50> cpp_dec_float_50_dist;
+        const boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> cpp_dec_float_50_dist;
 };
 
 class LinearRegression {
