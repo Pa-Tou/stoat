@@ -3,7 +3,7 @@
 <p align="center">
     <a href="https://isocpp.org/"><img src="https://img.shields.io/badge/C++-17-blue.svg"></a>
     <a href="https://github.com/vgteam/libbdsg/releases/tag/v0.3"><img src="https://img.shields.io/badge/bdsg-0.3-green.svg"></a>
-    <a href="https://quay.io/repository/jmonlong/stoat"><img src="https://quay.io/repository/jmonlong/sveval/status"></a>
+    <a href="https://quay.io/repository/jmonlong/stoat"><img src="https://quay.io/repository/jmonlong/stoat/status"></a>
 </p>
 
 <img src="pictures/logo.png" width="150">
