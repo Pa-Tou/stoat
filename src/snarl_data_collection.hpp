@@ -36,7 +36,7 @@ class SnarlDataCollection {
     
             // Constructor from elements
             snarl_data_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
-                         size_t start_position, size_t end_position, size_t depth, const std::vector<std::string>& variant_type, 
+                         size_t start_position, size_t end_position, size_t depth, const std::string& variant_type, 
                          const std::vector<Path_traversal_t>& snarl_walks, const std::vector<std::set<sample_hap_t>>& partitions, 
                          const std::vector<std::string>& sequences) :
 
@@ -55,8 +55,8 @@ class SnarlDataCollection {
             size_t end_position;
             size_t depth;
 
-            // The "variant type" of the snarl, which represents the length (0 for a deletion) or min/max length of each walk in snarl_walks
-            const std::vector<std::string>& variant_type;
+            // The "variant type" of the snarl, which represents the min/max length (or 0 for a deletion) of each walk in snarl_walks
+            const std::string& variant_type;
  
             // All possible walks through the snarl
             const std::vector<Path_traversal_t>& snarl_walks;
