@@ -111,6 +111,7 @@ SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGr
                             }
 
                             // Get the paths through the snarl
+                            std::vector<stoat::Path_traversal_t> snarl_paths = get_snarl_paths(graph, distance_index, snarl);
 
     
                             // Now get the partitions
@@ -159,13 +160,99 @@ SnarlDataCollection::SnarlDataCollection(const handlegraph::PathPositionHandleGr
     #endif
 }
 
-bool SnarlDataCollection::snarl_is_eligible(const handlegraph::net_handle_t& snarl) const {
-    if (!check_distances) {
-        // If the distance index doesn't let us check distances, just return true
-        return true;
-    } else {
-        return distance_index->maximum_length(snarl) >= allele_size_limit;
+std::vector<stoat::Path_traversal_t> SnarlDataCollection::get_snarl_paths(graph, distance_index, snarl) {
+    // Path exploration
+    std::vector<std::vector<handlegraph::net_handle_t>> paths = {
+        {distance_index.get_bound(snarl, false, true)}
+    };
+    
+    std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;
+    
+    size_t itr = 0;
+    bool break_snarl = false;
+    
+    while (!paths.empty()) {
+        std::vector<handlegraph::net_handle_t> path = std::move(paths.back());
+        paths.pop_back();
+    
+        std::unordered_map<handlegraph::net_handle_t, size_t> dict_path_occ;
+        bool cycle = false;
+    
+        for (const auto& net : path) {
+            if (++dict_path_occ[net] > cycle_threshold + 1) {
+                cycle = true;
+                break;
+            }
+        }
+    
+        if (itr++ > path_length_threshold) {
+            #pragma omp critical(out_fail)
+            out_fail << snarl_id_str << "\titeration_calculation_out = " << children << " children\n";
+            break_snarl = true;
+            paths_fail++;
+            break;
+        }
+    
+        follow_edges(distance_index, finished_paths, path, paths, graph, cycle);
     }
+    
+    if (break_snarl) {continue;}
+    
+    auto [pretty_paths, type_variants] = fill_pretty_paths(distance_index, graph, finished_paths);
+    
+    if (pretty_paths.size() < 2) {
+        snarl_fail++;
+        continue;
+    } // avoid special case single path
+
+    const std::string& chr = std::get<1>(snarl_path_pos);
+    if (chr.empty()) {continue;}
+
+    size_t start_pos = std::get<2>(snarl_path_pos);
+    size_t end_pos = std::get<3>(snarl_path_pos);
+    size_t depth = distance_index.get_depth(snarl);
+    std::string str_reference = std::get<4>(snarl_path_pos) ? "1" : "0";
+
+    // Output result
+    #pragma omp critical(out_snarl)
+    out_snarl << chr << "\t"
+                << start_pos << "\t"
+                << end_pos << "\t"
+                << handlegraph::as_integer(snarl) << "\t"
+                << snarl_id_str << "\t"
+                << vectorPathToString(pretty_paths) << "\t"
+                << stoat::vectorToString(type_variants) << "\t"
+                << str_reference << "\t"
+                << depth << "\n";
+    Snarl_data_t snarl_path(snarl, snarl_id, pretty_paths, start_pos, end_pos, type_variants, depth);
+
+    #pragma omp critical(chr_snarl_matrix)
+    chr_snarl_matrix[chr].emplace_back(std::move(snarl_path));
+
+    paths_number_analysis += pretty_paths.size();
+}
+
+
+}
+
+bool SnarlDataCollection::snarl_is_eligible(const handlegraph::net_handle_t& snarl) const {
+    bool pass = true;
+
+    // If we have distances in the index, make sure that the snarl's maximum lenght is small enough
+    if (check_distances) {
+        pass &= allele_size_limit <= distance_index.maximum_length(snarl);
+    }
+    //TODO: Once the libbdsg branch is merged we can use this instead of going through all the children to count them
+    //pass &= snarl_child_limit <= distance_index.get_snarl_child_count(snarl);
+
+    // Count children
+    size_t children = 0;
+    distance_index.for_each_child(snarl, [&](const handlegraph::net_handle_t& snarl) {
+        children++;
+        return true;
+    });
+    pass &= snarl_child_limit <= children;
+
 }
 
 
