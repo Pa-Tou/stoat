@@ -62,13 +62,13 @@ int main(int argc, char* argv[]) {
     omp_set_num_threads(1);
 
     if (subcommand == "vcf") {
-        stoat_command::main_stoat_vcf(argc, argv, verbosity);
+        stoat_command::main_stoat_vcf(argc, argv);
 
     } else if (subcommand == "graph") {
-        stoat_command::main_stoat_graph(argc, argv, verbosity);
+        stoat_command::main_stoat_graph(argc, argv);
 
     } else if (subcommand == "BHcorrect") {
-        stoat_command::main_stoat_bh_correct(argc, argv, verbosity);
+        stoat_command::main_stoat_bh_correct(argc, argv);
 
     } else if (subcommand == "version") {
         std::cout << "stoat: GWAS analysis tool, version " << VERSION;

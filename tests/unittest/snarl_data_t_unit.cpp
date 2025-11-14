@@ -61,13 +61,13 @@ TEST_CASE("Test input format", "[Path]") {
 
     std::unique_ptr<bdsg::SnarlDistanceIndex> stree;
     std::unique_ptr<handlegraph::PathHandleGraph> graph;
-    handlegraph::net_handle_t root;
+    // handlegraph::net_handle_t root;
     std::unique_ptr<bdsg::PositionOverlay> p_overlay;
 
     SECTION("Packedgraph (pg)") {
         std::string graph_path = "../tests/graph_test/simple_snp.pg";
         std::string dist_path = "../tests/graph_test/simple_snp.dist";
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
         REQUIRE(stree != nullptr);
         REQUIRE(graph != nullptr);
         REQUIRE(p_overlay != nullptr);
@@ -76,7 +76,7 @@ TEST_CASE("Test input format", "[Path]") {
     SECTION("Hashgraph (hg)") {
         std::string graph_path = "../tests/graph_test/simple_snp.hg";
         std::string dist_path = "../tests/graph_test/simple_snp.dist";
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
         REQUIRE(stree != nullptr);
         REQUIRE(graph != nullptr);
         REQUIRE(p_overlay != nullptr);
@@ -85,7 +85,7 @@ TEST_CASE("Test input format", "[Path]") {
     // SECTION("XG format (xg)") {
     //     std::string graph_path = "../tests/graph_test/simple_snp.hg";
     //     std::string dist_path = "../tests/graph_test/simple_snp.dist";
-    //     std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
+    //     std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
     //     REQUIRE(stree != nullptr);
     //     REQUIRE(graph != nullptr);
     //     REQUIRE(p_overlay != nullptr);
@@ -94,7 +94,7 @@ TEST_CASE("Test input format", "[Path]") {
     SECTION("GBZ graph (gbz)") {
         std::string graph_path = "../tests/graph_test/simple_snp.gbz";
         std::string dist_path = "../tests/graph_test/simple_snp.dist";
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
         REQUIRE(stree != nullptr);
         REQUIRE(graph != nullptr);
         REQUIRE(p_overlay != nullptr);
@@ -105,7 +105,7 @@ TEST_CASE("Test simulated case", "[Path]") {
 
     std::unique_ptr<bdsg::SnarlDistanceIndex> stree;
     std::unique_ptr<handlegraph::PathHandleGraph> graph;
-    handlegraph::net_handle_t root;
+    // handlegraph::net_handle_t root;
     std::unique_ptr<bdsg::PositionOverlay> p_overlay;
 
     size_t children_threshold = 50;
@@ -119,8 +119,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/simple_snp.pg";
         std::string dist_path = "../tests/graph_test/simple_snp.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -137,8 +137,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/3th_snp.pg";
         std::string dist_path = "../tests/graph_test/3th_snp.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -155,8 +155,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/4th.pg";
         std::string dist_path = "../tests/graph_test/4th.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -173,8 +173,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/deletion_snp.pg";
         std::string dist_path = "../tests/graph_test/deletion_snp.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -191,8 +191,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/insert_deletion.pg";
         std::string dist_path = "../tests/graph_test/insert_deletion.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
         
         REQUIRE(snarls_chr.size() == 1);
@@ -209,8 +209,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/insert_snp.pg";
         std::string dist_path = "../tests/graph_test/insert_snp.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
         
         REQUIRE(snarls_chr.size() == 1);
@@ -227,8 +227,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/inversion.pg";
         std::string dist_path = "../tests/graph_test/inversion.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
         
         REQUIRE(snarls_chr.size() == 1);
@@ -242,8 +242,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/large_del.pg";
         std::string dist_path = "../tests/graph_test/large_del.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
         
         REQUIRE(snarls_chr.size() == 1);
@@ -258,8 +258,8 @@ TEST_CASE("Test simulated case", "[Path]") {
     //     std::string graph_path = "../tests/graph_test/linear.pg";
     //     std::string dist_path = "../tests/graph_test/linear.dist";
 
-    //     std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-    //     auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+    //     std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+    //     auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
     //     auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
     //     REQUIRE(snarls_chr.size() == 0);
     // }
@@ -268,8 +268,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/loop_simple.pg";
         std::string dist_path = "../tests/graph_test/loop_simple.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 1);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -286,8 +286,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/loop.pg";
         std::string dist_path = "../tests/graph_test/loop.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 2);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -304,8 +304,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/loop_double.pg";
         std::string dist_path = "../tests/graph_test/loop_double.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 2);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -322,8 +322,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/loop_plus.pg";
         std::string dist_path = "../tests/graph_test/loop_plus.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 1);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -337,8 +337,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/repetition.pg";
         std::string dist_path = "../tests/graph_test/repetition.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -355,8 +355,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/complex_ins.pg";
         std::string dist_path = "../tests/graph_test/complex_ins.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -373,8 +373,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/snp_and_nested_snp.pg";
         std::string dist_path = "../tests/graph_test/snp_and_nested_snp.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);
@@ -388,8 +388,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         std::string graph_path = "../tests/graph_test/nested_plus.pg";
         std::string dist_path = "../tests/graph_test/nested_plus.dist";
 
-        std::tie(stree, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
-        auto snarls = stoat::save_snarls(*stree, root, *graph, ref_chr, *p_overlay);
+        std::tie(stree, graph, p_overlay) = stoat::load_graph_tree(graph_path, dist_path);
+        auto snarls = stoat::list_all_snarls_path_pos(*stree, *graph, ref_chr, *p_overlay);
         auto snarls_chr = stoat::loop_over_snarls_write(*stree, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, 0);
 
         REQUIRE(snarls_chr.size() == 1);

@@ -225,9 +225,8 @@ void write_snarl_data_fail(std::ostream& outstream);
 std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex>,
     unique_ptr<handlegraph::PathHandleGraph>,
-    handlegraph::net_handle_t,
     unique_ptr<bdsg::PositionOverlay>>
-parse_graph_tree(const std::string& graph_file, const std::string& dist_file);
+load_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
 // Function to calculate the type of variant
 // Given a vector of <size node 2, min length of the snarl, max length of the snarl, path length, sum_path, is_complex)
@@ -245,9 +244,8 @@ void follow_edges(
     const bool& cycle);
 
 // Function to save snarls
-std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> save_snarls(
+std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
                             const bdsg::SnarlDistanceIndex& distance_index, 
-                            handlegraph::net_handle_t& root,
                             handlegraph::PathHandleGraph& graph, 
                             unordered_set<std::string>& ref_paths,
                             const bdsg::PositionOverlay& ppo);

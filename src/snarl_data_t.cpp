@@ -365,9 +365,8 @@ std::vector<std::string> calcul_pos_type_variant(const std::vector<std::tuple<si
 std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex>,
     unique_ptr<handlegraph::PathHandleGraph>,
-    handlegraph::net_handle_t,
     unique_ptr<bdsg::PositionOverlay>>
-    parse_graph_tree(
+    load_graph_tree(
         const std::string& graph_file, 
         const std::string& dist_file) {
 
@@ -386,13 +385,12 @@ std::tuple<
 
     unique_ptr<bdsg::PositionOverlay> position_overlay = std::make_unique<bdsg::PositionOverlay>(graph.get());
 
-    // Get root of snarl tree
-    handlegraph::net_handle_t root = distance_index->get_root();
+    // // Get root of snarl tree
+    // handlegraph::net_handle_t root = distance_index->get_root();
 
     return std::make_tuple(
         std::move(distance_index),
         std::move(graph),
-        root,
         std::move(position_overlay)
     );
 }
@@ -434,9 +432,8 @@ void follow_edges(
 }
 
 std::vector<std::tuple<handlegraph::net_handle_t, 
-    std::string, size_t, size_t, bool>> save_snarls(
+    std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
         const bdsg::SnarlDistanceIndex& distance_index, 
-        handlegraph::net_handle_t& root,
         handlegraph::PathHandleGraph& graph, 
         std::unordered_set<std::string>& ref_chr,
         const bdsg::PositionOverlay& ppo) {
@@ -544,6 +541,9 @@ std::vector<std::tuple<handlegraph::net_handle_t,
             distance_index.for_each_child(net, save_snarl_tree_node);
         }
     };
+
+    // Get root of snarl tree
+    handlegraph::net_handle_t root = distance_index.get_root();
 
     distance_index.for_each_child(root, save_snarl_tree_node);
     stoat::LOG_INFO("Total number of snarls : " + std::to_string(snarls.size()));
