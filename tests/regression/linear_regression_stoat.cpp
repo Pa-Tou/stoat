@@ -4,199 +4,228 @@
 #define EIGEN_DONT_VECTORIZE
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
 
-#include <iostream>
+#include <sstream>
 #include <vector>
 #include <cmath>
+#include <iostream>
+#include <string>
+#include <map>
+#include <numeric>
+#include <stdexcept>
+#include <algorithm>
+#include <unordered_set>
+#include <tuple>
+#include <iomanip>
+#include <unordered_map>
 #include <Eigen/Dense>
-#include <boost/math/distributions/students_t.hpp>
+#include <Eigen/Core>
 #include <chrono>
+
+#include <boost/math/distributions/fisher_f.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+
+using boost::multiprecision::cpp_dec_float_50;
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
 
 using namespace Rcpp;
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::plugins(cpp11)]]
-// [[Rcpp::export]]
-List cpp_linear_regression_stoat(NumericMatrix Xr, NumericVector yr) {
+// Multiply matrix A (m×n) with matrix B (n×p) -> result is m×p
+std::vector<std::vector<double>> matmul(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B) {
+    int m = A.size(), n = A[0].size(), p = B[0].size();
+    std::vector<std::vector<double>> result(m, std::vector<double>(p, 0.0));
+    for (int i = 0; i < m; ++i)
+        for (int k = 0; k < n; ++k)
+            for (int j = 0; j < p; ++j)
+                result[i][j] += A[i][k] * B[k][j];
+    return result;
+}
 
-    // Convert R data to std::vector<std::vector<double>>
-    std::vector<std::vector<double>> df(Xr.nrow(), std::vector<double>(Xr.ncol()));
-    for (int i = 0; i < Xr.nrow(); ++i)
-        for (int j = 0; j < Xr.ncol(); ++j)
-            df[i][j] = Xr(i,j);
+// Multiply matrix A (m×n) with vector b (n) -> result is vector of size m
+std::vector<double> matvec(const std::vector<std::vector<double>> &A, const std::vector<double> &b) {
+    int m = A.size(), n = A[0].size();
+    std::vector<double> result(m, 0.0);
+    for (int i = 0; i < m; ++i)
+        for (int j = 0; j < n; ++j)
+            result[i] += A[i][j] * b[j];
+    return result;
+}
+
+// Transpose of a matrix
+std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>> &A) {
+    int m = A.size(), n = A[0].size();
+    std::vector<std::vector<double>> result(n, std::vector<double>(m, 0.0));
+    for (int i = 0; i < m; ++i)
+        for (int j = 0; j < n; ++j)
+            result[j][i] = A[i][j];
+    return result;
+}
+
+// Convert std::vector<std::vector<double>> to Eigen::MatrixXd
+Eigen::MatrixXd toEigenMatrix(const std::vector<std::vector<double>>& mat) {
+    int rows = mat.size();
+    int cols = mat[0].size();
+    Eigen::MatrixXd result(rows, cols);
+    for (int i = 0; i < rows; ++i)
+        for (int j = 0; j < cols; ++j)
+            result(i, j) = mat[i][j];
+    return result;
+}
+
+// Convert Eigen::MatrixXd back to std::vector<std::vector<double>>
+std::vector<std::vector<double>> fromEigenMatrix(const Eigen::MatrixXd& mat) {
+    int rows = mat.rows();
+    int cols = mat.cols();
+    std::vector<std::vector<double>> result(rows, std::vector<double>(cols));
+    for (int i = 0; i < rows; ++i)
+        for (int j = 0; j < cols; ++j)
+            result[i][j] = mat(i, j);
+    return result;
+}
+
+// Compute Moore-Penrose pseudoinverse using SVD
+std::vector<std::vector<double>> pseudoInverse(const std::vector<std::vector<double>>& A, double tol=1e-10) {
+    Eigen::MatrixXd mat = toEigenMatrix(A);
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd(mat, Eigen::ComputeThinU | Eigen::ComputeThinV);
+
+    const auto& U = svd.matrixU();
+    const auto& V = svd.matrixV();
+    const auto& S = svd.singularValues();
+
+    Eigen::MatrixXd S_pinv(mat.cols(), mat.rows());
+    S_pinv.setZero();
+
+    for (int i = 0; i < S.size(); ++i) {
+        if (S(i) > tol)
+            S_pinv(i, i) = 1.0 / S(i);
+    }
+
+    Eigen::MatrixXd A_pinv = V * S_pinv * U.transpose();
+    return fromEigenMatrix(A_pinv);
+}
+
+// Invert a square matrix (naive Gaussian elimination, no pivoting)
+std::vector<std::vector<double>> inverse(
+    const std::vector<std::vector<double>> &A, double tol=1e-10) {
+
+    int n = A.size();
+    std::vector<std::vector<double>> I(n, std::vector<double>(n, 0.0));
+    std::vector<std::vector<double>> B = A;
+
+    for (int i = 0; i < n; ++i)
+        I[i][i] = 1.0;
+
+    for (int i = 0; i < n; ++i) {
+        double diag = B[i][i];
+
+        // Check for near-zero pivot
+        if (std::abs(diag) < tol) {
+            // Matrix is likely singular or rank-deficient
+            return pseudoInverse(A);
+        }
+
+        // Normalize the pivot row
+        for (int j = 0; j < n; ++j) {
+            B[i][j] /= diag;
+            I[i][j] /= diag;
+        }
+
+        // Eliminate other rows
+        for (int k = 0; k < n; ++k) {
+            if (k == i) continue;
+            double factor = B[k][i];
+            for (int j = 0; j < n; ++j) {
+                B[k][j] -= factor * B[i][j];
+                I[k][j] -= factor * I[i][j];
+            }
+        }
+    }
+
+    return I;
+}
+
+// [[Rcpp::export]]
+List cpp_linear_regression_stoat(NumericMatrix Xr, NumericMatrix Xcovar, NumericVector yr) {
+
+    int n = Xr.nrow();
+    int p = Xr.ncol();
+    int q = Xcovar.ncol();
 
     std::vector<double> y(yr.begin(), yr.end());
 
-    size_t num_samples = df.size();
-    size_t num_variants = df[0].size();
-    size_t num_features = num_variants + 1; // intercept
+    // ---- FULL MODEL ----
+    int k_full = 1 + p + q;
+    std::vector<std::vector<double>> Xfull(n, std::vector<double>(k_full, 1.0));
 
-    Eigen::MatrixXd X(num_samples, num_features);
-    X.col(0) = Eigen::VectorXd::Ones(num_samples);
-    Eigen::VectorXd yv(num_samples);
+    // Add X
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < p; ++j)
+            Xfull[i][1 + j] = Xr(i, j);
 
-    for (size_t i = 0; i < num_samples; ++i) {
-        yv(i) = y[i];
-        size_t col = 1;
-        for (size_t j = 0; j < num_variants; ++j) {
-            X(i, col++) = df[i][j];
-        }
+    // Add covariates (if any)
+    if (q > 0) {
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < q; ++j)
+                Xfull[i][1 + p + j] = Xcovar(i, j);
     }
 
-    // OLS via Eigen
-    Eigen::VectorXd beta = (X.transpose() * X).ldlt().solve(X.transpose() * yv);
-    Eigen::VectorXd y_pred = X * beta;
-    Eigen::VectorXd residuals = yv - y_pred;
+    // ---- Fit FULL model ----
+    auto Xt = transpose(Xfull);
+    auto XtX = matmul(Xt, Xfull);
+    auto XtXi = inverse(XtX);
+    auto Xty = matvec(Xt, y);
+    auto beta = matvec(XtXi, Xty);
+    auto yhat = matvec(Xfull, beta);
 
-    double rss = residuals.squaredNorm();
-    int df_res = std::max((int)(num_samples - X.cols()), 1);
-    double mse = rss / df_res;
+    double SSE_full = 0.0;
+    for (int i = 0; i < n; ++i)
+        SSE_full += (y[i] - yhat[i]) * (y[i] - yhat[i]);
 
-    Eigen::MatrixXd cov_matrix = (X.transpose() * X).inverse();
-    Eigen::VectorXd se = (cov_matrix.diagonal() * mse).array().sqrt();
+    // ---- Reduced SSE ----
+    double SSE_reduced = 0.0;
+    if (q > 0) {
+        // build reduced model: intercept + covariates
+        int k_red = 1 + q;
+        std::vector<std::vector<double>> Xred(n, std::vector<double>(k_red, 1.0));
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < q; ++j)
+                Xred[i][1 + j] = Xcovar(i, j);
 
-    if (se.hasNaN()) {
-        Eigen::MatrixXd XtX = X.transpose() * X;
-        Eigen::MatrixXd cov_matrix_stable = XtX.ldlt().solve(Eigen::MatrixXd::Identity(X.cols(), X.cols()));
-        se = (cov_matrix_stable.diagonal() * mse).array().sqrt();
+        auto Xt_r = transpose(Xred);
+        auto XtX_r = matmul(Xt_r, Xred);
+        auto XtXi_r = inverse(XtX_r);
+        auto Xty_r = matvec(Xt_r, y);
+        auto beta_r = matvec(XtXi_r, Xty_r);
+        auto yhat_r = matvec(Xred, beta_r);
+
+        for (int i = 0; i < n; ++i)
+            SSE_reduced += (y[i] - yhat_r[i]) * (y[i] - yhat_r[i]);
+    } else {
+        // no covariates: reduced model = intercept only
+        double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / y.size();
+        for (int i = 0; i < n; ++i)
+            SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);
     }
 
-    Eigen::VectorXd t_stats = beta.array() / se.array();
-    boost::math::students_t t_dist(df_res);
+    // ---- F-statistic ----
+    int df_num = p;
+    int df_den = n - k_full;
+    double num = (SSE_reduced - SSE_full) / df_num;
+    double den = SSE_full / df_den;
+    double Fstat = num / den;
 
-    std::vector<double> p_values(num_features);
-    for (int i = 0; i < num_features; ++i) {
-        if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) {
-            p_values[i] = 1.0;
-        } else {
-            p_values[i] = 2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stats[i])));
-        }
-    }
+    cpp_dec_float_50 Fstat_hp = Fstat;
+    cpp_dec_float_50 df_num_hp = df_num;
+    cpp_dec_float_50 df_den_hp = df_den;
+
+    boost::math::fisher_f_distribution<cpp_dec_float_50> dist_hp(df_num_hp, df_den_hp);
+    cpp_dec_float_50 p_value_hp = cpp_dec_float_50(1) - boost::math::cdf(dist_hp, Fstat_hp);
 
     return List::create(
-        _["coefficients"] = beta,
-        _["p_values"] = p_values
+    _["F_stat"]  = Fstat,
+    _["p_value"] = static_cast<double>(p_value_hp),
+    _["df_num"]  = df_num,
+    _["df_den"]  = df_den
     );
 }
-
-// void linear_regression(
-//     const std::vector<std::vector<double>>& df,
-//     const std::vector<double>& quantitative_phenotype,
-//     const std::vector<std::vector<double>>& covar) {
-
-//     size_t num_samples = df.size();
-//     size_t num_variants = df[0].size();
-//     size_t num_covariates = 0;
-//     size_t num_features = num_variants + 1; // +1 for intercept
-
-//     if (!covar.empty()) {
-//         num_covariates = covar[0].size();
-//         num_features = num_variants + num_covariates + 1; // +1 for intercept
-//     }
-
-//     Eigen::MatrixXd X(num_samples, num_features);
-//     X.col(0) = Eigen::VectorXd::Ones(num_samples);  // Intercept column
-//     Eigen::VectorXd y(num_samples);
-    
-//     for (size_t i = 0; i < num_samples; ++i) {
-//         y(i) = quantitative_phenotype[i];
-//         size_t col = 1;
-//         for (size_t j = 0; j < num_variants; ++j) {
-//             X(i, col++) = df[i][j];
-//         }
-//         for (size_t j = 0; j < num_covariates; ++j) {
-//             X(i, col++) = covar[i][j];
-//         }
-//     }
-    
-//     // Coefficients beta
-//     Eigen::VectorXd beta = (X.transpose() * X).ldlt().solve(X.transpose() * y);
-//     Eigen::VectorXd y_pred = X * beta;
-//     Eigen::VectorXd residuals = y - y_pred;
-
-//     // R²
-//     double rss = residuals.squaredNorm();
-//     double tss = (y.array() - y.mean()).matrix().squaredNorm();
-//     double r2 = 1 - (rss / tss);
-
-//     int df_res = (num_samples - X.cols() + 1); // residual degrees of freedom
-//     df_res = std::max(df_res, 1); // Ensure df_res is at least 1 to avoid division by zero
-//     double mse = rss / df_res;
-
-//     // Standard errors
-//     Eigen::MatrixXd cov_matrix = (X.transpose() * X).inverse();    
-//     Eigen::VectorXd se = (cov_matrix.diagonal() * mse).array().sqrt().matrix();
-
-//     // change cov_matrix calcul if X.transpose() * X might be ill-conditioned or nearly singular
-//     if (se.hasNaN()) {
-//         Eigen::MatrixXd XtX = X.transpose() * X;
-//         Eigen::MatrixXd cov_matrix = XtX.ldlt().solve(Eigen::MatrixXd::Identity(X.cols(), X.cols()));
-//         se = (cov_matrix.diagonal() * mse).array().sqrt().matrix();
-//     }
-
-//     // t-statistics
-//     Eigen::VectorXd t_stats = beta.array() / se.array();
-//     boost::math::students_t t_dist(df_res);
-
-//     std::vector<double> p_values;
-//     for (int i = 1; i < num_features; ++i) { // i = 1 avoid const p-value
-//         if (std::isnan(t_stats[i]) || std::isinf(t_stats[i])) {
-//             p_values.push_back(1.0); // Assign a high p-value for invalid t-statistics
-//             continue;
-//         }
-//         p_values.push_back(2 * boost::math::cdf(boost::math::complement(t_dist, std::abs(t_stats[i])))); // two-tailed
-//         std::cout << "p_values[" << i << "] : " << p_values[i] << std::endl;
-//     }
-
-//     if (p_values.size() > 2) {
-//         std::cout << "Adjustement" << std::endl;
-//     }
-
-//     // Print results
-//     std::cout << std::fixed << std::setprecision(4);
-//     std::cout << "Coefficients (beta):" << std::endl;
-//     for (int i = 0; i < num_features; ++i) {
-//         std::cout << "beta[" << i << "] = " << beta[i] << std::endl;
-//     }
-//     std::cout << "Standard Errors (se):" << std::endl;
-//     for (int i = 0; i < num_features; ++i) {
-//         std::cout << "se[" << i << "] = " << se[i] << std::endl;
-//     }
-//     std::cout << "R²: " << r2 << std::endl;
-//     std::cout << "Residual Degrees of Freedom: " << df_res << std::endl;
-//     std::cout << "Mean Squared Error (MSE): " << mse << std::endl;
-// }
-
-// // === MAIN with Example Data ===
-// int main() {
-
-//     std::vector<std::vector<double>> df = {
-//         {1, 0},
-//         {1, 0},
-//         {1, 0},
-//         {1, 0},
-//         {1, 0},
-//         {1, 0},
-//         {1, 0},
-//         {0, 1},
-//         {0, 0},
-//     };
-
-//     std::vector<double> quantitative_phenotype = {4.5, 7.0, 9.2, 10.9, 13.0, 14.0, 11.0, 15.0, 16.0};
-
-//     std::vector<std::vector<double>> covariates = {
-//     };
-
-//     linear_regression(df, quantitative_phenotype, covariates);
-//     return EXIT_SUCCESS;
-// }
-
-// LINUX
-// g++ -std=c++17 -I/usr/include/eigen3 -lboost_math_c99 -o lr_stoat linear_regression_stoat.cpp
-
-// MACOS
-// g++ -std=c++17  -I/usr/local/include/eigen3 -lboost_math_c99 -o lr_stoat linear_regression_stoat.cpp
-
-// ./lr_stoat

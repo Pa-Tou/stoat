@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(stoat VERSION 0.1.0 LANGUAGES CXX)
+project(stoat VERSION 0.3.0 LANGUAGES CXX)
 
 # C++ Standard Settings
 set(CMAKE_CXX_STANDARD 17)
@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "12.7") # MACOS fix
+
+include_directories(BEFORE
+    ${PROJECT_SOURCE_DIR}/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/include
+)
 
 set(deps_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
@@ -140,6 +144,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/log.cpp
     src/binary_table.cpp
     src/quantitative_table.cpp
+    src/genotype_table.cpp
     src/stats_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp

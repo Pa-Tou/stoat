@@ -13,11 +13,35 @@ void write_binary_covar_header(std::ostream& outstream) {
 }
 
 void write_quantitative_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
 }
 
 void write_eqtl_header(std::ostream& outstream) {
-    outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
+}
+
+void write_vcf_header(std::ostream& outstream,
+                      const std::vector<std::string>& list_samples,
+                      const std::vector<std::string>& chr_list) {
+
+    outstream   << "##fileformat=VCFv4.2\n"
+                << "##source=stoat_vcf\n"
+                << "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">\n"
+                << "##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency\">\n"
+                << "##FILTER=<ID=PASS,Description=\"All filters passed\">\n"
+                << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n";
+
+    // Add contig headers for each chromosome
+    for (const auto& chr : chr_list) {
+        outstream << "##contig=<ID=" << chr << ">\n";
+    }
+
+    // Column header line
+    outstream << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
+    for (const auto& name : list_samples) {
+        outstream << '\t' << name;
+    }
+    outstream << '\n';
 }
 
 void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
@@ -50,8 +74,7 @@ void write_binary_covar(std::ostream& outstream, const std::string& chr, const S
 }
 
 void write_quantitative(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value,  const std::string& r2, const std::string& beta, const std::string& se, 
-                        const std::vector<size_t>& allele_paths) {
+                        const std::string& p_value,  const std::string& r2, const std::vector<size_t>& allele_paths) {
 
     outstream << chr << "\t"
               << snarl_data_s.start_positions << "\t"
@@ -60,16 +83,13 @@ void write_quantitative(std::ostream& outstream, const std::string& chr, const S
               << type_var_str << "\t"
               << p_value  << "\t"
               << r2 << "\t"
-              << beta << "\t"
-              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << "\n";
 
 }
 
 void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                   const std::string& gene_name, const std::string& p_value,  const std::string& r2,
-                   const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+                   const std::string& gene_name, const std::string& p_value,  const std::string& r2, const std::vector<size_t>& allele_paths) {
 
     outstream << chr << "\t"
               << snarl_data_s.start_positions << "\t"
@@ -79,11 +99,47 @@ void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_dat
               << gene_name << "\t"
               << p_value  << "\t"
               << r2 << "\t"
-              << beta << "\t"
-              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << endl;
 
+}
+
+void write_vcf(std::ostream& outstream,
+               const std::string& chr,
+               const size_t& pos,
+               const std::string& id,
+               const std::string& ref,
+               const std::string& alt,
+               const std::string& paths,
+               const std::vector<std::vector<char>>& genotype) {
+    
+    // Build genotype string for all samples (e.g., "0/1", "1/1", "0/0")
+    std::ostringstream gt_stream;
+    for (size_t i = 0; i < genotype.size(); ++i) {
+        const auto& sample_gt = genotype[i];
+        // Join alleles with '/'
+        for (size_t j = 0; j < sample_gt.size(); ++j) {
+            gt_stream << sample_gt[j];
+            if (j + 1 < sample_gt.size()) {
+                gt_stream << '/';
+            }
+        }
+        if (i + 1 < genotype.size()) {
+            gt_stream << '\t'; // separate multiple samples by tab
+        }
+    }
+
+    outstream << chr << '\t'
+              << pos << '\t'
+              << id << '\t'
+              << ref << '\t'
+              << alt << '\t'
+              << '.' << '\t'             // QUAL placeholder
+              << '.' << '\t'             // FILTER placeholder
+              << "AT=" << paths << '\t'  // INFO field
+              << "GT" << '\t'            // FORMAT field
+              << gt_stream.str()          // Sample genotypes
+              << '\n';
 }
 
 void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,

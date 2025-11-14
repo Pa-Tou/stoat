@@ -431,7 +431,7 @@ if __name__ == "__main__":
     --p_value output_binary/binary_table_vcf.tsv --paths output_binary/snarl_analyse.tsv -b --output tests/scripts/binary_output
 
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
-    --p_value output_binary_covar/binary_table_vcf.tsv --paths output_binary/snarl_analyse.tsv -q --output tests/scripts/binary_covar_output
+    --p_value output_binary_covar/binary_table_vcf.tsv --paths binary_covar_output/snarl_analyse.tsv -q --output tests/scripts/binary_covar_output
     
     python3 tests/scripts/verify_truth.py --freq data/binary/pg.snarls.freq.tsv \
     --p_value output_binary_graph/binary_table_graph.tsv --paths output_binary/snarl_analyse.tsv -b --output tests/scripts/binary_graph_output

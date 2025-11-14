@@ -28,9 +28,6 @@
 #include "matrix.hpp"
 #include "utils.hpp"
 
-using namespace std;
-using boost::multiprecision::cpp_dec_float_50;
-
 namespace stoat {
 
 // ------------------------ Regression class ------------------------
@@ -61,7 +58,7 @@ class FisherKhi2 {
 
         // Chi-squared distribution
         const boost::math::chi_squared chi_squared_dist;
-        const boost::math::chi_squared_distribution<cpp_dec_float_50> cpp_dec_float_50_dist;
+        const boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> cpp_dec_float_50_dist;
 };
 
 class LinearRegression {
@@ -69,7 +66,7 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        std::tuple<std::string, std::string, std::string, std::string> linear_regression(
+        std::tuple<std::string, std::string> linear_regression(
             const std::vector<std::vector<double>>& X_raw,
             const std::vector<double>& y,
             const std::vector<std::vector<double>>& covariates);
@@ -106,9 +103,6 @@ class LogisticRegression {
         ~LogisticRegression() = default;
 
         double calculate_log_likelihood(const Eigen::VectorXd& y, const Eigen::VectorXd& p);
-
-        // Standard normal cumulative distribution function
-        double normal_cdf(double z);
 
         // Sigmoid function
         inline double sigmoid(double x);

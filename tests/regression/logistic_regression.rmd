@@ -1,0 +1,53 @@
+# -----------------------------
+# Simulate dataset
+# -----------------------------
+set.seed(123)
+
+# Sample size
+n <- 200
+
+# Covariates
+x1 <- rnorm(n)
+x2 <- rbinom(n, 1, 0.5)
+
+# True coefficients
+beta0 <- -0.5
+beta1 <- 1.2
+beta2 <- -0.8
+
+# Linear predictor
+eta <- beta0 + beta1 * x1 + beta2 * x2
+
+# Probability via logistic function
+p <- 1 / (1 + exp(-eta))
+
+# Response variable (binary)
+y <- rbinom(n, 1, p)
+
+# Create dataframe
+data <- data.frame(y, x1, x2)
+
+# -----------------------------
+# Fit logistic regression
+# -----------------------------
+fit <- glm(y ~ x1 + x2, data = data, family = binomial)
+
+# Print summary
+summary(fit)
+
+# -----------------------------
+# Plot predicted probabilities
+# -----------------------------
+library(ggplot2)
+
+data$pred_prob <- predict(fit, type = "response")
+
+ggplot(data, aes(x = x1, y = pred_prob, color = factor(x2))) +
+  geom_point(aes(y = y), alpha = 0.5) +
+  geom_line() +
+  labs(
+    y = "Predicted probability",
+    color = "x2",
+    title = "Logistic Regression Predictions"
+  ) +
+  theme_minimal()
