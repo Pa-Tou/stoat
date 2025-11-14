@@ -689,10 +689,10 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         size_t walk_count = snarl_to_walks[all_snarl_data.back().start_node].size();
 
         // This may be the end, or there may be partitions and/or sequences
-        bool keep_going = std::getline(linestream, part, '\t');
-        if (!keep_going) {
+        if (!std::getline(linestream, part, '\t')) {
             continue;
         }
+        bool finished_line = false;
 
         if (!(part.at(0) == ',' || part.at(0) == 'A' || part.at(0) == 'C' || part.at(0) == 'G' || part.at(0) == 'T')) {
             // If the next thing isn't a sequence then we need to get the partitions next
@@ -707,11 +707,13 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
                 size_t sample_count = std::stoull(part);
                 for (size_t i = 0 ; i < sample_count ; i++) {
                     std::getline(linestream, part, '\t');
-                    partitions.back().emplace(samples[std::stoull(part)]);
+                    partitions.back().emplace(std::stoull(part));
                 }
 
                 // Check if this is the end of the line
-                keep_going = std::getline(linestream, part, '\t');
+                if (!std::getline(linestream, part, '\t')) {
+                    finished_line = true;
+                }
             }
 
             #ifdef DEBUG_SNARL_DATA_COLLECTION
@@ -722,7 +724,7 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         }
 
         // The last thing we got is now either the end of the line or the first sequence
-        if (keep_going) {
+        if (!finished_line) {
             std::vector<std::string> sequences;
             std::stringstream seqstream(part);
             std::string seq;
