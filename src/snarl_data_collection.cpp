@@ -266,6 +266,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
 std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>, std::vector<std::string>> SnarlDataCollection::get_walks_and_sequences_from_partitions(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const net_handle_t& snarl,
         const std::vector<std::set<sample_hap_t>>& sample_partitions, bool sequence_requested) const {
+
     std::vector<stoat::Path_traversal_t> snarl_walks;
     std::vector<std::string> walk_lengths;
     std::vector<std::string> snarl_sequences;
@@ -313,6 +314,10 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>, std::
         size_t min_length = 0;
         size_t max_length = 0;
 
+        // Start a new walk and sequence
+        stoat::Path current_path;
+        snarl_sequences.emplace_back();
+
         // Get the step of this path on both the start and end nodes.
         std::vector<handlegraph::step_handle_t> boundary_steps;
         for (const auto& sense : senses) {
@@ -335,8 +340,54 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>, std::
             return graph.get_position_of_step(a) < graph.get_position_of_step(b);
         });
 
-        // Now walk through the path until we hit all the steps in boundary_steps
-        handlegraph::step_handle_t step = graph.get_next_step(start_step);
+        // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
+        //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
+        // inside the snarl and the first traversal of a boundary node is leaving it
+        for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
+            handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[i]);
+            while (step != boundary_steps[i+1]) {
+                // Step is a node inside the snarl, and it may be nested inside children of the snarl
+                // If the node is a child of the snarl, then its parent is a trivial chain and its grandparent is the snarl
+                // If it is the first node in a chain that is the child of the snarl, then it is one of its parent's boundary nodes pointing
+                //   into the chain and its grandparent is the snarl.
+                // In any other case we want to ignore it
+                // TODO: I think this will be faster than skipping to the end of the chain and looking for the right path
+                
+                handlegraph::handle_t node = graph.get_handle_of_step(step);
+                handlegraph::net_handle_t node_net = distance_index.get_net(node);
+                handlegraph::net_handle_t parent = distance_index.get_parent(node_net);
+
+                // For the path, add an empty node for each time we leave and re-enter the snarl
+                if (boundary_i != 0) {
+                    current_path.addNodeHandle(0, true);
+                }
+
+
+                // Add the path and sequence, depending on if this is a node or chain
+                if (distance_index.get_parent(handle) == snarl) {
+                    if (distance_index.is_trivial_chain(parent)) {
+                        // This node is really a node in the snarl, then add it to the path and sequence 
+
+                        current_path.addNodeHandle(graph.get_id(node), graph.get_is_reverse(node));
+                        snarl_sequences.back() += graph.get_sequence(node);
+
+                    } else if (node_net == distance_index.get_bound(parent, false, true) || node_net == distance_index.get_bound(parent, true, true)){
+                        // This node is the bound of a child chain going into the chain
+                        //TODO: I'm not sure how to add the chain as a sequence
+
+                        // Add an empty node to indicate that it's a chain
+                        current_path.addNodeHandle(0, true);
+                    }
+                }
+
+                // Add the min and max lengths
+                min_length += distance_index.minimum_length(parent);
+                max_length += distance_index.maximum_length(parent);
+
+                step = graph.get_next_step(step);
+            }
+            snarl_walks.emplace_back(current_path.print());
+        }// end for loop through each partition
 
 
     }// end for each first step (per partition)
