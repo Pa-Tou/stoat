@@ -124,9 +124,9 @@ Node_traversal_t::Node_traversal_t(const size_t &id, const bool &rev)
         : node_id(id), is_reverse(rev) {}
 
 // Node_traversal_t from a string
-Node_traversal_t::Node_traversal_t(const std::string &str) {
-    is_reverse = str[0] == "<";
-    node_id = std::stoi(str.begin()+1, str.end());
+Node_traversal_t::Node_traversal_t(const std::string& str) {
+    is_reverse = str.at(0) == '<';
+    node_id = std::stoi(std::string(str.begin()+1, str.end()));
 }
 
 // Convert Node_traversal_t to node + path representation [string]
@@ -558,7 +558,7 @@ std::vector<std::tuple<handlegraph::net_handle_t,
 
 std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_pretty_paths(
     const bdsg::SnarlDistanceIndex& distance_index, 
-    handlegraph::PathHandleGraph& graph, 
+    const handlegraph::PathHandleGraph& graph, 
     std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths) {
 
     // list of paths

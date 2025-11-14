@@ -261,7 +261,7 @@ std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, b
 // Function to fill pretty paths
 tuple<std::vector<Path_traversal_t>, std::vector<std::string>> fill_pretty_paths(
                             const bdsg::SnarlDistanceIndex& distance_index, 
-                            handlegraph::PathHandleGraph& graph, 
+                            const handlegraph::PathHandleGraph& graph, 
                             std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths);
 
 // Function to loop over snarls and write output to output_file
