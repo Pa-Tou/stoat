@@ -28,13 +28,6 @@ namespace stoat_vcf {
                                             min_individuals(min_individuals),
                                             regression_dir(regression_dir) {};
 
-    VcfSnarlAnalyzer::VcfSnarlAnalyzer(
-        const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
-        EdgeBySampleMatrix &edge_matrix,
-        const std::vector<std::string> &list_samples) :
-
-                                                        SnarlAnalyzer(chr_to_snarl_data, edge_matrix, list_samples, {}, 0, 0, 0, "") {};
-
     BinarySnarlAnalyzer::BinarySnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
         EdgeBySampleMatrix &edge_matrix,
@@ -109,17 +102,6 @@ namespace stoat_vcf {
     void EQTLSnarlAnalyzer::write_header(std::ofstream &outf)
     {
         stoat::write_eqtl_header(outf);
-    }
-
-    void VcfSnarlAnalyzer::write_header(std::ofstream &outf)
-    {
-        std::vector<std::string> chr_list;
-        chr_list.reserve(chr_to_snarl_data.size());  // optimization
-
-        for (const auto& [chr, _] : chr_to_snarl_data) {
-            chr_list.push_back(chr);
-        }
-        stoat::write_vcf_header(outf, list_samples, chr_list);
     }
 
     void SnarlAnalyzer::process_snarls_by_chromosome_chunk(
@@ -423,65 +405,6 @@ namespace stoat_vcf {
             }
         }
         return idx_srr_save;
-    }
-
-    bool VcfSnarlAnalyzer::analyze_and_write_snarl(
-        const stoat::Snarl_data_t &snarl_data_s, const std::string &chr, std::ofstream &outf)
-    {
-
-        std::ostringstream ref_alt;
-
-        // Assuming type_variants is a vector of sizes or counts — this code creates REF/ALT strings.
-        // You can't multiply strings in C++; use std::string(count, char) instead.
-        const auto& s = snarl_data_s.type_variants[0];
-        size_t len = std::stoul(s.substr(0, s.find('/')));
-        bool deletion = false;
-        if (len == 0) {len = 1; deletion=true;}
-        std::string ref(len, 'A');
-        ref_alt << ref << "\t";
-
-        size_t pos = snarl_data_s.start_positions;
-        size_t paths_number = snarl_data_s.snarl_paths.size();
-        std::string id = stoat::pairToString(snarl_data_s.snarl_ids);
-
-        // Assuming these are defined somewhere in scope:
-        // paths_number, list_samples, edge_matrix
-        std::vector<std::vector<char>> genotype = stoat_vcf::create_genotype_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
-        
-        std::ostringstream alt_stream;
-        for (size_t i = 1; i < snarl_data_s.type_variants.size(); ++i)
-        {
-            const auto& s = snarl_data_s.type_variants[i];
-            size_t len = std::stoul(s.substr(0, s.find('/')));
-            if (deletion) {alt_stream << 'A';}
-            alt_stream << std::string(len, 'T');
-            if (i + 1 < snarl_data_s.type_variants.size())
-            {
-                alt_stream << ",";
-            }
-        }
-
-        std::string alt = alt_stream.str();
-
-        size_t length_snarl_paths = snarl_data_s.snarl_paths.size();
-        std::ostringstream paths_stream;
-        for (size_t i = 0; i < length_snarl_paths; ++i)
-        {
-            paths_stream << snarl_data_s.snarl_paths[i].to_string();
-            if (i + 1 < length_snarl_paths)
-            {
-                paths_stream << ",";
-            }
-        }
-
-        std::string paths = paths_stream.str();
-
-        #pragma omp critical(outf)
-        {
-            stoat::write_vcf(outf, chr, pos, id, ref, alt, paths, genotype);
-        }
-
-        return false; // No filtration applied in VCF output
     }
 
     bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &snarl_data_s, 

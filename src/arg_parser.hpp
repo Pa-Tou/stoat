@@ -27,25 +27,6 @@ using namespace std;
 
 namespace stoat_vcf {
 
-struct KinshipMatrix {
-    std::vector<std::string> ids;
-    std::vector<std::vector<double>> matrix;
-
-    // Default constructor
-    KinshipMatrix() = default;
-
-    // Parameterized constructor
-    KinshipMatrix(const std::vector<std::string>& ids,
-                  const std::vector<std::vector<double>>& matrix)
-        : ids(ids), matrix(matrix) {}
-
-    void parseKinshipMatrix(const std::string& filename);
-
-    const bool empty() const {
-        return ids.empty() || matrix.empty();
-    } 
-};
-
 struct Qtl_data {
     std::string geneName;
     std::vector<double> sampleExpresion;

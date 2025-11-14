@@ -364,8 +364,7 @@ std::vector<std::string> calcul_pos_type_variant(const std::vector<std::tuple<si
 
 std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex>,
-    unique_ptr<handlegraph::PathHandleGraph>,
-    unique_ptr<bdsg::PositionOverlay>>
+    unique_ptr<handlegraph::PathHandleGraph>>
     load_graph_tree(
         const std::string& graph_file, 
         const std::string& dist_file) {
@@ -383,15 +382,14 @@ std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
     distance_index->deserialize(dist_file);
 
-    unique_ptr<bdsg::PositionOverlay> position_overlay = std::make_unique<bdsg::PositionOverlay>(graph.get());
+    // unique_ptr<bdsg::PositionOverlay> position_overlay = std::make_unique<bdsg::PositionOverlay>(graph.get());
 
     // // Get root of snarl tree
     // handlegraph::net_handle_t root = distance_index->get_root();
 
     return std::make_tuple(
         std::move(distance_index),
-        std::move(graph),
-        std::move(position_overlay)
+        std::move(graph)
     );
 }
 
@@ -435,9 +433,11 @@ std::vector<std::tuple<handlegraph::net_handle_t,
     std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
         const bdsg::SnarlDistanceIndex& distance_index, 
         handlegraph::PathHandleGraph& graph, 
-        std::unordered_set<std::string>& ref_chr,
-        const bdsg::PositionOverlay& ppo) {
+        std::unordered_set<std::string>& ref_chr) {
 
+    // load the position overlay needed to get position on reference paths
+    bdsg::PositionOverlay ppo = bdsg::PositionOverlay(&graph);
+    
     std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> snarls;
     unordered_map<std::string, std::tuple<std::string, size_t, size_t>> snarls_pos;
     bool get_ref = ref_chr.empty() ? true : false;
@@ -546,6 +546,9 @@ std::vector<std::tuple<handlegraph::net_handle_t,
     handlegraph::net_handle_t root = distance_index.get_root();
 
     distance_index.for_each_child(root, save_snarl_tree_node);
+
+    // JEAN the path overlay pointer used to be "cleaned up with" .reset() before, not sure if that's still necessary?
+    
     stoat::LOG_INFO("Total number of snarls : " + std::to_string(snarls.size()));
     return snarls;
 }

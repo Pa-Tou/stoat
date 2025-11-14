@@ -446,37 +446,4 @@ void check_file(const std::string& file_path) {
     file.close();
 }
 
-void KinshipMatrix::parseKinshipMatrix(const std::string& filename) {
-
-    std::ifstream file(filename);
-    std::string line;
-
-    // Parse header line for IDs
-    if (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string token;
-        // Skip the empty top-left cell
-        std::getline(ss, token, '\t');
-        ids.clear();
-        while (std::getline(ss, token, '\t')) {
-            ids.push_back(token);
-        }
-    }
-
-    matrix.clear();
-
-    // Parse matrix rows
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string rowLabel;
-        std::getline(ss, rowLabel, '\t'); // row label
-        std::vector<double> row;
-        std::string value;
-        while (std::getline(ss, value, '\t')) {
-            row.push_back(std::stod(value));
-        }
-        matrix.push_back(row);
-    }
-}
-
 } //end stoat namespace

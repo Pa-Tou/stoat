@@ -224,8 +224,7 @@ void write_snarl_data_fail(std::ostream& outstream);
 // Load the distance index and graph and return unique_ptrs to them
 std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex>,
-    unique_ptr<handlegraph::PathHandleGraph>,
-    unique_ptr<bdsg::PositionOverlay>>
+    unique_ptr<handlegraph::PathHandleGraph>>
 load_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
 // Function to calculate the type of variant
@@ -247,8 +246,7 @@ void follow_edges(
 std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             handlegraph::PathHandleGraph& graph, 
-                            unordered_set<std::string>& ref_paths,
-                            const bdsg::PositionOverlay& ppo);
+                            unordered_set<std::string>& ref_paths);
 
 // Function to fill pretty paths
 tuple<std::vector<Path_traversal_t>, std::vector<std::string>> fill_pretty_paths(
