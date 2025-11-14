@@ -216,10 +216,10 @@ public:
 };
 
 // Parses the snarl path file and returns a map with snarl as keys and paths as a list of strings.
-std::unordered_map<std::string, std::vector<Snarl_data_t>> parse_snarl_path(const std::string& path_file);
+std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const std::string& path_file);
 
-void write_snarl_data_output(std::ostream& outstream);
-void write_snarl_data_fail(std::ostream& outstream);
+void write_snarl_data_header(std::ostream& outstream);
+void write_snarl_data_fail_header(std::ostream& outstream);
 
 // Load the distance index and graph and return unique_ptrs to them
 std::tuple<
@@ -233,16 +233,7 @@ load_graph_tree(const std::string& graph_file, const std::string& dist_file);
 // Matis ans : i don t know how to do it
 std::vector<std::string> calcul_pos_type_variant(const std::vector<std::tuple<size_t, size_t, size_t>>& list_length_paths);
 
-// Function to follow edges
-void follow_edges(
-    const bdsg::SnarlDistanceIndex& distance_index,
-    std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths,
-    const std::vector<handlegraph::net_handle_t>& path,
-    std::vector<std::vector<handlegraph::net_handle_t>>& paths,
-    handlegraph::PathHandleGraph& graph,
-    const bool& cycle);
-
-// Function to save snarls
+// Function to list all the snarls and their position on the reference paths (if possible)
 std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             handlegraph::PathHandleGraph& graph, 
@@ -262,7 +253,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
                             std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>& snarls, 
                             handlegraph::PathHandleGraph& graph, 
                             const std::string& output_file, 
-                            const std::string& output_snarl_not_analyse, 
+                            const std::string& output_snarl_excluded, 
                             const size_t& children_treshold,
                             const size_t& path_length_threshold,
                             const size_t& cycle_threshold);

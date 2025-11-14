@@ -309,7 +309,7 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>3>4>5>7", ">2>3>4>5>3>4>5>7", ">2>3>4>5>3>4>5>3>4>5>7", ">2>3>4>5>3>4>3>4>5>7", ">2>3>4>3>4>5>7", ">2>3>4>3>4>5>3>4>5>7", ">2>3>4>3>4>3>4>5>7", ">2>6>7"});
         REQUIRE(snarls_chr["ref"][0].start_positions == 8);
         REQUIRE(snarls_chr["ref"][0].end_positions == 10);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"10", "20", "30", "28", "18", "28", "26", "2"});
+        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"6", "12", "18", "16", "10", "16", "14", "2"});
     }
 
     SECTION("loop_plus") {

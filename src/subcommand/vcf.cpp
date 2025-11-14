@@ -296,8 +296,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // handlegraph::net_handle_t root;
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
-        stoat::LOG_TRACE("Parsing snarl path file");
-        snarls_chr = stoat::parse_snarl_path(snarl_path);
+        stoat::LOG_TRACE("Reading snarl path file");
+        snarls_chr = stoat::read_snarl_path(snarl_path);
 
     } else { // Otherwise, find them from the graph and snarl tree
         stoat::LOG_INFO("Starting snarl decomposition... ");
@@ -317,13 +317,14 @@ int main_stoat_vcf(int argc, char* argv[]) {
         // std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>
         // snarl_net_grah, chr_ref, start_pos, end_pos, is_on_ref
         auto snarls = stoat::list_all_snarls_path_pos(*distance_index, *graph, ref_chr);
+        // JEAN why not use the object/struct Snarl_data_t here instead of the tuple
 
         // JEAN would be nice to let the user decide how to name that?
-        std::string output_snarl_not_analyse = output_dir + "/snarl_not_analyse.tsv";
+        std::string output_snarl_excluded = output_dir + "/snarl_not_analyse.tsv";
         std::string output_file = output_dir + "/snarl_analyse.tsv";
 
         // Go through snarls and fill in snarls_chr 
-        snarls_chr = stoat::loop_over_snarls_write(*distance_index, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, cycle_threshold);
+        snarls_chr = stoat::loop_over_snarls_write(*distance_index, snarls, *graph, output_file, output_snarl_excluded, children_threshold, path_length_threshold, cycle_threshold);
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl time decomposition : " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
 
