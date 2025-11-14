@@ -647,6 +647,10 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                 // Add the minimum/maximum lengths of the chain
                 minimum_distance += distance_index.minimum_length(net);
                 maximun_distance += distance_index.maximum_length(net);
+            } else if (distance_index.is_root(net)) {
+                // I added this case to represent anything that leaves the snarl and comes back in
+                // It doesn't actually happen in a real path
+                ppath.addNode(0, false);
             }
         }
 

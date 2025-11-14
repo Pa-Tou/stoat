@@ -150,6 +150,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/snarl_analyzer.cpp
     src/graph_path_association_finder.cpp
     src/partitioner.cpp
+    src/snarl_data_collection.cpp
     
     src/io/register_loader_saver_gbz.cpp
     src/io/register_loader_saver_gbzgraph.cpp
