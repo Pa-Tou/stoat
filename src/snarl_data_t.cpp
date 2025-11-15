@@ -7,7 +7,7 @@ namespace stoat {
 // Function to parse the snarl path file
 std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const std::string& file_path) {
     
-    std::string line, chr, snarl, snarl_id, start_pos_str, end_pos_str, path_list, type_var, ref, depth;
+    std::string line, chr, snarl, snarl_id, start_pos_str, end_pos_str, path_list, al_lens, ref, depth;
     std::vector<Snarl_data_t> snarl_paths;
     std::unordered_map<std::string, std::vector<Snarl_data_t>> chr_to_snarls;
     std::ifstream file(file_path);
@@ -56,42 +56,33 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
         std::getline(ss, snarl, '\t');   // snarl column
         std::getline(ss, snarl_id, '\t');   // snarl_id column
         std::getline(ss, path_list, '\t'); // paths column
-        std::getline(ss, type_var, '\t');   // type_var column
+        std::getline(ss, al_lens, '\t');   // al_lens column
         std::getline(ss, ref, '\t');   // ref column
         std::getline(ss, depth, '\t');   // depth column
 
-        std::istringstream path_stream(path_list);
-        std::istringstream type_stream(type_var);
-        std::vector<std::string> type;
-        size_t start_pos = std::stoull(start_pos_str);
-        size_t end_pos = std::stoull(end_pos_str);
-        std::string paths_str;
-        bool first = true;
-
-        // Reconstruct path string and count paths
-        while (std::getline(path_stream, path_list, ',')) {
-            if (!first) {
-                paths_str += ",";
-            }
-            paths_str += path_list;
-            first = false;
-        }
-
-        // create a vector of types
-        while (std::getline(type_stream, type_var, ',')) {
-            type.push_back(type_var);
-        }
-
+        // if we're starting a new chromosome, save the current one and reinit
         if (chr != save_chr && !save_chr.empty()) {
             chr_to_snarls[save_chr] = std::move(snarl_paths);
             snarl_paths.clear();
         }
-
         save_chr = chr;
 
+        // to parse the information from the different fields
+        size_t start_pos = std::stoull(start_pos_str);
+        size_t end_pos = std::stoull(end_pos_str);
         std::pair<size_t, size_t> snarl_ids = stringToPair(snarl_id);
-        std::vector<stoat::PathTraversal> paths = stringToVectorPath(paths_str);
-        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoull(depth));
+        std::vector<stoat::PathTraversal> paths = stringToVectorPath(path_list);
+
+        // add allele length information
+        std::istringstream al_lens_stream(al_lens);
+        int path_idx = 0;
+        while (std::getline(al_lens_stream, al_lens, ',')) {
+            paths[path_idx].set_allele_length_from_string(al_lens);
+            path_idx++;
+        }
+
+        // create object and add to the list
+        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, std::stoull(depth));
         snarl_paths.push_back(snarl_path);
     }
 
@@ -191,10 +182,27 @@ void PathTraversal::add_max_allele_len(size_t len){
     max_allele_len += len;
 }
 
+void PathTraversal::set_allele_length_from_string(std::string al_len_str){
+    // parse the string, could be either one size or MIN/MAX (see get_allele_length below)
+    std::istringstream al_len_stream(al_len_str);
+    std::string al_len;
+    std::vector<size_t> min_max_al_lens;    
+    while (std::getline(al_len_stream, al_len, '/')) {
+        min_max_al_lens.push_back(std::stoull(al_len));
+    }
+    // set the allele length range
+    min_allele_len = min_max_al_lens[0];
+    if (min_max_al_lens.size() == 1) {
+        max_allele_len = min_max_al_lens[0];
+    } else {
+        max_allele_len = min_max_al_lens[1];
+    }
+}
+
     
 // TODO : change sum_path to definition using the length of the path including in the boundary nodes
 // Matis ans : i don t know how to do it
-std::string PathTraversal::get_allele_length() {
+std::string PathTraversal::get_allele_length () const {
     if (paths.size() >= 3) {
         // If there is at least one node other than the boundaries
         if (min_allele_len != max_allele_len) {
@@ -274,11 +282,15 @@ std::pair<size_t, size_t> stringToPair(const std::string& str) {
     return {first, second};
 }
 
-std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_paths) {
+std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_paths, bool allele_lengths) {
     std::ostringstream oss;
     for (size_t i = 0; i < vec_paths.size(); ++i) {
         if (i > 0) oss << ",";
-        oss << vec_paths[i].to_string();
+        if (allele_lengths) {
+            oss << vec_paths[i].get_allele_length();
+        } else {
+            oss << vec_paths[i].to_string();
+        }
     }
     return oss.str();
 }
@@ -315,7 +327,7 @@ std::vector<stoat::PathTraversal> stringToVectorPath(std::string& input) {
 
 // Add a snarl
 Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) : 
-    snarl(snarl_), start_positions(0), end_positions(0), depth(distance_index.get_depth(snarl_)) {
+    snarl(snarl_), start_position(0), end_position(0), depth(distance_index.get_depth(snarl_)) {
     snarl_ids = std::make_pair(distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false))),
                                distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false))));
 }
@@ -323,15 +335,13 @@ Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPos
 Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_,
     std::pair<size_t, size_t> snarl_ids_,
     std::vector<PathTraversal> snarl_paths_,
-    const size_t start_positions_, const size_t end_positions_,
-    std::vector<std::string> type_variants_,
+    const size_t start_position_, const size_t end_position_,
     size_t depth) :
     snarl(snarl_),
     snarl_ids(snarl_ids_),
     snarl_paths(std::move(snarl_paths_)),
-    start_positions(start_positions_),
-    end_positions(end_positions_),
-    type_variants(std::move(type_variants_)),
+    start_position(start_position_),
+    end_position(end_position_),
     depth(depth) {}
     
 std::tuple<
@@ -346,18 +356,12 @@ std::tuple<
         throw std::runtime_error("error[stoat vgio]: Could not register libvg types with libvgio");
     }
 
-
     // Load the graph and make it a PathPositionHandleGraph
     unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_file);
 
     // Load the distance index
     unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
     distance_index->deserialize(dist_file);
-
-    // unique_ptr<bdsg::PositionOverlay> position_overlay = std::make_unique<bdsg::PositionOverlay>(graph.get());
-
-    // // Get root of snarl tree
-    // handlegraph::net_handle_t root = distance_index->get_root();
 
     return std::make_tuple(
         std::move(distance_index),
@@ -713,18 +717,13 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
             continue;
         } // avoid special case single path
 
-        // otherwise 
+        // otherwise prepare PathTraversal objects
         auto path_travs = convert_path_traversals(distance_index, graph, finished_paths);
-        // JEAN for now remaking allele_lengths, but I think it should go in PathTraversal
-        std::vector<std::string> allele_lengths;
-        for(auto path_trav: path_travs){
-            allele_lengths.push_back(path_trav.get_allele_length());
-        }
 
+        // a chromosome/path name, positions and other info
         const std::string& chr = std::get<1>(snarl_path_pos);
         if (chr.empty()) {continue;}
         // JEAN that also shouldn't happen and maybe we should raise an error
-
         size_t start_pos = std::get<2>(snarl_path_pos);
         size_t end_pos = std::get<3>(snarl_path_pos);
         size_t depth = distance_index.get_depth(snarl);
@@ -733,17 +732,17 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         // Output result
         #pragma omp critical(out_snarl)
         out_snarl << chr << "\t" 
-                    << start_pos << "\t" 
-                    << end_pos << "\t" 
-                    << handlegraph::as_integer(snarl) << "\t" 
-                    << snarl_id_str << "\t"
-                    << vectorPathToString(path_travs) << "\t"
-                    << stoat::vectorToString(allele_lengths) << "\t"
-                    << str_reference << "\t" 
-                    << depth << "\n";
+                  << start_pos << "\t" 
+                  << end_pos << "\t" 
+                  << handlegraph::as_integer(snarl) << "\t" 
+                  << snarl_id_str << "\t"
+                  << vectorPathToString(path_travs) << "\t"
+                  << vectorPathToString(path_travs, true) << "\t"
+                  << str_reference << "\t" 
+                  << depth << "\n";
 
-        // JEAN if all this stuff goes in Snarl_data_t anyway, why not put it there from the start and avoid carrying around those tuples?
-        Snarl_data_t snarl_path(snarl, snarl_id, path_travs, start_pos, end_pos, allele_lengths, depth);
+        // JEAN if all this stuff goes in Snarl_data_t anyway, why not put it there from the start and avoid carrying around those tuples (snarl_path_pos)?
+        Snarl_data_t snarl_path(snarl, snarl_id, path_travs, start_pos, end_pos, depth);
         
         #pragma omp critical(chr_to_snarls)
         chr_to_snarls[chr].emplace_back(std::move(snarl_path));

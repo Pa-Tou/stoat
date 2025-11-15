@@ -373,11 +373,11 @@ void SnarlTraverserAndPartitioner::for_each_snarl_partition(const handlegraph::P
                                 // Get the offsets of the start and end nodes along the reference
                                 std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, *distance_index, snarl, true, reference_sample, false);
                                 if (ranges.size() != 0) {
-                                    std::tie(snarl_info.ref_path, snarl_info.start_positions, snarl_info.end_positions) = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
+                                    std::tie(snarl_info.ref_path, snarl_info.start_position, snarl_info.end_position) = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
                                 } else {
                                     snarl_info.ref_path = "NA";
-                                    snarl_info.start_positions = 0;
-                                    snarl_info.end_positions = 0;
+                                    snarl_info.start_position = 0;
+                                    snarl_info.end_position = 0;
                                 }
 
                                 // Now get the partitions
@@ -522,8 +522,8 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
                   << ref_to_index[snarl_partition.ref_path] << "\t"
                   << snarl_partition.min_length << "\t"
                   << snarl_partition.max_length << "\t"
-                  << snarl_partition.start_positions << "\t"
-                  << snarl_partition.end_positions << "\t"
+                  << snarl_partition.start_position << "\t"
+                  << snarl_partition.end_position << "\t"
                   << snarl_partition.depth << "\t";
         for (const std::set<sample_hap_t> partition : snarl_partition.partitions) {
             outstream << partition.size() << "\t";
@@ -618,10 +618,10 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename, cons
         snarl_partitions.back().max_length = std::stoull(part);
         // start pos
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().start_positions = std::stoull(part);
+        snarl_partitions.back().start_position = std::stoull(part);
         // end pos 
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().end_positions = std::stoull(part);
+        snarl_partitions.back().end_position = std::stoull(part);
         // depth
         std::getline(linestream, part, '\t');
         snarl_partitions.back().depth = std::stoull(part);

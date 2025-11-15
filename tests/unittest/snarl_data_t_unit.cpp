@@ -16,7 +16,7 @@ void check_snarl(
     const std::vector<std::string>& expected_paths,
     size_t expected_start,
     size_t expected_end,
-    const std::vector<std::string>& expected_types,
+    const std::string& expected_types,
     bdsg::SnarlDistanceIndex& stree) {
 
     const auto& snarls = chr_snarl_matrix.at(chr);
@@ -33,9 +33,9 @@ void check_snarl(
     REQUIRE(target != nullptr);  // Ensure the snarl was found
     REQUIRE(stoat::pairToString(stoat::find_snarl_id(stree, target->snarl)) == expected_id_str);
     REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(target->snarl_paths)) == expected_paths);
-    REQUIRE(target->start_positions == expected_start);
-    REQUIRE(target->end_positions == expected_end);
-    REQUIRE(target->type_variants == expected_types);
+    REQUIRE(target->start_position == expected_start);
+    REQUIRE(target->end_position == expected_end);
+    REQUIRE(vectorPathToString(target->snarl_paths, true) == expected_types);
 }
 
 TEST_CASE("Test parsing input format", "[Path parsing]") {
@@ -122,9 +122,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_5");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>3>5",">2>4>5"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 9);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"1", "1"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 9);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "1,1");
     }
 
     SECTION("3th SNP") {
@@ -140,9 +140,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_6");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>3>6",">2>4>6",">2>5>6"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 9);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"1", "1", "1"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 9);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "1,1,1");
     }
 
     SECTION("4th") {
@@ -158,9 +158,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "7_2");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>3>5>7", ">2>4>6>7" ,">2>3>6>7"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 12);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"4", "6", "5"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 12);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "4,6,5");
     }
 
     SECTION("deletion_snp") {
@@ -176,9 +176,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_4");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>4", ">2>3>4"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 9);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"0", "1"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 9);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "0,1");
     }
 
     SECTION("insert_deletion") {
@@ -194,9 +194,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_4");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>4", ">2>3>4"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 11);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"0", "3"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 11);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "0,3");
     }
 
     SECTION("insert_snp") {
@@ -212,9 +212,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_5");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>3>5", ">2>4>5"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 9);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"1", "3"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 9);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "1,3");
     }
 
     SECTION("inversion") {
@@ -228,8 +228,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 2);
 
-        check_snarl(snarls_chr, "ref", "6_2", {">2>6", ">2>3<0>5>6"}, 8, 14, {"0", "6"}, *stree);
-        check_snarl(snarls_chr, "ref", "5_3", {">3>4>5", ">3<4>5"}, 9, 11, {"2", "2"}, *stree);
+        check_snarl(snarls_chr, "ref", "6_2", {">2>6", ">2>3<0>5>6"}, 8, 14, {"0,6"}, *stree);
+        check_snarl(snarls_chr, "ref", "5_3", {">3>4>5", ">3<4>5"}, 9, 11, {"2,2"}, *stree);
     }
 
     SECTION("large_del") {
@@ -243,9 +243,9 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 3);
 
-        check_snarl(snarls_chr, "ref", "9_2", {">2>9", ">2>3<0>8>9"}, 8, 8, {"0", "9/10"}, *stree);
-        check_snarl(snarls_chr, "ref", "8_6", {">6>8", ">6>7>8"}, 8, 8, {"0", "1"}, *stree);
-        check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 8, 8, {"1", "1"}, *stree);
+        check_snarl(snarls_chr, "ref", "9_2", {">2>9", ">2>3<0>8>9"}, 8, 8, {"0,9/10"}, *stree);
+        check_snarl(snarls_chr, "ref", "8_6", {">6>8", ">6>7>8"}, 8, 8, {"0,1"}, *stree);
+        check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 8, 8, {"1,1"}, *stree);
     }
 
     // SECTION("linear") {
@@ -271,9 +271,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_5");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>3>5", ">2>3>3>5", ">2>4>5"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 9);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"1", "2", "2"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 9);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "1,2,2");
     }
 
     SECTION("loop") {
@@ -289,9 +289,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "1_5");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">1>2>3>5", ">1>2>3>2>3>5", ">1>2>3>2>3>2>3>5", ">1>2>3>2>3>2>4>5", ">1>2>3>2>4>5", ">1>2>4>5"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 4);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 9);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"5", "10", "15", "16", "11", "6"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 4);
+        REQUIRE(snarls_chr["ref"][0].end_position == 9);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "5,10,15,16,11,6");
     }
 
     SECTION("loop_double") {
@@ -307,9 +307,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_7");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>3>4>5>7", ">2>3>4>5>3>4>5>7", ">2>3>4>5>3>4>5>3>4>5>7", ">2>3>4>5>3>4>3>4>5>7", ">2>3>4>3>4>5>7", ">2>3>4>3>4>5>3>4>5>7", ">2>3>4>3>4>3>4>5>7", ">2>6>7"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 10);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"6", "12", "18", "16", "10", "16", "14", "2"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 10);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "6,12,18,16,10,16,14,2");
     }
 
     SECTION("loop_plus") {
@@ -323,8 +323,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 2);
 
-        check_snarl(snarls_chr, "ref", "2_8", {">2>3>0>6>8", ">2>3>0>6>3>0>6>8", ">2>7>8"}, 8, 9, {"3/4", "6/8", "1"}, *stree);
-        check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 8, 9, {"2", "1"}, *stree);
+        check_snarl(snarls_chr, "ref", "2_8", {">2>3>0>6>8", ">2>3>0>6>3>0>6>8", ">2>7>8"}, 8, 9, {"3/4,6/8,1"}, *stree);
+        check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 8, 9, {"2,1"}, *stree);
     }
 
     SECTION("repetition") {
@@ -340,9 +340,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_6");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>6", ">2>3>6", ">2>3>4>6", ">2>3>4>5>6"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"0", "3", "6", "9"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 8);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "0,3,6,9");
     }
 
     SECTION("complex_ins") {
@@ -358,9 +358,9 @@ TEST_CASE("Test simulated case", "[Path]") {
 
         REQUIRE(stoat::pairToString(stoat::find_snarl_id(*stree, snarls_chr["ref"][0].snarl)) == "2_8");
         REQUIRE(stoat::stringToVector<std::string>(stoat::vectorPathToString(snarls_chr["ref"][0].snarl_paths)) == std::vector<std::string>{">2>8", ">2>3>4>6>8",">2>3>5>6>8",">2>3>5>7>8",">2>7>8"});
-        REQUIRE(snarls_chr["ref"][0].start_positions == 8);
-        REQUIRE(snarls_chr["ref"][0].end_positions == 9);
-        REQUIRE(snarls_chr["ref"][0].type_variants == std::vector<std::string>{"0","3","3","3","1"});
+        REQUIRE(snarls_chr["ref"][0].start_position == 8);
+        REQUIRE(snarls_chr["ref"][0].end_position == 9);
+        REQUIRE(vectorPathToString(snarls_chr["ref"][0].snarl_paths, true) == "0,3,3,3,1");
     }
 
     SECTION("snp_and_nested_snp") {
@@ -374,8 +374,8 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 2);
 
-        check_snarl(snarls_chr, "ref", "2_8", {">2>3>0>6>8", ">2>7>8"}, 8, 9, {"3/4", "1"}, *stree);
-        check_snarl(snarls_chr, "ref", "3_6", {">3>4>6", ">3>5>6"}, 8, 9, {"1", "2"}, *stree);        
+        check_snarl(snarls_chr, "ref", "2_8", {">2>3>0>6>8", ">2>7>8"}, 8, 9, {"3/4,1"}, *stree);
+        check_snarl(snarls_chr, "ref", "3_6", {">3>4>6", ">3>5>6"}, 8, 9, {"1,2"}, *stree);        
     }
 
     SECTION("nested_plus") {
@@ -389,7 +389,7 @@ TEST_CASE("Test simulated case", "[Path]") {
         REQUIRE(snarls_chr.size() == 1);
         REQUIRE(snarls_chr["ref"].size() == 2);
 
-        check_snarl(snarls_chr, "ref", "8_2", {">2>8", ">2>3<0>6>7>8", ">2>3<0>6>8"}, 8, 12, {"0", "5", "4"}, *stree);
-        check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 9, 11, {"2", "2"}, *stree);
+        check_snarl(snarls_chr, "ref", "8_2", {">2>8", ">2>3<0>6>7>8", ">2>3<0>6>8"}, 8, 12, {"0,5,4"}, *stree);
+        check_snarl(snarls_chr, "ref", "6_3", {">3>5>6", ">3>4>6"}, 9, 11, {"2,2"}, *stree);
     }
 }

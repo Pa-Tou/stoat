@@ -410,17 +410,7 @@ namespace stoat_vcf {
     bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &snarl_data_s, 
         const std::string &chr, std::ofstream &outf) {
 
-            std::ostringstream oss;
-
-            for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i)
-            {
-                if (i != 0)
-                    oss << ",";
-                oss << snarl_data_s.type_variants[i];
-            }
-
-            std::string type_var_str = oss.str();
-
+            std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
             size_t paths_number = snarl_data_s.snarl_paths.size();
             std::vector<size_t> g0(paths_number, 0);
             std::vector<size_t> g1(paths_number, 0);
@@ -441,7 +431,7 @@ namespace stoat_vcf {
 
             #pragma omp critical(outf)
             {
-                stoat::write_binary(outf, chr, snarl_data_s, type_var_str, fastfisher_p_value, chi2_p_value, group_paths);
+                stoat::write_binary(outf, chr, snarl_data_s, al_lens, fastfisher_p_value, chi2_p_value, group_paths);
             }
 
             return filtration;
@@ -450,22 +440,13 @@ namespace stoat_vcf {
     bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
         const stoat::Snarl_data_t &snarl_data_s, const std::string &chr, std::ofstream &outf)
     {
-
-        std::ostringstream oss;
-        bool filtration = false;
-        for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i)
-        {
-            if (i != 0)
-                oss << ",";
-            oss << snarl_data_s.type_variants[i];
-        }
-
-        std::string type_var_str = oss.str();
+        std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
+        
 
         auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
         stoat::remove_empty_columns_quantitative_table(X);
 
-        filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
+        bool filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
         if (filtration)
         {
@@ -496,7 +477,7 @@ namespace stoat_vcf {
 
         #pragma omp critical(outf)
         {
-            stoat::write_binary_covar(outf, chr, snarl_data_s, type_var_str, p_value, beta, se, allele_paths);
+            stoat::write_binary_covar(outf, chr, snarl_data_s, al_lens, p_value, beta, se, allele_paths);
         }
         return filtration;
     }
@@ -530,16 +511,7 @@ namespace stoat_vcf {
             return filtration;
         }
 
-        // make a std::string separated by ',' from a vector of std::string
-        std::ostringstream oss;
-        for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i)
-        {
-            if (i != 0)
-                oss << ","; // Add comma before all elements except the first
-            oss << snarl_data_s.type_variants[i];
-        }
-
-        std::string type_var_str = oss.str();
+        std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
         std::stringstream data;
 
         auto [p_value, r2] = lr.linear_regression(X, Y, covariate);
@@ -552,7 +524,7 @@ namespace stoat_vcf {
 
         #pragma omp critical(outf)
         {
-            stoat::write_quantitative(outf, chr, snarl_data_s, type_var_str, p_value, r2, allele_paths);
+            stoat::write_quantitative(outf, chr, snarl_data_s, al_lens, p_value, r2, allele_paths);
         }
         return filtration;
     }
@@ -589,7 +561,7 @@ namespace stoat_vcf {
     {
 
         bool filtration = false;
-        std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_positions, snarl_data_s.end_positions, windows_gene_threshold);
+        std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_position, snarl_data_s.end_position, windows_gene_threshold);
         auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
 
         stoat::remove_empty_columns_quantitative_table(X);
@@ -618,16 +590,7 @@ namespace stoat_vcf {
             std::vector<double> gene_expression = eqtl_map.at(chr)[gene_idx].sampleExpresion;
             stoat::retain_indices(gene_expression, index_filtered);
 
-            // make a std::string separated by ',' from a vector of std::string
-            std::ostringstream oss;
-            for (size_t i = 0; i < snarl_data_s.type_variants.size(); ++i)
-            {
-                if (i != 0)
-                    oss << ","; // Add comma before all elements except the first
-                oss << snarl_data_s.type_variants[i];
-            }
-
-            std::string type_var_str = oss.str();
+            std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
             std::stringstream data;
 
             auto [p_value, r2] = lr.linear_regression(X, gene_expression, covariate);
@@ -640,7 +603,7 @@ namespace stoat_vcf {
 
             #pragma omp critical(outf)
             {
-                stoat::write_eqtl(outf, chr, snarl_data_s, type_var_str, gene_name, p_value, r2, allele_paths);
+                stoat::write_eqtl(outf, chr, snarl_data_s, al_lens, gene_name, p_value, r2, allele_paths);
             }
         }
         return filtration;

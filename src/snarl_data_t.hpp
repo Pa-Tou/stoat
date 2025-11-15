@@ -101,10 +101,11 @@ public:
 
     void add_min_allele_len(size_t len);
     void add_max_allele_len(size_t len);
+    void set_allele_length_from_string(std::string al_len_str);
 
     // TODO : change sum_path to definition using the length of the path including in the boundary nodes
     // Matis ans : i don t know how to do it
-    std::string get_allele_length();
+    std::string get_allele_length() const;
         
     // Getters
     const std::vector<Node_traversal_t>& get_paths() const;
@@ -123,17 +124,15 @@ struct Snarl_data_t {
         Snarl_data_t(net_handle_t snarl_,
                     std::pair<size_t, size_t> snarl_ids_,
                     std::vector<PathTraversal> snarl_paths_,
-                    const size_t start_positions_, const size_t end_positions_,
-                    std::vector<std::string> type_variants_,
+                    const size_t start_position_, const size_t end_position_,
                     size_t depth);  // Assuming path_nodes correspond to type_variants
 
-        std::vector<std::string> type_variants;
         std::vector<PathTraversal> snarl_paths;
         net_handle_t snarl; // handlegraph::subrange_t Snarl_data_t::snarl_id
         //TODO: Make this a node_traversal_t
         std::pair<size_t, size_t> snarl_ids;
-        size_t start_positions;
-        size_t end_positions;
+        size_t start_position;
+        size_t end_position;
         size_t depth;
 };
 
@@ -185,8 +184,8 @@ struct snarl_partition_t : stoat::Snarl_data_t {
                       start_handle(start_handle), end_handle(end_handle),
                       ref_path(std::move(ref_path)), partitions(std::move(partitions)) {
                           snarl=snarl_;
-                          start_positions=start_pos_;
-                          end_positions=end_pos_;
+                          start_position=start_pos_;
+                          end_position=end_pos_;
                           depth=depth_;
                           snarl_ids = snarl_ids_;
                       };
@@ -195,7 +194,7 @@ struct snarl_partition_t : stoat::Snarl_data_t {
 // Converter
 std::string pairToString(const std::pair<size_t, size_t>& name);
 std::pair<size_t, size_t> stringToPair(const std::string& str);
-std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths);
+std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths, bool allele_lengths = false);
 std::vector<PathTraversal> stringToVectorPath(std::string& str);
 
 // Parses the snarl path file and returns a map with snarl as keys and paths as a list of strings.
