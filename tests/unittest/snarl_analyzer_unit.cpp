@@ -28,8 +28,8 @@ TEST_CASE("Edge_t Functionality") {
     REQUIRE(edge.print_string_edge() == ">1<2");
 }
 
-TEST_CASE("Path_traversal_t Add and Get") {
-    Path_traversal_t path;
+TEST_CASE("PathTraversal Add and Get") {
+    PathTraversal path;
     path.add_node_traversal_t({1, false});
     path.add_node_traversal_t({2, true});
     const auto& paths = path.get_paths();
@@ -39,7 +39,7 @@ TEST_CASE("Path_traversal_t Add and Get") {
 }
 
 TEST_CASE("decompose_path_to_edges") {
-    Path_traversal_t path;
+    PathTraversal path;
     path.add_node_traversal_t({1, false});
     path.add_node_traversal_t({2, false});
     path.add_node_traversal_t({3, false});

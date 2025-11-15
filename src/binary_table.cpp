@@ -19,14 +19,14 @@ std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<
 size_t create_binary_table(
     std::vector<size_t>& g0, std::vector<size_t>& g1,
     const std::vector<bool>& binary_phenotype, 
-    const std::vector<stoat::Path_traversal_t>& list_path_snarl, 
+    const std::vector<stoat::PathTraversal>& list_path_snarl, 
     const size_t& number_paths,
     const size_t& number_samples,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
     std::vector<bool> sample_included(number_samples, false);
     for (size_t idx_g = 0; idx_g < number_paths; ++idx_g) {
-        const stoat::Path_traversal_t& path_snarl = list_path_snarl[idx_g];
+        const stoat::PathTraversal& path_snarl = list_path_snarl[idx_g];
         std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
         std::vector<size_t> idx_srr_save = stoat_vcf::identify_path(list_edge_path, matrix, number_samples * 2);
 

@@ -5,7 +5,7 @@ namespace stoat_vcf {
 
 std::vector<std::vector<char>> create_genotype_table(
         const size_t &number_samples,
-        const std::vector<stoat::Path_traversal_t> &column_headers,
+        const std::vector<stoat::PathTraversal> &column_headers,
         const stoat_vcf::EdgeBySampleMatrix &matrix) {
 
     // Each sample can have up to 2 alleles → initialize with two empty strings

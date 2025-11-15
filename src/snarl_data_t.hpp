@@ -81,25 +81,37 @@ struct Edge_t { // 128 bits per edge
         bool operator==(const Edge_t &other) const;
 };
 
-// Define a Path_traversal_t structure to represent a path through the graph
-struct Path_traversal_t {
-    private:
-        std::vector<Node_traversal_t> paths; // Nodes in the path
+// Define a PathTraversal structure to represent a path through the graph
+class PathTraversal {
+private:
+    std::vector<Node_traversal_t> paths; // Nodes in the path
+    size_t min_allele_len;
+    size_t max_allele_len;
+    
+public:
+    // add a node traversal to the path
+    PathTraversal() : min_allele_len(0), max_allele_len(0) {}
+    void add_node(const size_t& node, bool is_rev);
+    void add_node_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index);
+    void add_node_traversal_t(const Node_traversal_t &node_trav);
+    
+    // Check and flip the Path if necessary to ensure consistent orientation
+    void check_path_flip();
+    void path_flip();
 
-    public:
-        // add a node traversal to the path
-        Path_traversal_t() = default;
-        void add_node_traversal_t(const Node_traversal_t &paths);
+    void add_min_allele_len(size_t len);
+    void add_max_allele_len(size_t len);
 
-        // Check and flip the Path if necessary to ensure consistent orientation
-        void check_path_flip();
-        void path_flip();
-
-        // Getters
-        const std::vector<Node_traversal_t>& get_paths() const;
+    // TODO : change sum_path to definition using the length of the path including in the boundary nodes
+    // Matis ans : i don t know how to do it
+    std::string get_allele_length();
         
-        // convert to std::string representation
-        std::string to_string() const;
+    // Getters
+    const std::vector<Node_traversal_t>& get_paths() const;
+    
+    // convert to std::string representation
+    std::string to_string() const;
+    size_t size() const;
 };
 
 // Define a Snarl_data_t structure to hold snarl information
@@ -110,13 +122,13 @@ struct Snarl_data_t {
         Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index);
         Snarl_data_t(net_handle_t snarl_,
                     std::pair<size_t, size_t> snarl_ids_,
-                    std::vector<Path_traversal_t> snarl_paths_,
+                    std::vector<PathTraversal> snarl_paths_,
                     const size_t start_positions_, const size_t end_positions_,
                     std::vector<std::string> type_variants_,
                     size_t depth);  // Assuming path_nodes correspond to type_variants
 
         std::vector<std::string> type_variants;
-        std::vector<Path_traversal_t> snarl_paths;
+        std::vector<PathTraversal> snarl_paths;
         net_handle_t snarl; // handlegraph::subrange_t Snarl_data_t::snarl_id
         //TODO: Make this a node_traversal_t
         std::pair<size_t, size_t> snarl_ids;
@@ -133,7 +145,7 @@ struct Snarl_data_t {
 // TODO: Also ignoring type_variants
 //TODO: Use indices instead of actual sample names 
 // This also includes the following fields inherited from Snarl_data_t:
-// std::vector<Path_traversal_t> snarl_paths;
+// std::vector<PathTraversal> snarl_paths;
 // net_handle_t snarl; 
 // std::pair<size_t, size_t> snarl_ids;
 // size_t start_positions;
@@ -183,37 +195,8 @@ struct snarl_partition_t : stoat::Snarl_data_t {
 // Converter
 std::string pairToString(const std::pair<size_t, size_t>& name);
 std::pair<size_t, size_t> stringToPair(const std::string& str);
-std::string vectorPathToString(const std::vector<Path_traversal_t>& vec_paths);
-std::vector<Path_traversal_t> stringToVectorPath(std::string& str);
-
-// A class representing a path as a vector of strings representing nodes
-class Path {
-private:
-    std::vector<size_t> nodes;
-    std::vector<bool> orients;
-
-public:
-    // Constructor
-    Path();
-
-    // Add a node with known orientation
-    void addNode(const size_t& node, bool orient);
-
-    // Add a node handle and extract information using the std::string representation
-    bool addNodeHandle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index);
-
-    // Get the std::string representation of the path
-    Path_traversal_t print() const;
-
-    // Flip the path orientation
-    void flip();
-
-    // Get the size of the path
-    size_t size() const;
-
-    // Count the number of reversed nodes
-    size_t nreversed() const;
-};
+std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths);
+std::vector<PathTraversal> stringToVectorPath(std::string& str);
 
 // Parses the snarl path file and returns a map with snarl as keys and paths as a list of strings.
 std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const std::string& path_file);
@@ -227,20 +210,15 @@ std::tuple<
     unique_ptr<handlegraph::PathHandleGraph>>
 load_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
-// Function to calculate the type of variant
-// Given a vector of <size node 2, min length of the snarl, max length of the snarl, path length, sum_path, is_complex)
-// TODO : change sum_path to definition using the length of the path including in the boundary nodes
-// Matis ans : i don t know how to do it
-std::vector<std::string> calcul_pos_type_variant(const std::vector<std::tuple<size_t, size_t, size_t>>& list_length_paths);
-
 // Function to list all the snarls and their position on the reference paths (if possible)
 std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             handlegraph::PathHandleGraph& graph, 
                             unordered_set<std::string>& ref_paths);
 
-// Function to fill pretty paths
-tuple<std::vector<Path_traversal_t>, std::vector<std::string>> fill_pretty_paths(
+// convert paths from the simple vector of net handles to the PathTraversal object
+// also returns a vector with the allele length info as strings (e.g. '0', '100/102')
+std::vector<PathTraversal> convert_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             handlegraph::PathHandleGraph& graph, 
                             std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths);

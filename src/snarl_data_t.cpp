@@ -90,7 +90,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
         save_chr = chr;
 
         std::pair<size_t, size_t> snarl_ids = stringToPair(snarl_id);
-        std::vector<stoat::Path_traversal_t> paths = stringToVectorPath(paths_str);
+        std::vector<stoat::PathTraversal> paths = stringToVectorPath(paths_str);
         Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, type, std::stoull(depth));
         snarl_paths.push_back(snarl_path);
     }
@@ -161,13 +161,62 @@ bool Edge_t::operator==(const Edge_t &other) const {
     return edge == other.edge;
 }
 
-// add a node traversal to the path
-void Path_traversal_t::add_node_traversal_t(const Node_traversal_t &node) {
-    this->paths.push_back(node);
+// Add a node with known orientation
+void PathTraversal::add_node(const size_t& node, bool is_rev) {
+    Node_traversal_t node_traversal(node, is_rev); 
+    // Add node to path
+    this->paths.push_back(node_traversal);
 }
 
+    
+// Add a node handle and extract information using the std::string representation
+void PathTraversal::add_node_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index) {
+    // find the node orientation
+    bool is_rev = distance_index.ends_at(node_h) != bdsg::SnarlDistanceIndex::END;
+    Node_traversal_t node_traversal(distance_index.node_id(node_h), is_rev); 
+    // Add node to path
+    this->paths.push_back(node_traversal);
+}
+    
+// add a node traversal to the path
+void PathTraversal::add_node_traversal_t(const Node_traversal_t &node_trav) {
+    this->paths.push_back(node_trav);
+}
+
+void PathTraversal::add_min_allele_len(size_t len){
+    min_allele_len += len;
+}
+
+void PathTraversal::add_max_allele_len(size_t len){
+    max_allele_len += len;
+}
+
+    
+// TODO : change sum_path to definition using the length of the path including in the boundary nodes
+// Matis ans : i don t know how to do it
+std::string PathTraversal::get_allele_length() {
+    if (paths.size() >= 3) {
+        // If there is at least one node other than the boundaries
+        if (min_allele_len != max_allele_len) {
+            // a "complex" variant with no fixed size because of nested variants
+            // return a range of possible lengths
+            return std::to_string(min_allele_len) + "/" + std::to_string(max_allele_len);
+        } else {
+            // one length when simple variant or when nested variants are SNPs or balanced MNPs
+            return std::to_string(min_allele_len);
+        }        
+    } else if (paths.size() == 2) {
+        // if only the boundary nodes, it's a deletion
+        return "0";
+    } else {
+        // This should probably never happen right ?
+        stoat::LOG_WARN("path_lengths is empty");
+        return "NA";
+    }
+}
+    
 // Check and flip the path if necessary to ensure consistent orientation
-void Path_traversal_t::check_path_flip() {
+void PathTraversal::check_path_flip() {
     // Check if the path is already in the good orientation (aka min ID >> max ID)
 
     if (paths[0].get_node_id() > paths.back().get_node_id()) {
@@ -176,8 +225,8 @@ void Path_traversal_t::check_path_flip() {
     }
 }
 
-// Flip the Path_traversal_t
-void Path_traversal_t::path_flip() {
+// Flip the PathTraversal
+void PathTraversal::path_flip() {
     std::reverse(paths.begin(), paths.end());
 
     for (size_t i = 0; i < paths.size(); ++i) {
@@ -186,8 +235,8 @@ void Path_traversal_t::path_flip() {
     }
 }
 
-// convert Path_traversal_t to path representation
-std::string Path_traversal_t::to_string() const {
+// convert PathTraversal to path representation
+std::string PathTraversal::to_string() const {
     std::string result;
     for (const auto& node : paths) {
         result += node.to_string();
@@ -195,10 +244,15 @@ std::string Path_traversal_t::to_string() const {
     return result;
 }
 
-const std::vector<Node_traversal_t>& Path_traversal_t::get_paths() const { 
+const std::vector<Node_traversal_t>& PathTraversal::get_paths() const { 
     return paths; 
 };
 
+// Get the size of the path
+size_t PathTraversal::size() const {
+    return paths.size();
+}
+    
 std::string pairToString(const std::pair<size_t, size_t>& name) {
     std::ostringstream oss;
     oss << name.first << "_" << name.second;
@@ -220,7 +274,7 @@ std::pair<size_t, size_t> stringToPair(const std::string& str) {
     return {first, second};
 }
 
-std::string vectorPathToString(const std::vector<stoat::Path_traversal_t>& vec_paths) {
+std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_paths) {
     std::ostringstream oss;
     for (size_t i = 0; i < vec_paths.size(); ++i) {
         if (i > 0) oss << ",";
@@ -229,13 +283,13 @@ std::string vectorPathToString(const std::vector<stoat::Path_traversal_t>& vec_p
     return oss.str();
 }
 
-std::vector<stoat::Path_traversal_t> stringToVectorPath(std::string& input) {
-    std::vector<stoat::Path_traversal_t> vec_paths;
+std::vector<stoat::PathTraversal> stringToVectorPath(std::string& input) {
+    std::vector<stoat::PathTraversal> vec_paths;
     std::istringstream iss(input);
     std::string path_str;
 
     while (std::getline(iss, path_str, ',')) {
-        stoat::Path_traversal_t path;
+        stoat::PathTraversal path;
         size_t i = 0;
         const size_t len = path_str.size();
 
@@ -268,7 +322,7 @@ Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPos
 
 Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_,
     std::pair<size_t, size_t> snarl_ids_,
-    std::vector<Path_traversal_t> snarl_paths_,
+    std::vector<PathTraversal> snarl_paths_,
     const size_t start_positions_, const size_t end_positions_,
     std::vector<std::string> type_variants_,
     size_t depth) :
@@ -279,90 +333,7 @@ Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_,
     end_positions(end_positions_),
     type_variants(std::move(type_variants_)),
     depth(depth) {}
-
-Path::Path() {}
-
-// Add a node with known orientation
-void Path::addNode(const size_t& node, bool orient) {
-    nodes.push_back(node);
-    orients.push_back(orient);
-}
-
-// Add a node handle and extract information using the std::string representation
-bool Path::addNodeHandle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index) {
-
-    // find the node orientation
-    bool node_o = distance_index.ends_at(node_h) == bdsg::SnarlDistanceIndex::END;
-
-    // Add node to path
-    nodes.push_back(distance_index.node_id(node_h));
-    orients.push_back(node_o);
-    return node_o;
-}
-
-// Get the std::string representation of the path
-Path_traversal_t Path::print() const {
-    Path_traversal_t out_path;
-    for (size_t i = 0; i < nodes.size(); ++i) {
-        Node_traversal_t node_traversal(nodes[i], !orients[i]); // because is reverse is false for '>' and true for '<'
-        out_path.add_node_traversal_t(node_traversal);
-    }
-    return out_path;
-}
-
-// Flip the path orientation
-void Path::flip() {
-    std::reverse(nodes.begin(), nodes.end());
-    std::reverse(orients.begin(), orients.end());
-    for (size_t i = 0; i < orients.size(); ++i) {
-        if (nodes[i] == 0) {
-            continue;
-        }
-        orients[i] = !orients[i];    
-    }
-}
-
-// Get the size of the path
-size_t Path::size() const {
-    return nodes.size();
-}
-
-// Count the number of reversed nodes
-size_t Path::nreversed() const {
-    return std::count(orients.begin(), orients.end(), false);
-}
-
-// Function to calculate the type of variant
-// tuple<std::string, size_t, size_t, size_t>
-//minimum_distance, maximum_distance, the number of nodes in the path (including boundary nodes), sum_path
-std::vector<std::string> calcul_pos_type_variant(const std::vector<std::tuple<size_t, size_t, size_t>>& list_length_paths) {
-    std::vector<std::string> list_type_variant;
-
-    for (const auto& tuple_info : list_length_paths) {
-        size_t min_length = std::get<0>(tuple_info);
-        size_t max_length = std::get<1>(tuple_info);
-        size_t path_length = std::get<2>(tuple_info); // The number of nodes in the path
-
-        if (path_length >= 3) {
-            // If there is at least one node representing this allele
-            if (min_length != max_length) { // Case nested
-                // If this is a complex variant (includes nested variants), then return a range of possible lengths
-                std::string nested = std::to_string(min_length) + "/" + std::to_string(max_length);
-                list_type_variant.push_back(nested);
-            } else { // Case nodes chain (ex : INS+SNP+...)
-                list_type_variant.push_back(std::to_string(min_length));
-            }
-
-        } else if (path_length == 2) { // case Deletion
-            list_type_variant.push_back("0");
-        } else { // Case path_lengths is empty or == 1
-            // This should probably never happen right ?
-            stoat::LOG_WARN("path_lengths is empty");
-        }
-    }
-    return list_type_variant;
-}
-
+    
 std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex>,
     unique_ptr<handlegraph::PathHandleGraph>>
@@ -526,22 +497,16 @@ std::vector<std::tuple<handlegraph::net_handle_t,
     return snarls;
 }
 
-std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_pretty_paths(
+std::vector<stoat::PathTraversal> convert_path_traversals(
     const bdsg::SnarlDistanceIndex& distance_index, 
     handlegraph::PathHandleGraph& graph, 
     std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths) {
 
     // list of paths
-    std::vector<stoat::Path_traversal_t> pretty_paths;
-
-    // seq_net, minimum_distance, maximun_distance, size_path, sum_path
-    // Used to calculate the type of variant
-    std::vector<std::tuple<size_t, size_t, size_t>> seq_net_paths;
+    std::vector<stoat::PathTraversal> path_travs;
 
     for (const auto& path : finished_paths) {
-        Path ppath;
-        size_t minimum_distance=0;
-        size_t maximun_distance=0;
+        PathTraversal path_trav;
         // saves the size of each node/element in the path
         std::vector<size_t> size_node;
         size_node.resize(path.size(), 0);
@@ -555,8 +520,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
 
             // Node case
             if (distance_index.is_node(net)) {
-                // JEAN why the boolean rev output?
-                bool rev = ppath.addNodeHandle(net, distance_index);
+                path_trav.add_node_handle(net, distance_index);
                 handlegraph::nid_t node_start_id = distance_index.node_id(net);
                 handlegraph::handle_t node_handle = graph.get_handle(node_start_id);
                 size_node[i] = graph.get_length(node_handle);
@@ -564,12 +528,11 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
 
             // Trivial chain case
             else if (distance_index.is_trivial_chain(net)) {
-                bool rev = ppath.addNodeHandle(net, distance_index);
-                // JEAN do we need to do that if it's only one node?
-                auto stn_start = distance_index.starts_at_start(net) ? distance_index.get_bound(net, false, true) : distance_index.get_bound(net, true, true);
-                handlegraph::nid_t node_start_id = distance_index.node_id(stn_start);
-                handlegraph::handle_t net_trivial_chain = graph.get_handle(node_start_id);
-                size_node[i] = graph.get_length(net_trivial_chain);
+                path_trav.add_node_handle(net, distance_index);
+                // it's a trivial chain so there is just one node inside. get it's node ID and size
+                handlegraph::nid_t triv_node_id = distance_index.node_id(distance_index.get_bound(net, false, true));
+                handlegraph::handle_t triv_node_h = graph.get_handle(triv_node_id);
+                size_node[i] = graph.get_length(triv_node_h);
             }
 
             // Chain case (can be nested snarl or just chain nodes)
@@ -583,10 +546,9 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                     nodr = distance_index.get_bound(net, false, false);
                 }
 
-                ppath.addNodeHandle(nodl, distance_index);
+                path_trav.add_node_handle(nodl, distance_index);
 
                 // does the chain contain only two nodes
-                // JEAN different from a trivial chain? 
                 bool chain_2node = true;
                 int child_count = 0;
 
@@ -600,10 +562,10 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                 });
                 
                 if (!(chain_2node && child_count == 2)) {
-                    ppath.addNode(0, true);
+                    path_trav.add_node(0, false);
                 }
 
-                ppath.addNodeHandle(nodr, distance_index);
+                path_trav.add_node_handle(nodr, distance_index);
 
                 // Fail case 
                 #ifdef DEBUG_SNARL_DATA_T
@@ -613,36 +575,25 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> fill_
                 #endif
 
                 // Add the minimum/maximum lengths of the chain
-                minimum_distance += distance_index.minimum_length(net);
-                maximun_distance += distance_index.maximum_length(net);
+                path_trav.add_min_allele_len(distance_index.minimum_length(net));
+                path_trav.add_max_allele_len(distance_index.maximum_length(net));
             }
         }
-
-        // Flip the path if more than half of the nodes are reversed OR if we are in a star case and the first node id is greatter than the last node id
-        // if (ppath.nreversed() > ppath.size() / 2) {
-        //     ppath.flip();
-        // }
 
         // add to min/max distance the size of the nodes and trivial chains saved above
         // but without including the boundary nodes
         for (size_t i = 1; i < size_node.size()-1; ++i) {
-            maximun_distance += size_node[i];
-            minimum_distance += size_node[i];
+            path_trav.add_min_allele_len(size_node[i]);
+            path_trav.add_max_allele_len(size_node[i]);
         }
 
-        // JEAN what's the difference between those objets Path_traversal_t and Path
-        Path_traversal_t pppath = ppath.print();
-        pppath.check_path_flip();
         // JEAN I think this is just for convenience but should make sure the path/edge orientation is NOT important when parsing the AT
-
-        pretty_paths.push_back(pppath);
-        // The number of nodes (maybe chains) in the path, including boundary nodes
-        size_t size_path = ppath.size();
-        seq_net_paths.push_back(std::make_tuple(minimum_distance, maximun_distance, size_path));
+        path_trav.check_path_flip();
+        
+        path_travs.push_back(path_trav);
     }
 
-    std::vector<std::string> type_variants = calcul_pos_type_variant(seq_net_paths);
-    return std::make_tuple(pretty_paths, type_variants);
+    return path_travs;
 }
 
 // {chr : matrix(snarl, paths, start_pos, end_pos, type)}
@@ -756,15 +707,19 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
             continue;
         }
 
-        // otherwise 
-        auto [pretty_paths, type_variants] = fill_pretty_paths(distance_index, graph, finished_paths);
-
         // stop if only one path
-        // JEAN can't we catch that before pretty paths?
-        if (pretty_paths.size() < 2) {
+        if (finished_paths.size() < 2) {
             snarls_failed++;
             continue;
         } // avoid special case single path
+
+        // otherwise 
+        auto path_travs = convert_path_traversals(distance_index, graph, finished_paths);
+        // JEAN for now remaking allele_lengths, but I think it should go in PathTraversal
+        std::vector<std::string> allele_lengths;
+        for(auto path_trav: path_travs){
+            allele_lengths.push_back(path_trav.get_allele_length());
+        }
 
         const std::string& chr = std::get<1>(snarl_path_pos);
         if (chr.empty()) {continue;}
@@ -782,16 +737,18 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
                     << end_pos << "\t" 
                     << handlegraph::as_integer(snarl) << "\t" 
                     << snarl_id_str << "\t"
-                    << vectorPathToString(pretty_paths) << "\t"
-                    << stoat::vectorToString(type_variants) << "\t"
+                    << vectorPathToString(path_travs) << "\t"
+                    << stoat::vectorToString(allele_lengths) << "\t"
                     << str_reference << "\t" 
                     << depth << "\n";
-        Snarl_data_t snarl_path(snarl, snarl_id, pretty_paths, start_pos, end_pos, type_variants, depth);
+
+        // JEAN if all this stuff goes in Snarl_data_t anyway, why not put it there from the start and avoid carrying around those tuples?
+        Snarl_data_t snarl_path(snarl, snarl_id, path_travs, start_pos, end_pos, allele_lengths, depth);
         
         #pragma omp critical(chr_to_snarls)
         chr_to_snarls[chr].emplace_back(std::move(snarl_path));
 
-        paths_analyzed += pretty_paths.size();
+        paths_analyzed += path_travs.size();
     }
 
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(snarls_failed));

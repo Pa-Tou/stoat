@@ -207,8 +207,8 @@ std::vector<size_t> found_gene_snarl(
     const size_t& end_pos,
     const size_t& windows_gene_threshold);
 
-// Decompose path stoat::Path_traversal_t to vectorstoat::Edge_t
-std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t& s);
+// Decompose path stoat::PathTraversal to vectorstoat::Edge_t
+std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::PathTraversal& s);
 
 // Decompose a list of paths std::string into a vector ofstoat::Edge_t
 const std::vector<std::vector<stoat::Edge_t>> decompose_path_list_str(const std::vector<std::string>& list_paths);

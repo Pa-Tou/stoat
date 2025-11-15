@@ -284,8 +284,8 @@ namespace stoat_vcf {
         return std::make_tuple(ptr_vcf, hdr, rec);
     }
 
-    // Decompose path stoat::Path_traversal_t to vectorstoat::Edge_t
-    std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t &list_paths)
+    // Decompose path stoat::PathTraversal to vectorstoat::Edge_t
+    std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::PathTraversal &list_paths)
     {
 
         std::vector<stoat::Edge_t> edges;
@@ -306,7 +306,7 @@ namespace stoat_vcf {
     std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string &s)
     {
         std::vector<stoat::Edge_t> edges;
-        stoat::Path_traversal_t nodes;
+        stoat::PathTraversal nodes;
 
         size_t i = 0;
         while (i < s.size())

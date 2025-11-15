@@ -28,7 +28,7 @@ namespace stoat_vcf {
 std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<size_t>>
 process_table_quantitative(
     const size_t& number_samples,
-    const std::vector<stoat::Path_traversal_t>& column_headers,
+    const std::vector<stoat::PathTraversal>& column_headers,
     const stoat_vcf::EdgeBySampleMatrix& matrix);
 
 // Given the number of samples (length_sample), the paths through the snarl (column_headers), the binary or quantitative phenotype of each sample (phenotype)
@@ -41,7 +41,7 @@ template <typename T>
 std::tuple<std::vector<std::vector<double>>, std::vector<T>, std::vector<std::string>, std::vector<size_t>>
 create_quantitative_table(
     const size_t& number_samples,
-    const std::vector<stoat::Path_traversal_t>& column_headers,
+    const std::vector<stoat::PathTraversal>& column_headers,
     const std::vector<T>& phenotype,
     const stoat_vcf::EdgeBySampleMatrix& matrix);
 
@@ -53,7 +53,7 @@ create_quantitative_table(
 std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<std::string>, std::vector<size_t>>
 create_eqtl_table(
     const size_t& number_samples,
-    const std::vector<stoat::Path_traversal_t>& column_headers,
+    const std::vector<stoat::PathTraversal>& column_headers,
     const stoat_vcf::EdgeBySampleMatrix& matrix);
 
 } // namespace stoat
