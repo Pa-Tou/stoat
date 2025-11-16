@@ -472,7 +472,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_path_
         // try to get the position of this element in the snarl tree
         std::tuple<std::string, size_t, size_t> snarl_path_pos = get_net_start_position(net);
         bool is_on_ref = true;
-
+        
         // if we couldn't find a position, use the parent's that we should have
         // found and saved earlier
         if (std::get<0>(snarl_path_pos).empty()) {
@@ -484,18 +484,16 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_path_
         // save this position in the cache
         snarl_pos_cache[distance_index.net_handle_as_string(net)] = snarl_path_pos;
 
-        // save snarl
-        if (distance_index.is_snarl(net)) {
-            // handlegraph::net_handle_t snarl, chr_ref, pos, is_on_ref_bool
+        // save snarl if positioned relative to a chromosome of interest
+        // if the chr is still empty at this point, it was not on a chr of interest and neither any of its parents
+        if (distance_index.is_snarl(net) && !std::get<0>(snarl_path_pos).empty()) {
             Snarl_data_t snarl(net, distance_index);
             snarl.start_position = std::get<1>(snarl_path_pos);
             snarl.end_position = std::get<2>(snarl_path_pos);
             snarl.is_on_ref = is_on_ref;
 
-            // snarls.push_back(std::make_tuple(snarl, std::get<0>(snarl_path_pos)));
+            // add this snarl to the appropriate chromosome list
             chr_to_snarls[std::get<0>(snarl_path_pos)].emplace_back(std::move(snarl));
-
-            // snarls.push_back(std::make_tuple(net, std::get<0>(snarl_path_pos), std::get<1>(snarl_path_pos), std::get<2>(snarl_path_pos), is_on_ref));
         }
 
         // explore children (if they can have children)
