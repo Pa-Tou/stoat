@@ -140,7 +140,7 @@ void gaf_creation(const std::string& input_file,
         std::string group_paths = columns[11];
         auto it = snarl_chr.find(chr);
         auto& data = it->second;  
-        const std::vector<std::string>& list_path = stoat::stringToVector<std::string>(stoat::vectorPathToString(data[count_line].snarl_paths));
+        const std::vector<std::string>& list_path = stoat::stringToVector<std::string>(stoat::vectorPathToString(data[count_line].paths));
 
         // Split group paths by comma
         std::vector<std::string> decomposed_group_paths;

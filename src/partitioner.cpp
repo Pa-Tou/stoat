@@ -516,7 +516,7 @@ void SnarlTraverserAndPartitioner::serialize(const std::string& filename) {
     //Finally the snarls
     outstream << "#SNARLS" << endl;
     for (const snarl_partition_t& snarl_partition : snarl_partitions) {
-        outstream << handlegraph::as_integer(snarl_partition.snarl) << "\t"
+        outstream << handlegraph::as_integer(snarl_partition.net) << "\t"
                   << handlegraph::as_integer(snarl_partition.start_handle) << "\t"
                   << handlegraph::as_integer(snarl_partition.end_handle) << "\t"
                   << ref_to_index[snarl_partition.ref_path] << "\t"
@@ -597,7 +597,7 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename, cons
         string part;
         //Snarl net handle
         std::getline(linestream, part, '\t');
-        snarl_partitions.back().snarl = handlegraph::as_net_handle(std::stoll(part));
+        snarl_partitions.back().net = handlegraph::as_net_handle(std::stoll(part));
         // snarl start id
         std::getline(linestream, part, '\t');
         snarl_partitions.back().start_handle = handlegraph::as_handle(std::stoull(part));
@@ -605,7 +605,7 @@ void SnarlTraverserAndPartitioner::deserialize(const std::string& filename, cons
         std::getline(linestream, part, '\t');
         snarl_partitions.back().end_handle = handlegraph::as_handle(std::stoull(part));
         // Put together the ids from the handles
-        snarl_partitions.back().snarl_ids = std::make_pair<size_t, size_t>(graph.get_id(snarl_partitions.back().start_handle),
+        snarl_partitions.back().ids = std::make_pair<size_t, size_t>(graph.get_id(snarl_partitions.back().start_handle),
                                                                            graph.get_id(snarl_partitions.back().end_handle));
         //reference path
         std::getline(linestream, part, '\t');

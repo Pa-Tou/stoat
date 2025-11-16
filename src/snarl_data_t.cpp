@@ -7,8 +7,8 @@ namespace stoat {
 // Function to parse the snarl path file
 std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const std::string& file_path) {
     
-    std::string line, chr, snarl, snarl_id, start_pos_str, end_pos_str, path_list, al_lens, ref, depth;
-    std::vector<Snarl_data_t> snarl_paths;
+    std::string line, chr, snarl_handle, snarl_id, start_pos_str, end_pos_str, path_list, al_lens, ref, depth;
+    std::vector<Snarl_data_t> snarls;
     std::unordered_map<std::string, std::vector<Snarl_data_t>> chr_to_snarls;
     std::ifstream file(file_path);
     std::string save_chr = "";
@@ -53,7 +53,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
         std::getline(ss, chr, '\t');   // chr column
         std::getline(ss, start_pos_str, '\t');   // pos column
         std::getline(ss, end_pos_str, '\t');   // pos column
-        std::getline(ss, snarl, '\t');   // snarl column
+        std::getline(ss, snarl_handle, '\t');   // snarl column
         std::getline(ss, snarl_id, '\t');   // snarl_id column
         std::getline(ss, path_list, '\t'); // paths column
         std::getline(ss, al_lens, '\t');   // al_lens column
@@ -62,8 +62,8 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
 
         // if we're starting a new chromosome, save the current one and reinit
         if (chr != save_chr && !save_chr.empty()) {
-            chr_to_snarls[save_chr] = std::move(snarl_paths);
-            snarl_paths.clear();
+            chr_to_snarls[save_chr] = std::move(snarls);
+            snarls.clear();
         }
         save_chr = chr;
 
@@ -82,12 +82,12 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
         }
 
         // create object and add to the list
-        Snarl_data_t snarl_path(handlegraph::as_net_handle(std::stoll(snarl)), snarl_ids, paths, start_pos, end_pos, std::stoull(depth));
-        snarl_paths.push_back(snarl_path);
+        Snarl_data_t snarl(handlegraph::as_net_handle(std::stoll(snarl_handle)), snarl_ids, paths, start_pos, end_pos, std::stoull(depth));
+        snarls.push_back(snarl);
     }
 
     // last chromosome
-    chr_to_snarls[save_chr] = std::move(snarl_paths);
+    chr_to_snarls[save_chr] = std::move(snarls);
     file.close();
 
     // --- Print statistics ---
@@ -95,7 +95,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
     for (const auto& [chr, snarls] : chr_to_snarls) {
         size_t total_paths = 0;
         for (const auto& snarl : snarls) {
-            total_paths += snarl.snarl_paths.size();
+            total_paths += snarl.paths.size();
         }
         std::cout << " > " << chr << ": " << snarls.size() << " snarls, " << total_paths << " total paths\n";
     }
@@ -186,7 +186,7 @@ void PathTraversal::set_allele_length_from_string(std::string al_len_str){
     // parse the string, could be either one size or MIN/MAX (see get_allele_length below)
     std::istringstream al_len_stream(al_len_str);
     std::string al_len;
-    std::vector<size_t> min_max_al_lens;    
+    std::vector<size_t> min_max_al_lens;
     while (std::getline(al_len_stream, al_len, '/')) {
         min_max_al_lens.push_back(std::stoull(al_len));
     }
@@ -226,6 +226,7 @@ std::string PathTraversal::get_allele_length () const {
 // Check and flip the path if necessary to ensure consistent orientation
 void PathTraversal::check_path_flip() {
     // Check if the path is already in the good orientation (aka min ID >> max ID)
+    // JEAN this is quite bad, needs better condition to flip or not, and also deal with potential >0 added previously
 
     if (paths[0].get_node_id() > paths.back().get_node_id()) {
         // flip the path
@@ -238,7 +239,7 @@ void PathTraversal::path_flip() {
     std::reverse(paths.begin(), paths.end());
 
     for (size_t i = 0; i < paths.size(); ++i) {
-
+        // JEAN maybe here never flip >0?
         paths[i].set_is_reverse(!paths[i].get_is_reverse());    
     }
 }
@@ -325,21 +326,21 @@ std::vector<stoat::PathTraversal> stringToVectorPath(std::string& input) {
     return vec_paths;
 }
 
-// Add a snarl
-Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) : 
-    snarl(snarl_), start_position(0), end_position(0), depth(distance_index.get_depth(snarl_)) {
-    snarl_ids = std::make_pair(distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false))),
-                               distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false))));
+// Snarl constructors
+Snarl_data_t::Snarl_data_t(bdsg::net_handle_t net_, const bdsg::SnarlDistanceIndex& distance_index) : 
+    net(net_), start_position(0), end_position(0), is_on_ref(false), depth(distance_index.get_depth(net_)) {
+    ids = std::make_pair(distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(net, false, false))),
+                               distance_index.node_id(distance_index.get_node_from_sentinel(distance_index.get_bound(net, true, false))));
 }
 
-Snarl_data_t::Snarl_data_t(bdsg::net_handle_t snarl_,
-    std::pair<size_t, size_t> snarl_ids_,
-    std::vector<PathTraversal> snarl_paths_,
+Snarl_data_t::Snarl_data_t(bdsg::net_handle_t net_,
+    std::pair<size_t, size_t> ids_,
+    std::vector<PathTraversal> paths_,
     const size_t start_position_, const size_t end_position_,
     size_t depth) :
-    snarl(snarl_),
-    snarl_ids(snarl_ids_),
-    snarl_paths(std::move(snarl_paths_)),
+    net(net_),
+    ids(ids_),
+    paths(std::move(paths_)),
     start_position(start_position_),
     end_position(end_position_),
     depth(depth) {}
@@ -369,12 +370,14 @@ std::tuple<
     );
 }
 
-std::vector<std::tuple<handlegraph::net_handle_t, 
-    std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
+std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_path_pos(
         const bdsg::SnarlDistanceIndex& distance_index, 
         handlegraph::PathHandleGraph& graph, 
         std::unordered_set<std::string>& ref_paths) {
 
+    // we'll output a list of snarls for each chromosome
+    std::unordered_map<std::string, std::vector<Snarl_data_t>> chr_to_snarls;
+    
     // load the position overlay needed to get position on reference paths
     bdsg::PositionOverlay ppo = bdsg::PositionOverlay(&graph);
 
@@ -456,10 +459,12 @@ std::vector<std::tuple<handlegraph::net_handle_t,
 
     };
 
-    // vector with snarl info: handle, ref path name, start position, end position, on ref?
-    std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> snarls;
-    // map: snarl handle (as string) -> position (chr, start, end)
-    unordered_map<std::string, std::tuple<std::string, size_t, size_t>> snarls_pos;
+    // cache the position of snarls already processed
+    // in particular, the parent snarls are processed first, so we can easily get and
+    // reuse those position for children that are not on the reference
+    // map a snarl handle as string to a position tuple (chr, start, end)
+    // JEAN this tuple could be a small struct...
+    unordered_map<std::string, std::tuple<std::string, size_t, size_t>> snarl_pos_cache;
 
     // function to check each element of the tree and fill the vector/map above
     function<void(handlegraph::net_handle_t)> process_tree_element = [&](handlegraph::net_handle_t net) {
@@ -472,17 +477,25 @@ std::vector<std::tuple<handlegraph::net_handle_t,
         // found and saved earlier
         if (std::get<0>(snarl_path_pos).empty()) {
             auto par_net = distance_index.get_parent(net);
-            snarl_path_pos = snarls_pos[distance_index.net_handle_as_string(par_net)];
+            snarl_path_pos = snarl_pos_cache[distance_index.net_handle_as_string(par_net)];
             is_on_ref = false;
         }
 
         // save this position in the cache
-        snarls_pos[distance_index.net_handle_as_string(net)] = snarl_path_pos;
+        snarl_pos_cache[distance_index.net_handle_as_string(net)] = snarl_path_pos;
 
         // save snarl
         if (distance_index.is_snarl(net)) {
             // handlegraph::net_handle_t snarl, chr_ref, pos, is_on_ref_bool
-            snarls.push_back(std::make_tuple(net, std::get<0>(snarl_path_pos), std::get<1>(snarl_path_pos), std::get<2>(snarl_path_pos), is_on_ref));
+            Snarl_data_t snarl(net, distance_index);
+            snarl.start_position = std::get<1>(snarl_path_pos);
+            snarl.end_position = std::get<2>(snarl_path_pos);
+            snarl.is_on_ref = is_on_ref;
+
+            // snarls.push_back(std::make_tuple(snarl, std::get<0>(snarl_path_pos)));
+            chr_to_snarls[std::get<0>(snarl_path_pos)].emplace_back(std::move(snarl));
+
+            // snarls.push_back(std::make_tuple(net, std::get<0>(snarl_path_pos), std::get<1>(snarl_path_pos), std::get<2>(snarl_path_pos), is_on_ref));
         }
 
         // explore children (if they can have children)
@@ -496,9 +509,15 @@ std::vector<std::tuple<handlegraph::net_handle_t,
     distance_index.for_each_child(root, process_tree_element);
 
     // JEAN the path overlay pointer used to be "cleaned up with" .reset() before, not sure if that's still necessary?
+
+    // print the total number of snarls found
+    size_t total_snarls = 0;
+    for (const auto& [chr, snarls] : chr_to_snarls) {
+        total_snarls += snarls.size();
+    }
+    stoat::LOG_INFO("Total number of snarls : " + std::to_string(total_snarls));
     
-    stoat::LOG_INFO("Total number of snarls : " + std::to_string(snarls.size()));
-    return snarls;
+    return chr_to_snarls;
 }
 
 std::vector<stoat::PathTraversal> convert_path_traversals(
@@ -603,7 +622,7 @@ std::vector<stoat::PathTraversal> convert_path_traversals(
 // {chr : matrix(snarl, paths, start_pos, end_pos, type)}
 std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_write(
     const bdsg::SnarlDistanceIndex& distance_index,
-    std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>& snarls,
+    std::unordered_map<std::string, std::vector<Snarl_data_t>>& chr_to_snarls,
     handlegraph::PathHandleGraph& graph,
     const std::string& output_file,
     const std::string& output_snarl_excluded,
@@ -618,138 +637,129 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
     write_snarl_data_fail_header(out_fail);
 
     // we'll output a list of snarls for each chromosome
-    std::unordered_map<std::string, std::vector<Snarl_data_t>> chr_to_snarls;
+    std::unordered_map<std::string, std::vector<Snarl_data_t>> out_chr_to_snarls;
 
     // metrics for the log
     size_t paths_analyzed = 0;
     size_t snarls_failed = 0;
     size_t paths_failed = 0;
 
-    // decompose the snarls in parallel
-    #pragma omp parallel for schedule(dynamic)
-    for (int i = 0; i < snarls.size(); ++i) {
-        const auto& snarl_path_pos = snarls[i];
-        handlegraph::net_handle_t snarl = std::get<0>(snarl_path_pos);
-        std::pair<size_t, size_t> snarl_id = stoat::find_snarl_id(distance_index, snarl);
-        std::string snarl_id_str = pairToString(snarl_id);
-
-        // Count children
-        size_t children = 0;
-        distance_index.for_each_child(snarl, [&](const handlegraph::net_handle_t& net) {
-            children++;
-            return true;
-        });
-
-        if (children > children_threshold) {
-            #pragma omp critical(out_fail)
-            out_fail << snarl_id_str << "\ttoo_many_children = " << children << " children\n";
-            snarls_failed++;
-            continue;
-        }
-
-        // list of paths being explored
-        // init with one starting at the first bound
-        std::vector<std::vector<handlegraph::net_handle_t>> paths = {
-            {distance_index.get_bound(snarl, false, true)}
-        };
-
-        // once a path reaches the other bound, add to this list of finished paths
-        std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;
-
-        // records if we gave up and need to skip this snarl if a path it too long
-        // JEAN do we want this? Or should we test the snarl with just the "short" paths? Not sure
-        bool skip_snarl = false;
-
-        // extend the paths
-        while (!paths.empty()) {
-            std::vector<handlegraph::net_handle_t> path = std::move(paths.back());
-            paths.pop_back();
-
-            auto add_to_path = [&](const handlegraph::net_handle_t& next_child) {
-
-                // If this is the bound of the snarl then we're done && next_child is different that the first node
-                if (distance_index.is_sentinel(next_child)) {
-                    size_t next_child_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(next_child));
-                    size_t first_element_path_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(path[0]));
-                    if (next_child_node_id != first_element_path_node_id) {
-                        finished_paths.emplace_back(path);
-                        finished_paths.back().push_back(next_child);
-                    }
-
-                } else {
-                    // stop if cycling too much
-                    int next_child_count = std::count(path.begin(), path.end(), next_child);
-                    if(next_child_count > cycle_threshold) {
-                        return true;
-                    }
-                    // stop if path would be too long
-                    if (path.size() + 1 > path_length_threshold) {
-#pragma omp critical(out_fail)
-                        out_fail << snarl_id_str << "\titeration_calculation_out = " << children << " children\n";
-                        skip_snarl = true;
-                        paths_failed++;
-                        return true;
-                    }
-
-                    // otherwise extend path
-                    paths.emplace_back(path);
-                    paths.back().push_back(next_child);
-                }
+    // decompose the snarls in each chromosome in parallel
+    for (auto& [chr, snarls] : chr_to_snarls) {
+#pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < snarls.size(); ++i) {
+            Snarl_data_t snarl = snarls[i];
+            std::string snarl_id_str = pairToString(snarl.ids);
+            
+            // Count children
+            size_t children = 0;
+            distance_index.for_each_child(snarl.net, [&](const handlegraph::net_handle_t& net) {
+                children++;
                 return true;
-            };
+            });
 
-            // Follow edges from the last element in path
-            if (!path.empty()) {
-                distance_index.follow_net_edges(path.back(), &graph, false, add_to_path);
+            if (children > children_threshold) {
+#pragma omp critical(out_fail)
+                out_fail << snarl_id_str << "\ttoo_many_children = " << children << " children\n";
+                snarls_failed++;
+                continue;
             }
 
+            // list of paths being explored
+            // init with one starting at the first bound
+            std::vector<std::vector<handlegraph::net_handle_t>> paths = {
+                {distance_index.get_bound(snarl.net, false, true)}
+            };
+
+            // once a path reaches the other bound, add to this list of finished paths
+            std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;
+
+            // records if we gave up and need to skip this snarl if a path it too long
+            // JEAN do we want this? Or should we test the snarl with just the "short" paths? Not sure
+            bool skip_snarl = false;
+
+            // extend the paths
+            while (!paths.empty()) {
+                std::vector<handlegraph::net_handle_t> path = std::move(paths.back());
+                paths.pop_back();
+
+                auto add_to_path = [&](const handlegraph::net_handle_t& next_child) {
+
+                    // If this is the bound of the snarl then we're done && next_child is different that the first node
+                    if (distance_index.is_sentinel(next_child)) {
+                        size_t next_child_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(next_child));
+                        size_t first_element_path_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(path[0]));
+                        if (next_child_node_id != first_element_path_node_id) {
+                            finished_paths.emplace_back(path);
+                            finished_paths.back().push_back(next_child);
+                        }
+
+                    } else {
+                        // stop if cycling too much
+                        int next_child_count = std::count(path.begin(), path.end(), next_child);
+                        if(next_child_count > cycle_threshold) {
+                            return true;
+                        }
+                        // stop if path would be too long
+                        if (path.size() + 1 > path_length_threshold) {
+#pragma omp critical(out_fail)
+                            out_fail << snarl_id_str << "\titeration_calculation_out = " << children << " children\n";
+                            skip_snarl = true;
+                            paths_failed++;
+                            return true;
+                        }
+
+                        // otherwise extend path
+                        paths.emplace_back(path);
+                        paths.back().push_back(next_child);
+                    }
+                    return true;
+                };
+
+                // Follow edges from the last element in path
+                if (!path.empty()) {
+                    distance_index.follow_net_edges(path.back(), &graph, false, add_to_path);
+                }
+
+            }
+
+            // this snarl should be filtered (some paths too long)
+            if (skip_snarl) {
+                snarls_failed++;
+                continue;
+            }
+
+            // stop if only one path
+            if (finished_paths.size() < 2) {
+                snarls_failed++;
+                continue;
+            } // avoid special case single path
+
+            // otherwise prepare PathTraversal objects
+            auto path_travs = convert_path_traversals(distance_index, graph, finished_paths);
+            std::string str_reference = snarl.is_on_ref ? "1" : "0";
+
+            // Output result
+#pragma omp critical(out_snarl)
+            out_snarl << chr << "\t" 
+                      << snarl.start_position << "\t" 
+                      << snarl.end_position << "\t" 
+                      << handlegraph::as_integer(snarl.net) << "\t" 
+                      << snarl_id_str << "\t"
+                      << vectorPathToString(path_travs) << "\t"
+                      << vectorPathToString(path_travs, true) << "\t"
+                      << str_reference << "\t" 
+                      << snarl.depth << "\n";
+
+            paths_analyzed += path_travs.size();
+
+            snarl.paths = std::move(path_travs);
+#pragma omp critical(out_chr_to_snarls)
+            out_chr_to_snarls[chr].emplace_back(std::move(snarl));
+
         }
-
-        // this snarl should be filtered (some paths too long)
-        if (skip_snarl) {
-            snarls_failed++;
-            continue;
-        }
-
-        // stop if only one path
-        if (finished_paths.size() < 2) {
-            snarls_failed++;
-            continue;
-        } // avoid special case single path
-
-        // otherwise prepare PathTraversal objects
-        auto path_travs = convert_path_traversals(distance_index, graph, finished_paths);
-
-        // a chromosome/path name, positions and other info
-        const std::string& chr = std::get<1>(snarl_path_pos);
-        if (chr.empty()) {continue;}
-        // JEAN that also shouldn't happen and maybe we should raise an error
-        size_t start_pos = std::get<2>(snarl_path_pos);
-        size_t end_pos = std::get<3>(snarl_path_pos);
-        size_t depth = distance_index.get_depth(snarl);
-        std::string str_reference = std::get<4>(snarl_path_pos) ? "1" : "0";
-
-        // Output result
-        #pragma omp critical(out_snarl)
-        out_snarl << chr << "\t" 
-                  << start_pos << "\t" 
-                  << end_pos << "\t" 
-                  << handlegraph::as_integer(snarl) << "\t" 
-                  << snarl_id_str << "\t"
-                  << vectorPathToString(path_travs) << "\t"
-                  << vectorPathToString(path_travs, true) << "\t"
-                  << str_reference << "\t" 
-                  << depth << "\n";
-
-        // JEAN if all this stuff goes in Snarl_data_t anyway, why not put it there from the start and avoid carrying around those tuples (snarl_path_pos)?
-        Snarl_data_t snarl_path(snarl, snarl_id, path_travs, start_pos, end_pos, depth);
-        
-        #pragma omp critical(chr_to_snarls)
-        chr_to_snarls[chr].emplace_back(std::move(snarl_path));
-
-        paths_analyzed += path_travs.size();
     }
-
+    
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(snarls_failed));
     stoat::LOG_INFO("Total number of paths : " + std::to_string(paths_analyzed));
     stoat::LOG_INFO("Total number of paths filtered : " + std::to_string(paths_failed));
@@ -758,11 +768,11 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
         throw std::runtime_error("Total number of paths = 0. This may indicate that the graph does not contain a flagged reference path. Please use -r/--chr to specify the reference paths.");
     }
 
-    for (const auto& [chr, snarls] : chr_to_snarls) {
+    for (const auto& [chr, snarls] : out_chr_to_snarls) {
         stoat::LOG_INFO("chr : " + chr + ", number of snarl : " + std::to_string(snarls.size()));
     }
 
-    return chr_to_snarls;
+    return out_chr_to_snarls;
 }
 
 } // end stoat namespace

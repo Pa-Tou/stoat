@@ -115,25 +115,32 @@ public:
     size_t size() const;
 };
 
+// TODO: Make std::pair<size_t, size_t> a struct?
+//struct snarl_id {
+//    size_t start_id;
+//    size_t end_id;
+//}
+    
 // Define a Snarl_data_t structure to hold snarl information
 struct Snarl_data_t {
     public:
         // Constructor definition
         Snarl_data_t() {};
-        Snarl_data_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index);
-        Snarl_data_t(net_handle_t snarl_,
-                    std::pair<size_t, size_t> snarl_ids_,
-                    std::vector<PathTraversal> snarl_paths_,
+        Snarl_data_t(bdsg::net_handle_t net_, const bdsg::SnarlDistanceIndex& distance_index);
+        Snarl_data_t(net_handle_t net_,
+                    std::pair<size_t, size_t> ids_,
+                    std::vector<PathTraversal> paths_,
                     const size_t start_position_, const size_t end_position_,
                     size_t depth);  // Assuming path_nodes correspond to type_variants
 
-        std::vector<PathTraversal> snarl_paths;
-        net_handle_t snarl; // handlegraph::subrange_t Snarl_data_t::snarl_id
+        std::vector<PathTraversal> paths;
+        net_handle_t net; // handlegraph::subrange_t Snarl_data_t::snarl_id
         //TODO: Make this a node_traversal_t
-        std::pair<size_t, size_t> snarl_ids;
+        std::pair<size_t, size_t> ids;
         size_t start_position;
         size_t end_position;
         size_t depth;
+        bool is_on_ref;
 };
 
 /// This stores additional information (and also less information) about a snarl and the partitions of paths going through it
@@ -163,16 +170,16 @@ struct snarl_partition_t : stoat::Snarl_data_t {
     snarl_partition_t() {};
 
     // Make it from a snarl
-    snarl_partition_t(bdsg::net_handle_t snarl_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) :
-        Snarl_data_t(snarl_, graph, distance_index),
-        start_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl_, false, true)), &graph)),
-        end_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl_, true, true)), &graph)){};
+    snarl_partition_t(bdsg::net_handle_t net_, const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index) :
+        Snarl_data_t(net_, distance_index),
+        start_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(net_, false, true)), &graph)),
+        end_handle(distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(net_, true, true)), &graph)){};
 
     // Make it from values
-    snarl_partition_t(bdsg::net_handle_t snarl_,
+    snarl_partition_t(bdsg::net_handle_t net_,
                       handlegraph::handle_t start_handle,
                       handlegraph::handle_t end_handle,
-                      std::pair<size_t, size_t> snarl_ids_,
+                      std::pair<size_t, size_t> ids_,
                       size_t start_pos_,
                       size_t end_pos_,
                       size_t depth_,
@@ -183,11 +190,11 @@ struct snarl_partition_t : stoat::Snarl_data_t {
                       Snarl_data_t(), min_length(min_length), max_length(max_length),
                       start_handle(start_handle), end_handle(end_handle),
                       ref_path(std::move(ref_path)), partitions(std::move(partitions)) {
-                          snarl=snarl_;
+                          net=net_;
                           start_position=start_pos_;
                           end_position=end_pos_;
                           depth=depth_;
-                          snarl_ids = snarl_ids_;
+                          ids=ids_;
                       };
 };
 
@@ -210,7 +217,7 @@ std::tuple<
 load_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
 // Function to list all the snarls and their position on the reference paths (if possible)
-std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>> list_all_snarls_path_pos(
+std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_path_pos(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             handlegraph::PathHandleGraph& graph, 
                             unordered_set<std::string>& ref_paths);
@@ -227,7 +234,7 @@ std::vector<PathTraversal> convert_path_traversals(
 // Returns a map from chromosome name to a vector of <snarl name, paths, start position, end position, variant type>
 std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_write(
                             const bdsg::SnarlDistanceIndex& distance_index, 
-                            std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>& snarls, 
+                            std::unordered_map<std::string, std::vector<Snarl_data_t>>& chr_to_snarls, 
                             handlegraph::PathHandleGraph& graph, 
                             const std::string& output_file, 
                             const std::string& output_snarl_excluded, 

@@ -253,18 +253,18 @@ TEST_CASE( "Path partitioner nested bubbles",
 
         for (const stoat::snarl_partition_t& test_partition : partitions) {
             stoat::snarl_partition_t& truth_partition = truth_partitions[0];
-            if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl1) {
+            if (distance_index.start_end_traversal_of(test_partition.net) == snarl1) {
                 truth_partition = truth_partitions[0];
-            } else if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl2) {
+            } else if (distance_index.start_end_traversal_of(test_partition.net) == snarl2) {
                 truth_partition = truth_partitions[1];
-            } else if (distance_index.start_end_traversal_of(test_partition.snarl) == snarl3) {
+            } else if (distance_index.start_end_traversal_of(test_partition.net) == snarl3) {
                 truth_partition = truth_partitions[2];
             } else {
-                REQUIRE(distance_index.start_end_traversal_of(test_partition.snarl) == snarl4);
+                REQUIRE(distance_index.start_end_traversal_of(test_partition.net) == snarl4);
                 truth_partition = truth_partitions[3];
            }
 
-           REQUIRE(handlegraph::as_integer(test_partition.snarl) == handlegraph::as_integer(truth_partition.snarl));
+           REQUIRE(handlegraph::as_integer(test_partition.net) == handlegraph::as_integer(truth_partition.net));
            REQUIRE(test_partition.start_handle == truth_partition.start_handle);
            REQUIRE(test_partition.end_handle == truth_partition.end_handle);
            REQUIRE(test_partition.ref_path == truth_partition.ref_path);

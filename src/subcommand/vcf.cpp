@@ -206,7 +206,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     }
 
     std::filesystem::create_directory(output_dir);
-    std::unordered_set<std::string> ref_chr = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
+    std::unordered_set<std::string> ref_chrs = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
     std::string regression_dir = output_dir + "/regression";
     stoat::Logger::instance().setLogFile(output_dir + "/stoat_vcf.log");
 
@@ -307,17 +307,15 @@ int main_stoat_vcf(int argc, char* argv[]) {
         std::tie(distance_index, graph) = stoat::load_graph_tree(graph_path, dist_path);
 
         // Check if chr present in chr file is present in the graph
-        for (const auto& chr : ref_chr) {
+        for (const auto& chr : ref_chrs) {
             stoat::LOG_TRACE("Chr found in .chr file : " + chr);
             if (!graph->has_path(chr)) {
                 throw std::runtime_error("Reference chromosome : " + chr + " not present in graph");
             }
         }
 
-        // std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>
-        // snarl_net_grah, chr_ref, start_pos, end_pos, is_on_ref
-        auto snarls = stoat::list_all_snarls_path_pos(*distance_index, *graph, ref_chr);
-        // JEAN why not use the object/struct Snarl_data_t here instead of the tuple
+        // maps a ref chr to a vector of snarls
+        auto snarls = stoat::list_all_snarls_path_pos(*distance_index, *graph, ref_chrs);
 
         // JEAN would be nice to let the user decide how to name that?
         std::string output_snarl_excluded = output_dir + "/snarl_not_analyse.tsv";

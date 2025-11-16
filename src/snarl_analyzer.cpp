@@ -410,18 +410,18 @@ namespace stoat_vcf {
     bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &snarl_data_s, 
         const std::string &chr, std::ofstream &outf) {
 
-            std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
-            size_t paths_number = snarl_data_s.snarl_paths.size();
+            std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
+            size_t paths_number = snarl_data_s.paths.size();
             std::vector<size_t> g0(paths_number, 0);
             std::vector<size_t> g1(paths_number, 0);
 
-            size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.snarl_paths, paths_number, list_samples.size(), edge_matrix);
+            size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.paths, paths_number, list_samples.size(), edge_matrix);
             stoat::remove_empty_columns_binary_table(g0, g1);
             bool filtration = stoat::filtration_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
 
             if (filtration)
             {
-                stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_binary_table");
+                stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_binary_table");
                 return filtration;
             }
 
@@ -440,17 +440,17 @@ namespace stoat_vcf {
     bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
         const stoat::Snarl_data_t &snarl_data_s, const std::string &chr, std::ofstream &outf)
     {
-        std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
+        std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
         
 
-        auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, binary_phenotype, edge_matrix);
+        auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.paths, binary_phenotype, edge_matrix);
         stoat::remove_empty_columns_quantitative_table(X);
 
         bool filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
         if (filtration)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_quantitative_table");
+            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_quantitative_table");
             return filtration;
         }
 
@@ -461,7 +461,7 @@ namespace stoat_vcf {
 
         if (filtration)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> check_last_columns_quantitative_table");
+            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
             return filtration;
         }
 
@@ -471,8 +471,8 @@ namespace stoat_vcf {
         // Plot regression table
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
         {
-            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
+            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.ids) + ".tsv";
+            stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.paths)), samples_name, variant_file_name);
         }
 
         #pragma omp critical(outf)
@@ -490,14 +490,14 @@ namespace stoat_vcf {
     {
 
         bool filtration = false;
-        auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.snarl_paths, quantitative_phenotype, edge_matrix);
+        auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.paths, quantitative_phenotype, edge_matrix);
         stoat::remove_empty_columns_quantitative_table(X);
 
         filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
         if (filtration)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_quantitative_table");
+            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_quantitative_table");
             return filtration;
         }
 
@@ -507,19 +507,19 @@ namespace stoat_vcf {
 
         if (filtration)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> check_last_columns_quantitative_table");
+            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
             return filtration;
         }
 
-        std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
+        std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
         std::stringstream data;
 
         auto [p_value, r2] = lr.linear_regression(X, Y, covariate);
 
         if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
         {
-            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
+            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.ids) + ".tsv";
+            stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.paths)), samples_name, variant_file_name);
         }
 
         #pragma omp critical(outf)
@@ -562,14 +562,14 @@ namespace stoat_vcf {
 
         bool filtration = false;
         std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_position, snarl_data_s.end_position, windows_gene_threshold);
-        auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.snarl_paths, edge_matrix);
+        auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.paths, edge_matrix);
 
         stoat::remove_empty_columns_quantitative_table(X);
         filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
 
         if (filtration)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> filtration_quantitative_table");
+            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_quantitative_table");
             return filtration;
         }
 
@@ -579,7 +579,7 @@ namespace stoat_vcf {
 
         if (filtration)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.snarl_ids) + " -> check_last_columns_quantitative_table");
+            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
             return filtration;
         }
 
@@ -590,15 +590,15 @@ namespace stoat_vcf {
             std::vector<double> gene_expression = eqtl_map.at(chr)[gene_idx].sampleExpresion;
             stoat::retain_indices(gene_expression, index_filtered);
 
-            std::string al_lens = vectorPathToString(snarl_data_s.snarl_paths, true);
+            std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
             std::stringstream data;
 
             auto [p_value, r2] = lr.linear_regression(X, gene_expression, covariate);
 
             if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
             {
-                std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.snarl_ids) + ".tsv";
-                stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.snarl_paths)), samples_name, variant_file_name);
+                std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.ids) + ".tsv";
+                stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.paths)), samples_name, variant_file_name);
             }
 
             #pragma omp critical(outf)
