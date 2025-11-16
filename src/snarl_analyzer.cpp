@@ -171,8 +171,8 @@ namespace stoat_vcf {
             // Iterate over each snarl
             for (const stoat::Snarl_data_t &snarl_data_s : snarls)
             {
-                bool fail = analyze_and_write_snarl(snarl_data_s, chr, outf);
-                chr_number_snarl_filtered += (fail ? 1 : 0);
+                bool filtered = analyze_and_write_snarl(snarl_data_s, chr, outf);
+                chr_number_snarl_filtered += (filtered ? 1 : 0);
             }
 
             total_number_snarl_filtered += chr_number_snarl_filtered;
@@ -417,12 +417,12 @@ namespace stoat_vcf {
 
             size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.paths, paths_number, list_samples.size(), edge_matrix);
             stoat::remove_empty_columns_binary_table(g0, g1);
-            bool filtration = stoat::filtration_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
+            bool to_filter = stoat::filter_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
 
-            if (filtration)
+            if (to_filter)
             {
-                stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_binary_table");
-                return filtration;
+                stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids));
+                return to_filter;
             }
 
             // Binary analysis single test
@@ -434,7 +434,7 @@ namespace stoat_vcf {
                 stoat::write_binary(outf, chr, snarl_data_s, al_lens, fastfisher_p_value, chi2_p_value, group_paths);
             }
 
-            return filtration;
+            return to_filter;
     }
 
     bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
@@ -446,23 +446,23 @@ namespace stoat_vcf {
         auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.paths, binary_phenotype, edge_matrix);
         stoat::remove_empty_columns_quantitative_table(X);
 
-        bool filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
+        bool to_filter = stoat::filter_quantitative_table(X, min_individuals, maf_threshold);
 
-        if (filtration)
+        if (to_filter)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_quantitative_table");
-            return filtration;
+            stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids) + " -> filter_quantitative_table");
+            return to_filter;
         }
 
         stoat::combine_identical_columns_quantitative_table(X);
         stoat::remove_last_columns_quantitative_table(X);
 
-        filtration = stoat::check_last_columns_quantitative_table(X);
+        to_filter = stoat::check_last_columns_quantitative_table(X);
 
-        if (filtration)
+        if (to_filter)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
-            return filtration;
+            stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
+            return to_filter;
         }
 
         // logistic regression with covariates if not empty
@@ -479,7 +479,7 @@ namespace stoat_vcf {
         {
             stoat::write_binary_covar(outf, chr, snarl_data_s, al_lens, p_value, beta, se, allele_paths);
         }
-        return filtration;
+        return to_filter;
     }
 
     // Quantitative Table Generation
@@ -489,26 +489,26 @@ namespace stoat_vcf {
         std::ofstream &outf)
     {
 
-        bool filtration = false;
+        bool to_filter = false;
         auto [X, Y, samples_name, allele_paths] = create_quantitative_table(list_samples.size(), snarl_data_s.paths, quantitative_phenotype, edge_matrix);
         stoat::remove_empty_columns_quantitative_table(X);
 
-        filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
+        to_filter = stoat::filter_quantitative_table(X, min_individuals, maf_threshold);
 
-        if (filtration)
+        if (to_filter)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_quantitative_table");
-            return filtration;
+            stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids) + " -> filter_quantitative_table");
+            return to_filter;
         }
 
         stoat::combine_identical_columns_quantitative_table(X);
         stoat::remove_last_columns_quantitative_table(X);
-        filtration = stoat::check_last_columns_quantitative_table(X);
+        to_filter = stoat::check_last_columns_quantitative_table(X);
 
-        if (filtration)
+        if (to_filter)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
-            return filtration;
+            stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
+            return to_filter;
         }
 
         std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
@@ -526,7 +526,7 @@ namespace stoat_vcf {
         {
             stoat::write_quantitative(outf, chr, snarl_data_s, al_lens, p_value, r2, allele_paths);
         }
-        return filtration;
+        return to_filter;
     }
 
     // Identify genes index that will be tested for this snarl by matching position
@@ -560,27 +560,27 @@ namespace stoat_vcf {
         const stoat::Snarl_data_t &snarl_data_s, const std::string &chr, std::ofstream &outf)
     {
 
-        bool filtration = false;
+        bool to_filter = false;
         std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_position, snarl_data_s.end_position, windows_gene_threshold);
         auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.paths, edge_matrix);
 
         stoat::remove_empty_columns_quantitative_table(X);
-        filtration = stoat::filtration_quantitative_table(X, min_individuals, maf_threshold);
+        to_filter = stoat::filter_quantitative_table(X, min_individuals, maf_threshold);
 
-        if (filtration)
+        if (to_filter)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> filtration_quantitative_table");
-            return filtration;
+            stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids) + " -> filter_quantitative_table");
+            return to_filter;
         }
 
         stoat::combine_identical_columns_quantitative_table(X);
         stoat::remove_last_columns_quantitative_table(X);
-        filtration = stoat::check_last_columns_quantitative_table(X);
+        to_filter = stoat::check_last_columns_quantitative_table(X);
 
-        if (filtration)
+        if (to_filter)
         {
-            stoat::LOG_DEBUG("filtration : " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
-            return filtration;
+            stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
+            return to_filter;
         }
 
         for (size_t i = 0; i < list_gene_index.size(); ++i)
@@ -606,7 +606,7 @@ namespace stoat_vcf {
                 stoat::write_eqtl(outf, chr, snarl_data_s, al_lens, gene_name, p_value, r2, allele_paths);
             }
         }
-        return filtration;
+        return to_filter;
     }
 
 } // end namespace stoat

@@ -153,13 +153,13 @@ bool check_last_columns_quantitative_table(
     const std::vector<std::vector<double>>& df);
 
 /// Return true if snarl must be filtered
-bool filtration_quantitative_table(
+bool filter_quantitative_table(
     const std::vector<std::vector<double>>& df,
     const size_t& min_individuals,
     const double& maf);
 
 /// Return true if the snarl should be filtered out, false if it should be kept
-bool filtration_binary_table(
+bool filter_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1,
     const size_t& individuals_included,

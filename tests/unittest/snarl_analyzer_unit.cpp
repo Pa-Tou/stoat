@@ -117,19 +117,19 @@ TEST_CASE("identify_path with EdgeBySampleMatrix") {
     REQUIRE(result == std::vector<size_t>({0, 2}));
 }
 
-TEST_CASE("filtration_quantitative_table basic filtering") {
+TEST_CASE("filter_quantitative_table basic filtering") {
     std::vector<std::vector<double>> df = {
         {1.0, 1.0},
         {0.5, 0.5}
     };
 
     SECTION("Valid data, should NOT be filtered") {
-        bool result = filtration_quantitative_table(df, 2, 0.1);
+        bool result = filter_quantitative_table(df, 2, 0.1);
         REQUIRE(result == false);
     }
 
     SECTION("Not enough individuals, should be filtered") {
-        bool result = filtration_quantitative_table({{1.0, 1.0}}, 2, 0.1);
+        bool result = filter_quantitative_table({{1.0, 1.0}}, 2, 0.1);
         REQUIRE(result == true);
     }
 
@@ -138,7 +138,7 @@ TEST_CASE("filtration_quantitative_table basic filtering") {
             {1.9, 0.1},
             {1.9, 0.1}
         };
-        bool result = filtration_quantitative_table(low_maf, 2, 0.4);
+        bool result = filter_quantitative_table(low_maf, 2, 0.4);
         REQUIRE(result == true);
     }
 }
@@ -181,34 +181,34 @@ TEST_CASE("remove_empty_columns_binary_table filters empty columns") {
     REQUIRE(g1 == std::vector<size_t>({0, 1}));
 }
 
-TEST_CASE("filtration_binary_table logic correctness") {
+TEST_CASE("filter_binary_table logic correctness") {
     SECTION("Valid case, should NOT be filtered") {
         std::vector<size_t> g0 = {5, 1};
         std::vector<size_t> g1 = {1, 5};
 
-        // filtration_binary_table g0, g1, totalSum, individuals_included, min_individuals, maf_threshold           
-        bool result = filtration_binary_table(g0, g1, 6, 2, 0.1);
+        // filter_binary_table g0, g1, totalSum, individuals_included, min_individuals, maf_threshold           
+        bool result = filter_binary_table(g0, g1, 6, 2, 0.1);
         REQUIRE(result == false);
     }
 
     SECTION("Too few individuals, should be filtered") {
         std::vector<size_t> g0 = {5, 1};
         std::vector<size_t> g1 = {1, 5};
-        bool result = filtration_binary_table(g0, g1, 3, 4, 0.1);
+        bool result = filter_binary_table(g0, g1, 3, 4, 0.1);
         REQUIRE(result == true);
     }
 
     SECTION("Too few individuals multi-paths, should be filtered") {
         std::vector<size_t> g0 = {5, 1, 6, 4};
         std::vector<size_t> g1 = {1, 5, 5, 0};
-        bool result = filtration_binary_table(g0, g1, 5, 6, 0.1);
+        bool result = filter_binary_table(g0, g1, 5, 6, 0.1);
         REQUIRE(result == true);
     }
 
     SECTION("High MAFs, should be filtered") {
         std::vector<size_t> g0 = {5, 1, 4, 3, 5};
         std::vector<size_t> g1 = {0, 4, 6, 1, 5};
-        bool result = filtration_binary_table(g0, g1, 12, 2, 0.45);
+        bool result = filter_binary_table(g0, g1, 12, 2, 0.45);
         REQUIRE(result == true);
     }
 }

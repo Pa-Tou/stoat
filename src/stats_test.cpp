@@ -16,54 +16,54 @@
 
 namespace stoat {
 
-// ------------------------ Filtration Function ------------------------
+// ------------------------ Functions to filter tables ------------------------
 
 // Return true when snarl must be filtered and false if not
-bool filtration_quantitative_table(
+bool filter_quantitative_table(
     const std::vector<std::vector<double>>& X,
     const size_t& min_individuals,
     const double& maf_threshold) {
     
-    // number of path < 2 OR not enougth individuals
-    if (X.empty() || X[0].size() < 2 || X.size() < min_individuals) {
-        if (X.empty()) {
-            stoat::LOG_DEBUG("Filtration cause: X is empty.");
-            return true;
-        }
-
-        if (X[0].size() < 2) {
-            stoat::LOG_DEBUG("Filtration cause: Not enough paths (" + std::to_string(X[0].size()) + " < 2)");
-            return true;
-        }
-
-        if (X.size() < min_individuals) {
-            stoat::LOG_DEBUG("Filtration cause: Not enough individuals (" + std::to_string(X.size()) + " < " + std::to_string(min_individuals) + ")");
-            return true;
-        }
+    // not enough individuals/haplotypes OR number of paths < 2
+    if (X.empty()) {
+        stoat::LOG_DEBUG("Filtered: X is empty.");
+        return true;
+    }
+    if (X[0].size() < 2) {
+        stoat::LOG_DEBUG("Filtred: not enough paths (" + std::to_string(X[0].size()) + " < 2)");
+        return true;
+    }
+    if (X.size() < min_individuals) {
+        stoat::LOG_DEBUG("Filtered: not enough individuals (" + std::to_string(X.size()) + " < " + std::to_string(min_individuals) + ")");
+        return true;
     }
 
+    // prepare the total allele count and each allele counts
     size_t numPaths = X[0].size();
-    std::vector<double> table(numPaths, 0.0);
-    double totalSum = 0.0;
-
-    // Compute column sums and total sum
+    std::vector<double> allele_counts(numPaths, 0.0);
+    double total_allele_count = 0.0;
     for (const auto& row : X) {
         for (size_t i = 0; i < numPaths; ++i) {
-            table[i] += row[i];
-            totalSum += row[i];
+            allele_counts[i] += row[i];
+            total_allele_count += row[i];
         }
     }
 
-    int count_above_threshold = 0;
+    // now count how many alleles have frequencies about the threshold
+    int alleles_above_threshold = 0;
     for (size_t i = 0; i < numPaths; ++i) {
-        double freq = table[i] / totalSum;
-        double maf = std::min(freq, 1.0 - freq);
-        if (maf > maf_threshold) {
-            ++count_above_threshold;
+        double freq = allele_counts[i] / total_allele_count;
+        freq = std::min(freq, 1.0 - freq);
+        // JEAN technically, should be >=, because it's the minimum accepted frequency
+        if (freq > maf_threshold) {
+            ++alleles_above_threshold;
         }
     }
 
-    return count_above_threshold < 2;
+    if (alleles_above_threshold < 2) {
+        stoat::LOG_DEBUG("Filtered: less than two alleles with frequency above " + std::to_string(maf_threshold));
+    }
+    return alleles_above_threshold < 2;
 }
 
 void remove_empty_columns_quantitative_table(
@@ -206,38 +206,44 @@ void remove_empty_columns_binary_table(
     g1 = std::move(g1_filtered);
 }
 
-// true : filtration on; false : no filtration
-bool filtration_binary_table(
+// Should we exclude this test? "filter" this table out
+bool filter_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1,
     const size_t& individuals_included, 
     const size_t& min_individuals,
     const double& maf_threshold) {
 
-    // Not enougth individuals OR not enougth haplotypes OR number of paths < 2
+    // not enough individuals/haplotypes OR number of paths < 2
     if (individuals_included < min_individuals || g0.size() < 2) {
+        stoat::LOG_DEBUG("Filtered: not enough individuals: " + std::to_string(individuals_included));
         return true; // Empty or invalid input → filter
     }
 
-    size_t haplotype_count = 0;
+    // prepare the total allele count
+    size_t total_allele_count = 0;
     for (size_t i = 0 ; i < g0.size() ; i++) {
-        haplotype_count += g0[i];
-        haplotype_count += g1[i];
+        total_allele_count += g0[i];
+        total_allele_count += g1[i];
     }
 
-    int count_above_threshold = 0;
+    // now check if allele frequencies are above the threshold
+    int alleles_above_threshold = 0;
     for (size_t i = 0; i < g0.size(); ++i) {
-        size_t columnSum = g0[i] + g1[i];
+        size_t allele_count = g0[i] + g1[i];
+        double allele_freq = static_cast<double>(allele_count) / total_allele_count;
+        allele_freq = std::min(allele_freq, 1.0 - allele_freq);
 
-        double freq1 = static_cast<double>(columnSum) / haplotype_count;
-        double maf = std::min(freq1, 1.0 - freq1);
-
-        if (maf > maf_threshold) {
-            ++count_above_threshold;
+        if (allele_freq > maf_threshold) {
+            ++alleles_above_threshold;
         }
     }
 
-    return count_above_threshold < 2; // Keep if at least two MAFs path > MAF threshold
+    if (alleles_above_threshold < 2) {
+        stoat::LOG_DEBUG("Filtered: less than two alleles with frequency above " + std::to_string(maf_threshold));
+    }
+    // filter if there is not at least two path with frequency > MAF threshold
+    return alleles_above_threshold < 2; 
 }
 
 // ------------------------ Logistic regression ------------------------
@@ -747,7 +753,7 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
     int num_predictors = X_raw[0].size();                               // number of predictors
     int num_covariates = covariates.empty() ? 0 : covariates[0].size(); // number of covariates
 
-    LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
+    stoat::LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
     
     // ---- FULL MODEL ----
     int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
@@ -824,9 +830,16 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (num_samples < num_params_full) {
-        stoat::LOG_WARN("Less samples than alleles+covariates in some snarls. Increasing the minimum number of individuals with -I to get more robust associations and avoid issues.");
+        stoat::LOG_WARN("Less samples (" + std::to_string(num_samples) + ") than alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Increasing the minimum number of individuals with -I to get more robust associations and avoid issues.");
     }
-    assert(F_stat > 0);
+    if (F_stat < 0 && F_stat > -0.00001){
+        stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
+        F_stat = 0;
+    }
+    if (F_stat < -0.00001){
+        stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ".");
+    }
+    assert(F_stat >= 0);
     boost::math::fisher_f_distribution<double> dist(df_numerator, df_denominator);
     double p_value = 1.0 - boost::math::cdf(dist, F_stat);
 

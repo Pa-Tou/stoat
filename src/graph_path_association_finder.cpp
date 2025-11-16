@@ -142,7 +142,7 @@ void AssociationFinder::test_snarls() const {
                         seen_samples.insert(sample.sample);
                     }
                 }
-                if (!stoat::filtration_binary_table(genotype_associated, genotype_unassociated, seen_samples.size(), min_individuals, maf_threshold)) {
+                if (!stoat::filter_binary_table(genotype_associated, genotype_unassociated, seen_samples.size(), min_individuals, maf_threshold)) {
                     // If we are using a real statistical test, then always write the output because the BH correction will need all the p-values
                     // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
                     write_output = true;
