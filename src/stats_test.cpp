@@ -747,6 +747,8 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
     int num_predictors = X_raw[0].size();                               // number of predictors
     int num_covariates = covariates.empty() ? 0 : covariates[0].size(); // number of covariates
 
+    LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
+    
     // ---- FULL MODEL ----
     int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
     std::vector<std::vector<double>> X_full(num_samples, std::vector<double>(num_params_full, 1.0));
@@ -802,7 +804,9 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
         for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_hat_r[i]) * (y[i] - y_hat_r[i]);}
     } else {
         // no covariates: reduced model = intercept only
-        for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);}
+        // JEAN same as SST already computed above then, right?
+        // for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);}
+        SSE_reduced = SST;
     }
 
     // ---- F-statistic ----
@@ -817,6 +821,12 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
     double denominator = SSE_full / df_denominator;
     double F_stat = numerator / denominator;
 
+    // JEAN problem can arise if we have less samples than variables
+    // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
+    if (num_samples < num_params_full) {
+        stoat::LOG_WARN("Less samples than alleles+covariates in some snarls. Increasing the minimum number of individuals with -I to get more robust associations and avoid issues.");
+    }
+    assert(F_stat > 0);
     boost::math::fisher_f_distribution<double> dist(df_numerator, df_denominator);
     double p_value = 1.0 - boost::math::cdf(dist, F_stat);
 

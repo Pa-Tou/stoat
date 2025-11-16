@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <Eigen/Dense>
 #include <Eigen/Core>
+#include <cassert>
 
 #include <boost/math/distributions/fisher_f.hpp>
 #include <boost/math/distributions/students_t.hpp>
