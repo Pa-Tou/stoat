@@ -202,6 +202,7 @@ add_executable(unit_tests
     tests/unittest/post_processing_unit.cpp
     tests/unittest/snarl_analyzer_unit.cpp
     tests/unittest/utils_unit.cpp
+    tests/unittest/snarl_data_collection_unit.cpp
 )
 
 target_compile_options(unit_tests PRIVATE -w) # fix warning

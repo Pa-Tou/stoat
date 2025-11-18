@@ -86,7 +86,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 snarl_data.start_node = stoat::Node_traversal_t(graph.get_id(start_in),
                                                                                 graph.get_is_reverse(start_in));
                                 snarl_data.end_node = stoat::Node_traversal_t(graph.get_id(end_in),
-                                                                                graph.get_is_reverse(end_in));
+                                                                              graph.get_is_reverse(end_in));
 
                                 // Add the depth of the snarl
                                 snarl_data.depth = distance_index.get_depth(snarl);
@@ -101,6 +101,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     auto reference_range = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
                                     snarl_data.start_position = std::get<1>(reference_range);
                                     snarl_data.end_position = std::get<2>(reference_range);
+
+
                                     #pragma omp critical(chain_loop)
                                     {
                                         if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
@@ -237,6 +239,40 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     assert(chains_added == chains_processed);
     #endif
 }
+
+// Call interatee for all snarls
+void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
+    for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
+
+        std::vector<std::set<sample_hap_t>> sample_partitions;
+
+        if (snarl_to_partitions.count(snarl_info.start_node)) {
+            const std::vector<std::set<size_t>>& partition_ints = snarl_to_partitions.at(snarl_info.start_node);
+            for (const std::set<size_t>& partition : partition_ints) {
+                sample_partitions.emplace_back();
+                for (const size_t& i : partition) {
+                    sample_partitions.back().emplace(sample_haplotypes[i]);
+                }
+            }
+        }
+
+
+        std::vector<Path_traversal_t> empty_walks (0); 
+        std::vector<std::string> empty_sequences (0);
+        snarl_info_t new_snarl_info (snarl_info.start_node, 
+                              snarl_info.end_node, 
+                              snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
+                              snarl_info.start_position,
+                              snarl_info.end_position,
+                              snarl_info.depth,
+                              snarl_info.variant_type,
+                              snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
+                              sample_partitions,
+                              snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
+        iteratee(new_snarl_info);
+    }
+}
+
 
 std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> SnarlDataCollection::get_walks_through_snarl(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const net_handle_t& snarl, bool check_distances,
@@ -456,6 +492,7 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
             }
         }
     }
+    return sequences;
 }
 
 
@@ -465,7 +502,7 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
 
     // If we have distances in the index, make sure that the snarl's maximum lenght is small enough
     if (check_distances) {
-        pass &= allele_size_limit <= distance_index.maximum_length(snarl);
+        pass =  pass && (allele_size_limit <= distance_index.maximum_length(snarl));
     }
     //TODO: Once the libbdsg branch is merged we can use this instead of going through all the children to count them
     //pass &= snarl_child_limit <= distance_index.get_snarl_child_count(snarl);
@@ -476,8 +513,9 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
         children++;
         return true;
     });
-    pass &= snarl_child_limit <= children;
+    pass = pass && (snarl_child_limit >= children);
 
+    return pass;
 }
 
 
@@ -564,9 +602,9 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
             assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_partitions.at(snarl_data.start_node).size());
             #endif
             for (const std::set<size_t>& partition : snarl_to_partitions.at(snarl_data.start_node)){
-                cerr << partition.size() << "\t";
+                outstream << partition.size() << "\t";
                 for (const size_t& x : partition) {
-                    cerr << x << "\t";
+                    outstream << x << "\t";
                 }
             }
         }
@@ -577,7 +615,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
             assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sequences.at(snarl_data.start_node).size());
             #endif
             for (const std::string& seq : snarl_to_sequences.at(snarl_data.start_node)){
-                cerr << seq << ",";
+                outstream << seq << ",";
             }
         }
         

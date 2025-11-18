@@ -19,7 +19,7 @@ struct snarl_info_t {
     public:
 
         // Constructor from elements
-        snarl_info_t(stoat::Node_traversal_t start, stoat::Node_traversal_t end_node, std::string ref_path, 
+        snarl_info_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
                      size_t start_position, size_t end_position, size_t depth, const std::string& variant_type, 
                      const std::vector<Path_traversal_t>& snarl_walks, const std::vector<std::set<sample_hap_t>>& partitions, 
                      const std::vector<std::string>& sequences) :
@@ -69,6 +69,11 @@ class SnarlDataCollection {
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////// Public functions for building and interrogating snarl info
 
+        /// Make a SnarlDataCollection with limits on which snarls to include
+        /// Ignore snarls whose maximum length is less than allele_size_limit
+        /// Ignore snarls with more children than snarl_child_limit
+        /// Ignore paths the cycle more than walk_cycle_limit times
+        /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
         SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
