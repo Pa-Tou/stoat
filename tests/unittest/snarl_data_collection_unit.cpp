@@ -174,7 +174,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
     SECTION("Make and fill in snarl collection with no data") {
-        // There isn't much to do with one node so just make sure we can run the constructor without crashing
+        // Don't get the partitions or anything else
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, false, [&](const handlegraph::net_handle_t& net) { 
             std::vector<std::set<sample_hap_t>> partitions;
@@ -265,7 +265,145 @@ TEST_CASE( "Snarl collection nested bubbles",
         });
 
         REQUIRE(snarl_count == 4);
+    }
+    SECTION("Make and fill in snarl collection with just the reference in partitions") {
+        // Make the partitions but only the reference sample
 
+        sample_hap_t ref_sample;
+
+        path_graph->for_each_path_handle([&] (handlegraph::path_handle_t path) {
+            if (graph.get_sense(path) == handlegraph::PathSense::REFERENCE) {
+                ref_sample = stoat::get_sample_and_haplotype(*path_graph, path);
+            }
+            return true;
+        });
+
+
+        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        snarl_collection.fill_in_snarl_info(*path_graph, distance_index, true, [&](const handlegraph::net_handle_t& net) { 
+            std::vector<std::set<sample_hap_t>> partitions;
+            partitions.emplace_back();
+            partitions.back().emplace(ref_sample);
+            return partitions;
+        }, false, "", false, cout);
+
+        // Check that we got all snarls and that we got the correct snarls
+        size_t snarl_count = 0;
+
+        std::vector<std::set<sample_hap_t>> partitions;
+        partitions.emplace_back();
+        partitions.back().emplace(ref_sample);
+        std::vector<std::string> sequences;
+
+
+        // Get just the walk for the reference since this only tests the partitions containing only the reference
+        std::vector<Path_traversal_t> snarl_walks1;
+        snarl_walks1.emplace_back();
+        snarl_walks1.back().add_node_traversal_t(Node_traversal_t(2, false));
+        stoat::snarl_info_t snarl1 (stoat::Node_traversal_t(1, false), // start (or end) node 
+                                    stoat::Node_traversal_t(4, true), // end (or start) node 
+                                    "path0#0#path0",                   // reference path 
+                                    1,                                 // start offset
+                                    2,                                 // end offset
+                                    1,                                 // depth
+                                    "",                                // variant type (allele length counts)
+                                    snarl_walks1,                       // walks through the snarl 
+                                    partitions,                        // set of samples per walk 
+                                    sequences                         // sequences per walk 
+                                    );
+        std::vector<Path_traversal_t> snarl_walks2;
+        snarl_walks2.emplace_back();
+        snarl_walks2.back().add_node_traversal_t(Node_traversal_t(5, false));
+        snarl_walks2.back().add_node_traversal_t(Node_traversal_t(0, false));
+        snarl_walks2.back().add_node_traversal_t(Node_traversal_t(7, false));
+        stoat::snarl_info_t snarl2 (stoat::Node_traversal_t(4, false), // start (or end) node 
+                                    stoat::Node_traversal_t(8, true), // end (or start) node 
+                                    "path0#0#path0",                   // reference path 
+                                    3,                                 // start offset
+                                    6,                                 // end offset
+                                    1,                                 // depth
+                                    "",                                // variant type (allele length counts)
+                                    snarl_walks2,                       // walks through the snarl 
+                                    partitions,                        // set of samples per walk 
+                                    sequences                          // sequences per walk 
+                                    );
+        std::vector<Path_traversal_t> snarl_walks3;
+        snarl_walks3.emplace_back();
+        snarl_walks3.back().add_node_traversal_t(Node_traversal_t(6, false));
+        stoat::snarl_info_t snarl3 (stoat::Node_traversal_t(5, false), // start (or end) node 
+                                    stoat::Node_traversal_t(7, true), // end (or start) node 
+                                    "path0#0#path0",                   // reference path 
+                                    4,                                 // start offset
+                                    5,                                 // end offset
+                                    2,                                 // depth
+                                    "",                                // variant type (allele length counts)
+                                    snarl_walks3,                       // walks through the snarl 
+                                    partitions,                        // set of samples per walk 
+                                    sequences                          // sequences per walk 
+                                    );
+
+        std::vector<Path_traversal_t> snarl_walks4;
+        snarl_walks4.emplace_back();
+        stoat::snarl_info_t snarl4 (stoat::Node_traversal_t(8, false), // start (or end) node 
+                                    stoat::Node_traversal_t(10, true), // end (or start) node 
+                                    "NA",                              // reference path 
+                                    0,                                 // start offset
+                                    0,                                 // end offset
+                                    1,                                 // depth
+                                    "",                                // variant type (allele length counts)
+                                    snarl_walks4,                       // walks through the snarl 
+                                    partitions,                        // set of samples per walk 
+                                    sequences                          // sequences per walk 
+                                    );
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            snarl_count++;
+
+            if ((snarl_info.start_node == snarl1.start_node && snarl_info.end_node == snarl1.end_node) ||
+                (snarl_info.start_node == snarl1.end_node && snarl_info.end_node == snarl1.start_node)) {
+                REQUIRE(snarl_info.ref_path == snarl1.ref_path);
+                REQUIRE(snarl_info.start_position == snarl1.start_position);
+                REQUIRE(snarl_info.end_position == snarl1.end_position);
+                REQUIRE(snarl_info.depth == snarl1.depth);
+                REQUIRE(snarl_info.partitions == snarl1.partitions);
+                REQUIRE(snarl_info.snarl_walks.size() == 1);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 1);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == snarl_walks1[0].get_paths()[0]);
+            } else if ((snarl_info.start_node == snarl2.start_node && snarl_info.end_node == snarl2.end_node) ||
+                (snarl_info.start_node == snarl2.end_node && snarl_info.end_node == snarl2.start_node)) {
+                REQUIRE(snarl_info.ref_path == snarl2.ref_path);
+                REQUIRE(snarl_info.start_position == snarl2.start_position);
+                REQUIRE(snarl_info.end_position == snarl2.end_position);
+                REQUIRE(snarl_info.depth == snarl2.depth);
+                REQUIRE(snarl_info.partitions == snarl2.partitions);
+                REQUIRE(snarl_info.snarl_walks.size() == 1);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == snarl_walks2[0].get_paths()[0]);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[1] == snarl_walks2[0].get_paths()[1]);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[2] == snarl_walks2[0].get_paths()[2]);
+            }  else if ((snarl_info.start_node == snarl3.start_node && snarl_info.end_node == snarl3.end_node) ||
+                (snarl_info.start_node == snarl3.end_node && snarl_info.end_node == snarl3.start_node)) {
+                REQUIRE(snarl_info.ref_path == snarl3.ref_path);
+                REQUIRE(snarl_info.start_position == snarl3.start_position);
+                REQUIRE(snarl_info.end_position == snarl3.end_position);
+                REQUIRE(snarl_info.depth == snarl3.depth);
+                REQUIRE(snarl_info.partitions == snarl3.partitions);
+                REQUIRE(snarl_info.snarl_walks.size() == 1);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 1);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == snarl_walks3[0].get_paths()[0]);
+            } else if ((snarl_info.start_node == snarl4.start_node && snarl_info.end_node == snarl4.end_node) ||
+                (snarl_info.start_node == snarl4.end_node && snarl_info.end_node == snarl4.start_node)) {
+                REQUIRE(snarl_info.ref_path == snarl4.ref_path);
+                REQUIRE(snarl_info.start_position == snarl4.start_position);
+                REQUIRE(snarl_info.end_position == snarl4.end_position);
+                REQUIRE(snarl_info.depth == snarl4.depth);
+                REQUIRE(snarl_info.partitions == snarl4.partitions);
+                REQUIRE(snarl_info.snarl_walks.size() == 0);
+            } else {
+                REQUIRE(false);
+            }
+        });
+
+        REQUIRE(snarl_count == 4);
     }
 
 

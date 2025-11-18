@@ -404,10 +404,6 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
         size_t min_length = 0;
         size_t max_length = 0;
 
-        // Start a new walk
-        //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
-        snarl_walks.emplace_back();
-        std::vector<bdsg::net_handle_t>& current_walk = snarl_walks.back();
 
         // Get the step of this path on both the start and end nodes.
         std::vector<handlegraph::step_handle_t> boundary_steps;
@@ -430,49 +426,54 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
         sort(boundary_steps.begin(), boundary_steps.end(), [&](const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
             return graph.get_position_of_step(a) < graph.get_position_of_step(b);
         });
+        if (boundary_steps.size() > 1) {
+            // Start a new walk
+            //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
+            snarl_walks.emplace_back();
+            std::vector<bdsg::net_handle_t>& current_walk = snarl_walks.back();
+            // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
+            //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
+            // inside the snarl and the first traversal of a boundary node is leaving it
+            for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
+                handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
+                while (step != boundary_steps[boundary_i+1]) {
+                    // Step is a node inside the snarl, and it may be nested inside children of the snarl
+                    // If the node is a child of the snarl, then its parent is a trivial chain and its grandparent is the snarl
+                    // If it is the first node in a chain that is the child of the snarl, then it is one of its parent's boundary nodes pointing
+                    //   into the chain and its grandparent is the snarl.
+                    // In any other case we want to ignore it
+                    // TODO: I think this will be faster than skipping to the end of the chain and looking for the right path
+                    
+                    handlegraph::handle_t node = graph.get_handle_of_step(step);
+                    handlegraph::net_handle_t node_net = distance_index.get_net(node, &graph);
+                    handlegraph::net_handle_t parent = distance_index.get_parent(node_net);
 
-        // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
-        //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
-        // inside the snarl and the first traversal of a boundary node is leaving it
-        for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
-            handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
-            while (step != boundary_steps[boundary_i+1]) {
-                // Step is a node inside the snarl, and it may be nested inside children of the snarl
-                // If the node is a child of the snarl, then its parent is a trivial chain and its grandparent is the snarl
-                // If it is the first node in a chain that is the child of the snarl, then it is one of its parent's boundary nodes pointing
-                //   into the chain and its grandparent is the snarl.
-                // In any other case we want to ignore it
-                // TODO: I think this will be faster than skipping to the end of the chain and looking for the right path
-                
-                handlegraph::handle_t node = graph.get_handle_of_step(step);
-                handlegraph::net_handle_t node_net = distance_index.get_net(node, &graph);
-                handlegraph::net_handle_t parent = distance_index.get_parent(node_net);
-
-                // For the path, add an empty node for each time we leave and re-enter the snarl
-                if (boundary_i != 0) {
-                    current_walk.emplace_back(distance_index.get_root());
-                }
-
-
-                // Add to the path, depending on if this is a node or chain
-                if (parent == snarl) {
-                    if (distance_index.is_trivial_chain(parent)) {
-                        // This node is really a node in the snarl, then add it to the path 
-
-                        current_walk.emplace_back(parent);
-
-                    } else if (node_net == distance_index.get_bound(parent, false, true) ||  node_net == distance_index.get_bound(parent, true, true)) {
-                        // This node is going into the child chain going backward
-
-                        current_walk.emplace_back(parent);
+                    // For the path, add an empty node for each time we leave and re-enter the snarl
+                    if (boundary_i != 0) {
+                        current_walk.emplace_back(distance_index.get_root());
                     }
-                }
 
-                step = graph.get_next_step(step);
 
-            }//end while loop going through a traversal of the snarl
+                    // Add to the path, depending on if this is a node or chain
+                    if (distance_index.get_parent(parent) == snarl) {
+                        if (distance_index.is_trivial_chain(parent)) {
+                            // This node is really a node in the snarl, then add it to the path 
 
-        }// end for loop through each traversal of the snarl in one partition
+                            current_walk.emplace_back(parent);
+
+                        } else if (node_net == distance_index.get_bound(parent, false, true) ||  node_net == distance_index.get_bound(parent, true, true)) {
+                            // This node is going into the child chain going backward
+
+                            current_walk.emplace_back(parent);
+                        }
+                    }
+
+                    step = graph.get_next_step(step);
+
+                }//end while loop going through a traversal of the snarl
+
+            }// end for loop through each traversal of the snarl in one partition
+        }// end if there are enough boundary nodes
 
 
     }// end for each first step (per partition)
