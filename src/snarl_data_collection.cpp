@@ -1,7 +1,7 @@
 #include "snarl_data_collection.hpp"
 #include <fstream>
 
-//#define DEBUG_SNARL_DATA_COLLECTION
+#define DEBUG_SNARL_DATA_COLLECTION
 
 using namespace std;
 namespace stoat {
@@ -171,6 +171,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                         save_snarl = false;
                                     }
                                 }
+                                snarl_data.variant_type = stoat::vectorToString(walk_lengths);
+
 
                                 if (sequence_requested && save_snarl) {
                                     // Find the sequences

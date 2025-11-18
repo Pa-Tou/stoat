@@ -285,7 +285,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             partitions.emplace_back();
             partitions.back().emplace(ref_sample);
             return partitions;
-        }, false, "", false, cout);
+        }, true, "", false, cout);
 
         // Check that we got all snarls and that we got the correct snarls
         size_t snarl_count = 0;
@@ -306,7 +306,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                                     1,                                 // start offset
                                     2,                                 // end offset
                                     1,                                 // depth
-                                    "",                                // variant type (allele length counts)
+                                    "1",                                // variant type (allele length counts)
                                     snarl_walks1,                       // walks through the snarl 
                                     partitions,                        // set of samples per walk 
                                     sequences                         // sequences per walk 
@@ -322,7 +322,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                                     3,                                 // start offset
                                     6,                                 // end offset
                                     1,                                 // depth
-                                    "",                                // variant type (allele length counts)
+                                    "2,3",                                // variant type (allele length counts)
                                     snarl_walks2,                       // walks through the snarl 
                                     partitions,                        // set of samples per walk 
                                     sequences                          // sequences per walk 
@@ -336,7 +336,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                                     4,                                 // start offset
                                     5,                                 // end offset
                                     2,                                 // depth
-                                    "",                                // variant type (allele length counts)
+                                    "1",                                // variant type (allele length counts)
                                     snarl_walks3,                       // walks through the snarl 
                                     partitions,                        // set of samples per walk 
                                     sequences                          // sequences per walk 
@@ -364,40 +364,51 @@ TEST_CASE( "Snarl collection nested bubbles",
                 REQUIRE(snarl_info.start_position == snarl1.start_position);
                 REQUIRE(snarl_info.end_position == snarl1.end_position);
                 REQUIRE(snarl_info.depth == snarl1.depth);
+                REQUIRE(snarl_info.variant_type == snarl1.variant_type);
                 REQUIRE(snarl_info.partitions == snarl1.partitions);
                 REQUIRE(snarl_info.snarl_walks.size() == 1);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 1);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == snarl_walks1[0].get_paths()[0]);
+                REQUIRE(snarl_info.sequences.size() == 1);
+                REQUIRE(snarl_info.sequences[0] == "C");
             } else if ((snarl_info.start_node == snarl2.start_node && snarl_info.end_node == snarl2.end_node) ||
                 (snarl_info.start_node == snarl2.end_node && snarl_info.end_node == snarl2.start_node)) {
                 REQUIRE(snarl_info.ref_path == snarl2.ref_path);
                 REQUIRE(snarl_info.start_position == snarl2.start_position);
                 REQUIRE(snarl_info.end_position == snarl2.end_position);
                 REQUIRE(snarl_info.depth == snarl2.depth);
+                REQUIRE(snarl_info.variant_type == snarl2.variant_type);
                 REQUIRE(snarl_info.partitions == snarl2.partitions);
                 REQUIRE(snarl_info.snarl_walks.size() == 1);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == snarl_walks2[0].get_paths()[0]);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths()[1] == snarl_walks2[0].get_paths()[1]);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths()[2] == snarl_walks2[0].get_paths()[2]);
+                REQUIRE(snarl_info.sequences.size() == 1);
+                REQUIRE(snarl_info.sequences[0] == "TA");
             }  else if ((snarl_info.start_node == snarl3.start_node && snarl_info.end_node == snarl3.end_node) ||
                 (snarl_info.start_node == snarl3.end_node && snarl_info.end_node == snarl3.start_node)) {
                 REQUIRE(snarl_info.ref_path == snarl3.ref_path);
                 REQUIRE(snarl_info.start_position == snarl3.start_position);
                 REQUIRE(snarl_info.end_position == snarl3.end_position);
                 REQUIRE(snarl_info.depth == snarl3.depth);
+                REQUIRE(snarl_info.variant_type == snarl3.variant_type);
                 REQUIRE(snarl_info.partitions == snarl3.partitions);
                 REQUIRE(snarl_info.snarl_walks.size() == 1);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 1);
                 REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == snarl_walks3[0].get_paths()[0]);
+                REQUIRE(snarl_info.sequences.size() == 1);
+                REQUIRE(snarl_info.sequences[0] == "C");
             } else if ((snarl_info.start_node == snarl4.start_node && snarl_info.end_node == snarl4.end_node) ||
                 (snarl_info.start_node == snarl4.end_node && snarl_info.end_node == snarl4.start_node)) {
                 REQUIRE(snarl_info.ref_path == snarl4.ref_path);
                 REQUIRE(snarl_info.start_position == snarl4.start_position);
                 REQUIRE(snarl_info.end_position == snarl4.end_position);
                 REQUIRE(snarl_info.depth == snarl4.depth);
+                REQUIRE(snarl_info.variant_type == snarl4.variant_type);
                 REQUIRE(snarl_info.partitions == snarl4.partitions);
                 REQUIRE(snarl_info.snarl_walks.size() == 0);
+                REQUIRE(snarl_info.sequences.size() == 0);
             } else {
                 REQUIRE(false);
             }
