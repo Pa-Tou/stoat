@@ -97,8 +97,8 @@ class SnarlDataCollection {
         /// If chr is specified, run this only on snarls on the given chromosome (as reference path name)
         //TODO:  I think this should be fine to run multithreaded as long as the list of snarl data doesn't move around, and I think the object
         //        stores a reference to the vector somewhere else in memory
-        void add_snarl_partitions(const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data,
-                                                                                          const std::vector<Path_traversal_t>& walks)>& find_sample_partitions,
+        void add_snarl_partitions(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 
+                                  const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_partitions,
                                   std::string chr="");
 
         /// Run iteratee for all snarls
@@ -211,6 +211,10 @@ class SnarlDataCollection {
 
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
+
+        // Helper function to add the sample partitions to the collection as integers.
+        // Thread safe with other functions modifying the collection
+        void add_sample_partitions(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::vector<std::set<sample_hap_t>>& sample_partitions, const Node_traversal_t& snarl_start);
 };
 }
 

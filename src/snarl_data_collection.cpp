@@ -51,7 +51,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
         {
             while (keep_going) {
                 handlegraph::net_handle_t chain;
-                #pragma omp critical(chain_loop)
+                #pragma omp critical(snarl_collection)
                 {
                 chain = chains.back();
                 chains.pop_back();
@@ -103,7 +103,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     snarl_data.end_position = std::get<2>(reference_range);
 
 
-                                    #pragma omp critical(chain_loop)
+                                    #pragma omp critical(snarl_collection)
                                     {
                                         if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
                                             ref_index = reference_names.size();
@@ -128,7 +128,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 // Otherwise, find the walks and get the sequences from those
                                 std::vector<stoat::Path_traversal_t> snarl_walks; 
                                 std::vector<std::string> walk_lengths;
-                                std::vector<std::set<size_t>> sample_partitions_by_index;
                                 std::vector<std::string> snarl_sequences;
                                 bool save_snarl = true;
 
@@ -139,28 +138,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                     std::tie(snarl_walks, walk_lengths) = get_walks_from_partitions(graph, distance_index, snarl, sample_partitions, check_distances);
 
-                                    // Remake sample_partitions by index
-                                    for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
-                                        sample_partitions_by_index.emplace_back();
-                                        for (const sample_hap_t& sample : sample_partitions[i]) {
-
-                                            // Get the index into sample_haplotypes
-                                            size_t sample_index;
-                                            // Needs to be in an omp block because it accesses sample_haplotypes
-                                            #pragma omp critical(chain_loop)
-                                            {
-                                                if (sample_haplotype_to_index.count(sample)) {
-                                                    sample_index = sample_haplotype_to_index[sample];
-                                                } else {
-                                                    sample_index = sample_haplotypes.size();
-                                                    sample_haplotype_to_index[sample] = sample_index;
-                                                } 
-                                                sample_haplotypes.emplace_back(sample);
-                                            }
-
-                                            sample_partitions_by_index.back().emplace(sample_index);
-                                        }
-                                    }
+                                    add_sample_partitions(sample_haplotype_to_index, sample_partitions, snarl_data.start_node); 
 
                                 } else {
                                     // If we don't want partitions, then enumerate all walks then find the sequences
@@ -180,14 +158,11 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 }
 
                                 if (save_snarl) { 
-                                    #pragma omp critical(chain_loop)
+                                    #pragma omp critical(snarl_collection)
                                     {
    
                                         // Add the snarl to the collection
                                         snarl_to_walks.emplace(snarl_data.start_node, std::move(snarl_walks));
-                                        if (partition_requested) {
-                                            snarl_to_partitions.emplace(snarl_data.start_node, std::move(sample_partitions_by_index));
-                                        }
                                         if (sequence_requested) {
                                             snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
                                         }
@@ -199,7 +174,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                             }// end if snarl_is_eligible
 
     
-                            #pragma omp critical(chain_loop)
+                            #pragma omp critical(snarl_collection)
                             {
    
                                 // Add the child chains to the stack
@@ -217,7 +192,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         return true;
                     }); //end for each child
                 }// end omp task
-                #pragma omp critical(chain_loop)
+                #pragma omp critical(snarl_collection)
                 {
                     keep_going = !chains.empty();
                 }
@@ -226,7 +201,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                     // Wait for tasks to complete
                     #pragma omp taskwait
     
-                    #pragma omp critical(chain_loop)
+                    #pragma omp critical(snarl_collection)
                     {
                         // Check again if we're done or not
                         keep_going = !chains.empty();
@@ -241,6 +216,73 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     assert(chains_added == chains_processed);
     #endif
 }
+void SnarlDataCollection::add_snarl_partitions(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_partitions,
+                          std::string chr){
+
+    #pragma omp parallel for schedule(dynamic)
+    for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
+
+        // If we are limiting to a chromosome (by reference path), then skip anything not on this chromosome
+        if (chr != "" && (snarl_info.reference_index == std::numeric_limits<size_t>::max() || chr != reference_names.at(snarl_info.reference_index))) {
+            continue;
+        }
+
+        std::vector<std::set<sample_hap_t>> empty_sample_partitions;
+
+        // Make the snarl_info_t from the information we have
+        std::vector<Path_traversal_t> empty_walks (0); 
+        std::vector<std::string> empty_sequences (0);
+        snarl_info_t new_snarl_info (snarl_info.start_node, 
+                                snarl_info.end_node, 
+                                snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
+                                snarl_info.start_position,
+                                snarl_info.end_position,
+                                snarl_info.depth,
+                                snarl_info.variant_type,
+                                snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
+                                empty_sample_partitions,
+                                snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
+
+        std::vector<std::set<sample_hap_t>> new_sample_partitions = find_sample_partitions(new_snarl_info);
+
+        // Add it to the collection
+        add_sample_partitions(sample_haplotype_to_index, new_sample_partitions, snarl_info.start_node);
+    }
+
+}
+
+void SnarlDataCollection::add_sample_partitions(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::vector<std::set<sample_hap_t>>& sample_partitions, const Node_traversal_t& snarl_start) {
+
+    // Remake sample_partitions by index
+    std::vector<std::set<size_t>> sample_partitions_by_index;
+    for (size_t i = 0 ; i < sample_partitions.size() ; i++) {
+        sample_partitions_by_index.emplace_back();
+        for (const sample_hap_t& sample : sample_partitions[i]) {
+    
+            // Get the index into sample_haplotypes
+            size_t sample_index;
+            // Needs to be in an omp block because it accesses sample_haplotypes
+            #pragma omp critical(snarl_collection)
+            {
+                if (sample_haplotype_to_index.count(sample)) {
+                    sample_index = sample_haplotype_to_index[sample];
+                } else {
+                    sample_index = sample_haplotypes.size();
+                    sample_haplotype_to_index[sample] = sample_index;
+                } 
+                sample_haplotypes.emplace_back(sample);
+            }
+    
+            sample_partitions_by_index.back().emplace(sample_index);
+        }
+    }
+    #pragma omp critical(snarl_collection)
+    {
+        snarl_to_partitions.emplace(snarl_start, std::move(sample_partitions_by_index));
+    }
+}
+
+
 
 // Call interatee for all snarls
 void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
