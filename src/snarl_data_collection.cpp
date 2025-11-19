@@ -429,14 +429,18 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
             return graph.get_position_of_step(a) < graph.get_position_of_step(b);
         });
         if (boundary_steps.size() > 1) {
-            // Start a new walk
-            //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
-            snarl_walks.emplace_back();
-            std::vector<bdsg::net_handle_t>& current_walk = snarl_walks.back();
             // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
             //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
             // inside the snarl and the first traversal of a boundary node is leaving it
             for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
+                // Start a new walk
+                //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
+                snarl_walks.emplace_back();
+                std::vector<bdsg::net_handle_t>& current_walk = snarl_walks.back();
+                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
+
+
+
                 handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
                 while (step != boundary_steps[boundary_i+1]) {
                     // Step is a node inside the snarl, and it may be nested inside children of the snarl
@@ -473,6 +477,8 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
                     step = graph.get_next_step(step);
 
                 }//end while loop going through a traversal of the snarl
+                //Add the end boundary node
+                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i+1]), &graph));
 
             }// end for loop through each traversal of the snarl in one partition
         }// end if there are enough boundary nodes
