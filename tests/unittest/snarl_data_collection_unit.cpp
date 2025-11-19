@@ -159,92 +159,167 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
 
-    SECTION("Make and fill in snarl collection with no data") {
+    SECTION("Make and fill in snarl collection with no partitions") {
         // Don't get the partitions or anything else
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, false, [&](const handlegraph::net_handle_t& net) { 
             std::vector<std::set<sample_hap_t>> partitions;
             return partitions;
-        }, false, "", false, cout);
+        }, true, "", false, cout);
 
         // Check that we got all snarls and that we got the correct snarls
         size_t snarl_count = 0;
 
-        std::vector<Path_traversal_t> snarl_walks;
-        std::vector<std::set<sample_hap_t>> partitions;
-        std::vector<std::string> sequences;
-
-        stoat::snarl_info_t snarl1 (stoat::Node_traversal_t(1, false), // start (or end) node 
-                                    stoat::Node_traversal_t(4, true), // end (or start) node 
-                                    "path0#0#path0",                   // reference path 
-                                    1,                                 // start offset
-                                    2,                                 // end offset
-                                    1,                                 // depth
-                                    "",                                // variant type (allele length counts)
-                                    snarl_walks,                       // walks through the snarl (not checking this)
-                                    partitions,                        // set of samples per walk (not checking this)
-                                    sequences                         // sequences per walk (not checking this)
-                                    );
-        stoat::snarl_info_t snarl2 (stoat::Node_traversal_t(4, false), // start (or end) node 
-                                    stoat::Node_traversal_t(8, true), // end (or start) node 
-                                    "path0#0#path0",                   // reference path 
-                                    3,                                 // start offset
-                                    6,                                 // end offset
-                                    1,                                 // depth
-                                    "",                                // variant type (allele length counts)
-                                    snarl_walks,                       // walks through the snarl (not checking this)
-                                    partitions,                        // set of samples per walk (not checking this)
-                                    sequences                          // sequences per walk (not checking this)
-                                    );
-        stoat::snarl_info_t snarl3 (stoat::Node_traversal_t(5, false), // start (or end) node 
-                                    stoat::Node_traversal_t(7, true), // end (or start) node 
-                                    "path0#0#path0",                   // reference path 
-                                    4,                                 // start offset
-                                    5,                                 // end offset
-                                    2,                                 // depth
-                                    "",                                // variant type (allele length counts)
-                                    snarl_walks,                       // walks through the snarl (not checking this)
-                                    partitions,                        // set of samples per walk (not checking this)
-                                    sequences                          // sequences per walk (not checking this)
-                                    );
-        stoat::snarl_info_t snarl4 (stoat::Node_traversal_t(8, false), // start (or end) node 
-                                    stoat::Node_traversal_t(10, true), // end (or start) node 
-                                    "NA",                              // reference path 
-                                    0,                                 // start offset
-                                    0,                                 // end offset
-                                    1,                                 // depth
-                                    "",                                // variant type (allele length counts)
-                                    snarl_walks,                       // walks through the snarl (not checking this)
-                                    partitions,                        // set of samples per walk (not checking this)
-                                    sequences                          // sequences per walk (not checking this)
-                                    );
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
             snarl_count++;
 
-            if ((snarl_info.start_node == snarl1.start_node && snarl_info.end_node == snarl1.end_node) ||
-                (snarl_info.start_node == snarl1.end_node && snarl_info.end_node == snarl1.start_node)) {
-                REQUIRE(snarl_info.ref_path == snarl1.ref_path);
-                REQUIRE(snarl_info.start_position == snarl1.start_position);
-                REQUIRE(snarl_info.end_position == snarl1.end_position);
-                REQUIRE(snarl_info.depth == snarl1.depth);
-            } else if ((snarl_info.start_node == snarl2.start_node && snarl_info.end_node == snarl2.end_node) ||
-                (snarl_info.start_node == snarl2.end_node && snarl_info.end_node == snarl2.start_node)) {
-                REQUIRE(snarl_info.ref_path == snarl2.ref_path);
-                REQUIRE(snarl_info.start_position == snarl2.start_position);
-                REQUIRE(snarl_info.end_position == snarl2.end_position);
-                REQUIRE(snarl_info.depth == snarl2.depth);
-            }  else if ((snarl_info.start_node == snarl3.start_node && snarl_info.end_node == snarl3.end_node) ||
-                (snarl_info.start_node == snarl3.end_node && snarl_info.end_node == snarl3.start_node)) {
-                REQUIRE(snarl_info.ref_path == snarl3.ref_path);
-                REQUIRE(snarl_info.start_position == snarl3.start_position);
-                REQUIRE(snarl_info.end_position == snarl3.end_position);
-                REQUIRE(snarl_info.depth == snarl3.depth);
-            } else if ((snarl_info.start_node == snarl4.start_node && snarl_info.end_node == snarl4.end_node) ||
-                (snarl_info.start_node == snarl4.end_node && snarl_info.end_node == snarl4.start_node)) {
-                REQUIRE(snarl_info.ref_path == snarl4.ref_path);
-                REQUIRE(snarl_info.start_position == snarl4.start_position);
-                REQUIRE(snarl_info.end_position == snarl4.end_position);
-                REQUIRE(snarl_info.depth == snarl4.depth);
+            if ((snarl_info.start_node == Node_traversal_t(1, false) && snarl_info.end_node == stoat::Node_traversal_t(4, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(4, true) && snarl_info.end_node == Node_traversal_t(1, false))) {
+                // First snarl
+
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 1);
+                REQUIRE(snarl_info.end_position == 2);
+                REQUIRE(snarl_info.depth == 1);
+                REQUIRE(snarl_info.snarl_walks.size() == 2);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
+                REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 3);
+
+                // The paths should be 1-2-4 and 1-3-4
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == Node_traversal_t(1, false));
+                REQUIRE(snarl_info.snarl_walks[1].get_paths()[0] == Node_traversal_t(1, false));
+                REQUIRE(((snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false) && snarl_info.snarl_walks[1].get_paths()[1] == Node_traversal_t(3, false))
+                     || (snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(3, false) && snarl_info.snarl_walks[1].get_paths()[1] == Node_traversal_t(2, false))));
+
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[2] == Node_traversal_t(4, false));
+                REQUIRE(snarl_info.snarl_walks[1].get_paths()[2] == Node_traversal_t(4, false));
+
+                REQUIRE(snarl_info.variant_type == "1,1");
+
+                // The sequences should both be CCA, oops
+                REQUIRE(snarl_info.sequences.size() == 2);
+                REQUIRE(snarl_info.sequences[0] == "CCA");
+                REQUIRE(snarl_info.sequences[1] == "CCA");
+
+            } else if ((snarl_info.start_node == stoat::Node_traversal_t(4, false) && snarl_info.end_node == stoat::Node_traversal_t(8, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(8, true) && snarl_info.end_node == stoat::Node_traversal_t(4, false))) {
+                // Snarl 4-8
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 3);
+                REQUIRE(snarl_info.end_position == 6);
+                REQUIRE(snarl_info.depth == 1);
+
+                REQUIRE(snarl_info.snarl_walks.size() == 2);
+                size_t insertion_index;
+                size_t deletion_index;
+                if (snarl_info.snarl_walks[0].get_paths().size() == 2) {
+                    // First is deletion, second is insertion
+                    REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 5);
+                    deletion_index = 0;
+                    insertion_index = 1;
+                    REQUIRE(snarl_info.variant_type == "0,2/3");
+                } else {
+                    // First is insertion, second is deletion
+                    REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 5);
+                    REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 2);
+                    deletion_index = 1;
+                    insertion_index = 0;
+                    REQUIRE(snarl_info.variant_type == "2/3,0");
+                }
+
+                // The paths should be 4-8 and 4-5-0-7-8
+                REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[0] == Node_traversal_t(4, false));
+                REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[1] == Node_traversal_t(8, false));
+
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[0] == Node_traversal_t(4, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[1] == Node_traversal_t(5, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[2] == Node_traversal_t(0, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[3] == Node_traversal_t(7, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[4] == Node_traversal_t(8, false));
+
+
+                // The sequences 
+                REQUIRE(snarl_info.sequences.size() == 2);
+                REQUIRE(snarl_info.sequences[insertion_index] == "ATAC");
+                REQUIRE(snarl_info.sequences[deletion_index] == "AC");
+
+            }  else if ((snarl_info.start_node == stoat::Node_traversal_t(5, false) && snarl_info.end_node == stoat::Node_traversal_t(7, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(7, true) && snarl_info.end_node == stoat::Node_traversal_t(5, false))) {
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 4);
+                REQUIRE(snarl_info.end_position == 5);
+                REQUIRE(snarl_info.depth == 2);
+
+                REQUIRE(snarl_info.snarl_walks.size() == 2);
+
+                size_t insertion_index;
+                size_t deletion_index;
+                if (snarl_info.snarl_walks[0].get_paths().size() == 2) {
+                    // First is deletion, second is insertion
+                    REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 3);
+                    deletion_index = 0;
+                    insertion_index = 1;
+                    REQUIRE(snarl_info.variant_type == "0,1");
+                } else {
+                    // First is insertion, second is deletion
+                    REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
+                    REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 2);
+                    deletion_index = 1;
+                    insertion_index = 0;
+                    REQUIRE(snarl_info.variant_type == "1,0");
+                }
+
+                // The paths should be 5-7 and 5-6-7
+                REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[0] == Node_traversal_t(5, false));
+                REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[1] == Node_traversal_t(7, false));
+
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[0] == Node_traversal_t(5, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[1] == Node_traversal_t(6, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[2] == Node_traversal_t(7, false));
+
+                // The sequences 
+                REQUIRE(snarl_info.sequences.size() == 2);
+                REQUIRE(snarl_info.sequences[insertion_index] == "TCA");
+                REQUIRE(snarl_info.sequences[deletion_index] == "TA");
+
+            } else if ((snarl_info.start_node == stoat::Node_traversal_t(8, false) && snarl_info.end_node == stoat::Node_traversal_t(10, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(10, true) && snarl_info.end_node == stoat::Node_traversal_t(8, false))) {
+                REQUIRE(snarl_info.ref_path == "NA");
+                REQUIRE(snarl_info.start_position == 0);
+                REQUIRE(snarl_info.end_position == 0);
+                REQUIRE(snarl_info.depth == 1);
+                REQUIRE(snarl_info.snarl_walks.size() == 2);
+
+                size_t insertion_index;
+                size_t deletion_index;
+                if (snarl_info.snarl_walks[0].get_paths().size() == 2) {
+                    // First is deletion, second is insertion
+                    REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 3);
+                    deletion_index = 0;
+                    insertion_index = 1;
+                    REQUIRE(snarl_info.variant_type == "0,1");
+                } else {
+                    // First is insertion, second is deletion
+                    REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
+                    REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 2);
+                    deletion_index = 1;
+                    insertion_index = 0;
+                    REQUIRE(snarl_info.variant_type == "1,0");
+                }
+
+                // The paths should be 8-10 and 8-9-10
+                REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[0] == Node_traversal_t(8, false));
+                REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[1] == Node_traversal_t(10, false));
+
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[0] == Node_traversal_t(8, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[1] == Node_traversal_t(9, false));
+                REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[2] == Node_traversal_t(10, false));
+
+                // The sequences 
+                REQUIRE(snarl_info.sequences.size() == 2);
+                REQUIRE(snarl_info.sequences[insertion_index] == "CAA");
+                REQUIRE(snarl_info.sequences[deletion_index] == "CA");
+
             } else {
                 REQUIRE(false);
             }
