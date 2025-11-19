@@ -1,7 +1,7 @@
 #include "snarl_data_collection.hpp"
 #include <fstream>
 
-#define DEBUG_SNARL_DATA_COLLECTION
+//#define DEBUG_SNARL_DATA_COLLECTION
 
 using namespace std;
 namespace stoat {
@@ -602,7 +602,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
                   << snarl_data.variant_type << "\t";
 
         // Next, always include the walks as a single comma-separated string
-        stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node));
+        outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node)) << "\t";
 
         // Next add the partitions, if there are any
         // Each partition is saved as the number of items in it then the items
@@ -712,19 +712,19 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
         // Index of reference
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().reference_index = std::stoll(part);
+        all_snarl_data.back().reference_index = std::stoull(part);
 
         // Start offset along reference
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().start_position = std::stoll(part);
+        all_snarl_data.back().start_position = std::stoull(part);
 
         // End offset along reference
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().end_position = std::stoll(part);
+        all_snarl_data.back().end_position = std::stoull(part);
 
         // Snarl depth
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().depth = std::stoll(part);
+        all_snarl_data.back().depth = std::stoull(part);
 
         // variant type
         std::getline(linestream, part, '\t');

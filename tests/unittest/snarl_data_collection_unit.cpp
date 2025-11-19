@@ -343,8 +343,10 @@ TEST_CASE( "Snarl collection nested bubbles",
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, true, [&](const handlegraph::net_handle_t& net) { 
             std::vector<std::set<sample_hap_t>> partitions;
-            partitions.emplace_back();
-            partitions.back().emplace(ref_sample);
+            if (net != distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(9)))) {
+                partitions.emplace_back();
+                partitions.back().emplace(ref_sample);
+            }
             return partitions;
         }, true, "", false, cout);
 
@@ -457,9 +459,155 @@ TEST_CASE( "Snarl collection nested bubbles",
 
         REQUIRE(snarl_count == 4);
     }
+    SECTION("Make and fill in snarl collection with just the reference in partitions and serialize it") {
+        // Make the partitions but only the reference sample
+
+        sample_hap_t ref_sample;
+
+        path_graph->for_each_path_handle([&] (handlegraph::path_handle_t path) {
+            if (graph.get_sense(path) == handlegraph::PathSense::REFERENCE) {
+                ref_sample = stoat::get_sample_and_haplotype(*path_graph, path);
+            }
+            return true;
+        });
+
+
+        TestSnarlDataCollection start_snarl_collection(1,10,1,10);
+        start_snarl_collection.fill_in_snarl_info(*path_graph, distance_index, true, [&](const handlegraph::net_handle_t& net) { 
+            std::vector<std::set<sample_hap_t>> partitions;
+            if (net != distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(9)))) {
+                partitions.emplace_back();
+                partitions.back().emplace(ref_sample);
+            }
+            return partitions;
+        }, true, "", false, cout);
+
+        std::string test_file = "./test_snarls.txt";
+        ofstream outstream;
+        outstream.open(test_file);
+        start_snarl_collection.write_snarl_data_collection(outstream);
+        outstream.close();
+
+        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        ifstream instream;
+        instream.open(test_file);
+        snarl_collection.load_snarl_data_collection(instream);
+        instream.close();
+
+        // Check that we got all snarls and that we got the correct snarls
+        size_t snarl_count = 0;
+
+        std::string reference_path = "path0#0#path0";
+
+        // Get just the walk for the reference since this only tests the partitions containing only the reference
+        std::vector<std::set<sample_hap_t>> partitions;
+        partitions.emplace_back();
+        partitions.back().emplace(ref_sample);
+        std::vector<std::string> sequences;
 
 
 
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            snarl_count++;
+
+            if ((snarl_info.start_node == Node_traversal_t(1, false) && snarl_info.end_node == stoat::Node_traversal_t(4, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(4, true) && snarl_info.end_node == Node_traversal_t(1, false))) {
+                // First snarl
+
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 1);
+                REQUIRE(snarl_info.end_position == 2);
+                REQUIRE(snarl_info.depth == 1);
+                REQUIRE(snarl_info.snarl_walks.size() == 1);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
+
+                // The paths should be 1-2-4 and 1-3-4
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == Node_traversal_t(1, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[2] == Node_traversal_t(4, false));
+
+                REQUIRE(snarl_info.variant_type == "1");
+
+                // The sequence should be CCA
+                REQUIRE(snarl_info.sequences.size() == 1);
+                REQUIRE(snarl_info.sequences[0] == "CCA");
+
+                REQUIRE(snarl_info.partitions == partitions);
+            } else if ((snarl_info.start_node == stoat::Node_traversal_t(4, false) && snarl_info.end_node == stoat::Node_traversal_t(8, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(8, true) && snarl_info.end_node == stoat::Node_traversal_t(4, false))) {
+                // Snarl 4-8
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 3);
+                REQUIRE(snarl_info.end_position == 6);
+                REQUIRE(snarl_info.depth == 1);
+
+                REQUIRE(snarl_info.snarl_walks.size() == 1);
+                REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 5);
+                REQUIRE(snarl_info.variant_type == "2/3");
+
+                // The paths should be and 4-5-0-7-8
+
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == Node_traversal_t(4, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(5, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[2] == Node_traversal_t(0, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[3] == Node_traversal_t(7, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[4] == Node_traversal_t(8, false));
+
+
+                // The sequences 
+                REQUIRE(snarl_info.sequences.size() == 1);
+                REQUIRE(snarl_info.sequences[0] == "ATAC");
+
+                REQUIRE(snarl_info.partitions == partitions);
+
+            }  else if ((snarl_info.start_node == stoat::Node_traversal_t(5, false) && snarl_info.end_node == stoat::Node_traversal_t(7, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(7, true) && snarl_info.end_node == stoat::Node_traversal_t(5, false))) {
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 4);
+                REQUIRE(snarl_info.end_position == 5);
+                REQUIRE(snarl_info.depth == 2);
+
+                REQUIRE(snarl_info.snarl_walks.size() == 1);
+
+                REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
+                REQUIRE(snarl_info.variant_type == "1");
+
+                // The paths should be 5-6-7
+
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == Node_traversal_t(5, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(6, false));
+                REQUIRE(snarl_info.snarl_walks[0].get_paths()[2] == Node_traversal_t(7, false));
+
+                // The sequences 
+                REQUIRE(snarl_info.sequences.size() == 1);
+                REQUIRE(snarl_info.sequences[0] == "TCA");
+
+                REQUIRE(snarl_info.partitions == partitions);
+
+            } else if ((snarl_info.start_node == stoat::Node_traversal_t(8, false) && snarl_info.end_node == stoat::Node_traversal_t(10, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(10, true) && snarl_info.end_node == stoat::Node_traversal_t(8, false))) {
+                REQUIRE(snarl_info.ref_path == "NA");
+                REQUIRE(snarl_info.start_position == 0);
+                REQUIRE(snarl_info.end_position == 0);
+                REQUIRE(snarl_info.depth == 1);
+                REQUIRE(snarl_info.snarl_walks.size() == 0);
+
+                // The sequences 
+                REQUIRE(snarl_info.sequences.size() == 0);
+
+
+            } else {
+                REQUIRE(false);
+            }
+        });
+
+        REQUIRE(snarl_count == 4);
+
+
+        std::string rm_cmd = "rm " + test_file;
+
+        int rm = system(rm_cmd.c_str()); 
+    }
 }
 
 }
