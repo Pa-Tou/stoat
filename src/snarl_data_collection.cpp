@@ -130,11 +130,11 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     snarl_data.reference_index = std::numeric_limits<size_t>::max();
                                 }
 
-                                // Optionally fill in the walks, sample sets, and sequences may.
+                                // Optionally fill in the walks, sample sets, and sequences.
                                 // All three of these vectors must have the same number of entries because they correspond to the same alleles
                                 std::vector<std::vector<handlegraph::net_handle_t>> walks_by_allele; 
                                 std::vector<stoat::Path_traversal_t> walks_by_allele_as_paths; 
-                                std::vector<std::set<sample_hap_t>> sample_sets; 
+                                std::vector<std::set<sample_hap_t>> sample_sets_by_allele; 
                                 std::vector<std::string> snarl_sequences;
 
                                 // TODO decide how to deal with snarls without walks
@@ -152,24 +152,24 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                                              snarl_data.depth,
                                                              "", //No variant type yet
                                                              walks_by_allele_as_paths,
-                                                             sample_sets,
+                                                             sample_sets_by_allele,
                                                              snarl_sequences);
 
                                 if (find_sample_sets_first) {
-                                    // Find sample_sets then walks
+                                    // Find sample_sets_by_allele then walks
                                     if (sample_set_requested) {
-                                       find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets); 
+                                       find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets_by_allele); 
                                     }
                                     if (walks_requested) {
                                         find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele);
                                     }
                                 } else {
-                                    // Find walks then sample_sets
+                                    // Find walks then sample_sets_by_allele
                                     if (walks_requested) {
                                         find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele);
                                     }
                                     if (sample_set_requested) {
-                                       find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets); 
+                                       find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets_by_allele); 
                                     }
                                 }
                                 if (walks_requested) {
@@ -196,7 +196,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     }
                                     if (sample_set_requested) {
                                         // This has its own omp guards
-                                        add_sample_sets_to_collection(sample_haplotype_to_index, sample_sets, snarl_data.start_node); 
+                                        add_sample_sets_to_collection(sample_haplotype_to_index, sample_sets_by_allele, snarl_data.start_node); 
                                     }
                                     if (sequence_requested) {
                                         #pragma omp critical(snarl_collection)
@@ -292,7 +292,8 @@ void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample
 
 }
 
-void SnarlDataCollection::add_sample_sets_to_collection(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::vector<std::set<sample_hap_t>>& sample_sets, const Node_traversal_t& snarl_start) {
+void SnarlDataCollection::add_sample_sets_to_collection(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 
+                                                        const std::vector<std::set<sample_hap_t>>& sample_sets, const Node_traversal_t& snarl_start) {
 
     // Remake sample_sets by index
     std::vector<std::set<size_t>> sample_sets_by_index;

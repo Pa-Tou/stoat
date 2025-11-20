@@ -26,7 +26,7 @@ struct snarl_info_t {
 
                      start_node(start_node), end_node(end_node), 
                      ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
-                     variant_type(variant_type), walks_by_allele(walks_by_allele),  sample_sets_by_allele(sample_sets_by_allele), sequences_by_allele(sequences_by_allele)
+                     variant_type(variant_type), walks_by_allele(walks_by_allele), sample_sets_by_allele(sample_sets_by_allele), sequences_by_allele(sequences_by_allele)
                      {};
 
         // Start and end nodes, both pointing into the snarl
@@ -97,7 +97,6 @@ class SnarlDataCollection {
                                                          std::vector<std::vector<handlegraph::net_handle_t>>& walks)>& find_walks,
                                 bool sample_set_requested,
                                 const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-
                                                           const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                           std::vector<std::set<sample_hap_t>>& sample_sets_by_allele)>& find_sample_sets,
                                 bool sequence_requested, 
