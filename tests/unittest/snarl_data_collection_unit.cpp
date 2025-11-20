@@ -12,7 +12,7 @@ class TestSnarlDataCollection : SnarlDataCollection {
     TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit) :
         SnarlDataCollection(allele_size_limit, snarl_child_limit, walk_cycle_limit, walk_steps_limit) {} 
     using SnarlDataCollection::fill_in_snarl_info;
-    using SnarlDataCollection::add_snarl_partitions;
+    using SnarlDataCollection::add_snarl_sample_sets;
     using SnarlDataCollection::for_each_snarl;
     using SnarlDataCollection::write_snarl_data_collection;
     using SnarlDataCollection::load_snarl_data_collection;
@@ -44,38 +44,38 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
         TestSnarlDataCollection snarl_collection(1,1,1,1);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            true, // partitions before walks but it doesn't matter here
+            true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                          std::vector<std::vector<handlegraph::net_handle_t>>& walks) { 
                 return;
-            }, false, // don't get partitions 
+            }, false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 return;
             },
             false, // don't get sequences
             "", false);
 
     }
-    SECTION("Serialize partitioner") {
+    SECTION("Serialize snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
 
         TestSnarlDataCollection snarl_collection(1,1,1,1);
 
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            true, // partitions before walks but it doesn't matter here
+            true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                          std::vector<std::vector<handlegraph::net_handle_t>>& walks) { 
                 return;
-            }, false, // don't get partitions 
+            }, false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 return;
             },
             false, // don't get sequences
@@ -180,46 +180,46 @@ TEST_CASE( "Snarl collection nested bubbles",
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
 
-    // If the walks were found without partitions then there is a walk for the last snarl
-    auto check_collection = [&] (const TestSnarlDataCollection& snarl_collection, bool check_walks, bool check_partitions, bool check_sequences, bool get_all_walks) {
+    // If the walks were found without sample_sets then there is a walk for the last snarl
+    auto check_collection = [&] (const TestSnarlDataCollection& snarl_collection, bool check_walks, bool check_sample_sets, bool check_sequences, bool get_all_walks) {
 
-        // Get the partitions again so we can check them. the order might be different though
+        // Get the sample_sets again so we can check them. the order might be different though
 
-        // Make partitions for each snarl
+        // Make sample_sets for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
             sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
         }
 
-        std::vector<std::vector<std::set<sample_hap_t>>> partitions_by_snarl;
+        std::vector<std::vector<std::set<sample_hap_t>>> sample_sets_by_snarl;
         // snarl 1-4
         //[0,1], [2,3]
-        partitions_by_snarl.emplace_back();
-        partitions_by_snarl.back().emplace_back();
-        partitions_by_snarl.back().back().emplace(sample_haps[0]);
-        partitions_by_snarl.back().back().emplace(sample_haps[1]);
-        partitions_by_snarl.back().emplace_back();
-        partitions_by_snarl.back().back().emplace(sample_haps[2]);
-        partitions_by_snarl.back().back().emplace(sample_haps[3]);
+        sample_sets_by_snarl.emplace_back();
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[0]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[1]);
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[2]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[3]);
 
         // snarl 4-8
         //[0,1,3], [2]
-        partitions_by_snarl.emplace_back();
-        partitions_by_snarl.back().emplace_back();
-        partitions_by_snarl.back().back().emplace(sample_haps[0]);
-        partitions_by_snarl.back().back().emplace(sample_haps[1]);
-        partitions_by_snarl.back().back().emplace(sample_haps[3]);
-        partitions_by_snarl.back().emplace_back();
-        partitions_by_snarl.back().back().emplace(sample_haps[2]);
+        sample_sets_by_snarl.emplace_back();
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[0]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[1]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[3]);
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[2]);
 
         // snarl 5-7
         //[0], [1,3]
-        partitions_by_snarl.emplace_back();
-        partitions_by_snarl.back().emplace_back();
-        partitions_by_snarl.back().back().emplace(sample_haps[0]);
-        partitions_by_snarl.back().emplace_back();
-        partitions_by_snarl.back().back().emplace(sample_haps[1]);
-        partitions_by_snarl.back().back().emplace(sample_haps[3]);
+        sample_sets_by_snarl.emplace_back();
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[0]);
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[1]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[3]);
 
         // Check that we got all snarls and that we got the correct snarls
         size_t snarl_count = 0;
@@ -236,52 +236,52 @@ TEST_CASE( "Snarl collection nested bubbles",
                 REQUIRE(snarl_info.end_position == 2);
                 REQUIRE(snarl_info.depth == 1);
                 if (check_walks) {
-                    REQUIRE(snarl_info.snarl_walks.size() == 2);
-                    REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
-                    REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 3);
+                    REQUIRE(snarl_info.walks_by_allele.size() == 2);
+                    REQUIRE(snarl_info.walks_by_allele[0].get_paths().size() == 3);
+                    REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 3);
                 }
 
                 // The paths should be 1-2-4 and 1-3-4
-                if (check_partitions) {
-                    REQUIRE(snarl_info.partitions.size() == 2);
-                    REQUIRE(snarl_info.partitions[0].size() == 2);
-                    REQUIRE(snarl_info.partitions[1].size() == 2);
-                    REQUIRE(((snarl_info.partitions[0] == partitions_by_snarl[0][0] && snarl_info.partitions[1] == partitions_by_snarl[0][1])
-                         || (snarl_info.partitions[1] == partitions_by_snarl[0][0] && snarl_info.partitions[0] == partitions_by_snarl[0][1])));
+                if (check_sample_sets) {
+                    REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
+                    REQUIRE(snarl_info.sample_sets_by_allele[0].size() == 2);
+                    REQUIRE(snarl_info.sample_sets_by_allele[1].size() == 2);
+                    REQUIRE(((snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[0][0] && snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[0][1])
+                         || (snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[0][0] && snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[0][1])));
                 }
                 if (check_walks) {
-                    REQUIRE(snarl_info.snarl_walks[0].get_paths()[0] == Node_traversal_t(1, false));
-                    REQUIRE(snarl_info.snarl_walks[1].get_paths()[0] == Node_traversal_t(1, false));
+                    REQUIRE(snarl_info.walks_by_allele[0].get_paths()[0] == Node_traversal_t(1, false));
+                    REQUIRE(snarl_info.walks_by_allele[1].get_paths()[0] == Node_traversal_t(1, false));
 
                     // The second node is either 2 or 3
-                    REQUIRE((snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false) ||
-                             snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(3, false)));
+                    REQUIRE((snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false) ||
+                             snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(3, false)));
 
-                    REQUIRE((snarl_info.snarl_walks[1].get_paths()[1] == Node_traversal_t(2, false) ||
-                             snarl_info.snarl_walks[1].get_paths()[1] == Node_traversal_t(3, false)));
+                    REQUIRE((snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(2, false) ||
+                             snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(3, false)));
 
-                    REQUIRE(!(snarl_info.snarl_walks[0].get_paths()[1] == snarl_info.snarl_walks[1].get_paths()[1]));
+                    REQUIRE(!(snarl_info.walks_by_allele[0].get_paths()[1] == snarl_info.walks_by_allele[1].get_paths()[1]));
 
-                    REQUIRE(snarl_info.snarl_walks[0].get_paths()[2] == Node_traversal_t(4, false));
-                    REQUIRE(snarl_info.snarl_walks[1].get_paths()[2] == Node_traversal_t(4, false));
+                    REQUIRE(snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(4, false));
+                    REQUIRE(snarl_info.walks_by_allele[1].get_paths()[2] == Node_traversal_t(4, false));
                     REQUIRE(snarl_info.variant_type == "1,1");
                 }
 
-                // Check that the walks and partitions match
-                if (check_walks && check_partitions) {
+                // Check that the walks and sample_sets match
+                if (check_walks && check_sample_sets) {
 
-                    if (snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false)) {
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths()[1] == Node_traversal_t(3, false));
-                        if (check_partitions) {
-                            REQUIRE(snarl_info.partitions[0] == partitions_by_snarl[0][0]);
-                            REQUIRE(snarl_info.partitions[1] == partitions_by_snarl[0][1]);
+                    if (snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false)) {
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(3, false));
+                        if (check_sample_sets) {
+                            REQUIRE(snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[0][0]);
+                            REQUIRE(snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[0][1]);
                         }
                     } else {
-                        REQUIRE(snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(3, false));
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths()[1] == Node_traversal_t(2, false));
-                        if (check_partitions) {
-                            REQUIRE(snarl_info.partitions[0] == partitions_by_snarl[0][1]);
-                            REQUIRE(snarl_info.partitions[1] == partitions_by_snarl[0][0]);
+                        REQUIRE(snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(3, false));
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(2, false));
+                        if (check_sample_sets) {
+                            REQUIRE(snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[0][1]);
+                            REQUIRE(snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[0][0]);
                         }
                     }
                 }
@@ -289,9 +289,9 @@ TEST_CASE( "Snarl collection nested bubbles",
 
                 if (check_sequences) {
                     // The sequences should both be CCA, oops
-                    REQUIRE(snarl_info.sequences.size() == 2);
-                    REQUIRE(snarl_info.sequences[0] == "CCA");
-                    REQUIRE(snarl_info.sequences[1] == "CCA");
+                    REQUIRE(snarl_info.sequences_by_allele.size() == 2);
+                    REQUIRE(snarl_info.sequences_by_allele[0] == "CCA");
+                    REQUIRE(snarl_info.sequences_by_allele[1] == "CCA");
                 }
 
             } else if ((snarl_info.start_node == stoat::Node_traversal_t(4, false) && snarl_info.end_node == stoat::Node_traversal_t(8, true)) ||
@@ -304,21 +304,21 @@ TEST_CASE( "Snarl collection nested bubbles",
 
                 size_t insertion_index;
                 size_t deletion_index;
-                if (check_partitions) {
-                    REQUIRE(snarl_info.partitions.size() == 2);
+                if (check_sample_sets) {
+                    REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
                 }
                 if (check_walks) {
-                    REQUIRE(snarl_info.snarl_walks.size() == 2);
-                    if (snarl_info.snarl_walks[0].get_paths().size() == 2) {
+                    REQUIRE(snarl_info.walks_by_allele.size() == 2);
+                    if (snarl_info.walks_by_allele[0].get_paths().size() == 2) {
                         // First is deletion, second is insertion
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 5);
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 5);
                         deletion_index = 0;
                         insertion_index = 1;
                         REQUIRE(snarl_info.variant_type == "0,2/3");
                     } else {
                         // First is insertion, second is deletion
-                        REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 5);
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 2);
+                        REQUIRE(snarl_info.walks_by_allele[0].get_paths().size() == 5);
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 2);
                         deletion_index = 1;
                         insertion_index = 0;
                         REQUIRE(snarl_info.variant_type == "2/3,0");
@@ -326,31 +326,31 @@ TEST_CASE( "Snarl collection nested bubbles",
                
 
                     // The paths should be 4-8 and 4-5-0-7-8
-                    REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[0] == Node_traversal_t(4, false));
-                    REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[1] == Node_traversal_t(8, false));
+                    REQUIRE(snarl_info.walks_by_allele[deletion_index].get_paths()[0] == Node_traversal_t(4, false));
+                    REQUIRE(snarl_info.walks_by_allele[deletion_index].get_paths()[1] == Node_traversal_t(8, false));
 
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[0] == Node_traversal_t(4, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[1] == Node_traversal_t(5, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[2] == Node_traversal_t(0, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[3] == Node_traversal_t(7, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[4] == Node_traversal_t(8, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[0] == Node_traversal_t(4, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[1] == Node_traversal_t(5, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[2] == Node_traversal_t(0, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[3] == Node_traversal_t(7, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[4] == Node_traversal_t(8, false));
 
                     if (check_sequences) {
                         // The sequences 
-                        REQUIRE(snarl_info.sequences.size() == 2);
-                        REQUIRE(snarl_info.sequences[insertion_index] == "ATAC");
-                        REQUIRE(snarl_info.sequences[deletion_index] == "AC");
+                        REQUIRE(snarl_info.sequences_by_allele.size() == 2);
+                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "ATAC");
+                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "AC");
                     }
-                    if (check_partitions) {
-                        REQUIRE(snarl_info.partitions.size() == 2);
-                        REQUIRE(snarl_info.partitions[insertion_index] == partitions_by_snarl[1][0]);
-                        REQUIRE(snarl_info.partitions[deletion_index] == partitions_by_snarl[1][1]); 
+                    if (check_sample_sets) {
+                        REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
+                        REQUIRE(snarl_info.sample_sets_by_allele[insertion_index] == sample_sets_by_snarl[1][0]);
+                        REQUIRE(snarl_info.sample_sets_by_allele[deletion_index] == sample_sets_by_snarl[1][1]); 
                     }
-                } else if (check_partitions) {
-                    // If we want to check the partitions but don't have the walks
-                    REQUIRE(snarl_info.partitions.size() == 2);
-                    REQUIRE(((snarl_info.partitions[0] == partitions_by_snarl[1][0] && snarl_info.partitions[1] == partitions_by_snarl[1][1])
-                         || (snarl_info.partitions[1] == partitions_by_snarl[1][0] && snarl_info.partitions[0] == partitions_by_snarl[1][1]))); 
+                } else if (check_sample_sets) {
+                    // If we want to check the sample_sets but don't have the walks
+                    REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
+                    REQUIRE(((snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[1][0] && snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[1][1])
+                         || (snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[1][0] && snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[1][1]))); 
                 }
 
 
@@ -363,47 +363,47 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
                 if (check_walks) {
-                    REQUIRE(snarl_info.snarl_walks.size() == 2);
+                    REQUIRE(snarl_info.walks_by_allele.size() == 2);
                     size_t insertion_index;
                     size_t deletion_index;
-                    if (snarl_info.snarl_walks[0].get_paths().size() == 2) {
+                    if (snarl_info.walks_by_allele[0].get_paths().size() == 2) {
                         // First is deletion, second is insertion
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 3);
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 3);
                         deletion_index = 0;
                         insertion_index = 1;
                         REQUIRE(snarl_info.variant_type == "0,1");
                     } else {
                         // First is insertion, second is deletion
-                        REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 2);
+                        REQUIRE(snarl_info.walks_by_allele[0].get_paths().size() == 3);
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 2);
                         deletion_index = 1;
                         insertion_index = 0;
                         REQUIRE(snarl_info.variant_type == "1,0");
                     }
 
                     // The paths should be 5-7 and 5-6-7
-                    REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[0] == Node_traversal_t(5, false));
-                    REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[1] == Node_traversal_t(7, false));
+                    REQUIRE(snarl_info.walks_by_allele[deletion_index].get_paths()[0] == Node_traversal_t(5, false));
+                    REQUIRE(snarl_info.walks_by_allele[deletion_index].get_paths()[1] == Node_traversal_t(7, false));
 
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[0] == Node_traversal_t(5, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[1] == Node_traversal_t(6, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[2] == Node_traversal_t(7, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[0] == Node_traversal_t(5, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[1] == Node_traversal_t(6, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[2] == Node_traversal_t(7, false));
                     if (check_sequences) {
                         // The sequences 
-                        REQUIRE(snarl_info.sequences.size() == 2);
-                        REQUIRE(snarl_info.sequences[insertion_index] == "TCA");
-                        REQUIRE(snarl_info.sequences[deletion_index] == "TA");
+                        REQUIRE(snarl_info.sequences_by_allele.size() == 2);
+                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "TCA");
+                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "TA");
                     }
-                    if (check_partitions) {
-                        REQUIRE(snarl_info.partitions.size() == 2);
-                        REQUIRE(snarl_info.partitions[insertion_index] == partitions_by_snarl[2][0]);
-                        REQUIRE(snarl_info.partitions[deletion_index] == partitions_by_snarl[2][1]); 
+                    if (check_sample_sets) {
+                        REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
+                        REQUIRE(snarl_info.sample_sets_by_allele[insertion_index] == sample_sets_by_snarl[2][0]);
+                        REQUIRE(snarl_info.sample_sets_by_allele[deletion_index] == sample_sets_by_snarl[2][1]); 
                     }
-                } else if (check_partitions) {
-                    // If we want to check the partitions but don't have the walks
-                    REQUIRE(snarl_info.partitions.size() == 2);
-                    REQUIRE(((snarl_info.partitions[0] == partitions_by_snarl[2][0] && snarl_info.partitions[1] == partitions_by_snarl[2][1])
-                         || (snarl_info.partitions[1] == partitions_by_snarl[2][0] && snarl_info.partitions[0] == partitions_by_snarl[2][1]))); 
+                } else if (check_sample_sets) {
+                    // If we want to check the sample_sets but don't have the walks
+                    REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
+                    REQUIRE(((snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[2][0] && snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[2][1])
+                         || (snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[2][0] && snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[2][1]))); 
                 }
 
 
@@ -415,42 +415,42 @@ TEST_CASE( "Snarl collection nested bubbles",
                 REQUIRE(snarl_info.end_position == 0);
                 REQUIRE(snarl_info.depth == 1);
                 if (get_all_walks && check_walks) {
-                    REQUIRE(snarl_info.snarl_walks.size() == 2);
+                    REQUIRE(snarl_info.walks_by_allele.size() == 2);
 
                     size_t insertion_index;
                     size_t deletion_index;
-                    if (snarl_info.snarl_walks[0].get_paths().size() == 2) {
+                    if (snarl_info.walks_by_allele[0].get_paths().size() == 2) {
                         // First is deletion, second is insertion
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 3);
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 3);
                         deletion_index = 0;
                         insertion_index = 1;
                         REQUIRE(snarl_info.variant_type == "0,1");
                     } else {
                         // First is insertion, second is deletion
-                        REQUIRE(snarl_info.snarl_walks[0].get_paths().size() == 3);
-                        REQUIRE(snarl_info.snarl_walks[1].get_paths().size() == 2);
+                        REQUIRE(snarl_info.walks_by_allele[0].get_paths().size() == 3);
+                        REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 2);
                         deletion_index = 1;
                         insertion_index = 0;
                         REQUIRE(snarl_info.variant_type == "1,0");
                     }
 
                     // The paths should be 8-10 and 8-9-10
-                    REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[0] == Node_traversal_t(8, false));
-                    REQUIRE(snarl_info.snarl_walks[deletion_index].get_paths()[1] == Node_traversal_t(10, false));
+                    REQUIRE(snarl_info.walks_by_allele[deletion_index].get_paths()[0] == Node_traversal_t(8, false));
+                    REQUIRE(snarl_info.walks_by_allele[deletion_index].get_paths()[1] == Node_traversal_t(10, false));
 
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[0] == Node_traversal_t(8, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[1] == Node_traversal_t(9, false));
-                    REQUIRE(snarl_info.snarl_walks[insertion_index].get_paths()[2] == Node_traversal_t(10, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[0] == Node_traversal_t(8, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[1] == Node_traversal_t(9, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[2] == Node_traversal_t(10, false));
 
                     if (check_sequences) {
                         // The sequences 
-                        REQUIRE(snarl_info.sequences.size() == 2);
-                        REQUIRE(snarl_info.sequences[insertion_index] == "CAA");
-                        REQUIRE(snarl_info.sequences[deletion_index] == "CA");
+                        REQUIRE(snarl_info.sequences_by_allele.size() == 2);
+                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "CAA");
+                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "CA");
                     }
 
-                    if (check_partitions) {
-                        REQUIRE(snarl_info.partitions.size() == 0);
+                    if (check_sample_sets) {
+                        REQUIRE(snarl_info.sample_sets_by_allele.size() == 0);
                     }
                 }
 
@@ -463,20 +463,20 @@ TEST_CASE( "Snarl collection nested bubbles",
     };
 
 
-    SECTION("Make and fill in snarl collection with no walks, partitions, or sequences") {
+    SECTION("Make and fill in snarl collection with no walks, sample_sets, or sequences") {
 
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            true, // partitions before walks but it doesn't matter here
+            true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                          std::vector<std::vector<handlegraph::net_handle_t>>& walks) { 
                 return;
-            }, false, // don't get partitions 
+            }, false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 return;
             },
             false, // don't get sequences
@@ -485,17 +485,17 @@ TEST_CASE( "Snarl collection nested bubbles",
 
         check_collection(snarl_collection, false, false, false, true);
     }
-    SECTION("Make and fill in snarl collection with walks and sequences but no partitions") {
+    SECTION("Make and fill in snarl collection with walks and sequences but no sample_sets") {
 
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            true, // partitions before walks but it doesn't matter here
+            true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
             SnarlDataCollection::get_all_walks_through_snarl, 
-            false, // don't get partitions 
+            false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 return;
             },
             true, // get sequences
@@ -505,18 +505,18 @@ TEST_CASE( "Snarl collection nested bubbles",
         check_collection(snarl_collection, true, false, true, true);
     }
 
-    SECTION("Make and fill in snarl collection with walks, sequences, and no partitions, then fill in partitions later") {
+    SECTION("Make and fill in snarl collection with walks, sequences, and no sample_sets, then fill in sample_sets later") {
 
-        // Don't get the partitions or anything else
+        // Don't get the sample_sets or anything else
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            false, //walks before partitions but it doesn't matter here
+            false, //walks before sample_sets but it doesn't matter here
             true, // get walks 
             SnarlDataCollection::get_all_walks_through_snarl, 
-            false, // don't get partitions 
+            false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 return;
             },
             true, // get sequences
@@ -527,7 +527,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
 
-        // Make partitions for each snarl
+        // Make sample_sets for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
             sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
@@ -535,91 +535,91 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
-        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
 
-            //Add partitions to follow the walks
-            std::vector<std::set<sample_hap_t>> partitions;
+            //Add sample_sets to follow the walks
+            std::vector<std::set<sample_hap_t>> sample_sets;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true)) {
                 // snarl 1-4
                 //[0,1], [2,3]
-                if (snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false)) {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.back().emplace(sample_haps[3]);
+                if (snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false)) {
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
                 }
             } else if (snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true)) {
                 // snarl 4-8
                 //[0,1,3], [2]
-                if (snarl_info.snarl_walks[0].get_paths().size() == 5) {
+                if (snarl_info.walks_by_allele[0].get_paths().size() == 5) {
                     //insertion first
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 }
             } else if (snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true)) {
 
                 // snarl 5-7
                 //[0], [1,3]
-                if (snarl_info.snarl_walks[0].get_paths().size() == 3) {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
+                if (snarl_info.walks_by_allele[0].get_paths().size() == 3) {
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
                 }
             } else {
-                // For the last one there are no partitions because there are no paths
+                // For the last one there are no sample_sets because there are no paths
             }
-            return partitions;
+            return sample_sets;
         });
 
         check_collection(snarl_collection, true, true, true, true);
 
     }
-    SECTION("Make and fill in snarl collection with no partitions, then fill in partitions later by chromosome") {
+    SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
-        // Don't get the partitions or anything else
+        // Don't get the sample_sets or anything else
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            false, // walks before partitions but it doesn't matter here
+            false, // walks before sample_sets but it doesn't matter here
             true, // get walks 
             SnarlDataCollection::get_all_walks_through_snarl,
-            false, // don't get partitions 
+            false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 return;
             },
             true, // get sequences
             "", false);
 
-        // Make partitions for each snarl
+        // Make sample_sets for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
             sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
@@ -628,148 +628,148 @@ TEST_CASE( "Snarl collection nested bubbles",
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
-        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
 
-            //Add partitions to follow the walks
-            std::vector<std::set<sample_hap_t>> partitions;
+            //Add sample_sets to follow the walks
+            std::vector<std::set<sample_hap_t>> sample_sets;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true)) {
                 // snarl 1-4
                 //[0,1], [2,3]
-                if (snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false)) {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.back().emplace(sample_haps[3]);
+                if (snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false)) {
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
                 }
             } else if (snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true)) {
                 // snarl 4-8
                 //[0,1,3], [2]
-                if (snarl_info.snarl_walks[0].get_paths().size() == 5) {
+                if (snarl_info.walks_by_allele[0].get_paths().size() == 5) {
                     //insertion first
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 }
             } else if (snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true)) {
 
                 // snarl 5-7
                 //[0], [1,3]
-                if (snarl_info.snarl_walks[0].get_paths().size() == 3) {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
+                if (snarl_info.walks_by_allele[0].get_paths().size() == 3) {
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
                 }
             } else {
-                // For the last one there are no partitions because there are no paths
+                // For the last one there are no sample_sets because there are no paths
             }
-            return partitions;
+            return sample_sets;
         }, "empty_path");
 
         REQUIRE(sample_haplotype_to_index.size() == 0);
 
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
-            // Make sure the partitions haven't been filled in
-            REQUIRE(snarl_info.partitions.size() == 0);
+            // Make sure the sample_sets haven't been filled in
+            REQUIRE(snarl_info.sample_sets_by_allele.size() == 0);
         });
 
         // Now fill it in with the paths
-        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
 
-            //Add partitions to follow the walks
-            std::vector<std::set<sample_hap_t>> partitions;
+            //Add sample_sets to follow the walks
+            std::vector<std::set<sample_hap_t>> sample_sets;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true)) {
                 // snarl 1-4
                 //[0,1], [2,3]
-                if (snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false)) {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.back().emplace(sample_haps[3]);
+                if (snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false)) {
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
                 }
             } else if (snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true)) {
                 // snarl 4-8
                 //[0,1,3], [2]
-                if (snarl_info.snarl_walks[0].get_paths().size() == 5) {
+                if (snarl_info.walks_by_allele[0].get_paths().size() == 5) {
                     //insertion first
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 }
             } else if (snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true)) {
 
                 // snarl 5-7
                 //[0], [1,3]
-                if (snarl_info.snarl_walks[0].get_paths().size() == 3) {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
+                if (snarl_info.walks_by_allele[0].get_paths().size() == 3) {
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else {
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
                 }
             } else {
-                // For the last one there are no partitions because there are no paths
+                // For the last one there are no sample_sets because there are no paths
             }
-            return partitions;
+            return sample_sets;
         }, "path0#0#path0");
 
         check_collection(snarl_collection, true, true, true, true);
 
     }
-    SECTION("Make and fill in snarl collection with walks, partitions, and sequences") {
+    SECTION("Make and fill in snarl collection with walks, sample_sets, and sequences") {
 
-        // Make partitions for each snarl
+        // Make sample_sets for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
             sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
@@ -778,41 +778,41 @@ TEST_CASE( "Snarl collection nested bubbles",
 
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            true, // partitions before walks but it doesn't matter here
+            true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
-            SnarlDataCollection::get_walks_from_partitions,
-            true, // get partitions 
+            SnarlDataCollection::get_walks_from_sample_sets,
+            true, // get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 if (snarl == distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(2)))) {
                     // snarl 1-4
                     //[0,1], [2,3]
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
-                    partitions.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else if (snarl == distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(5)))) {
                     // snarl 4-8
                     //[0,1,3], [2]
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[2]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[2]);
                 } else if (snarl == distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(6)))) {
                     // snarl 5-7
                     //[0], [1,3]
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[0]);
-                    partitions.emplace_back();
-                    partitions.back().emplace(sample_haps[1]);
-                    partitions.back().emplace(sample_haps[3]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[0]);
+                    sample_sets.emplace_back();
+                    sample_sets.back().emplace(sample_haps[1]);
+                    sample_sets.back().emplace(sample_haps[3]);
                 } else {
-                    // For the last one there are no partitions because there are no paths
+                    // For the last one there are no sample_sets because there are no paths
                 }
                 return;
             },
@@ -1003,18 +1003,18 @@ TEST_CASE( "Snarl collection multiple connected components",
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
 
-    SECTION("Make and fill in snarl collection with no partitions, then fill in partitions later by chromosome") {
+    SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
-        // Don't get the partitions or anything else
+        // Don't get the sample_sets or anything else
         TestSnarlDataCollection snarl_collection(1,10,1,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
-            true, // partitions before walks but it doesn't matter here
+            true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
             SnarlDataCollection::get_all_walks_through_snarl,
-            false, // don't get partitions 
+            false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::set<sample_hap_t>>& partitions) { 
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
                 return;
             },
             true, // get sequences
@@ -1023,7 +1023,7 @@ TEST_CASE( "Snarl collection multiple connected components",
 
 
 
-        // Make partitions for each snarl
+        // Make sample_sets for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
             sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
@@ -1032,117 +1032,117 @@ TEST_CASE( "Snarl collection multiple connected components",
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
-        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
 
-            //Add partitions to follow the walks
-            std::vector<std::set<sample_hap_t>> partitions;
+            //Add sample_sets to follow the walks
+            std::vector<std::set<sample_hap_t>> sample_sets;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
                 // First connected component
-                partitions.back().emplace(sample_haps[0]);
+                sample_sets.back().emplace(sample_haps[0]);
             } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
                 // Second connected component
-                partitions.back().emplace(sample_haps[4]);
+                sample_sets.back().emplace(sample_haps[4]);
             } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
                 // Third connected component
-                partitions.back().emplace(sample_haps[8]);
+                sample_sets.back().emplace(sample_haps[8]);
             } else {
                 // I'm not going to bother testing anything else
             }
-            return partitions;
+            return sample_sets;
         }, "empty_path");
         REQUIRE(sample_haplotype_to_index.size() == 0);
 
-        // Make sure the partitions haven't been filled in
+        // Make sure the sample_sets haven't been filled in
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
-            REQUIRE(snarl_info.partitions.size() == 0);
+            REQUIRE(snarl_info.sample_sets_by_allele.size() == 0);
         });
 
         // Now fill it in with just the reference path for just the first chromosome
-        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
 
-            //Add partitions to follow the walks
-            std::vector<std::set<sample_hap_t>> partitions;
+            //Add sample_sets to follow the walks
+            std::vector<std::set<sample_hap_t>> sample_sets;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
                 // First connected component
-                partitions.emplace_back();
-                partitions.back().emplace(sample_haps[0]);
+                sample_sets.emplace_back();
+                sample_sets.back().emplace(sample_haps[0]);
             } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
                 // Second connected component
-                partitions.emplace_back();
-                partitions.back().emplace(sample_haps[4]);
+                sample_sets.emplace_back();
+                sample_sets.back().emplace(sample_haps[4]);
             } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
                 // Third connected component
-                partitions.emplace_back();
-                partitions.back().emplace(sample_haps[8]);
+                sample_sets.emplace_back();
+                sample_sets.back().emplace(sample_haps[8]);
             } else {
                 // I'm not going to bother testing anything else
             }
-            return partitions;
+            return sample_sets;
         }, "path0#0#path0");
 
-        // Make sure that just the partitions on the first chromosome been filled in
+        // Make sure that just the sample_sets on the first chromosome been filled in
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
-                REQUIRE(snarl_info.partitions.size() == 1);
+                REQUIRE(snarl_info.sample_sets_by_allele.size() == 1);
             } else {
-                REQUIRE(snarl_info.partitions.size() == 0);
+                REQUIRE(snarl_info.sample_sets_by_allele.size() == 0);
             }
         });
 
         // Now fill it in with just the reference path for just the second chromosome
-        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
 
-            //Add partitions to follow the walks
-            std::vector<std::set<sample_hap_t>> partitions;
+            //Add sample_sets to follow the walks
+            std::vector<std::set<sample_hap_t>> sample_sets;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
                 // First connected component
-                partitions.emplace_back();
-                partitions.back().emplace(sample_haps[0]);
+                sample_sets.emplace_back();
+                sample_sets.back().emplace(sample_haps[0]);
             } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
                 // Second connected component
-                partitions.emplace_back();
-                partitions.back().emplace(sample_haps[4]);
+                sample_sets.emplace_back();
+                sample_sets.back().emplace(sample_haps[4]);
             } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
                 // Third connected component
-                partitions.emplace_back();
-                partitions.back().emplace(sample_haps[8]);
+                sample_sets.emplace_back();
+                sample_sets.back().emplace(sample_haps[8]);
             } else {
                 // I'm not going to bother testing anything else
             }
-            return partitions;
+            return sample_sets;
         }, "path0#1#path0");
 
-        // Make sure that just the partitions on the first chromosome been filled in
+        // Make sure that just the sample_sets on the first chromosome been filled in
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
@@ -1152,9 +1152,9 @@ TEST_CASE( "Snarl collection multiple connected components",
                 snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
-                REQUIRE(snarl_info.partitions.size() == 1);
+                REQUIRE(snarl_info.sample_sets_by_allele.size() == 1);
             } else {
-                REQUIRE(snarl_info.partitions.size() == 0);
+                REQUIRE(snarl_info.sample_sets_by_allele.size() == 0);
             }
         });
 
