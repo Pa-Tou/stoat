@@ -17,9 +17,18 @@ SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_
 
 // This goes through all the snarls and fills in the data
 void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                    bool partition_requested,
-                    const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl)>& find_sample_partitions,
-                    bool sequence_requested, const string& reference_sample, bool check_distances, std::ostream& out_fail) {
+                                             bool find_partitions_first,
+                                             bool walks_requested,
+                                             const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                                                                      const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                                                      std::vector<std::vector<handlegraph::net_handle_t>>& walks)>& find_walks,
+                                             bool partition_requested,
+                                             const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+
+                                                                       const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                                                       std::vector<std::set<sample_hap_t>>& partitions)>& find_sample_partitions,
+                                             bool sequence_requested,
+                                             const string& reference_sample, bool check_distances) {
     
     // Get a list of all chains in root
     std::vector<handlegraph::net_handle_t> chains;
@@ -71,7 +80,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         if (distance_index.is_snarl(snarl)) {
     
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
-                            cerr << "Test snarl " << distance_index.net_handle_as_string(snarl) << endl;
+                            cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << endl;
                             #endif
                             if (snarl_is_eligible(distance_index, snarl, check_distances)) {
 
@@ -121,53 +130,85 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     snarl_data.reference_index = std::numeric_limits<size_t>::max();
                                 }
 
-                                // There will always be the set of walks through the snarl
-                                // The partitions and sequences may optionally be filled in.
-                                // All three of these vectors must have the same number of entries because they correspond to the same walks. 
-                                // If partitions are requested, then build the other two around the partitions that are found.
-                                // Otherwise, find the walks and get the sequences from those
-                                std::vector<stoat::Path_traversal_t> snarl_walks; 
-                                std::vector<std::string> walk_lengths;
+                                // Optionally fill in the walks, partitions, and sequences may.
+                                // All three of these vectors must have the same number of entries because they correspond to the same alleles
+                                std::vector<std::vector<handlegraph::net_handle_t>> snarl_walks; 
+                                std::vector<stoat::Path_traversal_t> snarl_walks_as_paths; 
+                                std::vector<std::set<sample_hap_t>> sample_partitions; 
                                 std::vector<std::string> snarl_sequences;
+
+                                // TODO decide how to deal with snarls without walks
                                 bool save_snarl = true;
 
-                                if (partition_requested) {
-                                    // If we want partitions, then find them and then only enumerate walks and sequences in the partition
+                                // Make the snarl_info_t passed to the partition/walk finders. They don't need to have all the information yet
+                                // the snarl_info is const in the finders so it won't change the walks/partitions/sequences
+                                // except when references to them are passed as the thing we're filling in
+                                snarl_info_t new_snarl_info (snarl_data.start_node, 
+                                                             snarl_data.end_node, 
+                                                             snarl_data.reference_index == std::numeric_limits<size_t>::max() ? "NA" 
+                                                                                        : reference_names.at(snarl_data.reference_index),
+                                                             snarl_data.start_position,
+                                                             snarl_data.end_position,
+                                                             snarl_data.depth,
+                                                             "", //No variant type yet
+                                                             snarl_walks_as_paths,
+                                                             sample_partitions,
+                                                             snarl_sequences);
 
-                                    std::vector<std::set<sample_hap_t>> sample_partitions = find_sample_partitions(snarl);
-
-                                    std::tie(snarl_walks, walk_lengths) = get_walks_from_partitions(graph, distance_index, snarl, sample_partitions, check_distances);
-
-                                    add_sample_partitions(sample_haplotype_to_index, sample_partitions, snarl_data.start_node); 
-
+                                if (find_partitions_first) {
+                                    // Find partitions then walks
+                                    if (partition_requested) {
+                                       find_sample_partitions(graph, distance_index, snarl, new_snarl_info, sample_partitions); 
+                                    }
+                                    if (walks_requested) {
+                                        find_walks(graph, distance_index, snarl, new_snarl_info, snarl_walks);
+                                    }
                                 } else {
-                                    // If we don't want partitions, then enumerate all walks then find the sequences
-                                    std::tie(snarl_walks, walk_lengths) = get_walks_through_snarl(graph, distance_index, snarl, check_distances, out_fail);
-
-                                    // If we didn't find any walks, remove the snarl
-                                    if (snarl_walks.size() == 0) {
-                                        save_snarl = false;
+                                    // Find walks then partitions
+                                    if (walks_requested) {
+                                        find_walks(graph, distance_index, snarl, new_snarl_info, snarl_walks);
+                                    }
+                                    if (partition_requested) {
+                                       find_sample_partitions(graph, distance_index, snarl, new_snarl_info, sample_partitions); 
                                     }
                                 }
-                                snarl_data.variant_type = stoat::vectorToString(walk_lengths);
-
-
-                                if (sequence_requested && save_snarl) {
-                                    // Find the sequences
-                                    snarl_sequences = get_sequences_from_walks(graph, distance_index, snarl_walks);
+                                if (walks_requested) {
+                                    std::vector<std::string> walk_lengths;
+                                    std::tie(snarl_walks_as_paths, walk_lengths) = stoat::fill_pretty_paths(distance_index, graph, snarl_walks);
+                                    snarl_data.variant_type = stoat::vectorToString(walk_lengths);
+                                    if (sequence_requested) {
+                                        // Find the sequences
+                                        snarl_sequences = get_sequences_from_walks(graph, distance_index, snarl_walks_as_paths);
+                                    }
+                                }
+                                if (sequence_requested && !walks_requested) {
+                                    throw std::runtime_error("stoat: Snarl data collection requested sequences without walks");
                                 }
 
                                 if (save_snarl) { 
+   
+                                    // Add the snarl to the collection
+                                    if (walks_requested) {
+                                        #pragma omp critical(snarl_collection)
+                                        {
+                                        snarl_to_walks.emplace(snarl_data.start_node, std::move(snarl_walks_as_paths));
+                                        }
+                                    }
+                                    if (partition_requested) {
+                                        // This has its own omp guards
+                                        add_sample_partitions_to_collection(sample_haplotype_to_index, sample_partitions, snarl_data.start_node); 
+                                    }
+                                    if (sequence_requested) {
+                                        #pragma omp critical(snarl_collection)
+                                        {
+                                        snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
+                                        }
+                                    }
                                     #pragma omp critical(snarl_collection)
                                     {
-   
-                                        // Add the snarl to the collection
-                                        snarl_to_walks.emplace(snarl_data.start_node, std::move(snarl_walks));
-                                        if (sequence_requested) {
-                                            snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
-                                        }
-                                        all_snarl_data.emplace_back(std::move(snarl_data));
+                                    all_snarl_data.emplace_back(std::move(snarl_data));
                                     }
+
 
 
                                 }
@@ -246,12 +287,12 @@ void SnarlDataCollection::add_snarl_partitions(std::unordered_map<stoat::sample_
         std::vector<std::set<sample_hap_t>> new_sample_partitions = find_sample_partitions(new_snarl_info);
 
         // Add it to the collection
-        add_sample_partitions(sample_haplotype_to_index, new_sample_partitions, snarl_info.start_node);
+        add_sample_partitions_to_collection(sample_haplotype_to_index, new_sample_partitions, snarl_info.start_node);
     }
 
 }
 
-void SnarlDataCollection::add_sample_partitions(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::vector<std::set<sample_hap_t>>& sample_partitions, const Node_traversal_t& snarl_start) {
+void SnarlDataCollection::add_sample_partitions_to_collection(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::vector<std::set<sample_hap_t>>& sample_partitions, const Node_traversal_t& snarl_start) {
 
     // Remake sample_partitions by index
     std::vector<std::set<size_t>> sample_partitions_by_index;
@@ -318,9 +359,9 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
 }
 
 
-std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> SnarlDataCollection::get_walks_through_snarl(
-        const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const net_handle_t& snarl, bool check_distances,
-        std::ostream& out_fail) const {
+void SnarlDataCollection::get_all_walks_through_snarl(
+        const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+        const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks ) {
 
 
     // Path exploration
@@ -344,22 +385,23 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
         std::unordered_map<handlegraph::net_handle_t, size_t> dict_path_occ;
         bool cycle = false;
     
-        for (const auto& net : path) {
-            if (++dict_path_occ[net] > walk_cycle_limit + 1) {
-                cycle = true;
-                break;
-            }
-        }
+        // TODO: Put this back
+        //for (const auto& net : path) {
+        //    if (++dict_path_occ[net] > walk_cycle_limit + 1) {
+        //        cycle = true;
+        //        break;
+        //    }
+        //}
     
         // TODO: Add out_fail
         // TODO: Get the child count properly
-        if (steps_taken++ > walk_steps_limit) {
-            #pragma omp critical(out_fail)
-            out_fail << distance_index.node_id(distance_index.get_bound(snarl, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(snarl, true, true)) 
-                     << "\titeration_calculation_out = " << endl;// << children << " children\n";
-            break_snarl = true;
-            break;
-        }
+        //if (steps_taken++ > walk_steps_limit) {
+        //    #pragma omp critical(out_fail)
+        //    out_fail << distance_index.node_id(distance_index.get_bound(snarl, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(snarl, true, true)) 
+        //             << "\titeration_calculation_out = " << endl;// << children << " children\n";
+        //    break_snarl = true;
+        //    break;
+        //}
 
         // Follow edges from the last element in path
         if (!path.empty()) {
@@ -372,8 +414,8 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
 
                     // Only keep the walk if it entered and exited the snarl at opposite sides
                     if (next_child_node_id != first_element_path_node_id) {
-                        finished_paths.emplace_back(path);
-                        finished_paths.back().push_back(next_child);
+                        walks.emplace_back(path);
+                        walks.back().push_back(next_child);
                     }
             
                 } else {
@@ -391,19 +433,16 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
     }
     
     if (break_snarl) {
-        finished_paths.clear();
+        walks.clear();
     }
     
-    // Transform the paths into the format we want
-    return fill_pretty_paths(distance_index, graph, finished_paths);
+    return ;
     
 }
 
-std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> SnarlDataCollection::get_walks_from_partitions(
-        const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const net_handle_t& snarl,
-        const std::vector<std::set<sample_hap_t>>& sample_partitions, bool check_distances) const {
-
-    std::vector<std::vector<handlegraph::net_handle_t>> snarl_walks;
+void SnarlDataCollection::get_walks_from_partitions(
+        const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+        const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks ) {
 
     // Get the walks by tracing the haplotype paths through the snarl
 
@@ -418,7 +457,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
                                                   handlegraph::PathSense::HAPLOTYPE};
 
     std::vector<handlegraph::step_handle_t> first_steps;
-    for (const std::set<sample_hap_t>& partition : sample_partitions) {
+    for (const std::set<sample_hap_t>& partition : snarl_data.partitions) {
         bool found_step = false;
         for (const auto& sense : senses) {
             graph.for_each_step_of_sense(start_in, sense, [&](const handlegraph::step_handle_t& step) {
@@ -438,7 +477,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
         }
     }
     #ifdef DEBUG_SNARL_DATA_COLLECTION
-    assert(first_steps.size() == sample_partitions.size());
+    assert(first_steps.size() == snarl_data.partitions.size());
     #endif
 
     //////////////////////////////////// Follow each of the paths through the snarl and create a walk
@@ -477,8 +516,8 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
             for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
                 // Start a new walk
                 //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
-                snarl_walks.emplace_back();
-                std::vector<bdsg::net_handle_t>& current_walk = snarl_walks.back();
+                walks.emplace_back();
+                std::vector<bdsg::net_handle_t>& current_walk = walks.back();
                 current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
 
 
@@ -528,7 +567,7 @@ std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> Snarl
 
     }// end for each first step (per partition)
 
-    return stoat::fill_pretty_paths(distance_index, graph, snarl_walks);
+    return ;
 }
 
 std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,

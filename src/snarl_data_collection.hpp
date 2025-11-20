@@ -14,7 +14,7 @@ namespace stoat {
 
 // This holds snarl information from the distance index and graph: id of the snarl, reference coordinates, walks, 
 // the sequences of the walks and sets samples/haplotypes taking each walk
-// The latter two may be empty
+// The latter three may be empty if they were not filled in by the SnarlDataCollection
 struct snarl_info_t {
     public:
 
@@ -56,7 +56,7 @@ struct snarl_info_t {
 /// A class for holding per-snarl data for a collection of snarls
 /// Publicly, this allow access to snarl_info_t's for holding basic information about the snarl, the walks through the snarl 
 ///    the groups of haplotypes following each walk, and the sequence of each walk.
-/// The latter two are both optional and may be empty if the SnarlDataCollection was built without them.
+/// The latter three optional and may be empty if the SnarlDataCollection was built without them.
 /// Internally, the basic snarl information, the walks, haplotype partitions, and sequences are each stored separately. 
 /// Build the collection either from the distance index or by loading from a file
 /// Access snarls by chromosome name or all at once
@@ -78,14 +78,30 @@ class SnarlDataCollection {
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// If partition_requested is true, then call find_sample_partitions and save the output partitions.
-        /// If sequence_requested is true, then find the sequence of each walk 
+        /// If walks_requested is true, then find the walks using find_walks.
+        /// If sequence_requested is true, then find the sequence of each walk.
+        /// The walks, partitions, and sequences must all match each other, and the walks may be dependent on the partitions or vice versa 
+        /// find_partitions_first is true if we want to find the partitions first and then walks based on the partitions, and false to do the opposite.
+        ///    If only one or the other of partitions and walks is requested then find_partitions_first doesn't matter.
+        /// find_sample_partitions and find_walks must be check the walks or partitions accordingly to make sure that they match.
+        /// Sequences are always found from the walks and cannot be found if walks_requested is false.
+        /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_partitions that may be used for find_walks
         /// If reference_sample is not empty, get coordinates on this reference path
+        /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
         /// Write failed snarls to out_fail
         void fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                            bool partition_requested,
-                            const std::function<std::vector<std::set<sample_hap_t>>(const net_handle_t& snarl)>& find_sample_partitions,
-                            bool sequence_requested, const string& reference_sample, bool check_distances,
-                            std::ostream& out_fail);
+                                bool find_partitions_first,
+                                bool walks_requested,
+                                const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                                                         const net_handle_t& snarl, const snarl_info_t& snarl_data, 
+                                                         std::vector<std::vector<handlegraph::net_handle_t>>& walks)>& find_walks,
+                                bool partition_requested,
+                                const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+
+                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data, 
+                                                          std::vector<std::set<sample_hap_t>>& partitions)>& find_sample_partitions,
+                                bool sequence_requested, 
+                                const string& reference_sample, bool check_distances);
 
         
         /// If the snarl partitions (which assigns sample/haplotypes to each snarl_walk) were not found during construction, go through
@@ -110,6 +126,22 @@ class SnarlDataCollection {
         /// Load the collection of snarls from the given file
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
         void load_snarl_data_collection(std::istream& instream); 
+
+
+        ///////////////////////////// Helper functions for use in add_snarl_partitions
+
+        /// TODO: The walks must include the start and end bounds of the snarl. Could be taken out 
+        /// TODO: This should probably not be a member function but I'm leaving it here for now instead of changing Matis's code to use my data types
+        /// Helper function for finding all possible walks through the snarl. Fills in walks
+        /// snarl_data will not have the partitions filled in
+        static void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks);
+
+        /// Helper function for finding all possible walks through the snarl. Fills in walks
+        /// snarl_data is assumed to have the partitions filled in and walks must be filled in to match the partitions
+        static void get_walks_from_partitions(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks);
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
@@ -192,17 +224,6 @@ class SnarlDataCollection {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////// Private functions
     private:
-
-        // Given a snarl, enumerate the walks going through the snarl and get the variant_type string 
-        // If a snarl is skipped because the walks can't be found, remove it and write it to out_fail
-        std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> get_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, 
-                const bdsg::SnarlDistanceIndex& distance_index, const net_handle_t& snarl, bool check_distances, std::ostream& out_fail) const;
-
-        // Given the partitions of haplotype paths in a snarl, find the walks as Path_traversal_t's, the variant_type (walk lengths as length or min/max per walk), 
-        //and the sequences corresponding to each partition.
-        std::tuple<std::vector<stoat::Path_traversal_t>, std::vector<std::string>> get_walks_from_partitions(
-                const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, const net_handle_t& snarl,
-                const std::vector<std::set<sample_hap_t>>& sample_partitions, bool check_distances) const; 
     
         // Given the walks through the snarl, find the sequence. The sequence will just be a concatination of sequences of nodes, ignoring anything else
         std::vector<std::string> get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -212,9 +233,9 @@ class SnarlDataCollection {
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
 
-        // Helper function to add the sample partitions to the collection as integers.
+        // Helper function to add the given sample partitions to the collection as integers.
         // Thread safe with other functions modifying the collection
-        void add_sample_partitions(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::vector<std::set<sample_hap_t>>& sample_partitions, const Node_traversal_t& snarl_start);
+        void add_sample_partitions_to_collection(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::vector<std::set<sample_hap_t>>& sample_partitions, const Node_traversal_t& snarl_start);
 };
 }
 
