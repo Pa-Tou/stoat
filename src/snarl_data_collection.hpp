@@ -72,9 +72,8 @@ class SnarlDataCollection {
         /// Make a SnarlDataCollection with limits on which snarls to include
         /// Ignore snarls whose maximum length is less than allele_size_limit
         /// Ignore snarls with more children than snarl_child_limit
-        /// Ignore paths the cycle more than walk_cycle_limit times
         /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
-        SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit);
+        SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// If sample_set_requested is true, then call find_sample_sample_sets and save the output sample sets.
@@ -212,9 +211,6 @@ class SnarlDataCollection {
 
         /// Skip snarls if they have more children than this
         size_t snarl_child_limit;
-
-        /// Don't include walks that have more than this many cycles
-        size_t walk_cycle_limit;
 
         /// Don't include snarls if enumerating all its walks takes more than this many steps
         size_t walk_steps_limit;

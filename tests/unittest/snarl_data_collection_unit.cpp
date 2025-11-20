@@ -9,8 +9,8 @@ using namespace stoat;
 
 class TestSnarlDataCollection : SnarlDataCollection {
     public: 
-    TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit) :
-        SnarlDataCollection(allele_size_limit, snarl_child_limit, walk_cycle_limit, walk_steps_limit) {} 
+    TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
+        SnarlDataCollection(allele_size_limit, snarl_child_limit, walk_steps_limit) {} 
     using SnarlDataCollection::fill_in_snarl_info;
     using SnarlDataCollection::add_snarl_sample_sets;
     using SnarlDataCollection::for_each_snarl;
@@ -42,7 +42,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
 
     SECTION("Make and fill in snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
-        TestSnarlDataCollection snarl_collection(1,1,1,1);
+        TestSnarlDataCollection snarl_collection(1,1,1);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
@@ -63,7 +63,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
     SECTION("Serialize snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
 
-        TestSnarlDataCollection snarl_collection(1,1,1,1);
+        TestSnarlDataCollection snarl_collection(1,1,1);
 
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
@@ -88,7 +88,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
         snarl_collection.write_snarl_data_collection(outstream);
         outstream.close();
         
-        TestSnarlDataCollection snarl_collection_loaded(1,1,1,1);
+        TestSnarlDataCollection snarl_collection_loaded(1,1,1);
         ifstream instream;
         instream.open(test_file);
         snarl_collection_loaded.load_snarl_data_collection(instream);
@@ -465,7 +465,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
     SECTION("Make and fill in snarl collection with no walks, sample_sets, or sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
@@ -487,7 +487,7 @@ TEST_CASE( "Snarl collection nested bubbles",
     }
     SECTION("Make and fill in snarl collection with walks and sequences but no sample_sets") {
 
-        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
@@ -508,7 +508,7 @@ TEST_CASE( "Snarl collection nested bubbles",
     SECTION("Make and fill in snarl collection with walks, sequences, and no sample_sets, then fill in sample_sets later") {
 
         // Don't get the sample_sets or anything else
-        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             false, //walks before sample_sets but it doesn't matter here
             true, // get walks 
@@ -605,7 +605,7 @@ TEST_CASE( "Snarl collection nested bubbles",
     SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
         // Don't get the sample_sets or anything else
-        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             false, // walks before sample_sets but it doesn't matter here
             true, // get walks 
@@ -776,7 +776,7 @@ TEST_CASE( "Snarl collection nested bubbles",
         }
 
 
-        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
@@ -829,7 +829,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             snarl_collection.write_snarl_data_collection(outstream);
             outstream.close();
 
-            TestSnarlDataCollection loaded_snarl_collection(1,10,1,10);
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
             ifstream instream;
             instream.open(test_file);
             loaded_snarl_collection.load_snarl_data_collection(instream);
@@ -1006,7 +1006,7 @@ TEST_CASE( "Snarl collection multiple connected components",
     SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
         // Don't get the sample_sets or anything else
-        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 

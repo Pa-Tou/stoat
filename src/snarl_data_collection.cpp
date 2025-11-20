@@ -8,10 +8,9 @@ namespace stoat {
 
 
 // Constructor
-SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_cycle_limit, size_t walk_steps_limit) :
+SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
                     allele_size_limit(allele_size_limit),
                     snarl_child_limit(snarl_child_limit),
-                    walk_cycle_limit(walk_cycle_limit),
                     walk_steps_limit(walk_steps_limit) {}
 
 
