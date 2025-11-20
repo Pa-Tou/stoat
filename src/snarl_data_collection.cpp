@@ -269,8 +269,8 @@ void SnarlDataCollection::add_sample_partitions(std::unordered_map<stoat::sample
                 } else {
                     sample_index = sample_haplotypes.size();
                     sample_haplotype_to_index[sample] = sample_index;
+                    sample_haplotypes.emplace_back(sample);
                 } 
-                sample_haplotypes.emplace_back(sample);
             }
     
             sample_partitions_by_index.back().emplace(sample_index);
