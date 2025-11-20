@@ -4,7 +4,7 @@
 #include "../../src/snarl_data_collection.hpp"
 #include "../../src/log.hpp"
 
-namespace stoat{
+using namespace stoat;
 
 
 class TestSnarlDataCollection : SnarlDataCollection {
@@ -494,6 +494,163 @@ TEST_CASE( "Snarl collection nested bubbles",
         check_collection(snarl_collection, true, true, true);
 
     }
+    SECTION("Make and fill in snarl collection with no partitions, then fill in partitions later by chromosome") {
+
+        // Don't get the partitions or anything else
+        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        snarl_collection.fill_in_snarl_info(*path_graph, distance_index, false, [&](const handlegraph::net_handle_t& net) { 
+            std::vector<std::set<sample_hap_t>> partitions;
+            return partitions;
+        }, true, "", false, cout);
+
+
+        // Make partitions for each snarl
+        std::vector<stoat::sample_hap_t> sample_haps;
+        for (const auto& path : paths) {
+            sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
+        }
+
+
+        // First fill it in with a non-existent path, which should do nothing
+        std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
+        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+
+            //Add partitions to follow the walks
+            std::vector<std::set<sample_hap_t>> partitions;
+            if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true)) {
+                // snarl 1-4
+                //[0,1], [2,3]
+                if (snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false)) {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                    partitions.back().emplace(sample_haps[3]);
+                } else {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                    partitions.back().emplace(sample_haps[3]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                }
+            } else if (snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true)) {
+                // snarl 4-8
+                //[0,1,3], [2]
+                if (snarl_info.snarl_walks[0].get_paths().size() == 5) {
+                    //insertion first
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                } else {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                }
+            } else if (snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true)) {
+
+                // snarl 5-7
+                //[0], [1,3]
+                if (snarl_info.snarl_walks[0].get_paths().size() == 3) {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                } else {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                }
+            } else {
+                // For the last one there are no partitions because there are no paths
+            }
+            return partitions;
+        }, "empty_path");
+        REQUIRE(sample_haplotype_to_index.size() == 0);
+
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            // Make sure the partitions haven't been filled in
+            REQUIRE(snarl_info.partitions.size() == 0);
+        });
+
+        // Now fill it in with the paths
+        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+
+            //Add partitions to follow the walks
+            std::vector<std::set<sample_hap_t>> partitions;
+            if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true)) {
+                // snarl 1-4
+                //[0,1], [2,3]
+                if (snarl_info.snarl_walks[0].get_paths()[1] == Node_traversal_t(2, false)) {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                    partitions.back().emplace(sample_haps[3]);
+                } else {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                    partitions.back().emplace(sample_haps[3]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                }
+            } else if (snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true)) {
+                // snarl 4-8
+                //[0,1,3], [2]
+                if (snarl_info.snarl_walks[0].get_paths().size() == 5) {
+                    //insertion first
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                } else {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[2]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                }
+            } else if (snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true)) {
+
+                // snarl 5-7
+                //[0], [1,3]
+                if (snarl_info.snarl_walks[0].get_paths().size() == 3) {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                } else {
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[1]);
+                    partitions.back().emplace(sample_haps[3]);
+                    partitions.emplace_back();
+                    partitions.back().emplace(sample_haps[0]);
+                }
+            } else {
+                // For the last one there are no partitions because there are no paths
+            }
+            return partitions;
+        }, "path0#0#path0");
+
+        check_collection(snarl_collection, true, true, true);
+
+    }
     SECTION("Make and fill in snarl collection with partitions") {
 
         // Make partitions for each snarl
@@ -565,5 +722,310 @@ TEST_CASE( "Snarl collection nested bubbles",
     }
 
 }
+TEST_CASE( "Snarl collection multiple connected components",
+          "[snarl_collection]" ) {
 
+    /*
+                       5
+                     /   \
+            1       4 ----6    8
+          /   \   /         \ / \
+        0       3  ----------7---9
+          \   /
+            2
+    this graph is duplicated 6x
+
+   */
+
+    bdsg::HashGraph graph;
+
+    std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A", "C", "A", "A", 
+                                           "C", "C", "C", "A", "T", "C", "A", "C", "A", "A",  
+                                           "C", "C", "C", "A", "T", "C", "A", "C", "A", "A",  
+                                           "C", "C", "C", "A", "T", "C", "A", "C", "A", "A",  
+                                           "C", "C", "C", "A", "T", "C", "A", "C", "A", "A", 
+                                           "C", "C", "C", "A", "T", "C", "A", "C", "A", "A"};
+
+    std::vector<handlegraph::handle_t> nodes;
+    for (auto& seq : sequences) {
+        nodes.emplace_back(graph.create_handle(seq));
+    }
+
+    graph.create_edge(nodes[0], nodes[1]);
+    graph.create_edge(nodes[0], nodes[2]);
+    graph.create_edge(nodes[1], nodes[3]);
+    graph.create_edge(nodes[2], nodes[3]);
+    graph.create_edge(nodes[3], nodes[4]);
+    graph.create_edge(nodes[3], nodes[7]);
+    graph.create_edge(nodes[4], nodes[5]);
+    graph.create_edge(nodes[4], nodes[6]);
+    graph.create_edge(nodes[5], nodes[6]);
+    graph.create_edge(nodes[6], nodes[7]);
+    graph.create_edge(nodes[7], nodes[8]);
+    graph.create_edge(nodes[7], nodes[9]);
+    graph.create_edge(nodes[8], nodes[9]);
+
+    graph.create_edge(nodes[9], nodes[10]);
+
+    graph.create_edge(nodes[10], nodes[11]);
+    graph.create_edge(nodes[10], nodes[12]);
+    graph.create_edge(nodes[11], nodes[13]);
+    graph.create_edge(nodes[12], nodes[13]);
+    graph.create_edge(nodes[13], nodes[14]);
+    graph.create_edge(nodes[13], nodes[17]);
+    graph.create_edge(nodes[14], nodes[15]);
+    graph.create_edge(nodes[14], nodes[16]);
+    graph.create_edge(nodes[15], nodes[16]);
+    graph.create_edge(nodes[16], nodes[17]);
+    graph.create_edge(nodes[17], nodes[18]);
+    graph.create_edge(nodes[17], nodes[19]);
+    graph.create_edge(nodes[18], nodes[19]);
+
+
+    graph.create_edge(nodes[20], nodes[21]);
+    graph.create_edge(nodes[20], nodes[22]);
+    graph.create_edge(nodes[21], nodes[23]);
+    graph.create_edge(nodes[22], nodes[23]);
+    graph.create_edge(nodes[23], nodes[24]);
+    graph.create_edge(nodes[23], nodes[27]);
+    graph.create_edge(nodes[24], nodes[25]);
+    graph.create_edge(nodes[24], nodes[26]);
+    graph.create_edge(nodes[25], nodes[26]);
+    graph.create_edge(nodes[26], nodes[27]);
+    graph.create_edge(nodes[27], nodes[28]);
+    graph.create_edge(nodes[27], nodes[29]);
+    graph.create_edge(nodes[28], nodes[29]);
+
+    graph.create_edge(nodes[29], nodes[30]);
+
+    graph.create_edge(nodes[30], nodes[31]);
+    graph.create_edge(nodes[30], nodes[32]);
+    graph.create_edge(nodes[31], nodes[33]);
+    graph.create_edge(nodes[32], nodes[33]);
+    graph.create_edge(nodes[33], nodes[34]);
+    graph.create_edge(nodes[33], nodes[37]);
+    graph.create_edge(nodes[34], nodes[35]);
+    graph.create_edge(nodes[34], nodes[36]);
+    graph.create_edge(nodes[35], nodes[36]);
+    graph.create_edge(nodes[36], nodes[37]);
+    graph.create_edge(nodes[37], nodes[38]);
+    graph.create_edge(nodes[37], nodes[39]);
+    graph.create_edge(nodes[38], nodes[39]);
+
+    graph.create_edge(nodes[39], nodes[40]);
+    
+    graph.create_edge(nodes[40], nodes[41]);
+    graph.create_edge(nodes[40], nodes[42]);
+    graph.create_edge(nodes[41], nodes[43]);
+    graph.create_edge(nodes[42], nodes[43]);
+    graph.create_edge(nodes[43], nodes[44]);
+    graph.create_edge(nodes[43], nodes[47]);
+    graph.create_edge(nodes[44], nodes[45]);
+    graph.create_edge(nodes[44], nodes[46]);
+    graph.create_edge(nodes[45], nodes[46]);
+    graph.create_edge(nodes[46], nodes[47]);
+    graph.create_edge(nodes[47], nodes[48]);
+    graph.create_edge(nodes[47], nodes[49]);
+    graph.create_edge(nodes[48], nodes[49]);
+    
+    graph.create_edge(nodes[49], nodes[50]);
+    
+    graph.create_edge(nodes[50], nodes[51]);
+    graph.create_edge(nodes[50], nodes[52]);
+    graph.create_edge(nodes[51], nodes[53]);
+    graph.create_edge(nodes[52], nodes[53]);
+    graph.create_edge(nodes[53], nodes[54]);
+    graph.create_edge(nodes[53], nodes[57]);
+    graph.create_edge(nodes[54], nodes[55]);
+    graph.create_edge(nodes[54], nodes[56]);
+    graph.create_edge(nodes[55], nodes[56]);
+    graph.create_edge(nodes[56], nodes[57]);
+    graph.create_edge(nodes[57], nodes[58]);
+    graph.create_edge(nodes[57], nodes[59]);
+    graph.create_edge(nodes[58], nodes[59]);
+    
+    // TODO one of these should really be the reference but idk how to add reference paths to a graph
+    std::vector<std::vector<std::size_t>> paths_seqs = { {0, 1, 3, 4, 5, 6, 7,9}, {0, 1, 3, 4, 6, 7}, {0, 2, 3, 7}, {0, 2, 3, 4, 6, 7},
+                                                          {10, 11, 13, 14, 15, 16, 17, 19}, {10, 11, 13, 14, 16, 17}, {10, 12, 13, 17}, {10, 12, 13, 14, 16, 17},
+                                                          {20, 21, 23, 24, 25, 26, 27, 29}, {20, 21, 23, 24, 26, 27}, {20, 22, 23, 27}, {20, 22, 23, 24, 26, 27},
+                                                          {30, 31, 33, 34, 35, 36, 37, 39}, {30, 31, 33, 34, 36, 37}, {30, 32, 33, 37}, {30, 32, 33, 34, 36, 37},
+                                                          {39, 40, 41, 43, 44, 45, 46, 47, 49}, {40, 41, 43, 44, 46, 47}, {40, 42, 43, 47}, {40, 42, 43, 44, 46, 47},
+                                                          {49, 50, 51, 53, 54, 55, 56, 57, 59}, {50, 51, 53, 54, 56, 57}, {50, 52, 53, 57}, {50, 52, 53, 54, 56, 57}};
+
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+        //idk where the chromosme is supposed to go either
+        size_t chr = path_i / 4;
+        size_t sample_num = path_i % 4; 
+        if (sample_num == 0) {
+            paths.emplace_back(graph.create_path_handle("path"+std::to_string(sample_num)+"#" + std::to_string(chr) + "#path0"));
+        } else {
+            paths.emplace_back(graph.create_path_handle("path"+std::to_string(sample_num)+"#" + std::to_string(chr) + "#0#0"));
+        }
+        for (size_t node_i : paths_seqs[path_i]) {
+            graph.append_step(paths.back(), nodes[node_i]);
+        }
+    }
+
+    //// vg isn't included so the distance index can only be built from the command line
+    //graph.serialize("../tests/graph_test/simple_nested_chains.hg");
+    //int built = system("vg index -j ../tests/graph_test/simple_nested_chains.dist ../tests/graph_test/simple_nested_chains.hg"); 
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/simple_nested_chains.dist");
+
+   // bdsg::HashGraph graph;
+   // graph.deserialize("../tests/graph_test/simple_nested_chains.hg");
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&graph);
+
+    SECTION("Make and fill in snarl collection with no partitions, then fill in partitions later by chromosome") {
+
+        // Don't get the partitions or anything else
+        TestSnarlDataCollection snarl_collection(1,10,1,10);
+        snarl_collection.fill_in_snarl_info(*path_graph, distance_index, false, [&](const handlegraph::net_handle_t& net) { 
+            std::vector<std::set<sample_hap_t>> partitions;
+            return partitions;
+        }, true, "", false, cout);
+
+
+        // Make partitions for each snarl
+        std::vector<stoat::sample_hap_t> sample_haps;
+        for (const auto& path : paths) {
+            sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
+        }
+
+
+        // First fill it in with a non-existent path, which should do nothing
+        std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
+        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+
+            //Add partitions to follow the walks
+            std::vector<std::set<sample_hap_t>> partitions;
+            if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
+                // First connected component
+                partitions.back().emplace(sample_haps[0]);
+            } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
+                // Second connected component
+                partitions.back().emplace(sample_haps[4]);
+            } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
+                // Third connected component
+                partitions.back().emplace(sample_haps[8]);
+            } else {
+                // I'm not going to bother testing anything else
+            }
+            return partitions;
+        }, "empty_path");
+        REQUIRE(sample_haplotype_to_index.size() == 0);
+
+        // Make sure the partitions haven't been filled in
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            REQUIRE(snarl_info.partitions.size() == 0);
+        });
+
+        // Now fill it in with just the reference path for just the first chromosome
+        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+
+            //Add partitions to follow the walks
+            std::vector<std::set<sample_hap_t>> partitions;
+            if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
+                // First connected component
+                partitions.emplace_back();
+                partitions.back().emplace(sample_haps[0]);
+            } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
+                // Second connected component
+                partitions.emplace_back();
+                partitions.back().emplace(sample_haps[4]);
+            } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
+                // Third connected component
+                partitions.emplace_back();
+                partitions.back().emplace(sample_haps[8]);
+            } else {
+                // I'm not going to bother testing anything else
+            }
+            return partitions;
+        }, "path0#0#path0");
+
+        // Make sure that just the partitions on the first chromosome been filled in
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
+                REQUIRE(snarl_info.partitions.size() == 1);
+            } else {
+                REQUIRE(snarl_info.partitions.size() == 0);
+            }
+        });
+
+        // Now fill it in with just the reference path for just the second chromosome
+        snarl_collection.add_snarl_partitions(sample_haplotype_to_index, [&](const snarl_info_t& snarl_info) {
+
+            //Add partitions to follow the walks
+            std::vector<std::set<sample_hap_t>> partitions;
+            if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
+                // First connected component
+                partitions.emplace_back();
+                partitions.back().emplace(sample_haps[0]);
+            } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
+                // Second connected component
+                partitions.emplace_back();
+                partitions.back().emplace(sample_haps[4]);
+            } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
+                // Third connected component
+                partitions.emplace_back();
+                partitions.back().emplace(sample_haps[8]);
+            } else {
+                // I'm not going to bother testing anything else
+            }
+            return partitions;
+        }, "path0#1#path0");
+
+        // Make sure that just the partitions on the first chromosome been filled in
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true) ||
+                snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
+                snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
+                snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
+                REQUIRE(snarl_info.partitions.size() == 1);
+            } else {
+                REQUIRE(snarl_info.partitions.size() == 0);
+            }
+        });
+
+    }
 }
+
