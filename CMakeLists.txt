@@ -150,6 +150,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/snarl_analyzer.cpp
     src/graph_path_association_finder.cpp
     src/partitioner.cpp
+    src/path_partitioner.cpp
     src/snarl_data_collection.cpp
     
     src/io/register_loader_saver_gbz.cpp
@@ -197,6 +198,7 @@ add_executable(unit_tests
     tests/unittest/snarl_data_t_unit.cpp
     tests/unittest/matrix_unit.cpp
     tests/unittest/quantitative_test_unit.cpp
+    tests/unittest/partitioner_unit.cpp
     tests/unittest/path_partitioner_unit.cpp
     tests/unittest/arg_parsing_unit.cpp
     tests/unittest/post_processing_unit.cpp

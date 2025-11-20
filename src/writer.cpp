@@ -58,6 +58,20 @@ void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_d
               << snarl_data_s.depth << endl;
 }
 
+void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
+                  const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths) {
+
+    outstream << snarl_data.ref_path << "\t"
+              << snarl_data.start_position << "\t"
+              << snarl_data.end_position << "\t"
+              << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
+              << snarl_data.variant_type << "\t"
+              << fastfisher_p_value << "\t"
+              << chi2_p_value << "\t"
+              << group_paths << "\t"
+              << snarl_data.depth << endl;
+}
+
 void write_binary_covar(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
                         const std::string& p_value, const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
 
@@ -192,6 +206,71 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
             if (!sequence_buffer.empty()) {
                 outstream << sequence_buffer << endl;
             }
+        }
+    }
+}
+
+void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
+                 const bdsg::SnarlDistanceIndex& distance_index, const snarl_info_t& snarl_info) {
+    
+    // The reference coordinates of this snarl as a string
+    string ref_coordinates = snarl_info.ref_path + ":" + std::to_string(snarl_info.start_position) + "-" + std::to_string(snarl_info.end_position);
+
+
+    // Get the coordinate range of every sample going through this snarl
+    // We will match each sample to one of these ranges later
+    handlegraph::handle_t start_node = graph.get_handle(snarl_info.start_node.get_node_id(), snarl_info.start_node.get_is_reverse());
+    handlegraph::handle_t end_node = graph.get_handle(snarl_info.end_node.get_node_id(), snarl_info.end_node.get_is_reverse());
+    std::vector<stoat::path_range_t> path_ranges = get_coordinates_between_nodes(graph, start_node, end_node, false, "", true);
+
+    for (size_t allele_i = 0 ; allele_i < snarl_info.walks_by_allele.size() ; allele_i++) {
+        // For each allele
+
+        // These sequence of the allele
+        std::string sequence = snarl_info.sequences_by_allele[allele_i];
+
+        std::tuple<std::string, size_t, size_t> range_coordinates;
+
+        // For any one haplotype with this allele, find the coordinates from path_ranges
+        for (const stoat::path_range_t& path_range : path_ranges) {
+
+            handlegraph::path_handle_t path = graph.get_path_handle_of_step(path_range.start);
+
+            if (snarl_info.sample_sets_by_allele[allele_i].count(stoat::get_sample_and_haplotype(graph, path))) {
+                // If the sample/haplotype of this path is in the set for this allele
+
+                range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
+                break;
+            }
+        }
+
+        //////// Now print the fasta 
+
+        // Print the header
+        outstream << ">snarl:" << stoat::pairToString(std::make_pair(snarl_info.start_node.get_node_id(), snarl_info.end_node.get_node_id())) << "|"
+            << ref_coordinates << "|"
+            << std::get<0>(range_coordinates) << ":"
+            << std::get<1>(range_coordinates) << "-"    
+            << std::get<2>(range_coordinates) << endl;
+
+        // Now print the sequence in 80bp chunks.
+        // Keep a buffer to print 80 bp at a time
+        std::string sequence_buffer = "";
+        while (sequence.size() != 0) { 
+            // Fill in sequence_buffer up to 80 characters
+            size_t to_add = 80 - sequence_buffer.size();
+            sequence_buffer += sequence.substr(0, to_add);
+            sequence.erase(0, to_add);
+            
+            // If the buffer is full, write it and clear it
+            if (sequence_buffer.size() == 80) {
+                outstream << sequence_buffer << endl;
+                sequence_buffer.clear();
+            }
+
+        }
+        if (!sequence_buffer.empty()) {
+            outstream << sequence_buffer << endl;
         }
     }
 }

@@ -10,7 +10,10 @@
 #include <handlegraph/path_handle_graph.hpp>
 #include <vg/io/vpkg.hpp>
 
-#include "../graph_path_association_finder.hpp"
+#include "../snarl_data_collection.hpp"
+#include "../path_partitioner.hpp"
+#include "../writer.hpp"
+#include "../binary_table.hpp"
 #include "../io/register_io.hpp"
 #include "../post_processing.hpp"
 #include "../arg_parser.hpp"
@@ -188,6 +191,8 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         }
     }
 
+    //////////////////////////////////////////////////// Check the inputs and outputs and logs
+
     // Check that the inputs are ok
     if (graph_name.empty()) {
         stoat::LOG_ERROR("[stoat graph] stoat graph requires a graph file");
@@ -220,7 +225,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         return EXIT_FAILURE; 
     }
 
-
+    // Decide if we want to save or load the files
     // If we want to save the snarls, then double check that the file is empty
     // If we want to use the snarls, then double check that the file is not empty.
     // Either way, tell the user what we're doing
@@ -252,6 +257,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     }
 
     
+    // Load the phenotypes
     std::vector<bool> phenotypes;
     if (!samples_filename.empty()) {
         phenotypes = stoat_vcf::parse_binary_pheno(samples_filename, samples);
@@ -283,6 +289,13 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         stoat::LOG_ERROR("[stoat vgio] Could not register libvg types with libvgio");
         return EXIT_FAILURE;
     }
+
+    if (method_name != "paths") {
+        stoat::LOG_ERROR("[stoat graph] unknown method " + method_name);
+        return EXIT_FAILURE; 
+    }
+
+    ///////////////////////////////////////////////// Load the graph and stuff
 
     auto start_1 = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Loading graph and preparing indexes...");
@@ -321,6 +334,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get(), paths_set);
 
 
+    // Load the distance index
     bdsg::SnarlDistanceIndex* distance_index_ptr = nullptr;
     bdsg::SnarlDistanceIndex distance_index;
     if (!distance_name.empty()) {
@@ -340,18 +354,22 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     std::ofstream out_stream;
     out_stream.open(filename);
 
+    //////////////////////////////// Make the snarls file and load it if possible
+    // If it is being built, it will count towards the time of analysis
 
-    // Make the partitioner
-    std::shared_ptr<stoat_graph::SnarlTraverserAndPartitioner> partitioner;
-    if (method_name == "paths") {
-        partitioner.reset(new stoat_graph::SnarlTraverserAndPathPartitioner(all_sample_haplotypes, distance_index_ptr, reference_sample, allele_size_limit, save_snarls, load_snarls));
-        if (load_snarls) {
-            partitioner->deserialize(snarls_filename, *graph);
-        }
-    } else {
-        stoat::LOG_ERROR("[stoat graph] unknown method " + method_name);
-        return EXIT_FAILURE; 
+    // TODO: Get these from the command line, infinite for now (which may also be fine)
+    size_t snarl_child_limit = std::numeric_limits<size_t>::max();
+    size_t walk_steps_limit = std::numeric_limits<size_t>::max();
+    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit);
+    if (load_snarls) {
+        std::ifstream in_snarls;
+        in_snarls.open(snarls_filename);
+        snarl_collection.load_snarl_data_collection(in_snarls);
+        in_snarls.close();
     }
+
+    ////////////////////////////////////////////////// Start doing work
+
 
     auto end_1 = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Graph loading time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
@@ -362,29 +380,126 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     CALLGRIND_START_INSTRUMENTATION;
 #endif
 
-    if (!samples_filename.empty()) {
-        // If we actually want to do the analysis
-        // TODO: Double check that the distance index isn't actually used
-        stoat_graph::AssociationFinder af (*graph, 
-                                       partitioner,
-                                       sample_sets,
-                                       reference_sample,
-                                       test_method,
-                                       maf_threshold,
-                                       min_individuals,
-                                       output_format,
-                                       out_stream);
-        af.test_snarls();
-    } else if (save_snarls) {
-        // If we just want to precompute the snarls
-        // The function says what to do with the partitions - nothing because it saves them automatically 
-        partitioner->for_each_snarl_partition(*graph, 
-            [&](const auto& snarl_info) { return; });
+    ////////////////// If we didn't load the snarls, then we need to calculate them here
+    if (!load_snarls) {
+        snarl_collection.fill_in_snarl_info(*graph, distance_index, 
+                                            true, // Find the sets of samples in each allele (walk through the snarl) before finding the walks themselves
+                                            true, // find walks
+                                            SnarlDataCollection::get_walks_from_sample_sets, // Function to find the walks 
+                                            true, // find the sample sets
+                                            // Function to find the sample sets 
+                                            [&] (const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                                                 const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                                 std::vector<std::set<sample_hap_t>>& sample_sets_by_allele) {
+                                                stoat_graph::partition_embedded_paths_in_snarl(graph, distance_index, snarl, all_sample_haplotypes, sample_sets_by_allele);
+                                            },
+                                            true, // find the sequences
+                                            reference_sample,
+                                            distance_index.has_distances());
+        if (save_snarls) {
+            ofstream out_snarls;
+            out_snarls.open(snarls_filename);
+            snarl_collection.write_snarl_data_collection(out_snarls);
+            out_snarls.close();
+        }
     }
 
-    if (save_snarls) {
-        // Save the snarls
-        partitioner->serialize(snarls_filename);
+    ////////////////////////////////// Now do the stastistics and write the output
+
+    // Make a tester
+    stoat::FisherKhi2 fisher_chi2_tester;
+
+    if (!samples_filename.empty()) {
+        // If we actually want to do the analysis
+
+        // First, write the output file header, if necessary
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info){
+            // For each snarl, get the genotype/phenotype matrix, do the statistics, and write the output
+
+            ///////////// Write the header
+            if (output_format == "tsv") {
+                stoat::write_binary_header(out_stream);
+            }
+
+            // Declare a bunch of strings that are needed for the output
+            string group_paths = "NA";
+            string fastfisher_p_value = "NA";
+            string chi2_p_value = "NA"; 
+
+            ////////////// Do statistics
+            if (test_method == "exact") {
+                // If we only want to know if there is one allele that matches exactly one of the phenotype groups
+                for (const std::set<sample_hap_t>& sample_hap_partition : snarl_info.sample_sets_by_allele) {
+                
+                    // Make a set of just the sample names
+                    // TODO: This isn't super efficient
+                    std::set<std::string> partition;
+                    for (const sample_hap_t& sample : sample_hap_partition) {
+                        partition.emplace(sample.sample);
+                    }
+                
+                    // If one partition exactly matches one group we want, then all other partitions combined (including things not in the snarl) will match
+                    // the other.
+                    // TODO: This could be better but I don't think it's worth working on it yet
+                    if (partition == sample_sets.first || partition == sample_sets.second) {
+                        // There was an exact match
+                    }
+                }
+
+            } else if (test_method == "chi2") {
+
+                // Fill in the phenotype/genotype count vectors. Each item in these vectors is an allele (/walk through the snarl/partition of samples)
+                // One vector for each phenotype
+                std::vector<size_t> sample_count_by_allele1(snarl_info.sample_sets_by_allele.size(), 0);
+                std::vector<size_t> sample_count_by_allele2(snarl_info.sample_sets_by_allele.size(), 0);
+                
+                // How many individuals/samples are included?
+                std::unordered_set<std::string> seen_samples;
+
+                // Put the sample sets into genotype vectors (one entry in the vector is one allele/path/genotype)
+                for (size_t i = 0 ; i < snarl_info.sample_sets_by_allele.size() ; i++) {
+                    // For each allele
+                    for (const sample_hap_t& sample : snarl_info.sample_sets_by_allele[i]) {
+                        // Count each sample with this allele as being in phenotype group 1 or 2
+                        if (sample_sets.first.count(sample.sample) == 1) {
+                            sample_count_by_allele1[i]++;
+                        } else if (sample_sets.second.count(sample.sample) == 1) {
+                            sample_count_by_allele2[i]++;
+                        }
+                        seen_samples.insert(sample.sample);
+                    }
+                }
+                if (!stoat::filtration_binary_table(sample_count_by_allele1, sample_count_by_allele2, seen_samples.size(), min_individuals, maf_threshold)) {
+                    // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
+
+                    //Get a bunch of strings that get used for the output
+                    // TODO: This function should probably be part of the output function
+                
+                    //Get a string representing the number of samples of each phenotype with each allele
+                    group_paths = stoat_vcf::format_group_paths(sample_count_by_allele1, sample_count_by_allele2);
+                
+                    // Run the statistical test
+                    std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(sample_count_by_allele1, sample_count_by_allele2);
+                
+                }
+            }
+            /////////////////////////////// Write the output
+            if (output_format == "tsv") {
+                # pragma omp critical (out_associated) 
+                {
+                    // Leave adjusted p-value blank, to be filled in later
+                    stoat::write_binary(out_stream, snarl_info, fastfisher_p_value, chi2_p_value, group_paths);
+                }
+            } else if (output_format == "fasta") {
+            
+                # pragma omp critical (out_associated) 
+                {
+                    stoat::write_fasta(out_stream, *graph, distance_index, snarl_info);
+                }
+            }
+            return;
+
+        });
     }
 
     //Close streams
