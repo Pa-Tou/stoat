@@ -226,7 +226,7 @@ target_link_libraries(vcf_simu_test PRIVATE
 
 add_test(NAME VcfSimuTest COMMAND vcf_simu_test)
 
-add_executable(graph_simu_test tests/system/compare_files_utils.cpp tests/system/graph_simu_test.cpp)
+add_executable(graph_simu_test tests/system/compare_files_utils.cpp tests/system/load_tables.cpp tests/system/graph_simu_test.cpp)
 
 # add src target lib + Catch2 lib 
 target_link_libraries(graph_simu_test PRIVATE 

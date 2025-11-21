@@ -2,11 +2,12 @@
 #include <catch.hpp>
 
 #include "compare_files_utils.hpp"
+#include "load_tables.hpp"
 
 namespace fs = std::filesystem;
 using namespace std;
 
-TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
+TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
@@ -236,7 +237,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
     //clean_output_dir(output_dir_loaded);
 }
 
-TEST_CASE("Output simple nested chain", "[graph]") {
+TEST_CASE("Output simple nested chain", "[graph][bug]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/graph_test/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
@@ -281,13 +282,64 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+        std::vector<binary_table_values_t> truth_values;
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({"0","2/3"}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"0:1","2:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"2:0","0:1"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            bool match = false;
+            if (test == truth1) {
+                match = true;
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                match = true;
+                found_snarls[1] = true;
+            } else if (test == truth3) {
+                match = true;
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") {
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+        REQUIRE(found_snarls[2]);
+
     }
 
     SECTION("Test exact tsv output") {
