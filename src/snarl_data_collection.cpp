@@ -504,6 +504,9 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                 return true;
             });
         }
+        // Start a new walk
+        walks.emplace_back();
+        std::vector<bdsg::net_handle_t>& current_walk = walks.back();
 
         // Now sort the list of steps on the two boundary nodes
         sort(boundary_steps.begin(), boundary_steps.end(), [&](const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
@@ -513,12 +516,9 @@ void SnarlDataCollection::get_walks_from_sample_sets(
             // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
             //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
             // inside the snarl and the first traversal of a boundary node is leaving it
+            current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[0]), &graph));
             for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
-                // Start a new walk
                 //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
-                walks.emplace_back();
-                std::vector<bdsg::net_handle_t>& current_walk = walks.back();
-                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
 
 
 
@@ -558,14 +558,22 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                     step = graph.get_next_step(step);
 
                 }//end while loop going through a traversal of the snarl
-                //Add the end boundary node
-                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i+1]), &graph));
 
             }// end for loop through each traversal of the snarl in one sample_set
+            //Add the end boundary node
+            current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_steps.size()-1]), &graph));
         }// end if there are enough boundary nodes
 
 
     }// end for each first step (per sample_set)
+
+cerr << "Found walks from sets" << endl;
+for (const std::vector<handlegraph::net_handle_t>& walk : walks) {
+    for (const net_handle_t& net : walk) {
+        cerr << distance_index.net_handle_as_string(net) << " ";
+    }
+    cerr << endl;
+}
 
     return ;
 }
@@ -575,10 +583,16 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
     std::vector<std::string> sequences;
     for (const stoat::Path_traversal_t& path : paths) {
         sequences.emplace_back();
-        for (const stoat::Node_traversal_t& node : path.get_paths()) {
-            if (node.get_node_id() != 0) {
-                //TODO: Does this take into account the reverse complement?
-                sequences.back() += graph.get_sequence(graph.get_handle(node.get_node_id(), node.get_is_reverse()));
+        const std::vector<stoat::Node_traversal_t>& nodes = path.get_paths(); 
+        for (size_t i = 0 ; i < nodes.size() ; i++) {
+            const stoat::Node_traversal_t& node = nodes[i];
+            if (i != 0 && i != nodes.size()-1) {
+                if (node.get_node_id() == 0) {
+                    sequences.back() += "N";
+                } else {
+                    //TODO: Does this take into account the reverse complement?
+                    sequences.back() += graph.get_sequence(graph.get_handle(node.get_node_id(), node.get_is_reverse()));
+                }
             }
         }
     }

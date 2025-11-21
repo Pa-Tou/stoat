@@ -237,7 +237,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
     //clean_output_dir(output_dir_loaded);
 }
 
-TEST_CASE("Output simple nested chain", "[graph][bug]") {
+TEST_CASE("Output simple nested chain", "[graph]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/graph_test/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
@@ -282,7 +282,6 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<binary_table_values_t> truth_values;
         binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
                                   (size_t)1, 
                                   (size_t)2, 
@@ -329,7 +328,7 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
             } else if (test == truth3) {
                 match = true;
                 found_snarls[2] = true;
-            } else if (test.chr != "NA") {
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
                 cerr << "Line doesn't match the truth" << endl;
                 cerr << line << endl;
                 REQUIRE(false);
@@ -366,11 +365,25 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
+        binary_table_values_t truth ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::getline(in_table, line);
+        binary_table_values_t test = load_binary_snarl_line(line);
+        REQUIRE(test == truth);
+        REQUIRE((!std::getline(in_table, line)));
+        in_table.close();
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
     }
 
     SECTION("Test chi2 fasta output") {
@@ -401,19 +414,19 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path2:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path3:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1_4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1_4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1_4|path0#0#path0:1-2|path2:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1_4|path0#0#path0:1-2|path3:1-2", "C");
 
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path0#0#path0:3-6", "TCA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path3:3-6", "TA");
-        truth_fasta.emplace_back(4, ">snarl:4-8|path0#0#path0:3-6|path2:3-3", "");
+        truth_fasta.emplace_back(3, ">snarl:4_8|path0#0#path0:3-6|path0#0#path0:3-6", "TNA");
+        truth_fasta.emplace_back(3, ">snarl:4_8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TNA");
+        truth_fasta.emplace_back(3, ">snarl:4_8|path0#0#path0:3-6|path3:3-5", "TNA");
+        truth_fasta.emplace_back(4, ">snarl:4_8|path0#0#path0:3-6|path2:3-3", "");
 
-        truth_fasta.emplace_back(5, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(5, ">snarl:5_7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
+        truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
@@ -447,10 +460,10 @@ TEST_CASE("Output simple nested chain", "[graph][bug]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(2, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
+        truth_fasta.emplace_back(2, ">snarl:5_7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
 
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
 
@@ -508,13 +521,64 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({"0","2/3"}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"0:1","2:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"2:0","0:1"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            bool match = false;
+            if (test == truth1) {
+                match = true;
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                match = true;
+                found_snarls[1] = true;
+            } else if (test == truth3) {
+                match = true;
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+        REQUIRE(found_snarls[2]);
+
+
     }
 
     SECTION("Test exact tsv output") {
@@ -541,11 +605,24 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
-
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        binary_table_values_t truth ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::getline(in_table, line);
+        binary_table_values_t test = load_binary_snarl_line(line);
+        REQUIRE(test == truth);
+        REQUIRE((!std::getline(in_table, line)));
+        in_table.close();
     }
 
     SECTION("Test chi2 fasta output") {
@@ -576,19 +653,19 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path2:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path3:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1_4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
+        truth_fasta.emplace_back(1, ">snarl:1_4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1_4|path0#0#path0:1-2|path2:1-2", "C");
+        truth_fasta.emplace_back(2, ">snarl:1_4|path0#0#path0:1-2|path3:1-2", "C");
 
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path0#0#path0:3-6", "TCA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path3:3-6", "TA");
-        truth_fasta.emplace_back(4, ">snarl:4-8|path0#0#path0:3-6|path2:3-3", "");
+        truth_fasta.emplace_back(3, ">snarl:4_8|path0#0#path0:3-6|path0#0#path0:3-6", "TNA");
+        truth_fasta.emplace_back(3, ">snarl:4_8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TNA");
+        truth_fasta.emplace_back(3, ">snarl:4_8|path0#0#path0:3-6|path3:3-5", "TNA");
+        truth_fasta.emplace_back(4, ">snarl:4_8|path0#0#path0:3-6|path2:3-3", "");
 
-        truth_fasta.emplace_back(5, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(5, ">snarl:5_7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
+        truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
@@ -622,10 +699,10 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
-        truth_fasta.emplace_back(2, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
+        truth_fasta.emplace_back(2, ">snarl:5_7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
 
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
+        truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
 
@@ -656,12 +733,50 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"2:0","0:1"}), 
+                                  (size_t)2});
+
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            bool match = false;
+            if (test == truth1) {
+                match = true;
+                found_snarls[0] = true;
+            } else if (test == truth3) {
+                match = true;
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[2]);
     }
     SECTION("Test chi2 tsv output with individual count excluding one snarl") {
 
@@ -688,19 +803,58 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({"0","2/3"}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"0:1","2:1"}), 
+                                  (size_t)1});
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            bool match = false;
+            if (test == truth1) {
+                match = true;
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                match = true;
+                found_snarls[1] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+
+
     }
 
     clean_output_dir(output_dir);
     fs::remove(samples_file);
 }
 
-TEST_CASE("Output loop with snarl", "[graph]") {
+TEST_CASE("Output loop with snarl", "[graph][bug]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/graph_test/loop_with_indel";
 
@@ -743,12 +897,47 @@ TEST_CASE("Output loop with snarl", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\t0.3333\t8.3265e-02\t0:1,2:0\t1");
-        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\t0.2231\t0:1,1:0,1:0\t2");
+        binary_table_values_t truth1 ({(std::string)"path0", 
+                                  (size_t)10, 
+                                  (size_t)14, 
+                                  std::make_pair<size_t, size_t>(1,6), 
+                                  std::vector<std::string>({"3/4","6/8"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"0:1","2:0"}), 
+                                  (size_t)1});
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        binary_table_values_t truth2 ({(std::string)"path0", 
+                                  (size_t)11, 
+                                  (size_t)12, 
+                                  std::make_pair<size_t, size_t>(2,4), 
+                                  std::vector<std::string>({"1","0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "0.2231", 
+                                  std::vector<std::string>({"0:1","1:0", "1:0"}), 
+                                  (size_t)2});
+
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (2, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            cerr << "LINE: " << line << endl;
+            bool match = false;
+            if (test == truth1) {
+                match = true;
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                match = true;
+                found_snarls[1] = true;
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+
     }
 
     SECTION("Test exact tsv output") {
@@ -774,12 +963,47 @@ TEST_CASE("Output loop with snarl", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\tNA\tNA\tNA\t1");
-        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\tNA\tNA\t2");
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        binary_table_values_t truth1 ({(std::string)"path0", 
+                                  (size_t)10, 
+                                  (size_t)14, 
+                                  std::make_pair<size_t, size_t>(1,6), 
+                                  std::vector<std::string>({"3/4","6/8"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0", 
+                                  (size_t)11, 
+                                  (size_t)12, 
+                                  std::make_pair<size_t, size_t>(2,4), 
+                                  std::vector<std::string>({"1","0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)2});
+
+        ifstream in_table;
+        in_table.open(output_dir+"/binary_table_graph.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (2, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            cerr << "LINE: " << line << endl;
+            bool match = false;
+            if (test == truth1) {
+                match = true;
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                match = true;
+                found_snarls[1] = true;
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
     }
 
     SECTION("Test chi2 fasta output") {
@@ -809,19 +1033,19 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
+        truth_fasta.emplace_back(1, ">snarl:6_1|path0:10-14|path0:10-14", "ANCT");
 
-        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path1:10-16", "ACTACT");
-        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
+        truth_fasta.emplace_back(2, ">snarl:6_1|path0:10-14|path1:10-16", "ANCTANCT");
+        truth_fasta.emplace_back(2, ">snarl:6_1|path0:10-14|path2:10-17", "ANCTANCT");
 
         // For snarl 2-4, each path is in a different group, and there needs to be one of each
-        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
+        truth_fasta.emplace_back(3, ">snarl:2_4|path0:11-12|path0:11-12", "G");
 
-        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
-        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
+        truth_fasta.emplace_back(4, ">snarl:2_4|path0:11-12|path1:11-11", "");
+        truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path1:14-14", "");
 
-        truth_fasta.emplace_back(6, ">snarl:2-4|path0:11-12|path2:11-12", "G");
-        truth_fasta.emplace_back(7, ">snarl:2-4|path0:11-12|path2:15-15", "");
+        truth_fasta.emplace_back(6, ">snarl:2_4|path0:11-12|path2:11-12", "G");
+        truth_fasta.emplace_back(7, ">snarl:2_4|path0:11-12|path2:15-15", "");
 
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
@@ -854,22 +1078,22 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path1:10-16", "ACTACT");
-        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
+        truth_fasta.emplace_back(1, ">snarl:6_1|path0:10-14|path1:10-16", "ANCTANCT");
+        truth_fasta.emplace_back(1, ">snarl:6_1|path0:10-14|path2:10-17", "ANCTANCT");
 
-        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
+        truth_fasta.emplace_back(2, ">snarl:6_1|path0:10-14|path0:10-14", "ANCT");
 
         // Snarl 2
         // Path0 goes through once with insertion node 3
         // Path 1 goes through twice with deletion
         // Path 2 goes through twice, with insertion then with deletion 
-        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
+        truth_fasta.emplace_back(3, ">snarl:2_4|path0:11-12|path0:11-12", "G");
 
-        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
-        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
+        truth_fasta.emplace_back(4, ">snarl:2_4|path0:11-12|path1:11-11", "");
+        truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path1:14-14", "");
 
-        truth_fasta.emplace_back(6, ">snarl:2-4|path0:11-12|path2:11-12", "G");
-        truth_fasta.emplace_back(7, ">snarl:2-4|path0:11-12|path2:15-15", "");
+        truth_fasta.emplace_back(6, ">snarl:2_4|path0:11-12|path2:11-12", "G");
+        truth_fasta.emplace_back(7, ">snarl:2_4|path0:11-12|path2:15-15", "");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 

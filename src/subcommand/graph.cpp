@@ -412,19 +412,22 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     if (!samples_filename.empty()) {
         // If we actually want to do the analysis
 
-        // First, write the output file header, if necessary
+        ///////////// Write the header, if necessary
+        if (output_format == "tsv") {
+            stoat::write_binary_header(out_stream);
+        }
+
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info){
             // For each snarl, get the genotype/phenotype matrix, do the statistics, and write the output
 
-            ///////////// Write the header
-            if (output_format == "tsv") {
-                stoat::write_binary_header(out_stream);
-            }
 
             // Declare a bunch of strings that are needed for the output
             string group_paths = "NA";
             string fastfisher_p_value = "NA";
             string chi2_p_value = "NA"; 
+
+            // Should we write the output? Don't always if the exact test fails
+            bool write_output = false;
 
             ////////////// Do statistics
             if (test_method == "exact") {
@@ -443,10 +446,12 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                     // TODO: This could be better but I don't think it's worth working on it yet
                     if (partition == sample_sets.first || partition == sample_sets.second) {
                         // There was an exact match
+                        write_output = true;
                     }
                 }
 
             } else if (test_method == "chi2") {
+
 
                 // Fill in the phenotype/genotype count vectors. Each item in these vectors is an allele (/walk through the snarl/partition of samples)
                 // One vector for each phenotype
@@ -480,21 +485,25 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                 
                     // Run the statistical test
                     std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(sample_count_by_allele1, sample_count_by_allele2);
+
+                    write_output = true;
                 
                 }
             }
             /////////////////////////////// Write the output
-            if (output_format == "tsv") {
-                # pragma omp critical (out_associated) 
-                {
-                    // Leave adjusted p-value blank, to be filled in later
-                    stoat::write_binary(out_stream, snarl_info, fastfisher_p_value, chi2_p_value, group_paths);
-                }
-            } else if (output_format == "fasta") {
-            
-                # pragma omp critical (out_associated) 
-                {
-                    stoat::write_fasta(out_stream, *graph, distance_index, snarl_info);
+            if (write_output) {
+                if (output_format == "tsv") {
+                    # pragma omp critical (out_associated) 
+                    {
+                        // Leave adjusted p-value blank, to be filled in later
+                        stoat::write_binary(out_stream, snarl_info, fastfisher_p_value, chi2_p_value, group_paths);
+                    }
+                } else if (output_format == "fasta") {
+                
+                    # pragma omp critical (out_associated) 
+                    {
+                        stoat::write_fasta(out_stream, *graph, distance_index, snarl_info);
+                    }
                 }
             }
             return;

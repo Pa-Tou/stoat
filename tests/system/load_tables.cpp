@@ -35,14 +35,20 @@ bool binary_table_values_t::operator==(const binary_table_values_t& other) const
         return false;
     }
 
+    // The group paths may be na
+    bool no_group = group_paths[0] == "NA";
+    if (no_group && other.group_paths[0] != "NA") {
+            return false;
+    }
+
     // Put the corresponding path length and group_paths together in a set
     std::unordered_set<std::string> path_lengths_and_groups;
     for (size_t i = 0 ; i < path_lengths.size() ; i++) {
-        path_lengths_and_groups.emplace(path_lengths[i] + " " + group_paths[i]);
+        path_lengths_and_groups.emplace(path_lengths[i] + " " + (no_group ? "" : group_paths[i]));
     }
     std::unordered_set<std::string> other_path_lengths_and_groups;
     for (size_t i = 0 ; i < other.path_lengths.size() ; i++) {
-        other_path_lengths_and_groups.emplace(other.path_lengths[i] + " " + other.group_paths[i]);
+        other_path_lengths_and_groups.emplace(other.path_lengths[i] + " " + (no_group ? "" : other.group_paths[i]));
     }
     // the sets must be the same
     if (path_lengths_and_groups != other_path_lengths_and_groups) {
@@ -63,10 +69,10 @@ binary_table_values_t load_binary_snarl_line(std::string line) {
     //size_t start_pos;
     //size_t end_pos;
     //std::pair<size_t, size_t> snarl_ids;
-    //std::vector<std::pair<size_t, size_t>> path_lengths;
+    //std::vector<std::string> path_lengths;
     //std::string p_fishers;
     //std::string p_chi2;
-    //std::vector<std::pair<size_t, size_t>> group_paths;
+    //std::vector<std::string> group_paths;
     //size_t depth;
 
     std::stringstream linestream(line);
