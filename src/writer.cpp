@@ -229,7 +229,7 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
         // These sequence of the allele
         std::string sequence = snarl_info.sequences_by_allele[allele_i];
 
-        std::tuple<std::string, size_t, size_t> range_coordinates;
+        std::tuple<std::string, size_t, size_t> range_coordinates ("", std::numeric_limits<size_t>::max(), 0);
 
         // For any one haplotype with this allele, find the coordinates from path_ranges
         for (const stoat::path_range_t& path_range : path_ranges) {
@@ -239,8 +239,10 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
             if (snarl_info.sample_sets_by_allele[allele_i].count(stoat::get_sample_and_haplotype(graph, path))) {
                 // If the sample/haplotype of this path is in the set for this allele
 
-                range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
-                break;
+                auto this_range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
+                std::get<0>(range_coordinates) = std::get<0>(this_range_coordinates);
+                std::get<1>(range_coordinates) = std::min(std::get<1>(this_range_coordinates), std::get<1>(range_coordinates));
+                std::get<2>(range_coordinates) = std::max(std::get<2>(this_range_coordinates), std::get<2>(range_coordinates));
             }
         }
 

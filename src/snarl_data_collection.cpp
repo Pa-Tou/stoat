@@ -174,6 +174,13 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 if (walks_requested) {
                                     std::vector<std::string> walk_lengths;
                                     std::tie(walks_by_allele_as_paths, walk_lengths) = stoat::fill_pretty_paths(distance_index, graph, walks_by_allele);
+                                    #ifdef DEBUG_SNARL_DATA_COLLECTION
+                                    cerr << "got path from walk" << endl;
+                                    for (const auto& path : walks_by_allele_as_paths) {
+                                        cerr << path.to_string() << endl;
+                                    }
+                                    #endif
+
                                     snarl_data.variant_type = stoat::vectorToString(walk_lengths);
                                     if (sequence_requested) {
                                         // Find the sequences
@@ -567,13 +574,15 @@ void SnarlDataCollection::get_walks_from_sample_sets(
 
     }// end for each first step (per sample_set)
 
-cerr << "Found walks from sets" << endl;
-for (const std::vector<handlegraph::net_handle_t>& walk : walks) {
-    for (const net_handle_t& net : walk) {
-        cerr << distance_index.net_handle_as_string(net) << " ";
+    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    cerr << "Found walks from sets" << endl;
+    for (const std::vector<handlegraph::net_handle_t>& walk : walks) {
+        for (const net_handle_t& net : walk) {
+            cerr << distance_index.net_handle_as_string(net) << " ";
+        }
+        cerr << endl;
     }
-    cerr << endl;
-}
+    #endif
 
     return ;
 }
