@@ -1,8 +1,0 @@
-##fileformat=VCFv4.2
-##FILTER=<ID=PASS,Description="All filters passed">
-##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-##INFO=<ID=LV,Number=1,Type=Integer,Description="Level in the snarl tree (0=top level)">
-##INFO=<ID=AT,Number=R,Type=String,Description="Allele Traversal as path in graph">
-##contig=<ID=ref,length=100>
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	S1	S2	S3	S4	S5	S6	S7	S8	S9	S10
-ref	1	>1>6	ACGTA	ACCTA,A	60	.	AT=>1>5>3>4>6,>1>5>2>4>6,>1>6	GT	0/0	0/1	1/1	0/2	1/0	2/2	0/1	1/2	0/0	1/1
