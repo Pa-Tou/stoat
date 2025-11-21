@@ -2,7 +2,6 @@
 .vscode
 .Rproj.user
 build/*
-output*
+~output*
 bin/*
-plot_script/.Rdata
-*~
+
