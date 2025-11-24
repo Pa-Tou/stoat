@@ -48,7 +48,8 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
             false, // don't get walks 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::vector<handlegraph::net_handle_t>>& walks) { 
+                                                         std::vector<stoat::Path_traversal_t>& walks,
+                                                         std::vector<std::string>& walk_lengths) { 
                 return;
             }, false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -70,7 +71,8 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
             false, // don't get walks 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::vector<handlegraph::net_handle_t>>& walks) { 
+                                                         std::vector<stoat::Path_traversal_t>& walks,
+                                                         std::vector<std::string>& walk_lengths) { 
                 return;
             }, false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -331,7 +333,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[0] == Node_traversal_t(4, false));
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[1] == Node_traversal_t(5, false));
-                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[2] == Node_traversal_t(0, false));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[2] == Node_traversal_t(0, true));
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[3] == Node_traversal_t(7, false));
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[4] == Node_traversal_t(8, false));
 
@@ -540,7 +542,8 @@ TEST_CASE( "Snarl collection nested bubbles",
             false, // don't get walks 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::vector<handlegraph::net_handle_t>>& walks) { 
+                                                         std::vector<stoat::Path_traversal_t>& walks,
+                                                         std::vector<std::string>& walk_lengths) { 
                 return;
             }, false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -560,7 +563,11 @@ TEST_CASE( "Snarl collection nested bubbles",
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
-            SnarlDataCollection::get_all_walks_through_snarl, 
+            [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
+                            std::vector<std::string>& walk_lengths) {
+                return SnarlDataCollection::get_all_walks_through_snarl(graph, distance_index, snarl, snarl_data, walks, walk_lengths, 1);
+            },
             false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
@@ -581,7 +588,11 @@ TEST_CASE( "Snarl collection nested bubbles",
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             false, //walks before sample_sets but it doesn't matter here
             true, // get walks 
-            SnarlDataCollection::get_all_walks_through_snarl, 
+            [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
+                            std::vector<std::string>& walk_lengths) {
+                return SnarlDataCollection::get_all_walks_through_snarl(graph, distance_index, snarl, snarl_data, walks, walk_lengths, 1);
+            },
             false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
@@ -610,7 +621,11 @@ TEST_CASE( "Snarl collection nested bubbles",
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             false, // walks before sample_sets but it doesn't matter here
             true, // get walks 
-            SnarlDataCollection::get_all_walks_through_snarl,
+            [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
+                            std::vector<std::string>& walk_lengths) {
+                return SnarlDataCollection::get_all_walks_through_snarl(graph, distance_index, snarl, snarl_data, walks, walk_lengths, 1);
+            },
             false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
@@ -845,8 +860,12 @@ TEST_CASE( "Snarl collection multiple connected components",
         TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
-            true, // get walks 
-            SnarlDataCollection::get_all_walks_through_snarl,
+            true, // get walks  
+            [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
+                            std::vector<std::string>& walk_lengths) {
+                return SnarlDataCollection::get_all_walks_through_snarl(graph, distance_index, snarl, snarl_data, walks, walk_lengths, 1);
+            },
             false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
@@ -995,7 +1014,7 @@ TEST_CASE( "Snarl collection multiple connected components",
     }
 }
 
-TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
+TEST_CASE( "snarl collection looping snarl", "[snarl_collection][bug]" ) {
 
     /*
 
@@ -1117,39 +1136,48 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 if (check_walks) {
                     // There should be one allele with one duplication and one with none, but we don't know which is which yet
                     // Since the child is a chain, it is added to the walk as the boundary nodes and a fake node 0 for the chain
+                    cerr << "walk1" << endl;
+                    for (const auto& node : snarl_info.walks_by_allele[0].get_paths()) {
+                        cerr << node.get_node_id() << "-" << node.get_is_reverse() << ", ";
+                    }
+                    cerr << endl << "walk2" << endl;
+                    for (const auto& node : snarl_info.walks_by_allele[1].get_paths()) {
+                        cerr << node.get_node_id() << "-" << node.get_is_reverse() << ", ";
+                    }
                     bool walk_0_is_nodup = snarl_info.walks_by_allele[0].get_paths().size() == 5 &&
                                         snarl_info.walks_by_allele[0].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(0, false) &&
+                                        snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(0, true) &&
                                         snarl_info.walks_by_allele[0].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[4] == Node_traversal_t(6, false);
                     bool walk_0_is_dup = snarl_info.walks_by_allele[0].get_paths().size() == 8 &&
                                         snarl_info.walks_by_allele[0].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(0, false) &&
+                                        snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(0, true) &&
                                         snarl_info.walks_by_allele[0].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[4] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[0].get_paths()[6] == Node_traversal_t(0, false) &&
+                                        snarl_info.walks_by_allele[0].get_paths()[6] == Node_traversal_t(0, true) &&
                                         snarl_info.walks_by_allele[0].get_paths()[6] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[7] == Node_traversal_t(6, false);
 
                     bool walk_1_is_nodup = snarl_info.walks_by_allele[1].get_paths().size() == 5 &&
                                         snarl_info.walks_by_allele[1].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[1].get_paths()[2] == Node_traversal_t(0, false) &&
+                                        snarl_info.walks_by_allele[1].get_paths()[2] == Node_traversal_t(0, true) &&
                                         snarl_info.walks_by_allele[1].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[4] == Node_traversal_t(6, false);
                     bool walk_1_is_dup =  snarl_info.walks_by_allele[1].get_paths().size() == 8 &&
                                         snarl_info.walks_by_allele[1].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[1].get_paths()[2] == Node_traversal_t(0, false) &&
+                                        snarl_info.walks_by_allele[1].get_paths()[2] == Node_traversal_t(0, true) &&
                                         snarl_info.walks_by_allele[1].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[4] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[1].get_paths()[5] == Node_traversal_t(0, false) &&
+                                        snarl_info.walks_by_allele[1].get_paths()[5] == Node_traversal_t(0, true) &&
                                         snarl_info.walks_by_allele[1].get_paths()[6] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[7] == Node_traversal_t(6, false);
                     REQUIRE(((walk_0_is_dup && walk_1_is_nodup) || (walk_0_is_nodup && walk_1_is_dup)));
 
+cerr << "Variant type" << snarl_info.variant_type << endl;
                     REQUIRE((snarl_info.variant_type == "3/4,6/8" || snarl_info.variant_type == "6/8,3/4"));
                 }
 
@@ -1344,7 +1372,8 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             false, // don't get walks 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                         std::vector<std::vector<handlegraph::net_handle_t>>& walks) { 
+                                                         std::vector<stoat::Path_traversal_t>& walks,
+                                                         std::vector<std::string>& walk_lengths) {
                 return;
             }, false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -1399,5 +1428,46 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             int rm = system(rm_cmd.c_str()); 
         }
     }
+    SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
+        // Don't get the sample_sets or anything else
+        TestSnarlDataCollection snarl_collection(1,10,10);
+        snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
+            false, // walks before sample_sets but it doesn't matter here
+            true, // get walks  
+            [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
+                            std::vector<std::string>& walk_lengths) {
+                return SnarlDataCollection::get_all_walks_through_snarl(graph, distance_index, snarl, snarl_data, walks, walk_lengths, 0);
+            },
+            false, // don't get sample_sets 
+            [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                                                         const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
+                return;
+            },
+            true, // get sequences
+            "", false);
+
+        // First fill it in with a non-existent path, which should do nothing
+        std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, get_sample_sets_per_snarl, "empty_path");
+
+        //TODO: THis is different because it finds all walks through the indel, not including the loop
+        check_collection(snarl_collection, true, false, true, true);
+
+        REQUIRE(sample_haplotype_to_index.size() == 0);
+
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            // Make sure the sample_sets haven't been filled in
+            REQUIRE(snarl_info.sample_sets_by_allele.size() == 0);
+        });
+
+        // Now fill it in with the paths
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, get_sample_sets_per_snarl, "path0#0#path0");
+
+        // TODO: This doesn't work yet because we don't know how to deal with paths leaving the snarl and all walks
+        //check_collection(snarl_collection, true, true, true, true);
+
+    }
 }

@@ -1,7 +1,7 @@
 #include "snarl_data_collection.hpp"
 #include <fstream>
 
-//#define DEBUG_SNARL_DATA_COLLECTION
+#define DEBUG_SNARL_DATA_COLLECTION
 
 using namespace std;
 namespace stoat {
@@ -370,7 +370,7 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
 void SnarlDataCollection::get_all_walks_through_snarl(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
         const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks, 
-        std::vector<std::string>& walk_lengths ) {
+        std::vector<std::string>& walk_lengths, size_t walk_cycle_limit ) {
 
 
     // Path exploration
@@ -395,12 +395,12 @@ void SnarlDataCollection::get_all_walks_through_snarl(
         bool cycle = false;
     
         // TODO: Put this back
-        //for (const auto& net : path) {
-        //    if (++dict_path_occ[net] > walk_cycle_limit + 1) {
-        //        cycle = true;
-        //        break;
-        //    }
-        //}
+        for (const auto& net : path) {
+            if (++dict_path_occ[net] > walk_cycle_limit + 1) {
+                cycle = true;
+                break;
+            }
+        }
     
         // TODO: Add out_fail
         // TODO: Get the child count properly
@@ -414,7 +414,9 @@ void SnarlDataCollection::get_all_walks_through_snarl(
 
         // Follow edges from the last element in path
         if (!path.empty()) {
+            cerr << "Follow net edges from " << distance_index.net_handle_as_string(path.back()) << endl;
             distance_index.follow_net_edges(path.back(), &graph, false, [&](const handlegraph::net_handle_t& next_child) {
+                cerr << " At child " << distance_index.net_handle_as_string(next_child) << endl;
                 // If this is the bound of the snarl then we're done
                 if (distance_index.is_sentinel(next_child)) {
 
@@ -580,7 +582,7 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                             current_walk.add_node_traversal_t(chain_start_traversal);
 
                             // Add the interior of the chain as a fake node
-                            stoat::Node_traversal_t chain_traversal (0, false);
+                            stoat::Node_traversal_t chain_traversal (0, true);
                             current_walk.add_node_traversal_t(chain_traversal);
 
                             // Add the end bound going out

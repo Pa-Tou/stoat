@@ -136,9 +136,10 @@ class SnarlDataCollection {
         /// TODO: This should probably not be a member function but I'm leaving it here for now instead of changing Matis's code to use my data types
         /// Helper function for finding all possible walks through the snarl. Fills in walks
         /// snarl_data will not have the sample_sets_by_allele filled in
+        /// If a path cycles more than walk_cycle_limit times, stop looking for more cycles
         static void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
-                           std::vector<std::string>& walk_lengths);
+                           std::vector<std::string>& walk_lengths, size_t walk_cycle_limit = 1);
 
         /// Helper function for finding all possible walks through the snarl. Fills in walks
         /// snarl_data is assumed to have the sample_sets_by_allele filled in and walks must be filled in to match the sample_sets_by_allele
