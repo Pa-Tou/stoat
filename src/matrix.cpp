@@ -86,11 +86,15 @@ void EdgeBySampleMatrix::reset(size_t new_n_edges, size_t new_n_samp_haps) {
 // Function to identify the path in the edge matrix
 std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const std::vector<stoat::Edge_t> &path) const {
 
-    // get the subset of rows to check
+    // get the subset of rows to check for that path and its flipped version
     std::vector<size_t> rows_to_check;
     rows_to_check.reserve(path.size());
+    std::vector<size_t> rows_to_check_flipped;
+    rows_to_check_flipped.reserve(path.size());
 
     // look for each edge in the matrix
+    bool skip_path = false;
+    bool skip_flipped_path = false;
     for (const stoat::Edge_t &edge : path) {
         const auto &[node_id_1, node_id_2] = edge.get_node_pair(); // Convertstoat::Edge_t to std::pair<size_t, size_t>
         
@@ -103,9 +107,18 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const std::vector<st
         auto itr = row_header.find(edge);
         if (itr == row_header.end()) {
             // if at least one edge not found, abort early and return an empty object
-            return {}; 
+            skip_path = true; 
         } else {
             rows_to_check.push_back(itr->second);
+        }
+        // check the flipped edge
+        stoat::Edge_t edge_flipped = edge.get_flipped();
+        auto itr_flipped = row_header.find(edge_flipped);
+        if (itr_flipped == row_header.end()) {
+            // if at least one edge not found, abort early and return an empty object
+            skip_flipped_path = true; 
+        } else {
+            rows_to_check_flipped.push_back(itr_flipped->second);
         }
     }
 
@@ -114,17 +127,36 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const std::vector<st
     idx_samp_hap.reserve(n_samp_haps);
 
     // loop by columns first (better cache locality in the matrix)
+    bool all_ones;
     for (size_t col = 0; col < n_samp_haps; ++col) {
-        bool all_ones = true;
-        for (size_t row : rows_to_check) {
-            if (!get_edge(row, col)) {
-                all_ones = false;
-                break;
+        // check path
+        if (!skip_path) {
+            all_ones = true;
+            for (size_t row : rows_to_check) {
+                if (!get_edge(row, col)) {
+                    all_ones = false;
+                    break;
+                }
+            }
+            if (all_ones) {
+                // JEAN why this static cast?
+                idx_samp_hap.push_back(static_cast<int>(col));
+                continue;
             }
         }
-        if (all_ones) {
-            // JEAN why this static cast?
-            idx_samp_hap.push_back(static_cast<int>(col));
+        // if we haven't found it, we should check the flipped path too
+        if (!skip_flipped_path) {
+            all_ones = true;
+            for (size_t row : rows_to_check_flipped) {
+                if (!get_edge(row, col)) {
+                    all_ones = false;
+                    break;
+                }
+            }
+            if (all_ones) {
+                // JEAN why this static cast?
+                idx_samp_hap.push_back(static_cast<int>(col));
+            }
         }
     }
     return idx_samp_hap;

@@ -133,13 +133,22 @@ Edge_t::Edge_t(const Node_traversal_t &node_traversal_1,
                const Node_traversal_t &node_traversal_2) :
     edge(std::make_pair(node_traversal_1, node_traversal_2)) {}
 
+// return a flipped version of this edge
+Edge_t Edge_t::get_flipped() const {
+    Node_traversal_t first_node = Node_traversal_t(edge.first.get_node_id(),
+                                                   !edge.first.get_is_reverse());
+    Node_traversal_t second_node = Node_traversal_t(edge.second.get_node_id(),
+                                                   !edge.second.get_is_reverse());
+    return (Edge_t(second_node, first_node));
+}
+    
 // Convert Edge_t to std::pair<size_t, size_t>
 std::pair<size_t, size_t> Edge_t::get_node_pair() const {
     return std::make_pair(edge.first.get_node_id(), edge.second.get_node_id());
 }
 
 // Convert Edge_t to std::string
-std::string Edge_t::print_string_edge() const {
+std::string Edge_t::to_string() const {
     return edge.first.to_string() + edge.second.to_string();
 }
 
@@ -227,7 +236,8 @@ std::string PathTraversal::get_allele_length () const {
 void PathTraversal::check_path_flip() {
     // Check if the path is already in the good orientation (aka min ID >> max ID)
     // JEAN this is quite bad, needs better condition to flip or not, and also deal with potential >0 added previously
-
+    // JEAN maybe slightly better if we make sure the first bound is first on the reference (if on the reference path)
+    
     if (paths[0].get_node_id() > paths.back().get_node_id()) {
         // flip the path
         path_flip();

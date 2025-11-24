@@ -25,7 +25,7 @@ TEST_CASE("Edge_t Functionality") {
     REQUIRE(pair.first == 1);
     REQUIRE(pair.second == 2);
 
-    REQUIRE(edge.print_string_edge() == ">1<2");
+    REQUIRE(edge.to_string() == ">1<2");
 }
 
 TEST_CASE("PathTraversal Add and Get") {
@@ -54,21 +54,21 @@ TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
     SECTION("Basic case") {
         auto edges = decompose_path_str_to_edge(">1<2>3");
         REQUIRE(edges.size() == 2);
-        REQUIRE(edges[0].print_string_edge() == ">1<2");
-        REQUIRE(edges[1].print_string_edge() == "<2>3");
+        REQUIRE(edges[0].to_string() == ">1<2");
+        REQUIRE(edges[1].to_string() == "<2>3");
     }
 
     SECTION("Special case with zeros (complex path)") {
         auto edges = decompose_path_str_to_edge(">1<324<323<0<213>214<0<213");
         REQUIRE(edges.size() == 7);
 
-        REQUIRE(edges[0].print_string_edge() == ">1<324");
-        REQUIRE(edges[1].print_string_edge() == "<324<323");
-        REQUIRE(edges[2].print_string_edge() == "<323<0");
-        REQUIRE(edges[3].print_string_edge() == "<0<213");
-        REQUIRE(edges[4].print_string_edge() == "<213>214");
-        REQUIRE(edges[5].print_string_edge() == ">214<0");
-        REQUIRE(edges[6].print_string_edge() == "<0<213");
+        REQUIRE(edges[0].to_string() == ">1<324");
+        REQUIRE(edges[1].to_string() == "<324<323");
+        REQUIRE(edges[2].to_string() == "<323<0");
+        REQUIRE(edges[3].to_string() == "<0<213");
+        REQUIRE(edges[4].to_string() == "<213>214");
+        REQUIRE(edges[5].to_string() == ">214<0");
+        REQUIRE(edges[6].to_string() == "<0<213");
     }
 }
 
@@ -85,16 +85,16 @@ TEST_CASE("decompose_path_list_str supports multiple strings including ones with
 
     // First path: >1>2
     REQUIRE(decomposed[0].size() == 1);
-    REQUIRE(decomposed[0][0].print_string_edge() == ">1>2");
+    REQUIRE(decomposed[0][0].to_string() == ">1>2");
 
     // Second path: <3<4
     REQUIRE(decomposed[1].size() == 1);
-    REQUIRE(decomposed[1][0].print_string_edge() == "<3<4");
+    REQUIRE(decomposed[1][0].to_string() == "<3<4");
 
     // Third path: complex path with 0s
     REQUIRE(decomposed[2].size() == 7);
-    REQUIRE(decomposed[2][0].print_string_edge() == ">1<324");
-    REQUIRE(decomposed[2][6].print_string_edge() == "<0<213");
+    REQUIRE(decomposed[2][0].to_string() == ">1<324");
+    REQUIRE(decomposed[2][6].to_string() == "<0<213");
 }
 
 TEST_CASE("identify_path with EdgeBySampleMatrix") {

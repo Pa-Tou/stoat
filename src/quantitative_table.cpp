@@ -153,7 +153,6 @@ std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<
     return result;
 }
 
-// JEAN too many arguments, remove unnecessary ones
 size_t create_binary_table(
     std::vector<size_t>& g0, std::vector<size_t>& g1,
     const std::vector<bool>& binary_phenotype, 
