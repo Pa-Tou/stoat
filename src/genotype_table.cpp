@@ -17,7 +17,7 @@ std::vector<std::vector<char>> create_genotype_table(
         std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
 
         // Identify samples that use this path
-        std::vector<size_t> idx_sample_save = identify_path(list_edge_path, matrix, number_samples * 2);
+        std::vector<size_t> idx_sample_save = matrix.get_samples_on_path(list_edge_path);
 
         // Fill genotype matrix
         for (size_t idx : idx_sample_save) {

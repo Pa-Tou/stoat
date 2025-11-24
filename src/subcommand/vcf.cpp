@@ -339,7 +339,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     auto start_gwas_timer = std::chrono::high_resolution_clock::now();
 
     std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
-    stoat_vcf::EdgeBySampleMatrix edge_matrix_empty(list_samples, 0, 0);
     stoat::phenotype_type_t phenotype_type;
 
     stoat::LOG_INFO("Starting GWAS analysis...");
@@ -349,25 +348,30 @@ int main_stoat_vcf(int argc, char* argv[]) {
         // binary
         if (!covariate.empty()){
             // Binary covariate
-            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));
+            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
+                                                                         binary_phenotype, min_individuals, regression_dir));
             phenotype_type = stoat::BINARY_COVAR;
         } else {
             // Binary without covariate
-            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));
+            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, list_samples, maf_threshold, table_threshold,
+                                                                    binary_phenotype, min_individuals, regression_dir));
             phenotype_type = stoat::BINARY;
         }
     } else if (!quantitative_path.empty()) {
         // Quantitative
-        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, quantitative_phenotype, min_individuals, regression_dir));
+        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
+                                                                      quantitative_phenotype, min_individuals, regression_dir));
         phenotype_type = stoat::QUANTITATIVE; 
     } else if (!eqtl_path.empty()) {
         // EQTL
-        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, eqtl_phenotype, windows_gene_threshold, min_individuals, regression_dir));
+        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
+                                                              eqtl_phenotype, windows_gene_threshold, min_individuals, regression_dir));
         phenotype_type = stoat::EQTL; 
     }
 
     std::string output_tsv;
 
+    // JEAN this could be moved to each class/function. It's hard-coded anyway...
     if (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR)
         output_tsv = output_dir + "/binary_table_vcf.tsv";
     else if (phenotype_type == stoat::QUANTITATIVE)

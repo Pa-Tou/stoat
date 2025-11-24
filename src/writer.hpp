@@ -11,11 +11,8 @@ using namespace std;
 namespace stoat {
 
 // Write headers
+void write_stoat_output_header(std::ostream& outstream, stoat::phenotype_type_t phenotype_type);
 void write_binary_header(std::ostream& outstream);
-void write_binary_covar_header(std::ostream& outstream);
-void write_quantitative_header(std::ostream& outstream);
-void write_eqtl_header(std::ostream& outstream);
-void write_vcf_header(std::ostream& outstream, const std::vector<std::string> &list_samples, const std::vector<std::string>& chr_list);
 
 // Write lines
 void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,

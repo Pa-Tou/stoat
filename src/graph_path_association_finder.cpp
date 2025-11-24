@@ -1,7 +1,7 @@
 #include "graph_path_association_finder.hpp"
 #include "utils.hpp"
 #include "writer.hpp"
-#include "binary_table.hpp"
+#include "quantitative_table.hpp"
 
 //#define DEBUG_GRAPH_SNARLS
 

@@ -4,44 +4,20 @@
 
 namespace stoat {
 
+void write_stoat_output_header(std::ostream& outstream, stoat::phenotype_type_t phenotype_type) {
+    if (phenotype_type == stoat::BINARY) {
+        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH" << std::endl;
+    } else if (phenotype_type == stoat::BINARY_COVAR) {
+        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+    } else if (phenotype_type == stoat::QUANTITATIVE) {
+        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
+    } else if (phenotype_type == stoat::EQTL) {
+        outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
+    } 
+}
+
 void write_binary_header(std::ostream& outstream) {
     outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH" << std::endl;
-}
-
-void write_binary_covar_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
-}
-
-void write_quantitative_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
-}
-
-void write_eqtl_header(std::ostream& outstream) {
-    outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
-}
-
-void write_vcf_header(std::ostream& outstream,
-                      const std::vector<std::string>& list_samples,
-                      const std::vector<std::string>& chr_list) {
-
-    outstream   << "##fileformat=VCFv4.2\n"
-                << "##source=stoat_vcf\n"
-                << "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">\n"
-                << "##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency\">\n"
-                << "##FILTER=<ID=PASS,Description=\"All filters passed\">\n"
-                << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n";
-
-    // Add contig headers for each chromosome
-    for (const auto& chr : chr_list) {
-        outstream << "##contig=<ID=" << chr << ">\n";
-    }
-
-    // Column header line
-    outstream << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
-    for (const auto& name : list_samples) {
-        outstream << '\t' << name;
-    }
-    outstream << '\n';
 }
 
 void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,

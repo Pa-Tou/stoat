@@ -65,13 +65,14 @@ struct Node_traversal_t { // 64 bits per node
 // Define a Edge_t structure to represent an edge between two Node_traversal_t nodes
 struct Edge_t { // 128 bits per edge 
     private:
+    // JEAN why is that a pair? can't we just have two nodes in that struct?
         std::pair<Node_traversal_t, Node_traversal_t> edge;
 
     public:
         Edge_t(const Node_traversal_t &node_traversal_1, const Node_traversal_t &node_traversal_2);
         
         // Converter
-        std::pair<size_t, size_t> print_pair_edge() const;
+        std::pair<size_t, size_t> get_node_pair() const;
         std::string print_string_edge() const;
 
         // Accessor to edge, useful for hashing and comparison

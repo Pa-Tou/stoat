@@ -134,7 +134,7 @@ Edge_t::Edge_t(const Node_traversal_t &node_traversal_1,
     edge(std::make_pair(node_traversal_1, node_traversal_2)) {}
 
 // Convert Edge_t to std::pair<size_t, size_t>
-std::pair<size_t, size_t> Edge_t::print_pair_edge() const {
+std::pair<size_t, size_t> Edge_t::get_node_pair() const {
     return std::make_pair(edge.first.get_node_id(), edge.second.get_node_id());
 }
 

@@ -9,10 +9,10 @@ class TestEdgeBySampleMatrix : stoat_vcf::EdgeBySampleMatrix {
 
     using stoat_vcf::EdgeBySampleMatrix::matrix_1D;
     using stoat_vcf::EdgeBySampleMatrix::operator();
-    using stoat_vcf::EdgeBySampleMatrix::getMaxElement;
-    using stoat_vcf::EdgeBySampleMatrix::expandMatrix;
+    using stoat_vcf::EdgeBySampleMatrix::max_edges;
+    using stoat_vcf::EdgeBySampleMatrix::expand_matrix;
     using stoat_vcf::EdgeBySampleMatrix::shrink;
-    using stoat_vcf::EdgeBySampleMatrix::set;
+    using stoat_vcf::EdgeBySampleMatrix::set_edge;
 };
 
 TEST_CASE("stoat_vcf::EdgeBySampleMatrix Constructor and Basic Properties", "[stoat_vcf::EdgeBySampleMatrix]") {
@@ -29,7 +29,7 @@ TEST_CASE("stoat_vcf::EdgeBySampleMatrix Expansion", "[stoat_vcf::EdgeBySampleMa
         std::vector<string> sample_names;
         TestEdgeBySampleMatrix mat(sample_names, 4, 5);
         size_t original_size = mat.matrix_1D.size();
-        mat.expandMatrix();
+        mat.expand_matrix();
         REQUIRE(mat.matrix_1D.size() > original_size);
     }
 }
@@ -38,7 +38,7 @@ TEST_CASE("stoat_vcf::EdgeBySampleMatrix Set and Access Elements", "[stoat_vcf::
         std::vector<string> sample_names;
         TestEdgeBySampleMatrix mat(sample_names, 4, 5);
         REQUIRE_FALSE(mat(1, 3));  // Initially, should be false
-        mat.set(1, 3);
+        mat.set_edge(1, 3);
         REQUIRE(mat(1, 3));  // Should now be true
     }
 }
@@ -57,8 +57,8 @@ TEST_CASE("stoat_vcf::EdgeBySampleMatrix Maximum Element", "[stoat_vcf::EdgeBySa
     SECTION("stoat_vcf::EdgeBySampleMatrix tracks maximum element correctly") {
         std::vector<string> sample_names;
         TestEdgeBySampleMatrix mat(sample_names, 4, 5);
-        REQUIRE(mat.getMaxElement() == 4);  // Initially zero
-        mat.expandMatrix();
-        REQUIRE(mat.getMaxElement() == 8);  // Should be updated
+        REQUIRE(mat.max_edges == 4);  // Initially zero
+        mat.expand_matrix();
+        REQUIRE(mat.max_edges == 8);  // Should be updated
     }
 }

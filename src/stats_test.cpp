@@ -612,7 +612,7 @@ std::pair<std::string, std::string> FisherKhi2::fisher_khi2(const std::vector<si
     std::string chi2_p_value = "NA";
     std::string fastfisher_p_value = "NA";
     
-    // Compute  Fisher's exact & Chi-squared test p-value
+    // compute  Fisher's exact or Chi-squared test p-value
     if (g0.size() == 2) {
         size_t a = g0[0];
         size_t b = g0[1];

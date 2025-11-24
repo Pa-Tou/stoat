@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "../../src/binary_table.hpp"
+#include "../../src/quantitative_table.hpp"
 #include "../../src/stats_test.hpp"
 
 using namespace stoat; 

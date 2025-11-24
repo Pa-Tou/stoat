@@ -21,7 +21,7 @@ TEST_CASE("Edge_t Functionality") {
     stoat::Node_traversal_t b(2, true);
     stoat::Edge_t edge(a, b);
 
-    auto pair = edge.print_pair_edge();
+    auto pair = edge.get_node_pair();
     REQUIRE(pair.first == 1);
     REQUIRE(pair.second == 2);
 
@@ -46,8 +46,8 @@ TEST_CASE("decompose_path_to_edges") {
 
     auto edges = decompose_path_to_edges(path);
     REQUIRE(edges.size() == 2);
-    REQUIRE(edges[0].print_pair_edge() == std::make_pair(1ul, 2ul));
-    REQUIRE(edges[1].print_pair_edge() == std::make_pair(2ul, 3ul));
+    REQUIRE(edges[0].get_node_pair() == std::make_pair(1ul, 2ul));
+    REQUIRE(edges[1].get_node_pair() == std::make_pair(2ul, 3ul));
 }
 
 TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
@@ -107,13 +107,13 @@ TEST_CASE("identify_path with EdgeBySampleMatrix") {
     std::vector<std::string> samples = {"sample1", "sample2", "sample3"};
     EdgeBySampleMatrix matrix(samples, 2, 3);
 
-    matrix.push_matrix(edge1, 0); // Set true at [row for edge1][0]
-    matrix.push_matrix(edge2, 0); // Set true at [row for edge2][0]
+    matrix.add_sample_edge(edge1, 0); // Set true at [row for edge1][0]
+    matrix.add_sample_edge(edge2, 0); // Set true at [row for edge2][0]
 
-    matrix.push_matrix(edge1, 2); // Also at [][2]
-    matrix.push_matrix(edge2, 2);
+    matrix.add_sample_edge(edge1, 2); // Also at [][2]
+    matrix.add_sample_edge(edge2, 2);
 
-    auto result = identify_path(path, matrix, 3);
+    auto result = matrix.get_samples_on_path(path);
     REQUIRE(result == std::vector<size_t>({0, 2}));
 }
 
