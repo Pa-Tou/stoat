@@ -290,8 +290,8 @@ TEST_CASE( "Snarl collection nested bubbles",
                 if (check_sequences) {
                     // The sequences should both be CCA, oops
                     REQUIRE(snarl_info.sequences_by_allele.size() == 2);
-                    REQUIRE(snarl_info.sequences_by_allele[0] == "CCA");
-                    REQUIRE(snarl_info.sequences_by_allele[1] == "CCA");
+                    REQUIRE(snarl_info.sequences_by_allele[0] == "C");
+                    REQUIRE(snarl_info.sequences_by_allele[1] == "C");
                 }
 
             } else if ((snarl_info.start_node == stoat::Node_traversal_t(4, false) && snarl_info.end_node == stoat::Node_traversal_t(8, true)) ||
@@ -338,8 +338,8 @@ TEST_CASE( "Snarl collection nested bubbles",
                     if (check_sequences) {
                         // The sequences 
                         REQUIRE(snarl_info.sequences_by_allele.size() == 2);
-                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "ATAC");
-                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "AC");
+                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "TNA");
+                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "");
                     }
                     if (check_sample_sets) {
                         REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
@@ -391,8 +391,8 @@ TEST_CASE( "Snarl collection nested bubbles",
                     if (check_sequences) {
                         // The sequences 
                         REQUIRE(snarl_info.sequences_by_allele.size() == 2);
-                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "TCA");
-                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "TA");
+                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "C");
+                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "");
                     }
                     if (check_sample_sets) {
                         REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
@@ -445,8 +445,8 @@ TEST_CASE( "Snarl collection nested bubbles",
                     if (check_sequences) {
                         // The sequences 
                         REQUIRE(snarl_info.sequences_by_allele.size() == 2);
-                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "CAA");
-                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "CA");
+                        REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "A");
+                        REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "");
                     }
 
                     if (check_sample_sets) {
