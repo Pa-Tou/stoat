@@ -96,7 +96,8 @@ class SnarlDataCollection {
                                 bool walks_requested,
                                 const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data, 
-                                                         std::vector<std::vector<handlegraph::net_handle_t>>& walks)>& find_walks,
+                                                         std::vector<Path_traversal_t>& walks, 
+                                                         std::vector<std::string>& walk_lengths)>& find_walks,
                                 bool sample_set_requested,
                                 const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                           const net_handle_t& snarl, const snarl_info_t& snarl_data, 
@@ -136,12 +137,14 @@ class SnarlDataCollection {
         /// Helper function for finding all possible walks through the snarl. Fills in walks
         /// snarl_data will not have the sample_sets_by_allele filled in
         static void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks);
+                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
+                           std::vector<std::string>& walk_lengths);
 
         /// Helper function for finding all possible walks through the snarl. Fills in walks
         /// snarl_data is assumed to have the sample_sets_by_allele filled in and walks must be filled in to match the sample_sets_by_allele
         static void get_walks_from_sample_sets(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks);
+                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
+                           std::vector<std::string>& walk_lengths);
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                              bool walks_requested,
                                              const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                                       const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                                      std::vector<std::vector<handlegraph::net_handle_t>>& walks)>& find_walks,
+                                                                      std::vector<stoat::Path_traversal_t>& walks,
+                                                                      std::vector<std::string>& walk_lengths)>& find_walks,
                                              bool sample_set_requested,
                                              const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
 
@@ -131,8 +132,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                 // Optionally fill in the walks, sample sets, and sequences.
                                 // All three of these vectors must have the same number of entries because they correspond to the same alleles
-                                std::vector<std::vector<handlegraph::net_handle_t>> walks_by_allele; 
-                                std::vector<stoat::Path_traversal_t> walks_by_allele_as_paths; 
+                                std::vector<stoat::Path_traversal_t> walks_by_allele; 
+                                std::vector<std::string> walk_lengths;
                                 std::vector<std::set<sample_hap_t>> sample_sets_by_allele; 
                                 std::vector<std::string> snarl_sequences;
 
@@ -150,7 +151,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                                              snarl_data.end_position,
                                                              snarl_data.depth,
                                                              "", //No variant type yet
-                                                             walks_by_allele_as_paths,
+                                                             walks_by_allele,
                                                              sample_sets_by_allele,
                                                              snarl_sequences);
 
@@ -160,23 +161,23 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                        find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets_by_allele); 
                                     }
                                     if (walks_requested) {
-                                        find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele);
+                                        find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele, walk_lengths);
                                     }
                                 } else {
                                     // Find walks then sample_sets_by_allele
                                     if (walks_requested) {
-                                        find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele);
+                                        find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele, walk_lengths);
                                     }
                                     if (sample_set_requested) {
                                        find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets_by_allele); 
                                     }
                                 }
                                 if (walks_requested) {
-                                    std::vector<std::string> walk_lengths;
-                                    std::tie(walks_by_allele_as_paths, walk_lengths) = stoat::fill_pretty_paths(distance_index, graph, walks_by_allele);
+                                    //
+                                    //std::tie(walks_by_allele_as_paths, walk_lengths) = stoat::fill_pretty_paths(distance_index, graph, walks_by_allele);
                                     #ifdef DEBUG_SNARL_DATA_COLLECTION
                                     cerr << "got path from walk" << endl;
-                                    for (const auto& path : walks_by_allele_as_paths) {
+                                    for (const auto& path : walks_by_allele) {
                                         cerr << path.to_string() << endl;
                                     }
                                     #endif
@@ -184,7 +185,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     snarl_data.variant_type = stoat::vectorToString(walk_lengths);
                                     if (sequence_requested) {
                                         // Find the sequences
-                                        snarl_sequences = get_sequences_from_walks(graph, distance_index, walks_by_allele_as_paths);
+                                        snarl_sequences = get_sequences_from_walks(graph, distance_index, walks_by_allele);
                                     }
                                 }
                                 if (sequence_requested && !walks_requested) {
@@ -197,7 +198,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     if (walks_requested) {
                                         #pragma omp critical(snarl_collection)
                                         {
-                                        snarl_to_walks.emplace(snarl_data.start_node, std::move(walks_by_allele_as_paths));
+                                        snarl_to_walks.emplace(snarl_data.start_node, std::move(walks_by_allele));
                                         }
                                     }
                                     if (sample_set_requested) {
@@ -368,7 +369,8 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
 
 void SnarlDataCollection::get_all_walks_through_snarl(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-        const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks ) {
+        const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks, 
+        std::vector<std::string>& walk_lengths ) {
 
 
     // Path exploration
@@ -376,7 +378,7 @@ void SnarlDataCollection::get_all_walks_through_snarl(
         {distance_index.get_bound(snarl, false, true)}
     };
     
-    std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;
+    std::vector<std::vector<handlegraph::net_handle_t>> walks_as_net_handles;
     
     // How many steps have we taken trying to enumerate paths? Includes all all paths
     size_t steps_taken = 0;
@@ -421,8 +423,8 @@ void SnarlDataCollection::get_all_walks_through_snarl(
 
                     // Only keep the walk if it entered and exited the snarl at opposite sides
                     if (next_child_node_id != first_element_path_node_id) {
-                        walks.emplace_back(path);
-                        walks.back().push_back(next_child);
+                        walks_as_net_handles.emplace_back(path);
+                        walks_as_net_handles.back().push_back(next_child);
                     }
             
                 } else {
@@ -440,16 +442,16 @@ void SnarlDataCollection::get_all_walks_through_snarl(
     }
     
     if (break_snarl) {
-        walks.clear();
+        walks_as_net_handles.clear();
     }
-    
+    std::tie(walks, walk_lengths) = stoat::fill_pretty_paths(distance_index, graph, walks_as_net_handles);   
     return ;
-    
 }
 
 void SnarlDataCollection::get_walks_from_sample_sets(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-        const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<std::vector<handlegraph::net_handle_t>>& walks ) {
+        const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks, 
+        std::vector<std::string>& walk_lengths) {
 
     // Get the walks by tracing the haplotype paths through the snarl
 
@@ -490,6 +492,7 @@ void SnarlDataCollection::get_walks_from_sample_sets(
     //////////////////////////////////// Follow each of the paths through the snarl and create a walk
 
     for (const handlegraph::step_handle_t& first_step : first_steps) {
+
         //Accumulate the min and max lengths of this walk, based on the lengths of snarls
         size_t min_length = 0;
         size_t max_length = 0;
@@ -513,7 +516,7 @@ void SnarlDataCollection::get_walks_from_sample_sets(
         }
         // Start a new walk
         walks.emplace_back();
-        std::vector<bdsg::net_handle_t>& current_walk = walks.back();
+        stoat::Path_traversal_t& current_walk = walks.back();
 
         // Now sort the list of steps on the two boundary nodes
         sort(boundary_steps.begin(), boundary_steps.end(), [&](const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
@@ -523,11 +526,16 @@ void SnarlDataCollection::get_walks_from_sample_sets(
             // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
             //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
             // inside the snarl and the first traversal of a boundary node is leaving it
+
             for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
                 //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
 
-                // Add the step going into the snarl for each time it re-enters the snarl
-                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
+                // Add the step of the boundary node going into the snarl for each time it re-enters the snarl
+                // TODO: Make the Path_traversal_t add from a handle_t or net_handle_t
+                //current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
+                handlegraph::handle_t start_handle = graph.get_handle_of_step(boundary_steps[boundary_i]);
+                stoat::Node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
+                current_walk.add_node_traversal_t(start_traversal);
 
                 handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
 
@@ -546,7 +554,8 @@ void SnarlDataCollection::get_walks_from_sample_sets(
 
                     // For the path, add an empty node for each time we leave and re-enter the snarl
                     if (boundary_i != 0) {
-                        current_walk.emplace_back(distance_index.get_root());
+                        stoat::Node_traversal_t traversal (0, false);
+                        current_walk.add_node_traversal_t(traversal);
                     }
 
 
@@ -555,12 +564,52 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                         if (distance_index.is_trivial_chain(parent)) {
                             // This node is really a node in the snarl, then add it to the path 
 
-                            current_walk.emplace_back(parent);
+                            handlegraph::handle_t node_handle = distance_index.get_handle(parent, &graph);
+                            stoat::Node_traversal_t node_traversal (graph.get_id(node_handle), graph.get_is_reverse(node_handle));
+                            current_walk.add_node_traversal_t(node_traversal);
 
-                        } else if (node_net == distance_index.get_bound(parent, false, true) ||  node_net == distance_index.get_bound(parent, true, true)) {
+                            min_length += distance_index.minimum_length(parent);
+                            max_length += distance_index.maximum_length(parent);
+
+                        } else if (node_net == distance_index.get_bound(parent, false, true)) {
+                            // This node is going into the child chain going forward
+
+                            // Add the start bound going in
+                            handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, false, true), &graph);
+                            stoat::Node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
+                            current_walk.add_node_traversal_t(chain_start_traversal);
+
+                            // Add the interior of the chain as a fake node
+                            stoat::Node_traversal_t chain_traversal (0, false);
+                            current_walk.add_node_traversal_t(chain_traversal);
+
+                            // Add the end bound going out
+                            handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, true, false), &graph);
+                            stoat::Node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
+                            current_walk.add_node_traversal_t(chain_end_traversal);
+
+                            min_length += distance_index.minimum_length(parent);
+                            max_length += distance_index.maximum_length(parent);
+
+                        } else if (node_net == distance_index.get_bound(parent, true, true)) {
                             // This node is going into the child chain going backward
 
-                            current_walk.emplace_back(parent);
+                            // Add the end bound going in
+                            handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, true, true), &graph);
+                            stoat::Node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
+                            current_walk.add_node_traversal_t(chain_start_traversal);
+
+                            // Add the interior of the chain as a fake node
+                            stoat::Node_traversal_t chain_traversal (0, false);
+                            current_walk.add_node_traversal_t(chain_traversal);
+
+                            // Add the start bound going out
+                            handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, false, false), &graph);
+                            stoat::Node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
+                            current_walk.add_node_traversal_t(chain_end_traversal);
+
+                            min_length += distance_index.minimum_length(parent);
+                            max_length += distance_index.maximum_length(parent);
                         }
                     }
 
@@ -569,22 +618,28 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                 }//end while loop going through a traversal of the snarl
 
                 // Add the bound
-                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(step), &graph));
+                handlegraph::handle_t end_handle = graph.get_handle_of_step(step);
+                stoat::Node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
+                current_walk.add_node_traversal_t(end_traversal);
 
             }// end for loop through each traversal of the snarl in one sample_set
             //Add the end boundary node
         }// end if there are enough boundary nodes
 
+        if (min_length == max_length) {
+            walk_lengths.emplace_back(std::to_string(min_length));
+        } else {
+            walk_lengths.emplace_back(std::to_string(min_length) + "/" + std::to_string(max_length));
+        }
 
-    }// end for each first step (per sample_set)
+
+    }// end for each first step (per allele/sample_set)
 
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     cerr << "Found walks from sets" << endl;
-    for (const std::vector<handlegraph::net_handle_t>& walk : walks) {
-        for (const net_handle_t& net : walk) {
-            cerr << distance_index.net_handle_as_string(net) << " ";
-        }
-        cerr << endl;
+    for (const stoat::Path_traversal_t& walk : walks) {
+        std::cerr << walk.to_string();
+        std::cerr << std::endl;
     }
     #endif
 
