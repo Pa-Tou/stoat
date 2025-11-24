@@ -56,7 +56,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -M 0 -l 0 -s " + data_path + "/" + graph_base + ".snarls.txt" 
+            + " -M 0 -l 0 -s " + output_dir + "/" + graph_base + ".snarls.txt" 
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -75,9 +75,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
-        REQUIRE(std::filesystem::exists(data_path+"/"+graph_base+".snarls.txt"));
+        REQUIRE(std::filesystem::exists(output_dir+"/"+graph_base+".snarls.txt"));
         std::ifstream snarlsfile;
-        snarlsfile.open(data_path+"/"+graph_base+".snarls.txt");
+        snarlsfile.open(output_dir+"/"+graph_base+".snarls.txt");
         REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;

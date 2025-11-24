@@ -523,13 +523,15 @@ void SnarlDataCollection::get_walks_from_sample_sets(
             // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
             //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
             // inside the snarl and the first traversal of a boundary node is leaving it
-            current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[0]), &graph));
             for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
                 //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
 
-
+                // Add the step going into the snarl for each time it re-enters the snarl
+                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
 
                 handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
+
+
                 while (step != boundary_steps[boundary_i+1]) {
                     // Step is a node inside the snarl, and it may be nested inside children of the snarl
                     // If the node is a child of the snarl, then its parent is a trivial chain and its grandparent is the snarl
@@ -566,9 +568,11 @@ void SnarlDataCollection::get_walks_from_sample_sets(
 
                 }//end while loop going through a traversal of the snarl
 
+                // Add the bound
+                current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(step), &graph));
+
             }// end for loop through each traversal of the snarl in one sample_set
             //Add the end boundary node
-            current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_steps.size()-1]), &graph));
         }// end if there are enough boundary nodes
 
 
@@ -589,13 +593,16 @@ void SnarlDataCollection::get_walks_from_sample_sets(
 
 std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                  const std::vector<stoat::Path_traversal_t>& paths) const {
+    
     std::vector<std::string> sequences;
     for (const stoat::Path_traversal_t& path : paths) {
         sequences.emplace_back();
         const std::vector<stoat::Node_traversal_t>& nodes = path.get_paths(); 
+        handlegraph::nid_t start_id = nodes.front().get_node_id();
+        handlegraph::nid_t end_id = nodes.back().get_node_id(); 
         for (size_t i = 0 ; i < nodes.size() ; i++) {
             const stoat::Node_traversal_t& node = nodes[i];
-            if (i != 0 && i != nodes.size()-1) {
+            if (node.get_node_id() != start_id && node.get_node_id() != end_id) {
                 if (node.get_node_id() == 0) {
                     sequences.back() += "N";
                 } else {
