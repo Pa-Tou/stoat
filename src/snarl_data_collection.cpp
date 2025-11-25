@@ -1,7 +1,7 @@
 #include "snarl_data_collection.hpp"
 #include <fstream>
 
-#define DEBUG_SNARL_DATA_COLLECTION
+//#define DEBUG_SNARL_DATA_COLLECTION
 
 using namespace std;
 namespace stoat {
@@ -414,9 +414,7 @@ void SnarlDataCollection::get_all_walks_through_snarl(
 
         // Follow edges from the last element in path
         if (!path.empty()) {
-            cerr << "Follow net edges from " << distance_index.net_handle_as_string(path.back()) << endl;
             distance_index.follow_net_edges(path.back(), &graph, false, [&](const handlegraph::net_handle_t& next_child) {
-                cerr << " At child " << distance_index.net_handle_as_string(next_child) << endl;
                 // If this is the bound of the snarl then we're done
                 if (distance_index.is_sentinel(next_child)) {
 
@@ -532,12 +530,19 @@ void SnarlDataCollection::get_walks_from_sample_sets(
             for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
                 //TODO: It would be more efficient to calculate the Path_traversal_t and length counts directly here but I don't want to copy code too much
 
+                // For the path, add an empty node for each time we leave and re-enter the snarl
+                if (boundary_i != 0) {
+                    stoat::Node_traversal_t traversal (0, true);
+                    current_walk.add_node_traversal_t(traversal);
+                }
+
                 // Add the step of the boundary node going into the snarl for each time it re-enters the snarl
                 // TODO: Make the Path_traversal_t add from a handle_t or net_handle_t
                 //current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
                 handlegraph::handle_t start_handle = graph.get_handle_of_step(boundary_steps[boundary_i]);
                 stoat::Node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
                 current_walk.add_node_traversal_t(start_traversal);
+
 
                 handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
 
@@ -554,11 +559,6 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                     handlegraph::net_handle_t node_net = distance_index.get_net(node, &graph);
                     handlegraph::net_handle_t parent = distance_index.get_parent(node_net);
 
-                    // For the path, add an empty node for each time we leave and re-enter the snarl
-                    if (boundary_i != 0) {
-                        stoat::Node_traversal_t traversal (0, false);
-                        current_walk.add_node_traversal_t(traversal);
-                    }
 
 
                     // Add to the path, depending on if this is a node or chain
@@ -582,7 +582,7 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                             current_walk.add_node_traversal_t(chain_start_traversal);
 
                             // Add the interior of the chain as a fake node
-                            stoat::Node_traversal_t chain_traversal (0, true);
+                            stoat::Node_traversal_t chain_traversal (0, false);
                             current_walk.add_node_traversal_t(chain_traversal);
 
                             // Add the end bound going out

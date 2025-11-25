@@ -44,7 +44,10 @@ struct snarl_info_t {
 
         // For each allele, the walk through the snarl
         // The walk includes the boundary nodes of the snarl
-        // Nested chains are included in the walk as the boundary node of the chain going into the chain, an empty node 0, and the other bound of the chain going out.
+        // Nested chains are included in the walk as the boundary node of the chain going into the chain, an empty node 0 going forward, 
+        //    and the other bound of the chain going out.
+        // When a walk leaves the snarl and comes back, it will include the boundary node of the snarl leaving it, an empty node 0 going backward, and the 
+        //    boundary of the snarl going back in
         const std::vector<Path_traversal_t>& walks_by_allele;
 
         // For each allele, the set of sample/haplotypes that contain that allele

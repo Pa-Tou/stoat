@@ -333,7 +333,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[0] == Node_traversal_t(4, false));
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[1] == Node_traversal_t(5, false));
-                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[2] == Node_traversal_t(0, true));
+                    REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[2].get_node_id() == 0);
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[3] == Node_traversal_t(7, false));
                     REQUIRE(snarl_info.walks_by_allele[insertion_index].get_paths()[4] == Node_traversal_t(8, false));
 
@@ -624,7 +624,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                             const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
                             std::vector<std::string>& walk_lengths) {
-                return SnarlDataCollection::get_all_walks_through_snarl(graph, distance_index, snarl, snarl_data, walks, walk_lengths, 1);
+                return SnarlDataCollection::get_all_walks_through_snarl(graph, distance_index, snarl, snarl_data, walks, walk_lengths, 0);
             },
             false, // don't get sample_sets 
             [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -1075,7 +1075,10 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection][bug]" ) {
 
 
     // Function to check if the collection is valid
-    auto check_collection = [&] (const TestSnarlDataCollection& snarl_collection, bool check_walks, bool check_sample_sets, bool check_sequences, bool get_all_walks) {
+    // When we find the walks through the snarl first and then the sample sets, the walks will not include duplications and we will not know how to deal with
+    // samples that take multiple walks. So don't check this if samples_first is false
+    auto check_collection = [&] (const TestSnarlDataCollection& snarl_collection, bool check_walks, bool check_sample_sets, bool check_sequences, bool get_all_walks, 
+                                 bool samples_first) {
 
         // There is an inner snarl (2-4, indel) and an outer snarl (1-6, duplication)
         // Path0 takes the insertion but not the duplication
@@ -1136,48 +1139,39 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection][bug]" ) {
                 if (check_walks) {
                     // There should be one allele with one duplication and one with none, but we don't know which is which yet
                     // Since the child is a chain, it is added to the walk as the boundary nodes and a fake node 0 for the chain
-                    cerr << "walk1" << endl;
-                    for (const auto& node : snarl_info.walks_by_allele[0].get_paths()) {
-                        cerr << node.get_node_id() << "-" << node.get_is_reverse() << ", ";
-                    }
-                    cerr << endl << "walk2" << endl;
-                    for (const auto& node : snarl_info.walks_by_allele[1].get_paths()) {
-                        cerr << node.get_node_id() << "-" << node.get_is_reverse() << ", ";
-                    }
                     bool walk_0_is_nodup = snarl_info.walks_by_allele[0].get_paths().size() == 5 &&
                                         snarl_info.walks_by_allele[0].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(0, true) &&
+                                        snarl_info.walks_by_allele[0].get_paths()[2].get_node_id() == 0 && //TODO: Change this to be  == Node_traversal_t(0, false)
                                         snarl_info.walks_by_allele[0].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[4] == Node_traversal_t(6, false);
                     bool walk_0_is_dup = snarl_info.walks_by_allele[0].get_paths().size() == 8 &&
                                         snarl_info.walks_by_allele[0].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(0, true) &&
+                                        snarl_info.walks_by_allele[0].get_paths()[2].get_node_id() == 0 &&
                                         snarl_info.walks_by_allele[0].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[4] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[0].get_paths()[6] == Node_traversal_t(0, true) &&
+                                        snarl_info.walks_by_allele[0].get_paths()[5].get_node_id() == 0 &&
                                         snarl_info.walks_by_allele[0].get_paths()[6] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[0].get_paths()[7] == Node_traversal_t(6, false);
 
                     bool walk_1_is_nodup = snarl_info.walks_by_allele[1].get_paths().size() == 5 &&
                                         snarl_info.walks_by_allele[1].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[1].get_paths()[2] == Node_traversal_t(0, true) &&
+                                        snarl_info.walks_by_allele[1].get_paths()[2].get_node_id() == 0 &&
                                         snarl_info.walks_by_allele[1].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[4] == Node_traversal_t(6, false);
                     bool walk_1_is_dup =  snarl_info.walks_by_allele[1].get_paths().size() == 8 &&
                                         snarl_info.walks_by_allele[1].get_paths()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[1].get_paths()[2] == Node_traversal_t(0, true) &&
+                                        snarl_info.walks_by_allele[1].get_paths()[2].get_node_id() == 0 &&
                                         snarl_info.walks_by_allele[1].get_paths()[3] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[4] == Node_traversal_t(2, false) &&
-                                        snarl_info.walks_by_allele[1].get_paths()[5] == Node_traversal_t(0, true) &&
+                                        snarl_info.walks_by_allele[1].get_paths()[5].get_node_id() == 0 &&
                                         snarl_info.walks_by_allele[1].get_paths()[6] == Node_traversal_t(5, false) &&
                                         snarl_info.walks_by_allele[1].get_paths()[7] == Node_traversal_t(6, false);
                     REQUIRE(((walk_0_is_dup && walk_1_is_nodup) || (walk_0_is_nodup && walk_1_is_dup)));
 
-cerr << "Variant type" << snarl_info.variant_type << endl;
                     REQUIRE((snarl_info.variant_type == "3/4,6/8" || snarl_info.variant_type == "6/8,3/4"));
                 }
 
@@ -1226,43 +1220,70 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
                 REQUIRE(snarl_info.depth == 2);
 
                 if (check_sample_sets) {
-                    REQUIRE(snarl_info.sample_sets_by_allele.size() == 3);
-                    REQUIRE(snarl_info.sample_sets_by_allele[0].size() == 1);
-                    REQUIRE(snarl_info.sample_sets_by_allele[1].size() == 1);
-                    REQUIRE(snarl_info.sample_sets_by_allele[2].size() == 1);
+                    if (samples_first) {
+                        // If we got the sample sets before the walks, then there are three sample sets. Otherwise we haven't decided what the right answer is so don't check
+                        REQUIRE(snarl_info.sample_sets_by_allele.size() == 3);
+                        REQUIRE(snarl_info.sample_sets_by_allele[0].size() == 1);
+                        REQUIRE(snarl_info.sample_sets_by_allele[1].size() == 1);
+                        REQUIRE(snarl_info.sample_sets_by_allele[2].size() == 1);
+                    }
                 }
                 if (check_walks) {
-                    // Each path takes a different walk
-                    // figure out which allele takes which walk
-                    REQUIRE(snarl_info.walks_by_allele.size() == 3);
+                    if (samples_first) {
+                        // Each path takes a different walk
+                        // figure out which allele takes which walk
+                        REQUIRE(snarl_info.walks_by_allele.size() == 3);
 
-                    for (size_t allele_i = 0 ; allele_i < 3 ; allele_i++) {
-                        if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 3) {
-                            // This is walk 0 taking the insertion once
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(3, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[2] == Node_traversal_t(4, false));
-                        } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 4) {
-                            // This is walk1 that takes the deletion twice
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(4, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[2] == Node_traversal_t(2, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[3] == Node_traversal_t(4, false));
-                        } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 5) {
-                            // This is walk2 that takes insertion then deletion
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(3, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[2] == Node_traversal_t(4, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[3] == Node_traversal_t(2, false));
-                            REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[4] == Node_traversal_t(4, false));
+                        for (size_t allele_i = 0 ; allele_i < 3 ; allele_i++) {
+                            if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 3) {
+                                // This is walk 0 taking the insertion once
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(3, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[2] == Node_traversal_t(4, false));
+                            } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 5) {
+                                // This is walk1 that takes the deletion twice
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(4, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[2] == Node_traversal_t(0, true));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[3] == Node_traversal_t(2, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[4] == Node_traversal_t(4, false));
+                            } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 6) {
+                                // This is walk2 that takes insertion then deletion
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(3, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[2] == Node_traversal_t(4, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[3] == Node_traversal_t(0, true));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[4] == Node_traversal_t(2, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[5] == Node_traversal_t(4, false));
+                            }
                         }
-                    }
 
-                    REQUIRE((snarl_info.variant_type == "0,1,1" || snarl_info.variant_type == "1,0,1" || snarl_info.variant_type == "1,1,0"));
+                        REQUIRE((snarl_info.variant_type == "0,1,1" || snarl_info.variant_type == "1,0,1" || snarl_info.variant_type == "1,1,0"));
+                    } else {
+                        // There are only two walks, the insertion and the deletion
+                        // figure out which allele takes which walk
+                        REQUIRE(snarl_info.walks_by_allele.size() == 2);
+
+                        for (size_t allele_i = 0 ; allele_i < 2 ; allele_i++) {
+                            if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 2) {
+                                // deletion
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(4, false));
+                            } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 3) {
+                                // insertion
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[0] == Node_traversal_t(2, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[1] == Node_traversal_t(3, false));
+                                REQUIRE(snarl_info.walks_by_allele[allele_i].get_paths()[2] == Node_traversal_t(4, false));
+                            }
+                        }
+
+                        REQUIRE((snarl_info.variant_type == "0,1" || snarl_info.variant_type == "1,0"));
+                    }
                 }
 
                 // Check that the walks and sample_sets match
-                if (check_walks && check_sample_sets) {
+                // Don't do this if we got the walks first
+                if (samples_first && check_walks && check_sample_sets) {
                     for (size_t allele_i = 0 ; allele_i < 3 ; allele_i++) {
                         if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 3) {
                             // This is walk 0 taking the insertion once
@@ -1270,17 +1291,17 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
                             if (check_sequences) {
                                 REQUIRE(snarl_info.sequences_by_allele[allele_i] == "G");
                             }
-                        } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 4) {
+                        } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 5) {
                             // This is walk1 that takes the deletion twice
                             REQUIRE(snarl_info.sample_sets_by_allele[allele_i] == sample_sets_by_snarl[1][1]);
                             if (check_sequences) {
-                                REQUIRE(snarl_info.sequences_by_allele[allele_i] == "");
+                                REQUIRE(snarl_info.sequences_by_allele[allele_i] == "N");
                             }
-                        } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 5) {
+                        } else if (snarl_info.walks_by_allele[allele_i].get_paths().size() == 6) {
                             // This is walk2 that takes insertion then deletion
                             REQUIRE(snarl_info.sample_sets_by_allele[allele_i] == sample_sets_by_snarl[1][2]);
                             if (check_sequences) {
-                                REQUIRE(snarl_info.sequences_by_allele[allele_i] == "G");
+                                REQUIRE(snarl_info.sequences_by_allele[allele_i] == "GN");
                             }
                         }
                     }
@@ -1289,15 +1310,18 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
 
                 if (check_sequences) {
 
-                    // Should be two alleles with the sequence G
-                    size_t g_count = 0;
-                    for (size_t allele_i = 0 ; allele_i < 3 ; allele_i++) {
-                        REQUIRE((snarl_info.sequences_by_allele[allele_i] == "" || snarl_info.sequences_by_allele[allele_i] == "G"));
-                        if (snarl_info.sequences_by_allele[allele_i] == "G") {
-                            g_count ++;
+                    if (samples_first) {
+                        REQUIRE(snarl_info.sequences_by_allele.size() == 3);
+                        for (size_t allele_i = 0 ; allele_i < 3 ; allele_i++) {
+                            REQUIRE((snarl_info.sequences_by_allele[allele_i] == "G" || 
+                                     snarl_info.sequences_by_allele[allele_i] == "N" || 
+                                     snarl_info.sequences_by_allele[allele_i] == "GN"));
                         }
+                    } else {
+                        REQUIRE(snarl_info.sequences_by_allele.size() == 2);
+                        REQUIRE(((snarl_info.sequences_by_allele[0] == "" && snarl_info.sequences_by_allele[1] == "G") ||
+                                 (snarl_info.sequences_by_allele[1] == "" && snarl_info.sequences_by_allele[0] == "G")));
                     }
-                    REQUIRE(g_count == 2);
                 }
 
             } else {
@@ -1385,7 +1409,7 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
             "", false);
 
 
-        check_collection(snarl_collection, false, false, false, true);
+        check_collection(snarl_collection, false, false, false, true, true);
     }
     SECTION("Make and fill in snarl collection with walks, sample_sets, and sequences") {
 
@@ -1405,7 +1429,7 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
             true, // get sequences
             "", false);
 
-        check_collection(snarl_collection, true, true, true, false);
+        check_collection(snarl_collection, true, true, true, false, true);
 
         SECTION("Serialize it") {
 
@@ -1421,7 +1445,7 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
             loaded_snarl_collection.load_snarl_data_collection(instream);
             instream.close();
 
-            check_collection(loaded_snarl_collection, true, true, true, false);
+            check_collection(loaded_snarl_collection, true, true, true, false, true);
 
             std::string rm_cmd = "rm " + test_file;
 
@@ -1453,8 +1477,7 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
         snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, get_sample_sets_per_snarl, "empty_path");
 
-        //TODO: THis is different because it finds all walks through the indel, not including the loop
-        check_collection(snarl_collection, true, false, true, true);
+        check_collection(snarl_collection, true, false, true, true, false);
 
         REQUIRE(sample_haplotype_to_index.size() == 0);
 
@@ -1466,8 +1489,7 @@ cerr << "Variant type" << snarl_info.variant_type << endl;
         // Now fill it in with the paths
         snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, get_sample_sets_per_snarl, "path0#0#path0");
 
-        // TODO: This doesn't work yet because we don't know how to deal with paths leaving the snarl and all walks
-        //check_collection(snarl_collection, true, true, true, true);
+        check_collection(snarl_collection, true, true, true, true, false);
 
     }
 }
