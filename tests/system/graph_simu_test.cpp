@@ -1045,9 +1045,9 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         // Path 2 goes through twice, with insertion then with deletion 
         truth_fasta.emplace_back(3, ">snarl:2_4|path0:11-12|path0:11-12", "G");
 
-        truth_fasta.emplace_back(4, ">snarl:2_4|path0:11-12|path1:11-14", "");
+        truth_fasta.emplace_back(4, ">snarl:2_4|path0:11-12|path1:11-14", "N");
 
-        truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path2:11-15", "G");
+        truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path2:11-15", "GN");
 
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
@@ -1092,9 +1092,9 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         // Path 2 goes through twice, with insertion then with deletion 
         truth_fasta.emplace_back(3, ">snarl:2_4|path0:11-12|path0:11-12", "G");
 
-        truth_fasta.emplace_back(4, ">snarl:2_4|path0:11-12|path1:11-14", "");
+        truth_fasta.emplace_back(4, ">snarl:2_4|path0:11-12|path1:11-14", "N");
 
-        truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path2:11-15", "G");
+        truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path2:11-15", "GN");
 
         REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
 
