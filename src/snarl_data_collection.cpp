@@ -743,6 +743,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
 
     outstream << "allele_size_limit:" << allele_size_limit << endl;
     outstream << "snarl_child_limit:" << snarl_child_limit << endl;
+    outstream << "walk_steps_limit: " << walk_steps_limit << endl;
 
     // Next will be a list of reference path names.
     outstream << "#REFS" << endl;
@@ -826,16 +827,29 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << endl;;
     }
 
+
     // And the snarl child limit
     std::getline(instream, line);
-    std::stringstream newlinestream(line);
-    std::getline(newlinestream, limit_str, ':');
+    std::stringstream linestream1(line);
+    std::getline(linestream1, limit_str, ':');
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     assert(limit_str == "snarl_child_limit");
     #endif
-    std::getline(newlinestream, limit_str, ':');
+    std::getline(linestream1, limit_str, ':');
     if (snarl_child_limit < std::stoull(limit_str)) {
         cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << endl;;
+    }
+
+    // And the walk steps limit
+    std::getline(instream, line);
+    std::stringstream linestream2(line);
+    std::getline(linestream2, limit_str, ':');
+    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    assert(limit_str == "walk_steps_limit");
+    #endif
+    std::getline(linestream2, limit_str, ':');
+    if (walk_steps_limit > std::stoull(limit_str)) {
+        cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << endl;;
     }
 
     // Next are the references
