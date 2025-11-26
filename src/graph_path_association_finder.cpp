@@ -36,7 +36,7 @@ void AssociationFinder::test_snarls() const {
         stoat::write_binary_header(out_associated);
     }
 
-    stoat::FisherKhi2 fisher_chi2_tester;
+    stoat::FisherChi2 fisher_chi2_tester;
 
     // Go through all snarls, which have already been partitioned by the partitioner
     partitioner->for_each_snarl_partition(graph, 
@@ -154,7 +154,7 @@ void AssociationFinder::test_snarls() const {
                     group_paths = stoat_vcf::format_group_paths(genotype_associated, genotype_unassociated);
  
                     // Run the statistical test
-                    std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(genotype_associated, genotype_unassociated);
+                    std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_chi2(genotype_associated, genotype_unassociated);
 
                     if (output_format == "fasta") {
                         // Figure out which samples we want to write

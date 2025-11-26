@@ -13,11 +13,9 @@ std::vector<std::vector<char>> create_genotype_table(
 
     // Loop over all columns / paths
     for (size_t col_idx = 0; col_idx < column_headers.size(); ++col_idx) {
-        const auto& path_snarl = column_headers[col_idx];
-        std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
-
         // Identify samples that use this path
-        std::vector<size_t> idx_sample_save = matrix.get_samples_on_path(list_edge_path);
+        const auto& path_snarl = column_headers[col_idx];
+        std::vector<size_t> idx_sample_save = matrix.get_samples_on_path(path_snarl);
 
         // Fill genotype matrix
         for (size_t idx : idx_sample_save) {

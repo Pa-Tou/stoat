@@ -16,17 +16,15 @@ namespace stoat_vcf {
         const double maf_threshold,
         const double table_threshold,
         const size_t min_individuals,
-        const std::string regression_dir,
-        const stoat::phenotype_type_t phenotype_type) :
+        const std::string regression_dir) :
         chr_to_snarl_data(chr_to_snarl_data),
         list_samples(list_samples),
-        edge_matrix(list_samples, 0, 0),
+        edge_matrix(list_samples, 0),
         covariate(covariate),
         maf_threshold(maf_threshold),
         table_threshold(table_threshold),
         min_individuals(min_individuals),
-        regression_dir(regression_dir),
-        phenotype_type(phenotype_type) {};
+        regression_dir(regression_dir), phenotype_type(stoat::BINARY) {};
 
     BinarySnarlAnalyzer::BinarySnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
@@ -36,8 +34,10 @@ namespace stoat_vcf {
         const std::vector<bool> &binary_phenotype,
         const size_t min_individuals,
         const std::string regression_dir) :
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, {}, maf_threshold, table_threshold, min_individuals, regression_dir, stoat::BINARY),
-        binary_phenotype(binary_phenotype), fk() {};
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, {}, maf_threshold, table_threshold, min_individuals, regression_dir),
+        binary_phenotype(binary_phenotype), fchi() {
+        phenotype_type = stoat::BINARY;
+    };
 
     BinaryCovarSnarlAnalyzer::BinaryCovarSnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
@@ -49,8 +49,10 @@ namespace stoat_vcf {
         const size_t min_individuals,
         const std::string regression_dir) :
 
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir, stoat::BINARY_COVAR),
-        binary_phenotype(binary_phenotype), lr() {};
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir),
+        binary_phenotype(binary_phenotype), lr() {
+        phenotype_type = stoat::BINARY_COVAR;
+    };
 
     QuantitativeSnarlAnalyzer::QuantitativeSnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
@@ -62,8 +64,10 @@ namespace stoat_vcf {
         const size_t min_individuals,
         const std::string regression_dir) :
 
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir, stoat::QUANTITATIVE),
-        quantitative_phenotype(quantitative_phenotype), lr() {};
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir),
+        quantitative_phenotype(quantitative_phenotype), lr() {
+        phenotype_type = stoat::QUANTITATIVE;
+    };
 
     EQTLSnarlAnalyzer::EQTLSnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
@@ -75,37 +79,53 @@ namespace stoat_vcf {
         const size_t windows_gene_threshold,
         const size_t min_individuals,
         const std::string regression_dir) :
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir, stoat::EQTL),
-        eqtl_map(eqtl_map), windows_gene_threshold(windows_gene_threshold), lr() {};
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir),
+        eqtl_map(eqtl_map), windows_gene_threshold(windows_gene_threshold), lr() {
+        phenotype_type = stoat::EQTL;
+    };
 
     void SnarlAnalyzer::write_header(std::ofstream &outf)
     {
         stoat::write_stoat_output_header(outf, phenotype_type);
     }
 
-    void SnarlAnalyzer::process_snarls_by_chromosome_chunk(
+    stoat::phenotype_type_t SnarlAnalyzer::get_phenotype_type() const {
+        return (phenotype_type);
+    }
+
+    void SnarlAnalyzer::genotype_test_snarls_by_chr_from_vcf(
         htsFile *&ptr_vcf,
         bcf_hdr_t *&hdr,
         bcf1_t *&rec,
-        const std::string output_filename)
+        const std::string output_dir)
     {
 
+        // JEAN don't really like that the output is different for different analysis
+        // if we want to keep track of what was run, we might as well include a header in the file with the full info (all parameters, input files, etc)
+        // but have the main output file be the same name all the time (easier to predict the output and integrate in a workflow)
+        std::string output_filename;
+        if (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR)
+            output_filename = output_dir + "/binary_table_vcf.tsv";
+        else if (phenotype_type == stoat::QUANTITATIVE)
+            output_filename = output_dir + "/quantitative_table_vcf.tsv";
+        else
+            output_filename = output_dir + "/eqtl_table_vcf.tsv";
+        
         std::ofstream outf(output_filename, std::ios::binary);
 
-        // Write the header
+        // Write the header of the output file
         write_header(outf);
 
+        // for the log
         size_t total_number_snarl_filtered = 0;
 
         // Go through the vcf and get chunks by chromosome.
-        while (bcf_read(ptr_vcf, hdr, rec) >= 0)
-        {
-
+        while (bcf_read(ptr_vcf, hdr, rec) >= 0) {
+            
             std::string chr = bcf_hdr_id2name(hdr, rec->rid);
 
             // Skip chromosomes not in chr_to_snarl_data
-            while (chr_to_snarl_data.find(chr) == chr_to_snarl_data.end())
-            {
+            while (chr_to_snarl_data.find(chr) == chr_to_snarl_data.end()) {
                 stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.");
 
                 bool found_new_chr = false;
@@ -126,11 +146,11 @@ namespace stoat_vcf {
                 }
             }
 
+            // start analyzing this chromosome chr
+            stoat::LOG_INFO("Analysing chr : " + chr);
             auto timer_start_chr = std::chrono::high_resolution_clock::now();
 
-            stoat::LOG_INFO("Analysing chr : " + chr);
-
-            // prepare the edge matrix for this chromosome
+            // prepare the edge matrix for this chromosome by reading the VCF
             auto [ptr_vcf_new, hdr_new, rec_new] = make_edge_matrix(ptr_vcf, hdr, rec, chr);
             ptr_vcf = ptr_vcf_new;
             hdr = hdr_new;
@@ -146,9 +166,8 @@ namespace stoat_vcf {
 
             // Make the snarl test analysis
             // Iterate over each snarl
-            for (const stoat::Snarl_data_t &snarl_data_s : snarls)
-            {
-                bool filtered = analyze_and_write_snarl(snarl_data_s, chr, outf);
+            for (const stoat::Snarl_data_t &snarl_data_s : snarls) {
+                bool filtered = test_and_write_snarl(snarl_data_s, chr, outf);
                 chr_number_snarl_filtered += (filtered ? 1 : 0);
             }
 
@@ -173,7 +192,7 @@ namespace stoat_vcf {
 
         // init the edge matrix, allocating about 4 edges per snarl to start
         size_t n_snarls = chr_to_snarl_data.at(chr).size();
-        edge_matrix.reset(n_snarls * 4, list_samples.size() * 2);
+        edge_matrix.clear_edges(n_snarls * 4);
 
         // loop over the VCF file for each line and stop where chr is different
         do
@@ -216,19 +235,17 @@ namespace stoat_vcf {
             std::string at_str(at); // convert to C++ std::string
             free(at);
 
-            // split by comma
-            std::vector<std::string> path_list;
+            // split by comma and save as a vector of edge lists [vector vector stoat::Edge_t]
+            // from: ">123>213<234", ">123<234", ">123<234<345"
+            // to: [[Edge_t(123, 213),stoat::Edge_t(213, 234)], [...]]
+            std::vector<std::vector<stoat::Edge_t>> list_paths_edge;
             std::stringstream at_ss(at_str);
             std::string item;
             while (std::getline(at_ss, item, ','))
             {
-                path_list.push_back(item);
+                std::vector<stoat::Edge_t> edge_vec = decompose_path_str_to_edge(item);
+                list_paths_edge.push_back(edge_vec);
             }
-
-            // convert allele traversals [vector std::string] into edge lists [vector vector stoat::Edge_t]
-            // from: ">123>213<234", ">123<234", ">123<234<345"
-            // to: [[Edge_t(123, 213),stoat::Edge_t(213, 234)], [...]]
-            const std::vector<std::vector<stoat::Edge_t>> list_paths_edge = decompose_path_list_str(path_list);
 
             for (int i = 0; i < rec->n_sample; ++i)
             {
@@ -253,24 +270,6 @@ namespace stoat_vcf {
 
         edge_matrix.shrink();
         return std::make_tuple(ptr_vcf, hdr, rec);
-    }
-
-    // Decompose path stoat::PathTraversal to vectorstoat::Edge_t
-    std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::PathTraversal &list_paths)
-    {
-
-        std::vector<stoat::Edge_t> edges;
-        const std::vector<stoat::Node_traversal_t> &list_nodes = list_paths.get_paths();
-        size_t length_s = list_nodes.size();
-        edges.reserve(length_s - 1); // Reserve memory
-
-        for (size_t i = 0; i < length_s - 1; ++i)
-        {
-            stoat::Edge_t edge(list_nodes[i], list_nodes[i + 1]);
-            edges.emplace_back(edge);
-        }
-
-        return edges;
     }
 
     // Decompose path std::string to vectorstoat::Edge_t
@@ -307,28 +306,16 @@ namespace stoat_vcf {
         // preparing the snarl paths are the "simplified"/net versions
         nodes.check_path_flip();
 
-        for (size_t j = 0; j + 1 < nodes.get_paths().size(); ++j)
+        for (size_t j = 0; j + 1 < nodes.get_path().size(); ++j)
         {
-            stoat::Edge_t edge(nodes.get_paths()[j], nodes.get_paths()[j + 1]);
+            stoat::Edge_t edge(nodes.get_path()[j], nodes.get_path()[j + 1]);
             edges.emplace_back(edge);
         }
 
         return edges;
     }
 
-    // Decompose a list of paths str into a vector ofstoat::Edge_t
-    // JEAN rename
-    const std::vector<std::vector<stoat::Edge_t>> decompose_path_list_str(const std::vector<std::string> &list_paths)
-    {
-        std::vector<std::vector<stoat::Edge_t>> paths_snarl;
-        for (const auto &path : list_paths)
-        {
-            paths_snarl.push_back(decompose_path_str_to_edge(path));
-        }
-        return paths_snarl;
-    }
-
-    bool BinarySnarlAnalyzer::analyze_and_write_snarl(const stoat::Snarl_data_t &snarl_data_s, 
+    bool BinarySnarlAnalyzer::test_and_write_snarl(const stoat::Snarl_data_t &snarl_data_s, 
         const std::string chr, std::ofstream &outf) {
 
             std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
@@ -348,7 +335,7 @@ namespace stoat_vcf {
 
             // Binary analysis single test
             auto group_paths = format_group_paths(g0, g1);
-            auto [chi2_p_value, fastfisher_p_value] = fk.fisher_khi2(g0, g1);
+            auto [chi2_p_value, fastfisher_p_value] = fchi.fisher_chi2(g0, g1);
 
             #pragma omp critical(outf)
             {
@@ -358,7 +345,7 @@ namespace stoat_vcf {
             return to_filter;
     }
 
-    bool BinaryCovarSnarlAnalyzer::analyze_and_write_snarl(
+    bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(
         const stoat::Snarl_data_t &snarl_data_s, const std::string chr, std::ofstream &outf)
     {
         std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
@@ -404,7 +391,7 @@ namespace stoat_vcf {
     }
 
     // Quantitative Table Generation
-    bool QuantitativeSnarlAnalyzer::analyze_and_write_snarl(
+    bool QuantitativeSnarlAnalyzer::test_and_write_snarl(
         const stoat::Snarl_data_t &snarl_data_s,
         const std::string chr,
         std::ofstream &outf)
@@ -450,18 +437,19 @@ namespace stoat_vcf {
     }
 
     // Identify genes index that will be tested for this snarl by matching position
-    // eqtl : <gene_name, gene_expression, start_pos, end_pos>
-    std::vector<size_t> found_gene_snarl(
+    // Qtl_data : <gene_name, gene_expression, start_pos, end_pos>
+    std::vector<size_t> get_genes_around_pos(
         const std::vector<Qtl_data> &gene_position,
         const size_t start_pos,
         const size_t end_pos,
-        const size_t windows_gene_threshold)
+        const size_t max_distance)
     {
+        // we look for genes in the specified range +- the maximum distance
+        size_t start_pos_threshold = (start_pos > max_distance) ? start_pos - max_distance : 0;
+        size_t end_pos_threshold = end_pos + max_distance;
 
+        // loop over all genes and save the ones that are close enough
         std::vector<size_t> gene_index;
-        size_t start_pos_threshold = (start_pos > windows_gene_threshold) ? start_pos - windows_gene_threshold : 0;
-        size_t end_pos_threshold = end_pos + windows_gene_threshold;
-
         for (size_t i = 0; i < gene_position.size(); ++i)
         {
             size_t gene_start = gene_position[i].start_pos;
@@ -476,12 +464,12 @@ namespace stoat_vcf {
         return gene_index;
     }
 
-    bool EQTLSnarlAnalyzer::analyze_and_write_snarl(
+    bool EQTLSnarlAnalyzer::test_and_write_snarl(
         const stoat::Snarl_data_t &snarl_data_s, const std::string chr, std::ofstream &outf)
     {
 
         bool to_filter = false;
-        std::vector<size_t> list_gene_index = found_gene_snarl(eqtl_map.at(chr), snarl_data_s.start_position, snarl_data_s.end_position, windows_gene_threshold);
+        std::vector<size_t> list_gene_index = get_genes_around_pos(eqtl_map.at(chr), snarl_data_s.start_position, snarl_data_s.end_position, windows_gene_threshold);
         auto [X, index_filtered, samples_name, allele_paths] = stoat_vcf::create_eqtl_table(list_samples.size(), snarl_data_s.paths, edge_matrix);
 
         stoat::remove_empty_columns_quantitative_table(X);

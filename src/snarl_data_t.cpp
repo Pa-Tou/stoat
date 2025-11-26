@@ -61,6 +61,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
         std::getline(ss, depth, '\t');   // depth column
 
         // if we're starting a new chromosome, save the current one and reinit
+        // JEAN if the lines are not sorted by chromosome, we might be overwriting the previous chunk for that chromosome here
         if (chr != save_chr && !save_chr.empty()) {
             chr_to_snarls[save_chr] = std::move(snarls);
             snarls.clear();
@@ -70,19 +71,9 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
         // to parse the information from the different fields
         size_t start_pos = std::stoull(start_pos_str);
         size_t end_pos = std::stoull(end_pos_str);
-        std::pair<size_t, size_t> snarl_ids = stringToPair(snarl_id);
-        std::vector<stoat::PathTraversal> paths = stringToVectorPath(path_list);
 
-        // add allele length information
-        std::istringstream al_lens_stream(al_lens);
-        int path_idx = 0;
-        while (std::getline(al_lens_stream, al_lens, ',')) {
-            paths[path_idx].set_allele_length_from_string(al_lens);
-            path_idx++;
-        }
-
-        // create object and add to the list
-        Snarl_data_t snarl(handlegraph::as_net_handle(std::stoll(snarl_handle)), snarl_ids, paths, start_pos, end_pos, std::stoull(depth));
+        // create the Snarl object and add it to the list
+        Snarl_data_t snarl(handlegraph::as_net_handle(std::stoll(snarl_handle)), snarl_id, path_list, al_lens, start_pos, end_pos, std::stoull(depth));
         snarls.push_back(snarl);
     }
 
@@ -108,7 +99,7 @@ void write_snarl_data_header(std::ostream& outstream) {
 }
 
 void write_snarl_data_fail_header(std::ostream& outstream) {
-    outstream << "SNARL\tREASON" << std::endl;
+    outstream << "SNARL\tFILTER\tCHILDREN" << std::endl;
 }
 
 // Node_traversal_t
@@ -165,7 +156,7 @@ bool Edge_t::operator==(const Edge_t &other) const {
 void PathTraversal::add_node(const size_t& node, bool is_rev) {
     Node_traversal_t node_traversal(node, is_rev); 
     // Add node to path
-    this->paths.push_back(node_traversal);
+    this->path.push_back(node_traversal);
 }
 
     
@@ -175,12 +166,12 @@ void PathTraversal::add_node_handle(const handlegraph::net_handle_t& node_h, con
     bool is_rev = distance_index.ends_at(node_h) != bdsg::SnarlDistanceIndex::END;
     Node_traversal_t node_traversal(distance_index.node_id(node_h), is_rev); 
     // Add node to path
-    this->paths.push_back(node_traversal);
+    this->path.push_back(node_traversal);
 }
     
 // add a node traversal to the path
 void PathTraversal::add_node_traversal_t(const Node_traversal_t &node_trav) {
-    this->paths.push_back(node_trav);
+    this->path.push_back(node_trav);
 }
 
 void PathTraversal::add_min_allele_len(size_t len){
@@ -212,7 +203,7 @@ void PathTraversal::set_allele_length_from_string(std::string al_len_str){
 // TODO : change sum_path to definition using the length of the path including in the boundary nodes
 // Matis ans : i don t know how to do it
 std::string PathTraversal::get_allele_length () const {
-    if (paths.size() >= 3) {
+    if (path.size() >= 3) {
         // If there is at least one node other than the boundaries
         if (min_allele_len != max_allele_len) {
             // a "complex" variant with no fixed size because of nested variants
@@ -222,7 +213,7 @@ std::string PathTraversal::get_allele_length () const {
             // one length when simple variant or when nested variants are SNPs or balanced MNPs
             return std::to_string(min_allele_len);
         }        
-    } else if (paths.size() == 2) {
+    } else if (path.size() == 2) {
         // if only the boundary nodes, it's a deletion
         return "0";
     } else {
@@ -238,7 +229,7 @@ void PathTraversal::check_path_flip() {
     // JEAN this is quite bad, needs better condition to flip or not, and also deal with potential >0 added previously
     // JEAN maybe slightly better if we make sure the first bound is first on the reference (if on the reference path)
     
-    if (paths[0].get_node_id() > paths.back().get_node_id()) {
+    if (path[0].get_node_id() > path.back().get_node_id()) {
         // flip the path
         path_flip();
     }
@@ -246,53 +237,39 @@ void PathTraversal::check_path_flip() {
 
 // Flip the PathTraversal
 void PathTraversal::path_flip() {
-    std::reverse(paths.begin(), paths.end());
+    std::reverse(path.begin(), path.end());
 
-    for (size_t i = 0; i < paths.size(); ++i) {
+    for (size_t i = 0; i < path.size(); ++i) {
         // JEAN maybe here never flip >0?
-        paths[i].set_is_reverse(!paths[i].get_is_reverse());    
+        path[i].set_is_reverse(!path[i].get_is_reverse());    
     }
 }
 
 // convert PathTraversal to path representation
 std::string PathTraversal::to_string() const {
     std::string result;
-    for (const auto& node : paths) {
+    for (const auto& node : path) {
         result += node.to_string();
     }
     return result;
 }
 
-const std::vector<Node_traversal_t>& PathTraversal::get_paths() const { 
-    return paths; 
+const std::vector<Node_traversal_t>& PathTraversal::get_path() const { 
+    return path;
 };
 
 // Get the size of the path
 size_t PathTraversal::size() const {
-    return paths.size();
+    return path.size();
 }
-    
+
+    // JEAN add to Snarl_data_t
 std::string pairToString(const std::pair<size_t, size_t>& name) {
     std::ostringstream oss;
     oss << name.first << "_" << name.second;
     return oss.str();
 }
-
-std::pair<size_t, size_t> stringToPair(const std::string& str) {
-    size_t underscorePos = str.find('_');
-    if (underscorePos == std::string::npos) {
-        throw std::runtime_error("Input std::string does not contain an underscore separator");
-    }
-
-    std::string firstPart = str.substr(0, underscorePos);
-    std::string secondPart = str.substr(underscorePos + 1);
-
-    size_t first = std::stoull(firstPart);
-    size_t second = std::stoull(secondPart);
-
-    return {first, second};
-}
-
+    
 std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_paths, bool allele_lengths) {
     std::ostringstream oss;
     for (size_t i = 0; i < vec_paths.size(); ++i) {
@@ -304,36 +281,6 @@ std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_path
         }
     }
     return oss.str();
-}
-
-std::vector<stoat::PathTraversal> stringToVectorPath(std::string& input) {
-    std::vector<stoat::PathTraversal> vec_paths;
-    std::istringstream iss(input);
-    std::string path_str;
-
-    while (std::getline(iss, path_str, ',')) {
-        stoat::PathTraversal path;
-        size_t i = 0;
-        const size_t len = path_str.size();
-
-        while (i < len) {
-            // Assume direction is always present and correct
-            bool is_reverse = (path_str[i] == '<');
-            ++i; // Move past '<' or '>'
-
-            // Parse node_id
-            size_t node_id = 0;
-            while (i < len && path_str[i] >= '0' && path_str[i] <= '9') {
-                node_id = node_id * 10 + (path_str[i++] - '0');
-            }
-
-            path.add_node_traversal_t(stoat::Node_traversal_t(node_id, is_reverse));
-        }
-
-        vec_paths.emplace_back(std::move(path));
-    }
-
-    return vec_paths;
 }
 
 // Snarl constructors
@@ -354,7 +301,58 @@ Snarl_data_t::Snarl_data_t(bdsg::net_handle_t net_,
     start_position(start_position_),
     end_position(end_position_),
     depth(depth) {}
-    
+
+Snarl_data_t::Snarl_data_t(bdsg::net_handle_t net_,
+    std::string snarl_ids_,
+    std::string paths_,
+    std::string allele_lengths_,
+    const size_t start_position_, const size_t end_position_,
+    size_t depth) :
+    net(net_),
+    start_position(start_position_),
+    end_position(end_position_),
+    depth(depth) {
+
+    // extract the boundary nodes from the snarl ID
+    size_t underscorePos = snarl_ids_.find('_');
+    if (underscorePos == std::string::npos) {
+        throw std::runtime_error("Input snarl ID " + snarl_ids_ + " does not contain an underscore separator");
+    }
+    size_t first_id = std::stoull(snarl_ids_.substr(0, underscorePos));
+    size_t second_id = std::stoull(snarl_ids_.substr(underscorePos + 1));
+    ids = std::make_pair(first_id, second_id);
+
+    // extract the paths from the input string (comma separated)
+    std::istringstream paths_iss(paths_);
+    std::string path_str;
+    while (std::getline(paths_iss, path_str, ',')) {
+        stoat::PathTraversal path;
+        size_t i = 0;
+        const size_t len = path_str.size();
+        while (i < len) {
+            // Assume direction is always present and correct
+            bool is_reverse = (path_str[i] == '<');
+            ++i; // Move past '<' or '>'
+            // Parse node_id
+            size_t node_id = 0;
+            while (i < len && path_str[i] >= '0' && path_str[i] <= '9') {
+                node_id = node_id * 10 + (path_str[i++] - '0');
+            }
+            path.add_node_traversal_t(stoat::Node_traversal_t(node_id, is_reverse));
+        }
+        paths.emplace_back(std::move(path));
+    }
+
+    // extract the allele length information (also comma separated)
+    std::istringstream al_lens_stream(allele_lengths_);
+    std::string al_lens;
+    int path_idx = 0;
+    while (std::getline(al_lens_stream, al_lens, ',')) {
+        paths[path_idx].set_allele_length_from_string(al_lens);
+        path_idx++;
+    }    
+}
+
 std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex>,
     unique_ptr<handlegraph::PathHandleGraph>>
@@ -380,7 +378,7 @@ std::tuple<
     );
 }
 
-std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_path_pos(
+std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_with_pos(
         const bdsg::SnarlDistanceIndex& distance_index, 
         handlegraph::PathHandleGraph& graph, 
         std::unordered_set<std::string>& ref_paths) {
@@ -628,15 +626,18 @@ std::vector<stoat::PathTraversal> convert_path_traversals(
 }
 
 // {chr : matrix(snarl, paths, start_pos, end_pos, type)}
-std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_write(
+std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_paths(
     const bdsg::SnarlDistanceIndex& distance_index,
     std::unordered_map<std::string, std::vector<Snarl_data_t>>& chr_to_snarls,
     handlegraph::PathHandleGraph& graph,
-    const std::string& output_file,
-    const std::string& output_snarl_excluded,
+    const std::string& output_dir,
     const size_t& children_threshold,
     const size_t& path_length_threshold,
     const size_t& cycle_threshold) {
+
+    // JEAN would be nice to let the user decide how to name that?
+    std::string output_snarl_excluded = output_dir + "/snarl_not_analyse.tsv";
+    std::string output_file = output_dir + "/snarl_analyse.tsv";
 
     // start output files with headers
     std::ofstream out_snarl(output_file);
@@ -646,6 +647,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
 
     // we'll output a list of snarls for each chromosome
     std::unordered_map<std::string, std::vector<Snarl_data_t>> out_chr_to_snarls;
+    // JEAN we could maybe just update the input chr_to_snarls but not sure if it works well with omp?
 
     // metrics for the log
     size_t paths_analyzed = 0;
@@ -668,7 +670,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
 
             if (children > children_threshold) {
 #pragma omp critical(out_fail)
-                out_fail << snarl_id_str << "\ttoo_many_children = " << children << " children\n";
+                out_fail << snarl_id_str << "\ttoo_many_children\t" << children << "\n";
                 snarls_failed++;
                 continue;
             }
@@ -680,6 +682,8 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
             };
 
             // once a path reaches the other bound, add to this list of finished paths
+            // we use this simpler structure here with vector and handles so avoid doing too much work working preparing a PathTraversal that might be filtered?
+            // JEAN maybe simpler to use PathTraversal objects directly here?
             std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;
 
             // records if we gave up and need to skip this snarl if a path it too long
@@ -711,7 +715,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
                         // stop if path would be too long
                         if (path.size() + 1 > path_length_threshold) {
 #pragma omp critical(out_fail)
-                            out_fail << snarl_id_str << "\titeration_calculation_out = " << children << " children\n";
+                            out_fail << snarl_id_str << "\tpath_too_long\t" << children << "\n";
                             skip_snarl = true;
                             paths_failed++;
                             return true;
@@ -761,6 +765,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_writ
 
             paths_analyzed += path_travs.size();
 
+            // add the enumerated paths to the Snarl object
             snarl.paths = std::move(path_travs);
 #pragma omp critical(out_chr_to_snarls)
             out_chr_to_snarls[chr].emplace_back(std::move(snarl));

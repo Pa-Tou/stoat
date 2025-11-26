@@ -18,7 +18,7 @@ namespace stoat_vcf {
 // Columns represent samples/haplotypes
 class EdgeBySampleMatrix {
 public:
-    EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges, size_t n_samp_haps);
+    EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges);
     ~EdgeBySampleMatrix()=default;
 
     // Operator to get the value
@@ -38,19 +38,17 @@ public:
     void shrink();
 
     // Clear the memory and re-initialize
-    void reset(size_t new_n_edges, size_t new_n_samp_haps);
+    void clear_edges(size_t new_n_edges);
     
     std::string get_sample_name(size_t sample_idx) const;
 
-    std::vector<size_t> get_samples_on_path(const std::vector<stoat::Edge_t> &path) const;
+    // query the matrix: find sample-haplotypes that have all edges along the queried path
+    std::vector<size_t> get_samples_on_path(const stoat::PathTraversal &path_trav) const;
 
 protected:
     size_t n_samp_haps;
     size_t max_edges;
     std::vector<bool> matrix_1D;
-    // size_t cols_;
-    // size_t MaxElement;
-    // std::vector<uint8_t> matrix_1D;
     std::unordered_map<stoat::Edge_t, size_t> row_header;
     std::vector<std::string> sample_names;
 

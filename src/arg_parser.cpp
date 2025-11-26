@@ -31,7 +31,7 @@ std::vector<bool> parse_binary_pheno(
     std::string line;
 
     // Header is assumed already read and validated externally
-    // JEAN but it's not, is it? we doing this just below
+    // JEAN but it's not, is it? we're doing this just below
     std::getline(file, line);
     std::istringstream header_stream(line);
     std::string fid, iid, phenoStr;
@@ -40,6 +40,8 @@ std::vector<bool> parse_binary_pheno(
         throw std::invalid_argument("Invalid header: " + line);
     }
 
+    // JEAN we don't use FID so I think we should remove it (or not care if it's missing)
+    
     // --- Read and process data ---
     int count_controls = 0;
     int count_cases = 0;

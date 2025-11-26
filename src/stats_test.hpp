@@ -33,10 +33,10 @@ namespace stoat {
 
 // ------------------------ Regression class ------------------------
 
-class FisherKhi2 {
+class FisherChi2 {
     public:
-        FisherKhi2(size_t degrees_of_freedom = 1);
-        ~FisherKhi2() = default;
+        FisherChi2() = default;
+        ~FisherChi2() = default;
 
         // Function to perform the Chi-square test on row size > 2 
         std::string chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
@@ -50,16 +50,12 @@ class FisherKhi2 {
         std::string fastFishersExactTest(size_t m11, size_t m12,
             size_t m21, size_t m22);
         
-        std::pair<std::string, std::string> fisher_khi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+        std::pair<std::string, std::string> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
     private:
         // Constants with maximum usable precision for 'double'
         static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
         static constexpr double kExactTestBias = 1.0339757656912846e-25;
-
-        // Chi-squared distribution
-        const boost::math::chi_squared chi_squared_dist;
-        const boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> cpp_dec_float_50_dist;
 };
 
 class LinearRegression {
@@ -79,21 +75,15 @@ class LinearRegression {
         std::vector<std::vector<double>> pseudoInverse(
             const std::vector<std::vector<double>>& A, 
             double tol = 1e-10);
-        
-        std::vector<std::vector<double>> fromEigenMatrix(
-            const Eigen::MatrixXd& mat);
-        
-        Eigen::MatrixXd toEigenMatrix(
-            const std::vector<std::vector<double>>& mat);
-        
+
         std::vector<std::vector<double>> transpose(
             const std::vector<std::vector<double>> &A);
 
-        std::vector<double> matvec(
+        std::vector<double> mult_mat_vec(
             const std::vector<std::vector<double>> &A, 
             const std::vector<double> &b);
 
-        std::vector<std::vector<double>> matmul(
+        std::vector<std::vector<double>> mult_mat_mat(
             const std::vector<std::vector<double>> &A, 
             const std::vector<std::vector<double>> &B);
 };
@@ -122,18 +112,6 @@ class LogisticRegression {
         const double tolerance = 1e-6;
         const double l2_penalty = 1e-4;
         const double epsilon = 1e-8;
-};
-
-class LMM {
-    public:
-        LMM() = default;
-        ~LMM() = default;
-
-        // template <typename T> 
-        // lmm(const std::vector<std::vector<double>>& df,
-        //     const std::vector<T>& phenotype_table,
-        //     const stoat_vcf::KinshipMatrix& kinship,
-        //     const std::vector<std::vector<double>>& covariates);
 };
 
 void combine_identical_columns_quantitative_table(

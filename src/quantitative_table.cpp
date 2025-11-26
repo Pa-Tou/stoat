@@ -38,11 +38,9 @@ std::set<size_t>, std::vector<size_t>> process_table_quantitative(
 
     // Loop over all columns
     for (size_t col_idx = 0; col_idx < length_column; ++col_idx) {
-        const stoat::PathTraversal& path_snarl = column_headers[col_idx];
-        std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
-
         // Get the index of all samples that take this path
-        std::vector<size_t> idx_srr_save = matrix.get_samples_on_path(list_edge_path);
+        const stoat::PathTraversal& path_snarl = column_headers[col_idx];
+        std::vector<size_t> idx_srr_save = matrix.get_samples_on_path(path_snarl);
 
         if (idx_srr_save.empty())
             continue; // Skip if column is empty
@@ -162,8 +160,7 @@ size_t create_binary_table(
     std::vector<bool> sample_included(binary_phenotype.size(), false);
     for (size_t idx_g = 0; idx_g < list_path_snarl.size(); ++idx_g) {
         const stoat::PathTraversal& path_snarl = list_path_snarl[idx_g];
-        std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
-        std::vector<size_t> idx_srr_save = matrix.get_samples_on_path(list_edge_path);
+        std::vector<size_t> idx_srr_save = matrix.get_samples_on_path(path_snarl);
 
         for (size_t idx : idx_srr_save) {
             bool group = binary_phenotype[idx / 2];

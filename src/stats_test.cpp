@@ -404,9 +404,8 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
 }
 
 // ------------------------ Chi2 test ------------------------
-FisherKhi2::FisherKhi2(size_t degrees_of_freedom) : chi_squared_dist(degrees_of_freedom), cpp_dec_float_50_dist(degrees_of_freedom) {}
 
-std::string FisherKhi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, const size_t& d) {
+std::string FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, const size_t& d) {
 
     int64_t row1 = a + b;
     int64_t row2 = c + d;
@@ -452,7 +451,7 @@ std::string FisherKhi2::chi2_2x2(const size_t& a, const size_t& b, const size_t&
 }
 
 // Check if the observed matrix is valid (no zero rows/columns)
-std::string FisherKhi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
+std::string FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
 
     size_t cols = g0.size();
     std::vector<size_t> col_totals(cols);
@@ -509,7 +508,7 @@ std::string FisherKhi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
 // Fisher's exact test for a 2x2 contingency table
 // m11, m12, m21, m22 are the counts in the table
 // Returns the p-value as a std::string with 4 decimal places
-std::string FisherKhi2::fastFishersExactTest(size_t m11, size_t m12,
+std::string FisherChi2::fastFishersExactTest(size_t m11, size_t m12,
                                  size_t m21, size_t m22) {
     
     // Check for any full-zero row or column
@@ -607,7 +606,7 @@ std::string FisherKhi2::fastFishersExactTest(size_t m11, size_t m12,
     return stoat::set_precision(tprob / (cprob + tprob));
 }
 
-std::pair<std::string, std::string> FisherKhi2::fisher_khi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
+std::pair<std::string, std::string> FisherChi2::fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
     
     std::string chi2_p_value = "NA";
     std::string fastfisher_p_value = "NA";
@@ -629,7 +628,7 @@ std::pair<std::string, std::string> FisherKhi2::fisher_khi2(const std::vector<si
 // ------------------------ Linear regression ------------------------
 
 // Multiply matrix A (m×n) with matrix B (n×p) -> result is m×p
-std::vector<std::vector<double>> LinearRegression::matmul(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B) {
+std::vector<std::vector<double>> LinearRegression::mult_mat_mat(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B) {
     int m = A.size(), n = A[0].size(), p = B[0].size();
     std::vector<std::vector<double>> result(m, std::vector<double>(p, 0.0));
     for (int i = 0; i < m; ++i)
@@ -640,7 +639,7 @@ std::vector<std::vector<double>> LinearRegression::matmul(const std::vector<std:
 }
 
 // Multiply matrix A (m×n) with vector b (n) -> result is vector of size m
-std::vector<double> LinearRegression::matvec(const std::vector<std::vector<double>> &A, const std::vector<double> &b) {
+std::vector<double> LinearRegression::mult_mat_vec(const std::vector<std::vector<double>> &A, const std::vector<double> &b) {
     int m = A.size(), n = A[0].size();
     std::vector<double> result(m, 0.0);
     for (int i = 0; i < m; ++i)
@@ -659,33 +658,18 @@ std::vector<std::vector<double>> LinearRegression::transpose(const std::vector<s
     return result;
 }
 
-// Convert std::vector<std::vector<double>> to Eigen::MatrixXd
-Eigen::MatrixXd LinearRegression::toEigenMatrix(const std::vector<std::vector<double>>& mat) {
-    int rows = mat.size();
-    int cols = mat[0].size();
-    Eigen::MatrixXd result(rows, cols);
-    for (int i = 0; i < rows; ++i)
-        for (int j = 0; j < cols; ++j)
-            result(i, j) = mat[i][j];
-    return result;
-}
-
-// Convert Eigen::MatrixXd back to std::vector<std::vector<double>>
-std::vector<std::vector<double>> LinearRegression::fromEigenMatrix(const Eigen::MatrixXd& mat) {
-    int rows = mat.rows();
-    int cols = mat.cols();
-    std::vector<std::vector<double>> result(rows, std::vector<double>(cols));
-    for (int i = 0; i < rows; ++i)
-        for (int j = 0; j < cols; ++j)
-            result[i][j] = mat(i, j);
-    return result;
-}
-
 // Compute Moore-Penrose pseudoinverse using SVD
 std::vector<std::vector<double>> LinearRegression::pseudoInverse(const std::vector<std::vector<double>>& A, double tol) {
-    Eigen::MatrixXd mat = toEigenMatrix(A);
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(mat, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    // convert vector x vector matrix to MatrixXd
+    int n_rows = A.size();
+    int n_cols = A[0].size();
+    Eigen::MatrixXd mat(n_rows, n_cols);
+    for (int i = 0; i < n_rows; ++i)
+        for (int j = 0; j < n_cols; ++j)
+            mat(i, j) = A[i][j];
 
+    // SVD
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd(mat, Eigen::ComputeThinU | Eigen::ComputeThinV);
     const auto& U = svd.matrixU();
     const auto& V = svd.matrixV();
     const auto& S = svd.singularValues();
@@ -699,7 +683,16 @@ std::vector<std::vector<double>> LinearRegression::pseudoInverse(const std::vect
     }
 
     Eigen::MatrixXd A_pinv = V * S_pinv * U.transpose();
-    return fromEigenMatrix(A_pinv);
+
+    // convert back to a vector x vector matrix format
+    n_rows = A_pinv.rows();
+    n_cols = A_pinv.cols();
+    std::vector<std::vector<double>> A_pinv_vecvec(n_rows, std::vector<double>(n_cols));
+    for (int i = 0; i < n_rows; ++i)
+        for (int j = 0; j < n_cols; ++j)
+            A_pinv_vecvec[i][j] = A_pinv(i, j);
+
+    return A_pinv_vecvec;
 }
 
 // Invert a square matrix (naive Gaussian elimination, no pivoting)
@@ -771,11 +764,11 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
 
     // ---- Fit FULL model ----
     auto Xt = transpose(X_full);
-    auto XtX = matmul(Xt, X_full);
+    auto XtX = mult_mat_mat(Xt, X_full);
     auto XtXi = inverse(XtX);
-    auto Xty = matvec(Xt, y);
-    auto beta = matvec(XtXi, Xty);
-    auto y_hat = matvec(X_full, beta);
+    auto Xty = mult_mat_vec(Xt, y);
+    auto beta = mult_mat_vec(XtXi, Xty);
+    auto y_hat = mult_mat_vec(X_full, beta);
 
     // SSE (Sum of Squared Errors) for full model
     double SSE_full = 0.0;
@@ -801,11 +794,11 @@ std::tuple<std::string, std::string> LinearRegression::linear_regression(
         }
 
         auto Xt_r = transpose(X_reduced);
-        auto XtX_r = matmul(Xt_r, X_reduced);
+        auto XtX_r = mult_mat_mat(Xt_r, X_reduced);
         auto XtXi_r = inverse(XtX_r);
-        auto Xty_r = matvec(Xt_r, y);
-        auto beta_r = matvec(XtXi_r, Xty_r);
-        auto y_hat_r = matvec(X_reduced, beta_r);
+        auto Xty_r = mult_mat_vec(Xt_r, y);
+        auto beta_r = mult_mat_vec(XtXi_r, Xty_r);
+        auto y_hat_r = mult_mat_vec(X_reduced, beta_r);
 
         for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_hat_r[i]) * (y[i] - y_hat_r[i]);}
     } else {

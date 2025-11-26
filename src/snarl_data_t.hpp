@@ -88,7 +88,7 @@ struct Edge_t { // 128 bits per edge
 // Define a PathTraversal structure to represent a path through the graph
 class PathTraversal {
 private:
-    std::vector<Node_traversal_t> paths; // Nodes in the path
+    std::vector<Node_traversal_t> path; // Nodes in the path
     size_t min_allele_len;
     size_t max_allele_len;
     
@@ -112,7 +112,7 @@ public:
     std::string get_allele_length() const;
         
     // Getters
-    const std::vector<Node_traversal_t>& get_paths() const;
+    const std::vector<Node_traversal_t>& get_path() const;
     
     // convert to std::string representation
     std::string to_string() const;
@@ -135,7 +135,14 @@ struct Snarl_data_t {
                     std::pair<size_t, size_t> ids_,
                     std::vector<PathTraversal> paths_,
                     const size_t start_position_, const size_t end_position_,
-                    size_t depth);  // Assuming path_nodes correspond to type_variants
+                    size_t depth);
+    // constructor when the input information is in string form (when reading a file for example)
+        Snarl_data_t(net_handle_t net_,
+                     std::string snarl_ids_,
+                     std::string paths_,
+                     std::string allele_lengths_,
+                     const size_t start_position_, const size_t end_position_,
+                    size_t depth);
 
         std::vector<PathTraversal> paths;
         net_handle_t net; // handlegraph::subrange_t Snarl_data_t::snarl_id
@@ -202,11 +209,10 @@ struct snarl_partition_t : stoat::Snarl_data_t {
                       };
 };
 
-// Converter
+// Convert a pair of size_t, for example defining a snarl ID to a string of them separated by an underscore
 std::string pairToString(const std::pair<size_t, size_t>& name);
-std::pair<size_t, size_t> stringToPair(const std::string& str);
+// convert a vector of path traversals to a string, either with node or allele length information
 std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths, bool allele_lengths = false);
-std::vector<PathTraversal> stringToVectorPath(std::string& str);
 
 // Parses the snarl path file and returns a map with snarl as keys and paths as a list of strings.
 std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const std::string& path_file);
@@ -221,7 +227,8 @@ std::tuple<
 load_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
 // Function to list all the snarls and their position on the reference paths (if possible)
-std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_path_pos(
+// group the snarls by chromosome/reference path in the output map (chr -> snarls)
+std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_with_pos(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             handlegraph::PathHandleGraph& graph, 
                             unordered_set<std::string>& ref_paths);
@@ -236,12 +243,11 @@ std::vector<PathTraversal> convert_path_traversals(
 // Function to loop over snarls and write output to output_file
 // Output is a tsv of <chromosome, start pos, end pos, snarl, paths, variant type, reference>
 // Returns a map from chromosome name to a vector of <snarl name, paths, start position, end position, variant type>
-std::unordered_map<std::string, std::vector<Snarl_data_t>> loop_over_snarls_write(
+std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_paths(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             std::unordered_map<std::string, std::vector<Snarl_data_t>>& chr_to_snarls, 
                             handlegraph::PathHandleGraph& graph, 
-                            const std::string& output_file, 
-                            const std::string& output_snarl_excluded, 
+                            const std::string& output_dir,
                             const size_t& children_treshold,
                             const size_t& path_length_threshold,
                             const size_t& cycle_threshold);

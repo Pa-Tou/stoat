@@ -250,6 +250,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
+    // start reading the VCF to get the sample list
     std::vector<std::string> list_samples;
     htsFile* ptr_vcf;
     bcf_hdr_t* hdr;
@@ -262,6 +263,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     //////////////////// Load the phenotypes and covariate matrix from files
 
+    // JEAN these phenotypes/covariate could be 1-2 objects, well-defined, and keeping the sample names/order somewhere
     std::vector<bool> binary_phenotype;
     std::vector<double> quantitative_phenotype;
 
@@ -315,14 +317,10 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
         // maps a ref chr to a vector of snarls
-        auto snarls = stoat::list_all_snarls_path_pos(*distance_index, *graph, ref_chrs);
-
-        // JEAN would be nice to let the user decide how to name that?
-        std::string output_snarl_excluded = output_dir + "/snarl_not_analyse.tsv";
-        std::string output_file = output_dir + "/snarl_analyse.tsv";
+        auto snarls = stoat::list_all_snarls_with_pos(*distance_index, *graph, ref_chrs);
 
         // Go through snarls and fill in snarls_chr 
-        snarls_chr = stoat::loop_over_snarls_write(*distance_index, snarls, *graph, output_file, output_snarl_excluded, children_threshold, path_length_threshold, cycle_threshold);
+        snarls_chr = stoat::write_snarls_with_paths(*distance_index, snarls, *graph, output_dir, children_threshold, path_length_threshold, cycle_threshold);
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl time decomposition : " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
 
@@ -335,13 +333,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
     }
 
     //////////////////////////////////////// Go through the vcf, do the analysis, and write the output
-
-    auto start_gwas_timer = std::chrono::high_resolution_clock::now();
-
-    std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
-    stoat::phenotype_type_t phenotype_type;
-
     stoat::LOG_INFO("Starting GWAS analysis...");
+    auto start_gwas_timer = std::chrono::high_resolution_clock::now();
+    std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
 
     // Decide which type of SnarlAnalyzer we want
     if (!binary_path.empty()) {
@@ -350,40 +344,29 @@ int main_stoat_vcf(int argc, char* argv[]) {
             // Binary covariate
             snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
                                                                          binary_phenotype, min_individuals, regression_dir));
-            phenotype_type = stoat::BINARY_COVAR;
         } else {
             // Binary without covariate
             snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, list_samples, maf_threshold, table_threshold,
                                                                     binary_phenotype, min_individuals, regression_dir));
-            phenotype_type = stoat::BINARY;
         }
     } else if (!quantitative_path.empty()) {
         // Quantitative
         snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
                                                                       quantitative_phenotype, min_individuals, regression_dir));
-        phenotype_type = stoat::QUANTITATIVE; 
     } else if (!eqtl_path.empty()) {
         // EQTL
         snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
                                                               eqtl_phenotype, windows_gene_threshold, min_individuals, regression_dir));
-        phenotype_type = stoat::EQTL; 
     }
 
-    std::string output_tsv;
+    // read the VCF by chromosomome, genotype each snarl and perform the association test
+    snarl_analyzer->genotype_test_snarls_by_chr_from_vcf(ptr_vcf, hdr, rec, output_dir);
 
-    // JEAN this could be moved to each class/function. It's hard-coded anyway...
-    if (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR)
-        output_tsv = output_dir + "/binary_table_vcf.tsv";
-    else if (phenotype_type == stoat::QUANTITATIVE)
-        output_tsv = output_dir + "/quantitative_table_vcf.tsv";
-    else
-        output_tsv = output_dir + "/eqtl_table_vcf.tsv";
-    snarl_analyzer->process_snarls_by_chromosome_chunk(ptr_vcf, hdr, rec, output_tsv);
-        
-    if (phenotype_type == stoat::BINARY && gaf) {
+    // eventually, make a GAF to visualize the tested snarls and their association signal
+    if (snarl_analyzer->get_phenotype_type() == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
         std::string output_gaf = output_dir + "/binary_table_vcf.gaf";
-        stoat_vcf::gaf_creation(output_tsv, snarls_chr, *graph, output_gaf);
+        stoat_vcf::gaf_creation(output_dir + "/binary_table_vcf.tsv", snarls_chr, *graph, output_gaf);
     }
 
     auto end_total_timer = std::chrono::high_resolution_clock::now();

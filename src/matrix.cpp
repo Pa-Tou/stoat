@@ -3,15 +3,18 @@
 namespace stoat_vcf {
 
 // Constructor implementation
-EdgeBySampleMatrix::EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges, size_t n_samp_haps) : n_samp_haps(n_samp_haps), sample_names(sample_names), max_edges(n_edges) {
+EdgeBySampleMatrix::EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges) : sample_names(sample_names), max_edges(n_edges) {
 
+    // assuming (at max) two copies per individuals
+    n_samp_haps = sample_names.size() * 2;
+
+    // nothing to do if no edges or no samples
     if (n_edges == 0 || n_samp_haps == 0) {
         return;
     }
 
-    // Initialize with zeros
+    // Initialize with "zeros"
     matrix_1D.resize(n_edges * n_samp_haps, false); 
-    // matrix_1D.reserve(n_edges * n_samp_haps);
     row_header.rehash(n_edges); // JEAN not sure if that's useful?
 }
 
@@ -67,46 +70,49 @@ void EdgeBySampleMatrix::shrink() {
     matrix_1D.shrink_to_fit(); // Free unused capacity
 }
 
-void EdgeBySampleMatrix::reset(size_t new_n_edges, size_t new_n_samp_haps) { 
+void EdgeBySampleMatrix::clear_edges(size_t new_n_edges) { 
     matrix_1D.clear();
     row_header.clear();
-    n_samp_haps = new_n_samp_haps;
 
-    if (new_n_edges == 0 || new_n_samp_haps == 0) {
+    if (new_n_edges == 0 || n_samp_haps == 0) {
         return;
     }
 
     max_edges = new_n_edges;
-    // Initialize with zeros
-    matrix_1D.resize(new_n_edges * new_n_samp_haps, false); 
-    // matrix_1D.reserve(n_edges * n_samp_haps);
+    // Initialize with "zeros"
+    matrix_1D.resize(new_n_edges * n_samp_haps, false); 
     row_header.rehash(new_n_edges); // JEAN not sure if that's useful?
 }
 
 // Function to identify the path in the edge matrix
-std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const std::vector<stoat::Edge_t> &path) const {
+std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTraversal &path_trav) const {
 
+    const std::vector<stoat::Node_traversal_t> &path = path_trav.get_path();
+    
     // get the subset of rows to check for that path and its flipped version
+    // we'll check N edges, N being the number of nodes in the path - 1
+    size_t path_len = path.size();
     std::vector<size_t> rows_to_check;
-    rows_to_check.reserve(path.size());
+    rows_to_check.reserve(path_len - 1);
     std::vector<size_t> rows_to_check_flipped;
-    rows_to_check_flipped.reserve(path.size());
+    rows_to_check_flipped.reserve(path_len - 1);
 
     // look for each edge in the matrix
     bool skip_path = false;
     bool skip_flipped_path = false;
-    for (const stoat::Edge_t &edge : path) {
-        const auto &[node_id_1, node_id_2] = edge.get_node_pair(); // Convertstoat::Edge_t to std::pair<size_t, size_t>
-        
+    for (size_t i = 0; i < path_len - 1; ++i) {
         // Skip if snarl contains '*' (here * == 0) aka nested element
-        if (node_id_1 == 0 || node_id_2 == 0) {
+        if (path[i].get_node_id() == 0 || path[i+1].get_node_id() == 0) {
             continue;
         }
+
+        // make an edge
+        stoat::Edge_t edge(path[i], path[i + 1]);
 
         // if we can find that edge, save its index in the edge matrix
         auto itr = row_header.find(edge);
         if (itr == row_header.end()) {
-            // if at least one edge not found, abort early and return an empty object
+            // if at least one edge not found, abort early and skip this path below
             skip_path = true; 
         } else {
             rows_to_check.push_back(itr->second);
@@ -115,7 +121,7 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const std::vector<st
         stoat::Edge_t edge_flipped = edge.get_flipped();
         auto itr_flipped = row_header.find(edge_flipped);
         if (itr_flipped == row_header.end()) {
-            // if at least one edge not found, abort early and return an empty object
+            // if at least one edge not found, abort early and skip this path below
             skip_flipped_path = true; 
         } else {
             rows_to_check_flipped.push_back(itr_flipped->second);

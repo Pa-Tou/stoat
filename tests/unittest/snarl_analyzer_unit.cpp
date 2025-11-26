@@ -32,22 +32,10 @@ TEST_CASE("PathTraversal Add and Get") {
     PathTraversal path;
     path.add_node_traversal_t({1, false});
     path.add_node_traversal_t({2, true});
-    const auto& paths = path.get_paths();
+    const auto& paths = path.get_path();
     REQUIRE(paths.size() == 2);
     REQUIRE(paths[0].get_node_id() == 1);
     REQUIRE(paths[1].get_is_reverse() == true);
-}
-
-TEST_CASE("decompose_path_to_edges") {
-    PathTraversal path;
-    path.add_node_traversal_t({1, false});
-    path.add_node_traversal_t({2, false});
-    path.add_node_traversal_t({3, false});
-
-    auto edges = decompose_path_to_edges(path);
-    REQUIRE(edges.size() == 2);
-    REQUIRE(edges[0].get_node_pair() == std::make_pair(1ul, 2ul));
-    REQUIRE(edges[1].get_node_pair() == std::make_pair(2ul, 3ul));
 }
 
 TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
@@ -72,40 +60,18 @@ TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
     }
 }
 
-TEST_CASE("decompose_path_list_str supports multiple strings including ones with zero nodes") {
-    std::vector<std::string> input = {
-        ">1>2",
-        "<3<4",
-        ">1<324<323<0<213>214<0<213" // complex path
-    };
-
-    auto decomposed = decompose_path_list_str(input);
-    
-    REQUIRE(decomposed.size() == 3);
-
-    // First path: >1>2
-    REQUIRE(decomposed[0].size() == 1);
-    REQUIRE(decomposed[0][0].to_string() == ">1>2");
-
-    // Second path: <3<4
-    REQUIRE(decomposed[1].size() == 1);
-    REQUIRE(decomposed[1][0].to_string() == "<3<4");
-
-    // Third path: complex path with 0s
-    REQUIRE(decomposed[2].size() == 7);
-    REQUIRE(decomposed[2][0].to_string() == ">1<324");
-    REQUIRE(decomposed[2][6].to_string() == "<0<213");
-}
-
 TEST_CASE("identify_path with EdgeBySampleMatrix") {
     stoat::Node_traversal_t a(1, false), b(2, false), c(3, false);
-   stoat::Edge_t edge1(a, b);
-   stoat::Edge_t edge2(b, c);
+    stoat::Edge_t edge1(a, b);
+    stoat::Edge_t edge2(b, c);
 
-    std::vector<stoat::Edge_t> path = {edge1, edge2};
-
+    stoat::PathTraversal path;
+    path.add_node_traversal_t(a);
+    path.add_node_traversal_t(b);
+    path.add_node_traversal_t(c);
+    
     std::vector<std::string> samples = {"sample1", "sample2", "sample3"};
-    EdgeBySampleMatrix matrix(samples, 2, 3);
+    EdgeBySampleMatrix matrix(samples, 2);
 
     matrix.add_sample_edge(edge1, 0); // Set true at [row for edge1][0]
     matrix.add_sample_edge(edge2, 0); // Set true at [row for edge2][0]
