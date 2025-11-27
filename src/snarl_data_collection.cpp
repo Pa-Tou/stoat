@@ -514,15 +514,16 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                 return true;
             });
         }
-        // Start a new walk
-        walks.emplace_back();
-        stoat::Path_traversal_t& current_walk = walks.back();
-
-        // Now sort the list of steps on the two boundary nodes
-        sort(boundary_steps.begin(), boundary_steps.end(), [&](const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
-            return graph.get_position_of_step(a) < graph.get_position_of_step(b);
-        });
         if (boundary_steps.size() > 1) {
+            // Start a new walk
+            walks.emplace_back();
+            stoat::Path_traversal_t& current_walk = walks.back();
+
+            // Now sort the list of steps on the two boundary nodes
+            sort(boundary_steps.begin(), boundary_steps.end(), [&](const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
+                return graph.get_position_of_step(a) < graph.get_position_of_step(b);
+            });
+
             // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
             //TODO: This assumes that the path goes into the snarl then exits, it will fail if the path started 
             // inside the snarl and the first traversal of a boundary node is leaving it
@@ -626,6 +627,7 @@ void SnarlDataCollection::get_walks_from_sample_sets(
 
             }// end for loop through each traversal of the snarl in one sample_set
             //Add the end boundary node
+        assert(current_walk.get_paths().size() >= 2);
         }// end if there are enough boundary nodes
 
         if (min_length == max_length) {
@@ -655,16 +657,18 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
     for (const stoat::Path_traversal_t& path : paths) {
         sequences.emplace_back();
         const std::vector<stoat::Node_traversal_t>& nodes = path.get_paths(); 
-        handlegraph::nid_t start_id = nodes.front().get_node_id();
-        handlegraph::nid_t end_id = nodes.back().get_node_id(); 
-        for (size_t i = 0 ; i < nodes.size() ; i++) {
-            const stoat::Node_traversal_t& node = nodes[i];
-            if (node.get_node_id() != start_id && node.get_node_id() != end_id) {
-                if (node.get_node_id() == 0) {
-                    sequences.back() += "N";
-                } else {
-                    //TODO: Does this take into account the reverse complement?
-                    sequences.back() += graph.get_sequence(graph.get_handle(node.get_node_id(), node.get_is_reverse()));
+        if (nodes.size() > 0) {
+            handlegraph::nid_t start_id = nodes.front().get_node_id();
+            handlegraph::nid_t end_id = nodes.back().get_node_id(); 
+            for (size_t i = 0 ; i < nodes.size() ; i++) {
+                const stoat::Node_traversal_t& node = nodes[i];
+                if (node.get_node_id() != start_id && node.get_node_id() != end_id) {
+                    if (node.get_node_id() == 0) {
+                        sequences.back() += "N";
+                    } else {
+                        //TODO: Does this take into account the reverse complement?
+                        sequences.back() += graph.get_sequence(graph.get_handle(node.get_node_id(), node.get_is_reverse()));
+                    }
                 }
             }
         }
