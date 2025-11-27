@@ -696,7 +696,6 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
                 paths.pop_back();
 
                 auto add_to_path = [&](const handlegraph::net_handle_t& next_child) {
-
                     // If this is the bound of the snarl then we're done && next_child is different that the first node
                     if (distance_index.is_sentinel(next_child)) {
                         size_t next_child_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(next_child));
@@ -712,14 +711,6 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
                         if(next_child_count > cycle_threshold) {
                             return true;
                         }
-                        // stop if path would be too long
-                        if (path.size() + 1 > path_length_threshold) {
-#pragma omp critical(out_fail)
-                            out_fail << snarl_id_str << "\tpath_too_long\t" << children << "\n";
-                            skip_snarl = true;
-                            paths_failed++;
-                            return true;
-                        }
 
                         // otherwise extend path
                         paths.emplace_back(path);
@@ -728,6 +719,16 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
                     return true;
                 };
 
+                // stop if path would be too long
+                // JEAN we could do this in the add_to_path function and return false to abort but we would need a newer version of vg and remake all our distance index files, so not doing that yet...
+                if (path.size() + 1 > path_length_threshold) {
+#pragma omp critical(out_fail)
+                    out_fail << snarl_id_str << "\tpath_too_long\t" << children << "\n";
+                    skip_snarl = true;
+                    paths_failed++;
+                    break;
+                }
+                
                 // Follow edges from the last element in path
                 if (!path.empty()) {
                     distance_index.follow_net_edges(path.back(), &graph, false, add_to_path);

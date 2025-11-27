@@ -36,7 +36,7 @@ void print_help_vcf() {
               << "  -I, --min-individuals INT    Minimum number of individuals per snarl [0]\n"
               << "  -i, --children INT           Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT              Max number of authorized cycles in snarl decomposition [1]\n"
-              << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition [10,000]\n"
+              << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition [50]\n"
               << "  -P, --gene-position FILE     Path to the gene position file\n"
               << "  -w, --windows-gene INT       Window length from gene boundaries for snarl inclusion in eQTL [1,000,000]\n"
               << "  -T, --table-threshold FLOAT  P-value threshold for regression table output [disabled]\n"
@@ -58,7 +58,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
     size_t min_individuals = 0;
-    size_t path_length_threshold = 10000;
+    // JEAN this threshold is a bit redundant with children_threshold and cycle_threshold but I guess could be useful if we want to set it lower than (children_threshold * (cycle_threshold+1))
+    size_t path_length_threshold = 50;
     size_t windows_gene_threshold = 1000000;
 
     double table_threshold = -1;
