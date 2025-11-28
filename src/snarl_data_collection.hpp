@@ -35,6 +35,7 @@ struct snarl_info_t {
 
         // The reference chromosome/path
         std::string ref_path; 
+
         // Start and end offset along the reference path
         size_t start_position;
         size_t end_position;
@@ -116,7 +117,7 @@ class SnarlDataCollection {
         /// corresponding to the walks_by_allele in snarl_data. This should return the sample_sets_by_allele field of the snarl_info_t, but since the snarl_info_t
         /// doesn't exist in the SnarlDataCollection it is immutable and the sample_sets_by_allele must be returned and saved separately 
         /// Note that this will overwrite any existing sample_sets_by_allele. 
-        /// If chr is specified, run this only on snarls on the given chromosome (as reference path name)
+        /// If chr is not empty, run this only on snarls on the given chromosome (as reference path name)
         //TODO:  I think this should be fine to run multithreaded as long as the list of snarl data doesn't move around, and I think the object
         //        stores a reference to the vector somewhere else in memory
         void add_snarl_sample_sets(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 

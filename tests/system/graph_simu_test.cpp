@@ -7,6 +7,8 @@
 namespace fs = std::filesystem;
 using namespace std;
 
+
+
 TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
     // Just check that this runs and produces some output
 
@@ -81,15 +83,11 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
-        bool start_counting= false;
         std::string line;
         while (std::getline(snarlsfile, line)) {
             // Only start counting snarls after proper header
-            if (start_counting) {
+            if (line[0] != '#') {
                 line_count++;
-            }
-            if (line == "#SNARLS") {
-                start_counting = true;
             }
         }
         snarlsfile.close();
@@ -1150,15 +1148,11 @@ TEST_CASE("Multiple connected components", "[graph]") {
         REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
-        bool start_counting= false;
         std::string line;
         while (std::getline(snarlsfile, line)) {
             // Only start counting snarls after proper header
-            if (start_counting) {
+            if (line[0] != '#') {
                 line_count++;
-            }
-            if (line == "#SNARLS") {
-                start_counting = true;
             }
         }
         snarlsfile.close();
@@ -1197,15 +1191,11 @@ TEST_CASE("Multiple connected components", "[graph]") {
         REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
-        bool start_counting= false;
         std::string line;
         while (std::getline(snarlsfile, line)) {
-            // Only start counting snarls after proper header
-            if (start_counting) {
+            // Only count non-header lines
+            if (line[0] != '#') {
                 line_count++;
-            }
-            if (line == "#SNARLS") {
-                start_counting = true;
             }
         }
         snarlsfile.close();

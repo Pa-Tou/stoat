@@ -43,6 +43,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     // as a way of debugging the parallelization. Not in ifdef because it needs to go in the omp parallel shared
     size_t chains_added = chains.size();
     size_t chains_processed = 0;
+    size_t snarl_count = 0;
 
     bool keep_going = !chains.empty();
 
@@ -53,7 +54,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_sample_sets, snarl_to_sequences, reference_names, sample_haplotypes)
+    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_sample_sets, snarl_to_sequences, reference_names, sample_haplotypes, snarl_count)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
@@ -78,6 +79,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         //TODO: Actually use is_eligible
                         //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
                         if (distance_index.is_snarl(snarl)) {
+                            snarl_count++;
     
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
                             cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << endl;
@@ -258,6 +260,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
             }// end while loop
         }// End omp single
     }//end omp shared
+    cerr << "Found " << snarl_count << " snarls" << endl;
     
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
@@ -727,17 +730,12 @@ snarl_child_limit:N
 Next a list of reference path names. These get stored in reference_names and the order will be the index for reference_index
 This section starts with #REFS
 
-Next all sample/haplotypes. These get stored in sample_haplotypes and the order will be the index for sample/haplotypes used when storing sample_sets
-This section starts with #SAMPLES
-
-
 Each snarl_info_t is then stored, one per line, as a tab-separated vector of integers/strings.
+The next line is the header defining the 9 items that are always there, and the sample names for the remaining columns, as sample(|haplotype num). The entry for each column is the allele number
 the first 7 items are the contents of the snarl_info_internal_t.
-The 8th item is all of the walks, comma separated.
-The sample sets are stored next (if present). Each sample set starts with the number of sample/haplotypes for that sample set, followed with
-that number of entries for the sample_hap_t. There should be N sample sets.
-The next N items (if present) are the sequences of the Path_traversal_t's. These can be distinguished from the haplotype sample sets because they can only contain A/C/G/T/N, or may be empty
-This section starts with #SNARLS
+The 8th item is all of the walks, comma separated. "." if not present 
+The 9th item is all of the sequences, comma separated. "." if not present
+The remaining items are the allele number for each sample. "." if the sample is not present in the snarl
 
 */
 void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) const {
@@ -745,24 +743,30 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
     // Write the header
     outstream << file_header << endl;
 
-    outstream << "allele_size_limit:" << allele_size_limit << endl;
-    outstream << "snarl_child_limit:" << snarl_child_limit << endl;
-    outstream << "walk_steps_limit: " << walk_steps_limit << endl;
+    outstream << "#allele_size_limit:" << allele_size_limit << endl;
+    outstream << "#snarl_child_limit:" << snarl_child_limit << endl;
+    outstream << "#walk_steps_limit: " << walk_steps_limit << endl;
 
     // Next will be a list of reference path names.
     outstream << "#REFS" << endl;
     for (const auto& ref : reference_names) {
-        outstream << ref << endl;
+        outstream << "#" << ref << endl;
     }
     
-    // Next will be a list of sample/haplotypes
-    outstream << "#SAMPLES" << endl;
-    for (const auto& samp : sample_haplotypes) {
-        outstream << samp.sample << "\t" << samp.haplotype << endl;
-    }
 
     //Finally the snarls
+    // Start with a header that will contain the names of all samples
     outstream << "#SNARLS" << endl;
+    outstream << "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
+
+    // The header also includes a list of sample/haplotypes
+    size_t sample_count = 0;
+    for (const auto& samp : sample_haplotypes) {
+        outstream << "\t" << samp.sample << (samp.haplotype == std::numeric_limits<size_t>::max() ? "" : "|" + std::to_string(samp.haplotype));
+    }
+    outstream << endl;
+
+    // Now write the snarls, one per line
     for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
 
         // Start with just the contents of the snarl_info_internal_t
@@ -775,24 +779,18 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
                   << snarl_data.variant_type << "\t";
 
         // Next, always include the walks as a single comma-separated string
-        outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node)) << "\t";
-
-        // Next add the sample sets, if there are any
-        // Each sample set is saved as the number of items in it then the items
-        if (!snarl_to_sample_sets.empty()) {
-            #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sample_sets.at(snarl_data.start_node).size());
-            #endif
-            for (const std::set<size_t>& sample_set : snarl_to_sample_sets.at(snarl_data.start_node)){
-                outstream << sample_set.size() << "\t";
-                for (const size_t& x : sample_set) {
-                    outstream << x << "\t";
-                }
-            }
+        if (snarl_to_walks.count(snarl_data.start_node) == 0) {
+            outstream << "." << "\t";
+        } else {
+            outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node)) << "\t";
         }
 
+
         // Add the sequences, if any, as comma separated strings
-        if (!snarl_to_sequences.empty()) {
+        if (snarl_to_sequences.empty()) {
+            outstream << ".";
+        } else {
+
             #ifdef DEBUG_SNARL_DATA_COLLECTION
             assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sequences.at(snarl_data.start_node).size());
             #endif
@@ -805,10 +803,33 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
                 }
             }
         }
+
+        // Next add the sample sets, if there are any
+        // Each sample set is saved as the number of items in it then the items
+        if (snarl_to_sample_sets.empty()) {
+            for (size_t i = 0 ; i < sample_haplotypes.size() ; i++) {
+                outstream << "\t.";
+            }
+        } else {
+            #ifdef DEBUG_SNARL_DATA_COLLECTION
+            assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sample_sets.at(snarl_data.start_node).size());
+            #endif
+            // TODO: Since the samples are stored in sets we need to put the genotypes in the right order before writing them
+            std::vector<std::string> allele_num_by_sample(sample_haplotypes.size(), ".");
+            for (size_t allele_num = 0 ; allele_num < snarl_to_sample_sets.at(snarl_data.start_node).size() ; allele_num++ ) {
+                const std::set<size_t>& samples = snarl_to_sample_sets.at(snarl_data.start_node).at(allele_num);
+                for (const size_t& sample_num : samples) {
+                    allele_num_by_sample[sample_num] = std::to_string(allele_num);
+                }
+
+            }
+            for (const std::string& allele_num : allele_num_by_sample){
+                outstream << "\t" << allele_num;
+            }
+        }
         
         outstream << endl;
     }
-
 
     return;
 }
@@ -816,75 +837,103 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
 void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
     string line;
+    cerr << "LOAD" << endl;
 
     // Read the first line, which must match the header
     std::getline(instream, line);
+    cerr << line << endl; 
     if (line != file_header) {
         throw std::runtime_error("stoat: Snarl data file contains the wrong header: " + line);
     }
 
     // Next should be the allele size limit
     std::getline(instream, line);
-    std::stringstream linestream(line);
-    string limit_str;
-    std::getline(linestream, limit_str, ':');
-    #ifdef DEBUG_SNARL_DATA_COLLECTION
-    assert(limit_str == "allele_size_limit");
-    #endif
-    std::getline(linestream, limit_str, ':');
-    if (allele_size_limit < std::stoull(limit_str)) {
-        cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << endl;;
+    cerr << line << endl;
+    {
+        std::stringstream linestream(line);
+        string limit_str;
+        std::getline(linestream, limit_str, ':');
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(limit_str == "#allele_size_limit");
+        #endif
+        std::getline(linestream, limit_str, ':');
+        if (allele_size_limit < std::stoull(limit_str)) {
+            cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << endl;;
+        }
     }
 
 
     // And the snarl child limit
     std::getline(instream, line);
-    std::stringstream linestream1(line);
-    std::getline(linestream1, limit_str, ':');
-    #ifdef DEBUG_SNARL_DATA_COLLECTION
-    assert(limit_str == "snarl_child_limit");
-    #endif
-    std::getline(linestream1, limit_str, ':');
-    if (snarl_child_limit < std::stoull(limit_str)) {
-        cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << endl;;
+    cerr << line << endl;
+    {
+        std::stringstream linestream(line);
+        string limit_str;
+        std::getline(linestream, limit_str, ':');
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(limit_str == "#snarl_child_limit");
+        #endif
+        std::getline(linestream, limit_str, ':');
+        if (snarl_child_limit < std::stoull(limit_str)) {
+            cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << endl;;
+        }
     }
 
     // And the walk steps limit
     std::getline(instream, line);
-    std::stringstream linestream2(line);
-    std::getline(linestream2, limit_str, ':');
-    #ifdef DEBUG_SNARL_DATA_COLLECTION
-    assert(limit_str == "walk_steps_limit");
-    #endif
-    std::getline(linestream2, limit_str, ':');
-    if (walk_steps_limit > std::stoull(limit_str)) {
-        cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << endl;;
+    cerr << line << endl;
+    {
+        std::stringstream linestream(line);
+        string limit_str;
+        std::getline(linestream, limit_str, ':');
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(limit_str == "#walk_steps_limit");
+        #endif
+        std::getline(linestream, limit_str, ':');
+        if (walk_steps_limit > std::stoull(limit_str)) {
+            cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << endl;;
+        }
     }
 
     // Next are the references
     std::getline(instream, line);
+    cerr << line << endl;
     if (line != "#REFS") {
         throw std::runtime_error("stoat: Snarl file is not formatted correctly");
     }
-    // Get the reference path names from the file
+
     std::getline(instream, line);
-    while (line != "#SAMPLES") {
-        reference_names.emplace_back(std::move(line));
+    cerr << line << endl;
+    
+    // Get the reference path names from the file
+    while (line != "#SNARLS") {
+        std::string ref (line.begin()+1, line.end());
+        reference_names.emplace_back(std::move(ref));
         std::getline(instream, line);
+    cerr << line << endl;
     }
 
-    // Get the sample/haplotype indexes from the file
+    // The next header is  "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES", plus all of the sample/haplotypes
     std::getline(instream, line);
-    while (line != "#SNARLS") {
+    cerr << line << endl;
+    {
         std::stringstream linestream(line);
         string sample_name;
-        std::getline(linestream, sample_name, '\t');
-        string hap_str;
-        std::getline(linestream, hap_str, '\t');
-        sample_haplotypes.emplace_back(sample_name, std::stoull(hap_str));
-        std::getline(instream, line);
+        // First go through the first 9 things and ignore them
+        for (size_t i = 0 ; i < 9 ; i++) {
+            std::getline(linestream, sample_name, '\t');
+        }
+        while (std::getline(linestream, sample_name, '\t')) {
+            size_t split_index = sample_name.find_last_of("|");
+            if (split_index == std::string::npos) {
+                sample_haplotypes.emplace_back(sample_name, std::numeric_limits<size_t>::max());
+            } else {
+                std::string name (sample_name.begin(), sample_name.begin() + split_index);
+                std::string num (sample_name.begin() + split_index + 1, sample_name.end());
+                sample_haplotypes.emplace_back(name, std::stoull(num));
+            }
+        }
     }
-
 
     // Get the snarls
     while (std::getline(instream,line)) {
@@ -926,43 +975,9 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         snarl_to_walks[all_snarl_data.back().start_node] = stoat::stringToVectorPath(part);
         size_t walk_count = snarl_to_walks[all_snarl_data.back().start_node].size();
 
-        // This may be the end, or there may be sample_sets and/or sequences
-        if (!std::getline(linestream, part, '\t')) {
-            continue;
-        }
-        bool finished_line = false;
-
-        if (!(part.at(0) == ',' || part.at(0) == 'A' || part.at(0) == 'C' || part.at(0) == 'G' || part.at(0) == 'T')) {
-            // If the next thing isn't a sequence then we need to get the sample_sets next
-            std::vector<std::set<size_t>> sample_sets;
-
-            for (size_t i = 0 ; i < walk_count ; i++) {
-
-                sample_sets.emplace_back();
-                
-                // Since we had to check for the end of the line, part is currently the count of samples
-                // and we update it at the end of the loop 
-                size_t sample_count = std::stoull(part);
-                for (size_t i = 0 ; i < sample_count ; i++) {
-                    std::getline(linestream, part, '\t');
-                    sample_sets.back().emplace(std::stoull(part));
-                }
-
-                // Check if this is the end of the line
-                if (!std::getline(linestream, part, '\t')) {
-                    finished_line = true;
-                }
-            }
-
-            #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(sample_sets.size() == walk_count);
-            #endif
-
-            snarl_to_sample_sets[all_snarl_data.back().start_node] = std::move(sample_sets);
-        }
-
-        // The last thing we got is now either the end of the line or the first sequence
-        if (!finished_line) {
+        // Next are the sequences, or "." if there are no sequences
+        std::getline(linestream, part, '\t');
+        if (part != ".") {
             std::vector<std::string> sequences;
             std::stringstream seqstream(part);
             std::string seq;
@@ -979,6 +994,33 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
             #endif
 
             snarl_to_sequences[all_snarl_data.back().start_node] = std::move(sequences);
+        }
+
+
+        // The rest of the line will be the allele assignment of each sample
+
+        // "." means that that this sample didn't have an allele in this snarl. If all samples have "." then we just didn't store the samples
+
+        size_t sample_num = 0;
+
+        std::vector<std::set<size_t>> sample_sets (walk_count);
+        bool has_samples = false;
+
+        while (std::getline(linestream, part, '\t')) {
+            if (part != ".") {
+                sample_sets[std::stoull(part)].emplace(sample_num);
+                has_samples = true;
+            }
+            sample_num++;
+        }
+
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(sample_sets.size() == walk_count);
+        assert(sample_num == sample_haplotypes.size()); 
+        #endif
+
+        if (has_samples) {
+            snarl_to_sample_sets[all_snarl_data.back().start_node] = std::move(sample_sets);
         }
     }
 
