@@ -33,7 +33,8 @@ struct snarl_info_t {
         stoat::Node_traversal_t start_node;
         stoat::Node_traversal_t end_node;
 
-        std::string ref_path; //TODO: I think this could get pretty big, might want to save it as an index into a list of reference paths
+        // The reference chromosome/path
+        std::string ref_path; 
         // Start and end offset along the reference path
         size_t start_position;
         size_t end_position;

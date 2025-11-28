@@ -796,8 +796,13 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
             #ifdef DEBUG_SNARL_DATA_COLLECTION
             assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sequences.at(snarl_data.start_node).size());
             #endif
-            for (const std::string& seq : snarl_to_sequences.at(snarl_data.start_node)){
-                outstream << seq << ",";
+            const std::vector<std::string>& sequences = snarl_to_sequences.at(snarl_data.start_node);
+            for (size_t i = 0 ; i < sequences.size() ; i++){
+                const std::string& seq = sequences[i];
+                outstream << seq ;
+                if (i != sequences.size()-1) {
+                    outstream << ",";
+                }
             }
         }
         
@@ -961,8 +966,13 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
             std::vector<std::string> sequences;
             std::stringstream seqstream(part);
             std::string seq;
+            bool last_empty_sequence = part.size() > 0 && part.at(part.size()-1) == ',';
             while (std::getline(seqstream, seq, ',')) {
                 sequences.emplace_back(seq);
+            }
+
+            if (last_empty_sequence) {
+                sequences.emplace_back("");
             }
             #ifdef DEBUG_SNARL_DATA_COLLECTION
             assert(sequences.size() == walk_count);
