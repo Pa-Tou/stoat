@@ -837,18 +837,15 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
 void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
     string line;
-    cerr << "LOAD" << endl;
 
     // Read the first line, which must match the header
     std::getline(instream, line);
-    cerr << line << endl; 
     if (line != file_header) {
         throw std::runtime_error("stoat: Snarl data file contains the wrong header: " + line);
     }
 
     // Next should be the allele size limit
     std::getline(instream, line);
-    cerr << line << endl;
     {
         std::stringstream linestream(line);
         string limit_str;
@@ -865,7 +862,6 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
     // And the snarl child limit
     std::getline(instream, line);
-    cerr << line << endl;
     {
         std::stringstream linestream(line);
         string limit_str;
@@ -881,7 +877,6 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
     // And the walk steps limit
     std::getline(instream, line);
-    cerr << line << endl;
     {
         std::stringstream linestream(line);
         string limit_str;
@@ -897,25 +892,21 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
     // Next are the references
     std::getline(instream, line);
-    cerr << line << endl;
     if (line != "#REFS") {
         throw std::runtime_error("stoat: Snarl file is not formatted correctly");
     }
 
     std::getline(instream, line);
-    cerr << line << endl;
     
     // Get the reference path names from the file
     while (line != "#SNARLS") {
         std::string ref (line.begin()+1, line.end());
         reference_names.emplace_back(std::move(ref));
         std::getline(instream, line);
-    cerr << line << endl;
     }
 
     // The next header is  "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES", plus all of the sample/haplotypes
     std::getline(instream, line);
-    cerr << line << endl;
     {
         std::stringstream linestream(line);
         string sample_name;
