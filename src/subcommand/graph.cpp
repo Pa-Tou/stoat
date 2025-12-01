@@ -393,7 +393,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                                                  std::vector<std::set<sample_hap_t>>& sample_sets_by_allele) {
                                                 stoat_graph::partition_embedded_paths_in_snarl(graph, distance_index, snarl, all_sample_haplotypes, sample_sets_by_allele);
                                             },
-                                            output_format == "fasta", // find the sequences
+                                            output_format == "fasta", // find the sequences, only for fasta format
                                             reference_sample,
                                             distance_index.has_distances());
         if (save_snarls) {
@@ -404,7 +404,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
         }
     }
     auto end_2 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
+    stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
     stoat::LOG_INFO("Start doing statistics...");
     auto start_3 = std::chrono::high_resolution_clock::now();
 
@@ -519,8 +519,8 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     out_stream.close();
 
     auto end_3 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("GWAS time analysis : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
-    stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_2 - start_1).count()) + " s");
+    stoat::LOG_INFO("GWAS time analysis : " + std::to_string(std::chrono::duration<double>(end_3 - start_3).count()) + " s");
+    stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_3 - start_1).count()) + " s");
     return EXIT_SUCCESS;
 }
 } //end namespace
