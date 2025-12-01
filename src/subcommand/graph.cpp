@@ -393,7 +393,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                                                  std::vector<std::set<sample_hap_t>>& sample_sets_by_allele) {
                                                 stoat_graph::partition_embedded_paths_in_snarl(graph, distance_index, snarl, all_sample_haplotypes, sample_sets_by_allele);
                                             },
-                                            true, // find the sequences
+                                            output_format == "fasta", // find the sequences
                                             reference_sample,
                                             distance_index.has_distances());
         if (save_snarls) {
