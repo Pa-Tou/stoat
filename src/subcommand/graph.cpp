@@ -373,7 +373,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
 
     auto end_1 = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Graph loading time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
-    stoat::LOG_INFO("Start GWAS analysis...");
+    stoat::LOG_INFO("Start finding alleles in snarls...");
     auto start_2 = std::chrono::high_resolution_clock::now();
 
 #ifdef USE_CALLGRIND
@@ -403,6 +403,10 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
             out_snarls.close();
         }
     }
+    auto end_2 = std::chrono::high_resolution_clock::now();
+    stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
+    stoat::LOG_INFO("Start doing statistics...");
+    auto start_3 = std::chrono::high_resolution_clock::now();
 
     ////////////////////////////////// Now do the stastistics and write the output
 
@@ -514,7 +518,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     //Close streams
     out_stream.close();
 
-    auto end_2 = std::chrono::high_resolution_clock::now();
+    auto end_3 = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("GWAS time analysis : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
     stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_2 - start_1).count()) + " s");
     return EXIT_SUCCESS;
