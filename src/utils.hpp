@@ -52,13 +52,25 @@ std::vector<T> stringToVector(const std::string& str);
 // Given a path, return its sample name
 std::string get_sample_name_from_path(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
 
-// This stores a sample name and haplotype number
+// This stores a sample name and haplotype identifier
 struct sample_hap_t {
     std::string sample;
-    std::size_t haplotype;
+    std::string haplotype;
 
     sample_hap_t() {};
-    sample_hap_t(std::string samp, std::size_t hap) :
+    sample_hap_t(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
+
+    sample_hap_t(std::string path_name){
+        // Get the sample name up to #
+        std::stringstream stream(path_name);
+        if (std::getline(stream, sample, '#')) {
+            std::getline(stream, haplotype);
+        } else {
+            haplotype = "";
+        }
+
+    };
+    sample_hap_t(std::string samp, std::string hap) :
         sample(std::move(samp)), haplotype(std::move(hap)) {};
 
     const inline bool operator==(const sample_hap_t& other) const {
@@ -77,8 +89,6 @@ inline std::ostream& operator<<(std::ostream& out, const sample_hap_t& sample) {
     return out << sample.sample << "#" << sample.haplotype;
 }
 
-// Given a path, return its sample name and haplotype 
-sample_hap_t get_sample_and_haplotype(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
 
 // A struct for holding a range along the path
 struct path_range_t {
@@ -138,7 +148,7 @@ namespace std {
     template <>
     struct hash<stoat::sample_hap_t> {
         size_t operator()(const stoat::sample_hap_t& sample_hap) const {
-            return std::hash<std::string>()(sample_hap.sample + ":" + std::to_string(sample_hap.haplotype));
+            return std::hash<std::string>()(sample_hap.sample + "#" + sample_hap.haplotype);
         }
     };
 

@@ -8,7 +8,6 @@ namespace fs = std::filesystem;
 using namespace std;
 
 
-
 TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
     // Just check that this runs and produces some output
 

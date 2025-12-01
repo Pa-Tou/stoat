@@ -236,7 +236,7 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
 
             handlegraph::path_handle_t path = graph.get_path_handle_of_step(path_range.start);
 
-            if (snarl_info.sample_sets_by_allele[allele_i].count(stoat::get_sample_and_haplotype(graph, path))) {
+            if (snarl_info.sample_sets_by_allele[allele_i].count(stoat::sample_hap_t(graph, path))) {
                 // If the sample/haplotype of this path is in the set for this allele
 
                 auto this_range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);

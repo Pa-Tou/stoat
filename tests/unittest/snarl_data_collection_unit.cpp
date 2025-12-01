@@ -38,7 +38,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::get_sample_and_haplotype(*path_graph,graph.get_path_handle("path"))});
+    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph,graph.get_path_handle("path"))});
 
     SECTION("Make and fill in snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
@@ -190,7 +190,7 @@ TEST_CASE( "Snarl collection nested bubbles",
         // Make sample_sets for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
-            sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
+            sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
 
         std::vector<std::vector<std::set<sample_hap_t>>> sample_sets_by_snarl;
@@ -468,7 +468,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
-            sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
+            sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
 
         //Add sample_sets to follow the walks
@@ -880,7 +880,7 @@ TEST_CASE( "Snarl collection multiple connected components",
 
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
-            sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
+            sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
 
         // First fill it in with a non-existent path, which should do nothing
@@ -1014,7 +1014,7 @@ TEST_CASE( "Snarl collection multiple connected components",
     }
 }
 
-TEST_CASE( "snarl collection looping snarl", "[snarl_collection][bug]" ) {
+TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
 
     /*
 
@@ -1090,7 +1090,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection][bug]" ) {
         // Make sample_sets for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
-            sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
+            sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
 
         std::vector<std::vector<std::set<sample_hap_t>>> sample_sets_by_snarl;
@@ -1336,7 +1336,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection][bug]" ) {
 
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
-            sample_haps.emplace_back(stoat::get_sample_and_haplotype(*path_graph, path));
+            sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
 
         //Add sample_sets to follow the walks
@@ -1490,6 +1490,204 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection][bug]" ) {
         snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, get_sample_sets_per_snarl, "path0#0#path0");
 
         check_collection(snarl_collection, true, true, true, true, false);
+
+    }
+}
+TEST_CASE( "Snarl collection nested bubbles with path fragments",
+          "[snarl_collection][bug]" ) {
+
+    /*
+                       5
+                     /   \
+            1       4 ----6    8
+          /   \   /         \ / \
+        0       3  ----------7---9
+          \   /
+            2
+
+   */
+
+   //This uses the simple_nested_chain distance index but reubilds the graph with different paths 
+
+    bdsg::HashGraph graph;
+
+    std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A", "C", "A", "A"};
+
+    std::vector<handlegraph::handle_t> nodes;
+    for (auto& seq : sequences) {
+        nodes.emplace_back(graph.create_handle(seq));
+    }
+
+    graph.create_edge(nodes[0], nodes[1]);
+    graph.create_edge(nodes[0], nodes[2]);
+    graph.create_edge(nodes[1], nodes[3]);
+    graph.create_edge(nodes[2], nodes[3]);
+    graph.create_edge(nodes[3], nodes[4]);
+    graph.create_edge(nodes[3], nodes[7]);
+    graph.create_edge(nodes[4], nodes[5]);
+    graph.create_edge(nodes[4], nodes[6]);
+    graph.create_edge(nodes[5], nodes[6]);
+    graph.create_edge(nodes[6], nodes[7]);
+    graph.create_edge(nodes[7], nodes[8]);
+    graph.create_edge(nodes[7], nodes[9]);
+    graph.create_edge(nodes[8], nodes[9]);
+
+    std::vector<std::vector<std::size_t>> paths_seqs = { {0, 1, 3, 7, 8, 9},  {0, 2, 3, 4, 6, 7}};
+    std::vector<handlegraph::path_handle_t> paths;
+
+    // Reference taking insertion
+    paths.emplace_back(graph.create_path_handle("path0#0#path0"));
+    for (size_t node_i : paths_seqs[1]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+
+    // Path 1, hap0, two fragments (loci?) going through the deletion 
+    paths.emplace_back(graph.create_path_handle("path1#0#path1_0#0"));
+    for (size_t node_i : paths_seqs[0]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+    paths.emplace_back(graph.create_path_handle("path1#0#path1_1#0"));
+    for (size_t node_i : paths_seqs[0]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+
+    // Path 2, hap0, two fragments (loci?) going through the deletion 
+    paths.emplace_back(graph.create_path_handle("path2#0#path2_0#0"));
+    for (size_t node_i : paths_seqs[1]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+    paths.emplace_back(graph.create_path_handle("path2#0#path2_1#0"));
+    for (size_t node_i : paths_seqs[0]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
+
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&graph);
+
+
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(2)));
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(5)));
+    handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(6)));
+    handlegraph::net_handle_t snarl4 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(9)));
+    handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
+    handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
+
+    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+                                         stoat::sample_hap_t(*path_graph, paths[1]),
+                                         stoat::sample_hap_t(*path_graph, paths[2]),
+                                         stoat::sample_hap_t(*path_graph, paths[3])});
+
+    // Function to check if the collection is valid
+    auto check_collection = [&] (const TestSnarlDataCollection& snarl_collection) {
+
+        // The point of this test is to check what happens when there are multiple fragments
+        // So just check snarl 3-7
+
+        // Get the sample_sets again so we can check them. the order might be different though
+
+        // Make sample_sets for each snarl
+        std::vector<stoat::sample_hap_t> sample_haps;
+        for (const auto& path : paths) {
+            sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
+        }
+
+        std::vector<std::vector<std::set<sample_hap_t>>> sample_sets_by_snarl;
+        //[0], [1/2], [3/4]
+        sample_sets_by_snarl.emplace_back();
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[0]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[3]);
+        sample_sets_by_snarl.back().emplace_back();
+        sample_sets_by_snarl.back().back().emplace(sample_haps[1]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[2]);
+        sample_sets_by_snarl.back().back().emplace(sample_haps[4]);
+
+        // Check that we got all snarls and that we got the correct snarls
+        size_t snarl_count = 0;
+
+        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+            snarl_count++;
+
+            if ((snarl_info.start_node == Node_traversal_t(4, false) && snarl_info.end_node == stoat::Node_traversal_t(8, true)) ||
+                (snarl_info.start_node == stoat::Node_traversal_t(8, true) && snarl_info.end_node == Node_traversal_t(4, false))) {
+                // Outer duplication snarl
+
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 3);
+                REQUIRE(snarl_info.end_position == 5);
+                REQUIRE(snarl_info.depth == 1);
+
+                REQUIRE(snarl_info.sample_sets_by_allele.size() == 2);
+                REQUIRE(snarl_info.sample_sets_by_allele[0] == sample_sets_by_snarl[0][0]);
+                REQUIRE(snarl_info.sample_sets_by_allele[1] == sample_sets_by_snarl[0][1]);
+
+                // Since I'm giving it the order of the sets, it should be ordered
+
+                // first path takes the insertion 
+                REQUIRE(snarl_info.walks_by_allele[0].get_paths().size() == 5);
+                REQUIRE((snarl_info.walks_by_allele[0].get_paths()[0] == Node_traversal_t(4, false) &&
+                         snarl_info.walks_by_allele[0].get_paths()[1] == Node_traversal_t(5, false) &&
+                         snarl_info.walks_by_allele[0].get_paths()[2] == Node_traversal_t(0, false) &&
+                         snarl_info.walks_by_allele[0].get_paths()[3] == Node_traversal_t(7, false) &&
+                         snarl_info.walks_by_allele[0].get_paths()[4] == Node_traversal_t(8, false)));
+
+                REQUIRE(snarl_info.sequences_by_allele[0] == "TNA");
+
+                REQUIRE(snarl_info.walks_by_allele[1].get_paths().size() == 2);
+                REQUIRE((snarl_info.walks_by_allele[1].get_paths()[0] == Node_traversal_t(4, false) &&
+                         snarl_info.walks_by_allele[1].get_paths()[1] == Node_traversal_t(8, false)));
+
+                REQUIRE(snarl_info.sequences_by_allele[1] == "");
+
+            }
+        });
+
+    };
+
+    auto get_sample_sets_per_snarl = [&](const snarl_info_t& snarl_info) {
+
+        std::vector<stoat::sample_hap_t> sample_haps;
+        for (const auto& path : paths) {
+            sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
+        }
+        //Add sample_sets to follow the walks
+        std::vector<std::set<sample_hap_t>> sample_sets;
+
+        // Just do this for everything since we aren't checking other snarls
+        sample_sets.emplace_back();
+        sample_sets.back().emplace(sample_haps[0]);
+        sample_sets.back().emplace(sample_haps[3]);
+        sample_sets.emplace_back();
+        sample_sets.back().emplace(sample_haps[1]);
+        sample_sets.back().emplace(sample_haps[2]);
+        sample_sets.back().emplace(sample_haps[4]);
+
+        return sample_sets;
+    };
+
+
+    SECTION("Make and fill in snarl collection with walks, sample_sets, and sequences") {
+
+        TestSnarlDataCollection snarl_collection(1,10,10);
+        snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
+            true, // sample_sets before walks but it doesn't matter here
+            true, // get walks 
+            SnarlDataCollection::get_walks_from_sample_sets,
+            true, // get sample_sets 
+            [&](const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                                                         const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                                         std::vector<std::set<sample_hap_t>>& sample_sets) { 
+                sample_sets = get_sample_sets_per_snarl(snarl_data);
+            },
+            true, // get sequences
+            "", false);
+
+        check_collection(snarl_collection);
 
     }
 }

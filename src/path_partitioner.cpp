@@ -107,7 +107,7 @@ void partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGrap
                 cerr << "\ton path " << graph.get_path_name(graph.get_path_handle_of_step(step)) << endl;
                 #endif
 
-                sample_hap_t step_sample_haplotype = stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step));
+                sample_hap_t step_sample_haplotype (graph, graph.get_path_handle_of_step(step));
 
                 // If this is not a sample of interest, skip it
                 if (!all_sample_haplotypes.count(step_sample_haplotype)) {

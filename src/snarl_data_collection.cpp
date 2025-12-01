@@ -473,7 +473,7 @@ void SnarlDataCollection::get_walks_from_sample_sets(
         bool found_step = false;
         for (const auto& sense : senses) {
             graph.for_each_step_of_sense(start_in, sense, [&](const handlegraph::step_handle_t& step) {
-                if (sample_set.count(stoat::get_sample_and_haplotype(graph, graph.get_path_handle_of_step(step))) ) {
+                if (sample_set.count(stoat::sample_hap_t(graph, graph.get_path_handle_of_step(step))) ) {
                     first_steps.emplace_back(step);
                     found_step = true;
                     // Return false to stop looping through steps
@@ -762,7 +762,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
     // The header also includes a list of sample/haplotypes
     size_t sample_count = 0;
     for (const auto& samp : sample_haplotypes) {
-        outstream << "\t" << samp.sample << (samp.haplotype == std::numeric_limits<size_t>::max() ? "" : "|" + std::to_string(samp.haplotype));
+        outstream << "\t" << samp.sample << "#" + samp.haplotype;
     }
     outstream << endl;
 
@@ -915,14 +915,8 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
             std::getline(linestream, sample_name, '\t');
         }
         while (std::getline(linestream, sample_name, '\t')) {
-            size_t split_index = sample_name.find_last_of("|");
-            if (split_index == std::string::npos) {
-                sample_haplotypes.emplace_back(sample_name, std::numeric_limits<size_t>::max());
-            } else {
-                std::string name (sample_name.begin(), sample_name.begin() + split_index);
-                std::string num (sample_name.begin() + split_index + 1, sample_name.end());
-                sample_haplotypes.emplace_back(name, std::stoull(num));
-            }
+            // The sample_hap_t constructor will take care of finding the proper sample name and haplotype 
+            sample_haplotypes.emplace_back(sample_name);
         }
     }
 

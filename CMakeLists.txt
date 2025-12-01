@@ -148,7 +148,6 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/stats_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp
-    src/graph_path_association_finder.cpp
     src/path_partitioner.cpp
     src/snarl_data_collection.cpp
     
