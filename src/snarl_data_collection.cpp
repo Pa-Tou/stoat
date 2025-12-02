@@ -43,7 +43,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     // as a way of debugging the parallelization. Not in ifdef because it needs to go in the omp parallel shared
     size_t chains_added = chains.size();
     size_t chains_processed = 0;
-    size_t snarl_count = 0;
 
     bool keep_going = !chains.empty();
 
@@ -54,7 +53,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_sample_sets, snarl_to_sequences, reference_names, sample_haplotypes, snarl_count)
+    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_sample_sets, snarl_to_sequences, reference_names, sample_haplotypes)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
@@ -79,7 +78,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         //TODO: Actually use is_eligible
                         //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
                         if (distance_index.is_snarl(snarl)) {
-                            snarl_count++;
 
     
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
@@ -266,9 +264,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
     assert(chains_added == chains_processed);
-    #endif
-    #ifdef DEBUG_WRITE_SNARLS 
-    cerr << "Ran through " << snarl_count << " snarls, kept " << all_snarl_data.size() << " of them" << endl;
     #endif
 }
 void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_sets,
@@ -688,12 +683,7 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
 
     // If we have distances in the index, make sure that the snarl's maximum length is big enough
     if (check_distances && (allele_size_limit > distance_index.maximum_length(snarl))) {
-        #ifdef DEBUG_WRITE_SNARLS
-        #pragma omp critical(cerr)
-        {
-        std::cerr << "SKIP : " << distance_index.net_handle_as_string(snarl) << " max length  " << distance_index.maximum_length(snarl) << std::endl;
-        }
-        #endif
+
         return false;
     }
     //TODO: Once the libbdsg branch is merged we can use this instead of going through all the children to count them
@@ -705,14 +695,9 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
         children++;
         return true;
     });
-    if (snarl_child_limit <= children) {
+    if (snarl_child_limit < children) {
         cerr << "Snarl had too many children" << endl;
-        #ifdef DEBUG_WRITE_SNARLS
-        #pragma omp critical(cerr)
-        {
-        std::cerr << "SKIP : " << distance_index.net_handle_as_string(snarl) << " child count  " << children << std::endl;
-        }
-        #endif
+
         return false;
     }
 
