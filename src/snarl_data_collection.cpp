@@ -260,7 +260,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
             }// end while loop
         }// End omp single
     }//end omp shared
-    cerr << "Found " << snarl_count << " snarls" << endl;
     
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
