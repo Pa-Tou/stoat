@@ -1494,7 +1494,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
     }
 }
 TEST_CASE( "Snarl collection nested bubbles with path fragments",
-          "[snarl_collection][bug]" ) {
+          "[snarl_collection]" ) {
 
     /*
                        5
