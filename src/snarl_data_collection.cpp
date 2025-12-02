@@ -80,6 +80,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
                         if (distance_index.is_snarl(snarl)) {
                             snarl_count++;
+
     
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
                             cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << endl;
@@ -223,6 +224,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 }
                             }// end if snarl_is_eligible
 
+
     
                             #pragma omp critical(snarl_collection)
                             {
@@ -264,6 +266,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
     assert(chains_added == chains_processed);
+    #endif
+    #ifdef DEBUG_WRITE_SNARLS 
+    cerr << "Ran through " << snarl_count << " snarls, kept " << all_snarl_data.size() << " of them" << endl;
     #endif
 }
 void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_sets,
@@ -638,7 +643,6 @@ void SnarlDataCollection::get_walks_from_sample_sets(
             walk_lengths.emplace_back(std::to_string(min_length) + "/" + std::to_string(max_length));
         }
 
-
     }// end for each first step (per allele/sample_set)
 
     #ifdef DEBUG_SNARL_DATA_COLLECTION
@@ -653,8 +657,8 @@ void SnarlDataCollection::get_walks_from_sample_sets(
 }
 
 std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                 const std::vector<stoat::Path_traversal_t>& paths) const {
-    
+             const std::vector<stoat::Path_traversal_t>& paths) const {
+
     std::vector<std::string> sequences;
     for (const stoat::Path_traversal_t& path : paths) {
         sequences.emplace_back();
@@ -681,11 +685,16 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
 
 
 bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const {
-    bool pass = true;
 
-    // If we have distances in the index, make sure that the snarl's maximum lenght is small enough
-    if (check_distances) {
-        pass =  pass && (allele_size_limit <= distance_index.maximum_length(snarl));
+    // If we have distances in the index, make sure that the snarl's maximum length is big enough
+    if (check_distances && (allele_size_limit > distance_index.maximum_length(snarl))) {
+        #ifdef DEBUG_WRITE_SNARLS
+        #pragma omp critical(cerr)
+        {
+        std::cerr << "SKIP : " << distance_index.net_handle_as_string(snarl) << " max length  " << distance_index.maximum_length(snarl) << std::endl;
+        }
+        #endif
+        return false;
     }
     //TODO: Once the libbdsg branch is merged we can use this instead of going through all the children to count them
     //pass &= snarl_child_limit <= distance_index.get_snarl_child_count(snarl);
@@ -696,9 +705,18 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
         children++;
         return true;
     });
-    pass = pass && (snarl_child_limit >= children);
+    if (snarl_child_limit <= children) {
+        cerr << "Snarl had too many children" << endl;
+        #ifdef DEBUG_WRITE_SNARLS
+        #pragma omp critical(cerr)
+        {
+        std::cerr << "SKIP : " << distance_index.net_handle_as_string(snarl) << " child count  " << children << std::endl;
+        }
+        #endif
+        return false;
+    }
 
-    return pass;
+    return true;
 }
 
 

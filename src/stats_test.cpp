@@ -216,6 +216,12 @@ bool filtration_binary_table(
 
     // Not enougth individuals OR not enougth haplotypes OR number of paths < 2
     if (individuals_included < min_individuals || g0.size() < 2) {
+        #ifdef DEBUG
+        #pragma omp critical(cerr)
+        {
+        std::cerr << "FILTER INDIVIDUALS" << std::endl; 
+        }
+        #endif
         return true; // Empty or invalid input → filter
     }
 
@@ -236,6 +242,14 @@ bool filtration_binary_table(
             ++count_above_threshold;
         }
     }
+    #ifdef DEBUG
+        #pragma omp critical(cerr)
+        {
+            if (count_above_threshold < 2) {
+                std::cerr << "FILTER COUNT" << std::endl; 
+            }
+        }
+    #endif
 
     return count_above_threshold < 2; // Keep if at least two MAFs path > MAF threshold
 }
