@@ -118,7 +118,7 @@ class SnarlDataCollection {
         //        stores a reference to the vector somewhere else in memory
         void add_snarl_sample_sets(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 
                                   const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_sets,
-                                  std::string chr="");
+                                  std::string chr);
 
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;

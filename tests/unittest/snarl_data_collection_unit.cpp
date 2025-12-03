@@ -604,7 +604,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
-        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, get_sample_sets_per_snarl);
+        snarl_collection.add_snarl_sample_sets(sample_haplotype_to_index, get_sample_sets_per_snarl, "");
 
         check_collection(snarl_collection, true, true, true, true);
 
