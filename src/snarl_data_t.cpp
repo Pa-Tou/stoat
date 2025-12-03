@@ -94,14 +94,6 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const
     return chr_to_snarls;
 }
 
-void write_snarl_data_header(std::ostream& outstream) {
-    outstream << "CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tPATH_LENGTHS\tREF\tDEPTH" << std::endl;
-}
-
-void write_snarl_data_fail_header(std::ostream& outstream) {
-    outstream << "SNARL\tFILTER\tCHILDREN" << std::endl;
-}
-
 // Node_traversal_t
 Node_traversal_t::Node_traversal_t(const size_t &id, const bool &rev)
         : node_id(id), is_reverse(rev) {}
@@ -642,8 +634,9 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
     // start output files with headers
     std::ofstream out_snarl(output_file);
     std::ofstream out_fail(output_snarl_excluded);
-    write_snarl_data_header(out_snarl);
-    write_snarl_data_fail_header(out_fail);
+    // write_snarl_data_header(out_snarl);
+    out_snarl << "CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tPATHS\tPATH_LENGTHS\tREF\tDEPTH" << std::endl;
+    out_fail << "CHR\tSTART_POS\tEND_POS\tSNARL_HANDLEGRAPH\tSNARL\tFILTER\tCHILDREN" << std::endl;
 
     // we'll output a list of snarls for each chromosome
     std::unordered_map<std::string, std::vector<Snarl_data_t>> out_chr_to_snarls;
@@ -670,7 +663,11 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
 
             if (children > children_threshold) {
 #pragma omp critical(out_fail)
-                out_fail << snarl_id_str << "\ttoo_many_children\t" << children << "\n";
+                out_fail << chr << "\t" 
+                          << snarl.start_position << "\t" 
+                          << snarl.end_position << "\t" 
+                          << handlegraph::as_integer(snarl.net) << "\t" 
+                          << snarl_id_str << "\ttoo_many_children\t" << children << "\n";
                 snarls_failed++;
                 continue;
             }
@@ -723,7 +720,11 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
                 // JEAN we could do this in the add_to_path function and return false to abort but we would need a newer version of vg and remake all our distance index files, so not doing that yet...
                 if (path.size() + 1 > path_length_threshold) {
 #pragma omp critical(out_fail)
-                    out_fail << snarl_id_str << "\tpath_too_long\t" << children << "\n";
+                    out_fail << chr << "\t" 
+                             << snarl.start_position << "\t" 
+                             << snarl.end_position << "\t" 
+                             << handlegraph::as_integer(snarl.net) << "\t" 
+                             << snarl_id_str << "\tpath_too_long\t" << children << "\n";
                     skip_snarl = true;
                     paths_failed++;
                     break;

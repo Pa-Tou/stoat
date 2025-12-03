@@ -217,9 +217,6 @@ std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths, bool
 // Parses the snarl path file and returns a map with snarl as keys and paths as a list of strings.
 std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const std::string& path_file);
 
-void write_snarl_data_header(std::ostream& outstream);
-void write_snarl_data_fail_header(std::ostream& outstream);
-
 // Load the distance index and graph and return unique_ptrs to them
 std::tuple<
     unique_ptr<bdsg::SnarlDistanceIndex>,
