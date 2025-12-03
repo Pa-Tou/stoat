@@ -144,17 +144,17 @@ TEST_CASE("Snarl decomposition", "[snarl]") {
     }
 }
 
-// TEST_CASE("Bad paths", "[test]") {
-//     const std::string stoat_command = "../bin/stoat";
-//     const std::string output_dir = "../output_bad_paths";
-//     const std::string expected_dir = "../tests/expected_output/vcf/output_bad_paths";
-//     const std::string data_path = "../data/bad_paths";
-//     const std::string phenotype = "binary";
+TEST_CASE("Bad paths", "[test]") {
+    const std::string stoat_command = "../bin/stoat";
+    const std::string output_dir = "../output_bad_paths";
+    const std::string expected_dir = "../tests/expected_output/vcf/output_bad_paths";
+    const std::string data_path = "../data/bad_paths";
+    const std::string phenotype = "binary";
 
-//     SECTION("Bad paths fail - snarl paths given") {
-//         REQUIRE(run_test(stoat_command, output_dir, expected_dir, data_path, phenotype));
-//     }
-// }
+    SECTION("Bad paths fail - snarl paths given") {
+        REQUIRE(run_test(stoat_command, output_dir, expected_dir, data_path, phenotype));
+    }
+}
 
 TEST_CASE("Binary association tests vcf", "[binary]") {
     const std::string stoat_command = "../bin/stoat";

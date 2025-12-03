@@ -22,7 +22,7 @@
 #include "utils.hpp"
 #include "snarl_analyzer.hpp"
 #include "matrix.hpp"
-#include "binary_table.hpp"
+#include "quantitative_table.hpp"
 
 using namespace std;
 

@@ -22,7 +22,7 @@ void print_help_bh_correct() {
               << "  -o, --output-directory DIR      Put the output in this directory" << endl;
 }
 
-int main_stoat_bh_correct(int argc, char *argv[], stoat::LogLevel &verbosity) {
+int main_stoat_bh_correct(int argc, char *argv[]) {
 
     if (argc <= 1) {
         print_help_bh_correct();

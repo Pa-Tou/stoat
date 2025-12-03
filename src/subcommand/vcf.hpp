@@ -20,6 +20,6 @@ namespace stoat_command {
 
 void print_help_vcf();
 
-int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity);
+int main_stoat_vcf(int argc, char* argv[]);
 
 } // end stoat

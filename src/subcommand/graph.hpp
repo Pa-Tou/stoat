@@ -20,6 +20,6 @@ namespace stoat_command {
 
 void print_help_graph();
 
-int main_stoat_graph(int argc, char* argv[], stoat::LogLevel &verbosity);
+int main_stoat_graph(int argc, char* argv[]);
 
 }

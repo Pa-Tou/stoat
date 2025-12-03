@@ -44,7 +44,7 @@ void print_help_graph() {
         << "output:" << endl
         << "  -o, --output DIR                   Output directory name [output]" << endl
         << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
-        << "                                     Output will be written to DIR/binary_table_graph.tsv or DIR/binary_output.fasta" << endl
+        << "                                     Output will be written to DIR/binary_table_1graph.tsv or DIR/binary_output.fasta" << endl
         << "options:" << endl
         << "  -t, --threads N                    Number of threads to use" << endl
         << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << endl
@@ -59,7 +59,7 @@ void print_help_graph() {
         << "  -h, --help                         Print this help message" << endl;
 }
 
-int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
+int main_stoat_graph(int argc, char *argv[]) {
 
     if (argc <= 1) {
         print_help_graph();

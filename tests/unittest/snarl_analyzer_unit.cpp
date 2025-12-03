@@ -21,115 +21,81 @@ TEST_CASE("Edge_t Functionality") {
     stoat::Node_traversal_t b(2, true);
     stoat::Edge_t edge(a, b);
 
-    auto pair = edge.print_pair_edge();
+    auto pair = edge.get_node_pair();
     REQUIRE(pair.first == 1);
     REQUIRE(pair.second == 2);
 
-    REQUIRE(edge.print_string_edge() == ">1<2");
+    REQUIRE(edge.to_string() == ">1<2");
 }
 
-TEST_CASE("Path_traversal_t Add and Get") {
-    Path_traversal_t path;
+TEST_CASE("PathTraversal Add and Get") {
+    PathTraversal path;
     path.add_node_traversal_t({1, false});
     path.add_node_traversal_t({2, true});
-    const auto& paths = path.get_paths();
+    const auto& paths = path.get_path();
     REQUIRE(paths.size() == 2);
     REQUIRE(paths[0].get_node_id() == 1);
     REQUIRE(paths[1].get_is_reverse() == true);
-}
-
-TEST_CASE("decompose_path_to_edges") {
-    Path_traversal_t path;
-    path.add_node_traversal_t({1, false});
-    path.add_node_traversal_t({2, false});
-    path.add_node_traversal_t({3, false});
-
-    auto edges = decompose_path_to_edges(path);
-    REQUIRE(edges.size() == 2);
-    REQUIRE(edges[0].print_pair_edge() == std::make_pair(1ul, 2ul));
-    REQUIRE(edges[1].print_pair_edge() == std::make_pair(2ul, 3ul));
 }
 
 TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
     SECTION("Basic case") {
         auto edges = decompose_path_str_to_edge(">1<2>3");
         REQUIRE(edges.size() == 2);
-        REQUIRE(edges[0].print_string_edge() == ">1<2");
-        REQUIRE(edges[1].print_string_edge() == "<2>3");
+        REQUIRE(edges[0].to_string() == ">1<2");
+        REQUIRE(edges[1].to_string() == "<2>3");
     }
 
     SECTION("Special case with zeros (complex path)") {
         auto edges = decompose_path_str_to_edge(">1<324<323<0<213>214<0<213");
         REQUIRE(edges.size() == 7);
 
-        REQUIRE(edges[0].print_string_edge() == ">1<324");
-        REQUIRE(edges[1].print_string_edge() == "<324<323");
-        REQUIRE(edges[2].print_string_edge() == "<323<0");
-        REQUIRE(edges[3].print_string_edge() == "<0<213");
-        REQUIRE(edges[4].print_string_edge() == "<213>214");
-        REQUIRE(edges[5].print_string_edge() == ">214<0");
-        REQUIRE(edges[6].print_string_edge() == "<0<213");
+        REQUIRE(edges[0].to_string() == ">1<324");
+        REQUIRE(edges[1].to_string() == "<324<323");
+        REQUIRE(edges[2].to_string() == "<323<0");
+        REQUIRE(edges[3].to_string() == "<0<213");
+        REQUIRE(edges[4].to_string() == "<213>214");
+        REQUIRE(edges[5].to_string() == ">214<0");
+        REQUIRE(edges[6].to_string() == "<0<213");
     }
-}
-
-TEST_CASE("decompose_path_list_str supports multiple strings including ones with zero nodes") {
-    std::vector<std::string> input = {
-        ">1>2",
-        "<3<4",
-        ">1<324<323<0<213>214<0<213" // complex path
-    };
-
-    auto decomposed = decompose_path_list_str(input);
-    
-    REQUIRE(decomposed.size() == 3);
-
-    // First path: >1>2
-    REQUIRE(decomposed[0].size() == 1);
-    REQUIRE(decomposed[0][0].print_string_edge() == ">1>2");
-
-    // Second path: <3<4
-    REQUIRE(decomposed[1].size() == 1);
-    REQUIRE(decomposed[1][0].print_string_edge() == "<3<4");
-
-    // Third path: complex path with 0s
-    REQUIRE(decomposed[2].size() == 7);
-    REQUIRE(decomposed[2][0].print_string_edge() == ">1<324");
-    REQUIRE(decomposed[2][6].print_string_edge() == "<0<213");
 }
 
 TEST_CASE("identify_path with EdgeBySampleMatrix") {
     stoat::Node_traversal_t a(1, false), b(2, false), c(3, false);
-   stoat::Edge_t edge1(a, b);
-   stoat::Edge_t edge2(b, c);
+    stoat::Edge_t edge1(a, b);
+    stoat::Edge_t edge2(b, c);
 
-    std::vector<stoat::Edge_t> path = {edge1, edge2};
-
+    stoat::PathTraversal path;
+    path.add_node_traversal_t(a);
+    path.add_node_traversal_t(b);
+    path.add_node_traversal_t(c);
+    
     std::vector<std::string> samples = {"sample1", "sample2", "sample3"};
-    EdgeBySampleMatrix matrix(samples, 2, 3);
+    EdgeBySampleMatrix matrix(samples, 2);
 
-    matrix.push_matrix(edge1, 0); // Set true at [row for edge1][0]
-    matrix.push_matrix(edge2, 0); // Set true at [row for edge2][0]
+    matrix.add_sample_edge(edge1, 0); // Set true at [row for edge1][0]
+    matrix.add_sample_edge(edge2, 0); // Set true at [row for edge2][0]
 
-    matrix.push_matrix(edge1, 2); // Also at [][2]
-    matrix.push_matrix(edge2, 2);
+    matrix.add_sample_edge(edge1, 2); // Also at [][2]
+    matrix.add_sample_edge(edge2, 2);
 
-    auto result = identify_path(path, matrix, 3);
+    auto result = matrix.get_samples_on_path(path);
     REQUIRE(result == std::vector<size_t>({0, 2}));
 }
 
-TEST_CASE("filtration_quantitative_table basic filtering") {
+TEST_CASE("filter_quantitative_table basic filtering") {
     std::vector<std::vector<double>> df = {
         {1.0, 1.0},
         {0.5, 0.5}
     };
 
     SECTION("Valid data, should NOT be filtered") {
-        bool result = filtration_quantitative_table(df, 2, 0.1);
+        bool result = filter_quantitative_table(df, 2, 0.1);
         REQUIRE(result == false);
     }
 
     SECTION("Not enough individuals, should be filtered") {
-        bool result = filtration_quantitative_table({{1.0, 1.0}}, 2, 0.1);
+        bool result = filter_quantitative_table({{1.0, 1.0}}, 2, 0.1);
         REQUIRE(result == true);
     }
 
@@ -138,7 +104,7 @@ TEST_CASE("filtration_quantitative_table basic filtering") {
             {1.9, 0.1},
             {1.9, 0.1}
         };
-        bool result = filtration_quantitative_table(low_maf, 2, 0.4);
+        bool result = filter_quantitative_table(low_maf, 2, 0.4);
         REQUIRE(result == true);
     }
 }
@@ -181,34 +147,34 @@ TEST_CASE("remove_empty_columns_binary_table filters empty columns") {
     REQUIRE(g1 == std::vector<size_t>({0, 1}));
 }
 
-TEST_CASE("filtration_binary_table logic correctness") {
+TEST_CASE("filter_binary_table logic correctness") {
     SECTION("Valid case, should NOT be filtered") {
         std::vector<size_t> g0 = {5, 1};
         std::vector<size_t> g1 = {1, 5};
 
-        // filtration_binary_table g0, g1, totalSum, individuals_included, min_individuals, maf_threshold           
-        bool result = filtration_binary_table(g0, g1, 6, 2, 0.1);
+        // filter_binary_table g0, g1, totalSum, individuals_included, min_individuals, maf_threshold           
+        bool result = filter_binary_table(g0, g1, 6, 2, 0.1);
         REQUIRE(result == false);
     }
 
     SECTION("Too few individuals, should be filtered") {
         std::vector<size_t> g0 = {5, 1};
         std::vector<size_t> g1 = {1, 5};
-        bool result = filtration_binary_table(g0, g1, 3, 4, 0.1);
+        bool result = filter_binary_table(g0, g1, 3, 4, 0.1);
         REQUIRE(result == true);
     }
 
     SECTION("Too few individuals multi-paths, should be filtered") {
         std::vector<size_t> g0 = {5, 1, 6, 4};
         std::vector<size_t> g1 = {1, 5, 5, 0};
-        bool result = filtration_binary_table(g0, g1, 5, 6, 0.1);
+        bool result = filter_binary_table(g0, g1, 5, 6, 0.1);
         REQUIRE(result == true);
     }
 
     SECTION("High MAFs, should be filtered") {
         std::vector<size_t> g0 = {5, 1, 4, 3, 5};
         std::vector<size_t> g1 = {0, 4, 6, 1, 5};
-        bool result = filtration_binary_table(g0, g1, 12, 2, 0.45);
+        bool result = filter_binary_table(g0, g1, 12, 2, 0.45);
         REQUIRE(result == true);
     }
 }
