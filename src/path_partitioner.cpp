@@ -70,7 +70,14 @@ void partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGrap
 
     // Helper function to check the edges leaving child
     // This gets called in for_each_child, and also from the start node going in
-    auto check_outgoing_edges = [&] (const handlegraph::net_handle_t& child, bool go_left) {
+    // Goes through the edges leaving a child and checks with paths take which edges.
+    // old_sets and old_set_count are updated to split up sets that take different edges at this node 
+    // If require_node is true (used for the bounds going in), then any path that doesn't go through this node
+    // is considered to not be in the snarl and its set number is reset to 0.
+    // Second required node is true if this is the boundary node checked, in which case the path should be skipped
+    // if it didn't pass through the first boundary node 
+    // For this to work, check_outgoing_edges must be called on the two bounds last
+    auto check_outgoing_edges = [&] (const handlegraph::net_handle_t& child, bool go_left, bool require_node, bool second_required_node) {
 
         #ifdef DEBUG_PATH_PARTITIONER
         cerr << "At snarl child " << distance_index.net_handle_as_string(child) << " going " << (go_left ? "left" : "right") << endl;
@@ -231,12 +238,18 @@ void partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGrap
         size_t new_set_count = 1;
 
         for (size_t path_i = 0 ; path_i < new_sets.size() ; path_i++) {
-            std::pair<size_t, size_t> old_set (old_sets[path_i], intermediate_sets[path_i]);
-            if (old_to_new_set.count(old_set) == 0) {
-                old_to_new_set[old_set] = new_set_count;
-                new_set_count++;
+            if (require_node && (intermediate_sets[path_i] == 0 || (second_required_node && old_sets[path_i] == 0 ))) {
+                // If this is a boundary node and the path never traverses it, then add it to the set
+                // that doesn't go through the snarl
+                new_sets[path_i] = 0;
+            } else {
+                std::pair<size_t, size_t> old_set (old_sets[path_i], intermediate_sets[path_i]);
+                if (old_to_new_set.count(old_set) == 0) {
+                    old_to_new_set[old_set] = new_set_count;
+                    new_set_count++;
+                }
+                new_sets[path_i] = old_to_new_set[old_set];
             }
-            new_sets[path_i] = old_to_new_set[old_set];
         }
         
         old_sets = std::move(new_sets);
@@ -252,7 +265,6 @@ void partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGrap
 
     // Now do the work of going through the edges for the start bound and each child in both directions
 
-    check_outgoing_edges(distance_index.get_bound(snarl, false, true), false);
 
     if (!distance_index.is_regular_snarl(snarl, true, &graph)) {
         // Go through each child of the snarl and check the paths on outgoing edges.
@@ -260,11 +272,14 @@ void partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGrap
         // TODO: This is doubling the work because each edges is looked at twice
         distance_index.for_each_child(snarl, [&] (const handlegraph::net_handle_t& child) {
             for (bool go_left : {true, false}) {
-                check_outgoing_edges(child, go_left);
+                check_outgoing_edges(child, go_left, false, false);
             }
             return true;
         });// end for_each_child of the snarl
     }
+
+    check_outgoing_edges(distance_index.get_bound(snarl, false, true), false, true, false);
+    check_outgoing_edges(distance_index.get_bound(snarl, true, true), false, true, true);
 
     // We have now partitioned the paths into equivalence sets based on the edges they take in this netgraph,
     // stored in old_sets.

@@ -893,3 +893,99 @@ TEST_CASE( "Path partitioner nested bubbles with path fragments",
         REQUIRE(walks2.size() == 2);
     }
 }
+TEST_CASE( "Path partitioner doesn't go through snarl bounds",
+          "[path_partitioner][bug]" ) {
+
+    /*
+                       5
+                     /   \
+            1       4 ----6    8
+          /   \   /         \ / \
+        0       3  ----------7---9
+          \   /
+            2
+
+   */
+
+   //This uses the simple_nested_chain distance index but reubilds the graph with different paths 
+
+    bdsg::HashGraph graph;
+
+    std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A", "C", "A", "A"};
+
+    std::vector<handlegraph::handle_t> nodes;
+    for (auto& seq : sequences) {
+        nodes.emplace_back(graph.create_handle(seq));
+    }
+
+    graph.create_edge(nodes[0], nodes[1]);
+    graph.create_edge(nodes[0], nodes[2]);
+    graph.create_edge(nodes[1], nodes[3]);
+    graph.create_edge(nodes[2], nodes[3]);
+    graph.create_edge(nodes[3], nodes[4]);
+    graph.create_edge(nodes[3], nodes[7]);
+    graph.create_edge(nodes[4], nodes[5]);
+    graph.create_edge(nodes[4], nodes[6]);
+    graph.create_edge(nodes[5], nodes[6]);
+    graph.create_edge(nodes[6], nodes[7]);
+    graph.create_edge(nodes[7], nodes[8]);
+    graph.create_edge(nodes[7], nodes[9]);
+    graph.create_edge(nodes[8], nodes[9]);
+
+    std::vector<std::vector<std::size_t>> paths_seqs = { {0, 1, 3, 7, 8, 9},  {4, 6},  {3, 4, 6},  {4, 6, 7}};
+    std::vector<handlegraph::path_handle_t> paths;
+
+    // Reference taking insertion
+    paths.emplace_back(graph.create_path_handle("path0#0#path0"));
+    for (size_t node_i : paths_seqs[0]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+
+    // Path 1, hap0, two fragments (loci?) going through the deletion 
+    paths.emplace_back(graph.create_path_handle("path1#0#0#0"));
+    for (size_t node_i : paths_seqs[1]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+    paths.emplace_back(graph.create_path_handle("path2#0#0#0"));
+    for (size_t node_i : paths_seqs[2]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+
+    // Path 2, hap0, two fragments (loci?) going through the deletion 
+    paths.emplace_back(graph.create_path_handle("path3#0#0#0"));
+    for (size_t node_i : paths_seqs[3]) {
+        graph.append_step(paths.back(), nodes[node_i]);
+    }
+
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
+
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&graph);
+
+
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(2)));
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(5)));
+    handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(6)));
+    handlegraph::net_handle_t snarl4 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(9)));
+    handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
+    handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
+
+    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+                                         stoat::sample_hap_t(*path_graph, paths[1]),
+                                         stoat::sample_hap_t(*path_graph, paths[2]),
+                                         stoat::sample_hap_t(*path_graph, paths[3])});
+
+
+
+    SECTION("Snarl with multiple fragments") {
+
+        // Should be {0, 3}, {1,2,4}
+        std::vector<std::set<stoat::sample_hap_t>> walks2;
+        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
+        REQUIRE(walks2.size() == 1);
+        REQUIRE(walks2[0].size() == 1);
+    }
+}

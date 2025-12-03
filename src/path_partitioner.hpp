@@ -13,7 +13,9 @@ using namespace stoat;
 namespace stoat_graph {
 
 
-/// Given a snarl, fill in sample_sets_by_allele. Each allele corresponds to one distinct walk through the snarl.
+/// Given a snarl, fill in sample_sets_by_allele. Each allele corresponds to a distinct walk through the snarl taken by a path.
+/// This walk may leave the snarl and come back
+/// If a walk doesn't traverse both bounds of the snarl then it is excluded
 /// Fill in sample_sets_by_allele with the sample/haplotype taking each allele
 /// This can be used by a SnarlDataCollection with a little adjustment
 void partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
