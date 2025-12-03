@@ -804,7 +804,8 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
 
 
         // Add the sequences, if any, as comma separated strings
-        if (snarl_to_sequences.empty()) {
+        if (snarl_to_sequences.empty() || snarl_to_sequences.count(snarl_data.start_node) == 0) {
+
             outstream << ".";
         } else {
 
