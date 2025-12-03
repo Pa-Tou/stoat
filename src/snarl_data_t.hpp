@@ -214,8 +214,12 @@ struct snarl_partition_t : stoat::Snarl_data_t {
 
 // Convert a pair of size_t, for example defining a snarl ID to a string of them separated by an underscore
 std::string pairToString(const std::pair<size_t, size_t>& name);
+
 // convert a vector of path traversals to a string, either with node or allele length information
 std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths, bool allele_lengths = false);
+
+// Get a vector of path traversals from their string representation
+std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& path_string, const std::string& path_lengths_string);
 
 // Parses the snarl path file and returns a map with snarl as keys and paths as a list of strings.
 std::unordered_map<std::string, std::vector<Snarl_data_t>> read_snarl_path(const std::string& path_file);

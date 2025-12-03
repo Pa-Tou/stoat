@@ -319,36 +319,51 @@ Snarl_data_t::Snarl_data_t(bdsg::net_handle_t net_,
     size_t first_id = std::stoull(snarl_ids_.substr(0, underscorePos));
     size_t second_id = std::stoull(snarl_ids_.substr(underscorePos + 1));
     ids = std::make_pair(first_id, second_id);
+    
+    paths = string_to_path_traversals(paths_, allele_lengths_);
+}
 
-    // extract the paths from the input string (comma separated)
-    std::istringstream paths_iss(paths_);
-    std::string path_str;
-    while (std::getline(paths_iss, path_str, ',')) {
-        stoat::PathTraversal path;
-        size_t i = 0;
-        const size_t len = path_str.size();
-        while (i < len) {
-            // Assume direction is always present and correct
-            bool is_reverse = (path_str[i] == '<');
-            ++i; // Move past '<' or '>'
-            // Parse node_id
-            size_t node_id = 0;
-            while (i < len && path_str[i] >= '0' && path_str[i] <= '9') {
-                node_id = node_id * 10 + (path_str[i++] - '0');
+std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& path_string, const std::string& path_lengths_string) {
+
+    std::vector<stoat::PathTraversal> paths;
+    if (path_string.size() != 0 && path_string != ".") {
+        // extract the paths from the input string (comma separated)
+        std::istringstream paths_iss(path_string);
+        std::string path_str;
+        while (std::getline(paths_iss, path_str, ',')) {
+            stoat::PathTraversal path;
+            size_t i = 0;
+            const size_t len = path_str.size();
+            while (i < len) {
+                // Assume direction is always present and correct
+                bool is_reverse = (path_str[i] == '<');
+                ++i; // Move past '<' or '>'
+                // Parse node_id
+                size_t node_id = 0;
+                while (i < len && path_str[i] >= '0' && path_str[i] <= '9') {
+                    node_id = node_id * 10 + (path_str[i++] - '0');
+                }
+                path.add_node_traversal_t(stoat::Node_traversal_t(node_id, is_reverse));
             }
-            path.add_node_traversal_t(stoat::Node_traversal_t(node_id, is_reverse));
+            paths.emplace_back(std::move(path));
         }
-        paths.emplace_back(std::move(path));
+    }
+    if (path_lengths_string.size() != 0 && path_lengths_string != ".") {
+
+        // extract the allele length information (also comma separated)
+        std::istringstream al_lens_stream(path_lengths_string);
+        std::string al_lens;
+        int path_idx = 0;
+        while (std::getline(al_lens_stream, al_lens, ',')) {
+            if (path_idx > paths.size()-1) {
+                paths.emplace_back();
+            }
+            paths[path_idx].set_allele_length_from_string(al_lens);
+            path_idx++;
+        }    
     }
 
-    // extract the allele length information (also comma separated)
-    std::istringstream al_lens_stream(allele_lengths_);
-    std::string al_lens;
-    int path_idx = 0;
-    while (std::getline(al_lens_stream, al_lens, ',')) {
-        paths[path_idx].set_allele_length_from_string(al_lens);
-        path_idx++;
-    }    
+    return paths;
 }
 
 std::tuple<
@@ -604,10 +619,7 @@ std::vector<stoat::PathTraversal> convert_path_traversals(
                 // Add the minimum/maximum lengths of the chain
                 path_trav.add_min_allele_len(distance_index.minimum_length(net));
                 path_trav.add_max_allele_len(distance_index.maximum_length(net));
-            } else if (distance_index.is_root(net)) {
-                // I added this case to represent anything that leaves the snarl and comes back in
-                // It doesn't actually happen in a real path
-                ppath.addNode(0, false);
+            }
         }
 
         // add to min/max distance the size of the nodes and trivial chains saved above

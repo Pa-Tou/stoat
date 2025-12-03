@@ -41,7 +41,9 @@ void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
               << snarl_data.start_position << "\t"
               << snarl_data.end_position << "\t"
               << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << snarl_data.variant_type << "\t"
+              << ((snarl_data.walks_by_allele.empty()) 
+                    ? "." 
+                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
               << fastfisher_p_value << "\t"
               << chi2_p_value << "\t"
               << group_paths << "\t"
