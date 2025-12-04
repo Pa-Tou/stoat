@@ -479,6 +479,10 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                 break;
             }
         }
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        // Right now, the path partitioner only assigns a path to a partition if it traverses both bounds of the snarl.
+        assert(found_step);
+        #endif
     }
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     assert(first_steps.size() == snarl_data.sample_sets_by_allele.size());

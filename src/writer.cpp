@@ -135,60 +135,6 @@ void write_vcf(std::ostream& outstream,
 }
 
 void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
-                 const snarl_partition_t& snarl_info, const std::unordered_map<std::string, bool>& samples, const string& reference_name) {
-    
-    string ref_coordinates = snarl_info.ref_path + ":" + std::to_string(snarl_info.start_position) + "-" + std::to_string(snarl_info.end_position);
-
-    
-    // Now go through each path that goes through the snarl and print the sequence
-    std::vector<stoat::path_range_t> path_ranges = get_coordinates_between_nodes(graph, snarl_info.start_handle, snarl_info.end_handle, false, "", true);
-    for (const stoat::path_range_t& path_range : path_ranges) {
-        handlegraph::path_handle_t path = graph.get_path_handle_of_step(path_range.start);
-        string sample_name = stoat::get_sample_name_from_path(graph, path);
-        if (samples.empty() || samples.count(sample_name) != 0) {
-            //If we aren't checking samples, or if this is a sample we want
-    
-            std::tuple<std::string, size_t, size_t> range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
-            // Print the header
-            outstream << ">snarl:" << graph.get_id(snarl_info.start_handle) << "-" << graph.get_id(snarl_info.end_handle) << "|"
-                << ref_coordinates << "|"
-                << std::get<0>(range_coordinates) << ":"
-                << std::get<1>(range_coordinates) << "-"    
-                << std::get<2>(range_coordinates) << endl;
-    
-            // Now print the sequence in 80bp chunks.
-            // Keep a buffer to print 80 bp at a time
-            std::string sequence_buffer = "";
-            handlegraph::step_handle_t next_step = graph.get_next_step(path_range.start);
-            while (next_step != path_range.end) {
-                std::string node_seq = graph.get_sequence(graph.get_handle_of_step(next_step));
-                while (node_seq.size() != 0) {
-    
-                    // Fill in sequence_buffer up to 80 characters
-                    size_t to_add = 80 - sequence_buffer.size();
-                    sequence_buffer += node_seq.substr(0, to_add);
-                    node_seq.erase(0, to_add);
-    
-                    // If the buffer is full, write it and clear it
-                    if (sequence_buffer.size() == 80) {
-                        outstream << sequence_buffer << endl;
-                        sequence_buffer.clear();
-                    }
-                }
-                handlegraph::step_handle_t step = next_step;
-                if (!graph.has_next_step(step)) {
-                    break;
-                }
-                next_step = graph.get_next_step(step);
-            }
-            if (!sequence_buffer.empty()) {
-                outstream << sequence_buffer << endl;
-            }
-        }
-    }
-}
-
-void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
                  const bdsg::SnarlDistanceIndex& distance_index, const snarl_info_t& snarl_info) {
     
     // The reference coordinates of this snarl as a string

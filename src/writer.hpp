@@ -36,10 +36,6 @@ void write_vcf(std::ostream& outstream, const std::string& chr, const size_t& po
                const std::string& ref, const std::string& alt, const std::string& paths, 
                const std::vector<std::vector<char>>& genotype);
 
-// Write the fasta for paths in a snarl. If samples is given, only write the fast for samples present to outstream. If samples is not given, write all samples.
-void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph, 
-                 const snarl_partition_t& snarl_info, const std::unordered_map<std::string, bool>& samples, const string& reference_name);
-
 void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph, 
                  const bdsg::SnarlDistanceIndex& distance_index, const snarl_info_t& snarl_info);
 
