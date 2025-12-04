@@ -70,7 +70,6 @@ class CategoricalFeatureBySampleTable : public FeatureBySampleTable<std::vector<
     // Map the name of the feather(what each value in the inner vector represents. e.g. gene name) to its index in the inner vector of values_per_sample 
     const std::unordered_map<std::string, size_t>& feature_to_index;
 
-    using FeatureBySampleTable<std::vector<ValueType>>::sample_to_index;
 };
 
 
@@ -81,40 +80,18 @@ class GenotypeTable : public CategoricalFeatureBySampleTable<size_t> {
 
     GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
 
-    using CategoricalFeatureBySampleTable<size_t>::get_value_for_sample_and_feature;
-    using CategoricalFeatureBySampleTable<size_t>::set_value_for_sample_and_feature;
-
-    protected:
-
-    using FeatureBySampleTable<std::vector<size_t>>::sample_to_index;
-    using CategoricalFeatureBySampleTable<size_t>::feature_to_index;
+            CategoricalFeatureBySampleTable<size_t>::get_value_for_sample_and_feature;
 };
 
 class GeneExpressionTable : public CategoricalFeatureBySampleTable<double> {
     public:
 
     GeneExpressionTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
-
-    using CategoricalFeatureBySampleTable<double>::get_value_for_sample_and_feature;
-    using CategoricalFeatureBySampleTable<double>::set_value_for_sample_and_feature;
-
-    protected:
-
-    using FeatureBySampleTable<std::vector<double>>::sample_to_index;
-    using CategoricalFeatureBySampleTable<double>::feature_to_index;
 };
 class CovariateTable : public CategoricalFeatureBySampleTable<double> {
     public:
 
     CovariateTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
-
-    using CategoricalFeatureBySampleTable<double>::get_value_for_sample_and_feature;
-    using CategoricalFeatureBySampleTable<double>::set_value_for_sample_and_feature;
-
-    protected:
-
-    using FeatureBySampleTable<std::vector<double>>::sample_to_index;
-    using CategoricalFeatureBySampleTable<double>::feature_to_index;
 };
 
 } // namespace stoat
