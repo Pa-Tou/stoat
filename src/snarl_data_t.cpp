@@ -702,6 +702,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
             // once a path reaches the other bound, add to this list of finished paths
             // we use this simpler structure here with vector and handles so avoid doing too much work working preparing a PathTraversal that might be filtered?
             // JEAN maybe simpler to use PathTraversal objects directly here?
+            // XIAN I copied this into get_all_walks_through_snarl() in snarl_data_collection.hpp
             std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;
 
             // records if we gave up and need to skip this snarl if a path it too long

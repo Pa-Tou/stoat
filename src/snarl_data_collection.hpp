@@ -134,7 +134,7 @@ class SnarlDataCollection {
         ///////////////////////////// Helper functions for use in add_snarl_sample_sets
 
         /// TODO: The walks must include the start and end bounds of the snarl. Could be taken out 
-        /// TODO: This should probably not be a member function but I'm leaving it here for now instead of changing Matis's code to use my data types
+        /// TODO: This should probably not be a member function but I'm leaving it here for now instead of changing Matis's code to use my data types (from write_snarls_with_paths() in snarl_data_t.hpp)
         /// Helper function for finding all possible walks through the snarl. Fills in walks
         /// snarl_data will not have the sample_sets_by_allele filled in
         /// If a path cycles more than walk_cycle_limit times, stop looking for more cycles

@@ -126,6 +126,7 @@ public:
 //    size_t end_id;
 //}
     
+//TODO: This is eventually going to be replaced with snarl_info_t from snarl_data_collection.hpp
 // Define a Snarl_data_t structure to hold snarl information
 struct Snarl_data_t {
     public:
@@ -181,7 +182,6 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> list_all_snarls_with_
                             unordered_set<std::string>& ref_paths);
 
 // convert paths from the simple vector of net handles to the PathTraversal object
-// also returns a vector with the allele length info as strings (e.g. '0', '100/102')
 std::vector<PathTraversal> convert_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             const handlegraph::PathHandleGraph& graph, 
