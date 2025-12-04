@@ -5,7 +5,7 @@ namespace stoat_vcf {
 
 std::vector<std::vector<char>> create_genotype_table(
         const size_t &number_samples,
-        const std::vector<stoat::Path_traversal_t> &column_headers,
+        const std::vector<stoat::PathTraversal> &column_headers,
         const stoat_vcf::EdgeBySampleMatrix &matrix) {
 
     // Each sample can have up to 2 alleles → initialize with two empty strings
@@ -13,11 +13,9 @@ std::vector<std::vector<char>> create_genotype_table(
 
     // Loop over all columns / paths
     for (size_t col_idx = 0; col_idx < column_headers.size(); ++col_idx) {
-        const auto& path_snarl = column_headers[col_idx];
-        std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
-
         // Identify samples that use this path
-        std::vector<size_t> idx_sample_save = identify_path(list_edge_path, matrix, number_samples * 2);
+        const auto& path_snarl = column_headers[col_idx];
+        std::vector<size_t> idx_sample_save = matrix.get_samples_on_path(path_snarl);
 
         // Fill genotype matrix
         for (size_t idx : idx_sample_save) {

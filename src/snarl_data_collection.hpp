@@ -20,13 +20,13 @@ struct snarl_info_t {
 
         // Constructor from elements
         snarl_info_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
-                     size_t start_position, size_t end_position, size_t depth, const std::string& variant_type, 
-                     const std::vector<Path_traversal_t>& walks_by_allele, const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele, 
+                     size_t start_position, size_t end_position, size_t depth,
+                     const std::vector<PathTraversal>& walks_by_allele, const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele, 
                      const std::vector<std::string>& sequences_by_allele) :
 
                      start_node(start_node), end_node(end_node), 
                      ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
-                     variant_type(variant_type), walks_by_allele(walks_by_allele), sample_sets_by_allele(sample_sets_by_allele), sequences_by_allele(sequences_by_allele)
+                     walks_by_allele(walks_by_allele), sample_sets_by_allele(sample_sets_by_allele), sequences_by_allele(sequences_by_allele)
                      {};
 
         // Start and end nodes, both pointing into the snarl
@@ -41,16 +41,13 @@ struct snarl_info_t {
         size_t end_position;
         size_t depth;
 
-        // The "variant type" of the snarl, which represents the min/max length (or 0 for a deletion) of each walk in walks_by_allele
-        const std::string& variant_type;
-
         // For each allele, the walk through the snarl
         // The walk includes the boundary nodes of the snarl
         // Nested chains are included in the walk as the boundary node of the chain going into the chain, an empty node 0 going forward, 
         //    and the other bound of the chain going out.
         // When a walk leaves the snarl and comes back, it will include the boundary node of the snarl leaving it, an empty node 0 going backward, and the 
         //    boundary of the snarl going back in
-        const std::vector<Path_traversal_t>& walks_by_allele;
+        const std::vector<PathTraversal>& walks_by_allele;
 
         // For each allele, the set of sample/haplotypes that contain that allele
         const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele;
@@ -101,8 +98,7 @@ class SnarlDataCollection {
                                 bool walks_requested,
                                 const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data, 
-                                                         std::vector<Path_traversal_t>& walks, 
-                                                         std::vector<std::string>& walk_lengths)>& find_walks,
+                                                         std::vector<PathTraversal>& walks)>& find_walks,
                                 bool sample_set_requested,
                                 const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                           const net_handle_t& snarl, const snarl_info_t& snarl_data, 
@@ -122,7 +118,7 @@ class SnarlDataCollection {
         //        stores a reference to the vector somewhere else in memory
         void add_snarl_sample_sets(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 
                                   const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_sets,
-                                  std::string chr="");
+                                  std::string chr);
 
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
@@ -143,14 +139,13 @@ class SnarlDataCollection {
         /// snarl_data will not have the sample_sets_by_allele filled in
         /// If a path cycles more than walk_cycle_limit times, stop looking for more cycles
         static void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
-                           std::vector<std::string>& walk_lengths, size_t walk_cycle_limit = 1);
+                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks,
+                           size_t walk_cycle_limit = 1);
 
         /// Helper function for finding all possible walks through the snarl. Fills in walks
         /// snarl_data is assumed to have the sample_sets_by_allele filled in and walks must be filled in to match the sample_sets_by_allele
         static void get_walks_from_sample_sets(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::Path_traversal_t>& walks,
-                           std::vector<std::string>& walk_lengths);
+                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,9 +170,6 @@ class SnarlDataCollection {
             // Depth of the snarl in the snarl decomposition
             size_t depth;
 
-            // The "variant type" of the snarl, which represents the min/max length (or 0 for a deletion) of each walk in walks_by_allele
-            std::string variant_type;
-
         };
 
         //////////////////////////// The stuff holding the data 
@@ -190,7 +182,7 @@ class SnarlDataCollection {
 
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the walks through the snarl.
-        std::unordered_map<stoat::Node_traversal_t, std::vector<Path_traversal_t>> snarl_to_walks;
+        std::unordered_map<stoat::Node_traversal_t, std::vector<PathTraversal>> snarl_to_walks;
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the sample_sets_by_allele.
         /// The vector follows the vector of walks in snarl_to_walks, meaning that each set in snarl_to_sample_sets
@@ -234,7 +226,7 @@ class SnarlDataCollection {
     
         // Given the walks through the snarl, find the sequence. The sequence will just be a concatination of sequences of nodes, ignoring anything else
         std::vector<std::string> get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                const std::vector<stoat::Path_traversal_t>& paths) const; 
+                const std::vector<stoat::PathTraversal>& paths) const; 
     
 
         // Do we want to analyze this snarl, based on the various limits we were given?

@@ -31,6 +31,7 @@ std::vector<bool> parse_binary_pheno(
     std::string line;
 
     // Header is assumed already read and validated externally
+    // JEAN but it's not, is it? we're doing this just below
     std::getline(file, line);
     std::istringstream header_stream(line);
     std::string fid, iid, phenoStr;
@@ -39,6 +40,8 @@ std::vector<bool> parse_binary_pheno(
         throw std::invalid_argument("Invalid header: " + line);
     }
 
+    // JEAN we don't use FID so I think we should remove it (or not care if it's missing)
+    
     // --- Read and process data ---
     int count_controls = 0;
     int count_cases = 0;
@@ -58,6 +61,7 @@ std::vector<bool> parse_binary_pheno(
             throw std::invalid_argument("Bad phenotype type: " + phenoStr_val);
         }
 
+        // JEAN binary could have been 0/1 rather than 1/2
         if (pheno == 1) {
             ++count_controls;
             binary_pheno[iid_val] = false;
@@ -390,7 +394,7 @@ std::vector<std::vector<double>> parse_covariates(
             tokens.push_back(token);
         }
 
-        if (tokens.size() <= iid_index) continue;
+        if (tokens.size() <= iid_index) continue; // JEAN isn't that a sign that the file is wrong and we should raise an error?
         std::string iid = tokens[iid_index];
 
         std::vector<double> selected;
@@ -405,7 +409,7 @@ std::vector<std::vector<double>> parse_covariates(
         covariate_map[iid] = selected;
     }
 
-    check_match_samples(covariate_map, list_samples);
+    check_match_samples(covariate_map, list_samples); // JEAN this says phenotype in the error message and is tested again below. Unnecessary?
 
     // Order covariate_map by list_samples
     for (const auto& sample : list_samples) {
@@ -442,39 +446,6 @@ void check_file(const std::string& file_path) {
     }
 
     file.close();
-}
-
-void KinshipMatrix::parseKinshipMatrix(const std::string& filename) {
-
-    std::ifstream file(filename);
-    std::string line;
-
-    // Parse header line for IDs
-    if (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string token;
-        // Skip the empty top-left cell
-        std::getline(ss, token, '\t');
-        ids.clear();
-        while (std::getline(ss, token, '\t')) {
-            ids.push_back(token);
-        }
-    }
-
-    matrix.clear();
-
-    // Parse matrix rows
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string rowLabel;
-        std::getline(ss, rowLabel, '\t'); // row label
-        std::vector<double> row;
-        std::string value;
-        while (std::getline(ss, value, '\t')) {
-            row.push_back(std::stod(value));
-        }
-        matrix.push_back(row);
-    }
 }
 
 } //end stoat namespace

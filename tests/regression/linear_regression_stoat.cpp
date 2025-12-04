@@ -85,6 +85,7 @@ std::vector<std::vector<double>> fromEigenMatrix(const Eigen::MatrixXd& mat) {
 }
 
 // Compute Moore-Penrose pseudoinverse using SVD
+// JEAN is that an exact copy of the other pseudoInverse function?
 std::vector<std::vector<double>> pseudoInverse(const std::vector<std::vector<double>>& A, double tol=1e-10) {
     Eigen::MatrixXd mat = toEigenMatrix(A);
     Eigen::JacobiSVD<Eigen::MatrixXd> svd(mat, Eigen::ComputeThinU | Eigen::ComputeThinV);

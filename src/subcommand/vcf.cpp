@@ -22,24 +22,21 @@ namespace stoat_command {
 
 void print_help_vcf() {
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -g, --graph FILE             Path to the packed graph file\n"
-              << "  -d, --dist FILE              Path to the packed distance index file\n"
+              << "  -g, --graph FILE             Path to the graph file (only Packed Graph works for now)\n"
+              << "  -d, --dist FILE              Path to the distance index file\n"
               << "  -v, --vcf FILE               Path to the VCF file\n"
               << "  -s, --snarl FILE             Path to the snarl file\n"
               << "  -r, --chr FILE               Path to the chromosome reference file\n"
               << "  -b, --binary FILE            Path to the binary phenotype group file\n"
               << "  -q, --quantitative FILE      Path to the quantitative phenotype file\n"
-              << "  -e, --eqtl FILE              Path to the Expression Quantitative Trait Loci file\n"
-              << "  -m, --make-genotype          Create an genotyping file that containt variation present in snarl (stoat/vcf) [stoat]\n"
+              << "  -e, --eqtl FILE              Path to the gene expression file (for eQTL analysis)\n" // JEAN also change --eqtl but that might break pipelines
               << "  -c, --covariate FILE         Path to the covariate file\n"
               << "  -C, --covar-name NAME        Covariate column name(s) used for GWAS\n"
-              << "  -k, --kinship FILE           Path to the kinship matrix file\n"
               << "  -G, --gaf                    Generate a GAF file from GWAS results\n"
               << "  -I, --min-individuals INT    Minimum number of individuals per snarl [0]\n"
-              << "  -E  --exclude-paths          Exclude paths that containt\n"
               << "  -i, --children INT           Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT              Max number of authorized cycles in snarl decomposition [1]\n"
-              << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition [10,000]\n"
+              << "  -l, --path-length INT        Max number of nodes in paths during snarl decomposition [50]\n"
               << "  -P, --gene-position FILE     Path to the gene position file\n"
               << "  -w, --windows-gene INT       Window length from gene boundaries for snarl inclusion in eQTL [1,000,000]\n"
               << "  -T, --table-threshold FLOAT  P-value threshold for regression table output [disabled]\n"
@@ -50,29 +47,27 @@ void print_help_vcf() {
               << "  -h, --help                   Print this help message\n";
 }
 
-int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
+int main_stoat_vcf(int argc, char* argv[]) {
     
     // Declare variables to hold argument values
     std::string vcf_path, snarl_path, graph_path, dist_path, 
         chromosome_path, binary_path, quantitative_path, 
-        eqtl_path, covariate_path, gene_position_path, 
-        kinship_path, output_dir;
+        eqtl_path, covariate_path, gene_position_path;
 
     size_t phenotype = 0;
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
     size_t min_individuals = 0;
-    size_t path_length_threshold = 10000;
+    // JEAN this threshold is a bit redundant with children_threshold and cycle_threshold but I guess could be useful if we want to set it lower than (children_threshold * (cycle_threshold+1))
+    size_t path_length_threshold = 50;
     size_t windows_gene_threshold = 1000000;
 
     double table_threshold = -1;
     double maf_threshold = 0.05;
-
+    std::string output_dir = "output";
+    
     bool gaf = false;
     bool only_snarl_parsing = false;
-    bool show_help = false;
-    bool make_genotype_vcf = false;
-    bool make_genotype_stoat = false;
 
     std::vector<std::string> covar_names;
 
@@ -88,10 +83,8 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {"binary", required_argument, 0, 'b'},
         {"quantitative", required_argument, 0, 'q'},
         {"eqtl", required_argument, 0, 'e'},
-        {"make-genotype", no_argument, 0, 'm'},
         {"covariate", required_argument, 0, 'c'},
         {"covar-name", required_argument, 0, 'C'},
-        {"kinship", required_argument, 0, 'k'},
         {"gaf", no_argument, 0, 'G'},
         {"min-individuals", required_argument, 0, 'I'},
         {"children", required_argument, 0, 'i'},
@@ -108,7 +101,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:k:i:y:l:P:w:T:M:t:V:I:o:m:Gh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:i:y:l:P:w:T:M:t:V:I:o:Gh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -118,15 +111,6 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
             case 'b': binary_path = optarg; phenotype++; stoat_vcf::check_file(binary_path); break;
             case 'q': quantitative_path = optarg; phenotype++; stoat_vcf::check_file(quantitative_path); break;
             case 'e': eqtl_path = optarg; phenotype++; stoat_vcf::check_file(eqtl_path); break;
-            case 'm':
-                if (strcmp(optarg, "vcf") == 0) {
-                    make_genotype_vcf = true;
-                } else if (strcmp(optarg, "stoat") == 0) {
-                    make_genotype_stoat = true;
-                } else {
-                    throw std::runtime_error("Error: [stoat vcf] Only stoat or vcf is available for genotyping output format");
-                }
-                break;
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
             case 'C': {
                 std::stringstream ss(optarg);
@@ -134,7 +118,6 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
                 while (std::getline(ss, token, ',')) covar_names.push_back(token);
                 break;
             }
-            case 'k': kinship_path = optarg; stoat_vcf::check_file(kinship_path); break;
             case 'G': gaf = true; break;
             case 'I':
                 min_individuals = std::stoi(optarg);
@@ -206,15 +189,11 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         }
     }
 
-    if (show_help || argc == 2) {
+    if (argc == 2) {
         print_help_vcf();
         return EXIT_FAILURE;
     }
     
-    if (output_dir.empty()) {
-        output_dir = "output";
-    }
-
     if (!covariate_path.empty() && covar_names.empty()) {
         stoat::LOG_ERROR("[stoat vcf] If --covariate path is provided you must add the column name(s), using --covar-name");
         print_help_vcf();
@@ -228,7 +207,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     }
 
     std::filesystem::create_directory(output_dir);
-    std::unordered_set<std::string> ref_chr = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
+    std::unordered_set<std::string> ref_chrs = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
     std::string regression_dir = output_dir + "/regression";
     stoat::Logger::instance().setLogFile(output_dir + "/stoat_vcf.log");
 
@@ -246,39 +225,33 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
     // Enforce valid argument combinations
     if ((!snarl_path.empty() || (!graph_path.empty() && !dist_path.empty())) && !vcf_path.empty() && phenotype == 1) {
         //stoat::LOG_TRACE("Case Gwas");
-        // Case 1: snarl_path + vcf_path + phenotype
         // Case 2: graph_path + dist_path + vcf_path + phenotype
-    } else if ((!snarl_path.empty() || (!graph_path.empty() && !dist_path.empty())) && !vcf_path.empty() && make_genotype_vcf) {
-        if (phenotype == 1) {
-            stoat::LOG_WARN("make-genotype arg is provided, the phenotype file will not be parsed");
-        }
-        // stoat::LOG_TRACE("Case make VCF");
         // Case 3: snarl_path + vcf_path + phenotype
     } else if (!graph_path.empty() && !dist_path.empty() && vcf_path.empty() && snarl_path.empty() && phenotype == 0) {
         //stoat::LOG_TRACE("Case Snarl path decomposition");
-        // Case 4: Only graph_path + dist_path
+        // Case 1: Only graph_path + dist_path
         only_snarl_parsing = true;
     } else {
         stoat::LOG_ERROR("[stoat vcf] " +
             std::string("Invalid argument combination provided.\n") +
             "There are only 3 ways to launch stoat vcf:\n" +
-            "Case 1 (GWAS only): snarl_path + vcf_path + phenotype (+ optional file)\n" +
+            "Case 1 (snarl path decomposition): graph_path + dist_path\n" +
             "Case 2 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + phenotype (+ optional file)\n" +
-            "Case 3 (GWAS + snarl path decomposition): graph_path + dist_path + vcf_path + make-genotype (arg)\n" +
-            "Case 4 (snarl path decomposition): graph_path + dist_path"
+            "Case 3 (GWAS only): snarl_path + vcf_path + phenotype (+ optional file)"
         );
         print_help_vcf();
         return EXIT_FAILURE;
     }
 
     if ((gaf == true && binary_path.empty()) || (gaf == true && graph_path.empty())) {
-        stoat::LOG_ERROR("[stoat vcf] GAF file can be generated only with binary phenotype AND with the graph graph");
+        stoat::LOG_ERROR("[stoat vcf] GAF file can be generated only with binary phenotype AND providing a graph (-g)");
         print_help_vcf();
         return EXIT_FAILURE;
     }
 
-    auto start_1 = std::chrono::high_resolution_clock::now();
+    auto start_total_timer = std::chrono::high_resolution_clock::now();
 
+    // start reading the VCF to get the sample list
     std::vector<std::string> list_samples;
     htsFile* ptr_vcf;
     bcf_hdr_t* hdr;
@@ -291,6 +264,7 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
 
     //////////////////// Load the phenotypes and covariate matrix from files
 
+    // JEAN these phenotypes/covariate could be 1-2 objects, well-defined, and keeping the sample names/order somewhere
     std::vector<bool> binary_phenotype;
     std::vector<double> quantitative_phenotype;
 
@@ -316,51 +290,40 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
         eqtl_phenotype = stoat_vcf::parse_qtl_gene_file(eqtl_path, gene_position_path, list_samples);
     }
 
-    stoat_vcf::KinshipMatrix kinship;
-    if (!kinship_path.empty()) {
-        stoat::LOG_TRACE("Parsing kinship matrix file");
-        kinship.parseKinshipMatrix(kinship_path);
-    }
-
     // Load or calculate the snarl information
     // scope declaration
     // chr : <snarl, paths, pos(start, end), type>
     std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> snarls_chr;
     unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
     unique_ptr<handlegraph::PathHandleGraph> graph;
-    handlegraph::net_handle_t root;
-    unique_ptr<bdsg::PositionOverlay> p_overlay;
+    // handlegraph::net_handle_t root;
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
-        stoat::LOG_TRACE("Parsing snarl path file");
-        snarls_chr = stoat::parse_snarl_path(snarl_path);
+        stoat::LOG_TRACE("Reading snarl path file");
+        snarls_chr = stoat::read_snarl_path(snarl_path);
 
     } else { // Otherwise, find them from the graph and snarl tree
         stoat::LOG_INFO("Starting snarl decomposition... ");
-        auto start_0 = std::chrono::high_resolution_clock::now();
+        auto start_dec_timer = std::chrono::high_resolution_clock::now();
 
         // Load the snarl tree and graph
-        std::tie(distance_index, graph, root, p_overlay) = stoat::parse_graph_tree(graph_path, dist_path);
+        std::tie(distance_index, graph) = stoat::load_graph_tree(graph_path, dist_path);
 
         // Check if chr present in chr file is present in the graph
-        for (const auto& chr : ref_chr) {
+        for (const auto& chr : ref_chrs) {
             stoat::LOG_TRACE("Chr found in .chr file : " + chr);
             if (!graph->has_path(chr)) {
                 throw std::runtime_error("Reference chromosome : " + chr + " not present in graph");
             }
         }
 
-        // std::vector<std::tuple<handlegraph::net_handle_t, std::string, size_t, size_t, bool>>
-        // snarl_net_grah, chr_ref, start_pos, end_pos, is_on_ref
-        auto snarls = stoat::save_snarls(*distance_index, root, *graph, ref_chr, *p_overlay);
-
-        std::string output_snarl_not_analyse = output_dir + "/snarl_not_analyse.tsv";
-        std::string output_file = output_dir + "/snarl_analyse.tsv";
+        // maps a ref chr to a vector of snarls
+        auto snarls = stoat::list_all_snarls_with_pos(*distance_index, *graph, ref_chrs);
 
         // Go through snarls and fill in snarls_chr 
-        snarls_chr = stoat::loop_over_snarls_write(*distance_index, snarls, *graph, output_file, output_snarl_not_analyse, children_threshold, path_length_threshold, cycle_threshold);
-        auto end_0 = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Snarl time decomposition : " + std::to_string(std::chrono::duration<double>(end_0 - start_0).count()) + " s");
+        snarls_chr = stoat::write_snarls_with_paths(*distance_index, snarls, *graph, output_dir, children_threshold, path_length_threshold, cycle_threshold);
+        auto end_dec_timer = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Snarl time decomposition : " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
 
         if (only_snarl_parsing) {
             return EXIT_SUCCESS;
@@ -368,67 +331,48 @@ int main_stoat_vcf(int argc, char* argv[], stoat::LogLevel &verbosity) {
 
         // Clean up unique_ptr except graph
         distance_index.reset();
-        p_overlay.reset();
     }
 
     //////////////////////////////////////// Go through the vcf, do the analysis, and write the output
-
-    auto start_2 = std::chrono::high_resolution_clock::now();
-
-    std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
-    stoat_vcf::EdgeBySampleMatrix edge_matrix_empty(list_samples, 0, 0);
-    stoat::phenotype_type_t phenotype_type;
-
     stoat::LOG_INFO("Starting GWAS analysis...");
+    auto start_gwas_timer = std::chrono::high_resolution_clock::now();
+    std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
 
     // Decide which type of SnarlAnalyzer we want
-    if (make_genotype_vcf) {
-        // VCF maker
-        snarl_analyzer.reset(new stoat_vcf::VcfSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples));
-    } else if (!binary_path.empty()) {
+    if (!binary_path.empty()) {
         // binary
         if (!covariate.empty()){
             // Binary covariate
-            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));
-            phenotype_type = stoat::BINARY_COVAR;
+            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
+                                                                         binary_phenotype, min_individuals, regression_dir));
         } else {
             // Binary without covariate
-            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, maf_threshold, table_threshold, binary_phenotype, min_individuals, regression_dir));
-            phenotype_type = stoat::BINARY;
+            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, list_samples, maf_threshold, table_threshold,
+                                                                    binary_phenotype, min_individuals, regression_dir));
         }
     } else if (!quantitative_path.empty()) {
         // Quantitative
-        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, quantitative_phenotype, min_individuals, regression_dir));
-        phenotype_type = stoat::QUANTITATIVE; 
+        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
+                                                                      quantitative_phenotype, min_individuals, regression_dir));
     } else if (!eqtl_path.empty()) {
         // EQTL
-        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, edge_matrix_empty, list_samples, covariate, maf_threshold, table_threshold, eqtl_phenotype, windows_gene_threshold, min_individuals, regression_dir));
-        phenotype_type = stoat::EQTL; 
+        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, table_threshold,
+                                                              eqtl_phenotype, windows_gene_threshold, min_individuals, regression_dir));
     }
 
-    std::string output_tsv;
+    // read the VCF by chromosomome, genotype each snarl and perform the association test
+    snarl_analyzer->genotype_test_snarls_by_chr_from_vcf(ptr_vcf, hdr, rec, output_dir);
 
-    if (make_genotype_vcf || make_genotype_stoat) {
-        output_tsv = output_dir + "/table_genotyping.vcf";
-    } else {
-        if (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR)
-            output_tsv = output_dir + "/binary_table_vcf.tsv";
-        else if (phenotype_type == stoat::QUANTITATIVE)
-            output_tsv = output_dir + "/quantitative_table_vcf.tsv";
-        else
-            output_tsv = output_dir + "/eqtl_table_vcf.tsv";
-    }
-        snarl_analyzer->process_snarls_by_chromosome_chunk(ptr_vcf, hdr, rec, output_tsv);
-
-    if (phenotype_type == stoat::BINARY && gaf) {
+    // eventually, make a GAF to visualize the tested snarls and their association signal
+    if (snarl_analyzer->get_phenotype_type() == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
         std::string output_gaf = output_dir + "/binary_table_vcf.gaf";
-        stoat_vcf::gaf_creation(output_tsv, snarls_chr, *graph, output_gaf);
+        stoat_vcf::gaf_creation(output_dir + "/binary_table_vcf.tsv", snarls_chr, *graph, output_gaf);
     }
 
-    auto end_1 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("GWAS time analysis : " + std::to_string(std::chrono::duration<double>(end_1 - start_2).count()) + " s");
-    stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_1 - start_1).count()) + " s");
+    auto end_total_timer = std::chrono::high_resolution_clock::now();
+    stoat::LOG_INFO("GWAS time analysis : " + std::to_string(std::chrono::duration<double>(end_total_timer - start_gwas_timer).count()) + " s");
+    stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_total_timer - start_total_timer).count()) + " s");
     return EXIT_SUCCESS;
 }
 

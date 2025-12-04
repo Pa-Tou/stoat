@@ -2,27 +2,29 @@
 
 using namespace std;
 
+// JEAN why so many functions here?
+
 namespace stoat_vcf {
 
 // Explicit template instantiations
 template std::tuple<std::vector<std::vector<double>>, std::vector<double>, std::vector<std::string>, std::vector<size_t>>
     create_quantitative_table<double>(
         const size_t&,
-        const std::vector<stoat::Path_traversal_t>&,
+        const std::vector<stoat::PathTraversal>&,
         const std::vector<double>&,
         const stoat_vcf::EdgeBySampleMatrix&);
 
 template std::tuple<std::vector<std::vector<double>>, std::vector<bool>, std::vector<std::string>, std::vector<size_t>>
     create_quantitative_table<bool>(
         const size_t&,
-        const std::vector<stoat::Path_traversal_t>&,
+        const std::vector<stoat::PathTraversal>&,
         const std::vector<bool>&,
         const stoat_vcf::EdgeBySampleMatrix&);
 
 std::tuple<std::vector<std::vector<double>>,  
 std::set<size_t>, std::vector<size_t>> process_table_quantitative(
         const size_t& number_samples,
-        const std::vector<stoat::Path_traversal_t>& column_headers,
+        const std::vector<stoat::PathTraversal>& column_headers,
         const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
     size_t length_column = column_headers.size();
@@ -36,11 +38,9 @@ std::set<size_t>, std::vector<size_t>> process_table_quantitative(
 
     // Loop over all columns
     for (size_t col_idx = 0; col_idx < length_column; ++col_idx) {
-        const stoat::Path_traversal_t& path_snarl = column_headers[col_idx];
-        std::vector<stoat::Edge_t> list_edge_path = stoat_vcf::decompose_path_to_edges(path_snarl);
-
         // Get the index of all samples that take this path
-        std::vector<size_t> idx_srr_save = identify_path(list_edge_path, matrix, number_samples * 2);
+        const stoat::PathTraversal& path_snarl = column_headers[col_idx];
+        std::vector<size_t> idx_srr_save = matrix.get_samples_on_path(path_snarl);
 
         if (idx_srr_save.empty())
             continue; // Skip if column is empty
@@ -71,7 +71,7 @@ std::set<size_t>, std::vector<size_t>> process_table_quantitative(
 template<typename T>
 std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<std::string>, std::vector<size_t>> create_quantitative_table(
     const size_t& number_samples,
-    const std::vector<stoat::Path_traversal_t>& column_headers,
+    const std::vector<stoat::PathTraversal>& column_headers,
     const std::vector<T>& phenotype,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
@@ -100,7 +100,7 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<std::s
 
         genotypes_update.push_back(std::move(normalized_row));
         phenotype_update.push_back(phenotype[i]);
-        sample_update.push_back(matrix.sampleNames[i]);
+        sample_update.push_back(matrix.get_sample_name(i));
     }
 
     return {genotypes_update, phenotype_update, sample_update, allele_paths};
@@ -108,7 +108,7 @@ std::tuple<std::vector<std::vector<double>>, std::vector<T>,  std::vector<std::s
 
 std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<std::string>, std::vector<size_t>> create_eqtl_table(
     const size_t& number_samples,
-    const std::vector<stoat::Path_traversal_t>& column_headers,
+    const std::vector<stoat::PathTraversal>& column_headers,
     const stoat_vcf::EdgeBySampleMatrix& matrix) {
 
     const auto& [genotypes, index_used, allele_paths] = process_table_quantitative(number_samples, column_headers, matrix);
@@ -132,10 +132,54 @@ std::tuple<std::vector<std::vector<double>>, std::set<size_t>, std::vector<std::
         }
 
         genotypes_update.push_back(std::move(normalized_row));
-        sample_update.push_back(matrix.sampleNames[i]);
+        sample_update.push_back(matrix.get_sample_name(i));
     }
 
     return {genotypes_update, index_used, sample_update, allele_paths};
 }
 
+std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
+
+    std::string result;
+    size_t numb_col = g0.size();
+    for (size_t index_col = 0; index_col < numb_col; ++index_col) {
+        result += std::to_string(g0[index_col]) + ":" + std::to_string(g1[index_col]);
+        if (index_col < numb_col - 1) {
+            result += ","; // Separate row pairs with ','
+        }
+    }
+    return result;
+}
+
+size_t create_binary_table(
+    std::vector<size_t>& g0, std::vector<size_t>& g1,
+    const std::vector<bool>& binary_phenotype, 
+    const std::vector<stoat::PathTraversal>& list_path_snarl, 
+    const stoat_vcf::EdgeBySampleMatrix& matrix) {
+
+    std::vector<bool> sample_included(binary_phenotype.size(), false);
+    for (size_t idx_g = 0; idx_g < list_path_snarl.size(); ++idx_g) {
+        const stoat::PathTraversal& path_snarl = list_path_snarl[idx_g];
+        std::vector<size_t> idx_srr_save = matrix.get_samples_on_path(path_snarl);
+
+        for (size_t idx : idx_srr_save) {
+            bool group = binary_phenotype[idx / 2];
+            sample_included[idx / 2] = true;
+            if (group) {
+                g1[idx_g] += 1;
+            } else {
+                g0[idx_g] += 1;
+            }
+        }
+    }
+
+    // Count the number of individuals included
+    size_t individuals_included = 0;
+    for (bool included : sample_included) {
+        if (included) individuals_included++;
+    }
+
+    return individuals_included;
+}
+    
 } // namespace stoat

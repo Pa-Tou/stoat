@@ -13,7 +13,7 @@
 #include "../snarl_data_collection.hpp"
 #include "../path_partitioner.hpp"
 #include "../writer.hpp"
-#include "../binary_table.hpp"
+#include "../quantitative_table.hpp"
 #include "../io/register_io.hpp"
 #include "../post_processing.hpp"
 #include "../arg_parser.hpp"
@@ -44,7 +44,7 @@ void print_help_graph() {
         << "output:" << endl
         << "  -o, --output DIR                   Output directory name [output]" << endl
         << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
-        << "                                     Output will be written to DIR/binary_table_graph.tsv or DIR/binary_output.fasta" << endl
+        << "                                     Output will be written to DIR/binary_table_1graph.tsv or DIR/binary_output.fasta" << endl
         << "options:" << endl
         << "  -t, --threads N                    Number of threads to use" << endl
         << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << endl
@@ -59,7 +59,7 @@ void print_help_graph() {
         << "  -h, --help                         Print this help message" << endl;
 }
 
-int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
+int main_stoat_graph(int argc, char *argv[]) {
 
     if (argc <= 1) {
         print_help_graph();
@@ -411,7 +411,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
     ////////////////////////////////// Now do the stastistics and write the output
 
     // Make a tester
-    stoat::FisherKhi2 fisher_chi2_tester;
+    stoat::FisherChi2 fisher_chi2_tester;
 
     if (!samples_filename.empty()) {
         // If we actually want to do the analysis
@@ -478,7 +478,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                         seen_samples.insert(sample.sample);
                     }
                 }
-                if (!stoat::filtration_binary_table(sample_count_by_allele1, sample_count_by_allele2, seen_samples.size(), min_individuals, maf_threshold)) {
+                if (!stoat::filter_binary_table(sample_count_by_allele1, sample_count_by_allele2, seen_samples.size(), min_individuals, maf_threshold)) {
                     // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
 
                     //Get a bunch of strings that get used for the output
@@ -488,7 +488,7 @@ int main_stoat_graph(int argc, char *argv[], stoat::LogLevel &verbosity) {
                     group_paths = stoat_vcf::format_group_paths(sample_count_by_allele1, sample_count_by_allele2);
                 
                     // Run the statistical test
-                    std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_khi2(sample_count_by_allele1, sample_count_by_allele2);
+                    std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_chi2(sample_count_by_allele1, sample_count_by_allele2);
 
                     write_output = true;
                 
