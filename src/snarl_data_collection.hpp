@@ -56,6 +56,7 @@ struct snarl_info_t {
         //    boundary of the snarl going back in
         const std::vector<PathTraversal>& walks_by_allele;
 
+        // TODO: This is now a bit redundant with the GenotypeTable, but it also knows which haplotype takes which allele, which is used by the fasta output. Maybe it isn't necessary for the fasta though
         // For each allele, the set of sample/haplotypes that contain that allele
         const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele;
 

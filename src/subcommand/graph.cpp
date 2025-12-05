@@ -313,7 +313,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::unordered_set<std::string> paths_set;
 
     // A set of the samples+haplotypes in the graph that match the ones from the phenotype file
-    std::set<stoat::sample_hap_t> all_sample_haplotypes;
+    std::vector<stoat::sample_hap_t> all_sample_haplotypes;
 
     // Map each sample to a unique identifier, which will later be its index in a vector (so it must start from 0 to the number of samples-1) 
     size_t sample_index = 0;
@@ -321,10 +321,15 @@ int main_stoat_graph(int argc, char *argv[]) {
 
     path_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
         std::string sample_name = stoat::get_sample_name_from_path(*path_graph, path);
-        sample_to_index.emplace(sample_name, sample_index++);
+        //Get the sample_to_index map
+        if (sample_to_index.count(sample_nam) == 0) {
+            sample_to_index.emplace(sample_name, sample_index++);
+        }
+
+        // Get the sample haplotypes that we want
         if (samples_filename.empty() || sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
             paths_set.emplace(path_graph->get_path_name(path));
-            all_sample_haplotypes.emplace(stoat::sample_hap_t(*path_graph, path));
+            all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
         return true;
     });
@@ -393,10 +398,10 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             SnarlDataCollection::get_walks_from_sample_sets, // Function to find the walks 
                                             true, // find the sample sets
                                             // Function to find the sample sets 
-                                            [&] (const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                                            [&] (const handlegraph::PathPositionHandleGraph& this_graph, const bdsg::SnarlDistanceIndex& this_distance_index,
                                                  const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                  std::vector<std::set<sample_hap_t>>& sample_sets_by_allele) {
-                                                stoat_graph::partition_embedded_paths_in_snarl(graph, distance_index, snarl, all_sample_haplotypes, sample_sets_by_allele);
+                                                return stoat_graph::partition_embedded_paths_in_snarl(this_graph, this_distance_index, snarl, all_sample_haplotypes);
                                             },
                                             output_format == "fasta", // find the sequences, only for fasta format
                                             reference_sample,
