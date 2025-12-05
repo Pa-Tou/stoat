@@ -23,13 +23,13 @@ struct snarl_info_t {
         snarl_info_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
                      size_t start_position, size_t end_position, size_t depth,
                      const GenotypeTable& genotypes, 
-                     const std::vector<PathTraversal>& walks_by_allele, const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele,
+                     const std::vector<PathTraversal>& walks_by_allele, 
                      const std::vector<std::string>& sequences_by_allele) :
 
                      start_node(start_node), end_node(end_node), 
                      ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
                      genotypes(genotypes),
-                     walks_by_allele(walks_by_allele), sample_sets_by_allele(sample_sets_by_allele), sequences_by_allele(sequences_by_allele)
+                     walks_by_allele(walks_by_allele), sequences_by_allele(sequences_by_allele)
                      {};
 
         // Start and end nodes, both pointing into the snarl
@@ -55,10 +55,6 @@ struct snarl_info_t {
         // When a walk leaves the snarl and comes back, it will include the boundary node of the snarl leaving it, an empty node 0 going backward, and the 
         //    boundary of the snarl going back in
         const std::vector<PathTraversal>& walks_by_allele;
-
-        // TODO: This is now a bit redundant with the GenotypeTable, but it also knows which haplotype takes which allele, which is used by the fasta output. Maybe it isn't necessary for the fasta though
-        // For each allele, the set of sample/haplotypes that contain that allele
-        const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele;
 
 
 
@@ -91,43 +87,44 @@ class SnarlDataCollection {
         SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit, const std::unordered_map<std::string, size_t>& sample_to_index);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
-        /// If sample_set_requested is true, then call find_sample_sample_sets and save the output sample sets.
+        /// If sample_alleles_requested is true, then call find_sample_alleles to assign each sample/haplotype in all_sample_haplotypes to an allele
+        /// find_sample_alleles makes a vector to put in in snarl_to_alleles_by_sample.
         /// If walks_requested is true, then find the walks using find_walks.
         /// If sequence_requested is true, then find the sequence of each walk.
         /// The walks, sample sets, and sequences must all match each other, and the walks may be dependent on the sample sets or vice versa 
-        /// find_sample_sets_first is true if we want to find the sample sets first and then walks based on the sample sets, and false to do the opposite.
-        ///    If only one or the other of sample sets and walks is requested then find_sample_sets_first doesn't matter.
-        /// find_sample_sample_sets and find_walks must be check the walks or sample sets accordingly to make sure that they match.
+        /// find_sample_alleles_first is true if we want to find the sample sets first and then walks based on the sample sets, and false to do the opposite.
+        ///    If only one or the other of sample sets and walks is requested then find_sample_alleles_first doesn't matter.
+        /// find_sample_sample_alleles and find_walks must be check the walks or sample sets accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
-        /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_sample_sets that may be used for find_walks
+        /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_sample_alleles that may be used for find_walks
         /// If reference_sample is not empty, get coordinates on this reference path
         /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
         /// Write failed snarls to out_fail
         void fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                                bool find_sample_sets_first,
+                                bool find_sample_alleles_first,
                                 bool walks_requested,
                                 const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                                                          const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                          std::vector<PathTraversal>& walks)>& find_walks,
-                                bool sample_set_requested,
-                                const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                                bool sample_allele_requested,
+                                const std::function<std::vector<size_t>(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                           const net_handle_t& snarl, const snarl_info_t& snarl_data, 
-                                                          std::vector<std::set<sample_hap_t>>& sample_sets_by_allele)>& find_sample_sets,
+                                                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_sample_alleles,
                                 bool sequence_requested, 
                                 const string& reference_sample, bool check_distances);
 
         
-        /// If the snarl sample_sets_by_allele (which assigns sample/haplotypes to each snarl_walk) were not found during construction, go through
-        /// all snarls and call find_sample_sample_sets to add sample_sets_by_allele
-        /// find_sample_sample_sets takes a snarl_info_t (which is not guaranteed to contain sample_sets_by_allele or sequences) and returns the sample_sets_by_allele
-        /// corresponding to the walks_by_allele in snarl_data. This should return the sample_sets_by_allele field of the snarl_info_t, but since the snarl_info_t
-        /// doesn't exist in the SnarlDataCollection it is immutable and the sample_sets_by_allele must be returned and saved separately 
-        /// Note that this will overwrite any existing sample_sets_by_allele. 
+        /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through
+        /// all snarls and call find_sample_alleles, which returns a vector of allele assignments for each sample_hap_t in all_sample_haplotypes.
+        ///  This should return the allele_by_sample field of the snarl_info_t, but since the snarl_info_t
+        /// doesn't exist in the SnarlDataCollection it is immutable and the allele_by_sample must be returned and saved separately 
+        /// Note that this will overwrite any existing allele_by_sample. 
         /// If chr is not empty, run this only on snarls on the given chromosome (as reference path name)
         //TODO:  I think this should be fine to run multithreaded as long as the list of snarl data doesn't move around, and I think the object
         //        stores a reference to the vector somewhere else in memory
-        void add_snarl_sample_sets(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 
-                                  const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_sets,
+        void add_snarl_sample_alleles(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 
+                                  const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
+                                                                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_sample_alleles,
                                   std::string chr);
 
         /// Run iteratee for all snarls
@@ -141,20 +138,20 @@ class SnarlDataCollection {
         void load_snarl_data_collection(std::istream& instream); 
 
 
-        ///////////////////////////// Helper functions for use in add_snarl_sample_sets
+        ///////////////////////////// Helper functions for use in add_snarl_sample_alleles
 
         /// TODO: The walks must include the start and end bounds of the snarl. Could be taken out 
         /// TODO: This should probably not be a member function but I'm leaving it here for now instead of changing Matis's code to use my data types (from write_snarls_with_paths() in snarl_data_t.hpp)
         /// Helper function for finding all possible walks through the snarl. Fills in walks
-        /// snarl_data will not have the sample_sets_by_allele filled in
+        /// snarl_data will not have the allele_by_sample filled in
         /// If a path cycles more than walk_cycle_limit times, stop looking for more cycles
         static void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks,
                            size_t walk_cycle_limit = 1);
 
-        /// Helper function for finding all possible walks through the snarl. Fills in walks
-        /// snarl_data is assumed to have the sample_sets_by_allele filled in and walks must be filled in to match the sample_sets_by_allele
-        static void get_walks_from_sample_sets(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+        /// Helper function for finding walks through the snarl. Fills in walks
+        /// snarl_data is assumed to have the allele_by_sample filled in and walks must be filled in to match the allele_by_sample
+        static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
 
 
@@ -195,13 +192,13 @@ class SnarlDataCollection {
 
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the walks through the snarl.
+        /// Each entry in the vector is considered to be one allele.
         std::unordered_map<stoat::Node_traversal_t, std::vector<PathTraversal>> snarl_to_walks;
 
-        /// Map snarl (as the start node, which uniquely identifies the snarl) to the sample_sets_by_allele.
-        /// The vector follows the vector of walks in snarl_to_walks, meaning that each set in snarl_to_sample_sets
-        ///  represents the sample/haplotype (as an index into sample_haplotypes) that take the walk at the same
-        ///  index in the snarl's entry in snarl_to_walks. 
-        std::unordered_map<stoat::Node_traversal_t, std::vector<std::set<size_t>>> snarl_to_sample_sets;
+        /// Map snarl (as the start node, which uniquely identifies the snarl) to the alleles_by_sample vector.
+        /// So each entry in the alleles_by_sample vector is the allele number of one sample_hap_t. The allele number
+        /// corresponds to the index of an allele in snarl_to_walks vectors, and snarl_to_sequences vectors
+        std::unordered_map<stoat::Node_traversal_t, std::vector<size_t>> snarl_to_alleles_by_sample;
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the sequences of the walks.
         /// Each string in the vector is the sequence for the walk in the corresponding vector in snarl_to_walks. 
@@ -214,7 +211,7 @@ class SnarlDataCollection {
         /// Used by the snarl_info_internal_t's reference_index
         std::vector<std::string> reference_names;
 
-        /// This stores all sample_hap_t's that are stored as indexes by snarl_to_sample_sets
+        /// This stores all sample_hap_t's that are stored as indexes by snarl_to_alleles_by_sample
         vector<sample_hap_t> sample_haplotypes;
 
 

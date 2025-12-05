@@ -153,31 +153,12 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
         // These sequence of the allele
         std::string sequence = snarl_info.sequences_by_allele[allele_i];
 
-        std::tuple<std::string, size_t, size_t> range_coordinates ("", std::numeric_limits<size_t>::max(), 0);
-
-        // For any one haplotype with this allele, find the coordinates from path_ranges
-        for (const stoat::path_range_t& path_range : path_ranges) {
-
-            handlegraph::path_handle_t path = graph.get_path_handle_of_step(path_range.start);
-
-            if (snarl_info.sample_sets_by_allele[allele_i].count(stoat::sample_hap_t(graph, path))) {
-                // If the sample/haplotype of this path is in the set for this allele
-
-                auto this_range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
-                std::get<0>(range_coordinates) = std::get<0>(this_range_coordinates);
-                std::get<1>(range_coordinates) = std::min(std::get<1>(this_range_coordinates), std::get<1>(range_coordinates));
-                std::get<2>(range_coordinates) = std::max(std::get<2>(this_range_coordinates), std::get<2>(range_coordinates));
-            }
-        }
 
         //////// Now print the fasta 
 
         // Print the header
         outstream << ">snarl:" << stoat::pairToString(std::make_pair(snarl_info.start_node.get_node_id(), snarl_info.end_node.get_node_id())) << "|"
-            << ref_coordinates << "|"
-            << std::get<0>(range_coordinates) << ":"
-            << std::get<1>(range_coordinates) << "-"    
-            << std::get<2>(range_coordinates) << endl;
+            << ref_coordinates << endl;
 
         // Now print the sequence in 80bp chunks.
         // Keep a buffer to print 80 bp at a time
