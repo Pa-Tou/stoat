@@ -43,7 +43,8 @@ class FeatureBySampleTable {
     FeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index);
 
     // Access the value saved for a sample
-    const ValueType& get_value_for_sample(const std::string& sample) const;
+    //TODO: I wanted this to be a reference in case the value is very big (eg, we want the whole vector) but it doesn't work with bools
+    ValueType get_value_for_sample(const std::string& sample) const;
 
     // Set the value for the sample
     void set_value_for_sample(const std::string& sample, ValueType value);
@@ -84,7 +85,7 @@ class CategoricalFeatureBySampleTable : public FeatureBySampleTable<std::vector<
     CategoricalFeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
 
     // Access the value saved for a sample and feature
-    const ValueType& get_value_for_sample_and_feature(const std::string& sample, const std::string& feature) const;
+    ValueType get_value_for_sample_and_feature(const std::string& sample, const std::string& feature) const;
 
     // Set the value for the sample and feature
     void set_value_for_sample_and_feature(const std::string& sample, const std::string& feature, ValueType value);

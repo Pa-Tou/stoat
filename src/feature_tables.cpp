@@ -1,5 +1,6 @@
 #include "feature_tables.hpp"
 #include <limits>
+#include <iostream>
 
 namespace stoat {
 
@@ -16,7 +17,7 @@ CategoricalFeatureBySampleTable<ValueType>::CategoricalFeatureBySampleTable(cons
 
     this->values_per_sample.reserve(this->sample_to_index.size());
     for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
-        this->values_per_sample.emplace_back(feature_to_index.size());
+        this->values_per_sample[i] = std::vector<ValueType>(feature_to_index.size());
     }
 }
     
@@ -46,37 +47,43 @@ GeneExpressionTable::GeneExpressionTable(const std::unordered_map<std::string, s
 CovariateTable::CovariateTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index) :
     CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(sample_to_index, feature_to_index) {
 
-    for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
-        for(size_t j = 0 ; j < this->values_per_sample[i].size() ; j++) {
-            this->values_per_sample[i][j] = std::numeric_limits<double>::max();
+    for (size_t i = 0 ; i < sample_to_index.size() ; i++) {
+        for(size_t j = 0 ; j < values_per_sample[i].size() ; j++) {
+            values_per_sample[i][j] = std::numeric_limits<double>::max();
         }
     }
 }
 
+// Getter for FeatureBySampleTable
 template<class ValueType>
-const ValueType& FeatureBySampleTable<ValueType>::get_value_for_sample(const std::string& sample) const {
-    return this->values_per_sample.at(this->sample_to_index.at(sample));
+ValueType FeatureBySampleTable<ValueType>::get_value_for_sample(const std::string& sample) const {
+    return values_per_sample.at(sample_to_index.at(sample));
 }
 
+// Setter for FeatureBySampleTable
 template<class ValueType>
 void FeatureBySampleTable<ValueType>::set_value_for_sample(const std::string& sample, ValueType value) {
-    return this->values_per_sample.at(this->sample_to_index.at(sample)) = std::move(value);
+    values_per_sample[sample_to_index.at(sample)] = value;
 }
 
+
+// Getter for CategoricalFeatureBySampleTable
 template<class ValueType>
-const ValueType& CategoricalFeatureBySampleTable<ValueType>::get_value_for_sample_and_feature(const std::string& sample, const std::string& feature) const {
+ValueType CategoricalFeatureBySampleTable<ValueType>::get_value_for_sample_and_feature(const std::string& sample, const std::string& feature) const {
     return this->values_per_sample.at(this->sample_to_index.at(sample)).at(this->feature_to_index.at(feature));
 }
 
+// Setter for CategoricalFeatureBySampleTable
 template<class ValueType>
 void CategoricalFeatureBySampleTable<ValueType>::set_value_for_sample_and_feature(const std::string& sample, const std::string& feature, ValueType value) {
-    return this->values_per_sample.at(this->sample_to_index.at(sample)).at(this->feature_to_index.at(feature)) = std::move(value);
+    this->values_per_sample[this->sample_to_index.at(sample)][this->feature_to_index.at(feature)] = value;
 }
 
-}
+} //end stoat namespace
 
 // Apparently these definitions are supposed to be done here, after all the members are defined
-//template class stoat::SampleFeatureTable<bool>;
-//template class stoat::SampleFeatureTable<double>;
-
+template class stoat::FeatureBySampleTable<bool>;
+template class stoat::FeatureBySampleTable<double>;
+template class stoat::CategoricalFeatureBySampleTable<size_t>;
+template class stoat::CategoricalFeatureBySampleTable<double>;
 
