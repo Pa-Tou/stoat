@@ -32,6 +32,7 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     }
 }
 
+// Constructor for a gene expression table fills everything in with a default value of std::numeric_limits<double>::max()
 GeneExpressionTable::GeneExpressionTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index) :
     CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(sample_to_index, feature_to_index) {
 
@@ -41,6 +42,7 @@ GeneExpressionTable::GeneExpressionTable(const std::unordered_map<std::string, s
         }
     }
 }
+// Constructor for a covariate table fills everything in with a default value of std::numeric_limits<double>::max()
 CovariateTable::CovariateTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index) :
     CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(sample_to_index, feature_to_index) {
 
@@ -49,6 +51,26 @@ CovariateTable::CovariateTable(const std::unordered_map<std::string, size_t>& sa
             this->values_per_sample[i][j] = std::numeric_limits<double>::max();
         }
     }
+}
+
+template<class ValueType>
+const ValueType& FeatureBySampleTable<ValueType>::get_value_for_sample(const std::string& sample) const {
+    return this->values_per_sample.at(this->sample_to_index.at(sample));
+}
+
+template<class ValueType>
+void FeatureBySampleTable<ValueType>::set_value_for_sample(const std::string& sample, ValueType value) {
+    return this->values_per_sample.at(this->sample_to_index.at(sample)) = std::move(value);
+}
+
+template<class ValueType>
+const ValueType& CategoricalFeatureBySampleTable<ValueType>::get_value_for_sample_and_feature(const std::string& sample, const std::string& feature) const {
+    return this->values_per_sample.at(this->sample_to_index.at(sample)).at(this->feature_to_index.at(feature));
+}
+
+template<class ValueType>
+void CategoricalFeatureBySampleTable<ValueType>::set_value_for_sample_and_feature(const std::string& sample, const std::string& feature, ValueType value) {
+    return this->values_per_sample.at(this->sample_to_index.at(sample)).at(this->feature_to_index.at(feature)) = std::move(value);
 }
 
 }
