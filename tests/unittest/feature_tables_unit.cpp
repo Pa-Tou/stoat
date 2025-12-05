@@ -3,6 +3,45 @@
 
 using namespace stoat;
 
+class TestBinaryPhenotypeTable : BinaryPhenotypeTable { 
+    public:
+    TestBinaryPhenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index) : BinaryPhenotypeTable(sample_to_index){}
+    using BinaryPhenotypeTable::set_value_for_sample;
+    using BinaryPhenotypeTable::get_value_for_sample;
+    using BinaryPhenotypeTable::values_per_sample;
+};
+class TestQuantitativePhenotypeTable : QuantitativePhenotypeTable { 
+    public:
+    TestQuantitativePhenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index) : QuantitativePhenotypeTable(sample_to_index){}
+    using QuantitativePhenotypeTable::set_value_for_sample;
+    using QuantitativePhenotypeTable::get_value_for_sample;
+    using QuantitativePhenotypeTable::values_per_sample;
+};
+class TestGenotypeTable : GenotypeTable { 
+    public:
+    TestGenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, 
+                      const std::unordered_map<std::string, size_t>& feature_to_index) : GenotypeTable(sample_to_index, feature_to_index){}
+    using GenotypeTable::set_value_for_sample_and_feature;
+    using GenotypeTable::get_value_for_sample_and_feature;
+    using GenotypeTable::values_per_sample;
+};
+class TestGeneExpressionTable : GeneExpressionTable { 
+    public:
+    TestGeneExpressionTable(const std::unordered_map<std::string, size_t>& sample_to_index, 
+                      const std::unordered_map<std::string, size_t>& feature_to_index) : GeneExpressionTable(sample_to_index, feature_to_index){}
+    using GeneExpressionTable::set_value_for_sample_and_feature;
+    using GeneExpressionTable::get_value_for_sample_and_feature;
+    using GeneExpressionTable::values_per_sample;
+};
+class TestCovariateTable : CovariateTable { 
+    public:
+    TestCovariateTable(const std::unordered_map<std::string, size_t>& sample_to_index, 
+                      const std::unordered_map<std::string, size_t>& feature_to_index) : CovariateTable(sample_to_index, feature_to_index){}
+    using CovariateTable::set_value_for_sample_and_feature;
+    using CovariateTable::get_value_for_sample_and_feature;
+    using CovariateTable::values_per_sample;
+};
+
 TEST_CASE( "BinaryPhenotypeTable with three samples", "[table]" ) {
 
     // Get sample_to_index 
@@ -12,7 +51,11 @@ TEST_CASE( "BinaryPhenotypeTable with three samples", "[table]" ) {
     }
 
     // Make the table
-    BinaryPhenotypeTable table(sample_to_index);
+    TestBinaryPhenotypeTable table(sample_to_index);
+
+    SECTION("Table is the right size") {
+        REQUIRE(table.values_per_sample.size() == 3);
+    }
 
     SECTION("Set and get values") {
         table.set_value_for_sample("sample1", false);
@@ -36,7 +79,11 @@ TEST_CASE( "QuantitativePhenotypeTable with five samples", "[table]" ) {
     }
 
     // Make the table
-    QuantitativePhenotypeTable table(sample_to_index);
+    TestQuantitativePhenotypeTable table(sample_to_index);
+
+    SECTION("Table is the right size") {
+        REQUIRE(table.values_per_sample.size() == 5);
+    }
 
     SECTION("Set and get values") {
         table.set_value_for_sample("sample1", 1.0);
@@ -70,7 +117,15 @@ TEST_CASE( "GenotypeTable with three samples and three alleles", "[table]" ) {
     }
 
     // Make the table
-    GenotypeTable table(sample_to_index, feature_to_index);
+    TestGenotypeTable table(sample_to_index, feature_to_index);
+
+
+    SECTION("Table is the right size") {
+        REQUIRE(table.values_per_sample.size() == 3);
+        for (size_t i = 3 ; i < table.values_per_sample.size() ; i++) {
+            REQUIRE(table.values_per_sample.at(i).size() == 3);
+        }
+    }
 
     SECTION("Set and get values") {
         table.set_value_for_sample_and_feature("sample1", "allele1", 0);
@@ -111,8 +166,14 @@ TEST_CASE( "GeneExpressionTable with three samples and three genes", "[table]" )
     }
 
     // Make the table
-    GeneExpressionTable table(sample_to_index, feature_to_index);
+    TestGeneExpressionTable table(sample_to_index, feature_to_index);
 
+    SECTION("Table is the right size") {
+        REQUIRE(table.values_per_sample.size() == 3);
+        for (size_t i = 3 ; i < table.values_per_sample.size() ; i++) {
+            REQUIRE(table.values_per_sample.at(i).size() == 3);
+        }
+    }
     SECTION("Set and get values") {
         table.set_value_for_sample_and_feature("sample1", "gene1", 0.1);
         table.set_value_for_sample_and_feature("sample1", "gene2", 3.0);
@@ -151,8 +212,14 @@ TEST_CASE( "CovariateTable with three samples and three covariates", "[table]" )
     }
 
     // Make the table
-    CovariateTable table(sample_to_index, feature_to_index);
+    TestCovariateTable table(sample_to_index, feature_to_index);
 
+    SECTION("Table is the right size") {
+        REQUIRE(table.values_per_sample.size() == 3);
+        for (size_t i = 3 ; i < table.values_per_sample.size() ; i++) {
+            REQUIRE(table.values_per_sample.at(i).size() == 3);
+        }
+    }
     SECTION("Set and get values") {
         table.set_value_for_sample_and_feature("sample1", "covar1", 0.1);
         table.set_value_for_sample_and_feature("sample1", "covar2", 3.0);
