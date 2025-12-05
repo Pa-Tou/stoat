@@ -23,38 +23,28 @@ CategoricalFeatureBySampleTable<ValueType>::CategoricalFeatureBySampleTable(cons
         this->values_per_sample[i] = std::vector<ValueType>(feature_to_index.size());
     }
 }
+
+// Constructor for a categorical table of doubles fills everything in with a default value of std::numeric_limits<double>::max()
+template<>
+CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index,
+                                                                         const std::unordered_map<std::string, size_t>& feature_to_index) :
+    FeatureBySampleTable<std::vector<double>>::FeatureBySampleTable(sample_to_index),
+    feature_to_index(feature_to_index) {
+
+    this->values_per_sample.reserve(this->sample_to_index.size());
+    for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
+        this->values_per_sample[i] = std::vector<double>(feature_to_index.size(), std::numeric_limits<double>::max());
+    }
+}
     
 
 // Constructor for a genotype table fills everything in with a default value of 0 for the counts
 GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
     FeatureBySampleTable<std::vector<size_t>>::FeatureBySampleTable(sample_to_index) {
 
+    this->values_per_sample.reserve(this->sample_to_index.size());
     for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
-        this->values_per_sample[i] = std::vector<size_t>(allele_count);
-        for(size_t j = 0 ; j < allele_count ; j++) {
-            this->values_per_sample[i][j] = 0;
-        }
-    }
-}
-
-// Constructor for a gene expression table fills everything in with a default value of std::numeric_limits<double>::max()
-GeneExpressionTable::GeneExpressionTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index) :
-    CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(sample_to_index, feature_to_index) {
-
-    for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
-        for(size_t j = 0 ; j < this->values_per_sample[i].size() ; j++) {
-            this->values_per_sample[i][j] = std::numeric_limits<double>::max();
-        }
-    }
-}
-// Constructor for a covariate table fills everything in with a default value of std::numeric_limits<double>::max()
-CovariateTable::CovariateTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index) :
-    CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(sample_to_index, feature_to_index) {
-
-    for (size_t i = 0 ; i < sample_to_index.size() ; i++) {
-        for(size_t j = 0 ; j < values_per_sample[i].size() ; j++) {
-            values_per_sample[i][j] = std::numeric_limits<double>::max();
-        }
+        this->values_per_sample[i] = std::vector<size_t>(allele_count, 0);
     }
 }
 
@@ -101,6 +91,5 @@ size_t GenotypeTable::get_count_for_sample_and_allele(const std::string& sample,
 // Apparently these definitions are supposed to be done here, after all the members are defined
 template class stoat::FeatureBySampleTable<bool>;
 template class stoat::FeatureBySampleTable<double>;
-template class stoat::CategoricalFeatureBySampleTable<size_t>;
 template class stoat::CategoricalFeatureBySampleTable<double>;
 

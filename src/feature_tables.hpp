@@ -111,8 +111,13 @@ class CategoricalFeatureBySampleTable : public FeatureBySampleTable<std::vector<
 
 };
 
+// Specialize a CategoricalFeatureBySampleTable constructor for doubles to fill in the matrix with std::numeric_limits<double>::max()
+template<>
+CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
 
-// Each of these derived classes just defines the default value
+using GeneExpressionTable = CategoricalFeatureBySampleTable<double>;
+using CovariateTable = CategoricalFeatureBySampleTable<double>;
+
 
 class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
     public:
@@ -127,16 +132,6 @@ class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
 
 };
 
-class GeneExpressionTable : public CategoricalFeatureBySampleTable<double> {
-    public:
-
-    GeneExpressionTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
-};
-class CovariateTable : public CategoricalFeatureBySampleTable<double> {
-    public:
-
-    CovariateTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
-};
 
 } // namespace stoat
 

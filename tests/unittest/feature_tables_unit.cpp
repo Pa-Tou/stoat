@@ -226,7 +226,6 @@ TEST_CASE( "CovariateTable with three samples and three covariates", "[table]" )
         table.set_value_for_sample_and_feature("sample1", "covar2", 3.0);
         table.set_value_for_sample_and_feature("sample1", "covar3", 1.34);
         table.set_value_for_sample_and_feature("sample2", "covar1", std::numeric_limits<double>::max());
-        table.set_value_for_sample_and_feature("sample2", "covar2", 0.0);
         table.set_value_for_sample_and_feature("sample2", "covar3", 1.0932);
         table.set_value_for_sample_and_feature("sample3", "covar1", 0.1234);
         table.set_value_for_sample_and_feature("sample3", "covar2", 10.509345);
@@ -236,7 +235,7 @@ TEST_CASE( "CovariateTable with three samples and three covariates", "[table]" )
         REQUIRE(table.get_value_for_sample_and_feature("sample1", "covar2") == 3.0);
         REQUIRE(table.get_value_for_sample_and_feature("sample1", "covar3") == 1.34);
         REQUIRE(table.get_value_for_sample_and_feature("sample2", "covar1") == std::numeric_limits<double>::max());
-        REQUIRE(table.get_value_for_sample_and_feature("sample2", "covar2") == 0.0);
+        REQUIRE(table.get_value_for_sample_and_feature("sample2", "covar2") == std::numeric_limits<double>::max());
         REQUIRE(table.get_value_for_sample_and_feature("sample2", "covar3") == 1.0932);
         REQUIRE(table.get_value_for_sample_and_feature("sample3", "covar1") == 0.1234);
         REQUIRE(table.get_value_for_sample_and_feature("sample3", "covar2") == 10.509345);
