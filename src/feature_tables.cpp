@@ -1,6 +1,9 @@
 #include "feature_tables.hpp"
 #include <limits>
 #include <iostream>
+#include <cassert>
+
+#define DEBUG_TABLES
 
 namespace stoat {
 
@@ -81,6 +84,11 @@ void CategoricalFeatureBySampleTable<ValueType>::set_value_for_sample_and_featur
 }
 
 void GenotypeTable::increment_count(const std::string& sample, size_t allele_num) {
+    #ifdef DEBUG_TABLES
+    assert(this->sample_to_index.count(sample));
+    assert(this->sample_to_index.at(sample) < this->values_per_sample.size());
+    assert(allele_num < this->values_per_sample.at(this->sample_to_index.at(sample)).size());
+    #endif
     this->values_per_sample[this->sample_to_index.at(sample)][allele_num]++;
 }
 size_t GenotypeTable::get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const {

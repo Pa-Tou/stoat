@@ -8,10 +8,12 @@ namespace stoat {
 
 
 // Constructor
-SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
+SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit,
+                                         const std::unordered_map<std::string, size_t>& sample_to_index) :
                     allele_size_limit(allele_size_limit),
                     snarl_child_limit(snarl_child_limit),
-                    walk_steps_limit(walk_steps_limit) {}
+                    walk_steps_limit(walk_steps_limit),
+                    sample_to_index(sample_to_index) {}
 
 
 // This goes through all the snarls and fills in the data
@@ -136,6 +138,10 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 std::vector<std::set<sample_hap_t>> sample_sets_by_allele; 
                                 std::vector<std::string> snarl_sequences;
 
+                                //This might cause problems because it is a reference but it doesn't get used so I think its fine
+                                // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
+                                GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+
                                 // TODO decide how to deal with snarls without walks
                                 bool save_snarl = true;
 
@@ -149,6 +155,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                                              snarl_data.start_position,
                                                              snarl_data.end_position,
                                                              snarl_data.depth,
+                                                             empty_genotypes,
                                                              walks_by_allele,
                                                              sample_sets_by_allele,
                                                              snarl_sequences);
@@ -274,6 +281,10 @@ void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample
         }
 
         std::vector<std::set<sample_hap_t>> empty_sample_sets;
+        
+        //This might cause problems because it is a reference but it doesn't get used so I think its fine
+        // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
+        GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
 
         // Make the snarl_info_t from the information we have
         std::vector<PathTraversal> empty_walks (0); 
@@ -284,6 +295,7 @@ void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample
                                 snarl_info.start_position,
                                 snarl_info.end_position,
                                 snarl_info.depth,
+                                empty_genotypes,
                                 snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
                                 empty_sample_sets,
                                 snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
@@ -334,13 +346,20 @@ void SnarlDataCollection::add_sample_sets_to_collection(std::unordered_map<stoat
 void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
 
+        GenotypeTable genotypes(sample_to_index, 
+                                snarl_to_sample_sets.count(snarl_info.start_node) ? (snarl_to_sample_sets.at(snarl_info.start_node).size() == 0 ? 0 
+                                                                                         : snarl_to_sample_sets.at(snarl_info.start_node).size()) 
+                                                                                  : 0);
+
         std::vector<std::set<sample_hap_t>> sample_sets;
 
         if (snarl_to_sample_sets.count(snarl_info.start_node)) {
             const std::vector<std::set<size_t>>& set_ints = snarl_to_sample_sets.at(snarl_info.start_node);
-            for (const std::set<size_t>& sample_set : set_ints) {
+            for (size_t allele_num = 0 ; allele_num < set_ints.size() ; allele_num++) {
                 sample_sets.emplace_back();
+                const std::set<size_t>& sample_set = set_ints[allele_num];
                 for (const size_t& i : sample_set) {
+                    genotypes.increment_count(sample_haplotypes[i].sample, allele_num);
                     sample_sets.back().emplace(sample_haplotypes[i]);
                 }
             }
@@ -355,6 +374,7 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
                               snarl_info.start_position,
                               snarl_info.end_position,
                               snarl_info.depth,
+                              genotypes,
                               snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
                               sample_sets,
                               snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);

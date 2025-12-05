@@ -315,8 +315,13 @@ int main_stoat_graph(int argc, char *argv[]) {
     // A set of the samples+haplotypes in the graph that match the ones from the phenotype file
     std::set<stoat::sample_hap_t> all_sample_haplotypes;
 
+    // Map each sample to a unique identifier, which will later be its index in a vector (so it must start from 0 to the number of samples-1) 
+    size_t sample_index = 0;
+    std::unordered_map<std::string, size_t> sample_to_index;
+
     path_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
         std::string sample_name = stoat::get_sample_name_from_path(*path_graph, path);
+        sample_to_index.emplace(sample_name, sample_index++);
         if (samples_filename.empty() || sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
             paths_set.emplace(path_graph->get_path_name(path));
             all_sample_haplotypes.emplace(stoat::sample_hap_t(*path_graph, path));
@@ -360,7 +365,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     // TODO: Get these from the command line, infinite for now (which may also be fine)
     size_t snarl_child_limit = std::numeric_limits<size_t>::max();
     size_t walk_steps_limit = std::numeric_limits<size_t>::max();
-    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit);
+    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit, sample_to_index);
     if (load_snarls) {
         std::ifstream in_snarls;
         in_snarls.open(snarls_filename);

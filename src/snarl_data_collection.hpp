@@ -6,6 +6,7 @@
 #include <bdsg/snarl_distance_index.hpp>
 #include "utils.hpp"
 #include "snarl_data_t.hpp"
+#include "feature_tables.hpp"
 
 using namespace std;
 using namespace stoat;
@@ -21,11 +22,13 @@ struct snarl_info_t {
         // Constructor from elements
         snarl_info_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
                      size_t start_position, size_t end_position, size_t depth,
-                     const std::vector<PathTraversal>& walks_by_allele, const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele, 
+                     const GenotypeTable& genotypes, 
+                     const std::vector<PathTraversal>& walks_by_allele, const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele,
                      const std::vector<std::string>& sequences_by_allele) :
 
                      start_node(start_node), end_node(end_node), 
                      ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
+                     genotypes(genotypes),
                      walks_by_allele(walks_by_allele), sample_sets_by_allele(sample_sets_by_allele), sequences_by_allele(sequences_by_allele)
                      {};
 
@@ -41,6 +44,10 @@ struct snarl_info_t {
         size_t end_position;
         size_t depth;
 
+        // A genotype table of the counts of each allele for each sample.
+        // Alleles have the same numbering as walks_by_allele and sequences_by_allele, but as strings "0", "1", etc
+        const GenotypeTable& genotypes;
+
         // For each allele, the walk through the snarl
         // The walk includes the boundary nodes of the snarl
         // Nested chains are included in the walk as the boundary node of the chain going into the chain, an empty node 0 going forward, 
@@ -51,6 +58,8 @@ struct snarl_info_t {
 
         // For each allele, the set of sample/haplotypes that contain that allele
         const std::vector<std::set<sample_hap_t>>& sample_sets_by_allele;
+
+
 
         // For each allele, what is its sequence?
         // The sequences don't include sequences of the boundary nodes
@@ -78,7 +87,7 @@ class SnarlDataCollection {
         /// Ignore snarls whose maximum length is less than allele_size_limit
         /// Ignore snarls with more children than snarl_child_limit
         /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
-        SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
+        SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit, const std::unordered_map<std::string, size_t>& sample_to_index);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// If sample_set_requested is true, then call find_sample_sample_sets and save the output sample sets.
@@ -173,6 +182,9 @@ class SnarlDataCollection {
         };
 
         //////////////////////////// The stuff holding the data 
+
+        // Map sample name to a unique identifier (which is used as an index into a vector so it must start from 0 and go up to the number of samples-1)
+        const std::unordered_map<std::string, size_t>& sample_to_index;
 
         /// This holds the snarl data as a map from the chromosome name to the data
         //TODO: Make sure that this gets the chr name the way Matis did it

@@ -9,8 +9,8 @@ using namespace stoat;
 
 class TestSnarlDataCollection : SnarlDataCollection {
     public: 
-    TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
-        SnarlDataCollection(allele_size_limit, snarl_child_limit, walk_steps_limit) {} 
+    TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit, const std::unordered_map<std::string, size_t>& sample_to_index) :
+        SnarlDataCollection(allele_size_limit, snarl_child_limit, walk_steps_limit, sample_to_index) {} 
     using SnarlDataCollection::fill_in_snarl_info;
     using SnarlDataCollection::add_snarl_sample_sets;
     using SnarlDataCollection::for_each_snarl;
@@ -39,10 +39,11 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
     auto path_graph = overlay_helper.apply(&graph);
 
     std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph,graph.get_path_handle("path"))});
+    std::unordered_map<std::string, size_t> sample_to_index;
 
     SECTION("Make and fill in snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
-        TestSnarlDataCollection snarl_collection(1,1,1);
+        TestSnarlDataCollection snarl_collection(1,1,1, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
@@ -63,7 +64,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
     SECTION("Serialize snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
 
-        TestSnarlDataCollection snarl_collection(1,1,1);
+        TestSnarlDataCollection snarl_collection(1,1,1, sample_to_index);
 
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
@@ -88,7 +89,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
         snarl_collection.write_snarl_data_collection(outstream);
         outstream.close();
         
-        TestSnarlDataCollection snarl_collection_loaded(1,1,1);
+        TestSnarlDataCollection snarl_collection_loaded(1,1,1, sample_to_index);
         ifstream instream;
         instream.open(test_file);
         snarl_collection_loaded.load_snarl_data_collection(instream);
@@ -530,11 +531,16 @@ TEST_CASE( "Snarl collection nested bubbles",
         }
         return sample_sets;
     };
+    std::unordered_map<std::string, size_t> sample_to_index;
+    sample_to_index.emplace("path0", 0);
+    sample_to_index.emplace("path1", 1);
+    sample_to_index.emplace("path2", 2);
+    sample_to_index.emplace("path3", 3);
 
 
     SECTION("Make and fill in snarl collection with no walks, sample_sets, or sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
@@ -556,7 +562,7 @@ TEST_CASE( "Snarl collection nested bubbles",
     }
     SECTION("Make and fill in snarl collection with walks and sequences but no sample_sets") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
@@ -580,7 +586,7 @@ TEST_CASE( "Snarl collection nested bubbles",
     SECTION("Make and fill in snarl collection with walks, sequences, and no sample_sets, then fill in sample_sets later") {
 
         // Don't get the sample_sets or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             false, //walks before sample_sets but it doesn't matter here
             true, // get walks 
@@ -612,7 +618,7 @@ TEST_CASE( "Snarl collection nested bubbles",
     SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
         // Don't get the sample_sets or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             false, // walks before sample_sets but it doesn't matter here
             true, // get walks 
@@ -650,7 +656,7 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
@@ -674,7 +680,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             snarl_collection.write_snarl_data_collection(outstream);
             outstream.close();
 
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10, sample_to_index);
             ifstream instream;
             instream.open(test_file);
             loaded_snarl_collection.load_snarl_data_collection(instream);
@@ -848,10 +854,16 @@ TEST_CASE( "Snarl collection multiple connected components",
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
 
+    std::unordered_map<std::string, size_t> sample_to_index;
+    sample_to_index.emplace("path0", 0);
+    sample_to_index.emplace("path1", 1);
+    sample_to_index.emplace("path2", 2);
+    sample_to_index.emplace("path3", 3);
+
     SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
         // Don't get the sample_sets or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks  
@@ -1380,10 +1392,14 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
         return sample_sets;
     };
 
+    std::unordered_map<std::string, size_t> sample_to_index;
+    sample_to_index.emplace("path0", 0);
+    sample_to_index.emplace("path1", 1);
+    sample_to_index.emplace("path2", 2);
 
     SECTION("Make and fill in snarl collection with no walks, sample_sets, or sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             false, // don't get walks 
@@ -1407,7 +1423,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
 
 
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
@@ -1431,7 +1447,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             snarl_collection.write_snarl_data_collection(outstream);
             outstream.close();
 
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10, sample_to_index);
             ifstream instream;
             instream.open(test_file);
             loaded_snarl_collection.load_snarl_data_collection(instream);
@@ -1447,7 +1463,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
     SECTION("Make and fill in snarl collection with no sample_sets, then fill in sample_sets later by chromosome") {
 
         // Don't get the sample_sets or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             false, // walks before sample_sets but it doesn't matter here
             true, // get walks  
@@ -1661,10 +1677,14 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
         return sample_sets;
     };
 
+    std::unordered_map<std::string, size_t> sample_to_index;
+    sample_to_index.emplace("path0", 0);
+    sample_to_index.emplace("path1", 1);
+    sample_to_index.emplace("path2", 2);
 
     SECTION("Make and fill in snarl collection with walks, sample_sets, and sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        TestSnarlDataCollection snarl_collection(1,10,10, sample_to_index);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, 
             true, // sample_sets before walks but it doesn't matter here
             true, // get walks 
