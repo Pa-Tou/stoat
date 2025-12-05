@@ -13,23 +13,26 @@ This file defines tables to represent per-sample values such as phenotypes, geno
 
 The base class is a FeatureBySampleTable, which is a class template to store a different type of value per sample.
 This can be thought of a 1D matrix of values.
-The instances of FeatureBySampleTable are:
+The classes of FeatureBySampleTable are:
 
 -  BinaryPhenotypeTable: stores one bool per sample
 -  QuantitativePhenotypeTable: stores one double per sample
 
 
-The GenotypeTable also extends FeatureBySampleTable, using a vector or size_t's like a CategoricalFeatureBySampleTable,
-but unlike the Categorical table, it accesses alleles by index, rather than by a string name
-- GenotypeTable: stores a vector of size_t's per sample, used as a count of alleles
-
 The CategoricalFeatureBySampleTable inherits from the FeatureBySampleTable and provides a vector of values per sample.
 This can be thought of as a 2D matrix. Each sample now has multiple values from a category of features. For example,
 the category may be gene expression, and for each feature (gene), each sample has a gene expression value.
-CategoricalFeatureBySampleTable is also a class template and its instances are:
+CategoricalFeatureBySampleTable is also a class template and its classes are:
 
 - GeneExpressionTable: stores a vector of double's per sample
 - CovariateTable: stores a vector of double's per sample
+
+
+The GenotypeTable also extends FeatureBySampleTable, using a vector of size_t's like a CategoricalFeatureBySampleTable,
+but unlike the Categorical table, it accesses alleles by index, rather than by a string name
+
+- GenotypeTable: stores a vector of size_t's per sample, used as a count of alleles
+
 
 
 Each of these tables has a const reference to an unordered map sample_to_index that maps the sample name to a unique index
@@ -119,6 +122,8 @@ using GeneExpressionTable = CategoricalFeatureBySampleTable<double>;
 using CovariateTable = CategoricalFeatureBySampleTable<double>;
 
 
+/// A GenotypeTable is a 2D matrix of per-sample per-allele counts. The alleles are accessed by index, instead of by name
+/// Technically this also has get_value_for_sample() which would return the vector but it shouldn't be used because it will return a copy of the vector 
 class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
     public:
 
