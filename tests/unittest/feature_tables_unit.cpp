@@ -19,10 +19,9 @@ class TestQuantitativePhenotypeTable : QuantitativePhenotypeTable {
 };
 class TestGenotypeTable : GenotypeTable { 
     public:
-    TestGenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, 
-                      const std::unordered_map<std::string, size_t>& feature_to_index) : GenotypeTable(sample_to_index, feature_to_index){}
-    using GenotypeTable::set_value_for_sample_and_feature;
-    using GenotypeTable::get_value_for_sample_and_feature;
+    TestGenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) : GenotypeTable(sample_to_index, allele_count){}
+    using GenotypeTable::get_count_for_sample_and_allele;
+    using GenotypeTable::increment_count;
     using GenotypeTable::values_per_sample;
 };
 class TestGeneExpressionTable : GeneExpressionTable { 
@@ -110,14 +109,8 @@ TEST_CASE( "GenotypeTable with three samples and three alleles", "[table]" ) {
         sample_to_index.emplace("sample" + std::to_string(i+1), i);
     }
 
-    // Get feature_to_index
-    std::unordered_map<std::string, size_t> feature_to_index;
-    for (size_t i = 0 ; i < 3 ; i++) {
-        feature_to_index.emplace("allele" + std::to_string(i+1), i);
-    }
-
     // Make the table
-    TestGenotypeTable table(sample_to_index, feature_to_index);
+    TestGenotypeTable table(sample_to_index, 3);
 
 
     SECTION("Table is the right size") {
@@ -128,25 +121,33 @@ TEST_CASE( "GenotypeTable with three samples and three alleles", "[table]" ) {
     }
 
     SECTION("Set and get values") {
-        table.set_value_for_sample_and_feature("sample1", "allele1", 0);
-        table.set_value_for_sample_and_feature("sample1", "allele2", 3);
-        table.set_value_for_sample_and_feature("sample1", "allele3", 1);
-        table.set_value_for_sample_and_feature("sample2", "allele1", std::numeric_limits<size_t>::max());
-        table.set_value_for_sample_and_feature("sample2", "allele2", 0);
-        table.set_value_for_sample_and_feature("sample2", "allele3", 1);
-        table.set_value_for_sample_and_feature("sample3", "allele1", 0);
-        table.set_value_for_sample_and_feature("sample3", "allele2", 10);
-        table.set_value_for_sample_and_feature("sample3", "allele3", 8);
 
-        REQUIRE(table.get_value_for_sample_and_feature("sample1", "allele1") == 0);
-        REQUIRE(table.get_value_for_sample_and_feature("sample1", "allele2") == 3);
-        REQUIRE(table.get_value_for_sample_and_feature("sample1", "allele3") == 1);
-        REQUIRE(table.get_value_for_sample_and_feature("sample2", "allele1") == std::numeric_limits<size_t>::max());
-        REQUIRE(table.get_value_for_sample_and_feature("sample2", "allele2") == 0);
-        REQUIRE(table.get_value_for_sample_and_feature("sample2", "allele3") == 1);
-        REQUIRE(table.get_value_for_sample_and_feature("sample3", "allele1") == 0);
-        REQUIRE(table.get_value_for_sample_and_feature("sample3", "allele2") == 10);
-        REQUIRE(table.get_value_for_sample_and_feature("sample3", "allele3") == 8);
+        table.increment_count("sample1", 1);
+        table.increment_count("sample1", 1);
+        table.increment_count("sample1", 1);
+
+        table.increment_count("sample1", 2);
+
+        table.increment_count("sample2", 0);
+        table.increment_count("sample2", 0);
+
+        table.increment_count("sample2", 1);
+
+        table.increment_count("sample2", 2);
+        table.increment_count("sample2", 2);
+
+        table.increment_count("sample3", 2);
+
+
+        REQUIRE(table.get_count_for_sample_and_allele("sample1", 0) == 0);
+        REQUIRE(table.get_count_for_sample_and_allele("sample1", 1) == 3);
+        REQUIRE(table.get_count_for_sample_and_allele("sample1", 2) == 1);
+        REQUIRE(table.get_count_for_sample_and_allele("sample2", 0) == 2);
+        REQUIRE(table.get_count_for_sample_and_allele("sample2", 1) == 1);
+        REQUIRE(table.get_count_for_sample_and_allele("sample2", 2) == 2);
+        REQUIRE(table.get_count_for_sample_and_allele("sample3", 0) == 0);
+        REQUIRE(table.get_count_for_sample_and_allele("sample3", 1) == 0);
+        REQUIRE(table.get_count_for_sample_and_allele("sample3", 2) == 1);
         
     }
 }
