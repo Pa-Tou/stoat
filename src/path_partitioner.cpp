@@ -288,7 +288,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 
 
 
-    #ifdef DEBUG_PATH_PARTITIONER,
+    #ifdef DEBUG_PATH_PARTITIONER
     std::vector<std::set<sample_hap_t>> sample_sets_by_allele(old_set_count-1);
     for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
         if (old_sets[i] != 0) {

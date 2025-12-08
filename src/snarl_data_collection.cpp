@@ -1033,11 +1033,9 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         assert(allele_assignments.size() == all_sample_haplotypes.size()); 
         #endif
         if (has_samples) {
-            snarl_to_alleles_by_sample[all_snarl_data.back().start_node] = allele_by_sample_t(max_allele+1, std::move(allele_assignments));
+            snarl_to_alleles_by_sample[all_snarl_data.back().start_node] = allele_by_sample_t(max_allele+1, allele_assignments);
         }
-
     }
-
 
     return;
 }

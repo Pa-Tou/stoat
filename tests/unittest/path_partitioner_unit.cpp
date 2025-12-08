@@ -93,8 +93,7 @@ TEST_CASE( "Path partitioner nested bubbles",
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
     handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
 
-    std::vector<stoat::sample_hap_t> all_samples;
-    ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples({stoat::sample_hap_t(*path_graph, paths[0]),
                                                    stoat::sample_hap_t(*path_graph, paths[1]),
                                                    stoat::sample_hap_t(*path_graph, paths[2]),
                                                    stoat::sample_hap_t(*path_graph, paths[3])});
@@ -443,7 +442,7 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
 
         // Should be {0}, {1} and {2}
 
-        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
         REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[1]);
         REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[2]);
@@ -987,7 +986,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
     handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
 
-    std::size_t<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2]),
                                          stoat::sample_hap_t(*path_graph, paths[3])});

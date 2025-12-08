@@ -137,7 +137,7 @@ class SnarlDataCollection {
         void load_snarl_data_collection(std::istream& instream); 
 
 
-        ///////////////////////////// Helper functions for use in add_snarl_sample_alleles
+        ///////////////////////////// Helper functions for use in add_alleles_by_sample
 
         /// TODO: The walks must include the start and end bounds of the snarl. Could be taken out 
         /// TODO: This should probably not be a member function but I'm leaving it here for now instead of changing Matis's code to use my data types (from write_snarls_with_paths() in snarl_data_t.hpp)
@@ -200,6 +200,7 @@ class SnarlDataCollection {
             allele_by_sample_t(size_t count, std::vector<size_t> alleles) :
                 allele_count(count),
                 alleles(std::move(alleles)) {}
+            allele_by_sample_t(){}
         };
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the alleles_by_sample vector.

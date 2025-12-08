@@ -315,16 +315,8 @@ int main_stoat_graph(int argc, char *argv[]) {
     // A set of the samples+haplotypes in the graph that match the ones from the phenotype file
     std::vector<stoat::sample_hap_t> all_sample_haplotypes;
 
-    // Map each sample to a unique identifier, which will later be its index in a vector (so it must start from 0 to the number of samples-1) 
-    size_t sample_index = 0;
-    std::unordered_map<std::string, size_t> sample_to_index;
-
     path_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
         std::string sample_name = stoat::get_sample_name_from_path(*path_graph, path);
-        //Get the sample_to_index map
-        if (sample_to_index.count(sample_nam) == 0) {
-            sample_to_index.emplace(sample_name, sample_index++);
-        }
 
         // Get the sample haplotypes that we want
         if (samples_filename.empty() || sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
@@ -370,7 +362,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     // TODO: Get these from the command line, infinite for now (which may also be fine)
     size_t snarl_child_limit = std::numeric_limits<size_t>::max();
     size_t walk_steps_limit = std::numeric_limits<size_t>::max();
-    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit, sample_to_index);
+    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit);
     if (load_snarls) {
         std::ifstream in_snarls;
         in_snarls.open(snarls_filename);
@@ -392,16 +384,18 @@ int main_stoat_graph(int argc, char *argv[]) {
 
     ////////////////// If we didn't load the snarls, then we need to calculate them here
     if (!load_snarls) {
-        snarl_collection.fill_in_snarl_info(*graph, distance_index, 
+        snarl_collection.fill_in_snarl_info(*graph, distance_index, all_sample_haplotypes, 
                                             true, // Find the sets of samples in each allele (walk through the snarl) before finding the walks themselves
                                             true, // find walks
-                                            SnarlDataCollection::get_walks_from_sample_sets, // Function to find the walks 
-                                            true, // find the sample sets
-                                            // Function to find the sample sets 
-                                            [&] (const handlegraph::PathPositionHandleGraph& this_graph, const bdsg::SnarlDistanceIndex& this_distance_index,
-                                                 const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                 std::vector<std::set<sample_hap_t>>& sample_sets_by_allele) {
-                                                return stoat_graph::partition_embedded_paths_in_snarl(this_graph, this_distance_index, snarl, all_sample_haplotypes);
+                                            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks
+                                                 std::vector<PathTraversal>& walks) {
+                                                return snarl_collection.get_walks_from_alleles(*graph, distance_index, snarl, snarl_data, walks);
+                                            },
+                                            true, // find the alleles
+                                            // Function to find the alleles 
+                                            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                                 const std::vector<stoat::sample_hap_t>& sample_haplotypes) {
+                                                return stoat_graph::partition_embedded_paths_in_snarl(*graph, distance_index, snarl, sample_haplotypes);
                                             },
                                             output_format == "fasta", // find the sequences, only for fasta format
                                             reference_sample,
@@ -445,15 +439,21 @@ int main_stoat_graph(int argc, char *argv[]) {
 
             ////////////// Do statistics
             if (test_method == "exact") {
-                // If we only want to know if there is one allele that matches exactly one of the phenotype groups
-                for (const std::set<sample_hap_t>& sample_hap_partition : snarl_info.sample_sets_by_allele) {
-                
-                    // Make a set of just the sample names
-                    // TODO: This isn't super efficient
-                    std::set<std::string> partition;
-                    for (const sample_hap_t& sample : sample_hap_partition) {
-                        partition.emplace(sample.sample);
+                // This test checks if all members of one of the phenotype groups has the same allele that no other sample has.
+
+                // From the genotype matrix, make sets of sample that have the same genotype and compare to the sets of phenotype groups.
+                std::unordered_map<std::string, std::set<std::string>> genotype_to_sample_set;
+                for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
+                    string genotype_str = snarl_info.genotypes.get_genotype_as_string(sample_hap.sample);
+                    if (genotype_to_sample_set.count(genotype_str) == 0) {
+                        genotype_to_sample_set.emplace(genotype_str, std::set<std::string>());
                     }
+                    genotype_to_sample_set.at(genotype_str).emplace(sample_hap.sample);
+                }
+
+                // If we only want to know if there is one allele that matches exactly one of the phenotype groups
+                for (const auto& genotype_samples : genotype_to_sample_set) {
+                    const std::set<std::string>& partition = genotype_samples.second;
                 
                     // If one partition exactly matches one group we want, then all other partitions combined (including things not in the snarl) will match
                     // the other.
@@ -466,29 +466,43 @@ int main_stoat_graph(int argc, char *argv[]) {
 
             } else if (test_method == "chi2") {
 
+                const GenotypeTable& genotype_table = snarl_info.genotypes;
 
                 // Fill in the phenotype/genotype count vectors. Each item in these vectors is an allele (/walk through the snarl/partition of samples)
                 // One vector for each phenotype
-                std::vector<size_t> sample_count_by_allele1(snarl_info.sample_sets_by_allele.size(), 0);
-                std::vector<size_t> sample_count_by_allele2(snarl_info.sample_sets_by_allele.size(), 0);
-                
-                // How many individuals/samples are included?
-                std::unordered_set<std::string> seen_samples;
+                //TODO: This isn't very efficient but the real function should be better
+                std::vector<size_t> sample_count_by_allele1(genotype_table.get_allele_count(), 0);
+                std::vector<size_t> sample_count_by_allele2(genotype_table.get_allele_count(), 0);
 
-                // Put the sample sets into genotype vectors (one entry in the vector is one allele/path/genotype)
-                for (size_t i = 0 ; i < snarl_info.sample_sets_by_allele.size() ; i++) {
-                    // For each allele
-                    for (const sample_hap_t& sample : snarl_info.sample_sets_by_allele[i]) {
-                        // Count each sample with this allele as being in phenotype group 1 or 2
-                        if (sample_sets.first.count(sample.sample) == 1) {
-                            sample_count_by_allele1[i]++;
-                        } else if (sample_sets.second.count(sample.sample) == 1) {
-                            sample_count_by_allele2[i]++;
+                // How many samples had an allele
+                size_t sample_count = 0;
+
+                for (const string& sample : sample_sets.first) {
+                    bool found_sample = false;
+                    for (size_t allele_num = 0 ; allele_num < genotype_table.get_allele_count() ; allele_num++) {
+                        if (genotype_table.get_count_for_sample_and_allele(sample, allele_num)){
+                            sample_count_by_allele1[allele_num]++;
+                            found_sample = true;
                         }
-                        seen_samples.insert(sample.sample);
+                    }
+                    if (found_sample) {
+                        ++sample_count;
                     }
                 }
-                if (!stoat::filter_binary_table(sample_count_by_allele1, sample_count_by_allele2, seen_samples.size(), min_individuals, maf_threshold)) {
+                for (const string& sample : sample_sets.second) {
+                    bool found_sample = false;
+                    for (size_t allele_num = 0 ; allele_num < genotype_table.get_allele_count() ; allele_num++) {
+                        if (genotype_table.get_count_for_sample_and_allele(sample, allele_num)){
+                            sample_count_by_allele2[allele_num]++;
+                            found_sample = true;
+                        }
+                    }
+                    if (found_sample) {
+                        ++sample_count;
+                    }
+                }
+                
+                if (!stoat::filter_binary_table(sample_count_by_allele1, sample_count_by_allele2, sample_count, min_individuals, maf_threshold)) {
                     // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
 
                     //Get a bunch of strings that get used for the output

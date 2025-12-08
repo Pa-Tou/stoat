@@ -135,6 +135,15 @@ class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
     // Access the count value saved for a sample and allele
     size_t get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const;
 
+    // Get the genotype of a sample as a string of counts.
+    // This is only really useful to compare if two genotypes are the same
+    std::string get_genotype_as_string(const std::string& sample) const;
+
+    // How many alleles are there?
+    size_t get_allele_count() const {
+        return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
+    }
+
 };
 
 

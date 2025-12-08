@@ -85,6 +85,18 @@ size_t GenotypeTable::get_count_for_sample_and_allele(const std::string& sample,
     return this->values_per_sample[this->sample_to_index.at(sample)][allele_num];
 }
 
+std::string GenotypeTable::get_genotype_as_string(const std::string& sample) const {
+    std::string genotype = "";
+    for (size_t i = 0 ; i < this->values_per_sample[this->sample_to_index.at(sample)].size() ; i++) {
+        size_t count = this->values_per_sample[this->sample_to_index.at(sample)][i];
+        if (i != 0) {
+            genotype += ",";
+        }
+        genotype += std::to_string(count);
+    }
+    return genotype;
+}
+
 
 } //end stoat namespace
 
