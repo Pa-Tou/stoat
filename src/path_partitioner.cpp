@@ -277,6 +277,15 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
     check_outgoing_edges(distance_index.get_bound(snarl, false, true), false, true, false);
     check_outgoing_edges(distance_index.get_bound(snarl, true, true), false, true, true);
 
+    // Now go through the sets and change 0 to inf, and decrement all others
+    for (size_t i = 0 ; i < old_sets.size() ; i++) {
+        if (old_sets[i] == 0) {
+            old_sets[i] = std::numeric_limits<size_t>::max();
+        } else {
+            --old_sets[i];
+        }
+    }
+
 
 
     #ifdef DEBUG_PATH_PARTITIONER,

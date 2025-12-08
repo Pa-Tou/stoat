@@ -93,10 +93,11 @@ TEST_CASE( "Path partitioner nested bubbles",
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
     handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
-                                         stoat::sample_hap_t(*path_graph, paths[1]),
-                                         stoat::sample_hap_t(*path_graph, paths[2]),
-                                         stoat::sample_hap_t(*path_graph, paths[3])});
+    std::vector<stoat::sample_hap_t> all_samples;
+    ({stoat::sample_hap_t(*path_graph, paths[0]),
+                                                   stoat::sample_hap_t(*path_graph, paths[1]),
+                                                   stoat::sample_hap_t(*path_graph, paths[2]),
+                                                   stoat::sample_hap_t(*path_graph, paths[3])});
 
 
 
@@ -104,34 +105,31 @@ TEST_CASE( "Path partitioner nested bubbles",
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples, walks1);
-        REQUIRE(walks1.size() == 2);
-        for ( const auto& walk_set : walks1) {
-            REQUIRE(walk_set.size() == 2);
-            REQUIRE( ((walk_set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0]), stoat::sample_hap_t(*path_graph, paths[1])})) || 
-                     (walk_set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[2]), stoat::sample_hap_t(*path_graph, paths[3])}))));
-        }
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] == alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[2] == alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[2] != std::numeric_limits<size_t>::max());
 
         // Should be {0,1,3} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> walks2;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
-        REQUIRE(walks2.size() == 2);
-        for ( const auto& set : walks2) {
-            REQUIRE(((set.size() == 3) || (set.size() == 1)));
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0]), stoat::sample_hap_t(*path_graph, paths[1]), stoat::sample_hap_t(*path_graph, paths[3])})) || 
-                      (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[2])}))));
-        }
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample2.size() == all_samples.size());
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[3]);
+        REQUIRE(alleles_per_sample2[2] != alleles_per_sample2[3]);
+        REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample2[3] != std::numeric_limits<size_t>::max());
 
         // Should be {0}, {1,3}. 2 didn't go through this snarl
-        std::vector<std::set<stoat::sample_hap_t>> walks3;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl3, all_samples, walks3);
-        REQUIRE(walks3.size() == 2);
-        for ( const auto& set : walks3) {
-            REQUIRE(((set.size() == 2) || (set.size() == 1)));
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0])}) ) ||
-                      (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[1]), stoat::sample_hap_t(*path_graph, paths[3])}))));
-        }
+        std::vector<size_t> alleles_per_sample3 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl3, all_samples);
+        REQUIRE(alleles_per_sample3.size() == all_samples.size());
+        REQUIRE(alleles_per_sample3[0] != alleles_per_sample3[1]);
+        REQUIRE(alleles_per_sample3[1] == alleles_per_sample3[3]);
+        REQUIRE(alleles_per_sample3[2] == std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample3[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample3[1] != std::numeric_limits<size_t>::max());
     }
 }
 
@@ -325,7 +323,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
     handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2]),
                                          stoat::sample_hap_t(*path_graph, paths[3])});
@@ -334,35 +332,32 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples, walks1);
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] == alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[2] == alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[2] != std::numeric_limits<size_t>::max());
 
-        REQUIRE(walks1.size() == 2);
-        for ( const auto& walk_set : walks1) {
-            REQUIRE(walk_set.size() == 2);
-            REQUIRE( ((walk_set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0]), stoat::sample_hap_t(*path_graph, paths[1])})) || 
-                     (walk_set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[2]), stoat::sample_hap_t(*path_graph, paths[3])}))));
-        }
 
         // Should be {0,1,3} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> walks2;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
-        REQUIRE(walks2.size() == 2);
-        for ( const auto& set : walks2) {
-            REQUIRE(((set.size() == 3) || (set.size() == 1)));
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0]), stoat::sample_hap_t(*path_graph, paths[1]), stoat::sample_hap_t(*path_graph, paths[3])})) || 
-                      (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[2])}))));
-        }
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample2.size() == all_samples.size());
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[3]);
+        REQUIRE(alleles_per_sample2[2] != alleles_per_sample2[3]);
+        REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample2[2] != std::numeric_limits<size_t>::max());
 
         // Should be {0}, {1,3}. 2 didn't go through this snarl
-        std::vector<std::set<stoat::sample_hap_t>> walks3;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl3, all_samples, walks3);
-        REQUIRE(walks3.size() == 2);
-        for ( const auto& set : walks3) {
-            REQUIRE(((set.size() == 2) || (set.size() == 1)));
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0])}) ) ||
-                      (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[1]), stoat::sample_hap_t(*path_graph, paths[3])}))));
-        }
+        std::vector<size_t> alleles_per_sample3 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl3, all_samples);
+        REQUIRE(alleles_per_sample3.size() == all_samples.size());
+        REQUIRE(alleles_per_sample3[0] != alleles_per_sample3[1]);
+        REQUIRE(alleles_per_sample3[1] == alleles_per_sample3[3]);
+        REQUIRE(alleles_per_sample3[2] == std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample3[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample3[1] != std::numeric_limits<size_t>::max());
     }
 
 }
@@ -431,7 +426,7 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
 
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2])});
 
@@ -439,18 +434,23 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0} and {1,2}
-        std::vector<std::set<stoat::sample_hap_t>> walks1;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples, walks1);
-        REQUIRE(walks1.size() == 2);
-        for ( const auto& set : walks1) {
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[1]), stoat::sample_hap_t(*path_graph, paths[2])})) || 
-                     (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0])}))));
-        }
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[1] == alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[1] != std::numeric_limits<size_t>::max());
 
         // Should be {0}, {1} and {2}
-        std::vector<std::set<stoat::sample_hap_t>> walks2;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
-        REQUIRE(walks2.size() == 3);
+
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample2.size() == all_samples.size());
+        REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[1]);
+        REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[2]);
+        REQUIRE(alleles_per_sample2[1] != alleles_per_sample2[2]);
+        REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample2[1] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample2[2] != std::numeric_limits<size_t>::max());
     }
 
 
@@ -527,19 +527,26 @@ TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partit
     handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(snarl2));
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
-                                         stoat::sample_hap_t(*path_graph, paths[2]),
-                                         stoat::sample_hap_t(*path_graph, paths[5])});
+    std::vector<stoat::sample_hap_t> all_samples;
+    for (const auto& path : paths) {
+        all_samples.emplace_back(*path_graph, path);
+    }
 
 
     SECTION("get_walk_set") {
 
-        std::vector<std::set<stoat::sample_hap_t>> walks2;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
-        REQUIRE(walks2.size() == 1);
-        //for ( const auto& set : walks2) {
-        //    REQUIRE( set.size() == 1);
-        //}
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample2.size() == all_samples.size());
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[2]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[3]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[4]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[5]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[6]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[7]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[8]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[9]);
+        REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
 
     }
 
@@ -603,7 +610,7 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
         paths.emplace_back(graph.get_path_handle("path"+std::to_string(path_i)));
     }
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2]),
                                          stoat::sample_hap_t(*path_graph, paths[3])});
@@ -613,14 +620,16 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} {2} {3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl, all_samples, walks1);
-        REQUIRE(walks1.size() == 3);
-        for ( const auto& set : walks1) {
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0]), stoat::sample_hap_t(*path_graph, paths[1])})) || 
-                     (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[2])})) || 
-                     (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[3])}))));
-        }
+
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] == alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[2] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[2] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[3] != std::numeric_limits<size_t>::max());
     }
 
 }
@@ -689,7 +698,7 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
 
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                                 stoat::sample_hap_t(*path_graph, paths[1])});
 
 
@@ -697,19 +706,18 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
         // This isn't really a good test because all the snarls are regular
 
         // Outer snarl, hould be {0, 1}
-        std::vector<std::set<stoat::sample_hap_t>> walks1;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples, walks1);
-        REQUIRE(walks1.size() == 1);
-        REQUIRE( (walks1[0] == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0]), stoat::sample_hap_t(*path_graph, paths[1])})));
+
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] == alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
 
         // Inner snarl, should be {0} and {1}
-        std::vector<std::set<stoat::sample_hap_t>> walks2;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
-        REQUIRE(walks2.size() == 2);
-        for ( const auto& set : walks2) {
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0])})) || 
-                      (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[1])}))));
-        }
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[1]);
+        REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample2[1] != std::numeric_limits<size_t>::max());
     }
 
 }
@@ -772,24 +780,24 @@ TEST_CASE( "Path partitioner bubble with three nodes",
         paths.emplace_back(graph.get_path_handle("path"+std::to_string(path_i)));
     }
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2]),
                                          stoat::sample_hap_t(*path_graph, paths[3])});
 
 
     SECTION("get_walk_set") {
-        // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} {2} {3}
-        std::vector<std::set<stoat::sample_hap_t>> walks1;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl, all_samples, walks1);
-        REQUIRE(walks1.size() == 3);
-        for ( const auto& set : walks1) {
-            REQUIRE( ((set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[0]), stoat::sample_hap_t(*path_graph, paths[1])})) || 
-                     (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[2])})) || 
-                     (set == std::set<stoat::sample_hap_t> ({stoat::sample_hap_t(*path_graph, paths[3])}))));
-        }
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] == alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[2] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[2] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[3] != std::numeric_limits<size_t>::max());
     }
 
 }
@@ -877,7 +885,7 @@ TEST_CASE( "Path partitioner nested bubbles with path fragments",
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
     handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2]),
                                          stoat::sample_hap_t(*path_graph, paths[3]),
@@ -888,9 +896,15 @@ TEST_CASE( "Path partitioner nested bubbles with path fragments",
     SECTION("Snarl with multiple fragments") {
 
         // Should be {0, 3}, {1,2,4}
-        std::vector<std::set<stoat::sample_hap_t>> walks2;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
-        REQUIRE(walks2.size() == 2);
+
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] == alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[1] == alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[1] == alleles_per_sample1[4]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[1] != std::numeric_limits<size_t>::max());
     }
 }
 TEST_CASE( "Path partitioner doesn't go through snarl bounds",
@@ -973,7 +987,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
     handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
     handlegraph::net_handle_t nested_chain = distance_index.get_parent(snarl3);
 
-    std::set<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+    std::size_t<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2]),
                                          stoat::sample_hap_t(*path_graph, paths[3])});
@@ -982,10 +996,13 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
 
     SECTION("Snarl with multiple fragments") {
 
-        // Should be {0, 3}, {1,2,4}
-        std::vector<std::set<stoat::sample_hap_t>> walks2;
-        partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples, walks2);
-        REQUIRE(walks2.size() == 1);
-        REQUIRE(walks2[0].size() == 1);
+        // Should be {0}
+
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[1] == std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[2] == std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[3] == std::numeric_limits<size_t>::max());
     }
 }
