@@ -8,28 +8,35 @@ namespace stoat {
 
 
 // Constructor
-SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit,
-                                         const std::unordered_map<std::string, size_t>& sample_to_index) :
+SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
                     allele_size_limit(allele_size_limit),
                     snarl_child_limit(snarl_child_limit),
-                    walk_steps_limit(walk_steps_limit),
-                    sample_to_index(sample_to_index) {}
+                    walk_steps_limit(walk_steps_limit) {}
 
 
 // This goes through all the snarls and fills in the data
 void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                                             bool find_sample_sets_first,
+                                             const std::vector<stoat::sample_hap_t>& sample_haplotypes,
+                                             bool find_alleles_first,
                                              bool walks_requested,
-                                             const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                                                                      const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                             const std::function<void(const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                                       std::vector<stoat::PathTraversal>& walks)>& find_walks,
-                                             bool sample_set_requested,
-                                             const std::function<void(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-
-                                                                       const net_handle_t& snarl, const snarl_info_t& snarl_data,
-                                                                       std::vector<std::set<sample_hap_t>>& sample_sets_by_allele)>& find_sample_sets,
+                                             bool alleles_requested,
+                                             const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                                                                                     const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                              bool sequence_requested,
                                              const string& reference_sample, bool check_distances) {
+
+    // Make a copy of the samples. Not a reference since it has to be able to be loaded from a file and stored
+    all_sample_haplotypes = sample_haplotypes;
+
+    size_t sample_index = 0;
+    // Fill in sample_to_index
+    for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
+        if (!sample_to_index.count(sample_hap.sample)) {
+            sample_to_index.emplace(sample_hap.sample, sample_index++);
+        }
+    }
     
     // Get a list of all chains in root
     std::vector<handlegraph::net_handle_t> chains;
@@ -49,12 +56,10 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
     // Keep track of which references we've seen and their index in reference_names
     std::unordered_map<std::string, size_t> reference_name_to_index;
-    // Keep track of which samples we've seen and their index in sample_haplotypes
-    std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
     
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_sample_sets, snarl_to_sequences, reference_names, sample_haplotypes)
+    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_alleles_by_sample, snarl_to_sequences, reference_names, all_sample_haplotypes)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
@@ -132,10 +137,11 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     snarl_data.reference_index = std::numeric_limits<size_t>::max();
                                 }
 
-                                // Optionally fill in the walks, sample sets, and sequences.
-                                // All three of these vectors must have the same number of entries because they correspond to the same alleles
+                                // Optionally fill in the walks, alleles, and sequences.
+                                // walks_by_allele and snarl_sequences must have the same number of entries because they correspond to the same alleles
+                                // The entries in alleles_by_sample correspond to these alleles so its max value (that is not inf) must be the length of the others
                                 std::vector<stoat::PathTraversal> walks_by_allele; 
-                                std::vector<std::set<sample_hap_t>> sample_sets_by_allele; 
+                                std::vector<size_t> alleles_by_sample; 
                                 std::vector<std::string> snarl_sequences;
 
                                 //This might cause problems because it is a reference but it doesn't get used so I think its fine
@@ -146,7 +152,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 bool save_snarl = true;
 
                                 // Make the snarl_info_t passed to the sample set/walk finders. They don't need to have all the information yet
-                                // the snarl_info is const in the finders so it won't change the walks/sample sets/sequences
+                                // the snarl_info is const in the finders so it won't change the walks/alleles/sequences
                                 // except when references to them are passed as the thing we're filling in
                                 snarl_info_t new_snarl_info (snarl_data.start_node, 
                                                              snarl_data.end_node, 
@@ -157,24 +163,23 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                                              snarl_data.depth,
                                                              empty_genotypes,
                                                              walks_by_allele,
-                                                             sample_sets_by_allele,
                                                              snarl_sequences);
 
-                                if (find_sample_sets_first) {
-                                    // Find sample_sets_by_allele then walks
-                                    if (sample_set_requested) {
-                                       find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets_by_allele); 
+                                if (find_alleles_first) {
+                                    // Find alleles_by_sample then walks
+                                    if (alleles_requested) {
+                                       alleles_by_sample = find_alleles_by_sample(snarl, new_snarl_info, all_sample_haplotypes); 
                                     }
                                     if (walks_requested) {
-                                        find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele);
+                                        find_walks(snarl, new_snarl_info, walks_by_allele);
                                     }
                                 } else {
-                                    // Find walks then sample_sets_by_allele
+                                    // Find walks then alleles
                                     if (walks_requested) {
-                                        find_walks(graph, distance_index, snarl, new_snarl_info, walks_by_allele);
+                                        find_walks(snarl, new_snarl_info, walks_by_allele);
                                     }
-                                    if (sample_set_requested) {
-                                       find_sample_sets(graph, distance_index, snarl, new_snarl_info, sample_sets_by_allele); 
+                                    if (alleles_requested) {
+                                       alleles_by_sample = find_alleles_by_sample(snarl, new_snarl_info, all_sample_haplotypes); 
                                     }
                                 }
                                 if (walks_requested) {
@@ -205,9 +210,18 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                         snarl_to_walks.emplace(snarl_data.start_node, std::move(walks_by_allele));
                                         }
                                     }
-                                    if (sample_set_requested) {
-                                        // This has its own omp guards
-                                        add_sample_sets_to_collection(sample_haplotype_to_index, sample_sets_by_allele, snarl_data.start_node); 
+                                    if (alleles_requested) {
+                                        // TODO: This could be done earlier but I don't think it's a big deal
+                                        size_t max_allele = 0;
+                                        for (size_t x : alleles_by_sample) {
+                                            if (x != std::numeric_limits<size_t>::max()) {
+                                                max_allele = std::max(max_allele, x);
+                                            }
+                                        }
+                                        #pragma omp critical(snarl_collection)
+                                        {
+                                        snarl_to_alleles_by_sample.emplace(snarl_data.start_node, allele_by_sample_t(max_allele+1, std::move(alleles_by_sample)));
+                                        }
                                     }
                                     if (sequence_requested) {
                                         #pragma omp critical(snarl_collection)
@@ -269,8 +283,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     assert(chains_added == chains_processed);
     #endif
 }
-void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, const std::function<std::vector<std::set<sample_hap_t>>(const snarl_info_t& snarl_data)>& find_sample_sets,
-                          std::string chr){
+void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
+                                                                                        const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
+                                                std::string chr){
 
     #pragma omp parallel for schedule(dynamic)
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
@@ -280,7 +295,7 @@ void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample
             continue;
         }
 
-        std::vector<std::set<sample_hap_t>> empty_sample_sets;
+        std::vector<size_t> empty_alleles_by_sample;
         
         //This might cause problems because it is a reference but it doesn't get used so I think its fine
         // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
@@ -297,71 +312,41 @@ void SnarlDataCollection::add_snarl_sample_sets(std::unordered_map<stoat::sample
                                 snarl_info.depth,
                                 empty_genotypes,
                                 snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
-                                empty_sample_sets,
                                 snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
 
-        std::vector<std::set<sample_hap_t>> new_sample_sets = find_sample_sets(new_snarl_info);
-
-        // Add it to the collection
-        add_sample_sets_to_collection(sample_haplotype_to_index, new_sample_sets, snarl_info.start_node);
-    }
-
-}
-
-void SnarlDataCollection::add_sample_sets_to_collection(std::unordered_map<stoat::sample_hap_t, size_t>& sample_haplotype_to_index, 
-                                                        const std::vector<std::set<sample_hap_t>>& sample_sets, const Node_traversal_t& snarl_start) {
-
-    // Remake sample_sets by index
-    std::vector<std::set<size_t>> sample_sets_by_index;
-    for (size_t i = 0 ; i < sample_sets.size() ; i++) {
-        sample_sets_by_index.emplace_back();
-        for (const sample_hap_t& sample : sample_sets[i]) {
-    
-            // Get the index into sample_haplotypes
-            size_t sample_index;
-            // Needs to be in an omp block because it accesses sample_haplotypes
-            #pragma omp critical(snarl_collection)
-            {
-                if (sample_haplotype_to_index.count(sample)) {
-                    sample_index = sample_haplotype_to_index[sample];
-                } else {
-                    sample_index = sample_haplotypes.size();
-                    sample_haplotype_to_index[sample] = sample_index;
-                    sample_haplotypes.emplace_back(sample);
-                } 
+        // Get the alleles from the snarl_info_t
+        std::vector<size_t> new_alleles_by_sample = find_alleles_by_sample(new_snarl_info, all_sample_haplotypes);
+        size_t max_allele = 0;
+        for (size_t x : new_alleles_by_sample) {
+            if (x != std::numeric_limits<size_t>::max()) {
+                max_allele = std::max(x, max_allele);
             }
-    
-            sample_sets_by_index.back().emplace(sample_index);
+        }
+
+        // Save it
+        #pragma omp critical(snarl_collection)
+        {
+            snarl_to_alleles_by_sample.emplace(snarl_info.start_node, allele_by_sample_t(max_allele+1, std::move(new_alleles_by_sample)));
         }
     }
-    #pragma omp critical(snarl_collection)
-    {
-        snarl_to_sample_sets.emplace(snarl_start, std::move(sample_sets_by_index));
-    }
-}
 
+}
 
 
 // Call interatee for all snarls
 void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
 
-        GenotypeTable genotypes(sample_to_index, 
-                                snarl_to_sample_sets.count(snarl_info.start_node) ? (snarl_to_sample_sets.at(snarl_info.start_node).size() == 0 ? 0 
-                                                                                         : snarl_to_sample_sets.at(snarl_info.start_node).size()) 
-                                                                                  : 0);
+        // GenotypeTable constructor takes a map from sample to index, and the number of alleles
+        GenotypeTable genotypes(sample_to_index, snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count
+                                                                                                         : 0);
 
-        std::vector<std::set<sample_hap_t>> sample_sets;
-
-        if (snarl_to_sample_sets.count(snarl_info.start_node)) {
-            const std::vector<std::set<size_t>>& set_ints = snarl_to_sample_sets.at(snarl_info.start_node);
-            for (size_t allele_num = 0 ; allele_num < set_ints.size() ; allele_num++) {
-                sample_sets.emplace_back();
-                const std::set<size_t>& sample_set = set_ints[allele_num];
-                for (const size_t& i : sample_set) {
-                    genotypes.increment_count(sample_haplotypes[i].sample, allele_num);
-                    sample_sets.back().emplace(sample_haplotypes[i]);
-                }
+        // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
+        // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
+        if (snarl_to_alleles_by_sample.count(snarl_info.start_node)) {
+            const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_info.start_node);
+            for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
+                genotypes.increment_count(all_sample_haplotypes[sample_hap_i].sample, alleles_by_sample.alleles[sample_hap_i]);
             }
         }
 
@@ -376,7 +361,6 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
                               snarl_info.depth,
                               genotypes,
                               snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
-                              sample_sets,
                               snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
         iteratee(new_snarl_info);
     }
@@ -464,14 +448,14 @@ void SnarlDataCollection::get_all_walks_through_snarl(
     return ;
 }
 
-void SnarlDataCollection::get_walks_from_sample_sets(
+void SnarlDataCollection::get_walks_from_alleles(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
         const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
 
     // Get the walks by tracing the haplotype paths through the snarl
 
 
-    ///////////////////////////////////////////// Get one step_handle_t's for the each sample set
+    ///////////////////////////////////////////// Get one step_handle_t for the each allele
 
     handlegraph::handle_t start_in = distance_index.get_handle(distance_index.get_bound(snarl, false, true), &graph);
     handlegraph::handle_t end_in = distance_index.get_handle(distance_index.get_bound(snarl, true, true), &graph);
@@ -479,23 +463,41 @@ void SnarlDataCollection::get_walks_from_sample_sets(
     std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
                                                   handlegraph::PathSense::REFERENCE,
                                                   handlegraph::PathSense::HAPLOTYPE};
+    const allele_by_sample_t& alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_data.start_node);
 
-    std::vector<handlegraph::step_handle_t> first_steps;
-    for (const std::set<sample_hap_t>& sample_set : snarl_data.sample_sets_by_allele) {
+    // For each allele, did we find a step for it yet?
+    std::vector<bool> got_step(alleles_by_sample.allele_count, false);
+
+    // One step per allele
+    std::vector<handlegraph::step_handle_t> first_steps(alleles_by_sample.allele_count);
+
+    for (size_t sample_i = 0 ; sample_i < alleles_by_sample.alleles.size() ; sample_i++) {
+        size_t allele_num = alleles_by_sample.alleles[sample_i];
+        if (got_step.at(allele_num)) {
+            // If we already found a step for this allele, skip it
+            continue;
+        }
+
+        // Look for a step on this sample haplotype
+        const sample_hap_t& target_sample = all_sample_haplotypes[sample_i];
         bool found_step = false;
         for (const auto& sense : senses) {
             graph.for_each_step_of_sense(start_in, sense, [&](const handlegraph::step_handle_t& step) {
-                if (sample_set.count(stoat::sample_hap_t(graph, graph.get_path_handle_of_step(step))) ) {
-                    first_steps.emplace_back(step);
+
+                if (target_sample == stoat::sample_hap_t(graph, graph.get_path_handle_of_step(step))) {
+                    // If this step is on the haplotype we want, then remember it and remember that we got it
+                    first_steps[allele_num] = step;
+                    got_step[allele_num] = true;
                     found_step = true;
                     // Return false to stop looping through steps
                     return false;
-                } else{
+                } else {
+                    // Continue to other haplotypes
                     return true;
                 }
             });
             if (found_step) {
-                // Break out of the inner loop and continue to the next sample_set
+                // Break out of the inner loop and continue to the next sample and allele
                 break;
             }
         }
@@ -505,8 +507,12 @@ void SnarlDataCollection::get_walks_from_sample_sets(
         #endif
     }
     #ifdef DEBUG_SNARL_DATA_COLLECTION
-    assert(first_steps.size() == snarl_data.sample_sets_by_allele.size());
+    // Check that we got a step for each allele
+    for (bool check : got_step) {
+        assert(check);
+    }
     #endif
+
 
     //////////////////////////////////// Follow each of the paths through the snarl and create a walk
 
@@ -644,13 +650,13 @@ void SnarlDataCollection::get_walks_from_sample_sets(
                 stoat::Node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
                 current_walk.add_node_traversal_t(end_traversal);
 
-            }// end for loop through each traversal of the snarl in one sample_set
+            }// end for loop for a pair of boundary nodes for one traversal of the snarl
             assert(current_walk.get_path().size() >= 2);
             current_walk.add_min_allele_len(min_length);
             current_walk.add_max_allele_len(max_length);
 
         }// end if there are enough boundary nodes
-    }// end for each first step (per allele/sample_set)
+    }// end for each first step (per allele)
 
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     cerr << "Found walks from sets" << endl;
@@ -774,7 +780,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
 
     // The header also includes a list of sample/haplotypes
     size_t sample_count = 0;
-    for (const auto& samp : sample_haplotypes) {
+    for (const auto& samp : all_sample_haplotypes) {
         outstream << "\t" << samp.sample << "#" + samp.haplotype;
     }
     outstream << endl;
@@ -818,27 +824,26 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
             }
         }
 
-        // Next add the sample sets, if there are any
-        // Each sample set is saved as the number of items in it then the items
-        if (snarl_to_sample_sets.empty()) {
-            for (size_t i = 0 ; i < sample_haplotypes.size() ; i++) {
+        // Next add the allele assignments, if there are any
+        if (snarl_to_alleles_by_sample.empty()) {
+            for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
                 outstream << "\t.";
             }
         } else {
-            #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sample_sets.at(snarl_data.start_node).size());
-            #endif
-            // TODO: Since the samples are stored in sets we need to put the genotypes in the right order before writing them
-            std::vector<std::string> allele_num_by_sample(sample_haplotypes.size(), ".");
-            for (size_t allele_num = 0 ; allele_num < snarl_to_sample_sets.at(snarl_data.start_node).size() ; allele_num++ ) {
-                const std::set<size_t>& samples = snarl_to_sample_sets.at(snarl_data.start_node).at(allele_num);
-                for (const size_t& sample_num : samples) {
-                    allele_num_by_sample[sample_num] = std::to_string(allele_num);
-                }
 
-            }
-            for (const std::string& allele_num : allele_num_by_sample){
-                outstream << "\t" << allele_num;
+            const allele_by_sample_t& alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_data.start_node);
+
+            #ifdef DEBUG_SNARL_DATA_COLLECTION
+            assert(snarl_to_walks.at(snarl_data.start_node).size() == alleles_by_sample.allele_count);
+            assert(alleles_by_sample.alleles.size() == all_sample_haplotypes.size());
+            #endif
+            for (size_t allele_num : alleles_by_sample.alleles) {
+                if (allele_num == std::numeric_limits<size_t>::max()) {
+                    // . for a haplotype that doesn't traverse the snarl
+                    outstream << "\t.";
+                } else {
+                    outstream << "\t" << allele_num;
+                }
             }
         }
         
@@ -930,7 +935,15 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         }
         while (std::getline(linestream, sample_name, '\t')) {
             // The sample_hap_t constructor will take care of finding the proper sample name and haplotype 
-            sample_haplotypes.emplace_back(sample_name);
+            all_sample_haplotypes.emplace_back(sample_name);
+        }
+    }
+
+    // Fill in sample_to_index
+    size_t sample_index = 0;
+    for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
+        if (!sample_to_index.count(sample_hap.sample)) {
+            sample_to_index.emplace(sample_hap.sample, sample_index++);
         }
     }
 
@@ -998,30 +1011,31 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
 
         // The rest of the line will be the allele assignment of each sample
-
         // "." means that that this sample didn't have an allele in this snarl. If all samples have "." then we just didn't store the samples
 
-        size_t sample_num = 0;
-
-        std::vector<std::set<size_t>> sample_sets (walk_count);
+        // Fill this in with the contents of the line
         bool has_samples = false;
-
+        std::vector<size_t> allele_assignments;
+        allele_assignments.reserve(all_sample_haplotypes.size());
+        size_t max_allele = 0;
         while (std::getline(linestream, part, '\t')) {
-            if (part != ".") {
-                sample_sets[std::stoull(part)].emplace(sample_num);
+            if (part == ".") {
+                allele_assignments.emplace_back(std::numeric_limits<size_t>::max());
+            } else {
+                allele_assignments.emplace_back(std::stoull(part));
+                max_allele = std::max(max_allele, allele_assignments.back());
                 has_samples = true;
             }
-            sample_num++;
-        }
+        };
 
         #ifdef DEBUG_SNARL_DATA_COLLECTION
-        assert(sample_sets.size() == walk_count);
-        assert(sample_num == sample_haplotypes.size()); 
+        assert(max_allele == walk_count);
+        assert(allele_assignments.size() == all_sample_haplotypes.size()); 
         #endif
-
         if (has_samples) {
-            snarl_to_sample_sets[all_snarl_data.back().start_node] = std::move(sample_sets);
+            snarl_to_alleles_by_sample[all_snarl_data.back().start_node] = allele_by_sample_t(max_allele+1, std::move(allele_assignments));
         }
+
     }
 
 
