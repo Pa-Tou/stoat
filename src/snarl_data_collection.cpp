@@ -463,16 +463,15 @@ void SnarlDataCollection::get_walks_from_alleles(
     std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
                                                   handlegraph::PathSense::REFERENCE,
                                                   handlegraph::PathSense::HAPLOTYPE};
-    const allele_by_sample_t& alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_data.start_node);
 
     // For each allele, did we find a step for it yet?
-    std::vector<bool> got_step(alleles_by_sample.allele_count, false);
+    std::vector<bool> got_step(snarl_data.alleles_by_sample.allele_count, false);
 
     // One step per allele
-    std::vector<handlegraph::step_handle_t> first_steps(alleles_by_sample.allele_count);
+    std::vector<handlegraph::step_handle_t> first_steps(snarl_data.alleles_by_sample.allele_count);
 
-    for (size_t sample_i = 0 ; sample_i < alleles_by_sample.alleles.size() ; sample_i++) {
-        size_t allele_num = alleles_by_sample.alleles[sample_i];
+    for (size_t sample_i = 0 ; sample_i < snarl_data.alleles_by_sample.alleles.size() ; sample_i++) {
+        size_t allele_num = snarl_data.alleles_by_sample.alleles[sample_i];
         if (got_step.at(allele_num)) {
             // If we already found a step for this allele, skip it
             continue;

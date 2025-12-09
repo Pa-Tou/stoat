@@ -23,12 +23,14 @@ struct snarl_info_t {
         snarl_info_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
                      size_t start_position, size_t end_position, size_t depth,
                      const GenotypeTable& genotypes, 
+                     const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
+                     const allele_by_sample_t& alleles_by_sample,
                      const std::vector<PathTraversal>& walks_by_allele, 
                      const std::vector<std::string>& sequences_by_allele) :
 
                      start_node(start_node), end_node(end_node), 
                      ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
-                     genotypes(genotypes),
+                     genotypes(genotypes), all_sample_haplotypes(all_sample_haplotypes), alleles_by_sample(alleles_by_sample),
                      walks_by_allele(walks_by_allele), sequences_by_allele(sequences_by_allele)
                      {};
 
@@ -47,6 +49,12 @@ struct snarl_info_t {
         // A genotype table of the counts of each allele for each sample (see feature_table.hpp).
         // Alleles have the same numbering as walks_by_allele and sequences_by_allele, but as strings "0", "1", etc
         const GenotypeTable& genotypes;
+
+        // This stores all the sample/haplotypes 
+        const std::vector<stoat::sample_hap_t>& all_sample_haplotypes;
+
+        // For each haplotype in all_sample_haplotypes, an assignment to an allele number
+        const allele_by_sample_t& alleles_by_sample;
 
         // For each allele, the walk through the snarl
         // The walk includes the boundary nodes of the snarl
@@ -150,8 +158,8 @@ class SnarlDataCollection {
 
         /// Helper function for finding walks through the snarl. Fills in walks
         /// the collection is assumed to have the allele_by_sample filled in and walks must be filled in to match the allele_by_sample
-        void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
+        static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                           const net_handle_t& snarl,  const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
