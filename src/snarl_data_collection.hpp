@@ -13,6 +13,17 @@ using namespace stoat;
 
 namespace stoat {
 
+// Used to store the allele assignment for a vector of samples. allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample
+struct allele_by_sample_t{
+    size_t allele_count;
+    std::vector<size_t> alleles;
+
+    allele_by_sample_t(size_t count, std::vector<size_t> alleles) :
+        allele_count(count),
+        alleles(std::move(alleles)) {}
+    allele_by_sample_t(){}
+};
+
 // This holds snarl information from the distance index and graph: id of the snarl, reference coordinates, walks, 
 // the sequences of the walks and sets samples/haplotypes taking each walk
 // The latter three may be empty if they were not filled in by the SnarlDataCollection
@@ -200,16 +211,6 @@ class SnarlDataCollection {
         /// Each entry in the vector is considered to be one allele.
         std::unordered_map<stoat::Node_traversal_t, std::vector<PathTraversal>> snarl_to_walks;
 
-        // Used to store the allele assignment for a vector of samples. allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample
-        struct allele_by_sample_t{
-            size_t allele_count;
-            std::vector<size_t> alleles;
-
-            allele_by_sample_t(size_t count, std::vector<size_t> alleles) :
-                allele_count(count),
-                alleles(std::move(alleles)) {}
-            allele_by_sample_t(){}
-        };
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the alleles_by_sample vector.
         /// So each entry in the alleles_by_sample vector is the allele number of one sample_hap_t. The allele number

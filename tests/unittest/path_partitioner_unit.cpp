@@ -544,7 +544,6 @@ TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partit
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[6]);
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[7]);
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[8]);
-        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[9]);
         REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
 
     }

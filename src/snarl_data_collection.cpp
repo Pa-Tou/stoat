@@ -162,6 +162,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                                              snarl_data.end_position,
                                                              snarl_data.depth,
                                                              empty_genotypes,
+                                                             all_sample_haplotypes,
+                                                             allele_by_sample_t(),
                                                              walks_by_allele,
                                                              snarl_sequences);
 
@@ -311,6 +313,8 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
                                 snarl_info.end_position,
                                 snarl_info.depth,
                                 empty_genotypes,
+                                all_sample_haplotypes,
+                                allele_by_sample_t(),
                                 snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
                                 snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
 
@@ -346,13 +350,16 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
         if (snarl_to_alleles_by_sample.count(snarl_info.start_node)) {
             const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_info.start_node);
             for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
-                genotypes.increment_count(all_sample_haplotypes[sample_hap_i].sample, alleles_by_sample.alleles[sample_hap_i]);
+                if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
+                    genotypes.increment_count(all_sample_haplotypes[sample_hap_i].sample, alleles_by_sample.alleles[sample_hap_i]);
+                }
             }
         }
 
 
         std::vector<PathTraversal> empty_walks (0); 
         std::vector<std::string> empty_sequences (0);
+        allele_by_sample_t empty_alleles;
         snarl_info_t new_snarl_info (snarl_info.start_node, 
                               snarl_info.end_node, 
                               snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
@@ -360,6 +367,8 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
                               snarl_info.end_position,
                               snarl_info.depth,
                               genotypes,
+                              all_sample_haplotypes,
+                              snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node) : empty_alleles,
                               snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
                               snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
         iteratee(new_snarl_info);
@@ -478,7 +487,7 @@ void SnarlDataCollection::get_walks_from_alleles(
         }
 
         // Look for a step on this sample haplotype
-        const sample_hap_t& target_sample = all_sample_haplotypes[sample_i];
+        const sample_hap_t& target_sample = snarl_data.all_sample_haplotypes[sample_i];
         bool found_step = false;
         for (const auto& sense : senses) {
             graph.for_each_step_of_sense(start_in, sense, [&](const handlegraph::step_handle_t& step) {

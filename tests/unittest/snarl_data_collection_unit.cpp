@@ -214,7 +214,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                     std::string genotype3 =  snarl_info.genotypes.get_genotype_as_string("path3");
                     REQUIRE(genotype0 == genotype1);
                     REQUIRE(genotype1 != genotype2);
-                    REQUIRE(genotype2 != genotype3);
+                    REQUIRE(genotype2 == genotype3);
 
                     // Each sample has just one count of one
                     REQUIRE(snarl_info.genotypes.get_count_for_sample_and_allele("path0", 0) != snarl_info.genotypes.get_count_for_sample_and_allele("path0", 1));
@@ -683,7 +683,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             true, // alleles before walks but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) {
-                return snarl_collection.get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_to_alleles_by_sample.at(snarl_data.start_node), walks);
+                return SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
             },
             true, // get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
@@ -848,6 +848,7 @@ TEST_CASE( "Snarl collection multiple connected components",
                                                           {49, 50, 51, 53, 54, 55, 56, 57, 59}, {50, 51, 53, 54, 56, 57}, {50, 52, 53, 57}, {50, 52, 53, 54, 56, 57}};
 
     std::vector<handlegraph::path_handle_t> paths;
+    std::vector<stoat::sample_hap_t> all_samples;
 
     for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
         //idk where the chromosme is supposed to go either
@@ -861,6 +862,7 @@ TEST_CASE( "Snarl collection multiple connected components",
         for (size_t node_i : paths_seqs[path_i]) {
             graph.append_step(paths.back(), nodes[node_i]);
         }
+        all_samples.emplace_back(stoat::sample_hap_t(graph, paths.back()));
     }
 
     //// vg isn't included so the distance index can only be built from the command line
@@ -881,6 +883,8 @@ TEST_CASE( "Snarl collection multiple connected components",
     sample_to_index.emplace("path1", 1);
     sample_to_index.emplace("path2", 2);
     sample_to_index.emplace("path3", 3);
+
+    
 
     SECTION("Make and fill in snarl collection with no alleles, then fill in alleles later by chromosome") {
 
@@ -909,31 +913,31 @@ TEST_CASE( "Snarl collection multiple connected components",
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
-        snarl_collection.add_alleles_by_sample([&](const snarl_info_t& snarl_info) {
+        snarl_collection.add_alleles_by_sample([&](const snarl_info_t& snarl_info, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) {
 
             //Add alleles to follow the walks
-            std::vector<std::vector<size_t>> alleles;
+            std::vector<size_t> alleles;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
                 // First connected component
-                alleles.emplace_back(std::vector<size_t>( {1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>( {1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
                 // Second connected component
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
                 // Third connected component
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else {
                 // I'm not going to bother testing anything else
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0} );
             }
             return alleles;
         }, "empty_path");
@@ -945,30 +949,30 @@ TEST_CASE( "Snarl collection multiple connected components",
         });
 
         // Now fill it in with just the reference path for just the first chromosome
-        snarl_collection.add_alleles_by_sample([&](const snarl_info_t& snarl_info) { 
+        snarl_collection.add_alleles_by_sample([&](const snarl_info_t& snarl_info, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { 
             //Add alleles to follow the walks
-            std::vector<std::vector<size_t>> alleles;
+            std::vector<size_t> alleles;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
                 // First connected component
-                alleles.emplace_back( std::vector<size_t>({1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
                 // Second connected component
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
                 // Third connected component
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else {
                 // I'm not going to bother testing anything else
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0} ));
+                alleles= std::vector<size_t>({0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0} );
             }
             return alleles;
         }, "path0#0#path0");
@@ -986,30 +990,30 @@ TEST_CASE( "Snarl collection multiple connected components",
         });
 
         // Now fill it in with just the reference path for just the second chromosome
-        snarl_collection.add_alleles_by_sample([&](const snarl_info_t& snarl_info) { 
+        snarl_collection.add_alleles_by_sample([&](const snarl_info_t& snarl_info, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { 
             //Add alleles to follow the walks
-            std::vector<std::vector<size_t>> alleles;
+            std::vector<size_t> alleles;
             if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(8, false) || snarl_info.start_node == stoat::Node_traversal_t(10, true)) {
                 // First connected component
-                alleles.emplace_back( std::vector<size_t>({1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else if (snarl_info.start_node == Node_traversal_t(11, false) || snarl_info.start_node == stoat::Node_traversal_t(14, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(14, false) || snarl_info.start_node == stoat::Node_traversal_t(18, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(15, false) || snarl_info.start_node == stoat::Node_traversal_t(17, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(18, false) || snarl_info.start_node == stoat::Node_traversal_t(20, true)) {
                 // Second connected component
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else if (snarl_info.start_node == Node_traversal_t(21, false) || snarl_info.start_node == stoat::Node_traversal_t(24, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(24, false) || snarl_info.start_node == stoat::Node_traversal_t(28, true) ||
                 snarl_info.start_node == stoat::Node_traversal_t(25, false) || snarl_info.start_node == stoat::Node_traversal_t(27, true) || 
                 snarl_info.start_node == stoat::Node_traversal_t(28, false) || snarl_info.start_node == stoat::Node_traversal_t(30, true)) {
                 // Third connected component
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0, 0,0,0,0} );
             } else {
                 // I'm not going to bother testing anything else
-                alleles.emplace_back( std::vector<size_t>({0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0} ));
+                alleles = std::vector<size_t>({0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0} );
             }
             return alleles;
         }, "path0#1#path0");
@@ -1066,6 +1070,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
     std::vector<std::vector<std::size_t>> path_seqs = { {0, 1, 2, 3, 4, 5}, {0, 1, 3, 4, 1, 3, 4, 5}, {0, 1, 2, 3, 4, 1, 3, 4, 5}};
     std::vector<handlegraph::path_handle_t> paths;
 
+    std::vector<stoat::sample_hap_t> all_samples;
     for (int path_i = 0 ; path_i < path_seqs.size() ; path_i++) {
         if (path_i == 0) {
             // First path is the reference
@@ -1076,6 +1081,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
         for (size_t node_i : path_seqs[path_i]) {
             graph.append_step(paths.back(), nodes[node_i]);
         }
+        all_samples.emplace_back(stoat::sample_hap_t(graph,paths.back()));
     }
 
     bdsg::PathPositionOverlayHelper overlay_helper;
@@ -1367,7 +1373,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
 
     auto get_alleles_per_snarl = [&](const snarl_info_t& snarl_info, const std::vector<stoat::sample_hap_t>& haplotypes) {
 
-        std::vector<std::vector<size_t>> alleles_by_snarl;
+        std::vector<size_t> alleles_by_snarl;
 
         //Add alleles to follow the walks
         if ((snarl_info.start_node == Node_traversal_t(1, false) && snarl_info.end_node == stoat::Node_traversal_t(6, true)) ||
@@ -1376,9 +1382,9 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
 
             if (snarl_info.walks_by_allele.size() == 0 || snarl_info.walks_by_allele[0].get_path().size() == 5) {
                 // If we aren't doing it by the walks or if the first walk is the non-dulpication
-                alleles_by_snarl.emplace_back(std::vector<size_t>({0,1,1}));
+                alleles_by_snarl = std::vector<size_t>({0,1,1});
             } else {
-                alleles_by_snarl.emplace_back(std::vector<size_t>({1,0,0}));
+                alleles_by_snarl = std::vector<size_t>({1,0,0});
             }
         } else if ((snarl_info.start_node == stoat::Node_traversal_t(2, false) && snarl_info.end_node == stoat::Node_traversal_t(4, true)) ||
                 (snarl_info.start_node == stoat::Node_traversal_t(4, true) && snarl_info.end_node == stoat::Node_traversal_t(2, false))) {
@@ -1386,16 +1392,16 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             // inner indel snarl
             if (snarl_info.walks_by_allele.size() == 0) {
                 //if we don't care about matching the order of the sample sets with the order of walks
-                alleles_by_snarl.emplace_back(std::vector<size_t>({0,1,2}));
+                alleles_by_snarl = std::vector<size_t>({0,1,2});
             } else {
-                alleles_by_snarl.emplace_back(std::vector<size_t>({0,0,0}));
+                alleles_by_snarl = std::vector<size_t>({0,0,0});
                 for (size_t allele_i = 0 ; allele_i < 3 ; allele_i ++ ) {
                     if (snarl_info.walks_by_allele[allele_i].get_path().size() == 3) { 
-                        alleles_by_snarl.back()[0] = allele_i;
+                        alleles_by_snarl[0] = allele_i;
                     } else if (snarl_info.walks_by_allele[allele_i].get_path().size() == 4) { 
-                        alleles_by_snarl.back()[1] = allele_i;
+                        alleles_by_snarl[1] = allele_i;
                     } else if (snarl_info.walks_by_allele[allele_i].get_path().size() == 5) {
-                        alleles_by_snarl.back()[2] = allele_i;
+                        alleles_by_snarl[2] = allele_i;
                     }
                 }
             }
@@ -1435,10 +1441,10 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             true, // alleles before walks but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) {
-                return snarl_collection.get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                return SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
             },
             true, // get alleles 
-            [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<sample_hap_t>& samples) { 
+            [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
                 return  get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
@@ -1660,8 +1666,8 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
 
     auto get_alleles_per_snarl = [&](const snarl_info_t& snarl_info, const std::vector<stoat::sample_hap_t>& haplotypes) {
 
-        std::vector<std::vector<size_t>> alleles_by_snarl;
-        alleles_by_snarl.emplace_back(std::vector<size_t>({0,1,1,0,1}));
+        std::vector<size_t> alleles_by_snarl;
+        alleles_by_snarl = std::vector<size_t>({0,1,1,0,1});
 
         return alleles_by_snarl;
     };
@@ -1678,11 +1684,11 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
             true, // alleles before walks but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) {
-                return snarl_collection.get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                return SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
             },
             true, // get alleles 
-            [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<<sample_hap_t>& samples) { 
-                return get_alleles_per_snarl(snarl_data);
+            [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
+                return get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
             "", false);
