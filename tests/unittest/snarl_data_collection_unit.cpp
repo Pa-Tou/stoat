@@ -199,14 +199,11 @@ TEST_CASE( "Snarl collection nested bubbles",
                 REQUIRE(snarl_info.start_position == 1);
                 REQUIRE(snarl_info.end_position == 2);
                 REQUIRE(snarl_info.depth == 1);
-                if (check_walks) {
-                    REQUIRE(snarl_info.walks_by_allele.size() == 2);
-                    REQUIRE(snarl_info.walks_by_allele[0].get_path().size() == 3);
-                    REQUIRE(snarl_info.walks_by_allele[1].get_path().size() == 3);
-                }
 
                 // The paths should be 1-2-4 and 1-3-4
                 if (check_alleles) {
+
+                    REQUIRE(snarl_info.alleles_by_sample.allele_count == 2);
                     //[0,1], [2,3]
                     std::string genotype0 =  snarl_info.genotypes.get_genotype_as_string("path0");
                     std::string genotype1 =  snarl_info.genotypes.get_genotype_as_string("path1");
@@ -234,6 +231,10 @@ TEST_CASE( "Snarl collection nested bubbles",
                     REQUIRE((snarl_info.genotypes.get_count_for_sample_and_allele("path3", 0) == 1 || snarl_info.genotypes.get_count_for_sample_and_allele("path3", 1) == 1 ));
                 }
                 if (check_walks) {
+                    REQUIRE(snarl_info.walks_by_allele.size() == 2);
+                    REQUIRE(snarl_info.walks_by_allele[0].get_path().size() == 3);
+                    REQUIRE(snarl_info.walks_by_allele[1].get_path().size() == 3);
+
                     REQUIRE(snarl_info.walks_by_allele[0].get_path()[0] == Node_traversal_t(1, false));
                     REQUIRE(snarl_info.walks_by_allele[1].get_path()[0] == Node_traversal_t(1, false));
 
@@ -311,6 +312,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 size_t deletion_index;
                 if (check_alleles) {
                     //[0,1,3], [2]
+                    REQUIRE(snarl_info.alleles_by_sample.allele_count == 2);
                     std::string genotype0 =  snarl_info.genotypes.get_genotype_as_string("path0");
                     std::string genotype1 =  snarl_info.genotypes.get_genotype_as_string("path1");
                     std::string genotype2 =  snarl_info.genotypes.get_genotype_as_string("path2");
@@ -429,6 +431,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                         REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "");
                     }
                     if (check_alleles) {
+                        REQUIRE(snarl_info.alleles_by_sample.allele_count == 2);
                         // 0 takes the insertion, 1,3 take the deletion 
                         REQUIRE(snarl_info.genotypes.get_count_for_sample_and_allele("path0", insertion_index) == 1);
                         REQUIRE(snarl_info.genotypes.get_count_for_sample_and_allele("path0", deletion_index) == 0);
@@ -443,6 +446,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                         REQUIRE(snarl_info.genotypes.get_count_for_sample_and_allele("path3", deletion_index) == 1);
                     }
                 } else if (check_alleles) {
+                    REQUIRE(snarl_info.alleles_by_sample.allele_count == 2);
                     // If we want to check the alleles but don't have the walks
                     //[0], [1,3]
                     std::string genotype0 =  snarl_info.genotypes.get_genotype_as_string("path0");
@@ -680,14 +684,16 @@ TEST_CASE( "Snarl collection nested bubbles",
 
         TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
-            true, // alleles before walks but it doesn't matter here
+            true, // alleles before walks
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) {
-                return SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                return;
             },
             true, // get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
-                return get_alleles_per_snarl(snarl_data, samples);
+                std::vector<size_t> alleles = get_alleles_per_snarl(snarl_data, samples);
+                return alleles;
             },
             true, // get sequences
             "", false);
@@ -1157,6 +1163,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 if (check_walks) {
                     // There should be one allele with one duplication and one with none, but we don't know which is which yet
                     // Since the child is a chain, it is added to the walk as the boundary nodes and a fake node 0 for the chain
+                    REQUIRE(snarl_info.walks_by_allele.size() == 2); 
                     bool walk_0_is_nodup = snarl_info.walks_by_allele[0].get_path().size() == 5 &&
                                         snarl_info.walks_by_allele[0].get_path()[0] == Node_traversal_t(1, false) &&
                                         snarl_info.walks_by_allele[0].get_path()[1] == Node_traversal_t(2, false) &&
@@ -1441,7 +1448,8 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             true, // alleles before walks but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) {
-                return SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                return;
             },
             true, // get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
@@ -1524,7 +1532,7 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
 
    */
 
-   //This uses the simple_nested_chain distance index but reubilds the graph with different paths 
+   //This uses the simple_nested_chain distance index but rebuilds the graph with different paths 
 
     bdsg::HashGraph graph;
 
@@ -1597,7 +1605,8 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
     std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2]),
-                                         stoat::sample_hap_t(*path_graph, paths[3])});
+                                         stoat::sample_hap_t(*path_graph, paths[3]),
+                                         stoat::sample_hap_t(*path_graph, paths[4])});
 
     // Function to check if the collection is valid
     auto check_collection = [&] (const TestSnarlDataCollection& snarl_collection) {
@@ -1667,7 +1676,22 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
     auto get_alleles_per_snarl = [&](const snarl_info_t& snarl_info, const std::vector<stoat::sample_hap_t>& haplotypes) {
 
         std::vector<size_t> alleles_by_snarl;
-        alleles_by_snarl = std::vector<size_t>({0,1,1,0,1});
+
+        if (snarl_info.start_node == Node_traversal_t(1, false) || snarl_info.start_node == stoat::Node_traversal_t(4, true)) {
+            // snarl 1-4
+            alleles_by_snarl = std::vector<size_t>({0,1,1,0,1});
+        } else if (snarl_info.start_node == stoat::Node_traversal_t(4, false) || snarl_info.start_node == stoat::Node_traversal_t(8, true)) {
+            // snarl 4-8
+            alleles_by_snarl = std::vector<size_t>({0,1,1,0,1});
+        } else if (snarl_info.start_node == stoat::Node_traversal_t(5, false) || snarl_info.start_node == stoat::Node_traversal_t(7, true)) {
+    
+            // snarl 5-7
+            alleles_by_snarl = std::vector<size_t>({0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max(),0,std::numeric_limits<size_t>::max()});
+        } else {
+            // For the last one there are no alleles because there are no paths
+            alleles_by_snarl = std::vector<size_t>({std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max()});
+        }
+
 
         return alleles_by_snarl;
     };
