@@ -361,6 +361,12 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
         // GenotypeTable constructor takes a map from sample to index, and the number of alleles
         GenotypeTable genotypes(sample_to_index, snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count
                                                                                                          : 0);
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        std::cerr << " Make genotype table for " << sample_to_index.size() << " samplesl and " << (snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count : 0) << " alleles" << std::endl; 
+        for (const auto& pair : sample_to_index) {
+            std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
+        }
+        #endif
 
         // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
         // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
@@ -891,6 +897,16 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
 
 void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
 
+    // Clear anything that has already been filled in, since we want it to match what was in the file
+    all_snarl_data.clear();
+    snarl_to_walks.clear();
+    snarl_to_alleles_by_sample.clear();
+    snarl_to_sequences.clear();
+    reference_names.clear();
+    all_sample_haplotypes.clear(); 
+    sample_to_index.clear();
+
+
     string line;
 
     // Read the first line, which must match the header
@@ -959,6 +975,7 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         reference_names.emplace_back(std::move(ref));
         std::getline(instream, line);
     }
+
 
     // The next header is  "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES", plus all of the sample/haplotypes
     std::getline(instream, line);
