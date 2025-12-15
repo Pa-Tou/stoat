@@ -114,6 +114,8 @@ public:
         
     // Getters
     const std::vector<Node_traversal_t>& get_path() const;
+    size_t get_max_allele_length() const { return max_allele_len; }
+    size_t get_min_allele_length() const { return min_allele_len; }
     
     // convert to std::string representation
     std::string to_string() const;

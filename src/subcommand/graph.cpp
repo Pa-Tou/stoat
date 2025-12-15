@@ -502,8 +502,14 @@ int main_stoat_graph(int argc, char *argv[]) {
                         ++sample_count;
                     }
                 }
+
+                // Don't consider this snarl if the maximum length is too small
+                size_t max_length = 0;
+                for (const PathTraversal& path : snarl_info.walks_by_allele) {
+                    max_length = std::max(max_length, path.get_max_allele_length());
+                }
                 
-                if (!stoat::filter_binary_table(sample_count_by_allele1, sample_count_by_allele2, sample_count, min_individuals, maf_threshold)) {
+                if (max_length > allele_size_limit && !stoat::filter_binary_table(sample_count_by_allele1, sample_count_by_allele2, sample_count, min_individuals, maf_threshold)) {
                     // TODO: This could do what pangwas was doing to keep track of only good p-values instead of writing everything
 
                     //Get a bunch of strings that get used for the output
