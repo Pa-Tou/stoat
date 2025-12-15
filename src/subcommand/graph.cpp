@@ -319,7 +319,8 @@ int main_stoat_graph(int argc, char *argv[]) {
         std::string sample_name = stoat::get_sample_name_from_path(*path_graph, path);
 
         // Get the sample haplotypes that we want
-        if (samples_filename.empty() || sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
+        // TODO: For now, if we are saving the snarls to be used again, force all samples to be included. This may change when this is a separate subcommand
+        if (samples_filename.empty() || save_snarls || sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
             paths_set.emplace(path_graph->get_path_name(path));
             all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
