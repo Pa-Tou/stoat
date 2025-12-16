@@ -470,12 +470,17 @@ std::string FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
         return "NA";
     if (row_total_0 == 0 || row_total_1 == 0)
         return "NA";
-    if (std::any_of(col_totals.begin(), col_totals.end(), [](int x){ return x == 0; }))
-        return "NA";
 
     // Compute chi-squared
     double chi2 = 0.0;
+    size_t skipped_cols_count = 0;
     for (size_t i = 0; i < cols; ++i) {
+
+        // Skip any allele with no sample counts
+        if (col_totals[i] == 0) { 
+            skipped_cols_count++;
+            continue;
+        }
         double expected_0 = static_cast<double>(row_total_0) * col_totals[i] / total;
         double expected_1 = static_cast<double>(row_total_1) * col_totals[i] / total;
 
@@ -483,7 +488,7 @@ std::string FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
         chi2 += (g1[i] - expected_1) * (g1[i] - expected_1) / expected_1;
     }
 
-    size_t df = cols - 1;
+    size_t df = cols - skipped_cols_count - 1;
 
     // --- Fast path: double precision ---
     boost::math::chi_squared_distribution<double> dist(df);

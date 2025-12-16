@@ -64,12 +64,6 @@ TEST_CASE("Chi-square & Fisher test function", "[fchi.chi2_2xN]") {
         REQUIRE(fchi.chi2_2xN(g0, g1) == "NA");
     }
 
-    SECTION("Chi-square fail & (zero column)") {
-        std::vector<size_t> g0 = {0, 10, 5};
-        std::vector<size_t> g1 = {0, 20, 15};
-        REQUIRE(fchi.chi2_2xN(g0, g1) == "NA");
-    }
-
     SECTION("Chi-square fail & Fisher test valid (zero row + column)") {
         std::vector<size_t> g0 = {0, 0};
         std::vector<size_t> g1 = {0, 1};
@@ -112,5 +106,14 @@ TEST_CASE("Chi-square & Fisher test function", "[fchi.chi2_2xN]") {
         size_t d = g1[1];
         REQUIRE(fchi.chi2_2x2(a, b, c, d)  == "8.8051e-23");
         REQUIRE(fchi.fastFishersExactTest(a, b, c, d)  == "1.4799e-23");
+    }
+    SECTION("Chi-square & Fisher test (very significative) with empty counts") {
+        std::vector<size_t> g0 = {122, 0, 78};
+        std::vector<size_t> g1 = {27, 0, 173};
+        size_t a = g0[0];
+        size_t b = g0[1];
+        size_t c = g1[0];
+        size_t d = g1[1];
+        REQUIRE(fchi.chi2_2xN(g0, g1)  == "8.8051e-23");
     }
 }

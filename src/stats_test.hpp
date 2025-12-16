@@ -39,6 +39,8 @@ class FisherChi2 {
         ~FisherChi2() = default;
 
         // Function to perform the Chi-square test on row size > 2 
+        // If one of the genotypes has no counts, return "NA"
+        // If one of the columns (alleles) has no counts, ignore it
         std::string chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
         // Function to perform the Chi-square test on row size == 2 
