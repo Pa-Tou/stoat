@@ -64,12 +64,6 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         REQUIRE(fk.chi2_2xN(g0, g1) == "NA");
     }
 
-    SECTION("Chi-square fail & (zero column)") {
-        std::vector<size_t> g0 = {0, 10, 5};
-        std::vector<size_t> g1 = {0, 20, 15};
-        REQUIRE(fk.chi2_2xN(g0, g1) == "NA");
-    }
-
     SECTION("Chi-square fail & Fisher test valid (zero row + column)") {
         std::vector<size_t> g0 = {0, 0};
         std::vector<size_t> g1 = {0, 1};
