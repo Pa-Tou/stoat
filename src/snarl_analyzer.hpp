@@ -37,9 +37,7 @@ public:
         const std::vector<std::string>& list_samples, 
         const std::vector<std::vector<double>>& covariate,
         const double maf_threshold,
-        const double table_threshold,
-        const size_t min_individuals,
-        const std::string regression_dir);
+        const size_t min_individuals);
 
     ~SnarlAnalyzer()=default;
 
@@ -90,12 +88,7 @@ protected:
 
     // threshold used to filter snarls 
     const double maf_threshold; 
-    const double table_threshold;
     const size_t min_individuals;
-
-    // eventually a directory where to write the tables used for the regression/test
-    // to make figures showing the association for example
-    const std::string regression_dir;
 };
 
 class BinarySnarlAnalyzer : public SnarlAnalyzer {
@@ -106,10 +99,8 @@ public:
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
         const std::vector<std::string>& list_samples, 
         const double maf_threshold,
-        const double table_threshold,
         const std::vector<bool>& binary_phenotype,
-        const size_t min_individuals,
-        const std::string regression_dir);
+        const size_t min_individuals);
 
     bool test_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string chr, std::ofstream& outf);
 
@@ -129,10 +120,8 @@ public:
         const std::vector<std::string>& list_samples, 
         const std::vector<std::vector<double>>& covariate, 
         const double maf_threshold, 
-        const double table_threshold,
         const std::vector<bool>& binary_phenotype,
-        const size_t min_individuals,
-        const std::string regression_dir);
+        const size_t min_individuals);
 
     bool test_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string chr, std::ofstream& outf);
 
@@ -152,10 +141,8 @@ public:
         const std::vector<std::string>& list_samples, 
         const std::vector<std::vector<double>>& covariate, 
         const double maf_threshold, 
-        const double table_threshold,
         const std::vector<double>& quantitative_phenotype,
-        const size_t min_individuals,
-        const std::string regression_dir);
+        const size_t min_individuals);
 
     bool test_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string chr, std::ofstream& outf) ;
 
@@ -175,11 +162,9 @@ public:
         const std::vector<std::string>& list_samples, 
         const std::vector<std::vector<double>>& covariate, 
         const double maf_threshold, 
-        const double table_threshold,
         const std::unordered_map<std::string, std::vector<Qtl_data>>& eqtl_map,
         const size_t windows_gene_threshold,
-        const size_t min_individuals,
-        const std::string regression_dir);
+        const size_t min_individuals);
 
     bool test_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string chr, std::ofstream& outf);
 

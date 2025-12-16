@@ -40,7 +40,7 @@ bool run_test(
     bool use_covariate = false) {
 
     std::string cmd = stoat_command + " vcf"
-    + " -s " + data_path + "/snarl_analyse.tsv"
+    + " -s " + data_path + "/snarl_info.tsv"
     + " -v " + data_path + "/merged_output.vcf.gz";
 
     std::string type;

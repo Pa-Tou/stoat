@@ -34,13 +34,11 @@ std::vector<bool> parse_binary_pheno(
     // JEAN but it's not, is it? we're doing this just below
     std::getline(file, line);
     std::istringstream header_stream(line);
-    std::string fid, iid, phenoStr;
-    header_stream >> fid >> iid >> phenoStr;
-    if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
-        throw std::invalid_argument("Invalid header: " + line);
+    std::string sample_name, phenoStr;
+    header_stream >> sample_name >> phenoStr;
+    if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
+        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
     }
-
-    // JEAN we don't use FID so I think we should remove it (or not care if it's missing)
     
     // --- Read and process data ---
     int count_controls = 0;
@@ -48,31 +46,28 @@ std::vector<bool> parse_binary_pheno(
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string fid_val, iid_val, phenoStr_val;
-
-        if (!(iss >> fid_val >> iid_val >> phenoStr_val)) {
+        if (!(iss >> sample_name >> phenoStr)) {
             throw std::invalid_argument("Malformed line: " + line);
         }
 
         int pheno;
         try {
-            pheno = std::stoi(phenoStr_val);
+            pheno = std::stoi(phenoStr);
         } catch (...) {
-            throw std::invalid_argument("Bad phenotype type: " + phenoStr_val);
+            throw std::invalid_argument("Bad phenotype type: " + phenoStr);
         }
 
-        // JEAN binary could have been 0/1 rather than 1/2
-        if (pheno == 1) {
+        if (pheno == 0) {
             ++count_controls;
-            binary_pheno[iid_val] = false;
-        } else if (pheno == 2) {
+            binary_pheno[sample_name] = false;
+        } else if (pheno == 1) {
             ++count_cases;
-            binary_pheno[iid_val] = true;
+            binary_pheno[sample_name] = true;
         } else {
-            throw std::invalid_argument("Binary phenotype must be 1 or 2, got: " + std::to_string(pheno));
+            throw std::invalid_argument("Binary phenotype must be 0 or 1, got: " + std::to_string(pheno));
         }
         if (fill_in_samples) {
-            list_samples.emplace_back(iid_val);
+            list_samples.emplace_back(sample_name);
         }
     }
 
@@ -112,26 +107,25 @@ std::vector<double> parse_quantitative_pheno(
     // Read and validate header (assumes file open and first line exists)
     std::getline(file, line);
     std::istringstream header_stream(line);
-    std::string fid, iid, phenoStr;
-    header_stream >> fid >> iid >> phenoStr;
-    if (fid != "FID" || iid != "IID" || phenoStr != "PHENO") {
-        throw std::invalid_argument("In parsing phenotype, invalid header: " + line);
+    std::string sample_name, phenoStr;
+    header_stream >> sample_name >> phenoStr;
+    if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
+        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
     }
 
     int count_pheno = 0;
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string fid_val, iid_val, phenoStr_val;
 
-        if (!(iss >> fid_val >> iid_val >> phenoStr_val)) {
+        if (!(iss >> sample_name >> phenoStr)) {
             throw std::invalid_argument("In parsing phenotype, malformed line: " + line);
         }
 
         try {
-            quantitative_pheno[iid_val] = std::stod(phenoStr_val);
+            quantitative_pheno[sample_name] = std::stod(phenoStr);
         } catch (...) {
-            throw std::invalid_argument("Bad phenotype type: " + phenoStr_val);
+            throw std::invalid_argument("Bad phenotype type: " + phenoStr);
         }
 
         ++count_pheno;
@@ -261,7 +255,7 @@ std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_g
     std::getline(ss_header, endStr, '\t');
 
     if (gene != "gene_name" || chrom != "chr" || startStr != "start" || endStr != "end") {
-        throw std::invalid_argument("In parsing gene position file, invalid header. Expected: gene_name\tchr\tstart\tend");
+        throw std::invalid_argument("Invalid gene position header. Expected: gene_name, chr, start, and end. Got " + line);
     }
 
     // Parse content
@@ -366,9 +360,9 @@ std::vector<std::vector<double>> parse_covariates(
     }
 
     // Check for required columns
-    auto it_iid = std::find(headers.begin(), headers.end(), "IID");
+    auto it_iid = std::find(headers.begin(), headers.end(), "SAMPLE");
     if (it_iid == headers.end()) {
-        throw std::invalid_argument("header must include 'IID' column.\n");
+        throw std::invalid_argument("header must include 'SAMPLE' column.\n");
     }
 
     size_t iid_index = std::distance(headers.begin(), it_iid);

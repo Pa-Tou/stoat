@@ -388,6 +388,7 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
     double beta_adjusted = beta(1);
     double se_adjusted = se(1);
 
+    // JEAN this needs to be updated to the "new" F-test, no? (then remove adjusted_hochberg)
     if (p_values.size() > 1) { // case > 3 column/path
         auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
         beta_adjusted = beta[min_index+1];

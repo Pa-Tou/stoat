@@ -75,30 +75,28 @@ STOAT supports both binary and quantitative phenotypes:
 
 ### Usage
   
-Stoat has two main use cases, finding associations from a [VCF file](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf) and finding associations from [paths in the graph](https://github.com/Pa-Tou/stoat/wiki/stoat-graph).
+Stoat has two main use cases, finding associations from [paths in the graph](https://github.com/Pa-Tou/stoat/wiki/stoat-graph) or from a [VCF file](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf) from genotyping other samples with sequencing data.
 
-- Use `stoat vcf` if you want to run a GWAS from a VCF file : 
+### `stoat graph` to test haplotypes embedded as paths in the pangenome
 
-```bash
-# decompose pangenome
-stoat vcf -g <pg.full.pg> -d <dist.dist> -o <paths.txt>
+Use `stoat graph` with the pangenome files. More information in the [`stoat graph` wiki page](https://github.com/Pa-Tou/stoat/wiki/stoat-graph).
 
-# binary trait with already decompose pangenome
-stoat vcf -s <paths.txt> -v <vcf_file.vcf.gz> -b <phenotype.txt> --chr <ref.tsv> -o output
-
-# decompose pangenome + binary trait
-stoat vcf -g <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -b <phenotype.txt> --chr <ref.tsv> -o output
-
-# decompose pangenome + quantative trait
-stoat vcf -g <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -q <phenotype.txt> --chr <ref.tsv> -o output
-```
-
-
-- Use `stoat graph` if you want to find associations with paths in the graph : 
+A typical command looks like:
 
 ```bash
-stoat graph -g <graph> -d <dist.dist> -b <phenotype.tsv>
+stoat graph -g <graph.pg> -d <graph.dist> -b <phenotype.tsv>
 ```
+
+#### `stoat vcf` to test samples genotyped from sequencing data
+
+Use `stoat vcf` on the merged VCF. More information in the [`stoat vcf` wiki page](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf).
+
+To test the association between snarls and a binary phenotype, the command could look like:
+
+```bash
+stoat vcf -g <graph.pg> -d <graph.dist> -v <genotypes.vcf.gz> -b <phenotype.tsv> --chr <ref_paths.txt> -o output_directory
+```
+
 ### Wiki
 
 For more information about Stoat, see our [wiki documentation](https://github.com/Pa-Tou/stoat/wiki).

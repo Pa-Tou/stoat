@@ -44,7 +44,7 @@ void print_help_graph() {
         << "output:" << endl
         << "  -o, --output DIR                   Output directory name [output]" << endl
         << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
-        << "                                     Output will be written to DIR/binary_table_1graph.tsv or DIR/binary_output.fasta" << endl
+        << "                                     Output will be written to DIR/stoat.assoc.pvalues.tsv or DIR/stoat.assoc.pvalues.fasta" << endl
         << "options:" << endl
         << "  -t, --threads N                    Number of threads to use" << endl
         << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << endl
@@ -348,9 +348,10 @@ int main_stoat_graph(int argc, char *argv[]) {
 
     string filename = output_dir + "/";
     if (output_format == "tsv") {
-        filename += "binary_table_graph.tsv";
+        filename += "stoat.assoc.pvalues.tsv";
     } else if (output_format == "fasta") {
-        filename += "binary_output.fasta";
+        // JEAN not sure what the FASTA has, so maybe pick a better name here
+        filename += "stoat.assoc.pvalues.fasta";
     }
 
     // Get the out streams

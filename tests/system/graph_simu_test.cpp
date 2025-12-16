@@ -37,9 +37,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
         std::ifstream testfile;
-        testfile.open(output_dir+"/binary_table_graph.tsv");
+        testfile.open(output_dir+"/stoat.assoc.pvalues.tsv");
         REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
@@ -70,9 +70,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
         std::ifstream testfile;
-        testfile.open(output_dir+"/binary_table_graph.tsv");
+        testfile.open(output_dir+"/stoat.assoc.pvalues.tsv");
         REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
@@ -120,14 +120,14 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
         std::ifstream testfile;
-        testfile.open(output_dir+"/binary_output.fasta");
+        testfile.open(output_dir+"/stoat.assoc.pvalues.fasta");
         REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
 
     }
@@ -155,13 +155,13 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
         std::ifstream testfile;
-        testfile.open(output_dir+"/binary_output.fasta");
+        testfile.open(output_dir+"/stoat.assoc.pvalues.fasta");
         //REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
     }
 
@@ -191,9 +191,9 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         }
 
         REQUIRE(std::filesystem::exists(output_dir_loaded+"/" + graph_base + ".saved_snarls"));
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
         std::ifstream testfile;
-        testfile.open(output_dir+"/binary_table_graph.tsv");
+        testfile.open(output_dir+"/stoat.assoc.pvalues.tsv");
         REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
@@ -216,13 +216,13 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir_loaded+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir_loaded+"/stoat.assoc.pvalues.tsv"));
         testfile;
-        testfile.open(output_dir_loaded+"/binary_table_graph.tsv");
+        testfile.open(output_dir_loaded+"/stoat.assoc.pvalues.tsv");
         REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
         testfile.close();
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", output_dir_loaded+"/binary_table_graph.tsv"));
+        REQUIRE(files_equal(output_dir+"/stoat.assoc.pvalues.tsv", output_dir_loaded+"/stoat.assoc.pvalues.tsv"));
 
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
@@ -243,14 +243,14 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     std::vector<std::string> samples_of_interest = {"path1", "path3"};
     std::vector<std::string> other_samples = {"path0", "path2"};
     
-    string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
+    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_file;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
 
@@ -277,7 +277,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
         binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
                                   (size_t)1, 
@@ -309,7 +309,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
                                   std::vector<std::string>({"2:0","0:1"}), 
                                   (size_t)2});
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::vector<bool> found_snarls (3, false);
@@ -360,7 +360,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
         binary_table_values_t truth ({(std::string)"path0#0#path0", 
                                   (size_t)4, 
@@ -372,7 +372,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
                                   std::vector<std::string>({"NA"}), 
                                   (size_t)2});
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::getline(in_table, line);
@@ -405,9 +405,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
@@ -425,7 +425,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
         truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
 
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
+        REQUIRE(fasta_equal(output_dir+"/stoat.assoc.pvalues.fasta", truth_fasta));
 
     }
 
@@ -451,9 +451,9 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
@@ -461,7 +461,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
         truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
+        REQUIRE(fasta_equal(output_dir+"/stoat.assoc.pvalues.fasta", truth_fasta));
 
 
     }
@@ -479,14 +479,14 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
     std::vector<std::string> samples_of_interest = {"path1", "path3"};
     std::vector<std::string> other_samples = {"path0", "path2"};
     
-    string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
+    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_file;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
         write_cmd = "cat " + samples_file;
@@ -516,7 +516,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
         binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
                                   (size_t)1, 
@@ -548,7 +548,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
                                   std::vector<std::string>({"2:0","0:1"}), 
                                   (size_t)2});
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::vector<bool> found_snarls (3, false);
@@ -600,7 +600,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
         binary_table_values_t truth ({(std::string)"path0#0#path0", 
                                   (size_t)4, 
@@ -612,7 +612,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
                                   std::vector<std::string>({"NA"}), 
                                   (size_t)2});
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::getline(in_table, line);
@@ -644,9 +644,9 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
@@ -664,7 +664,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
         truth_fasta.emplace_back(6, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
 
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
+        REQUIRE(fasta_equal(output_dir+"/stoat.assoc.pvalues.fasta", truth_fasta));
 
     }
 
@@ -690,9 +690,9 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
 
@@ -700,7 +700,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
         truth_fasta.emplace_back(1, ">snarl:5_7|path0#0#path0:4-5|path3:4-4", "");
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
+        REQUIRE(fasta_equal(output_dir+"/stoat.assoc.pvalues.fasta", truth_fasta));
 
 
     }
@@ -728,7 +728,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
 
         binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
@@ -752,7 +752,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
                                   (size_t)2});
 
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::vector<bool> found_snarls (3, false);
@@ -798,7 +798,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
 
         binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
@@ -821,7 +821,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
                                   std::vector<std::string>({"0:1","2:1"}), 
                                   (size_t)1});
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::vector<bool> found_snarls (3, false);
@@ -860,14 +860,14 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
 
     const std::string samples_file = "./samples.tsv";
     
-    string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
+    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_file;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
 
@@ -892,7 +892,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
         binary_table_values_t truth1 ({(std::string)"path0", 
                                   (size_t)10, 
@@ -915,7 +915,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
                                   (size_t)2});
 
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::vector<bool> found_snarls (2, false);
@@ -958,7 +958,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
 
         binary_table_values_t truth1 ({(std::string)"path0", 
@@ -982,7 +982,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
                                   (size_t)2});
 
         ifstream in_table;
-        in_table.open(output_dir+"/binary_table_graph.tsv");
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
         std::string line; 
         std::getline(in_table, line); // Header
         std::vector<bool> found_snarls (2, false);
@@ -1025,9 +1025,9 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         }
 
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
         truth_fasta.emplace_back(1, ">snarl:6_1|path0:10-14|path1:10-17", "ANTANT");
@@ -1047,7 +1047,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path2:11-15", "GN");
 
 
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
+        REQUIRE(fasta_equal(output_dir+"/stoat.assoc.pvalues.fasta", truth_fasta));
     }
 
     SECTION("Test exact fasta output") {
@@ -1072,9 +1072,9 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         }
 
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.fasta"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
+        REQUIRE(is_valid_fasta(output_dir+"/stoat.assoc.pvalues.fasta"));
 
         std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
         truth_fasta.emplace_back(1, ">snarl:6_1|path0:10-14|path1:10-17", "ANTANT");
@@ -1093,7 +1093,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
 
         truth_fasta.emplace_back(5, ">snarl:2_4|path0:11-12|path2:11-15", "GN");
 
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
+        REQUIRE(fasta_equal(output_dir+"/stoat.assoc.pvalues.fasta", truth_fasta));
 
     }
 

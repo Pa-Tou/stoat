@@ -39,11 +39,11 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
         std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
 
         std::string file_content =
-            "FID IID PHENO\n"
-            "F1 I1 1\n"
-            "F2 I2 2\n"
-            "F3 I3 1\n"
-            "F4 I4 2\n";
+            "SAMPLE PHENO\n"
+            "I1 0\n"
+            "I2 1\n"
+            "I3 0\n"
+            "I4 1\n";
 
         std::string file_path = create_test_pheno_file(file_content);
         std::vector<bool> result = stoat_vcf::parse_binary_pheno(file_path, list_samples);
@@ -59,8 +59,8 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
         std::vector<std::string> list_samples = {"I1"};
 
         std::string file_content =
-            "FID ID PHENO\n"
-            "F1 I1 1\n";
+            "ID PHENO\n"
+            "I1 1\n";
         std::string file_path = create_test_pheno_file(file_content);
 
         REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
@@ -70,8 +70,8 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
         std::vector<std::string> list_samples = {"I1"};
 
         std::string file_content =
-            "FID IID PHENO\n"
-            "F1 I1 3\n";
+            "SAMPLE PHENO\n"
+            "I1 3\n";
         std::string file_path = create_test_pheno_file(file_content);
 
         REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
@@ -81,8 +81,8 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
         std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
 
         std::string file_content =
-            "FID IID PHENO\n"
-            "F1 I1\n";
+            "SAMPLE PHENO\n"
+            "I1\n";
         std::string file_path = create_test_pheno_file(file_content);
 
         REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
@@ -92,8 +92,8 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
         std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
 
         std::string file_content =
-            "FID IID PHENO\n"
-            "F1 I1 X\n";
+            "SAMPLE PHENO\n"
+            "I1 X\n";
         std::string file_path = create_test_pheno_file(file_content);
 
         REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
@@ -107,11 +107,11 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
         std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
 
         std::string file_content =
-            "FID IID PHENO\n"
-            "F1 I1 1.5\n"
-            "F2 I2 2.0\n"
-            "F3 I3 -3.25\n"
-            "F4 I4 0.0\n";
+            "SAMPLE PHENO\n"
+            "I1 1.5\n"
+            "I2 2.0\n"
+            "I3 -3.25\n"
+            "I4 0.0\n";
 
         std::string file_path = create_test_pheno_file(file_content);
 
@@ -128,8 +128,8 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
         std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
 
         std::string file_content =
-            "FID ID PHENO\n"
-            "F1 I1 1.5\n";
+            "ID PHENO\n"
+            "I1 1.5\n";
         std::string file_path = create_test_pheno_file(file_content);
 
         REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
@@ -139,8 +139,8 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
         std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
 
         std::string file_content =
-            "FID IID PHENO\n"
-            "F1 I1 abc\n";
+            "SAMPLE PHENO\n"
+            "I1 abc\n";
         std::string file_path = create_test_pheno_file(file_content);
 
         REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
@@ -150,8 +150,8 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
         std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
 
         std::string file_content =
-            "FID IID PHENO\n"
-            "F1 I1\n";
+            "SAMPLE PHENO\n"
+            "I1\n";
         std::string file_path = create_test_pheno_file(file_content);
 
         REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
@@ -239,7 +239,7 @@ TEST_CASE("Check sample matching", "[check_match_samples]") {
 TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
     SECTION("Valid covariate file and columns") {
         std::string content =
-            "IID age sex\n"
+            "SAMPLE age sex\n"
             "samp0 25 1\n"
             "samp1 30 0\n"
             "samp2 45 1\n";
@@ -259,7 +259,7 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
         REQUIRE(result[2][1] == 1);
     }
 
-    SECTION("Missing IID column") {
+    SECTION("Missing SAMPLE column") {
         std::string content =
             "ID age sex\n"
             "samp0 25 1\n";
@@ -272,7 +272,7 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
 
     SECTION("Missing covariate column") {
         std::string content =
-            "IID age sex\n"
+            "SAMPLE age sex\n"
             "A 25 1\n";
         std::string path = create_test_covar_file(content);
         std::vector<std::string> column_covars = {"height"}; // not present
@@ -283,7 +283,7 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
 
     SECTION("Non-numeric value in covariate field") {
         std::string content =
-            "IID age sex\n"
+            "SAMPLE age sex\n"
             "samp0 XX 1\n"; // XX is not numeric
         std::string path = create_test_covar_file(content);
         std::vector<std::string> column_covars = {"age", "sex"};
