@@ -13,7 +13,11 @@ using namespace stoat;
 
 namespace stoat {
 
-// Used to store the allele assignment for a vector of samples. allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample
+// Used to store the allele assignment for a vector of samples. 
+// This struct only makes sense when it is paired with a vector of samples or sample_hap_t's (as a member of a snarl_info_t). 
+// Each entry in alleles is the identifier of an allele
+// The allele identifiers are also used as indices into other per-allele vectors, so they start from 0 and go up to the number of alleles-1.
+// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample
 struct allele_by_sample_t{
     size_t allele_count;
     std::vector<size_t> alleles;
@@ -24,9 +28,9 @@ struct allele_by_sample_t{
     allele_by_sample_t(){}
 };
 
-// This holds snarl information from the distance index and graph: id of the snarl, reference coordinates, walks, 
+// This holds snarl information from the distance index and graph: id and reference coordinates of the snarl, genotypes, reference coordinates, walks, 
 // the sequences of the walks and sets samples/haplotypes taking each walk
-// The latter three may be empty if they were not filled in by the SnarlDataCollection
+// The latter four may be empty if they were not filled in by the SnarlDataCollection
 struct snarl_info_t {
     public:
 
@@ -55,10 +59,12 @@ struct snarl_info_t {
         // Start and end offset along the reference path
         size_t start_position;
         size_t end_position;
+
+        // The depth of the snarl in the snarl tree
         size_t depth;
 
         // A genotype table of the counts of each allele for each sample (see feature_table.hpp).
-        // Alleles have the same numbering as walks_by_allele and sequences_by_allele, but as strings "0", "1", etc
+        // Alleles have the same numbering as walks_by_allele and sequences_by_allele
         const GenotypeTable& genotypes;
 
         // This stores all the sample/haplotypes 
@@ -75,8 +81,6 @@ struct snarl_info_t {
         //    boundary of the snarl going back in
         const std::vector<PathTraversal>& walks_by_allele;
 
-
-
         // For each allele, what is its sequence?
         // The sequences don't include sequences of the boundary nodes
         const std::vector<std::string>& sequences_by_allele;
@@ -84,12 +88,23 @@ struct snarl_info_t {
 };
 
 /// A class for holding per-snarl data for a collection of snarls
-/// Publicly, this allow access to snarl_info_t's for holding basic information about the snarl, the walks through the snarl 
+/// Publicly, this allow access to snarl_info_t's for holding basic information about the snarl, the genotypes, the walks through the snarl 
 ///    the groups of haplotypes following each walk, and the sequence of each walk.
-/// The latter three optional and may be empty if the SnarlDataCollection was built without them.
+/// The latter four are optional and may be empty if the SnarlDataCollection was built without them.
 /// Internally, the basic snarl information, the walks, haplotype samples sets, and sequences are each stored separately. 
 /// Build the collection either from the distance index or by loading from a file
 /// Access snarls by chromosome name or all at once
+///
+/// The constructor only fills in constraints about which snarls are included in the collection.
+/// The collection can be filled in from a file using load_snarl_data_collection()
+/// Otherwise, it can be filled in by calling fill_in_snarl_info(). This function has different options for which information is filled in:
+/// walks_requested, alleles_requested, sequence_requested 
+/// stoat graph fills in everything at the same time, finding walks and sequences based on the alleles
+/// stoat vcf fills in the walks first, saves the intermediate file, then fills in the alleles. Sequences are generally not included.
+/// This can be done by calling fill_in_snarl_info() with alleles_requested and sequence_requested set to false.
+/// Alleles can be filled in later by calling add_alleles_by_sample()
+///
+/// Once the collection is filled in with snarls, the data can be accessed by calling for_each_snarl()
 
 class SnarlDataCollection {
 

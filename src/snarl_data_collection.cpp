@@ -81,10 +81,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                     
                     distance_index.for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
                     
-                        //TODO: Actually use is_eligible
-                        //TODO: For now it's fine to check is_eligible here because it's only checking size and we don't want to look at small chains anyway
                         if (distance_index.is_snarl(snarl)) {
-
     
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
                             cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << endl;
@@ -362,7 +359,7 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
         GenotypeTable genotypes(sample_to_index, snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count
                                                                                                          : 0);
         #ifdef DEBUG_SNARL_DATA_COLLECTION
-        std::cerr << " Make genotype table for " << sample_to_index.size() << " samplesl and " << (snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count : 0) << " alleles" << std::endl; 
+        std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << (snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count : 0) << " alleles" << std::endl; 
         for (const auto& pair : sample_to_index) {
             std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
         }
