@@ -14,27 +14,22 @@ namespace stoat_vcf {
         const std::vector<std::string> &list_samples,
         const std::vector<std::vector<double>> &covariate,
         const double maf_threshold,
-        const double table_threshold,
-        const size_t min_individuals,
-        const std::string regression_dir) :
+        const size_t min_individuals) :
         chr_to_snarl_data(chr_to_snarl_data),
         list_samples(list_samples),
         edge_matrix(list_samples, 0),
         covariate(covariate),
         maf_threshold(maf_threshold),
-        table_threshold(table_threshold),
         min_individuals(min_individuals),
-        regression_dir(regression_dir), phenotype_type(stoat::BINARY) {};
+        phenotype_type(stoat::BINARY) {};
 
     BinarySnarlAnalyzer::BinarySnarlAnalyzer(
         const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> &chr_to_snarl_data,
         const std::vector<std::string> &list_samples,
         const double maf_threshold,
-        const double table_threshold,
         const std::vector<bool> &binary_phenotype,
-        const size_t min_individuals,
-        const std::string regression_dir) :
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, {}, maf_threshold, table_threshold, min_individuals, regression_dir),
+        const size_t min_individuals) :
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, {}, maf_threshold, min_individuals),
         binary_phenotype(binary_phenotype), fchi() {
         phenotype_type = stoat::BINARY;
     };
@@ -44,12 +39,10 @@ namespace stoat_vcf {
         const std::vector<std::string> &list_samples,
         const std::vector<std::vector<double>> &covariate,
         const double maf_threshold,
-        const double table_threshold,
         const std::vector<bool> &binary_phenotype,
-        const size_t min_individuals,
-        const std::string regression_dir) :
+        const size_t min_individuals) :
 
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir),
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, min_individuals),
         binary_phenotype(binary_phenotype), lr() {
         phenotype_type = stoat::BINARY_COVAR;
     };
@@ -59,12 +52,10 @@ namespace stoat_vcf {
         const std::vector<std::string> &list_samples,
         const std::vector<std::vector<double>> &covariate,
         const double maf_threshold,
-        const double table_threshold,
         const std::vector<double> &quantitative_phenotype,
-        const size_t min_individuals,
-        const std::string regression_dir) :
+        const size_t min_individuals) :
 
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir),
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, min_individuals),
         quantitative_phenotype(quantitative_phenotype), lr() {
         phenotype_type = stoat::QUANTITATIVE;
     };
@@ -74,12 +65,10 @@ namespace stoat_vcf {
         const std::vector<std::string> &list_samples,
         const std::vector<std::vector<double>> &covariate,
         const double maf_threshold,
-        const double table_threshold,
         const std::unordered_map<std::string, std::vector<stoat_vcf::Qtl_data>> &eqtl_map,
         const size_t windows_gene_threshold,
-        const size_t min_individuals,
-        const std::string regression_dir) :
-        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, table_threshold, min_individuals, regression_dir),
+        const size_t min_individuals) :
+        SnarlAnalyzer(chr_to_snarl_data, list_samples, covariate, maf_threshold, min_individuals),
         eqtl_map(eqtl_map), windows_gene_threshold(windows_gene_threshold), lr() {
         phenotype_type = stoat::EQTL;
     };
@@ -100,17 +89,8 @@ namespace stoat_vcf {
         const std::string output_dir)
     {
 
-        // JEAN don't really like that the output is different for different analysis
-        // if we want to keep track of what was run, we might as well include a header in the file with the full info (all parameters, input files, etc)
-        // but have the main output file be the same name all the time (easier to predict the output and integrate in a workflow)
-        std::string output_filename;
-        if (phenotype_type == stoat::BINARY || phenotype_type == stoat::BINARY_COVAR)
-            output_filename = output_dir + "/binary_table_vcf.tsv";
-        else if (phenotype_type == stoat::QUANTITATIVE)
-            output_filename = output_dir + "/quantitative_table_vcf.tsv";
-        else
-            output_filename = output_dir + "/eqtl_table_vcf.tsv";
-        
+        // JEAN if we want to keep track of what was run, we might as well include a header in the file with the full info (all parameters, input files, etc)
+        std::string output_filename = output_dir + "/stoat.assoc.pvalues.tsv";
         std::ofstream outf(output_filename, std::ios::binary);
 
         // Write the header of the output file
@@ -301,9 +281,10 @@ namespace stoat_vcf {
             }
         }
 
-        // JEAN flipping the path here should avoid most inconsistencies but not all because this
-        // is potentially a very long path traversing the top-level snarl while the ones used when
-        // preparing the snarl paths are the "simplified"/net versions
+        // we try flipping the path here to avoid most inconsistencies with vg call's ATs
+        // inconsistencies are still possiblt because this is potentially a very long path
+        // traversing the top-level snarl only while the ones used exploring the snarl tree
+        // and preparing the snarl paths are the "simplified"/net versions
         nodes.check_path_flip();
 
         for (size_t j = 0; j + 1 < nodes.get_path().size(); ++j)
@@ -372,20 +353,13 @@ namespace stoat_vcf {
             stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids) + " -> check_last_columns_quantitative_table");
             return to_filter;
         }
-
+        
         // logistic regression with covariates if not empty
         const auto &[p_value, beta, se] = lr.logistic_regression(X, Y, covariate);
 
-        // Plot regression table
-        if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
-        {
-            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.paths)), samples_name, variant_file_name);
-        }
-
         #pragma omp critical(outf)
         {
-            stoat::write_binary_covar(outf, chr, snarl_data_s, al_lens, p_value, beta, se, allele_paths);
+            stoat::write_binary_covar(outf, chr, snarl_data_s, al_lens, p_value, allele_paths);
         }
         return to_filter;
     }
@@ -422,12 +396,6 @@ namespace stoat_vcf {
         std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
 
         auto [p_value, r2] = lr.linear_regression(X, Y, covariate);
-
-        if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
-        {
-            std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.ids) + ".tsv";
-            stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.paths)), samples_name, variant_file_name);
-        }
 
         #pragma omp critical(outf)
         {
@@ -496,17 +464,21 @@ namespace stoat_vcf {
             size_t gene_idx = list_gene_index[i];
             std::string gene_name = eqtl_map.at(chr)[gene_idx].geneName;
             std::vector<double> gene_expression = eqtl_map.at(chr)[gene_idx].sampleExpresion;
-            stoat::retain_indices(gene_expression, index_filtered);
+            // keep only the desired samples (in index_filtered)
+            // used to be "retain_indices"
+            // JEAN will be replaced by the new tables I think
+            size_t write_idx = 0;
+            for (size_t read_idx = 0; read_idx < gene_expression.size(); ++read_idx) {
+                if (index_filtered.count(read_idx)) {
+                    gene_expression[write_idx++] = gene_expression[read_idx];
+                }
+            }
+            gene_expression.resize(write_idx);
 
+            
             std::string al_lens = vectorPathToString(snarl_data_s.paths, true);
 
             auto [p_value, r2] = lr.linear_regression(X, gene_expression, covariate);
-
-            if (table_threshold != -1 && stoat::isPValueSignificant(table_threshold, p_value))
-            {
-                std::string variant_file_name = regression_dir + "/" + stoat::pairToString(snarl_data_s.ids) + ".tsv";
-                stoat::writeSignificantTableToTSV(X, stoat::stringToVector<std::string>(stoat::vectorPathToString(snarl_data_s.paths)), samples_name, variant_file_name);
-            }
 
             #pragma omp critical(outf)
             {

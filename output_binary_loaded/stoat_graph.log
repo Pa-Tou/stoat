@@ -2,7 +2,9 @@ stoat graph -g ../data/binary/pg.full.pg -b ../data/binary/phenotype_samples.tsv
 [stoat graph] using precomputed snarl paths from ../output_binary_loaded/pg.full.saved_snarls
 Binary phenotypes found: 400 (Control: 200, Case: 200)
 Loading graph and preparing indexes...
-Graph loading time : 1.065031 s
-Start GWAS analysis...
-GWAS time analysis : 0.111773 s
-Total time : 1.176834 s
+Graph loading time : 0.888589 s
+Start finding alleles in snarls...
+Snarl parsing time : 0.000000 s
+Start doing statistics...
+GWAS time analysis : 0.291382 s
+Total time : 1.180007 s

@@ -27,6 +27,7 @@ using namespace std;
 
 namespace stoat_vcf {
 
+    // JEAN change all QTL to gene expression, even if this will change soon...
 struct Qtl_data {
     std::string geneName;
     std::vector<double> sampleExpresion;

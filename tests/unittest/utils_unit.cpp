@@ -35,12 +35,6 @@ TEST_CASE("string_to_pvalue converts valid p-values or returns 1.0 for NA") {
     REQUIRE(stoat::string_to_pvalue("") == 1.0);
 }
 
-TEST_CASE("isPValueSignificant handles correct parsing and NA") {
-    REQUIRE(isPValueSignificant(0.05, "0.01") == true);
-    REQUIRE(isPValueSignificant(0.05, "0.05") == true);
-    REQUIRE(isPValueSignificant(0.05, "NA") == false);
-}
-
 TEST_CASE("adjusted_hochberg basic example") {
     std::vector<double> raw = {0.02, 0.15, 0.03, 0.001, 0.25, 0.05};
     std::pair<double, size_t> expected = {0.006, 3};
@@ -75,15 +69,6 @@ TEST_CASE("adjusted_hochberg same adjustement values") {
     auto [pvalue, index] = adjusted_hochberg(raw);
     REQUIRE(pvalue == expected.first);
     REQUIRE(index == expected.second);
-}
-
-TEST_CASE("retain_indices keeps only specified elements") {
-    std::vector<double> vec = {0.1, 0.2, 0.3, 0.4};
-    std::set<size_t> keep = {1, 3};
-    retain_indices(vec, keep);
-    REQUIRE(vec.size() == 2);
-    REQUIRE(vec[0] == 0.2);
-    REQUIRE(vec[1] == 0.4);
 }
 
 TEST_CASE("vectorToString handles string and numeric vectors") {

@@ -39,8 +39,6 @@ std::string set_precision_float_50(const boost::multiprecision::cpp_dec_float_50
 bool is_na(const std::string& s);
 double string_to_pvalue(const std::string& p1);
 
-bool isPValueSignificant(const double& pvalue_threshold, const std::string& pvalue_str);
-void retain_indices(std::vector<double>& vec, const std::set<size_t>& indices_to_keep);
 std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values);
 
 template <typename T>

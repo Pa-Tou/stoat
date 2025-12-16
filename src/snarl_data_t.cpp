@@ -629,7 +629,8 @@ std::vector<stoat::PathTraversal> convert_path_traversals(
             path_trav.add_max_allele_len(size_node[i]);
         }
 
-        // JEAN I think this is just for convenience but should make sure the path/edge orientation is NOT important when parsing the AT
+        // here we flip the path in an attempt to make it consistent with the other path/allele traversal
+        // that we will compare later. It's not absolutely necessary but convenient and might speed up the genotyping a bit
         path_trav.check_path_flip();
         
         path_travs.push_back(path_trav);
@@ -649,8 +650,8 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
     const size_t& cycle_threshold) {
 
     // JEAN would be nice to let the user decide how to name that?
-    std::string output_snarl_excluded = output_dir + "/snarl_not_analyse.tsv";
-    std::string output_file = output_dir + "/snarl_analyse.tsv";
+    std::string output_snarl_excluded = output_dir + "/excluded_snarls.tsv";
+    std::string output_file = output_dir + "/snarl_info.tsv";
 
     // start output files with headers
     std::ofstream out_snarl(output_file);
@@ -700,7 +701,7 @@ std::unordered_map<std::string, std::vector<Snarl_data_t>> write_snarls_with_pat
             };
 
             // once a path reaches the other bound, add to this list of finished paths
-            // we use this simpler structure here with vector and handles so avoid doing too much work working preparing a PathTraversal that might be filtered?
+            // we use this simpler structure here with vector and handles to avoid doing too much work work preparing a PathTraversal that might be filtered?
             // JEAN maybe simpler to use PathTraversal objects directly here?
             // XIAN I copied this into get_all_walks_through_snarl() in snarl_data_collection.hpp
             std::vector<std::vector<handlegraph::net_handle_t>> finished_paths;

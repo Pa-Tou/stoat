@@ -8,11 +8,12 @@ void write_stoat_output_header(std::ostream& outstream, stoat::phenotype_type_t 
     if (phenotype_type == stoat::BINARY) {
         outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH" << std::endl;
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tBETA\tSE\tALLELE_PATHS\tDEPTH" << std::endl;
+        // JEAN why don't we have the R2 here?
+        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH" << std::endl;
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
+        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tR2\tALLELE_PATHS\tDEPTH" << std::endl;
     } else if (phenotype_type == stoat::EQTL) {
-        outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tRSQUARE\tALLELE_PATHS\tDEPTH" << std::endl;
+        outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tR2\tALLELE_PATHS\tDEPTH" << std::endl;
     } 
 }
 
@@ -51,7 +52,7 @@ void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
 }
 
 void write_binary_covar(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value, const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths) {
+                        const std::string& p_value, const std::vector<size_t>& allele_paths) {
 
     outstream << chr << "\t"
               << snarl_data_s.start_position << "\t"
@@ -59,8 +60,6 @@ void write_binary_covar(std::ostream& outstream, const std::string& chr, const S
               << stoat::pairToString(snarl_data_s.ids) << "\t"
               << type_var_str << "\t"
               << p_value << "\t"
-              << beta << "\t"
-              << se << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
               << snarl_data_s.depth << endl;
 }
@@ -199,36 +198,6 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
             outstream << sequence_buffer << endl;
         }
     }
-}
-
-// Write the table to a TSV file
-void writeSignificantTableToTSV(
-    const std::vector<std::vector<double>>& table,
-    const std::vector<std::string>& list_snarl,
-    const std::vector<std::string>& list_samples,
-    const std::string& filename) {
-
-    std::ofstream outFile(filename);
-
-    // Write header
-    outFile << "sample_name";
-    for (const auto& snarl_name : list_snarl) {
-        outFile << "\t" << snarl_name;
-    }
-    outFile << "\n";
-
-    // Write each sample's data
-    size_t itr = 0;
-    for (const auto& allele_vector : table) {
-        outFile << list_samples[itr];
-
-        for (size_t i=0; i < allele_vector.size(); ++i) {
-            outFile << "\t" << allele_vector[i];
-        }
-        outFile << "\n";
-        ++itr;
-    }
-    outFile.close();
 }
 
 }//end namespace
