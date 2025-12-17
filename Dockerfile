@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     libprotoc-dev \
     libprotobuf-dev \
     valgrind \
+    bcftools \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /bin
