@@ -106,13 +106,13 @@ struct path_range_t {
 /// For finding a specific path or reference, if the snarl is not on the desired path, then walk up the snarl tree to find an ancestor snarl on the path
 /// An ancestor also takes priority over a different path, so if there is a reference-sense path of the snarl, but sample_name on the ancestor, return sample_name on the ancestor
 std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                                                   const handlegraph::net_handle_t& snarl, bool get_reference, std::string sample_name, bool get_all_paths);
+                                                   const handlegraph::net_handle_t& snarl, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths);
 
 /// The function that gets called by get_coordinates_of_snarl
 /// This either looks for a particular sample, or a reference-sense path, or all paths
 /// It finds paths between two nodes, which should be the start and end bounds of a snarl, pointing into each other
 std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle,
-                                                          const handlegraph::handle_t& end_handle, bool get_reference, std::string sample_name, bool get_all_paths);
+                                                          const handlegraph::handle_t& end_handle, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths);
 
 /// Given a path_range_t representing a path going through a snarl (with the start and end step_handle_t's representing the boundary nodes)
 /// Return the path name and range in the path of the snarl, not including the boundary nodes

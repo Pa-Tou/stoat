@@ -54,7 +54,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
     }
     SECTION("Serialize snarl collection") {
@@ -72,7 +72,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
         std::string test_file = "./test.snarl_collection.txt";
 
@@ -590,7 +590,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
 
         check_collection(snarl_collection, false, false, false, true);
@@ -609,7 +609,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
 
         check_collection(snarl_collection, true, false, true, true);
@@ -630,7 +630,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
 
         check_collection(snarl_collection, true, false, true, true);
@@ -659,7 +659,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -696,7 +696,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return alleles;
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
         check_collection(snarl_collection, true, true, true, false);
 
@@ -907,7 +907,7 @@ TEST_CASE( "Snarl collection multiple connected components",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
 
 
@@ -1434,7 +1434,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
 
         check_collection(snarl_collection, false, false, false, true, true);
@@ -1456,7 +1456,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return  get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
         check_collection(snarl_collection, true, true, true, false, true);
 
@@ -1496,7 +1496,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -1715,7 +1715,7 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
                 return get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            "", false);
+            std::unordered_set<std::string>(), false);
 
         check_collection(snarl_collection);
 

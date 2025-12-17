@@ -25,7 +25,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                              const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                                                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                              bool sequence_requested,
-                                             const string& reference_sample, bool check_distances) {
+                                             const std::unordered_set<std::string>& reference_samples, bool check_distances) {
 
     // Make a copy of the samples. Not a reference since it has to be able to be loaded from a file and stored
     all_sample_haplotypes = sample_haplotypes;
@@ -106,7 +106,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     
     
                                 // Get the offsets of the start and end nodes along the reference
-                                std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, distance_index, snarl, true, reference_sample, false);
+                                std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, distance_index, snarl, true, reference_samples, false);
                                 if (ranges.size() != 0) {
                                     // Check if we have already seen the reference path and if not add it
                                     size_t ref_index;
@@ -352,6 +352,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
 
 
 // Call interatee for all snarls
+// TODO: Make this parallel
 void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
 
