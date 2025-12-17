@@ -288,7 +288,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     unique_ptr<handlegraph::PathHandleGraph> graph;
 
     bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(graph.get());
+    bdsg::PathPositionHandleGraph* path_position_graph;
 
     // handlegraph::net_handle_t root;
 
@@ -305,6 +305,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
         // Load the snarl tree and graph
         std::tie(distance_index, graph) = stoat::load_graph_tree(graph_path, dist_path);
+        path_position_graph =  overlay_helper.apply(graph.get());
 
         // Check if chr present in chr file is present in the graph
         for (const auto& chr : ref_chrs) {
