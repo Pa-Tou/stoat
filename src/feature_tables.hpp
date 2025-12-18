@@ -64,6 +64,9 @@ class FeatureBySampleTable {
     // Set the value for the sample
     void set_value_for_sample(const std::string& sample, ValueType value);
 
+    // TODO: This is a placeholder to get it to compile since Jean has already implemented it in another branch
+    std::vector<std::string> get_sample_names() const {return std::vector<std::string>();};
+
 
     protected:
     // Map from the samples that we have features for to their index in values_per_sample

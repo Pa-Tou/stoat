@@ -68,6 +68,9 @@ struct sample_hap_t {
         }
 
     };
+    std::string to_string() const {
+        return sample + "#" + haplotype;
+    }
     sample_hap_t(std::string samp, std::string hap) :
         sample(std::move(samp)), haplotype(std::move(hap)) {};
 

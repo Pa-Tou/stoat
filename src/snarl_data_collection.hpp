@@ -16,8 +16,8 @@ namespace stoat {
 // Used to store the allele assignment for a vector of samples. 
 // This struct only makes sense when it is paired with a vector of samples or sample_hap_t's (as a member of a snarl_info_t). 
 // Each entry in alleles is the identifier of an allele
-// The allele identifiers are also used as indices into other per-allele vectors, so they start from 0 and go up to the number of alleles-1.
-// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample
+// The allele identifiers are also used as indices into other per-allele vectors, so they should start from 0 and go up to the number of alleles-1.
+// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample. This is not enforced though
 struct allele_by_sample_t{
     size_t allele_count;
     std::vector<size_t> alleles;
@@ -283,6 +283,12 @@ class SnarlDataCollection {
 
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
+
+    public:
+        // Return true if the two SnarlDataCollections contain the same information (but possibly in a different order)
+        // Otherwise, throw an error
+        // This is very inefficient and should only be used for testing small examples
+        static bool is_equivalent (const SnarlDataCollection& collection1, const SnarlDataCollection& collection2); 
 
 };
 }
