@@ -55,7 +55,7 @@ void print_help_graph() {
         << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << endl
         << "  -I, --min-individuals INT          If there are fewer than INT individuals/samples in a snarl, then ignore the snarl [1]\n"
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
-        << "  -r, --reference-sample NAME        If there is no reference in the graph, use this sample as the reference" << endl
+        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. If not given, use reference-sense paths in the graph as the references" << endl
         << "  -h, --help                         Print this help message" << endl;
 }
 
@@ -72,7 +72,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     //double p_value = 0.05;
     std::string method_name = "paths";
     std::string test_method = "chi2";
-    std::string reference_sample;
+    std::string reference_path;
     std::string samples_filename;
     std::string snarls_filename;
     std::vector<std::string> samples;
@@ -96,7 +96,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"test", required_argument, 0, 'T'},
                 // {"p-value", required_argument, 0, 'p'},
                 // {"method", required_argument, 0, 'm'},
-                {"reference-sample", required_argument, 0, 'r'},
+                {"reference-chrs", required_argument, 0, 'r'},
                 {"binary-pheno", required_argument, 0, 'b'},
                 {"snarls", required_argument, 0, 's'},
                 {"output", required_argument, 0, 'o'},
@@ -155,7 +155,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             //    method_name = optarg;
             //    break;
             case 'r':
-                reference_sample = optarg;
+                reference_path = optarg;
                 break;
             case 'b':
                 samples_filename = optarg;
@@ -301,7 +301,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     stoat::LOG_INFO("Loading graph and preparing indexes...");
 
     // Load the graph and make it a PathPositionHandleGraph
-    unique_ptr<handlegraph::PathHandleGraph> path_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
+    unique_ptr<handlegraph::PathHandleGraph> handle_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
 
 
     /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names
@@ -315,14 +315,14 @@ int main_stoat_graph(int argc, char *argv[]) {
     // A set of the samples+haplotypes in the graph that match the ones from the phenotype file
     std::vector<stoat::sample_hap_t> all_sample_haplotypes;
 
-    path_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-        std::string sample_name = stoat::get_sample_name_from_path(*path_graph, path);
+    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+        std::string sample_name = stoat::get_sample_name_from_path(*handle_graph, path);
 
         // Get the sample haplotypes that we want
         // TODO: For now, if we are saving the snarls to be used again, force all samples to be included. This may change when this is a separate subcommand
         if (samples_filename.empty() || save_snarls || sample_sets.first.count(sample_name) == 1 || sample_sets.second.count(sample_name) == 1) {
-            paths_set.emplace(path_graph->get_path_name(path));
-            all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*path_graph, path));
+            paths_set.emplace(handle_graph->get_path_name(path));
+            all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*handle_graph, path));
         }
         return true;
     });
@@ -334,7 +334,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     }
 
     bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* graph = overlay_helper.apply(path_graph.get(), paths_set);
+    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph.get(), paths_set);
 
 
     // Load the distance index
@@ -345,6 +345,10 @@ int main_stoat_graph(int argc, char *argv[]) {
         distance_index.deserialize(distance_name);
         distance_index_ptr = &distance_index;
     }
+
+
+    // Get the reference sample names
+    std::unordered_set<std::string> reference_samples = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
 
     string filename = output_dir + "/";
     if (output_format == "tsv") {
@@ -386,21 +390,21 @@ int main_stoat_graph(int argc, char *argv[]) {
 
     ////////////////// If we didn't load the snarls, then we need to calculate them here
     if (!load_snarls) {
-        snarl_collection.fill_in_snarl_info(*graph, distance_index, all_sample_haplotypes, 
+        snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
                                             true, // Find the sets of samples in each allele (walk through the snarl) before finding the walks themselves
                                             true, // find walks
                                             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks
                                                  std::vector<PathTraversal>& walks) {
-                                                return snarl_collection.get_walks_from_alleles(*graph, distance_index, snarl, snarl_data, walks);
+                                                return snarl_collection.get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
                                             },
                                             true, // find the alleles
                                             // Function to find the alleles 
                                             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                  const std::vector<stoat::sample_hap_t>& sample_haplotypes) {
-                                                return stoat_graph::partition_embedded_paths_in_snarl(*graph, distance_index, snarl, sample_haplotypes);
+                                                return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
                                             },
                                             output_format == "fasta", // find the sequences, only for fasta format
-                                            reference_sample,
+                                            reference_samples,
                                             distance_index.has_distances());
         if (save_snarls) {
             ofstream out_snarls;
@@ -538,7 +542,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 
                     # pragma omp critical (out_associated) 
                     {
-                        stoat::write_fasta(out_stream, *graph, distance_index, snarl_info);
+                        stoat::write_fasta(out_stream, *path_position_graph, distance_index, snarl_info);
                     }
                 }
             }
