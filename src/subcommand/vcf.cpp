@@ -353,6 +353,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
         distance_index.reset();
     }
 
+    // If there were no references given, fill them in with the references from the snarl collection
+    if (ref_chrs.empty()) {
+        for (const std::string& ref : snarl_collection.get_reference_names()) {
+            ref_chrs.insert(ref);
+        }
+    }
+
     //////////////////////////////////////// Go through the vcf, do the analysis, and write the output
     stoat::LOG_INFO("Starting GWAS analysis...");
     auto start_gwas_timer = std::chrono::high_resolution_clock::now();

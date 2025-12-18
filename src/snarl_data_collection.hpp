@@ -173,6 +173,10 @@ class SnarlDataCollection {
 
         size_t size() const {return all_snarl_data.size();}
 
+        // Get a reference to the reference path names that are stored in the collection
+        const std::vector<std::string>& get_reference_names() const {
+            return reference_names;
+        };
 
         ///////////////////////////// Helper functions for use in add_alleles_by_sample
 
