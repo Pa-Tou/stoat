@@ -7,7 +7,7 @@
 using namespace stoat;
 
 
-class TestSnarlDataCollection : SnarlDataCollection {
+class TestSnarlDataCollection : public SnarlDataCollection {
     public: 
     TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
         SnarlDataCollection(allele_size_limit, snarl_child_limit, walk_steps_limit) {} 
@@ -16,6 +16,7 @@ class TestSnarlDataCollection : SnarlDataCollection {
     using SnarlDataCollection::for_each_snarl;
     using SnarlDataCollection::write_snarl_data_collection;
     using SnarlDataCollection::load_snarl_data_collection;
+    using SnarlDataCollection::is_equivalent;
 };
 
 TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
@@ -86,6 +87,8 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
         instream.open(test_file);
         snarl_collection_loaded.load_snarl_data_collection(instream);
         instream.close();
+
+        REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, snarl_collection_loaded));
 
         std::string rm_cmd = "rm " + test_file;
 
@@ -715,6 +718,8 @@ TEST_CASE( "Snarl collection nested bubbles",
             instream.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false);
+
+            REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, loaded_snarl_collection));
 
             std::string rm_cmd = "rm " + test_file;
 
@@ -1475,6 +1480,8 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             instream.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false, true);
+
+            REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, loaded_snarl_collection));
 
             std::string rm_cmd = "rm " + test_file;
 
