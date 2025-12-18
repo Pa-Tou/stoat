@@ -25,7 +25,8 @@ struct allele_by_sample_t{
     allele_by_sample_t(size_t count, std::vector<size_t> alleles) :
         allele_count(count),
         alleles(std::move(alleles)) {}
-    allele_by_sample_t(){}
+    allele_by_sample_t() :
+        allele_count(0), alleles(0) {}
 };
 
 // This holds snarl information from the distance index and graph: id and reference coordinates of the snarl, genotypes, reference coordinates, walks, 

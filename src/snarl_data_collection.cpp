@@ -1151,6 +1151,10 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
             for (size_t i = 0 ; i < original.all_sample_haplotypes.size() ; i++) {
                 copy.sample_to_allele_num[original.all_sample_haplotypes.at(i)] = original.alleles_by_sample.alleles.at(i);
             }
+        } else {
+            for (size_t i = 0 ; i < original.all_sample_haplotypes.size() ; i++) {
+                copy.sample_to_allele_num[original.all_sample_haplotypes.at(i)] = std::numeric_limits<size_t>::max();
+            }
         }
 
         copy.walks_by_allele = original.walks_by_allele;
@@ -1179,7 +1183,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
         std::string snarl_id = get_snarl_id(snarl_info2.start_node, snarl_info2.end_node);
 
 
-        if (snarl_to_info.count(snarl_id)) {
+        if (snarl_to_info.count(snarl_id) == 0) {
             throw std::runtime_error("SnarlDataCollections do not match: collection 1 contains snarl missing in collection 2: " + snarl_id);
         }
         const snarl_info_copy_t& snarl_info1 = snarl_to_info[snarl_id];
@@ -1244,24 +1248,28 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
         }
 
 
-        for (size_t hap_i = 0 ; hap_i = snarl_info2.all_sample_haplotypes.size() ; hap_i++) {
+        for (size_t hap_i = 0 ; hap_i < snarl_info2.all_sample_haplotypes.size() ; hap_i++) {
             const stoat::sample_hap_t& hap = snarl_info2.all_sample_haplotypes.at(hap_i);
+            if (snarl_info1.sample_to_allele_num.count(hap) == 0) {
+                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": collection 1 is missing sample/haplotype "+ hap.to_string());
+            }
             size_t allele_num1 = snarl_info1.sample_to_allele_num.at(hap);
-            size_t allele_num2 = snarl_info2.alleles_by_sample.alleles.at(hap_i);
+            size_t allele_num2 = snarl_info2.alleles_by_sample.allele_count == 0 ? std::numeric_limits<size_t>::max() 
+                                                                                 : snarl_info2.alleles_by_sample.alleles.at(hap_i);
 
             if (snarl_info1.walks_by_allele.size() != snarl_info2.walks_by_allele.size()) {
                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": for sample/haplotype "+ hap.to_string() + 
                                          " collection 1 has " + std::to_string(snarl_info1.walks_by_allele.size()) + " walks and collection 2 has " 
                                          + std::to_string(snarl_info2.walks_by_allele.size()) + " walks"); 
             }
-            if (snarl_info1.walks_by_allele.size() != 0 && 
+            if (snarl_info1.walks_by_allele.size() != 0 && !(allele_num1 == std::numeric_limits<size_t>::max() && allele_num2 == std::numeric_limits<size_t>::max()) && 
                 snarl_info1.walks_by_allele[allele_num1].to_string() != snarl_info2.walks_by_allele[allele_num2].to_string()){
                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + " is "
                                          + snarl_info1.walks_by_allele[allele_num1].to_string() + " for collection1 and "
                                          + snarl_info2.walks_by_allele[allele_num2].to_string() + " for collection2"); 
             }
 
-            if (snarl_info1.walks_by_allele.size() != 0 && 
+            if (snarl_info1.walks_by_allele.size() != 0 && !(allele_num1 == std::numeric_limits<size_t>::max() && allele_num2 == std::numeric_limits<size_t>::max()) && 
                 snarl_info1.walks_by_allele[allele_num1].get_min_allele_length() != snarl_info2.walks_by_allele[allele_num2].get_min_allele_length()){
                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + 
                                          " has different minimum allele lengths: "
@@ -1269,7 +1277,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
                                          + std::to_string(snarl_info2.walks_by_allele[allele_num2].get_min_allele_length()) + " for collection2"); 
             }
 
-            if (snarl_info1.walks_by_allele.size() != 0 && 
+            if (snarl_info1.walks_by_allele.size() != 0 && !(allele_num1 == std::numeric_limits<size_t>::max() && allele_num2 == std::numeric_limits<size_t>::max()) && 
                 snarl_info1.walks_by_allele[allele_num1].get_max_allele_length() != snarl_info2.walks_by_allele[allele_num2].get_max_allele_length()){
                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + 
                                          " has different maximum allele lengths: "
@@ -1282,7 +1290,8 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
                                          " collection 1 has " + std::to_string(snarl_info1.sequences_by_allele.size()) + " sequences and collection 2 has " 
                                          + std::to_string(snarl_info2.sequences_by_allele.size()) + " sequences"); 
             }
-            if (snarl_info1.sequences_by_allele.size() != 0 && snarl_info1.sequences_by_allele[allele_num1] != snarl_info2.sequences_by_allele[allele_num2]){
+            if (snarl_info1.sequences_by_allele.size() != 0 && !(allele_num1 == std::numeric_limits<size_t>::max() && allele_num2 == std::numeric_limits<size_t>::max()) && 
+                   snarl_info1.sequences_by_allele[allele_num1] != snarl_info2.sequences_by_allele[allele_num2]){
                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the sequences for sample/haplotype "+ hap.to_string() + " are different: "
                                          + snarl_info1.sequences_by_allele[allele_num1] + " for collection1 and "
                                          + snarl_info2.sequences_by_allele[allele_num2] + " for collection2"); 
