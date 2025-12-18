@@ -1136,6 +1136,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
     std::unordered_map<std::string, snarl_info_copy_t> snarl_to_info;
     collection1.for_each_snarl([&](const snarl_info_t& original) {
 
+
         // Make a copy of the snarl_info_t original
         snarl_info_copy_t copy;
 
@@ -1144,22 +1145,27 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
         copy.end_position = original.end_position;
         copy.depth = original.depth;
 
+
         // Map sample/hap to allele number
-        for (size_t i = 0 ; i < original.all_sample_haplotypes.size() ; i++) {
-            copy.sample_to_allele_num[original.all_sample_haplotypes.at(i)] = original.alleles_by_sample.alleles.at(i);
+        if (original.alleles_by_sample.allele_count != 0) {
+            for (size_t i = 0 ; i < original.all_sample_haplotypes.size() ; i++) {
+                copy.sample_to_allele_num[original.all_sample_haplotypes.at(i)] = original.alleles_by_sample.alleles.at(i);
+            }
         }
 
         copy.walks_by_allele = original.walks_by_allele;
         copy.sequences_by_allele = original.sequences_by_allele;
 
-        // Copy genotypes into new map form
-        std::vector<std::string> sample_names = original.genotypes.get_sample_names();
-        for (const std::string& sample : sample_names) {
-            size_t allele_count = original.genotypes.get_allele_count();
-            for (size_t allele_i = 0 ; allele_i < allele_count ; allele_i++) {
-                std::pair<std::string, size_t> sample_allele_pair(sample, allele_i);
-                copy.genotypes.insert({sample_allele_pair, original.genotypes.get_count_for_sample_and_allele(sample, allele_i)}); 
-            } 
+        if (original.genotypes.get_allele_count() != 0) {
+            // Copy genotypes into new map form
+            std::vector<std::string> sample_names = original.genotypes.get_sample_names();
+            for (const std::string& sample : sample_names) {
+                size_t allele_count = original.genotypes.get_allele_count();
+                for (size_t allele_i = 0 ; allele_i < allele_count ; allele_i++) {
+                    std::pair<std::string, size_t> sample_allele_pair(sample, allele_i);
+                    copy.genotypes.insert({sample_allele_pair, original.genotypes.get_count_for_sample_and_allele(sample, allele_i)}); 
+                } 
+            }
         }
 
         snarl_to_info.insert({get_snarl_id(original.start_node, original.end_node), std::move(copy)});
@@ -1171,6 +1177,8 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
     size_t snarl_count2 = 0;
     collection2.for_each_snarl([&](const snarl_info_t& snarl_info2) {
         std::string snarl_id = get_snarl_id(snarl_info2.start_node, snarl_info2.end_node);
+
+
         if (snarl_to_info.count(snarl_id)) {
             throw std::runtime_error("SnarlDataCollections do not match: collection 1 contains snarl missing in collection 2: " + snarl_id);
         }
@@ -1191,61 +1199,90 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
         }
 
         // Now check that all alleles and counts for the genotypes match
-        std::vector<std::string> samples2 = snarl_info2.genotypes.get_sample_names();
-        size_t allele_count2 = snarl_info2.genotypes.get_allele_count();
-        if (snarl_info1.genotypes.size() != samples2.size() * allele_count2) {
-            throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": collections have different numbers of samples/alleles"); 
-        }
+        if (snarl_info2.genotypes.get_allele_count() == 0) {
+            if (snarl_info1.genotypes.size() != 0) {
+                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": collection 1 has genotypes but collection2 doesn't");
+            } else { 
+                std::vector<std::string> samples2 = snarl_info2.genotypes.get_sample_names();
+                size_t allele_count2 = snarl_info2.genotypes.get_allele_count();
+                if (snarl_info1.genotypes.size() != samples2.size() * allele_count2) {
+                    throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": collections have different numbers of samples/alleles"); 
+                }
+                // Now check the actual counts
+                for (const std::string& sample : samples2) {
+                    for (size_t allele_i2 = 0 ; allele_i2 < allele_count2 ; allele_i2++) {
+                        if (snarl_info1.walks_by_allele.size() != 0) {
 
-        for (const std::string& sample : samples2) {
-            for (size_t allele_i2 = 0 ; allele_i2 < allele_count2 ; allele_i2++) {
+                            // We want to check if the counts of each allele are the same for this sample. But the allele numbers might be different
+                            // so find the equivalent allele number for collection1
+                            size_t allele_i1 = std::numeric_limits<size_t>::max();
+                            for (size_t i = 0 ; i < snarl_info1.walks_by_allele.size() ; i++) {
+                                if (snarl_info1.walks_by_allele[i].to_string() == snarl_info2.walks_by_allele[allele_i2].to_string()){
+                                    allele_i1 = i;
+                                    break;
+                                }
+                            }
+                            if (allele_i1 == std::numeric_limits<size_t>::max()) {
+                                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": collection 1 does not contain allele with walk " +
+                                                            snarl_info2.walks_by_allele[allele_i2].to_string()); 
+                            }
 
-                // We want to check if the counts of each allele are the same for this sample. But the allele numbers might be different
-                // so find the equivalent allele number for collection1
-                size_t allele_i1 = std::numeric_limits<size_t>::max();
-                for (size_t i = 0 ; i < snarl_info1.walks_by_allele.size() ; i++) {
-                    if (snarl_info1.walks_by_allele[i].to_string() == snarl_info2.walks_by_allele[allele_i2].to_string()){
-                        allele_i1 = i;
-                        break;
+                            // Now make sure that the counts are the same
+                            std::pair<std::string, size_t> sample_allele_pair (sample, allele_i1);
+                            if (snarl_info2.genotypes.get_count_for_sample_and_allele(sample, allele_i2) != snarl_info1.genotypes.at(sample_allele_pair)) {
+                                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": genotype is different for sample "+sample); 
+                            }
+                        } else {
+                            // TODO: If there are no walks for the allele, then I don't think there's a way of matching up the alleles beteween the two collections,
+                            // so this should check that the counts are the same even if they are in a different order. But I don't want to implement it because 
+                            // I think this never happens
+                            assert(false);
+                        }
                     }
-                }
-                if (allele_i1 == std::numeric_limits<size_t>::max()) {
-                    throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": collection 1 does not contain allele with walk " +
-                                                snarl_info2.walks_by_allele[allele_i2].to_string()); 
-                }
-
-                // Now make sure that the counts are the same
-                std::pair<std::string, size_t> sample_allele_pair (sample, allele_i1);
-                if (snarl_info2.genotypes.get_count_for_sample_and_allele(sample, allele_i2) != snarl_info1.genotypes.at(sample_allele_pair)) {
-                    throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": genotype is different for sample "+sample); 
                 }
             }
         }
+
 
         for (size_t hap_i = 0 ; hap_i = snarl_info2.all_sample_haplotypes.size() ; hap_i++) {
             const stoat::sample_hap_t& hap = snarl_info2.all_sample_haplotypes.at(hap_i);
             size_t allele_num1 = snarl_info1.sample_to_allele_num.at(hap);
             size_t allele_num2 = snarl_info2.alleles_by_sample.alleles.at(hap_i);
 
-            if (snarl_info1.walks_by_allele[allele_num1].to_string() != snarl_info2.walks_by_allele[allele_num2].to_string()){
+            if (snarl_info1.walks_by_allele.size() != snarl_info2.walks_by_allele.size()) {
+                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": for sample/haplotype "+ hap.to_string() + 
+                                         " collection 1 has " + std::to_string(snarl_info1.walks_by_allele.size()) + " walks and collection 2 has " 
+                                         + std::to_string(snarl_info2.walks_by_allele.size()) + " walks"); 
+            }
+            if (snarl_info1.walks_by_allele.size() != 0 && 
+                snarl_info1.walks_by_allele[allele_num1].to_string() != snarl_info2.walks_by_allele[allele_num2].to_string()){
                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + " is "
                                          + snarl_info1.walks_by_allele[allele_num1].to_string() + " for collection1 and "
                                          + snarl_info2.walks_by_allele[allele_num2].to_string() + " for collection2"); 
             }
 
-            if (snarl_info1.walks_by_allele[allele_num1].get_min_allele_length() != snarl_info2.walks_by_allele[allele_num2].get_min_allele_length()){
-                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + " has different minimum allele lengths: "
+            if (snarl_info1.walks_by_allele.size() != 0 && 
+                snarl_info1.walks_by_allele[allele_num1].get_min_allele_length() != snarl_info2.walks_by_allele[allele_num2].get_min_allele_length()){
+                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + 
+                                         " has different minimum allele lengths: "
                                          + std::to_string(snarl_info1.walks_by_allele[allele_num1].get_min_allele_length()) + " for collection1 and "
                                          + std::to_string(snarl_info2.walks_by_allele[allele_num2].get_min_allele_length()) + " for collection2"); 
             }
 
-            if (snarl_info1.walks_by_allele[allele_num1].get_max_allele_length() != snarl_info2.walks_by_allele[allele_num2].get_max_allele_length()){
-                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + " has different maximum allele lengths: "
+            if (snarl_info1.walks_by_allele.size() != 0 && 
+                snarl_info1.walks_by_allele[allele_num1].get_max_allele_length() != snarl_info2.walks_by_allele[allele_num2].get_max_allele_length()){
+                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + 
+                                         " has different maximum allele lengths: "
                                          + std::to_string(snarl_info1.walks_by_allele[allele_num1].get_max_allele_length()) + " for collection1 and "
                                          + std::to_string(snarl_info2.walks_by_allele[allele_num2].get_max_allele_length()) + " for collection2"); 
             }
 
-            if (snarl_info1.sequences_by_allele[allele_num1] != snarl_info2.sequences_by_allele[allele_num2]){
+            if (snarl_info1.sequences_by_allele.size() != snarl_info2.sequences_by_allele.size()) {
+                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": for sample/haplotype "+ hap.to_string() + 
+                                         " collection 1 has " + std::to_string(snarl_info1.sequences_by_allele.size()) + " sequences and collection 2 has " 
+                                         + std::to_string(snarl_info2.sequences_by_allele.size()) + " sequences"); 
+            }
+            if (snarl_info1.sequences_by_allele.size() != 0 && snarl_info1.sequences_by_allele[allele_num1] != snarl_info2.sequences_by_allele[allele_num2]){
                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the sequences for sample/haplotype "+ hap.to_string() + " are different: "
                                          + snarl_info1.sequences_by_allele[allele_num1] + " for collection1 and "
                                          + snarl_info2.sequences_by_allele[allele_num2] + " for collection2"); 
