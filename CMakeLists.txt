@@ -220,7 +220,8 @@ add_executable(vcf_simu_test tests/system/compare_files_utils.cpp tests/system/v
 # add src target lib + Catch2 lib 
 target_link_libraries(vcf_simu_test PRIVATE 
     Boost::boost
-    ${HTSLIB_LIBRARIES})
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
 
 add_test(NAME VcfSimuTest COMMAND vcf_simu_test)
 
