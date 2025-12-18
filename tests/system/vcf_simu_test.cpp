@@ -39,7 +39,7 @@ bool run_test_snarl(
     truth_snarl.load_snarl_data_collection(in_truth);
     in_truth.close();
 
-    //clean_output_dir(output_dir);
+    clean_output_dir(output_dir);
 
     return SnarlDataCollection::is_equivalent(test_snarl, truth_snarl); 
 }
