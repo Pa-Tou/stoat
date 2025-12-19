@@ -304,6 +304,16 @@ namespace stoat_vcf {
             std::vector<size_t> g0(paths_number, 0);
             std::vector<size_t> g1(paths_number, 0);
 
+            // JEAN for later when we use SnarlDataCollecions and Tables
+            // extract genotypes for this snarl
+            // GenotypeTable snarl_gt = SNARLCOLLECTION.FUNCTION(snarl_data_s.???)
+            // auto [chi2_p_value, fastfisher_p_value] = fchi.fisher_chi2(phenotype_tab, snarl_gt, maf_threshold, min_individuals);
+            // if (chi2_p_value == "NA" && fastfisher_p_value == "NA") {
+            //     stoat::LOG_DEBUG("filtered: " + stoat::pairToString(snarl_data_s.ids));
+            //     return true;
+            // }
+            // JEAN still need to put group_paths somewhere (in fisher_chi2?)
+            
             size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data_s.paths, edge_matrix);
             stoat::remove_empty_columns_binary_table(g0, g1);
             bool to_filter = stoat::filter_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);

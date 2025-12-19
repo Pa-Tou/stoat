@@ -22,6 +22,7 @@
 
 #include "log.hpp"
 #include "snarl_data_t.hpp"
+#include "feature_tables.hpp"
 
 using namespace std;
 
@@ -60,12 +61,15 @@ std::vector<std::vector<double>> parse_covariates(
     const std::vector<std::string>& covar_names,
     const std::vector<std::string>& list_samples);
 
-// Parse a binary phenotype file, formatted FID, IID, phenotype
+// Parse a binary phenotype file, formatted SAMPLE, phenotype
 // If list_samples is given, then it is const and the samples in the phenotype file will be checked against it.
 // If list_samples is empty, then fill it in with the samples in the phenotype file 
 std::vector<bool> parse_binary_pheno(
     const std::string& file_path,
     std::vector<std::string>& list_samples);
+
+// Parse a binary phenotype file and return a BinaryPhenotypeTable
+unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path);
 
 // Parses the phenotype file and returns a map with IID as keys and PHENO as float values.
 std::vector<double> parse_quantitative_pheno(

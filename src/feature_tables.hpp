@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "log.hpp"
 
 namespace stoat {
 
@@ -54,17 +55,25 @@ class FeatureBySampleTable {
     public:
 
     // Constructor
-    // Note that using the generic constructor will fill in values_per_sample with undefined values
+    // Note that using the generic constructor will fill in values_per_sample with undefined values. 
     FeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index);
 
     // Access the value saved for a sample
     //TODO: I wanted this to be a reference in case the value is very big (eg, we want the whole vector) but it doesn't work with bools
     ValueType get_value_for_sample(const std::string& sample) const;
 
+    double get_value_for_sample_as_double(const std::string& sample) const;
+    
     // Set the value for the sample
+    // JEAN if sample is not already present, add it?
     void set_value_for_sample(const std::string& sample, ValueType value);
 
+    // is this sample in the table?
+    bool has_sample(const std::string& sample) const;
 
+    // return a vector with the names of all samples
+    std::vector<std::string> get_sample_names() const;
+    
     protected:
     // Map from the samples that we have features for to their index in values_per_sample
     const std::unordered_map<std::string, size_t>& sample_to_index;
@@ -73,10 +82,12 @@ class FeatureBySampleTable {
     std::vector<ValueType> values_per_sample;
 };
 
+// template<class ValueType>
+// double FeatureBySampleTable<std::vector<ValueType>>::get_value_for_sample_as_double(const std::string& sample) const;
+
 // Both phenotype tables assume that every sample has a phenotype
 using BinaryPhenotypeTable = FeatureBySampleTable<bool>;
 using QuantitativePhenotypeTable = FeatureBySampleTable<double>;
-
 
 /// A CategoricalFeatureBySampleTable inherits from FeatureBySampleTable, but specifies that it is a 2D matrix with a vector of values per sample.
 /// This is used to represent the value of each feature from a category of features. 
@@ -106,22 +117,22 @@ class CategoricalFeatureBySampleTable : public FeatureBySampleTable<std::vector<
     // Set the value for the sample and feature
     void set_value_for_sample_and_feature(const std::string& sample, const std::string& feature, ValueType value);
 
+    // double get_value_for_sample_as_double(const std::string& sample) const;
 
     protected:
 
-    // Map the name of the feather(what each value in the inner vector represents. e.g. gene name) to its index in the inner vector of values_per_sample 
+    // Map the name of the feature(what each value in the inner vector represents. e.g. gene name) to its index in the inner vector of values_per_sample 
     const std::unordered_map<std::string, size_t>& feature_to_index;
 
 };
-
+    
 // Specialize a CategoricalFeatureBySampleTable constructor for doubles to fill in the matrix with std::numeric_limits<double>::max()
 template<>
 CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& feature_to_index);
-
+    
 using GeneExpressionTable = CategoricalFeatureBySampleTable<double>;
 using CovariateTable = CategoricalFeatureBySampleTable<double>;
-
-
+    
 /// A GenotypeTable is a 2D matrix of per-sample per-allele counts. The alleles are accessed by index, instead of by name
 /// Technically this also has get_value_for_sample() which would return the vector but it shouldn't be used because it will return a copy of the vector 
 class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
@@ -143,10 +154,54 @@ class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
     size_t get_allele_count() const {
         return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
     }
-
 };
 
+class CombinedTable {
+public:
+    CombinedTable(const GenotypeTable& genotypes);
 
+    // combine a phenotype table with the current table (matching sample order etc)
+    void combine_binary_phenotype(const BinaryPhenotypeTable& phenotype);
+    // void combine_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype);
+    // void combine_gene_expression(const GeneExpressionTable& ge, std::string gene_name);
+
+    // combine covariates
+    // void combine_covariates(const CovariateTable& covariates);
+
+    // remove predictors with the same values across all samples
+    // (typically 0, i.e. alleles carried by no one)
+    void remove_constant_predictors();
+
+    // specific table operations used before a regression. Includes: adding a copy number
+    // covariate if needed, merging duplicated predictors, removing the first allele
+    // void prepare_for_regression();
+
+    // should we test this table? does it pass the filters?
+    bool passes_filters(const size_t maf, const size_t min_individuals) const;
+
+    // get the (usually final) tables
+    std::vector<double> get_phenotype() const;
+    std::vector<std::vector<double>> get_predictors() const;
+
+    // how many of the predictors are alleles? The others are covariates
+    int get_n_alleles() const;
+    
+protected:
+    // sample names in the current order
+    std::vector<std::string> sample_names;
+    // vector of phenotypes. For binary traits, 0 and 1 are used
+    std::vector<double> phenotype_vec;
+    // the allele counts + other covariates
+    std::vector<std::vector<double>> predictors;
+    // how many of the predictors are alleles (the rest will be covariates)
+    int n_alleles;
+    // which samples should be excluded from the matrix during filtering
+    // (because some info is missing)
+    std::unordered_map<std::string, bool> samples_to_exclude;
+    
+};
+
+    
 } // namespace stoat
 
 
