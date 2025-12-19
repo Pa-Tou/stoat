@@ -52,17 +52,17 @@ void EdgeBySampleMatrix::expand_matrix() {
 
 // Overloaded operator() to access elements as matrix(row, col)
 bool EdgeBySampleMatrix::operator()(size_t row, size_t col) const {
-    return (matrix_1D[row * n_samp_haps + col]);
+    return (matrix_1D.at(row * n_samp_haps + col));
 }
 
 bool EdgeBySampleMatrix::get_edge(size_t row, size_t col) const {
-    return (matrix_1D[row * n_samp_haps + col]);
+    return (matrix_1D.at(row * n_samp_haps + col));
 }
 
     
 // Function to set a specific element (row, col) to true
 void EdgeBySampleMatrix::set_edge(size_t row, size_t col) {
-    matrix_1D[row * n_samp_haps + col] = true;
+    matrix_1D.at(row * n_samp_haps + col) = true;
 }
 
 void EdgeBySampleMatrix::shrink() {
