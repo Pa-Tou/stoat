@@ -6,6 +6,26 @@
 
 namespace fs = std::filesystem;
 
+//Check if two snarl collections are equivalent
+bool compare_snarl_collection(std::string test_name, std::string truth_name) {
+    std::cerr << "Compare files " << test_name << " and " << truth_name << std::endl;
+    SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
+    SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
+
+    ifstream in_test;
+    in_test.open(test_name);
+    test_snarl.load_snarl_data_collection(in_test);
+    in_test.close();
+
+    ifstream in_truth;
+    in_truth.open(truth_name);
+    truth_snarl.load_snarl_data_collection(in_truth);
+    in_truth.close();
+
+
+    return SnarlDataCollection::is_equivalent(test_snarl, truth_snarl); 
+}
+
 bool run_test_snarl(
     const std::string& stoat_command,
     const std::string& output_dir,
@@ -26,23 +46,12 @@ bool run_test_snarl(
         return false;
     }
 
-    SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
-    SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
-
-    ifstream in_test;
-    in_test.open(output_dir + "/snarl_info.tsv");
-    test_snarl.load_snarl_data_collection(in_test);
-    in_test.close();
-
-    ifstream in_truth;
-    in_truth.open(expected_dir + "/snarl_info.tsv");
-    truth_snarl.load_snarl_data_collection(in_truth);
-    in_truth.close();
+    bool passed = compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
 
     clean_output_dir(output_dir);
-
-    return SnarlDataCollection::is_equivalent(test_snarl, truth_snarl); 
+    return passed;
 }
+
 
 bool run_test(
     const std::string& stoat_command,
@@ -141,6 +150,9 @@ bool run_test_full(
     }
 
     bool result = compare_output_dirs(output_dir, expected_dir);
+
+    result &= compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
+
     clean_output_dir(output_dir);
 
     return result;
