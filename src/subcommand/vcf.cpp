@@ -27,7 +27,7 @@ void print_help_vcf() {
               << "  -d, --dist FILE                 Path to the distance index file\n"
               << "  -v, --vcf FILE                  Path to the VCF file\n"
               << "  -s, --snarl FILE                Path to the snarl file\n"
-              << "  -r, --chr FILE                  Path to the chromosome reference file\n"
+              << "  -r, --reference-chrs FILE       Path to the chromosome reference file, one path name per line\n"
               << "  -b, --binary FILE               Path to the binary phenotype group file\n"
               << "  -q, --quantitative FILE         Path to the quantitative phenotype file\n"
               << "  -e, --gene-expression FILE      Path to the gene expression file (for eQTL analysis)\n"
@@ -79,7 +79,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"snarl", required_argument, 0, 's'},
         {"graph", required_argument, 0, 'g'},
         {"dist", required_argument, 0, 'd'},
-        {"chr", required_argument, 0, 'r'},
+        {"reference-chrs", required_argument, 0, 'r'},
         {"binary", required_argument, 0, 'b'},
         {"quantitative", required_argument, 0, 'q'},
         {"gene-expression", required_argument, 0, 'e'},
@@ -278,17 +278,28 @@ int main_stoat_vcf(int argc, char* argv[]) {
         eqtl_phenotype = stoat_vcf::parse_qtl_gene_file(eqtl_path, gene_position_path, list_samples);
     }
 
+    // Make an empty SnarlDataCollection, to be filled in or loaded
+    // TODO: Double check that these thresholds are doing the right thing
+    stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
+
     // Load or calculate the snarl information
     // scope declaration
     // chr : <snarl, paths, pos(start, end), type>
     std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> snarls_chr;
     unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
     unique_ptr<handlegraph::PathHandleGraph> graph;
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    bdsg::PathPositionHandleGraph* path_position_graph;
+
     // handlegraph::net_handle_t root;
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
         stoat::LOG_TRACE("Reading snarl path file");
-        snarls_chr = stoat::read_snarl_path(snarl_path);
+        ifstream snarls_in;
+        snarls_in.open(snarl_path);
+        snarl_collection.load_snarl_data_collection(snarls_in);
+        snarls_in.close();
 
     } else { // Otherwise, find them from the graph and snarl tree
         stoat::LOG_INFO("Starting snarl decomposition... ");
@@ -296,6 +307,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
         // Load the snarl tree and graph
         std::tie(distance_index, graph) = stoat::load_graph_tree(graph_path, dist_path);
+        path_position_graph =  overlay_helper.apply(graph.get());
 
         // Check if chr present in chr file is present in the graph
         for (const auto& chr : ref_chrs) {
@@ -305,11 +317,33 @@ int main_stoat_vcf(int argc, char* argv[]) {
             }
         }
 
-        // maps a ref chr to a vector of snarls
-        auto snarls = stoat::list_all_snarls_with_pos(*distance_index, *graph, ref_chrs);
+        // The snarl collection requires sample_haplotypes instead of samples so make copy sample_hap_t's with empty haplotypes
+        std::vector<stoat::sample_hap_t> sample_haplotypes;
+        for (string sample : list_samples) {
+            sample_haplotypes.emplace_back(sample, "");
+        }
 
-        // Go through snarls and fill in snarls_chr 
-        snarls_chr = stoat::write_snarls_with_paths(*distance_index, snarls, *graph, output_dir, children_threshold, path_length_threshold, cycle_threshold);
+        snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
+            true, //find_alleles_first, doesn't matter in this case
+            true, // walks_requested
+            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,std::vector<PathTraversal>& walks) { // function to fill in walks
+                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's version and write the skipped snarls somewhere
+            },
+            false, //alleles_requested
+            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles
+                return std::vector<size_t>();
+            }, 
+            false, // sequence_requested 
+            ref_chrs, // reference 
+            false //check distances
+            ); 
+
+        // Always write the snarls
+        ofstream snarls_out;
+        snarls_out.open(output_dir + "/snarl_info.tsv");
+        snarl_collection.write_snarl_data_collection(snarls_out);
+        snarls_out.close();
+
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
 
@@ -319,6 +353,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
         // Clean up unique_ptr except graph
         distance_index.reset();
+    }
+
+    // If there were no references given, fill them in with the references from the snarl collection
+    if (ref_chrs.empty()) {
+        for (const std::string& ref : snarl_collection.get_reference_names()) {
+            ref_chrs.insert(ref);
+        }
     }
 
     //////////////////////////////////////// Go through the vcf, do the analysis, and write the output
@@ -331,19 +372,19 @@ int main_stoat_vcf(int argc, char* argv[]) {
         // binary
         if (!covariate.empty()){
             // Binary covariate
-            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, binary_phenotype, min_individuals));
+            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarl_collection, ref_chrs, list_samples, covariate, maf_threshold, binary_phenotype, min_individuals));
         } else {
             // Binary without covariate
-            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarls_chr, list_samples, maf_threshold,
+            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, ref_chrs, list_samples, maf_threshold,
                                                                     binary_phenotype, min_individuals));
         }
     } else if (!quantitative_path.empty()) {
         // Quantitative
-        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, 
+        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarl_collection, ref_chrs, list_samples, covariate, maf_threshold, 
                                                                       quantitative_phenotype, min_individuals));
     } else if (!eqtl_path.empty()) {
         // EQTL
-        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarls_chr, list_samples, covariate, maf_threshold, 
+        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarl_collection, ref_chrs, list_samples, covariate, maf_threshold, 
                                                               eqtl_phenotype, max_gene_dist, min_individuals));
     }
 

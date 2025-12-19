@@ -78,8 +78,8 @@ bool FeatureBySampleTable<ValueType>::has_sample(const std::string& sample) cons
 template<class ValueType>
 std::vector<std::string> FeatureBySampleTable<ValueType>::get_sample_names() const {
     std::vector<std::string> output;
-    for(auto samp_name_idx: sample_to_index) {
-        output.push_back(samp_name_idx.first);
+    for(const auto& samp_name_idx: sample_to_index) {
+        output.emplace_back(samp_name_idx.first);
     }
     return output;
 }

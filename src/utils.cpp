@@ -156,27 +156,27 @@ sample_hap_t::sample_hap_t(const handlegraph::PathHandleGraph& graph, const hand
 
 
 std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                                                   const handlegraph::net_handle_t& snarl, bool get_reference, std::string sample_name, bool get_all_paths) {
+                                                   const handlegraph::net_handle_t& snarl, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths) {
     std::vector<path_range_t> ranges;
 
-    // If we want the sample name first, then reference-sense next, check all ancestors for the sample_name, then all ancestors for the references-sense path.
+    // If we want the sample name first, then reference-sense next, check all ancestors for something in sample_names, then all ancestors for the references-sense path.
     // Save the reference from the first traversal so we don't have to traverse multiple times
     std::vector<path_range_t> ref_ranges;
     // If a sample name is given, then always look for that first
-    if (!sample_name.empty() || get_reference) {
+    if (!sample_names.empty() || get_reference) {
         handlegraph::net_handle_t ancestor_snarl = snarl;
         while (!distance_index.is_root(ancestor_snarl)) {
             handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, false, true)), &graph);
             handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(ancestor_snarl, true, true)), &graph);
 
             // First, try to get the given sample name for this snarl
-            if (!sample_name.empty()) {
-                ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, sample_name, false);
+            if (!sample_names.empty()) {
+                ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, sample_names, false);
             }
             
             // If that didn't work then get the reference-sense path for the lowest possible snarl
             if (ranges.empty() && ref_ranges.empty() && get_reference) {
-                ref_ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, true, "", false);
+                ref_ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, true, std::unordered_set<std::string>(), false);
             }
             if (!ranges.empty()) {
                 return ranges;
@@ -192,7 +192,7 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
     handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, true)), &graph);
     if (get_all_paths) {
         //If we just want all paths, return that
-        ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, "", true);
+        ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, std::unordered_set<std::string>(), true);
         return ranges;
 
     } else {
@@ -227,7 +227,7 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
         if (new_sample_name.empty()) {
             return ranges;
         } else {
-            ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, new_sample_name, false);
+            ranges = get_coordinates_between_nodes(graph, start_handle, end_handle, false, std::unordered_set<std::string>({new_sample_name}), false);
             return ranges;
         }
 
@@ -235,20 +235,20 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
 }
 
 std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle, 
-                                                          const handlegraph::handle_t& end_handle, bool get_reference, std::string sample_name, bool get_all_paths) {
+                                                          const handlegraph::handle_t& end_handle, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths) {
     #ifdef DEBUG
         cerr << "Get coordinates of snarl between " << graph.get_id(start_handle) << " and " << graph.get_id(end_handle) << endl;
         if (get_reference) {
-            assert(sample_name.empty());
+            assert(sample_names.empty());
             assert(!get_all_paths);
         }
-        if (!sample_name.empty()) {
+        if (!sample_names.empty()) {
             assert(!get_reference);
             assert(!get_all_paths);
         }
         if (get_all_paths) {
             assert(!get_reference);
-            assert(sample_name.empty());
+            assert(sample_names.empty());
         }
     #endif
 
@@ -268,7 +268,7 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
         graph.for_each_step_of_sense(start_handle, sense, [&] (const handlegraph::step_handle_t& step) {
             handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
             if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
-                (!sample_name.empty() && graph.get_path_name(path).find(sample_name) != std::string::npos) ||
+                (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
                 (get_all_paths)) {
                 // If we are looking for a reference path and this is a reference path
                 // or if this is the path we want or if we want all paths
@@ -293,7 +293,7 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
         graph.for_each_step_of_sense(end_handle, sense, [&] (const handlegraph::step_handle_t& step) {
             handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
             if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
-                (!sample_name.empty() && graph.get_path_name(path).find(sample_name) != std::string::npos) ||
+                (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
                 (get_all_paths)) {
                 // If we are looking for a reference path and this is a reference path
                 // or if this is the path we are looking for, or we want all paths 

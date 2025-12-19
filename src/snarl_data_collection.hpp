@@ -16,8 +16,8 @@ namespace stoat {
 // Used to store the allele assignment for a vector of samples. 
 // This struct only makes sense when it is paired with a vector of samples or sample_hap_t's (as a member of a snarl_info_t). 
 // Each entry in alleles is the identifier of an allele
-// The allele identifiers are also used as indices into other per-allele vectors, so they start from 0 and go up to the number of alleles-1.
-// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample
+// The allele identifiers are also used as indices into other per-allele vectors, so they should start from 0 and go up to the number of alleles-1.
+// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample. This is not enforced though
 struct allele_by_sample_t{
     size_t allele_count;
     std::vector<size_t> alleles;
@@ -25,7 +25,8 @@ struct allele_by_sample_t{
     allele_by_sample_t(size_t count, std::vector<size_t> alleles) :
         allele_count(count),
         alleles(std::move(alleles)) {}
-    allele_by_sample_t(){}
+    allele_by_sample_t() :
+        allele_count(0), alleles(0) {}
 };
 
 // This holds snarl information from the distance index and graph: id and reference coordinates of the snarl, genotypes, reference coordinates, walks, 
@@ -132,7 +133,7 @@ class SnarlDataCollection {
         /// find_sample_sample_alleles and find_walks must be check the walks or sample sets accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
         /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_alleles that may be used for find_walks
-        /// If reference_sample is not empty, get coordinates on this reference path
+        /// If reference_samples is not empty, get coordinates on one of these reference path. If it is empty then the coordinates will be on any path
         /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
         /// Write failed snarls to out_fail
         void fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -145,7 +146,7 @@ class SnarlDataCollection {
                                 const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
-                                const string& reference_sample, bool check_distances);
+                                const std::unordered_set<string>& reference_samples, bool check_distances);
 
         
         /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through
@@ -170,6 +171,12 @@ class SnarlDataCollection {
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
         void load_snarl_data_collection(std::istream& instream); 
 
+        size_t size() const {return all_snarl_data.size();}
+
+        // Get a reference to the reference path names that are stored in the collection
+        const std::vector<std::string>& get_reference_names() const {
+            return reference_names;
+        };
 
         ///////////////////////////// Helper functions for use in add_alleles_by_sample
 
@@ -184,6 +191,7 @@ class SnarlDataCollection {
 
         /// Helper function for finding walks through the snarl. Fills in walks
         /// the collection is assumed to have the allele_by_sample filled in and walks must be filled in to match the allele_by_sample
+        /// This requires a PathPositionHandleGraph to make sure that multiple traversals of the snarl are properly ordered
         static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl,  const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
 
@@ -280,6 +288,12 @@ class SnarlDataCollection {
 
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
+
+    public:
+        // Return true if the two SnarlDataCollections contain the same information (but possibly in a different order)
+        // Otherwise, throw an error
+        // This is very inefficient and should only be used for testing small examples
+        static bool is_equivalent (const SnarlDataCollection& collection1, const SnarlDataCollection& collection2); 
 
 };
 }
