@@ -28,36 +28,43 @@
 #include "arg_parser.hpp"
 #include "matrix.hpp"
 #include "utils.hpp"
+#include "feature_tables.hpp"
 
 namespace stoat {
 
 // ------------------------ Regression class ------------------------
 
 class FisherChi2 {
-    public:
-        FisherChi2() = default;
-        ~FisherChi2() = default;
+public:
+    FisherChi2() = default;
+    ~FisherChi2() = default;
+    
+    // Function to perform the Chi-square test on row size > 2 
+    // If one of the genotypes has no counts, return "NA"
+    // If one of the columns (alleles) has no counts, ignore it
+    std::string chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
-        // Function to perform the Chi-square test on row size > 2 
-        // If one of the genotypes has no counts, return "NA"
-        // If one of the columns (alleles) has no counts, ignore it
-        std::string chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    // Function to perform the Chi-square test on row size == 2 
+    std::string chi2_2x2(const size_t& m11, const size_t& m12,
+                         const size_t& m21, const size_t& m22);
 
-        // Function to perform the Chi-square test on row size == 2 
-        std::string chi2_2x2(const size_t& m11, const size_t& m12,
-            const size_t& m21, const size_t& m22);
+    // Function to perform Fisher's exact test
+    // not const& because we change the value
+    std::string fastFishersExactTest(size_t m11, size_t m12,
+                                     size_t m21, size_t m22);
 
-        // Function to perform Fisher's exact test
-        // not const& because we change the value
-        std::string fastFishersExactTest(size_t m11, size_t m12,
-            size_t m21, size_t m22);
-        
-        std::pair<std::string, std::string> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    // depending on the number of alleles, uses Chi2 (>2 alleles) or the fast
+    // Fisher exact test (2 alleles).
+    // returns two pvalues: chi2_p_value, fastfisher_p_value (which can be NA if >2 alleles)
+    // JEAN rename function or flip the returned pvalues to match the order in the function name
+    std::pair<std::string, std::string> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    // JEAN don't really like that we are passing filtering thresholds as arguments. Should we make a well-defined struct with input parameters?
+    std::pair<std::string, std::string> fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const size_t maf, const size_t min_individuals);
 
-    private:
-        // Constants with maximum usable precision for 'double'
-        static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
-        static constexpr double kExactTestBias = 1.0339757656912846e-25;
+private:
+    // Constants with maximum usable precision for 'double'
+    static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
+    static constexpr double kExactTestBias = 1.0339757656912846e-25;
 };
 
 class LinearRegression {

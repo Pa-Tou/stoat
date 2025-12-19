@@ -17,6 +17,7 @@
 #include "../gaf_creator.hpp"
 #include "../post_processing.hpp"
 #include "../io/register_io.hpp"
+#include "../feature_tables.hpp"
 
 namespace stoat_command {
 
@@ -253,6 +254,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // JEAN these phenotypes/covariate could be 1-2 objects, well-defined, and keeping the sample names/order somewhere
     std::vector<bool> binary_phenotype;
     std::vector<double> quantitative_phenotype;
+    unique_ptr<stoat::BinaryPhenotypeTable> binary_phenotype_table;
 
     // dict chr:string : vector{geneName:string, sample_expression:vector<double>, start_pos:size_t, end_pos:size_t}
     std::unordered_map<std::string, std::vector<stoat_vcf::Qtl_data>> eqtl_phenotype;
@@ -266,7 +268,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     if (!binary_path.empty()) {
         stoat::LOG_TRACE("Parsing binary phenotype file");
         binary_phenotype = stoat_vcf::parse_binary_pheno(binary_path, list_samples);
-
+        binary_phenotype_table = stoat_vcf::parse_binary_pheno_table(binary_path);
     } else if (!quantitative_path.empty()) {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
         quantitative_phenotype = stoat_vcf::parse_quantitative_pheno(quantitative_path, list_samples);

@@ -631,8 +631,45 @@ std::pair<std::string, std::string> FisherChi2::fisher_chi2(const std::vector<si
 
     return {chi2_p_value, fastfisher_p_value};
 }
-// ------------------------ Linear regression ------------------------
 
+std::pair<std::string, std::string> FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const size_t maf, const size_t min_individuals) {
+    // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
+    // combine the phenotype and genotype information
+    CombinedTable combined_table(geno);
+    combined_table.combine_binary_phenotype(pheno);
+    // remove non-variable allele, e.g. absent in both groups
+    combined_table.remove_constant_predictors();
+    // should we test this snarl?
+    if (!combined_table.passes_filters(maf, min_individuals)){
+        // JEAN what should we do here? returning NA for now
+        return {"NA", "NA"};
+    }
+    // fill up the contingency table (one vector per group)
+    int n_alleles = combined_table.get_n_alleles();
+    std::vector<size_t> g0(n_alleles, 0);
+    std::vector<size_t> g1(n_alleles, 0);
+    auto phenotype_vec = combined_table.get_phenotype();
+    auto genotype_mat = combined_table.get_predictors();
+    assert(genotype_mat.size() == n_alleles); // no covariates allowed here
+    // loop through the alleles and samples and update the contingency table
+    for (int al_ii=0; al_ii < n_alleles; al_ii++) {
+        for (int samp_ii=0; samp_ii < phenotype_vec.size(); samp_ii++) {
+            if (genotype_mat[al_ii][samp_ii] > 0){
+                // tally the allele counts in each group
+                if (phenotype_vec[samp_ii] == 0){
+                    g0[al_ii] += genotype_mat[al_ii][samp_ii];
+                } else {
+                    g1[al_ii] += genotype_mat[al_ii][samp_ii];
+                }
+            }
+        }
+    }
+
+    return (fisher_chi2(g0, g1));
+}
+
+// ------------------------ Linear regression ------------------------
+    
 // Multiply matrix A (m×n) with matrix B (n×p) -> result is m×p
 std::vector<std::vector<double>> LinearRegression::mult_mat_mat(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B) {
     int m = A.size(), n = A[0].size(), p = B[0].size();
