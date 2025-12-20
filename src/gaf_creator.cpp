@@ -106,7 +106,7 @@ void write_gaf_lines(const std::string& sequence_name, const std::string& path, 
 
 // Parses the input file and processes data into two output files
 void gaf_creation(const std::string& input_file, 
-    std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& snarl_chr,
+    const stoat::SnarlDataCollection& snarl_collection,
     handlegraph::PathHandleGraph& graph, 
     const std::string& output_file) {
 
@@ -118,6 +118,20 @@ void gaf_creation(const std::string& input_file,
     if (!infile || !outfile1 || !outfile2) {
         throw std::runtime_error("Error opening files");
     }
+
+    // The GAF needs the paths from the SnarlDataCollection, but the snarls may not be ordered the same between
+    // the input_file and the snarl_collection. So go through the snarl_collection and make a map from snarl to 
+    // path so that it can be written when going through the input_file
+    // Snarl is saved as the start node and end node concatinated
+    std::unordered_map<std::string, std::vector<std::string>> snarl_to_paths; 
+    snarl_collection.for_each_snarl([&](const stoat::snarl_info_t& snarl_info) {
+        std::vector<std::string> paths;
+        for (const PathTraversal& path : snarl_info.walks_by_allele) {
+            paths.emplace_back(path.to_string());
+        }
+        snarl_to_paths.insert({stoat::pairToString(std::make_pair(snarl_info.start_node.get_node_id(), snarl_info.end_node.get_node_id())),
+                               std::move(paths)});
+    });
 
     std::string line;
     size_t count_line = 0;
@@ -138,9 +152,7 @@ void gaf_creation(const std::string& input_file,
         double pfisher = stoat::string_to_pvalue(columns[6]);
         double pchi = stoat::string_to_pvalue(columns[7]);
         std::string group_paths = columns[11];
-        auto it = snarl_chr.find(chr);
-        auto& data = it->second;  
-        const std::vector<std::string>& list_path = stoat::stringToVector<std::string>(stoat::vectorPathToString(data[count_line].paths));
+        const std::vector<std::string>& list_path = snarl_to_paths.at(columns[3]);
 
         // Split group paths by comma
         std::vector<std::string> decomposed_group_paths;

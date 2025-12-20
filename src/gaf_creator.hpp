@@ -19,6 +19,7 @@
 #include <handlegraph/path_handle_graph.hpp>
 
 #include "snarl_data_t.hpp"
+#include "snarl_data_collection.hpp"
 #include "utils.hpp"
 #include "snarl_analyzer.hpp"
 #include "matrix.hpp"
@@ -36,7 +37,7 @@ void write_gaf_lines(const std::string& sequence_name, const std::string& path, 
 std::vector<size_t> decompose_snarl(const std::string& snarl);
 int calcul_path_length(handlegraph::PathHandleGraph& graph, const std::string& snarl);
 void write_gaf_lines(const std::string& sequence_name, const std::string& path, int length, double prop, ofstream& outfile);
-void gaf_creation(const std::string& input_file, std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& snarl_chr,
+void gaf_creation(const std::string& input_file, const stoat::SnarlDataCollection& snarl_collection,
     handlegraph::PathHandleGraph& graph, const std::string& output_file);
 
 } //end stoat namespace

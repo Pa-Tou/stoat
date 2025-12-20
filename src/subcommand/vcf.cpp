@@ -282,10 +282,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // TODO: Double check that these thresholds are doing the right thing
     stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
 
-    // Load or calculate the snarl information
-    // scope declaration
-    // chr : <snarl, paths, pos(start, end), type>
-    std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> snarls_chr;
     unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
     unique_ptr<handlegraph::PathHandleGraph> graph;
 
@@ -395,7 +391,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     if (snarl_analyzer->get_phenotype_type() == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
         std::string output_gaf = output_dir + "/stoat.assoc.gaf";
-        stoat_vcf::gaf_creation(output_dir + "/stoat.assoc.pvalues.tsv", snarls_chr, *graph, output_gaf);
+        stoat_vcf::gaf_creation(output_dir + "/stoat.assoc.pvalues.tsv", snarl_collection, *graph, output_gaf);
     }
 
     auto end_total_timer = std::chrono::high_resolution_clock::now();
