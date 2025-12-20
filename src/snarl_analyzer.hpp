@@ -20,7 +20,7 @@
 #include "arg_parser.hpp"
 #include "stats_test.hpp"
 #include "matrix.hpp"
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
 #include "quantitative_table.hpp"
 #include "genotype_table.hpp"
 #include "snarl_data_collection.hpp"

@@ -21,7 +21,7 @@
 #include <htslib/hts.h>
 
 #include "log.hpp"
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
 #include "feature_tables.hpp"
 
 using namespace std;

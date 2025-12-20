@@ -1,6 +1,6 @@
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
 
-//#define DEBUG_SNARL_DATA_T
+//#define DEBUG_STRUCTS
 
 namespace stoat {
 

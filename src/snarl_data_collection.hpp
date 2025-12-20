@@ -4,8 +4,8 @@
 #include <iostream>
 #include <handlegraph/path_position_handle_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
+#include "types_and_structs.hpp"
 #include "utils.hpp"
-#include "snarl_data_t.hpp"
 #include "feature_tables.hpp"
 
 using namespace std;

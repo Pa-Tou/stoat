@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <cstdint>
 
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
 
 using namespace std;
 

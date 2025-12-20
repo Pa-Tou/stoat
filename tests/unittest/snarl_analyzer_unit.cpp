@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "../../src/snarl_data_t.hpp"
+#include "../../src/types_and_structs.hpp"
 #include "../../src/snarl_analyzer.hpp"
 #include "../../src/utils.hpp"
 #include "../../src/matrix.hpp"

@@ -1,5 +1,5 @@
-#ifndef snarl_data_t
-#define snarl_data_t
+#ifndef types_and_structs
+#define types_and_structs
 
 #include <vector>
 #include <string>

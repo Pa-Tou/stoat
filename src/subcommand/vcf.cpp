@@ -10,7 +10,6 @@
 #include <omp.h>
 
 #include "../log.hpp"
-#include "../snarl_data_t.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
 #include "../matrix.hpp"

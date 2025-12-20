@@ -18,7 +18,7 @@
 #include <handlegraph/handle_graph.hpp>
 #include <handlegraph/path_handle_graph.hpp>
 
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
 #include "snarl_data_collection.hpp"
 #include "utils.hpp"
 #include "snarl_analyzer.hpp"
