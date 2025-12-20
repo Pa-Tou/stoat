@@ -230,8 +230,8 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
     }
 
-    //clean_output_dir(output_dir);
-    //clean_output_dir(output_dir_loaded);
+    clean_output_dir(output_dir);
+    clean_output_dir(output_dir_loaded);
 }
 
 TEST_CASE("Output simple nested chain", "[graph]") {
