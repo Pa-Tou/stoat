@@ -236,7 +236,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
 TEST_CASE("Output simple nested chain", "[graph]") {
     const std::string output_dir = "../output_binary";
-    const std::string graph_base = "../tests/graph_test/simple_nested_chain";
+    const std::string graph_base = "../tests/test_data/input_data/graph_test/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
     
 
@@ -472,7 +472,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
 TEST_CASE("Output simple nested chain gbz", "[graph]") {
     const std::string output_dir = "../output_binary";
-    const std::string graph_base = "../tests/graph_test/simple_nested_chain";
+    const std::string graph_base = "../tests/test_data/input_data/graph_test/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
     
 
@@ -853,7 +853,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
 TEST_CASE("Output loop with snarl", "[graph][bug]") {
     const std::string output_dir = "../output_binary";
-    const std::string graph_base = "../tests/graph_test/loop_with_indel";
+    const std::string graph_base = "../tests/test_data/input_data/graph_test/loop_with_indel";
 
     std::vector<std::string> samples_of_interest = {"path1", "path2"};
     std::vector<std::string> other_samples = {"path0"};
@@ -1117,7 +1117,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
 
 
     const std::string output_dir = "../output_binary/";
-    const std::string data_path = "../tests/graph_test/";
+    const std::string data_path = "../tests/test_data/input_data/graph_test/";
     const std::string graph_base = "simple_nested_chains";
 
     SECTION("Test snarls output") {

@@ -94,10 +94,10 @@ TEST_CASE("stringToVector throws on invalid input") {
 TEST_CASE("Snarl coordinates simple nested chain", "[snarl_info]") {
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.dist");
     
     bdsg::HashGraph hash_graph;
-    hash_graph.deserialize("../tests/graph_test/simple_nested_chain.hg");
+    hash_graph.deserialize("../tests/test_data/test_graphs/simple_nested_chain.hg");
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto graph = overlay_helper.apply(&hash_graph);
 
@@ -186,14 +186,14 @@ TEST_CASE("Snarl coordinates deeply nested snarls with deletion in reference", "
     }
 
     //// vg isn't included so the distance index can only be built from the command line
-    //hash_graph.serialize("../tests/graph_test/deeply_nested_snarl.hg");
-    //int built = system("vg index -j ../tests/graph_test/deeply_nested_snarl.dist ../tests/graph_test/deeply_nested_snarl.hg"); 
+    //hash_graph.serialize("../tests/test_data/test_graphs/deeply_nested_snarl.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/deeply_nested_snarl.dist ../tests/test_data/test_graphs/deeply_nested_snarl.hg"); 
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/deeply_nested_snarl.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/deeply_nested_snarl.dist");
     
     //bdsg::HashGraph hash_graph;
-    //hash_graph.deserialize("../tests/graph_test/deeply_nested_snarl.hg");
+    //hash_graph.deserialize("../tests/test_data/test_graphs/deeply_nested_snarl.hg");
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto graph = overlay_helper.apply(&hash_graph);
@@ -262,7 +262,7 @@ TEST_CASE("Snarl coordinates deeply nested snarls with no reference sense", "[sn
     }
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/deeply_nested_snarl.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/deeply_nested_snarl.dist");
 
 
     bdsg::PathPositionOverlayHelper overlay_helper;
@@ -337,14 +337,14 @@ TEST_CASE("Snarl coordinates on given path instead of reference", "[snarl_info]"
     }
 
     //// vg isn't included so the distance index can only be built from the command line
-    //hash_graph.serialize("../tests/graph_test/deeply_nested_snarl.hg");
-    //int built = system("vg index -j ../tests/graph_test/deeply_nested_snarl.dist ../tests/graph_test/deeply_nested_snarl.hg"); 
+    //hash_graph.serialize("../tests/test_data/test_graphs/deeply_nested_snarl.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/deeply_nested_snarl.dist ../tests/test_data/test_graphs/deeply_nested_snarl.hg"); 
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/deeply_nested_snarl.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/deeply_nested_snarl.dist");
     
     //bdsg::HashGraph hash_graph;
-    //hash_graph.deserialize("../tests/graph_test/deeply_nested_snarl.hg");
+    //hash_graph.deserialize("../tests/test_data/test_graphs/deeply_nested_snarl.hg");
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto graph = overlay_helper.apply(&hash_graph);

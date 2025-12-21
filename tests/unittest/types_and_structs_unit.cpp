@@ -17,32 +17,32 @@ TEST_CASE("Test input format", "[Path]") {
     // handlegraph::net_handle_t root;
 
     SECTION("Packedgraph (pg)") {
-        std::string graph_path = "../tests/graph_test/simple_snp.pg";
-        std::string dist_path = "../tests/graph_test/simple_snp.dist";
+        std::string graph_path = "../tests/test_data/test_graphs/simple_snp.pg";
+        std::string dist_path = "../tests/test_data/test_graphs/simple_snp.dist";
         std::tie(stree, graph) = stoat::load_graph_tree(graph_path, dist_path);
         REQUIRE(stree != nullptr);
         REQUIRE(graph != nullptr);
     }
 
     SECTION("Hashgraph (hg)") {
-        std::string graph_path = "../tests/graph_test/simple_snp.hg";
-        std::string dist_path = "../tests/graph_test/simple_snp.dist";
+        std::string graph_path = "../tests/test_data/test_graphs/simple_snp.hg";
+        std::string dist_path = "../tests/test_data/test_graphs/simple_snp.dist";
         std::tie(stree, graph) = stoat::load_graph_tree(graph_path, dist_path);
         REQUIRE(stree != nullptr);
         REQUIRE(graph != nullptr);
     }
 
     // SECTION("XG format (xg)") {
-    //     std::string graph_path = "../tests/graph_test/simple_snp.hg";
-    //     std::string dist_path = "../tests/graph_test/simple_snp.dist";
+    //     std::string graph_path = "../tests/test_data/test_graphs/simple_snp.hg";
+    //     std::string dist_path = "../tests/test_data/test_graphs/simple_snp.dist";
     //     std::tie(stree, graph) = stoat::load_graph_tree(graph_path, dist_path);
     //     REQUIRE(stree != nullptr);
     //     REQUIRE(graph != nullptr);
     // }
 
     SECTION("GBZ graph (gbz)") {
-        std::string graph_path = "../tests/graph_test/simple_snp.gbz";
-        std::string dist_path = "../tests/graph_test/simple_snp.dist";
+        std::string graph_path = "../tests/test_data/test_graphs/simple_snp.gbz";
+        std::string dist_path = "../tests/test_data/test_graphs/simple_snp.dist";
         std::tie(stree, graph) = stoat::load_graph_tree(graph_path, dist_path);
         REQUIRE(stree != nullptr);
         REQUIRE(graph != nullptr);
