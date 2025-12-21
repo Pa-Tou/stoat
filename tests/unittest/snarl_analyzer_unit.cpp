@@ -9,16 +9,16 @@
 using namespace stoat;
 using namespace stoat_vcf;
 
-TEST_CASE("stoat::Node_traversal_t Basic Functionality") {
-    stoat::Node_traversal_t node(42, true);
+TEST_CASE("stoat::node_traversal_t Basic Functionality") {
+    stoat::node_traversal_t node(42, true);
     REQUIRE(node.get_node_id() == 42);
     REQUIRE(node.get_is_reverse() == true);
     REQUIRE(node.to_string() == "<42");
 }
 
 TEST_CASE("Edge_t Functionality") {
-    stoat::Node_traversal_t a(1, false);
-    stoat::Node_traversal_t b(2, true);
+    stoat::node_traversal_t a(1, false);
+    stoat::node_traversal_t b(2, true);
     stoat::Edge_t edge(a, b);
 
     auto pair = edge.get_node_pair();
@@ -61,7 +61,7 @@ TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
 }
 
 TEST_CASE("identify_path with EdgeBySampleMatrix") {
-    stoat::Node_traversal_t a(1, false), b(2, false), c(3, false);
+    stoat::node_traversal_t a(1, false), b(2, false), c(3, false);
     stoat::Edge_t edge1(a, b);
     stoat::Edge_t edge2(b, c);
 

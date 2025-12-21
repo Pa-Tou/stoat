@@ -87,7 +87,7 @@ void EdgeBySampleMatrix::clear_edges(size_t new_n_edges) {
 // Function to identify the path in the edge matrix
 std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTraversal &path_trav) const {
 
-    const std::vector<stoat::Node_traversal_t> &path = path_trav.get_path();
+    const std::vector<stoat::node_traversal_t> &path = path_trav.get_path();
     
     // get the subset of rows to check for that path and its flipped version
     // we'll check N edges, N being the number of nodes in the path - 1

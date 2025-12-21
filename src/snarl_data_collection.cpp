@@ -96,9 +96,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 handlegraph::handle_t start_in = distance_index.get_handle(distance_index.get_bound(snarl, false, true), &graph);
                                 handlegraph::handle_t end_in = distance_index.get_handle(distance_index.get_bound(snarl, true, true), &graph);
 
-                                snarl_data.start_node = stoat::Node_traversal_t(graph.get_id(start_in),
+                                snarl_data.start_node = stoat::node_traversal_t(graph.get_id(start_in),
                                                                                 graph.get_is_reverse(start_in));
-                                snarl_data.end_node = stoat::Node_traversal_t(graph.get_id(end_in),
+                                snarl_data.end_node = stoat::node_traversal_t(graph.get_id(end_in),
                                                                               graph.get_is_reverse(end_in));
 
                                 // Add the depth of the snarl
@@ -592,7 +592,7 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                 // For the path, add an empty node for each time we leave and re-enter the snarl
                 if (boundary_i != 0) {
-                    stoat::Node_traversal_t traversal (0, true);
+                    stoat::node_traversal_t traversal (0, true);
                     current_walk.add_node_traversal_t(traversal);
                 }
 
@@ -600,7 +600,7 @@ void SnarlDataCollection::get_walks_from_alleles(
                 // TODO: Make the PathTraversal add from a handle_t or net_handle_t
                 //current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
                 handlegraph::handle_t start_handle = graph.get_handle_of_step(boundary_steps[boundary_i]);
-                stoat::Node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
+                stoat::node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
                 current_walk.add_node_traversal_t(start_traversal);
 
 
@@ -627,7 +627,7 @@ void SnarlDataCollection::get_walks_from_alleles(
                             // This node is really a node in the snarl, then add it to the path 
 
                             handlegraph::handle_t node_handle = distance_index.get_handle(parent, &graph);
-                            stoat::Node_traversal_t node_traversal (graph.get_id(node_handle), graph.get_is_reverse(node_handle));
+                            stoat::node_traversal_t node_traversal (graph.get_id(node_handle), graph.get_is_reverse(node_handle));
                             current_walk.add_node_traversal_t(node_traversal);
 
                             min_length += distance_index.minimum_length(parent);
@@ -638,16 +638,16 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                             // Add the start bound going in
                             handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, false, true), &graph);
-                            stoat::Node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
+                            stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
                             current_walk.add_node_traversal_t(chain_start_traversal);
 
                             // Add the interior of the chain as a fake node
-                            stoat::Node_traversal_t chain_traversal (0, false);
+                            stoat::node_traversal_t chain_traversal (0, false);
                             current_walk.add_node_traversal_t(chain_traversal);
 
                             // Add the end bound going out
                             handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, true, false), &graph);
-                            stoat::Node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
+                            stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
                             current_walk.add_node_traversal_t(chain_end_traversal);
 
                             min_length += distance_index.minimum_length(parent);
@@ -658,16 +658,16 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                             // Add the end bound going in
                             handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, true, true), &graph);
-                            stoat::Node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
+                            stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
                             current_walk.add_node_traversal_t(chain_start_traversal);
 
                             // Add the interior of the chain as a fake node
-                            stoat::Node_traversal_t chain_traversal (0, false);
+                            stoat::node_traversal_t chain_traversal (0, false);
                             current_walk.add_node_traversal_t(chain_traversal);
 
                             // Add the start bound going out
                             handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, false, false), &graph);
-                            stoat::Node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
+                            stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
                             current_walk.add_node_traversal_t(chain_end_traversal);
 
                             min_length += distance_index.minimum_length(parent);
@@ -681,7 +681,7 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                 // Add the bound
                 handlegraph::handle_t end_handle = graph.get_handle_of_step(step);
-                stoat::Node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
+                stoat::node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
                 current_walk.add_node_traversal_t(end_traversal);
 
             }// end for loop for a pair of boundary nodes for one traversal of the snarl
@@ -709,12 +709,12 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
     std::vector<std::string> sequences;
     for (const stoat::PathTraversal& path : paths) {
         sequences.emplace_back();
-        const std::vector<stoat::Node_traversal_t>& nodes = path.get_path(); 
+        const std::vector<stoat::node_traversal_t>& nodes = path.get_path(); 
         if (nodes.size() > 0) {
             handlegraph::nid_t start_id = nodes.front().get_node_id();
             handlegraph::nid_t end_id = nodes.back().get_node_id(); 
             for (size_t i = 0 ; i < nodes.size() ; i++) {
-                const stoat::Node_traversal_t& node = nodes[i];
+                const stoat::node_traversal_t& node = nodes[i];
                 if (node.get_node_id() != start_id && node.get_node_id() != end_id) {
                     if (node.get_node_id() == 0) {
                         sequences.back() += "N";
@@ -763,8 +763,8 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
 /*
 This needs to hold snarl_info_internal_t's which contain:
 
-- Node_traversal_t start_node;
-- Node_traversal_t end_node;
+- node_traversal_t start_node;
+- node_traversal_t end_node;
 - size_t reference_index (which points to a string representing the reference name);
 - size_t start_position;
 - size_t end_position;
@@ -1007,11 +1007,11 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         string part;
         //Snarl start node traversal
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().start_node = stoat::Node_traversal_t(part);
+        all_snarl_data.back().start_node = stoat::node_traversal_t(part);
 
         //Snarl start node traversal
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().end_node = stoat::Node_traversal_t(part);
+        all_snarl_data.back().end_node = stoat::node_traversal_t(part);
 
         // Index of reference
         std::getline(linestream, part, '\t');
@@ -1101,7 +1101,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
 
     // Get a consistent snarl identifier from the bounds of a snarl
     // Put the lower node id first, keeping the orientations
-    auto get_snarl_id = [&](const Node_traversal_t& n1, const Node_traversal_t& n2) {
+    auto get_snarl_id = [&](const node_traversal_t& n1, const node_traversal_t& n2) {
         if (n1.get_node_id() < n2.get_node_id()) {
             return n1.to_string() + n2.to_string();
         } else {

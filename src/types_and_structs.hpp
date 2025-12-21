@@ -38,15 +38,15 @@ using handlegraph::net_handle_t;
 
 namespace stoat {
 
-// Define a Node_traversal_t structure to represent a node with orientation
-struct Node_traversal_t { // 64 bits per node 
+// Define a node_traversal_t structure to represent a node with orientation
+struct node_traversal_t { // 64 bits per node 
     private:
         size_t node_id : 63; // 63 bits for node ID
         bool is_reverse : 1; // 1 bit for orientation (true for reverse, false for forward)
 
     public:
-        Node_traversal_t(const size_t &id, const bool &rev);
-        Node_traversal_t(const std::string &str);
+        node_traversal_t(const size_t &id, const bool &rev);
+        node_traversal_t(const std::string &str);
         
         // Setter
         void set_is_reverse(const bool &rev) { is_reverse = rev; };
@@ -59,24 +59,24 @@ struct Node_traversal_t { // 64 bits per node
         // Convert to std::string representation
         std::string to_string() const;
 
-        bool operator==(const Node_traversal_t& other) const;
+        bool operator==(const node_traversal_t& other) const;
 };
 
-// Define a Edge_t structure to represent an edge between two Node_traversal_t nodes
+// Define a Edge_t structure to represent an edge between two node_traversal_t nodes
 struct Edge_t { // 128 bits per edge 
     private:
     // JEAN why is that a pair? can't we just have two nodes in that struct?
-        std::pair<Node_traversal_t, Node_traversal_t> edge;
+        std::pair<node_traversal_t, node_traversal_t> edge;
 
     public:
-        Edge_t(const Node_traversal_t &node_traversal_1, const Node_traversal_t &node_traversal_2);
+        Edge_t(const node_traversal_t &node_traversal_1, const node_traversal_t &node_traversal_2);
         
         // Converter
         std::pair<size_t, size_t> get_node_pair() const;
         std::string to_string() const;
 
         // Accessor to edge, useful for hashing and comparison
-        const std::pair<Node_traversal_t, Node_traversal_t>& get_edge() const;
+        const std::pair<node_traversal_t, node_traversal_t>& get_edge() const;
 
     // return a flipped version of this edge
     Edge_t get_flipped() const;
@@ -88,7 +88,7 @@ struct Edge_t { // 128 bits per edge
 // Define a PathTraversal structure to represent a path through the graph
 class PathTraversal {
 private:
-    std::vector<Node_traversal_t> path; // Nodes in the path
+    std::vector<node_traversal_t> path; // Nodes in the path
     size_t min_allele_len;
     size_t max_allele_len;
     
@@ -97,7 +97,7 @@ public:
     PathTraversal() : min_allele_len(0), max_allele_len(0) {}
     void add_node(const size_t& node, bool is_rev);
     void add_node_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index);
-    void add_node_traversal_t(const Node_traversal_t &node_trav);
+    void add_node_traversal_t(const node_traversal_t &node_trav);
     
     // Check and flip the Path if necessary to ensure consistent orientation
     void check_path_flip();
@@ -112,7 +112,7 @@ public:
     std::string get_allele_length() const;
         
     // Getters
-    const std::vector<Node_traversal_t>& get_path() const;
+    const std::vector<node_traversal_t>& get_path() const;
     size_t get_max_allele_length() const { return max_allele_len; }
     size_t get_min_allele_length() const { return min_allele_len; }
     
@@ -191,11 +191,11 @@ struct path_range_t {
 
 } // end namespace stoat
 
-// Hash functions for Node_traversal_t
+// Hash functions for node_traversal_t
 namespace std {
     template <>
-    struct hash<stoat::Node_traversal_t> {
-        size_t operator()(const stoat::Node_traversal_t& node) const {
+    struct hash<stoat::node_traversal_t> {
+        size_t operator()(const stoat::node_traversal_t& node) const {
             // Simple way: Shift node_id and pack is_reverse into the lower bit
             return (node.get_node_id() << 1) | static_cast<size_t>(node.get_is_reverse());
         }
@@ -206,8 +206,8 @@ namespace std {
     struct hash<stoat::Edge_t> {
         size_t operator()(const stoat::Edge_t& edge) const {
             const auto& pair = edge.get_edge();
-            size_t h1 = hash<stoat::Node_traversal_t>()(pair.first);
-            size_t h2 = hash<stoat::Node_traversal_t>()(pair.second);
+            size_t h1 = hash<stoat::node_traversal_t>()(pair.first);
+            size_t h2 = hash<stoat::node_traversal_t>()(pair.second);
 
             // Combines two hash values (h1 and h2) into a single hash using bitwise operations.
             // 0x9e3779b9 is a large prime constant (from the golden ratio) used to improve distribution.

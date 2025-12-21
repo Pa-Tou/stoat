@@ -4,39 +4,39 @@
 
 namespace stoat {
 
-// Node_traversal_t
-Node_traversal_t::Node_traversal_t(const size_t &id, const bool &rev)
+// node_traversal_t
+node_traversal_t::node_traversal_t(const size_t &id, const bool &rev)
         : node_id(id), is_reverse(rev) {}
 
-// Node_traversal_t from a string
-Node_traversal_t::Node_traversal_t(const std::string& str) {
+// node_traversal_t from a string
+node_traversal_t::node_traversal_t(const std::string& str) {
     is_reverse = str.at(0) == '<';
     node_id = std::stoi(std::string(str.begin()+1, str.end()));
 }
 
-// Convert Node_traversal_t to node + path representation [string]
-std::string Node_traversal_t::to_string() const {
+// Convert node_traversal_t to node + path representation [string]
+std::string node_traversal_t::to_string() const {
     return (is_reverse ? "<" : ">") + std::to_string(node_id);
 }
 
-// Getters for Node_traversal_t
-size_t Node_traversal_t::get_node_id() const { return node_id; }
-bool Node_traversal_t::get_is_reverse() const { return is_reverse; }
+// Getters for node_traversal_t
+size_t node_traversal_t::get_node_id() const { return node_id; }
+bool node_traversal_t::get_is_reverse() const { return is_reverse; }
 
-bool Node_traversal_t::operator==(const Node_traversal_t& other) const {
+bool node_traversal_t::operator==(const node_traversal_t& other) const {
     return node_id == other.node_id && is_reverse == other.is_reverse;
 }
 
 // Edge_t
-Edge_t::Edge_t(const Node_traversal_t &node_traversal_1, 
-               const Node_traversal_t &node_traversal_2) :
+Edge_t::Edge_t(const node_traversal_t &node_traversal_1, 
+               const node_traversal_t &node_traversal_2) :
     edge(std::make_pair(node_traversal_1, node_traversal_2)) {}
 
 // return a flipped version of this edge
 Edge_t Edge_t::get_flipped() const {
-    Node_traversal_t first_node = Node_traversal_t(edge.first.get_node_id(),
+    node_traversal_t first_node = node_traversal_t(edge.first.get_node_id(),
                                                    !edge.first.get_is_reverse());
-    Node_traversal_t second_node = Node_traversal_t(edge.second.get_node_id(),
+    node_traversal_t second_node = node_traversal_t(edge.second.get_node_id(),
                                                    !edge.second.get_is_reverse());
     return (Edge_t(second_node, first_node));
 }
@@ -52,7 +52,7 @@ std::string Edge_t::to_string() const {
 }
 
 // Accessor to edge, useful for hashing and comparison
-const std::pair<Node_traversal_t, Node_traversal_t>& Edge_t::get_edge() const {
+const std::pair<node_traversal_t, node_traversal_t>& Edge_t::get_edge() const {
     return edge;
 }
 
@@ -62,7 +62,7 @@ bool Edge_t::operator==(const Edge_t &other) const {
 
 // Add a node with known orientation
 void PathTraversal::add_node(const size_t& node, bool is_rev) {
-    Node_traversal_t node_traversal(node, is_rev); 
+    node_traversal_t node_traversal(node, is_rev); 
     // Add node to path
     this->path.push_back(node_traversal);
 }
@@ -72,13 +72,13 @@ void PathTraversal::add_node(const size_t& node, bool is_rev) {
 void PathTraversal::add_node_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index) {
     // find the node orientation
     bool is_rev = distance_index.ends_at(node_h) != bdsg::SnarlDistanceIndex::END;
-    Node_traversal_t node_traversal(distance_index.node_id(node_h), is_rev); 
+    node_traversal_t node_traversal(distance_index.node_id(node_h), is_rev); 
     // Add node to path
     this->path.push_back(node_traversal);
 }
     
 // add a node traversal to the path
-void PathTraversal::add_node_traversal_t(const Node_traversal_t &node_trav) {
+void PathTraversal::add_node_traversal_t(const node_traversal_t &node_trav) {
     this->path.push_back(node_trav);
 }
 
@@ -162,7 +162,7 @@ std::string PathTraversal::to_string() const {
     return result;
 }
 
-const std::vector<Node_traversal_t>& PathTraversal::get_path() const { 
+const std::vector<node_traversal_t>& PathTraversal::get_path() const { 
     return path;
 };
 
@@ -211,7 +211,7 @@ std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& p
                 while (i < len && path_str[i] >= '0' && path_str[i] <= '9') {
                     node_id = node_id * 10 + (path_str[i++] - '0');
                 }
-                path.add_node_traversal_t(stoat::Node_traversal_t(node_id, is_reverse));
+                path.add_node_traversal_t(stoat::node_traversal_t(node_id, is_reverse));
             }
             paths.emplace_back(std::move(path));
         }
