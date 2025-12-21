@@ -131,29 +131,6 @@ std::string get_sample_name_from_path(const handlegraph::PathHandleGraph& graph,
 
 }
 
-sample_hap_t::sample_hap_t(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path) {
-
-    std::string path_name = graph.get_path_name(path);
-
-    std::stringstream stream(path_name);
-    if (std::getline(stream, sample, '#')) {
-        std::getline(stream, haplotype);
-    } else {
-        haplotype = "";
-    }
-    
-    #ifdef DEBUG
-    std::string test_sample;
-    if (graph.get_sense(path) == handlegraph::PathSense::GENERIC) {
-        // Generic paths only have a locus, so return whatever that is
-        test_sample = graph.get_locus_name(path);
-    } else {
-        test_sample = graph.get_sample_name(path);
-    }
-    assert(sample == test_sample);
-    #endif
-}
-
 
 std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                    const handlegraph::net_handle_t& snarl, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths) {

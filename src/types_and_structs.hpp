@@ -26,7 +26,6 @@
 #include <vg/io/vpkg.hpp>
 
 #include "log.hpp"
-#include "utils.hpp"
 
 #include <filesystem>
 #include "io/register_io.hpp"
@@ -142,6 +141,54 @@ std::vector<PathTraversal> convert_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             const handlegraph::PathHandleGraph& graph, 
                             std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths);
+
+// This stores a sample name and haplotype identifier
+struct sample_hap_t {
+    std::string sample;
+    std::string haplotype;
+
+    sample_hap_t() {};
+    sample_hap_t(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
+
+    sample_hap_t(std::string path_name){
+        // Get the sample name up to #
+        std::stringstream stream(path_name);
+        if (std::getline(stream, sample, '#')) {
+            std::getline(stream, haplotype);
+        } else {
+            haplotype = "";
+        }
+
+    };
+    std::string to_string() const {
+        return sample + "#" + haplotype;
+    }
+    sample_hap_t(std::string samp, std::string hap) :
+        sample(std::move(samp)), haplotype(std::move(hap)) {};
+
+    const inline bool operator==(const sample_hap_t& other) const {
+        return (sample==other.sample && haplotype==other.haplotype);
+    }
+    const inline bool operator<(const sample_hap_t& other) const {
+        if (sample == other.sample) {
+            return haplotype < other.haplotype;
+        } else {
+            return sample < other.sample;
+        }
+    }
+};
+
+inline std::ostream& operator<<(std::ostream& out, const sample_hap_t& sample) {
+    return out << sample.sample << "#" << sample.haplotype;
+}
+
+// A struct for holding a range along the path
+struct path_range_t {
+    handlegraph::step_handle_t start;
+    handlegraph::step_handle_t end;
+};
+
+
 } // end namespace stoat
 
 // Hash functions for Node_traversal_t
@@ -169,6 +216,15 @@ namespace std {
             return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
         }
     };
+
+    // Define hash for sample_hap_t
+    template <>
+    struct hash<stoat::sample_hap_t> {
+        size_t operator()(const stoat::sample_hap_t& sample_hap) const {
+            return std::hash<std::string>()(sample_hap.sample + "#" + sample_hap.haplotype);
+        }
+    };
+
 
 } // end namespace std
 
