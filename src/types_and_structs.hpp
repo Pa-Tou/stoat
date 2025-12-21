@@ -62,14 +62,14 @@ struct node_traversal_t { // 64 bits per node
         bool operator==(const node_traversal_t& other) const;
 };
 
-// Define a Edge_t structure to represent an edge between two node_traversal_t nodes
-struct Edge_t { // 128 bits per edge 
+// Define a edge_t structure to represent an edge between two node_traversal_t nodes
+struct edge_t { // 128 bits per edge 
     private:
     // JEAN why is that a pair? can't we just have two nodes in that struct?
         std::pair<node_traversal_t, node_traversal_t> edge;
 
     public:
-        Edge_t(const node_traversal_t &node_traversal_1, const node_traversal_t &node_traversal_2);
+        edge_t(const node_traversal_t &node_traversal_1, const node_traversal_t &node_traversal_2);
         
         // Converter
         std::pair<size_t, size_t> get_node_pair() const;
@@ -79,10 +79,10 @@ struct Edge_t { // 128 bits per edge
         const std::pair<node_traversal_t, node_traversal_t>& get_edge() const;
 
     // return a flipped version of this edge
-    Edge_t get_flipped() const;
+    edge_t get_flipped() const;
 
         // Comparison operator
-        bool operator==(const Edge_t &other) const;
+        bool operator==(const edge_t &other) const;
 };
 
 // Define a PathTraversal structure to represent a path through the graph
@@ -201,10 +201,10 @@ namespace std {
         }
     };
 
-    // Hash function for Edge_t
+    // Hash function for edge_t
     template <>
-    struct hash<stoat::Edge_t> {
-        size_t operator()(const stoat::Edge_t& edge) const {
+    struct hash<stoat::edge_t> {
+        size_t operator()(const stoat::edge_t& edge) const {
             const auto& pair = edge.get_edge();
             size_t h1 = hash<stoat::node_traversal_t>()(pair.first);
             size_t h2 = hash<stoat::node_traversal_t>()(pair.second);

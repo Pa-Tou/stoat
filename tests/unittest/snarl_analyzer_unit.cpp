@@ -16,10 +16,10 @@ TEST_CASE("stoat::node_traversal_t Basic Functionality") {
     REQUIRE(node.to_string() == "<42");
 }
 
-TEST_CASE("Edge_t Functionality") {
+TEST_CASE("edge_t Functionality") {
     stoat::node_traversal_t a(1, false);
     stoat::node_traversal_t b(2, true);
-    stoat::Edge_t edge(a, b);
+    stoat::edge_t edge(a, b);
 
     auto pair = edge.get_node_pair();
     REQUIRE(pair.first == 1);
@@ -62,8 +62,8 @@ TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
 
 TEST_CASE("identify_path with EdgeBySampleMatrix") {
     stoat::node_traversal_t a(1, false), b(2, false), c(3, false);
-    stoat::Edge_t edge1(a, b);
-    stoat::Edge_t edge2(b, c);
+    stoat::edge_t edge1(a, b);
+    stoat::edge_t edge2(b, c);
 
     stoat::PathTraversal path;
     path.add_node_traversal_t(a);

@@ -24,7 +24,7 @@ std::string EdgeBySampleMatrix::get_sample_name(size_t sample_idx) const {
 
     
 // Add True to the matrix if edge is found
-void EdgeBySampleMatrix::add_sample_edge(const stoat::Edge_t& edge, size_t col_index) {
+void EdgeBySampleMatrix::add_sample_edge(const stoat::edge_t& edge, size_t col_index) {
     // look for that edge in the matrix
     auto it = row_header.find(edge);
     if (it != row_header.end()) {
@@ -107,7 +107,7 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTra
         }
 
         // make an edge
-        stoat::Edge_t edge(path[i], path[i + 1]);
+        stoat::edge_t edge(path[i], path[i + 1]);
 
         // if we can find that edge, save its index in the edge matrix
         auto itr = row_header.find(edge);
@@ -118,7 +118,7 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTra
             rows_to_check.push_back(itr->second);
         }
         // check the flipped edge
-        stoat::Edge_t edge_flipped = edge.get_flipped();
+        stoat::edge_t edge_flipped = edge.get_flipped();
         auto itr_flipped = row_header.find(edge_flipped);
         if (itr_flipped == row_header.end()) {
             // if at least one edge not found, abort early and skip this path below

@@ -27,36 +27,36 @@ bool node_traversal_t::operator==(const node_traversal_t& other) const {
     return node_id == other.node_id && is_reverse == other.is_reverse;
 }
 
-// Edge_t
-Edge_t::Edge_t(const node_traversal_t &node_traversal_1, 
+// edge_t
+edge_t::edge_t(const node_traversal_t &node_traversal_1, 
                const node_traversal_t &node_traversal_2) :
     edge(std::make_pair(node_traversal_1, node_traversal_2)) {}
 
 // return a flipped version of this edge
-Edge_t Edge_t::get_flipped() const {
+edge_t edge_t::get_flipped() const {
     node_traversal_t first_node = node_traversal_t(edge.first.get_node_id(),
                                                    !edge.first.get_is_reverse());
     node_traversal_t second_node = node_traversal_t(edge.second.get_node_id(),
                                                    !edge.second.get_is_reverse());
-    return (Edge_t(second_node, first_node));
+    return (edge_t(second_node, first_node));
 }
     
-// Convert Edge_t to std::pair<size_t, size_t>
-std::pair<size_t, size_t> Edge_t::get_node_pair() const {
+// Convert edge_t to std::pair<size_t, size_t>
+std::pair<size_t, size_t> edge_t::get_node_pair() const {
     return std::make_pair(edge.first.get_node_id(), edge.second.get_node_id());
 }
 
-// Convert Edge_t to std::string
-std::string Edge_t::to_string() const {
+// Convert edge_t to std::string
+std::string edge_t::to_string() const {
     return edge.first.to_string() + edge.second.to_string();
 }
 
 // Accessor to edge, useful for hashing and comparison
-const std::pair<node_traversal_t, node_traversal_t>& Edge_t::get_edge() const {
+const std::pair<node_traversal_t, node_traversal_t>& edge_t::get_edge() const {
     return edge;
 }
 
-bool Edge_t::operator==(const Edge_t &other) const {
+bool edge_t::operator==(const edge_t &other) const {
     return edge == other.edge;
 }
 

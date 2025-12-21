@@ -198,8 +198,8 @@ std::vector<size_t> get_genes_around_pos(
     const size_t end_pos,
     const size_t max_distance);
 
-// Decompose path std::string to vectorstoat::Edge_t
-std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string s);
+// Decompose path std::string to vectorstoat::edge_t
+std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s);
 
 } //end stoat namespace
 

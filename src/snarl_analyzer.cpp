@@ -218,15 +218,15 @@ namespace stoat_vcf {
             std::string at_str(at); // convert to C++ std::string
             free(at);
 
-            // split by comma and save as a vector of edge lists [vector vector stoat::Edge_t]
+            // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
             // from: ">123>213<234", ">123<234", ">123<234<345"
-            // to: [[Edge_t(123, 213),stoat::Edge_t(213, 234)], [...]]
-            std::vector<std::vector<stoat::Edge_t>> list_paths_edge;
+            // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
+            std::vector<std::vector<stoat::edge_t>> list_paths_edge;
             std::stringstream at_ss(at_str);
             std::string item;
             while (std::getline(at_ss, item, ','))
             {
-                std::vector<stoat::Edge_t> edge_vec = decompose_path_str_to_edge(item);
+                std::vector<stoat::edge_t> edge_vec = decompose_path_str_to_edge(item);
                 list_paths_edge.push_back(edge_vec);
             }
 
@@ -255,10 +255,10 @@ namespace stoat_vcf {
         return std::make_tuple(ptr_vcf, hdr, rec);
     }
 
-    // Decompose path std::string to vectorstoat::Edge_t
-    std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string s)
+    // Decompose path std::string to vectorstoat::edge_t
+    std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s)
     {
-        std::vector<stoat::Edge_t> edges;
+        std::vector<stoat::edge_t> edges;
         stoat::PathTraversal nodes;
 
         size_t i = 0;
@@ -292,7 +292,7 @@ namespace stoat_vcf {
 
         for (size_t j = 0; j + 1 < nodes.get_path().size(); ++j)
         {
-            stoat::Edge_t edge(nodes.get_path()[j], nodes.get_path()[j + 1]);
+            stoat::edge_t edge(nodes.get_path()[j], nodes.get_path()[j + 1]);
             edges.emplace_back(edge);
         }
 
