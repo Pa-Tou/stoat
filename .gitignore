@@ -5,3 +5,6 @@ build/*
 ~output*
 bin/*
 *~
+output/*
+output_binary/*
+output_quantitative/*
