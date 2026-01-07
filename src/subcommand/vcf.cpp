@@ -18,6 +18,13 @@
 #include "../io/register_io.hpp"
 #include "../feature_tables.hpp"
 
+//#define USE_CALLGRIND
+
+#ifdef USE_CALLGRIND
+    #include <valgrind/callgrind.h>
+#endif
+
+
 namespace stoat_command {
 
 void print_help_vcf() {
@@ -288,6 +295,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
     bdsg::PathPositionHandleGraph* path_position_graph;
 
     // handlegraph::net_handle_t root;
+
+// Start tracking with callgrind
+#ifdef USE_CALLGRIND
+    CALLGRIND_START_INSTRUMENTATION;
+#endif
+
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
         stoat::LOG_TRACE("Reading snarl path file");
