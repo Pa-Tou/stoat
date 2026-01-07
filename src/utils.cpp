@@ -177,12 +177,10 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
 
         //Get all paths on the start node
         std::set<handlegraph::path_handle_t> start_paths;
-        std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
-                                                      handlegraph::PathSense::REFERENCE,
-                                                      handlegraph::PathSense::HAPLOTYPE};
+        std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC};
         
         for (const auto& sense : senses) {
-            graph.for_each_step_of_sense(start_handle, sense, [&](const handlegraph::step_handle_t& step) {
+            graph.for_each_step_on_handle(start_handle, [&](const handlegraph::step_handle_t& step) {
                 start_paths.insert(graph.get_path_handle_of_step(step));
                 return true;
             });
@@ -192,7 +190,7 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
         //Now go through the end node and find a path that also goes through the start node
         
         for (const auto& sense : senses) {
-            graph.for_each_step_of_sense(end_handle, sense, [&](const handlegraph::step_handle_t& step) {
+            graph.for_each_step_on_handle(end_handle, [&](const handlegraph::step_handle_t& step) {
                 if (start_paths.count(graph.get_path_handle_of_step(step)) != 0) {
                     new_sample_name = graph.get_path_name(graph.get_path_handle_of_step(step));
                     return false;
@@ -237,12 +235,10 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
 
     // Get the step_handles, filtering for the paths we are interested in
     // Steps don't care about the orientation of the handle, they will always (I think) be going forwards in the path
-    std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
-                                                  handlegraph::PathSense::REFERENCE,
-                                                  handlegraph::PathSense::HAPLOTYPE};
+    std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC};
     
     for (const auto& sense : senses) {
-        graph.for_each_step_of_sense(start_handle, sense, [&] (const handlegraph::step_handle_t& step) {
+        graph.for_each_step_on_handle(start_handle, [&] (const handlegraph::step_handle_t& step) {
             handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
             if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
                 (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
@@ -267,7 +263,7 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
     #endif
     
     for (const auto& sense : senses) {
-        graph.for_each_step_of_sense(end_handle, sense, [&] (const handlegraph::step_handle_t& step) {
+        graph.for_each_step_on_handle(end_handle, [&] (const handlegraph::step_handle_t& step) {
             handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
             if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
                 (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
