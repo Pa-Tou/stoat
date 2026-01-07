@@ -162,7 +162,7 @@ TEST_CASE("Snarl decomposition", "[snarl]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_snarl";
     const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_snarl";
-    const std::string data_path = "../data/binary";
+    const std::string data_path = "../tests/test_data/input_data/binary";
 
     SECTION("Binary decomposition") {
         REQUIRE(run_test_snarl(stoat_command, output_dir, expected_dir, data_path));
@@ -173,7 +173,7 @@ TEST_CASE("Bad paths", "[test]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_bad_paths";
     const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_bad_paths";
-    const std::string data_path = "../data/bad_paths";
+    const std::string data_path = "../tests/test_data/input_data/bad_paths";
     const std::string phenotype = "binary";
 
     SECTION("Bad paths fail - snarl paths given") {
@@ -186,7 +186,7 @@ TEST_CASE("Binary association tests vcf", "[binary]") {
     const std::string output_dir = "../output_binary";
     const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_binary";
     const std::string expected_dir_covar = "../tests/test_data/expected_output/vcf/output_binary_covar";
-    const std::string data_path = "../data/binary";
+    const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string phenotype = "binary";
 
     SECTION("Without covariate") {
@@ -203,7 +203,7 @@ TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
     const std::string output_dir = "../output_quantitative";
     const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_quantitative";
     const std::string expected_dir_covar = "../tests/test_data/expected_output/vcf/output_quantitative_covar";
-    const std::string data_path = "../data/quantitative";
+    const std::string data_path = "../tests/test_data/input_data/quantitative";
     const std::string phenotype = "quantitative";
 
     SECTION("Without covariate") {
@@ -220,7 +220,7 @@ TEST_CASE("eQTL tests vcf", "[eqtl]") {
     const std::string output_dir = "../output_eqtl";
     const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_eqtl";
     const std::string expected_dir_covar = "../tests/test_data/expected_output/vcf/output_eqtl_covar";
-    const std::string data_path = "../data/eqtl";
+    const std::string data_path = "../tests/test_data/input_data/eqtl";
     const std::string phenotype = "eqtl";
 
     SECTION("Without covariate") {
