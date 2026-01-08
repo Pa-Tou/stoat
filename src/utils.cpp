@@ -177,27 +177,22 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
 
         //Get all paths on the start node
         std::set<handlegraph::path_handle_t> start_paths;
-        std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC};
-        
-        for (const auto& sense : senses) {
-            graph.for_each_step_on_handle(start_handle, [&](const handlegraph::step_handle_t& step) {
-                start_paths.insert(graph.get_path_handle_of_step(step));
-                return true;
-            });
-        }
+        graph.for_each_step_on_handle(start_handle, [&](const handlegraph::step_handle_t& step) {
+            start_paths.insert(graph.get_path_handle_of_step(step));
+            return true;
+        });
 
         std::string new_sample_name = "";
         //Now go through the end node and find a path that also goes through the start node
         
-        for (const auto& sense : senses) {
-            graph.for_each_step_on_handle(end_handle, [&](const handlegraph::step_handle_t& step) {
-                if (start_paths.count(graph.get_path_handle_of_step(step)) != 0) {
-                    new_sample_name = graph.get_path_name(graph.get_path_handle_of_step(step));
-                    return false;
-                }
-                return true;
-            });
-        }
+        graph.for_each_step_on_handle(end_handle, [&](const handlegraph::step_handle_t& step) {
+            if (start_paths.count(graph.get_path_handle_of_step(step)) != 0) {
+                new_sample_name = graph.get_path_name(graph.get_path_handle_of_step(step));
+                return false;
+            }
+            return true;
+        });
+        
 
         if (new_sample_name.empty()) {
             return ranges;
@@ -237,24 +232,23 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
     // Steps don't care about the orientation of the handle, they will always (I think) be going forwards in the path
     std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC};
     
-    for (const auto& sense : senses) {
-        graph.for_each_step_on_handle(start_handle, [&] (const handlegraph::step_handle_t& step) {
-            handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
-            if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
-                (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
-                (get_all_paths)) {
-                // If we are looking for a reference path and this is a reference path
-                // or if this is the path we want or if we want all paths
-                if (path_to_steps.count(path) == 0) {
-                    path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
-                } else {
-                    found_pair = true;
-                }
-                path_to_steps[path].emplace_back(step);
+    graph.for_each_step_on_handle(start_handle, [&] (const handlegraph::step_handle_t& step) {
+        handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
+        if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
+            (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
+            (get_all_paths)) {
+            // If we are looking for a reference path and this is a reference path
+            // or if this is the path we want or if we want all paths
+            if (path_to_steps.count(path) == 0) {
+                path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+            } else {
+                found_pair = true;
             }
-            return true;
-        });
-    }
+            path_to_steps[path].emplace_back(step);
+        }
+        return true;
+    });
+    
     #ifdef DEBUG
         cerr << "After start node, found" << endl;
         for (const auto& x : path_to_steps) {
@@ -262,24 +256,23 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
         }
     #endif
     
-    for (const auto& sense : senses) {
-        graph.for_each_step_on_handle(end_handle, [&] (const handlegraph::step_handle_t& step) {
-            handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
-            if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
-                (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
-                (get_all_paths)) {
-                // If we are looking for a reference path and this is a reference path
-                // or if this is the path we are looking for, or we want all paths 
-                if (path_to_steps.count(path) == 0) {
-                    path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
-                } else {
-                    found_pair = true;
-                }
-                path_to_steps[path].emplace_back(step);
+    graph.for_each_step_on_handle(end_handle, [&] (const handlegraph::step_handle_t& step) {
+        handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
+        if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||
+            (!sample_names.empty() && sample_names.count(graph.get_path_name(path)) != 0) ||
+            (get_all_paths)) {
+            // If we are looking for a reference path and this is a reference path
+            // or if this is the path we are looking for, or we want all paths 
+            if (path_to_steps.count(path) == 0) {
+                path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+            } else {
+                found_pair = true;
             }
-            return true;
-        });
-    }
+            path_to_steps[path].emplace_back(step);
+        }
+        return true;
+    });
+    
 
     #ifdef DEBUG
         cerr << "After end node, found" << endl;
