@@ -44,8 +44,9 @@ void print_help_graph() {
         << "output:" << endl
         << "  -o, --output DIR                   Output directory name [output]" << endl
         << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
-        << "  -L, --allele-lengths                Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << endl
         << "                                     Output will be written to DIR/stoat.assoc.pvalues.tsv or DIR/stoat.assoc.pvalues.fasta" << endl
+        << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << endl
+        << endl
         << "options:" << endl
         << "  -t, --threads N                    Number of threads to use" << endl
         << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << endl
