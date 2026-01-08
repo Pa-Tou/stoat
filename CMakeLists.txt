@@ -144,6 +144,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/log.cpp
     src/quantitative_table.cpp
     src/stats_test.cpp
+    src/fast_fishers_exact_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp
     src/path_partitioner.cpp

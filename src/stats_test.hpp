@@ -50,6 +50,7 @@ public:
 
     // Function to perform Fisher's exact test
     // not const& because we change the value
+    // This is implemented in fast_fishers_exact_test.cpp because it was not us who wrote it
     std::string fastFishersExactTest(size_t m11, size_t m12,
                                      size_t m21, size_t m22);
 
