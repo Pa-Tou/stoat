@@ -57,7 +57,7 @@ void print_help_graph() {
         << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << endl
         << "  -I, --min-individuals INT          If there are fewer than INT individuals/samples in a snarl, then ignore the snarl [1]\n"
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
-        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M).
+        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)."
         << "                                     If not given, use any reference-sense paths in the graph as the references" << endl
         << "  -h, --help                         Print this help message" << endl;
 }
