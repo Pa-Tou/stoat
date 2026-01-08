@@ -15,7 +15,7 @@ namespace stoat_graph {
 // I think this is equivalent to partitioning by the actual sets of unique walks.
 std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                           const net_handle_t& snarl,
-                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes){
+                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) {
 
     #ifdef DEBUG_PATH_PARTITIONER
     cerr <<  "Get walk sets of " << distance_index.net_handle_as_string(snarl) << endl;;

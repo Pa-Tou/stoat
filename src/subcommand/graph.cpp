@@ -44,6 +44,7 @@ void print_help_graph() {
         << "output:" << endl
         << "  -o, --output DIR                   Output directory name [output]" << endl
         << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
+        << "  -L, --allele-lengths                Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << endl
         << "                                     Output will be written to DIR/stoat.assoc.pvalues.tsv or DIR/stoat.assoc.pvalues.fasta" << endl
         << "options:" << endl
         << "  -t, --threads N                    Number of threads to use" << endl
@@ -79,6 +80,8 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::string output_format= "tsv";
     std::string output_dir="output";
 
+    bool find_allele_lengths = false; 
+
     double maf_threshold = 0.05;
     size_t min_individuals = 1;
 
@@ -101,6 +104,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"snarls", required_argument, 0, 's'},
                 {"output", required_argument, 0, 'o'},
                 {"output-format", required_argument, 0, 'O'},
+                {"allele-length", no_argument, 0, 'L'},
                 {"verbose", required_argument, 0, 'V'},
                 {"skip-bh-correction", no_argument, 0, 'B'},
                 {"help", no_argument, 0, 'h'},
@@ -108,7 +112,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:s:V:I:M:o:O:h",
+        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:s:V:I:M:o:O:Lh",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -168,6 +172,9 @@ int main_stoat_graph(int argc, char *argv[]) {
                 break;
             case 'O':
                 output_format = optarg;
+                break;
+            case 'L':
+                find_allele_lengths = true;
                 break;
             case 'M':
                 maf_threshold = std::stod(optarg);
@@ -392,10 +399,11 @@ int main_stoat_graph(int argc, char *argv[]) {
     if (!load_snarls) {
         snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
                                             true, // Find the sets of samples in each allele (walk through the snarl) before finding the walks themselves
-                                            true, // find walks
+                                            output_format == "fasta" || find_allele_lengths, // find walks (used for sequences or for lengths)
                                             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks
                                                  std::vector<PathTraversal>& walks) {
-                                                return snarl_collection.get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
+                                                // If we actually need the walks to get the sequences or the lengths
+                                                return SnarlDataCollection::get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
                                             },
                                             true, // find the alleles
                                             // Function to find the alleles 
@@ -433,7 +441,6 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info){
             // For each snarl, get the genotype/phenotype matrix, do the statistics, and write the output
-
 
             // Declare a bunch of strings that are needed for the output
             string group_paths = "NA";
@@ -509,7 +516,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 }
 
                 // Don't consider this snarl if the maximum length is too small
-                size_t max_length = 0;
+                size_t max_length = snarl_info.walks_by_allele.size() == 0 ? std::numeric_limits<size_t>::max() : 0;
                 for (const PathTraversal& path : snarl_info.walks_by_allele) {
                     max_length = std::max(max_length, path.get_max_allele_length());
                 }
