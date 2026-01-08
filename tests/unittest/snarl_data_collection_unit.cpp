@@ -77,13 +77,13 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
 
         std::string test_file = "./test.snarl_collection.txt";
 
-        ofstream outstream;
+        std::ofstream outstream;
         outstream.open(test_file);
         snarl_collection.write_snarl_data_collection(outstream);
         outstream.close();
         
         TestSnarlDataCollection snarl_collection_loaded(1,1,1);
-        ifstream instream;
+        std::ifstream instream;
         instream.open(test_file);
         snarl_collection_loaded.load_snarl_data_collection(instream);
         instream.close();
@@ -706,13 +706,13 @@ TEST_CASE( "Snarl collection nested bubbles",
         SECTION("Serialize it") {
 
             std::string test_file = "./test_snarls.txt";
-            ofstream outstream;
+            std::ofstream outstream;
             outstream.open(test_file);
             snarl_collection.write_snarl_data_collection(outstream);
             outstream.close();
 
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            ifstream instream;
+            std::ifstream instream;
             instream.open(test_file);
             loaded_snarl_collection.load_snarl_data_collection(instream);
             instream.close();
@@ -1468,13 +1468,13 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
         SECTION("Serialize it") {
 
             std::string test_file = "./test_snarls.txt";
-            ofstream outstream;
+            std::ofstream outstream;
             outstream.open(test_file);
             snarl_collection.write_snarl_data_collection(outstream);
             outstream.close();
 
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            ifstream instream;
+            std::ifstream instream;
             instream.open(test_file);
             loaded_snarl_collection.load_snarl_data_collection(instream);
             instream.close();

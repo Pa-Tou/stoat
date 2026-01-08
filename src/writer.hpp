@@ -7,7 +7,6 @@
 #include "utils.hpp"
 #include "snarl_data_collection.hpp"
 
-using namespace std;
 namespace stoat {
 
 // Write headers

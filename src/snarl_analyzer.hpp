@@ -26,7 +26,6 @@
 #include "utils.hpp"
 #include "log.hpp"
 
-using namespace std;
 
 namespace stoat_vcf {
 

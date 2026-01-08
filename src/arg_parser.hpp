@@ -24,7 +24,6 @@
 #include "types_and_structs.hpp"
 #include "feature_tables.hpp"
 
-using namespace std;
 
 namespace stoat_vcf {
 
@@ -69,7 +68,7 @@ std::vector<bool> parse_binary_pheno(
     std::vector<std::string>& list_samples);
 
 // Parse a binary phenotype file and return a BinaryPhenotypeTable
-unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path);
+std::unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path);
 
 // Parses the phenotype file and returns a map with IID as keys and PHENO as float values.
 std::vector<double> parse_quantitative_pheno(

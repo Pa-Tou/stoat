@@ -3,7 +3,6 @@
 
 //#define DEBUG_SNARL_DATA_COLLECTION
 
-using namespace std;
 namespace stoat {
 
 
@@ -84,7 +83,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         if (distance_index.is_snarl(snarl)) {
     
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
-                            cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << endl;
+                            std::cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
                             #endif
                             if (snarl_is_eligible(distance_index, snarl, check_distances)) {
 
@@ -209,9 +208,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     //
                                     //walks_by_allele_as_paths = stoat::convert_path_traversals(distance_index, graph, walks_by_allele);
                                     #ifdef DEBUG_SNARL_DATA_COLLECTION
-                                    cerr << "got path from walk" << endl;
+                                    std::cerr << "got path from walk" << std::endl;
                                     for (const auto& path : walks_by_allele) {
-                                        cerr << path.to_string() << endl;
+                                        std::cerr << path.to_string() << std::endl;
                                     }
                                     #endif
 
@@ -295,7 +294,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     }//end omp shared
     
     #ifdef DEBUG_SNARL_DATA_COLLECTION
-    cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
+    std::cerr << "Added " << chains_added << " chains and processed " << chains_processed << std::endl;
     assert(chains_added == chains_processed);
     #endif
 }
@@ -437,7 +436,7 @@ void SnarlDataCollection::get_all_walks_through_snarl(
         //if (steps_taken++ > walk_steps_limit) {
         //    #pragma omp critical(out_fail)
         //    out_fail << distance_index.node_id(distance_index.get_bound(snarl, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(snarl, true, true)) 
-        //             << "\titeration_calculation_out = " << endl;// << children << " children\n";
+        //             << "\titeration_calculation_out = " << std::endl;// << children << " children\n";
         //    break_snarl = true;
         //    break;
         //}
@@ -693,7 +692,7 @@ void SnarlDataCollection::get_walks_from_alleles(
     }// end for each first step (per allele)
 
     #ifdef DEBUG_SNARL_DATA_COLLECTION
-    cerr << "Found walks from sets" << endl;
+    std::cerr << "Found walks from sets" << std::endl;
     for (const stoat::PathTraversal& walk : walks) {
         std::cerr << walk.to_string();
         std::cerr << std::endl;
@@ -748,7 +747,7 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
         return true;
     });
     if (snarl_child_limit < children) {
-        cerr << "Snarl had too many children" << endl;
+        std::cerr << "Snarl had too many children" << std::endl;
 
         return false;
     }
@@ -794,22 +793,22 @@ The remaining items are the allele number for each sample. "." if the sample is 
 void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) const {
 
     // Write the header
-    outstream << file_header << endl;
+    outstream << file_header << std::endl;
 
-    outstream << "#allele_size_limit:" << allele_size_limit << endl;
-    outstream << "#snarl_child_limit:" << snarl_child_limit << endl;
-    outstream << "#walk_steps_limit: " << walk_steps_limit << endl;
+    outstream << "#allele_size_limit:" << allele_size_limit << std::endl;
+    outstream << "#snarl_child_limit:" << snarl_child_limit << std::endl;
+    outstream << "#walk_steps_limit: " << walk_steps_limit << std::endl;
 
     // Next will be a list of reference path names.
-    outstream << "#REFS" << endl;
+    outstream << "#REFS" << std::endl;
     for (const auto& ref : reference_names) {
-        outstream << "#" << ref << endl;
+        outstream << "#" << ref << std::endl;
     }
     
 
     //Finally the snarls
     // Start with a header that will contain the names of all samples
-    outstream << "#SNARLS" << endl;
+    outstream << "#SNARLS" << std::endl;
     outstream << "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
 
     // The header also includes a list of sample/haplotypes
@@ -817,7 +816,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
     for (const auto& samp : all_sample_haplotypes) {
         outstream << "\t" << samp.sample << "#" + samp.haplotype;
     }
-    outstream << endl;
+    outstream << std::endl;
 
     // Now write the snarls, one per line
     for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
@@ -887,7 +886,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
             }
         }
         
-        outstream << endl;
+        outstream << std::endl;
     }
 
     return;
@@ -905,7 +904,7 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
     sample_to_index.clear();
 
 
-    string line;
+    std::string line;
 
     // Read the first line, which must match the header
     std::getline(instream, line);
@@ -917,14 +916,14 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string limit_str;
+        std::string limit_str;
         std::getline(linestream, limit_str, ':');
         #ifdef DEBUG_SNARL_DATA_COLLECTION
         assert(limit_str == "#allele_size_limit");
         #endif
         std::getline(linestream, limit_str, ':');
         if (allele_size_limit < std::stoull(limit_str)) {
-            cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << endl;;
+            std::cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << std::endl;;
         }
     }
 
@@ -933,14 +932,14 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string limit_str;
+        std::string limit_str;
         std::getline(linestream, limit_str, ':');
         #ifdef DEBUG_SNARL_DATA_COLLECTION
         assert(limit_str == "#snarl_child_limit");
         #endif
         std::getline(linestream, limit_str, ':');
         if (snarl_child_limit < std::stoull(limit_str)) {
-            cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << endl;;
+            std::cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << std::endl;;
         }
     }
 
@@ -948,14 +947,14 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string limit_str;
+        std::string limit_str;
         std::getline(linestream, limit_str, ':');
         #ifdef DEBUG_SNARL_DATA_COLLECTION
         assert(limit_str == "#walk_steps_limit");
         #endif
         std::getline(linestream, limit_str, ':');
         if (walk_steps_limit > std::stoull(limit_str)) {
-            cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << endl;;
+            std::cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << std::endl;;
         }
     }
 
@@ -979,7 +978,7 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string sample_name;
+        std::string sample_name;
         // First go through the first 9 things and ignore them
         for (size_t i = 0 ; i < 9 ; i++) {
             std::getline(linestream, sample_name, '\t');
@@ -1004,7 +1003,7 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         all_snarl_data.emplace_back();
 
         std::stringstream linestream(line);
-        string part;
+        std::string part;
         //Snarl start node traversal
         std::getline(linestream, part, '\t');
         all_snarl_data.back().start_node = stoat::node_traversal_t(part);

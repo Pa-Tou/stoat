@@ -8,7 +8,6 @@
 #include "utils.hpp"
 #include "feature_tables.hpp"
 
-using namespace std;
 using namespace stoat;
 
 namespace stoat {
@@ -146,7 +145,7 @@ class SnarlDataCollection {
                                 const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
-                                const std::unordered_set<string>& reference_samples, bool check_distances);
+                                const std::unordered_set<std::string>& reference_samples, bool check_distances);
 
         
         /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through
@@ -253,7 +252,7 @@ class SnarlDataCollection {
 
         /// This stores all sample_hap_t's that are stored as indexes by snarl_to_alleles_by_sample
         /// It is given by fill_in_snarl_info or loaded from the file
-        vector<stoat::sample_hap_t> all_sample_haplotypes;
+        std::vector<stoat::sample_hap_t> all_sample_haplotypes;
 
         // This maps all sample names from all_sample_haplotypes to a unique identifier, (which is used as an index into a vector 
         // so it must start from 0 and go up to the number of samples-1).

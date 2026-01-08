@@ -107,14 +107,14 @@ TEST_CASE("Snarl coordinates simple nested chain", "[snarl_info]") {
     handlegraph::net_handle_t snarl4 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(9)));
 
     SECTION("reference path") {
-        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>(), false);
+        std::vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>(), false);
         REQUIRE(snarl1_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
         REQUIRE(std::get<0>(snarl1_coords) == "path0#0#path0");
         REQUIRE(std::get<1>(snarl1_coords) == 1);
         REQUIRE(std::get<2>(snarl1_coords) == 2);
 
-        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>(), false);
+        std::vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>(), false);
         REQUIRE(snarl3_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
         REQUIRE(std::get<0>(snarl3_coords) == "path0#0#path0");
@@ -122,7 +122,7 @@ TEST_CASE("Snarl coordinates simple nested chain", "[snarl_info]") {
         REQUIRE(std::get<2>(snarl3_coords) == 5);
     }
     SECTION("named path") {
-        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, false, std::unordered_set<std::string>({"path2"}), false);
+        std::vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, false, std::unordered_set<std::string>({"path2"}), false);
         REQUIRE(snarl1_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
         REQUIRE(std::get<0>(snarl1_coords) == "path2");
@@ -130,7 +130,7 @@ TEST_CASE("Snarl coordinates simple nested chain", "[snarl_info]") {
         REQUIRE(std::get<2>(snarl1_coords) == 2);
 
         // Nested snarl off the reference
-        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, false, std::unordered_set<std::string>({"path2"}), false);
+        std::vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, false, std::unordered_set<std::string>({"path2"}), false);
         REQUIRE(snarl3_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
         REQUIRE(std::get<0>(snarl3_coords) == "path2");
@@ -203,7 +203,7 @@ TEST_CASE("Snarl coordinates deeply nested snarls with deletion in reference", "
     handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(4)));
 
     SECTION("reference with deletion") {
-        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path0#0#0"}), false);
         REQUIRE(snarl1_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
         REQUIRE(std::get<0>(snarl1_coords) == "path0#0#0");
@@ -211,7 +211,7 @@ TEST_CASE("Snarl coordinates deeply nested snarls with deletion in reference", "
         REQUIRE(std::get<2>(snarl1_coords) == 1);
 
         // Nested snarl off the reference
-        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path0#0#0"}), false);
         REQUIRE(snarl3_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
         REQUIRE(std::get<0>(snarl3_coords) == "path0#0#0");
@@ -273,7 +273,7 @@ TEST_CASE("Snarl coordinates deeply nested snarls with no reference sense", "[sn
     handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(4)));
 
     SECTION("reference with deletion") {
-        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path0#0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path0#0#0#0"}), false);
         REQUIRE(snarl1_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
         REQUIRE(std::get<0>(snarl1_coords) == "path0#0#0#0");
@@ -281,7 +281,7 @@ TEST_CASE("Snarl coordinates deeply nested snarls with no reference sense", "[sn
         REQUIRE(std::get<2>(snarl1_coords) == 1);
 
         // Nested snarl off the reference
-        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path0#0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path0#0#0#0"}), false);
         REQUIRE(snarl3_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
         REQUIRE(std::get<0>(snarl3_coords) == "path0#0#0#0");
@@ -354,7 +354,7 @@ TEST_CASE("Snarl coordinates on given path instead of reference", "[snarl_info]"
     handlegraph::net_handle_t snarl3 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(4)));
 
     SECTION("given sample with deletion") {
-        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path1#0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path1#0#0#0"}), false);
         REQUIRE(snarl1_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
         REQUIRE(std::get<0>(snarl1_coords) == "path1#0#0#0");
@@ -362,7 +362,7 @@ TEST_CASE("Snarl coordinates on given path instead of reference", "[snarl_info]"
         REQUIRE(std::get<2>(snarl1_coords) == 1);
 
         // Nested snarl off the reference
-        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path1#0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path1#0#0#0"}), false);
         REQUIRE(snarl3_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
         REQUIRE(std::get<0>(snarl3_coords) == "path1#0#0#0");
@@ -370,7 +370,7 @@ TEST_CASE("Snarl coordinates on given path instead of reference", "[snarl_info]"
         REQUIRE(std::get<2>(snarl3_coords) == 1);
     }
     SECTION("reference") {
-        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>(), false);
+        std::vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>(), false);
         REQUIRE(snarl1_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
         REQUIRE(std::get<0>(snarl1_coords) == "path0#0#0");
@@ -378,7 +378,7 @@ TEST_CASE("Snarl coordinates on given path instead of reference", "[snarl_info]"
         REQUIRE(std::get<2>(snarl1_coords) == 3);
 
         // Nested snarl off the reference
-        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>(), false);
+        std::vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>(), false);
         REQUIRE(snarl3_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
         REQUIRE(std::get<0>(snarl3_coords) == "path0#0#0");
@@ -386,7 +386,7 @@ TEST_CASE("Snarl coordinates on given path instead of reference", "[snarl_info]"
         REQUIRE(std::get<2>(snarl3_coords) == 2);
     }
     SECTION("given sample not on snarl") {
-        vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path3#0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl1_paths = get_coordinates_of_snarl(*graph, distance_index, snarl1, true, std::unordered_set<std::string>({"path3#0#0#0"}), false);
         REQUIRE(snarl1_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl1_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl1_paths.front());
         REQUIRE(std::get<0>(snarl1_coords) == "path0#0#0");
@@ -394,7 +394,7 @@ TEST_CASE("Snarl coordinates on given path instead of reference", "[snarl_info]"
         REQUIRE(std::get<2>(snarl1_coords) == 3);
 
         // Nested snarl off the reference
-        vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path3#0#0#0"}), false);
+        std::vector<stoat::path_range_t> snarl3_paths = get_coordinates_of_snarl(*graph, distance_index, snarl3, true, std::unordered_set<std::string>({"path3#0#0#0"}), false);
         REQUIRE(snarl3_paths.size() == 1);
         std::tuple<std::string, size_t, size_t> snarl3_coords = get_name_and_offsets_of_snarl_path_range(*graph, snarl3_paths.front());
         REQUIRE(std::get<0>(snarl3_coords) == "path0#0#0");

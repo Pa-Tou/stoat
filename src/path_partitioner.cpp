@@ -4,7 +4,6 @@
 
 //#define DEBUG_PATH_PARTITIONER
 
-using namespace std;
 using namespace stoat;
 namespace stoat_graph {
 
@@ -190,7 +189,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
         std::map<std::vector<std::pair<handlegraph::nid_t, bool>>, size_t> edge_to_intermediate_set;
 
         //Everything starts in the same set, representing not going through this node
-        vector<size_t> intermediate_sets (old_sets.size(), 0);
+        std::vector<size_t> intermediate_sets (old_sets.size(), 0);
         size_t intermediate_set_count = 1;
         for (size_t path_i = 0 ; path_i < next_steps.size() ; path_i++) {
             const path_edge_t& edge = next_steps[path_i];
@@ -224,7 +223,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
         
         // We now have an old set and an intermediate set for each path
         // Assign the path to a new set. Everything gets a new set
-        vector<size_t> new_sets (intermediate_sets.size(), std::numeric_limits<size_t>::max());
+        std::vector<size_t> new_sets (intermediate_sets.size(), std::numeric_limits<size_t>::max());
 
         // Map pairs of <old_set, intermediate_set> to new set number
         std::map<std::pair<size_t, size_t>, size_t>  old_to_new_set;

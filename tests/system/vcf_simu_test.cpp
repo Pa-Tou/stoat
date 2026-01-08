@@ -12,12 +12,12 @@ bool compare_snarl_collection(std::string test_name, std::string truth_name) {
     SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
     SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
 
-    ifstream in_test;
+    std::ifstream in_test;
     in_test.open(test_name);
     test_snarl.load_snarl_data_collection(in_test);
     in_test.close();
 
-    ifstream in_truth;
+    std::ifstream in_truth;
     in_truth.open(truth_name);
     truth_snarl.load_snarl_data_collection(in_truth);
     in_truth.close();

@@ -207,7 +207,7 @@ std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositi
 std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle, 
                                                           const handlegraph::handle_t& end_handle, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths) {
     #ifdef DEBUG
-        cerr << "Get coordinates of snarl between " << graph.get_id(start_handle) << " and " << graph.get_id(end_handle) << endl;
+        std::cerr << "Get coordinates of snarl between " << graph.get_id(start_handle) << " and " << graph.get_id(end_handle) << std::endl;
         if (get_reference) {
             assert(sample_names.empty());
             assert(!get_all_paths);
@@ -250,9 +250,9 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
     });
     
     #ifdef DEBUG
-        cerr << "After start node, found" << endl;
+        std::cerr << "After start node, found" << std::endl;
         for (const auto& x : path_to_steps) {
-            cerr << graph.get_path_name(x.first) << ": " << x.second.size() << endl;
+            std::cerr << graph.get_path_name(x.first) << ": " << x.second.size() << std::endl;
         }
     #endif
     
@@ -275,13 +275,13 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
     
 
     #ifdef DEBUG
-        cerr << "After end node, found" << endl;
+        std::cerr << "After end node, found" << std::endl;
         for (const auto& x : path_to_steps) {
-            cerr << graph.get_path_name(x.first) << ": " << x.second.size() << endl;
+            std::cerr << graph.get_path_name(x.first) << ": " << x.second.size() << std::endl;
         }
     #endif
 
-    vector<path_range_t> ranges;
+    std::vector<path_range_t> ranges;
 
     if (found_pair) {
         //If we found a path going through the snarl, return the pairs
@@ -339,7 +339,7 @@ void print_nodes_in_snarl(const bdsg::SnarlDistanceIndex& distance_index, const 
         to_print.pop_back();
 
         if (distance_index.is_node(net)) {
-            cerr << distance_index.node_id(net) << endl;
+            std::cerr << distance_index.node_id(net) << std::endl;
         } else {
             distance_index.for_each_child(net, [&](const handlegraph::net_handle_t& child) {
                 to_print.emplace_back(child);

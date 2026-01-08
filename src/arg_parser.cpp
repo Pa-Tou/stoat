@@ -7,7 +7,7 @@ namespace stoat_vcf {
 
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;
-    ifstream file(file_path);
+    std::ifstream file(file_path);
     std::string line;
 
     while (getline(file, line)) {
@@ -95,7 +95,7 @@ std::vector<bool> parse_binary_pheno(
     return vector_binary_pheno;
 }
 
-unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path) {
+std::unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path) {
     // fill this map first
     std::unordered_map<std::string, bool> binary_pheno;
     std::unordered_map<std::string, size_t> sample_to_index;
@@ -154,7 +154,7 @@ unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::stri
         // add the sample and phenotype to the Table
         output_table->set_value_for_sample(samp_pheno.first, samp_pheno.second);
     }
-    return unique_ptr<stoat::BinaryPhenotypeTable>(output_table);
+    return std::unique_ptr<stoat::BinaryPhenotypeTable>(output_table);
 }
 
 std::vector<double> parse_quantitative_pheno(
@@ -409,7 +409,7 @@ std::vector<std::vector<double>> parse_covariates(
     std::ifstream file(filename);
     std::string line;
     std::vector<std::vector<double>> covariate;
-    std::unordered_map<string, std::vector<double>>covariate_map;
+    std::unordered_map<std::string, std::vector<double>>covariate_map;
 
     // Read header
     std::getline(file, line);

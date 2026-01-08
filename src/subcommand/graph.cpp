@@ -24,42 +24,41 @@
     #include <valgrind/callgrind.h>
 #endif
 
-using namespace std;
 namespace stoat_command {
 
 void print_help_graph() {
-    std::cerr << "usage: stoat graph -g [graph] -d [distance index] -b [phenotype file] [options]" << endl
-        << "Find associated variants based on the haplotype paths present in the graph"<< endl
-        << "Computing the snarls from the distance index may be slow, so they can be saved or loaded with -s." << endl
-        << "Requires either -b to compute the associations, or -s to save the snarls in the graph. Or both to do both" << endl 
-        << endl
-        << "input:" << endl
-        << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << endl
-        << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << endl
-        << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required if -s is not given)" << endl
-        << "                                     If this is not give, then -s is required to save the snarls." << endl
-        << "  -s, --snarls FILE                  If this is file is empty, then save the snarl paths in the graph to this file. (required if -b is not given) " << endl
-        << "                                     If this is file is not empty, then load the snarl paths from this file instead of recomputing them. " << endl
-        << endl
-        << "output:" << endl
-        << "  -o, --output DIR                   Output directory name [output]" << endl
-        << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
-        << "                                     Output will be written to DIR/stoat.assoc.pvalues.tsv or DIR/stoat.assoc.pvalues.fasta" << endl
-        << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << endl
-        << endl
-        << "options:" << endl
-        << "  -t, --threads N                    Number of threads to use" << endl
-        << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << endl
-        //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << endl
-        //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
-        << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
-        //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << endl
-        << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << endl
+    std::cerr << "usage: stoat graph -g [graph] -d [distance index] -b [phenotype file] [options]" << std::endl
+        << "Find associated variants based on the haplotype paths present in the graph"<< std::endl
+        << "Computing the snarls from the distance index may be slow, so they can be saved or loaded with -s." << std::endl
+        << "Requires either -b to compute the associations, or -s to save the snarls in the graph. Or both to do both" << std::endl 
+        << std::endl
+        << "input:" << std::endl
+        << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << std::endl
+        << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
+        << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required if -s is not given)" << std::endl
+        << "                                     If this is not give, then -s is required to save the snarls." << std::endl
+        << "  -s, --snarls FILE                  If this is file is empty, then save the snarl paths in the graph to this file. (required if -b is not given) " << std::endl
+        << "                                     If this is file is not empty, then load the snarl paths from this file instead of recomputing them. " << std::endl
+        << std::endl
+        << "output:" << std::endl
+        << "  -o, --output DIR                   Output directory name [output]" << std::endl
+        << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << std::endl
+        << "                                     Output will be written to DIR/stoat.assoc.pvalues.tsv or DIR/stoat.assoc.pvalues.fasta" << std::endl
+        << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << std::endl
+        << std::endl
+        << "options:" << std::endl
+        << "  -t, --threads N                    Number of threads to use" << std::endl
+        << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << std::endl
+        //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << std::endl
+        //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << std::endl
+        << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << std::endl
+        //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << std::endl
+        << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << std::endl
         << "  -I, --min-individuals INT          If there are fewer than INT individuals/samples in a snarl, then ignore the snarl [1]\n"
-        << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
+        << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << std::endl
         << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)."
-        << "                                     If not given, use any reference-sense paths in the graph as the references" << endl
-        << "  -h, --help                         Print this help message" << endl;
+        << "                                     If not given, use any reference-sense paths in the graph as the references" << std::endl
+        << "  -h, --help                         Print this help message" << std::endl;
 }
 
 int main_stoat_graph(int argc, char *argv[]) {
@@ -310,7 +309,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     stoat::LOG_INFO("Loading graph and preparing indexes...");
 
     // Load the graph and make it a PathPositionHandleGraph
-    unique_ptr<handlegraph::PathHandleGraph> handle_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
+    std::unique_ptr<handlegraph::PathHandleGraph> handle_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
 
 
     /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names

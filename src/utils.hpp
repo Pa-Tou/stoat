@@ -30,7 +30,6 @@
 
 #include "log.hpp"
 
-using namespace std;
 
 namespace stoat {
 

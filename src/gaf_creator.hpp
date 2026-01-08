@@ -25,7 +25,6 @@
 #include "matrix.hpp"
 #include "quantitative_table.hpp"
 
-using namespace std;
 
 namespace stoat_vcf {
 

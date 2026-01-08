@@ -30,7 +30,6 @@
 #include <filesystem>
 #include "io/register_io.hpp"
 
-using namespace std;
 
 using handlegraph::step_handle_t;
 using handlegraph::handle_t;
@@ -133,8 +132,8 @@ std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& p
 
 // Load the distance index and graph and return unique_ptrs to them
 std::tuple<
-    unique_ptr<bdsg::SnarlDistanceIndex>,
-    unique_ptr<handlegraph::PathHandleGraph>>
+    std::unique_ptr<bdsg::SnarlDistanceIndex>,
+    std::unique_ptr<handlegraph::PathHandleGraph>>
 load_graph_tree(const std::string& graph_file, const std::string& dist_file);
 
 // convert paths from the simple vector of net handles to the PathTraversal object

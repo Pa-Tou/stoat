@@ -235,8 +235,8 @@ std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& p
 }
 
 std::tuple<
-    unique_ptr<bdsg::SnarlDistanceIndex>,
-    unique_ptr<handlegraph::PathHandleGraph>>
+    std::unique_ptr<bdsg::SnarlDistanceIndex>,
+    std::unique_ptr<handlegraph::PathHandleGraph>>
     load_graph_tree(
         const std::string& graph_file, 
         const std::string& dist_file) {
@@ -247,10 +247,10 @@ std::tuple<
     }
 
     // Load the graph and make it a PathPositionHandleGraph
-    unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_file);
+    std::unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_file);
 
     // Load the distance index
-    unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
+    std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
     distance_index->deserialize(dist_file);
 
     return std::make_tuple(
