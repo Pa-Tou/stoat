@@ -22,7 +22,6 @@
 #include "matrix.hpp"
 #include "types_and_structs.hpp"
 #include "quantitative_table.hpp"
-#include "genotype_table.hpp"
 #include "snarl_data_collection.hpp"
 #include "utils.hpp"
 #include "log.hpp"

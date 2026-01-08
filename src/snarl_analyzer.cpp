@@ -1,7 +1,6 @@
 #include "snarl_analyzer.hpp"
 #include "matrix.hpp"
 #include "quantitative_table.hpp"
-#include "genotype_table.hpp"
 #include "utils.hpp"
 #include "arg_parser.hpp"
 #include "writer.hpp"

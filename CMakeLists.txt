@@ -143,7 +143,6 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/matrix.cpp
     src/log.cpp
     src/quantitative_table.cpp
-    src/genotype_table.cpp
     src/stats_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp

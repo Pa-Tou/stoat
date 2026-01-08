@@ -125,6 +125,7 @@ public:
 std::string pairToString(const std::pair<size_t, size_t>& name);
 
 // convert a vector of path traversals to a string, either with node or allele length information
+// This will return an empty string if vec_paths is empty
 std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths, bool allele_lengths = false);
 
 // Get a vector of path traversals from their string representation

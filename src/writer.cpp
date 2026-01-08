@@ -24,6 +24,7 @@ void write_binary_header(std::ostream& outstream) {
 void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
                   const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths) {
 
+    //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
     outstream << snarl_data.ref_path << "\t"
               << snarl_data.start_position << "\t"
               << snarl_data.end_position << "\t"
