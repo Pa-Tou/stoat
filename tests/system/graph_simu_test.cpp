@@ -25,6 +25,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
+            + " -L"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -58,6 +59,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
             + " -M 0 -l 0 -s " + output_dir + "/" + graph_base + ".snarls.txt" 
+            + " -L"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -178,6 +180,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -b " + data_path + "/phenotype_samples.tsv"
             + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
+            + " -L"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -204,6 +207,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -b " + data_path + "/phenotype_samples.tsv"
             + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
+            + " -L"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir_loaded;
@@ -264,6 +268,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T chi2 -r path0 -V 4";
 
 
@@ -337,6 +342,88 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         REQUIRE(found_snarls[2]);
 
     }
+    SECTION("Test chi2 tsv output without lengths") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph";
+
+        cmd +=  " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -b " + samples_file
+            + " -T chi2 -r path0 -V 4";
+
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"0:1","2:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"2:0","0:1"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            bool match = false;
+            if (test == truth1) {
+                match = true;
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                match = true;
+                found_snarls[1] = true;
+            } else if (test == truth3) {
+                match = true;
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+        REQUIRE(found_snarls[2]);
+
+    }
 
     SECTION("Test exact tsv output") {
 
@@ -347,6 +434,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T exact -r path0";
 
 
@@ -392,6 +480,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T chi2 -r path0 -O fasta";
 
 
@@ -438,6 +527,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         cmd +=  " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T exact -r path0 -O fasta";
 
 
@@ -503,6 +593,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T chi2 -r path0 -V 4";
 
 
@@ -587,6 +678,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T exact -r path0";
 
 
@@ -631,6 +723,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         cmd +=  " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T chi2 -r path0 -O fasta";
 
 
@@ -715,6 +808,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
             + " -M 0.26"
+            + " -L"
             + " -T chi2 -r path0 -V 4";
 
 
@@ -785,6 +879,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
             + " -I 4"
+            + " -L"
             + " -T chi2 -r path0 -V 4";
 
 
@@ -879,6 +974,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T chi2 -r path0";
 
 
@@ -945,6 +1041,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -b " + samples_file
+            + " -L"
             + " -T exact -r path0";
 
 
@@ -1129,6 +1226,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
         cmd +=" -g " + data_path + graph_base + ".hg"
             + " -d " + data_path + graph_base + ".dist"
             + " -M 0 -l 0 -s " + output_dir + graph_base + ".snarls.txt" 
+            + " -L"
             + " -T chi2 -r ref";
 
         cmd += " --output " + output_dir;
@@ -1171,6 +1269,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
         cmd +=" -g " + data_path + graph_base + ".hg"
             + " -d " + data_path + graph_base + ".dist"
             + " -M 0 -l 0 -s " + output_dir + graph_base + ".snarls.txt" 
+            + " -L"
             + " -T chi2 -r ref -t 4";
 
         cmd += " --output " + output_dir;
