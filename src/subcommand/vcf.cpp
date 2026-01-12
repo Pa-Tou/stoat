@@ -274,7 +274,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     if (!binary_path.empty()) {
         stoat::LOG_TRACE("Parsing binary phenotype file");
         binary_phenotype = stoat_vcf::parse_binary_pheno(binary_path, list_samples);
-        binary_phenotype_table = stoat_vcf::parse_binary_pheno_table(binary_path);
     } else if (!quantitative_path.empty()) {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
         quantitative_phenotype = stoat_vcf::parse_quantitative_pheno(quantitative_path, list_samples);
