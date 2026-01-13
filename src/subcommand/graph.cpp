@@ -37,8 +37,8 @@ void print_help_graph() {
         << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
         << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required if -s is not given)" << std::endl
         << "                                     If this is not give, then -s is required to save the snarls." << std::endl
-        << "  -s, --snarls FILE                  If this is file is empty, then save the snarl paths in the graph to this file. (required if -b is not given) " << std::endl
-        << "                                     If this is file is not empty, then load the snarl paths from this file instead of recomputing them. " << std::endl
+        << "  -s, --snarls FILE                  If this file is empty, then save the snarl paths in the graph to this file. (required if -b is not given) " << std::endl
+        << "                                     If this file is not empty, then load the snarl paths from this file instead of recomputing them. " << std::endl
         << std::endl
         << "output:" << std::endl
         << "  -o, --output DIR                   Output directory name [output]" << std::endl
@@ -52,7 +52,7 @@ void print_help_graph() {
         //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << std::endl
         //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << std::endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << std::endl
-        //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << std::endl
+        //<< "  -m, --method NAME                What method is used to find associations? (paths) [paths]" << std::endl
         << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << std::endl
         << "  -I, --min-individuals INT          If there are fewer than INT individuals/samples in a snarl, then ignore the snarl [1]\n"
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << std::endl
