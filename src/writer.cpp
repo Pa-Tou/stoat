@@ -22,7 +22,8 @@ void write_binary_header(std::ostream& outstream) {
 }
 
 void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
-                  const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths) {
+                  const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths,
+                  const std::vector<bool>& is_allele_included) {
 
     //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
     outstream << snarl_data.ref_path << "\t"
@@ -31,7 +32,7 @@ void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
               << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
               << (snarl_data.walks_by_allele.empty()
                     ? "NA" 
-                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
+                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true, is_allele_included)) << "\t"
               << fastfisher_p_value << "\t"
               << chi2_p_value << "\t"
               << group_paths << "\t"

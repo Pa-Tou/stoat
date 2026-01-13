@@ -16,7 +16,7 @@ void write_binary_header(std::ostream& outstream);
 // Write lines
 
 void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
-                    const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths);
+                    const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths, const std::vector<bool>& is_allele_included={});
 
 void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data,
                         const std::string& p_value,

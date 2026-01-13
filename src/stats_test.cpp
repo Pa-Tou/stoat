@@ -188,22 +188,26 @@ void remove_last_columns_quantitative_table(std::vector<std::vector<double>>& X)
     }
 }
 
-void remove_empty_columns_binary_table(
+std::vector<bool> remove_empty_columns_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1) {
 
     std::vector<size_t> g0_filtered;
     std::vector<size_t> g1_filtered;
+    std::vector<bool> column_was_kept(g0.size(), false);
 
     for (size_t i = 0; i < g0.size(); ++i) {
         if (g0[i] + g1[i] != 0) {
             g0_filtered.push_back(g0[i]);
             g1_filtered.push_back(g1[i]);
+            column_was_kept[i] = true;
         }
     }
 
     g0 = std::move(g0_filtered);
     g1 = std::move(g1_filtered);
+
+    return column_was_kept;
 }
 
 // Should we exclude this test? "filter" this table out

@@ -306,6 +306,15 @@ namespace stoat_vcf {
             std::vector<size_t> g1(paths_number, 0);
 
             size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data.walks_by_allele, edge_matrix);
+            std::cerr << "GOT GENOTYPE TABLES with " << g0.size() << " and " << g1.size() << " entries" << std::endl;
+            for (const auto& x : g0) {
+                std::cerr << x << "\t";
+            }
+            std::cerr << std::endl;
+            for (const auto& x : g1) {
+                std::cerr << x << "\t";
+            }
+            std::cerr << std::endl;
             // JEAN for later when we use SnarlDataCollecions and Tables
             // extract genotypes for this snarl
             // GenotypeTable snarl_gt = SNARLCOLLECTION.FUNCTION(snarl_data_s.???)
@@ -316,7 +325,8 @@ namespace stoat_vcf {
             // }
             // JEAN still need to put group_paths somewhere (in fisher_chi2?)
             
-            stoat::remove_empty_columns_binary_table(g0, g1);
+            // Take out any columns that are empty, and remember which columns were removed so that when we print the output we skip any alleles we ignore
+            std::vector<bool> is_allele_included = stoat::remove_empty_columns_binary_table(g0, g1);
             bool to_filter = stoat::filter_binary_table(g0, g1, individuals_included, min_individuals, maf_threshold);
 
             if (to_filter)
@@ -331,7 +341,7 @@ namespace stoat_vcf {
 
             #pragma omp critical(outf)
             {
-                stoat::write_binary(outf, snarl_data, fastfisher_p_value, chi2_p_value, group_paths);
+                stoat::write_binary(outf, snarl_data, fastfisher_p_value, chi2_p_value, group_paths, is_allele_included);
             }
 
             return to_filter;

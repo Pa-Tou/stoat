@@ -178,14 +178,16 @@ std::string pairToString(const std::pair<size_t, size_t>& name) {
     return oss.str();
 }
     
-std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_paths, bool allele_lengths) {
+std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_paths, bool allele_lengths, const std::vector<bool>& is_allele_included) {
     std::ostringstream oss;
     for (size_t i = 0; i < vec_paths.size(); ++i) {
-        if (i > 0) oss << ",";
-        if (allele_lengths) {
-            oss << vec_paths[i].get_allele_length();
-        } else {
-            oss << vec_paths[i].to_string();
+        if (is_allele_included.size() == 0 || is_allele_included[i]) {
+            if (i > 0) oss << ",";
+            if (allele_lengths) {
+                oss << vec_paths[i].get_allele_length();
+            } else {
+                oss << vec_paths[i].to_string();
+            }
         }
     }
     return oss.str();
