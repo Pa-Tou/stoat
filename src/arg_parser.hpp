@@ -67,8 +67,6 @@ std::vector<bool> parse_binary_pheno(
     const std::string& file_path,
     std::vector<std::string>& list_samples);
 
-// Parse a binary phenotype file and return a BinaryPhenotypeTable
-std::unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path);
 
 // Parses the phenotype file and returns a map with IID as keys and PHENO as float values.
 std::vector<double> parse_quantitative_pheno(
