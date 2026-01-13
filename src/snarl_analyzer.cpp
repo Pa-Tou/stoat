@@ -306,15 +306,6 @@ namespace stoat_vcf {
             std::vector<size_t> g1(paths_number, 0);
 
             size_t individuals_included = stoat_vcf::create_binary_table(g0, g1, binary_phenotype, snarl_data.walks_by_allele, edge_matrix);
-            std::cerr << "GOT GENOTYPE TABLES with " << g0.size() << " and " << g1.size() << " entries" << std::endl;
-            for (const auto& x : g0) {
-                std::cerr << x << "\t";
-            }
-            std::cerr << std::endl;
-            for (const auto& x : g1) {
-                std::cerr << x << "\t";
-            }
-            std::cerr << std::endl;
             // JEAN for later when we use SnarlDataCollecions and Tables
             // extract genotypes for this snarl
             // GenotypeTable snarl_gt = SNARLCOLLECTION.FUNCTION(snarl_data_s.???)
