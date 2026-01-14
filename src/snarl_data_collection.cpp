@@ -3,7 +3,6 @@
 
 //#define DEBUG_SNARL_DATA_COLLECTION
 
-using namespace std;
 namespace stoat {
 
 
@@ -84,7 +83,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         if (distance_index.is_snarl(snarl)) {
     
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
-                            cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << endl;
+                            std::cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
                             #endif
                             if (snarl_is_eligible(distance_index, snarl, check_distances)) {
 
@@ -96,9 +95,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 handlegraph::handle_t start_in = distance_index.get_handle(distance_index.get_bound(snarl, false, true), &graph);
                                 handlegraph::handle_t end_in = distance_index.get_handle(distance_index.get_bound(snarl, true, true), &graph);
 
-                                snarl_data.start_node = stoat::Node_traversal_t(graph.get_id(start_in),
+                                snarl_data.start_node = stoat::node_traversal_t(graph.get_id(start_in),
                                                                                 graph.get_is_reverse(start_in));
-                                snarl_data.end_node = stoat::Node_traversal_t(graph.get_id(end_in),
+                                snarl_data.end_node = stoat::node_traversal_t(graph.get_id(end_in),
                                                                               graph.get_is_reverse(end_in));
 
                                 // Add the depth of the snarl
@@ -209,9 +208,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     //
                                     //walks_by_allele_as_paths = stoat::convert_path_traversals(distance_index, graph, walks_by_allele);
                                     #ifdef DEBUG_SNARL_DATA_COLLECTION
-                                    cerr << "got path from walk" << endl;
+                                    std::cerr << "got path from walk" << std::endl;
                                     for (const auto& path : walks_by_allele) {
-                                        cerr << path.to_string() << endl;
+                                        std::cerr << path.to_string() << std::endl;
                                     }
                                     #endif
 
@@ -295,7 +294,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     }//end omp shared
     
     #ifdef DEBUG_SNARL_DATA_COLLECTION
-    cerr << "Added " << chains_added << " chains and processed " << chains_processed << endl;
+    std::cerr << "Added " << chains_added << " chains and processed " << chains_processed << std::endl;
     assert(chains_added == chains_processed);
     #endif
 }
@@ -437,7 +436,7 @@ void SnarlDataCollection::get_all_walks_through_snarl(
         //if (steps_taken++ > walk_steps_limit) {
         //    #pragma omp critical(out_fail)
         //    out_fail << distance_index.node_id(distance_index.get_bound(snarl, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(snarl, true, true)) 
-        //             << "\titeration_calculation_out = " << endl;// << children << " children\n";
+        //             << "\titeration_calculation_out = " << std::endl;// << children << " children\n";
         //    break_snarl = true;
         //    break;
         //}
@@ -592,7 +591,7 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                 // For the path, add an empty node for each time we leave and re-enter the snarl
                 if (boundary_i != 0) {
-                    stoat::Node_traversal_t traversal (0, true);
+                    stoat::node_traversal_t traversal (0, true);
                     current_walk.add_node_traversal_t(traversal);
                 }
 
@@ -600,7 +599,7 @@ void SnarlDataCollection::get_walks_from_alleles(
                 // TODO: Make the PathTraversal add from a handle_t or net_handle_t
                 //current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
                 handlegraph::handle_t start_handle = graph.get_handle_of_step(boundary_steps[boundary_i]);
-                stoat::Node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
+                stoat::node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
                 current_walk.add_node_traversal_t(start_traversal);
 
 
@@ -627,7 +626,7 @@ void SnarlDataCollection::get_walks_from_alleles(
                             // This node is really a node in the snarl, then add it to the path 
 
                             handlegraph::handle_t node_handle = distance_index.get_handle(parent, &graph);
-                            stoat::Node_traversal_t node_traversal (graph.get_id(node_handle), graph.get_is_reverse(node_handle));
+                            stoat::node_traversal_t node_traversal (graph.get_id(node_handle), graph.get_is_reverse(node_handle));
                             current_walk.add_node_traversal_t(node_traversal);
 
                             min_length += distance_index.minimum_length(parent);
@@ -638,16 +637,16 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                             // Add the start bound going in
                             handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, false, true), &graph);
-                            stoat::Node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
+                            stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
                             current_walk.add_node_traversal_t(chain_start_traversal);
 
                             // Add the interior of the chain as a fake node
-                            stoat::Node_traversal_t chain_traversal (0, false);
+                            stoat::node_traversal_t chain_traversal (0, false);
                             current_walk.add_node_traversal_t(chain_traversal);
 
                             // Add the end bound going out
                             handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, true, false), &graph);
-                            stoat::Node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
+                            stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
                             current_walk.add_node_traversal_t(chain_end_traversal);
 
                             min_length += distance_index.minimum_length(parent);
@@ -658,16 +657,16 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                             // Add the end bound going in
                             handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, true, true), &graph);
-                            stoat::Node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
+                            stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
                             current_walk.add_node_traversal_t(chain_start_traversal);
 
                             // Add the interior of the chain as a fake node
-                            stoat::Node_traversal_t chain_traversal (0, false);
+                            stoat::node_traversal_t chain_traversal (0, false);
                             current_walk.add_node_traversal_t(chain_traversal);
 
                             // Add the start bound going out
                             handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, false, false), &graph);
-                            stoat::Node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
+                            stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
                             current_walk.add_node_traversal_t(chain_end_traversal);
 
                             min_length += distance_index.minimum_length(parent);
@@ -681,7 +680,7 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                 // Add the bound
                 handlegraph::handle_t end_handle = graph.get_handle_of_step(step);
-                stoat::Node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
+                stoat::node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
                 current_walk.add_node_traversal_t(end_traversal);
 
             }// end for loop for a pair of boundary nodes for one traversal of the snarl
@@ -693,7 +692,7 @@ void SnarlDataCollection::get_walks_from_alleles(
     }// end for each first step (per allele)
 
     #ifdef DEBUG_SNARL_DATA_COLLECTION
-    cerr << "Found walks from sets" << endl;
+    std::cerr << "Found walks from sets" << std::endl;
     for (const stoat::PathTraversal& walk : walks) {
         std::cerr << walk.to_string();
         std::cerr << std::endl;
@@ -709,12 +708,12 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
     std::vector<std::string> sequences;
     for (const stoat::PathTraversal& path : paths) {
         sequences.emplace_back();
-        const std::vector<stoat::Node_traversal_t>& nodes = path.get_path(); 
+        const std::vector<stoat::node_traversal_t>& nodes = path.get_path(); 
         if (nodes.size() > 0) {
             handlegraph::nid_t start_id = nodes.front().get_node_id();
             handlegraph::nid_t end_id = nodes.back().get_node_id(); 
             for (size_t i = 0 ; i < nodes.size() ; i++) {
-                const stoat::Node_traversal_t& node = nodes[i];
+                const stoat::node_traversal_t& node = nodes[i];
                 if (node.get_node_id() != start_id && node.get_node_id() != end_id) {
                     if (node.get_node_id() == 0) {
                         sequences.back() += "N";
@@ -748,7 +747,7 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
         return true;
     });
     if (snarl_child_limit < children) {
-        cerr << "Snarl had too many children" << endl;
+        std::cerr << "Snarl had too many children" << std::endl;
 
         return false;
     }
@@ -763,8 +762,8 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
 /*
 This needs to hold snarl_info_internal_t's which contain:
 
-- Node_traversal_t start_node;
-- Node_traversal_t end_node;
+- node_traversal_t start_node;
+- node_traversal_t end_node;
 - size_t reference_index (which points to a string representing the reference name);
 - size_t start_position;
 - size_t end_position;
@@ -794,21 +793,21 @@ The remaining items are the allele number for each sample. "." if the sample is 
 void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, const bool output_samples) const {
 
     // Write the header
-    outstream << file_header << endl;
+    outstream << file_header << std::endl;
 
-    outstream << "#allele_size_limit:" << allele_size_limit << endl;
-    outstream << "#snarl_child_limit:" << snarl_child_limit << endl;
-    outstream << "#walk_steps_limit: " << walk_steps_limit << endl;
+    outstream << "#allele_size_limit:" << allele_size_limit << std::endl;
+    outstream << "#snarl_child_limit:" << snarl_child_limit << std::endl;
+    outstream << "#walk_steps_limit: " << walk_steps_limit << std::endl;
 
     // Next will be a list of reference path names.
-    outstream << "#REFS" << endl;
+    outstream << "#REFS" << std::endl;
     for (const auto& ref : reference_names) {
-        outstream << "#" << ref << endl;
+        outstream << "#" << ref << std::endl;
     }
     
     //Finally the snarls
     // Start with a header that will contain the names of all samples
-    outstream << "#SNARLS" << endl;
+    outstream << "#SNARLS" << std::endl;
     outstream << "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
 
     // The header also includes a list of sample/haplotypes
@@ -817,7 +816,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, c
             outstream << "\t" << samp.sample << "#" + samp.haplotype;
         }
     }
-    outstream << endl;
+    outstream << std::endl;
 
     // Now write the snarls, one per line
     for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
@@ -889,7 +888,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, c
             }
         }
         
-        outstream << endl;
+        outstream << std::endl;
     }
 
     return;
@@ -897,7 +896,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, c
 
 void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
     // open file connection
-    ifstream instream;
+    std::ifstream instream;
     instream.open(filename);
 
     // Clear anything that has already been filled in, since we want it to match what was in the file
@@ -910,7 +909,7 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
     sample_to_index.clear();
 
 
-    string line;
+    std::string line;
 
     // Read the first line, which must match the header
     std::getline(instream, line);
@@ -922,14 +921,14 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string limit_str;
+        std::string limit_str;
         std::getline(linestream, limit_str, ':');
         #ifdef DEBUG_SNARL_DATA_COLLECTION
         assert(limit_str == "#allele_size_limit");
         #endif
         std::getline(linestream, limit_str, ':');
         if (allele_size_limit < std::stoull(limit_str)) {
-            cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << endl;;
+            std::cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << std::endl;;
         }
     }
 
@@ -938,14 +937,14 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string limit_str;
+        std::string limit_str;
         std::getline(linestream, limit_str, ':');
         #ifdef DEBUG_SNARL_DATA_COLLECTION
         assert(limit_str == "#snarl_child_limit");
         #endif
         std::getline(linestream, limit_str, ':');
         if (snarl_child_limit < std::stoull(limit_str)) {
-            cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << endl;;
+            std::cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << std::endl;;
         }
     }
 
@@ -953,14 +952,14 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string limit_str;
+        std::string limit_str;
         std::getline(linestream, limit_str, ':');
         #ifdef DEBUG_SNARL_DATA_COLLECTION
         assert(limit_str == "#walk_steps_limit");
         #endif
         std::getline(linestream, limit_str, ':');
         if (walk_steps_limit > std::stoull(limit_str)) {
-            cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << endl;;
+            std::cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << std::endl;;
         }
     }
 
@@ -984,7 +983,7 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
     std::getline(instream, line);
     {
         std::stringstream linestream(line);
-        string sample_name;
+        std::string sample_name;
         // First go through the first 9 things and ignore them
         for (size_t i = 0 ; i < 9 ; i++) {
             std::getline(linestream, sample_name, '\t');
@@ -1009,14 +1008,14 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
         all_snarl_data.emplace_back();
 
         std::stringstream linestream(line);
-        string part;
+        std::string part;
         //Snarl start node traversal
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().start_node = stoat::Node_traversal_t(part);
+        all_snarl_data.back().start_node = stoat::node_traversal_t(part);
 
         //Snarl start node traversal
         std::getline(linestream, part, '\t');
-        all_snarl_data.back().end_node = stoat::Node_traversal_t(part);
+        all_snarl_data.back().end_node = stoat::node_traversal_t(part);
 
         // Index of reference
         std::getline(linestream, part, '\t');
@@ -1108,7 +1107,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
 
     // Get a consistent snarl identifier from the bounds of a snarl
     // Put the lower node id first, keeping the orientations
-    auto get_snarl_id = [&](const Node_traversal_t& n1, const Node_traversal_t& n2) {
+    auto get_snarl_id = [&](const node_traversal_t& n1, const node_traversal_t& n2) {
         if (n1.get_node_id() < n2.get_node_id()) {
             return n1.to_string() + n2.to_string();
         } else {

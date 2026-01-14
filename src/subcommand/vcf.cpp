@@ -10,7 +10,6 @@
 #include <omp.h>
 
 #include "../log.hpp"
-#include "../snarl_data_t.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
 #include "../matrix.hpp"
@@ -19,6 +18,13 @@
 #include "../io/register_io.hpp"
 #include "../feature_tables.hpp"
 #include "../path_partitioner.hpp"
+
+//#define USE_CALLGRIND
+
+#ifdef USE_CALLGRIND
+    #include <valgrind/callgrind.h>
+#endif
+
 
 namespace stoat_command {
 
@@ -269,7 +275,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     if (!binary_path.empty()) {
         stoat::LOG_TRACE("Parsing binary phenotype file");
         binary_phenotype = stoat_vcf::parse_binary_pheno(binary_path, list_samples);
-        binary_phenotype_table = stoat_vcf::parse_binary_pheno_table(binary_path);
     } else if (!quantitative_path.empty()) {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
         quantitative_phenotype = stoat_vcf::parse_quantitative_pheno(quantitative_path, list_samples);
@@ -283,10 +288,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // TODO: Double check that these thresholds are doing the right thing
     stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
 
-    // Load or calculate the snarl information
-    // scope declaration
-    // chr : <snarl, paths, pos(start, end), type>
-    std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>> snarls_chr;
     unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
     unique_ptr<handlegraph::PathHandleGraph> graph;
 
@@ -294,6 +295,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
     bdsg::PathPositionHandleGraph* path_position_graph;
 
     // handlegraph::net_handle_t root;
+
+// Start tracking with callgrind
+#ifdef USE_CALLGRIND
+    CALLGRIND_START_INSTRUMENTATION;
+#endif
+
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
         stoat::LOG_TRACE("Reading snarl path file");
@@ -423,7 +430,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     if (snarl_analyzer->get_phenotype_type() == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
         std::string output_gaf = output_dir + "/stoat.assoc.gaf";
-        stoat_vcf::gaf_creation(output_dir + "/stoat.assoc.pvalues.tsv", snarls_chr, *graph, output_gaf);
+        stoat_vcf::gaf_creation(output_dir + "/stoat.assoc.pvalues.tsv", snarl_collection, *graph, output_gaf);
     }
 
     auto end_total_timer = std::chrono::high_resolution_clock::now();

@@ -253,5 +253,6 @@ bool CombinedTable::passes_filters(const size_t maf, const size_t min_individual
 // Apparently these definitions are supposed to be done here, after all the members are defined
 template class stoat::FeatureBySampleTable<bool>;
 template class stoat::FeatureBySampleTable<double>;
-template class stoat::CategoricalFeatureBySampleTable<double>;
 template class stoat::FeatureBySampleTable<std::vector<size_t>>;
+template class stoat::FeatureBySampleTable<std::vector<double>>;
+template class stoat::CategoricalFeatureBySampleTable<double>;

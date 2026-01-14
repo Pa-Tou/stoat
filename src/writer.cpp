@@ -22,19 +22,21 @@ void write_binary_header(std::ostream& outstream) {
 }
 
 void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
-                  const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths) {
+                  const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths,
+                  const std::vector<bool>& is_allele_included) {
 
+    //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
     outstream << snarl_data.ref_path << "\t"
               << snarl_data.start_position << "\t"
               << snarl_data.end_position << "\t"
               << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << ((snarl_data.walks_by_allele.empty()) 
-                    ? "." 
-                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
+              << (snarl_data.walks_by_allele.empty()
+                    ? "NA" 
+                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true, is_allele_included)) << "\t"
               << fastfisher_p_value << "\t"
               << chi2_p_value << "\t"
               << group_paths << "\t"
-              << snarl_data.depth << endl;
+              << snarl_data.depth << std::endl;
 }
 
 void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data,
@@ -49,7 +51,7 @@ void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data,
                     : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
               << p_value << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
-              << snarl_data.depth << endl;
+              << snarl_data.depth << std::endl;
 }
 
 void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data, 
@@ -83,7 +85,7 @@ void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data,
               << p_value  << "\t"
               << r2 << "\t"
               << stoat::vectorToString(allele_paths) << "\t"
-              << snarl_data.depth << endl;
+              << snarl_data.depth << std::endl;
 
 }
 
@@ -129,7 +131,7 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
                  const bdsg::SnarlDistanceIndex& distance_index, const snarl_info_t& snarl_info) {
     
     // The reference coordinates of this snarl as a string
-    string ref_coordinates = snarl_info.ref_path + ":" + std::to_string(snarl_info.start_position) + "-" + std::to_string(snarl_info.end_position);
+    std::string ref_coordinates = snarl_info.ref_path + ":" + std::to_string(snarl_info.start_position) + "-" + std::to_string(snarl_info.end_position);
 
 
     // Get the coordinate range of every sample going through this snarl
@@ -178,7 +180,7 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
             << ref_coordinates << "|"
             << std::get<0>(range_coordinates) << ":"
             << std::get<1>(range_coordinates) << "-"
-            << std::get<2>(range_coordinates) << endl;
+            << std::get<2>(range_coordinates) << std::endl;
 
 
         // Now print the sequence in 80bp chunks.
@@ -192,13 +194,13 @@ void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleG
             
             // If the buffer is full, write it and clear it
             if (sequence_buffer.size() == 80) {
-                outstream << sequence_buffer << endl;
+                outstream << sequence_buffer << std::endl;
                 sequence_buffer.clear();
             }
 
         }
         if (!sequence_buffer.empty()) {
-            outstream << sequence_buffer << endl;
+            outstream << sequence_buffer << std::endl;
         }
     }
 }

@@ -6,6 +6,18 @@
 
 namespace fs = std::filesystem;
 
+//Check if two snarl collections are equivalent
+bool compare_snarl_collection(std::string test_name, std::string truth_name) {
+    std::cerr << "Compare files " << test_name << " and " << truth_name << std::endl;
+    SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
+    SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
+
+    test_snarl.load_snarl_data_collection(test_name);
+    truth_snarl.load_snarl_data_collection(truth_name);
+
+    return SnarlDataCollection::is_equivalent(test_snarl, truth_snarl); 
+}
+
 bool run_test_snarl(
     const std::string& stoat_command,
     const std::string& output_dir,
@@ -26,17 +38,11 @@ bool run_test_snarl(
         return false;
     }
 
-    SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
-    SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
-
-    std::string filename = output_dir + "/snarl_info.tsv";
-    test_snarl.load_snarl_data_collection(filename);
-    filename = expected_dir + "/snarl_info.tsv";
-    truth_snarl.load_snarl_data_collection(filename);
+    bool passed = compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
     clean_output_dir(output_dir);
-
-    return SnarlDataCollection::is_equivalent(test_snarl, truth_snarl); 
+    return passed;
 }
+
 
 bool run_test(
     const std::string& stoat_command,
@@ -135,6 +141,9 @@ bool run_test_full(
     }
 
     bool result = compare_output_dirs(output_dir, expected_dir);
+
+    result &= compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
+
     clean_output_dir(output_dir);
 
     return result;
@@ -143,8 +152,8 @@ bool run_test_full(
 TEST_CASE("Snarl decomposition", "[snarl]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_snarl";
-    const std::string expected_dir = "../tests/expected_output/vcf/output_snarl";
-    const std::string data_path = "../data/binary";
+    const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_snarl";
+    const std::string data_path = "../tests/test_data/input_data/binary";
 
     SECTION("Binary decomposition") {
         REQUIRE(run_test_snarl(stoat_command, output_dir, expected_dir, data_path));
@@ -154,8 +163,8 @@ TEST_CASE("Snarl decomposition", "[snarl]") {
 TEST_CASE("Bad paths", "[test]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_bad_paths";
-    const std::string expected_dir = "../tests/expected_output/vcf/output_bad_paths";
-    const std::string data_path = "../data/bad_paths";
+    const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_bad_paths";
+    const std::string data_path = "../tests/test_data/input_data/bad_paths";
     const std::string phenotype = "binary";
 
     SECTION("Bad paths fail - snarl paths given") {
@@ -166,9 +175,9 @@ TEST_CASE("Bad paths", "[test]") {
 TEST_CASE("Binary association tests vcf", "[binary]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_binary";
-    const std::string expected_dir = "../tests/expected_output/vcf/output_binary";
-    const std::string expected_dir_covar = "../tests/expected_output/vcf/output_binary_covar";
-    const std::string data_path = "../data/binary";
+    const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_binary";
+    const std::string expected_dir_covar = "../tests/test_data/expected_output/vcf/output_binary_covar";
+    const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string phenotype = "binary";
 
     SECTION("Without covariate") {
@@ -183,9 +192,9 @@ TEST_CASE("Binary association tests vcf", "[binary]") {
 TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_quantitative";
-    const std::string expected_dir = "../tests/expected_output/vcf/output_quantitative";
-    const std::string expected_dir_covar = "../tests/expected_output/vcf/output_quantitative_covar";
-    const std::string data_path = "../data/quantitative";
+    const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_quantitative";
+    const std::string expected_dir_covar = "../tests/test_data/expected_output/vcf/output_quantitative_covar";
+    const std::string data_path = "../tests/test_data/input_data/quantitative";
     const std::string phenotype = "quantitative";
 
     SECTION("Without covariate") {
@@ -200,9 +209,9 @@ TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
 TEST_CASE("eQTL tests vcf", "[eqtl]") {
     const std::string stoat_command = "../bin/stoat";
     const std::string output_dir = "../output_eqtl";
-    const std::string expected_dir = "../tests/expected_output/vcf/output_eqtl";
-    const std::string expected_dir_covar = "../tests/expected_output/vcf/output_eqtl_covar";
-    const std::string data_path = "../data/eqtl";
+    const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_eqtl";
+    const std::string expected_dir_covar = "../tests/test_data/expected_output/vcf/output_eqtl_covar";
+    const std::string data_path = "../tests/test_data/input_data/eqtl";
     const std::string phenotype = "eqtl";
 
     SECTION("Without covariate") {

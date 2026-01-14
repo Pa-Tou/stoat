@@ -29,7 +29,6 @@
 #include "utils.hpp"
 #include "stats_test.hpp"
 
-using namespace std;
 
 namespace stoat_vcf {
 

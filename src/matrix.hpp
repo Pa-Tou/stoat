@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <cstdint>
 
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ public:
     bool get_edge(size_t row, size_t col) const;
     
     // Add this edge to the matrix
-    void add_sample_edge(const stoat::Edge_t& edge, size_t col_index);
+    void add_sample_edge(const stoat::edge_t& edge, size_t col_index);
 
     // Set this value to true
     void set_edge(size_t row, size_t col);
@@ -49,7 +49,7 @@ protected:
     size_t n_samp_haps;
     size_t max_edges;
     std::vector<bool> matrix_1D;
-    std::unordered_map<stoat::Edge_t, size_t> row_header;
+    std::unordered_map<stoat::edge_t, size_t> row_header;
     std::vector<std::string> sample_names;
 
 };

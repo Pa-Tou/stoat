@@ -50,6 +50,7 @@ public:
 
     // Function to perform Fisher's exact test
     // not const& because we change the value
+    // This is implemented in fast_fishers_exact_test.cpp because it was not us who wrote it
     std::string fastFishersExactTest(size_t m11, size_t m12,
                                      size_t m21, size_t m22);
 
@@ -126,7 +127,9 @@ class LogisticRegression {
 void combine_identical_columns_quantitative_table(
     std::vector<std::vector<double>>& df);
 
-void remove_empty_columns_binary_table(
+// Modify g0 and g1 to remove any column (allele/path) where both g0 and g1 are empty
+// Return a vector of bools with true if the column was kept and false removed
+std::vector<bool> remove_empty_columns_binary_table(
     std::vector<size_t>& g0, 
     std::vector<size_t>& g1);
 

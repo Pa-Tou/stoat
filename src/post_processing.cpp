@@ -85,7 +85,7 @@ void add_BH_adjusted_column(
         (headers[p_col_index] == "P" || headers[p_col_index] == "P_FISHER" || headers[p_col_index] == "P_CHI2")) {
         find_column = false;
     } else if (p_col_index != std::numeric_limits<size_t>::max()) {
-        cerr << "warning [stoat BHcorrect]: given column with header " << headers[p_col_index] << " is not a valid p-value. Checking header for a valid column" << endl;
+        std::cerr << "warning [stoat BHcorrect]: given column with header " << headers[p_col_index] << " is not a valid p-value. Checking header for a valid column" << std::endl;
         p_col_index = std::numeric_limits<size_t>::max();
     }
     // Look for a column with a P-value. Always choose the "P" column. Prioritize "P-CHI2" over "P_FISHER"
@@ -144,8 +144,8 @@ void add_BH_adjusted_column(
         } 
 
         if (i == headers.size()-1) {
-            outfile << endl;
-            outfile_significant << endl;
+            outfile << std::endl;
+            outfile_significant << std::endl;
         } else {
             outfile << "\t";
             outfile_significant << "\t";

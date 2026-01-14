@@ -1,6 +1,5 @@
 #include "quantitative_table.hpp"
 
-using namespace std;
 
 // JEAN why so many functions here?
 

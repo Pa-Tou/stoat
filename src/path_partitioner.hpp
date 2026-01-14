@@ -7,7 +7,6 @@
 #include "utils.hpp"
 #include "snarl_data_collection.hpp"
 
-using namespace std;
 using namespace stoat;
 
 namespace stoat_graph {

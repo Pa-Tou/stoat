@@ -370,7 +370,8 @@ bool compare_output_dirs(const std::string& output_dir, const std::string& expec
                 std::cerr << "Mismatch in eQTL file: " << filename << "\n";
                 return false;
             }
-        } else {
+        } else if (filename.find("snarl_info") == std::string::npos) {
+            // Ignore the snarl file because it gets done separately
             if (!files_equal(expected_file, output_file)) {
                 std::cerr << "Mismatch in file: " << filename << "\n";
                 return false;

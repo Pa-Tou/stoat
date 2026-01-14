@@ -139,12 +139,12 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/arg_parser.cpp
     src/post_processing.cpp
     src/gaf_creator.cpp
-    src/snarl_data_t.cpp
+    src/types_and_structs.cpp
     src/matrix.cpp
     src/log.cpp
     src/quantitative_table.cpp
-    src/genotype_table.cpp
     src/stats_test.cpp
+    src/fast_fishers_exact_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp
     src/path_partitioner.cpp
@@ -193,7 +193,7 @@ add_executable(unit_tests
     tests/unittest/main_test.cpp
     tests/unittest/binary_test_unit.cpp
     tests/unittest/gaf_creator_unit.cpp
-    tests/unittest/snarl_data_t_unit.cpp
+    tests/unittest/types_and_structs_unit.cpp
     tests/unittest/matrix_unit.cpp
     tests/unittest/quantitative_test_unit.cpp
     tests/unittest/path_partitioner_unit.cpp

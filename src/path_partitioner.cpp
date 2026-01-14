@@ -4,7 +4,6 @@
 
 //#define DEBUG_PATH_PARTITIONER
 
-using namespace std;
 using namespace stoat;
 namespace stoat_graph {
 
@@ -15,7 +14,7 @@ namespace stoat_graph {
 // I think this is equivalent to partitioning by the actual sets of unique walks.
 std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                           const net_handle_t& snarl,
-                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes){
+                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) {
 
     #ifdef DEBUG_PATH_PARTITIONER
     cerr <<  "Get walk sets of " << distance_index.net_handle_as_string(snarl) << endl;;
@@ -190,7 +189,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
         std::map<std::vector<std::pair<handlegraph::nid_t, bool>>, size_t> edge_to_intermediate_set;
 
         //Everything starts in the same set, representing not going through this node
-        vector<size_t> intermediate_sets (old_sets.size(), 0);
+        std::vector<size_t> intermediate_sets (old_sets.size(), 0);
         size_t intermediate_set_count = 1;
         for (size_t path_i = 0 ; path_i < next_steps.size() ; path_i++) {
             const path_edge_t& edge = next_steps[path_i];
@@ -224,7 +223,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
         
         // We now have an old set and an intermediate set for each path
         // Assign the path to a new set. Everything gets a new set
-        vector<size_t> new_sets (intermediate_sets.size(), std::numeric_limits<size_t>::max());
+        std::vector<size_t> new_sets (intermediate_sets.size(), std::numeric_limits<size_t>::max());
 
         // Map pairs of <old_set, intermediate_set> to new set number
         std::map<std::pair<size_t, size_t>, size_t>  old_to_new_set;

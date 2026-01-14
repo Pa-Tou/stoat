@@ -7,7 +7,7 @@ namespace stoat_vcf {
 
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;
-    ifstream file(file_path);
+    std::ifstream file(file_path);
     std::string line;
 
     while (getline(file, line)) {
@@ -95,67 +95,6 @@ std::vector<bool> parse_binary_pheno(
     return vector_binary_pheno;
 }
 
-unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path) {
-    // fill this map first
-    std::unordered_map<std::string, bool> binary_pheno;
-    std::unordered_map<std::string, size_t> sample_to_index;
-
-    // prepare to read the file
-    std::ifstream file(file_path);
-    std::string line;
-
-    // read the header and check for expected column names (SAMPLE, then PHENO)
-    std::getline(file, line);
-    std::istringstream header_stream(line);
-    std::string sample_name, phenoStr;
-    header_stream >> sample_name >> phenoStr;
-    if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
-        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
-    }
-    
-    // read each line and tally the number of cases and controls (for the log)
-    int count_controls = 0;
-    int count_cases = 0;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        if (!(iss >> sample_name >> phenoStr)) {
-            throw std::invalid_argument("Malformed line: " + line);
-        }
-        int pheno;
-        // make sure the phenotype is an integer
-        try {
-            pheno = std::stoi(phenoStr);
-        } catch (...) {
-            throw std::invalid_argument("Bad phenotype type: " + phenoStr);
-        }
-        // make sure phenotype is 0 or 1
-        if (pheno == 0) {
-            ++count_controls;
-        } else if (pheno == 1) {
-            ++count_cases;
-        } else {
-            throw std::invalid_argument("Binary phenotype must be 0 or 1, got: " + std::to_string(pheno));
-        }
-        // add the sample and phenotype to the temporary map
-        binary_pheno[sample_name] = pheno == 1;
-        sample_to_index[sample_name] = count_cases + count_controls;
-    }
-
-    stoat::LOG_INFO("Binary phenotypes found: " + std::to_string(count_controls + count_cases)
-        + " (Control: " + std::to_string(count_controls)
-        + ", Case: " + std::to_string(count_cases) + ")");
-
-    file.close();
-
-    // Prepare the Table object to fill and output
-    // ideally we could fill it when reading each line
-    auto output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
-    for (const auto samp_pheno: binary_pheno){
-        // add the sample and phenotype to the Table
-        output_table->set_value_for_sample(samp_pheno.first, samp_pheno.second);
-    }
-    return unique_ptr<stoat::BinaryPhenotypeTable>(output_table);
-}
 
 std::vector<double> parse_quantitative_pheno(
     const std::string& file_path, 
@@ -409,7 +348,7 @@ std::vector<std::vector<double>> parse_covariates(
     std::ifstream file(filename);
     std::string line;
     std::vector<std::vector<double>> covariate;
-    std::unordered_map<string, std::vector<double>>covariate_map;
+    std::unordered_map<std::string, std::vector<double>>covariate_map;
 
     // Read header
     std::getline(file, line);

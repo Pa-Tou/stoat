@@ -103,7 +103,9 @@ binary_table_values_t load_binary_snarl_line(std::string line) {
     std::stringstream pathlength_stream(part);
     std::string lengths;
     while (std::getline(pathlength_stream, lengths, ',')){
-        vals.path_lengths.emplace_back(lengths);
+        if (lengths != "NA") {
+            vals.path_lengths.emplace_back(lengths);
+        }
     }
 
     // Fishers p-value

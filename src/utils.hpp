@@ -26,9 +26,10 @@
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
+#include "types_and_structs.hpp"
+
 #include "log.hpp"
 
-using namespace std;
 
 namespace stoat {
 
@@ -50,53 +51,6 @@ std::vector<T> stringToVector(const std::string& str);
 // Given a path, return its sample name
 std::string get_sample_name_from_path(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
 
-// This stores a sample name and haplotype identifier
-struct sample_hap_t {
-    std::string sample;
-    std::string haplotype;
-
-    sample_hap_t() {};
-    sample_hap_t(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
-
-    sample_hap_t(std::string path_name){
-        // Get the sample name up to #
-        std::stringstream stream(path_name);
-        if (std::getline(stream, sample, '#')) {
-            std::getline(stream, haplotype);
-        } else {
-            haplotype = "";
-        }
-
-    };
-    std::string to_string() const {
-        return sample + "#" + haplotype;
-    }
-    sample_hap_t(std::string samp, std::string hap) :
-        sample(std::move(samp)), haplotype(std::move(hap)) {};
-
-    const inline bool operator==(const sample_hap_t& other) const {
-        return (sample==other.sample && haplotype==other.haplotype);
-    }
-    const inline bool operator<(const sample_hap_t& other) const {
-        if (sample == other.sample) {
-            return haplotype < other.haplotype;
-        } else {
-            return sample < other.sample;
-        }
-    }
-};
-
-inline std::ostream& operator<<(std::ostream& out, const sample_hap_t& sample) {
-    return out << sample.sample << "#" << sample.haplotype;
-}
-
-
-// A struct for holding a range along the path
-struct path_range_t {
-    handlegraph::step_handle_t start;
-    handlegraph::step_handle_t end;
-};
-
 /// Given a snarl, return a vector of path_ranges of that snarl (the boundary nodes).
 /// Since a path can traverse a snarl multiple times, this returns each start-to-end (or end-to-start) range
 /// of step_handle_t's, ordered according to the order of the path.
@@ -108,19 +62,19 @@ struct path_range_t {
 /// If get_reference is false and sample_name is empty and get_all_paths is true, return all coordinates for all paths
 /// For finding a specific path or reference, if the snarl is not on the desired path, then walk up the snarl tree to find an ancestor snarl on the path
 /// An ancestor also takes priority over a different path, so if there is a reference-sense path of the snarl, but sample_name on the ancestor, return sample_name on the ancestor
-std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+std::vector<stoat::path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                    const handlegraph::net_handle_t& snarl, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths);
 
 /// The function that gets called by get_coordinates_of_snarl
 /// This either looks for a particular sample, or a reference-sense path, or all paths
 /// It finds paths between two nodes, which should be the start and end bounds of a snarl, pointing into each other
-std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle,
+std::vector<stoat::path_range_t> get_coordinates_between_nodes(const handlegraph::PathPositionHandleGraph& graph, const handlegraph::handle_t& start_handle,
                                                           const handlegraph::handle_t& end_handle, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths);
 
 /// Given a path_range_t representing a path going through a snarl (with the start and end step_handle_t's representing the boundary nodes)
 /// Return the path name and range in the path of the snarl, not including the boundary nodes
 std::tuple<std::string, size_t, size_t> get_name_and_offsets_of_snarl_path_range(const handlegraph::PathPositionHandleGraph& graph, 
-                                                                                 const path_range_t& range);
+                                                                                 const stoat::path_range_t& range);
 
 /// Print ids of all nodes present in a snarl to stderr, one per line
 /// Useful for debugging with `vg find -N`
@@ -136,16 +90,6 @@ bool is_equal(T a, T b, T e = std::numeric_limits<T>::epsilon()) {
 enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // namespace stoat
-namespace std {
-    // Define hash for sample_hap_t
-    template <>
-    struct hash<stoat::sample_hap_t> {
-        size_t operator()(const stoat::sample_hap_t& sample_hap) const {
-            return std::hash<std::string>()(sample_hap.sample + "#" + sample_hap.haplotype);
-        }
-    };
-
-}
 
 
 #endif

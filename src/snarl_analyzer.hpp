@@ -20,14 +20,12 @@
 #include "arg_parser.hpp"
 #include "stats_test.hpp"
 #include "matrix.hpp"
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
 #include "quantitative_table.hpp"
-#include "genotype_table.hpp"
 #include "snarl_data_collection.hpp"
 #include "utils.hpp"
 #include "log.hpp"
 
-using namespace std;
 
 namespace stoat_vcf {
 
@@ -198,8 +196,8 @@ std::vector<size_t> get_genes_around_pos(
     const size_t end_pos,
     const size_t max_distance);
 
-// Decompose path std::string to vectorstoat::Edge_t
-std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string s);
+// Decompose path std::string to vectorstoat::edge_t
+std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s);
 
 } //end stoat namespace
 

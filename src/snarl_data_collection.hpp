@@ -4,11 +4,10 @@
 #include <iostream>
 #include <handlegraph/path_position_handle_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
+#include "types_and_structs.hpp"
 #include "utils.hpp"
-#include "snarl_data_t.hpp"
 #include "feature_tables.hpp"
 
-using namespace std;
 using namespace stoat;
 
 namespace stoat {
@@ -36,7 +35,7 @@ struct snarl_info_t {
     public:
 
         // Constructor from elements
-        snarl_info_t(stoat::Node_traversal_t start_node, stoat::Node_traversal_t end_node, std::string ref_path, 
+        snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node, std::string ref_path, 
                      size_t start_position, size_t end_position, size_t depth,
                      const GenotypeTable& genotypes, 
                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
@@ -51,8 +50,8 @@ struct snarl_info_t {
                      {};
 
         // Start and end nodes, both pointing into the snarl
-        stoat::Node_traversal_t start_node;
-        stoat::Node_traversal_t end_node;
+        stoat::node_traversal_t start_node;
+        stoat::node_traversal_t end_node;
 
         // The reference chromosome/path
         std::string ref_path; 
@@ -146,7 +145,7 @@ class SnarlDataCollection {
                                 const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
-                                const std::unordered_set<string>& reference_samples, bool check_distances);
+                                const std::unordered_set<std::string>& reference_samples, bool check_distances);
 
         
         /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through
@@ -205,8 +204,8 @@ class SnarlDataCollection {
         struct snarl_info_internal_t {
     
             // Start and end nodes, both pointing into the snarl
-            stoat::Node_traversal_t start_node = stoat::Node_traversal_t(0, false);
-            stoat::Node_traversal_t end_node= stoat::Node_traversal_t(0, false);
+            stoat::node_traversal_t start_node = stoat::node_traversal_t(0, false);
+            stoat::node_traversal_t end_node= stoat::node_traversal_t(0, false);
 
             // Index into reference_names to get the string representation of the reference path
             size_t reference_index;
@@ -232,17 +231,17 @@ class SnarlDataCollection {
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the walks through the snarl.
         /// Each entry in the vector is considered to be one allele.
-        std::unordered_map<stoat::Node_traversal_t, std::vector<PathTraversal>> snarl_to_walks;
+        std::unordered_map<stoat::node_traversal_t, std::vector<PathTraversal>> snarl_to_walks;
 
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the alleles_by_sample vector.
         /// So each entry in the alleles_by_sample vector is the allele number of one sample_hap_t. The allele number
         /// corresponds to the index of an allele in snarl_to_walks vectors, and snarl_to_sequences vectors
-        std::unordered_map<stoat::Node_traversal_t, allele_by_sample_t> snarl_to_alleles_by_sample;
+        std::unordered_map<stoat::node_traversal_t, allele_by_sample_t> snarl_to_alleles_by_sample;
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the sequences of the walks.
         /// Each string in the vector is the sequence for the walk in the corresponding vector in snarl_to_walks. 
-        std::unordered_map<stoat::Node_traversal_t, std::vector<std::string>> snarl_to_sequences;
+        std::unordered_map<stoat::node_traversal_t, std::vector<std::string>> snarl_to_sequences;
 
 
         ///////////////// Lists of strings and stuff that are stored as indexes in the real data structures instead of duplicating them a bunch
@@ -253,7 +252,7 @@ class SnarlDataCollection {
 
         /// This stores all sample_hap_t's that are stored as indexes by snarl_to_alleles_by_sample
         /// It is given by fill_in_snarl_info or loaded from the file
-        vector<stoat::sample_hap_t> all_sample_haplotypes;
+        std::vector<stoat::sample_hap_t> all_sample_haplotypes;
 
         // This maps all sample names from all_sample_haplotypes to a unique identifier, (which is used as an index into a vector 
         // so it must start from 0 and go up to the number of samples-1).

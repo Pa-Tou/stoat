@@ -55,25 +55,25 @@ TEST_CASE( "Path partitioner nested bubbles",
     //}
 
     //// vg isn't included so the distance index can only be built from the command line
-    //graph.serialize("../tests/graph_test/simple_nested_chain.hg");
-    //int built = system("vg index -j ../tests/graph_test/simple_nested_chain.dist ../tests/graph_test/simple_nested_chain.hg"); 
+    //graph.serialize("../tests/test_data/test_graphs/simple_nested_chain.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/simple_nested_chain.dist ../tests/test_data/test_graphs/simple_nested_chain.hg"); 
     //
     ////Change sense of paths
-    //built = system("vg convert --hap-locus path0 --new-sample path0 ../tests/graph_test/simple_nested_chain.hg >../tests/graph_test/simple_nested_chain1.hg"); 
-    //built = system("vg convert --hap-locus path1 --new-sample path1 ../tests/graph_test/simple_nested_chain1.hg >../tests/graph_test/simple_nested_chain2.hg"); 
-    //built = system("vg convert --ref-sample path0 ../tests/graph_test/simple_nested_chain2.hg | vg convert -a - >../tests/graph_test/simple_nested_chain3.hg"); 
-    //built = system("mv ../tests/graph_test/simple_nested_chain3.hg ../tests/graph_test/simple_nested_chain.hg"); 
-    //built = system("rm ../tests/graph_test/simple_nested_chain1.hg"); 
-    //built = system("rm ../tests/graph_test/simple_nested_chain2.hg"); 
-    //built = system("vg gbwt -x ../tests/graph_test/simple_nested_chain.hg -E --gbz-format -g ../tests/graph_test/simple_nested_chain.gbz "); 
+    //built = system("vg convert --hap-locus path0 --new-sample path0 ../tests/test_data/test_graphs/simple_nested_chain.hg >../tests/test_data/test_graphs/simple_nested_chain1.hg"); 
+    //built = system("vg convert --hap-locus path1 --new-sample path1 ../tests/test_data/test_graphs/simple_nested_chain1.hg >../tests/test_data/test_graphs/simple_nested_chain2.hg"); 
+    //built = system("vg convert --ref-sample path0 ../tests/test_data/test_graphs/simple_nested_chain2.hg | vg convert -a - >../tests/test_data/test_graphs/simple_nested_chain3.hg"); 
+    //built = system("mv ../tests/test_data/test_graphs/simple_nested_chain3.hg ../tests/test_data/test_graphs/simple_nested_chain.hg"); 
+    //built = system("rm ../tests/test_data/test_graphs/simple_nested_chain1.hg"); 
+    //built = system("rm ../tests/test_data/test_graphs/simple_nested_chain2.hg"); 
+    //built = system("vg gbwt -x ../tests/test_data/test_graphs/simple_nested_chain.hg -E --gbz-format -g ../tests/test_data/test_graphs/simple_nested_chain.gbz "); 
 
 
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.dist");
 
     bdsg::HashGraph graph;
-    graph.deserialize("../tests/graph_test/simple_nested_chain.hg");
+    graph.deserialize("../tests/test_data/test_graphs/simple_nested_chain.hg");
 
     std::vector<handlegraph::path_handle_t> paths;
 
@@ -271,13 +271,13 @@ TEST_CASE( "Path partitioner multiple nested bubbles",
     //}
 
     //// vg isn't included so the distance index can only be built from the command line
-    //graph.serialize("../tests/graph_test/simple_nested_chains.hg");
-    //int built = system("vg index -j ../tests/graph_test/simple_nested_chains.dist ../tests/graph_test/simple_nested_chains.hg"); 
+    //graph.serialize("../tests/test_data/test_graphs/simple_nested_chains.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/simple_nested_chains.dist ../tests/test_data/test_graphs/simple_nested_chains.hg"); 
     //   bdsg::SnarlDistanceIndex distance_index;
-    //distance_index.deserialize("../tests/graph_test/simple_nested_chains.dist");
+    //distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chains.dist");
 
    // bdsg::HashGraph graph;
-   // graph.deserialize("../tests/graph_test/simple_nested_chains.hg");
+   // graph.deserialize("../tests/test_data/test_graphs/simple_nested_chains.hg");
 
     //bdsg::PathPositionOverlayHelper overlay_helper;
     //auto path_graph = overlay_helper.apply(&graph);
@@ -297,12 +297,12 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
 
    */
 
-    //int built = system("vg index --snarl-limit 0 -j ../tests/graph_test/simple_nested_chain.nodist.dist ../tests/graph_test/simple_nested_chain.hg"); 
+    //int built = system("vg index --snarl-limit 0 -j ../tests/test_data/test_graphs/simple_nested_chain.nodist.dist ../tests/test_data/test_graphs/simple_nested_chain.hg"); 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/simple_nested_chain.nodist.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.nodist.dist");
 
     bdsg::HashGraph graph;
-    graph.deserialize("../tests/graph_test/simple_nested_chain.hg");
+    graph.deserialize("../tests/test_data/test_graphs/simple_nested_chain.hg");
 
     std::vector<handlegraph::path_handle_t> paths;
 
@@ -402,13 +402,13 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
     //}
 
     //// vg isn't included so the distance index can only be built from the command line
-    //graph.serialize("../tests/graph_test/loop_with_indel.hg");
-    //int built = system("vg index -j ../tests/graph_test/loop_with_indel.dist ../tests/graph_test/loop_with_indel.hg"); 
+    //graph.serialize("../tests/test_data/test_graphs/loop_with_indel.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/loop_with_indel.dist ../tests/test_data/test_graphs/loop_with_indel.hg"); 
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/loop_with_indel.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/loop_with_indel.dist");
 
-    graph.deserialize("../tests/graph_test/loop_with_indel.hg");
+    graph.deserialize("../tests/test_data/test_graphs/loop_with_indel.hg");
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
 
@@ -515,7 +515,7 @@ TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partit
     }
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/loop_with_indel.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/loop_with_indel.dist");
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
@@ -590,12 +590,12 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
     //}
 
     //// vg isn't included so the distance index can only be built from the command line
-    //graph.serialize("../tests/graph_test/simple_bubble.hg");
-    //int built = system("vg index -j ../tests/graph_test/simple_bubble.dist ../tests/graph_test/simple_bubble.hg"); 
+    //graph.serialize("../tests/test_data/test_graphs/simple_bubble.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/simple_bubble.dist ../tests/test_data/test_graphs/simple_bubble.hg"); 
 
-    graph.deserialize("../tests/graph_test/simple_bubble.hg");
+    graph.deserialize("../tests/test_data/test_graphs/simple_bubble.hg");
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/simple_bubble.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_bubble.dist");
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
@@ -673,13 +673,13 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
     //}
 
     //// vg isn't included so the distance index can only be built from the command line
-    //graph.serialize("../tests/graph_test/loop_with_indel_two_paths.hg");
-    //int built = system("vg index -j ../tests/graph_test/loop_with_indel_two_paths.dist ../tests/graph_test/loop_with_indel_two_paths.hg"); 
+    //graph.serialize("../tests/test_data/test_graphs/loop_with_indel_two_paths.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/loop_with_indel_two_paths.dist ../tests/test_data/test_graphs/loop_with_indel_two_paths.hg"); 
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/loop_with_indel_two_paths.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/loop_with_indel_two_paths.dist");
 
-    graph.deserialize("../tests/graph_test/loop_with_indel_two_paths.hg");
+    graph.deserialize("../tests/test_data/test_graphs/loop_with_indel_two_paths.hg");
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
 
@@ -760,12 +760,12 @@ TEST_CASE( "Path partitioner bubble with three nodes",
     //}
 
     //// vg isn't included so the distance index can only be built from the command line
-    //graph.serialize("../tests/graph_test/simple_bubble.hg");
-    //int built = system("vg index -j ../tests/graph_test/simple_bubble.dist ../tests/graph_test/simple_bubble.hg"); 
+    //graph.serialize("../tests/test_data/test_graphs/simple_bubble.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/simple_bubble.dist ../tests/test_data/test_graphs/simple_bubble.hg"); 
 
-    graph.deserialize("../tests/graph_test/simple_bubble.hg");
+    graph.deserialize("../tests/test_data/test_graphs/simple_bubble.hg");
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/simple_bubble.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_bubble.dist");
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&graph);
@@ -869,7 +869,7 @@ TEST_CASE( "Path partitioner nested bubbles with path fragments",
 
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.dist");
 
 
     bdsg::PathPositionOverlayHelper overlay_helper;
@@ -971,7 +971,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
 
 
     bdsg::SnarlDistanceIndex distance_index;
-    distance_index.deserialize("../tests/graph_test/simple_nested_chain.dist");
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.dist");
 
 
     bdsg::PathPositionOverlayHelper overlay_helper;

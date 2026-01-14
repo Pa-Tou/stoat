@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "../../src/snarl_data_t.hpp"
+#include "../../src/types_and_structs.hpp"
 #include "../../src/snarl_analyzer.hpp"
 #include "../../src/utils.hpp"
 #include "../../src/matrix.hpp"
@@ -9,17 +9,17 @@
 using namespace stoat;
 using namespace stoat_vcf;
 
-TEST_CASE("stoat::Node_traversal_t Basic Functionality") {
-    stoat::Node_traversal_t node(42, true);
+TEST_CASE("stoat::node_traversal_t Basic Functionality") {
+    stoat::node_traversal_t node(42, true);
     REQUIRE(node.get_node_id() == 42);
     REQUIRE(node.get_is_reverse() == true);
     REQUIRE(node.to_string() == "<42");
 }
 
-TEST_CASE("Edge_t Functionality") {
-    stoat::Node_traversal_t a(1, false);
-    stoat::Node_traversal_t b(2, true);
-    stoat::Edge_t edge(a, b);
+TEST_CASE("edge_t Functionality") {
+    stoat::node_traversal_t a(1, false);
+    stoat::node_traversal_t b(2, true);
+    stoat::edge_t edge(a, b);
 
     auto pair = edge.get_node_pair();
     REQUIRE(pair.first == 1);
@@ -61,9 +61,9 @@ TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
 }
 
 TEST_CASE("identify_path with EdgeBySampleMatrix") {
-    stoat::Node_traversal_t a(1, false), b(2, false), c(3, false);
-    stoat::Edge_t edge1(a, b);
-    stoat::Edge_t edge2(b, c);
+    stoat::node_traversal_t a(1, false), b(2, false), c(3, false);
+    stoat::edge_t edge1(a, b);
+    stoat::edge_t edge2(b, c);
 
     stoat::PathTraversal path;
     path.add_node_traversal_t(a);

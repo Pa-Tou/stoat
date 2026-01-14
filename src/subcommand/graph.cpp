@@ -24,39 +24,41 @@
     #include <valgrind/callgrind.h>
 #endif
 
-using namespace std;
 namespace stoat_command {
 
 void print_help_graph() {
-    std::cerr << "usage: stoat graph -g [graph] -d [distance index] -b [phenotype file] [options]" << endl
-        << "Find associated variants based on the haplotype paths present in the graph"<< endl
-        << "Computing the snarls from the distance index may be slow, so they can be saved or loaded with -s." << endl
-        << "Requires either -b to compute the associations, or -s to save the snarls in the graph. Or both to do both" << endl 
-        << endl
-        << "input:" << endl
-        << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << endl
-        << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << endl
-        << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required if -s is not given)" << endl
-        << "                                     If this is not give, then -s is required to save the snarls." << endl
-        << "  -s, --snarls FILE                  If this is file is empty, then save the snarl paths in the graph to this file. (required if -b is not given) " << endl
-        << "                                     If this is file is not empty, then load the snarl paths from this file instead of recomputing them. " << endl
-        << endl
-        << "output:" << endl
-        << "  -o, --output DIR                   Output directory name [output]" << endl
-        << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << endl
-        << "                                     Output will be written to DIR/stoat.assoc.pvalues.tsv or DIR/stoat.assoc.pvalues.fasta" << endl
-        << "options:" << endl
-        << "  -t, --threads N                    Number of threads to use" << endl
-        << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << endl
-        //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << endl
-        //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << endl
-        << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
-        //<< "  -m, --method NAME                  What method is used to find associations? (paths) [paths]" << endl
-        << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << endl
+    std::cerr << "usage: stoat graph -g [graph] -d [distance index] -b [phenotype file] [options]" << std::endl
+        << "Find associated variants based on the haplotype paths present in the graph"<< std::endl
+        << "Computing the snarls from the distance index may be slow, so they can be saved or loaded with -s." << std::endl
+        << "Requires either -b to compute the associations, or -s to save the snarls in the graph. Or both to do both" << std::endl 
+        << std::endl
+        << "input:" << std::endl
+        << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << std::endl
+        << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
+        << "  -b, --binary-pheno FILE            A tsv of \"FID IID PHENO\" for family id, sample name, and phenotype (1 or 2), one per line (required if -s is not given)" << std::endl
+        << "                                     If this is not give, then -s is required to save the snarls." << std::endl
+        << "  -s, --snarls FILE                  If this file is empty, then save the snarl paths in the graph to this file. (required if -b is not given) " << std::endl
+        << "                                     If this file is not empty, then load the snarl paths from this file instead of recomputing them. " << std::endl
+        << std::endl
+        << "output:" << std::endl
+        << "  -o, --output DIR                   Output directory name [output]" << std::endl
+        << "  -O, --output-format NAME           The format of the output (tsv / fasta) [tsv]" << std::endl
+        << "                                     Output will be written to DIR/stoat.assoc.pvalues.tsv or DIR/stoat.assoc.pvalues.fasta" << std::endl
+        << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << std::endl
+        << std::endl
+        << "options:" << std::endl
+        << "  -t, --threads N                    Number of threads to use" << std::endl
+        << "  -T, --test NAME                    Which test will be used to determine association (exact / chi2) [chi2]" << std::endl
+        //<< "  -p, --p-value-threshold FLOAT    What is the threshold p-value to be considered significant? [0.05]" << std::endl
+        //<< "                                   When used with multiple testing, discard any p-value above this threshold without doing multiple testing" << std::endl
+        << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << std::endl
+        //<< "  -m, --method NAME                What method is used to find associations? (paths) [paths]" << std::endl
+        << "  -M, --maf FLOAT                    Only consider a snarl if the allele frequencies of at least two alleles are greater than FLOAT [0.05]" << std::endl
         << "  -I, --min-individuals INT          If there are fewer than INT individuals/samples in a snarl, then ignore the snarl [1]\n"
-        << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << endl
-        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. If not given, use reference-sense paths in the graph as the references" << endl
-        << "  -h, --help                         Print this help message" << endl;
+        << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << std::endl
+        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)."
+        << "                                     If not given, use any reference-sense paths in the graph as the references" << std::endl
+        << "  -h, --help                         Print this help message" << std::endl;
 }
 
 int main_stoat_graph(int argc, char *argv[]) {
@@ -78,6 +80,8 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::vector<std::string> samples;
     std::string output_format= "tsv";
     std::string output_dir="output";
+
+    bool find_allele_lengths = false; 
 
     double maf_threshold = 0.05;
     size_t min_individuals = 1;
@@ -101,6 +105,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"snarls", required_argument, 0, 's'},
                 {"output", required_argument, 0, 'o'},
                 {"output-format", required_argument, 0, 'O'},
+                {"allele-length", no_argument, 0, 'L'},
                 {"verbose", required_argument, 0, 'V'},
                 {"skip-bh-correction", no_argument, 0, 'B'},
                 {"help", no_argument, 0, 'h'},
@@ -108,7 +113,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:s:V:I:M:o:O:h",
+        c = getopt_long(argc, argv, "g:d:l:t:T:r:b:s:V:I:M:o:O:Lh",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -168,6 +173,9 @@ int main_stoat_graph(int argc, char *argv[]) {
                 break;
             case 'O':
                 output_format = optarg;
+                break;
+            case 'L':
+                find_allele_lengths = true;
                 break;
             case 'M':
                 maf_threshold = std::stod(optarg);
@@ -301,7 +309,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     stoat::LOG_INFO("Loading graph and preparing indexes...");
 
     // Load the graph and make it a PathPositionHandleGraph
-    unique_ptr<handlegraph::PathHandleGraph> handle_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
+    std::unique_ptr<handlegraph::PathHandleGraph> handle_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
 
 
     /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names
@@ -389,10 +397,11 @@ int main_stoat_graph(int argc, char *argv[]) {
     if (!load_snarls) {
         snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
                                             true, // Find the sets of samples in each allele (walk through the snarl) before finding the walks themselves
-                                            true, // find walks
+                                            output_format == "fasta" || find_allele_lengths, // find walks (used for sequences or for lengths)
                                             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks
                                                  std::vector<PathTraversal>& walks) {
-                                                return snarl_collection.get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
+                                                // If we actually need the walks to get the sequences or the lengths
+                                                return SnarlDataCollection::get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
                                             },
                                             true, // find the alleles
                                             // Function to find the alleles 
@@ -430,7 +439,6 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info){
             // For each snarl, get the genotype/phenotype matrix, do the statistics, and write the output
-
 
             // Declare a bunch of strings that are needed for the output
             string group_paths = "NA";
@@ -506,7 +514,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 }
 
                 // Don't consider this snarl if the maximum length is too small
-                size_t max_length = 0;
+                size_t max_length = snarl_info.walks_by_allele.size() == 0 ? std::numeric_limits<size_t>::max() : 0;
                 for (const PathTraversal& path : snarl_info.walks_by_allele) {
                     max_length = std::max(max_length, path.get_max_allele_length());
                 }

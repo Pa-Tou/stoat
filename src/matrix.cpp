@@ -24,7 +24,7 @@ std::string EdgeBySampleMatrix::get_sample_name(size_t sample_idx) const {
 
     
 // Add True to the matrix if edge is found
-void EdgeBySampleMatrix::add_sample_edge(const stoat::Edge_t& edge, size_t col_index) {
+void EdgeBySampleMatrix::add_sample_edge(const stoat::edge_t& edge, size_t col_index) {
     // look for that edge in the matrix
     auto it = row_header.find(edge);
     if (it != row_header.end()) {
@@ -51,17 +51,17 @@ void EdgeBySampleMatrix::expand_matrix() {
 
 // Overloaded operator() to access elements as matrix(row, col)
 bool EdgeBySampleMatrix::operator()(size_t row, size_t col) const {
-    return (matrix_1D[row * n_samp_haps + col]);
+    return (matrix_1D.at(row * n_samp_haps + col));
 }
 
 bool EdgeBySampleMatrix::get_edge(size_t row, size_t col) const {
-    return (matrix_1D[row * n_samp_haps + col]);
+    return (matrix_1D.at(row * n_samp_haps + col));
 }
 
     
 // Function to set a specific element (row, col) to true
 void EdgeBySampleMatrix::set_edge(size_t row, size_t col) {
-    matrix_1D[row * n_samp_haps + col] = true;
+    matrix_1D.at(row * n_samp_haps + col) = true;
 }
 
 void EdgeBySampleMatrix::shrink() {
@@ -86,7 +86,7 @@ void EdgeBySampleMatrix::clear_edges(size_t new_n_edges) {
 // Function to identify the path in the edge matrix
 std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTraversal &path_trav) const {
 
-    const std::vector<stoat::Node_traversal_t> &path = path_trav.get_path();
+    const std::vector<stoat::node_traversal_t> &path = path_trav.get_path();
     
     // get the subset of rows to check for that path and its flipped version
     // we'll check N edges, N being the number of nodes in the path - 1
@@ -106,7 +106,7 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTra
         }
 
         // make an edge
-        stoat::Edge_t edge(path[i], path[i + 1]);
+        stoat::edge_t edge(path[i], path[i + 1]);
 
         // if we can find that edge, save its index in the edge matrix
         auto itr = row_header.find(edge);
@@ -117,7 +117,7 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTra
             rows_to_check.push_back(itr->second);
         }
         // check the flipped edge
-        stoat::Edge_t edge_flipped = edge.get_flipped();
+        stoat::edge_t edge_flipped = edge.get_flipped();
         auto itr_flipped = row_header.find(edge_flipped);
         if (itr_flipped == row_header.end()) {
             // if at least one edge not found, abort early and skip this path below
