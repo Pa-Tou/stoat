@@ -35,7 +35,7 @@ void EdgeBySampleMatrix::add_sample_edge(const stoat::Edge_t& edge, size_t col_i
         size_t new_idx = row_header.size();
         row_header[edge] = new_idx;
         // expand the matrix if we used up all the allocated rows
-        if (new_idx > max_edges) {
+        if (new_idx >= max_edges) {
             expand_matrix();
         }
         // set that edge for the specified sample-hap
@@ -46,7 +46,6 @@ void EdgeBySampleMatrix::add_sample_edge(const stoat::Edge_t& edge, size_t col_i
 // Double the number of elements in the matrix
 void EdgeBySampleMatrix::expand_matrix() {
     max_edges *= 2;  
-    // matrix_1D.reserve(new_length);
     matrix_1D.resize(matrix_1D.size() * 2, false); // Initialize new memory with zeros
 }
 

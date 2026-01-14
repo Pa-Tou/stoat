@@ -249,6 +249,7 @@ namespace stoat_vcf {
             }
             free(gt);
 
+
         } while ((bcf_read(ptr_vcf, hdr, rec) >= 0) && (chr == bcf_hdr_id2name(hdr, rec->rid)));
 
         edge_matrix.shrink();

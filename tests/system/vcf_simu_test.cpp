@@ -29,16 +29,10 @@ bool run_test_snarl(
     SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
     SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
 
-    ifstream in_test;
-    in_test.open(output_dir + "/snarl_info.tsv");
-    test_snarl.load_snarl_data_collection(in_test);
-    in_test.close();
-
-    ifstream in_truth;
-    in_truth.open(expected_dir + "/snarl_info.tsv");
-    truth_snarl.load_snarl_data_collection(in_truth);
-    in_truth.close();
-
+    std::string filename = output_dir + "/snarl_info.tsv";
+    test_snarl.load_snarl_data_collection(filename);
+    filename = expected_dir + "/snarl_info.tsv";
+    truth_snarl.load_snarl_data_collection(filename);
     clean_output_dir(output_dir);
 
     return SnarlDataCollection::is_equivalent(test_snarl, truth_snarl); 

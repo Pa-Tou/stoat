@@ -113,7 +113,7 @@ bool check_last_columns_quantitative_table(
     size_t num_rows = X.size();
 
     // Check if the lonely columns have identical values
-    for (size_t r = 1; r < num_rows-1; ++r) {
+    for (size_t r = 1; r < num_rows; ++r) {
         if (X[r][0] != X[0][0]) {
             return false; // Not identical, keep
         }

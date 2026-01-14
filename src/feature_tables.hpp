@@ -73,7 +73,7 @@ class FeatureBySampleTable {
 
     // return a vector with the names of all samples
     std::vector<std::string> get_sample_names() const;
-    
+
     protected:
     // Map from the samples that we have features for to their index in values_per_sample
     const std::unordered_map<std::string, size_t>& sample_to_index;
@@ -154,6 +154,7 @@ class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
     size_t get_allele_count() const {
         return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
     }
+
 };
 
 class CombinedTable {

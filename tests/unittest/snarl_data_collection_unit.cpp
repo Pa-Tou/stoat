@@ -83,10 +83,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
         outstream.close();
         
         TestSnarlDataCollection snarl_collection_loaded(1,1,1);
-        ifstream instream;
-        instream.open(test_file);
-        snarl_collection_loaded.load_snarl_data_collection(instream);
-        instream.close();
+        snarl_collection_loaded.load_snarl_data_collection(test_file);
 
         REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, snarl_collection_loaded));
 
@@ -712,10 +709,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             outstream.close();
 
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            ifstream instream;
-            instream.open(test_file);
-            loaded_snarl_collection.load_snarl_data_collection(instream);
-            instream.close();
+            loaded_snarl_collection.load_snarl_data_collection(test_file);
 
             check_collection(loaded_snarl_collection, true, true, true, false);
 
@@ -1474,10 +1468,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             outstream.close();
 
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            ifstream instream;
-            instream.open(test_file);
-            loaded_snarl_collection.load_snarl_data_collection(instream);
-            instream.close();
+            loaded_snarl_collection.load_snarl_data_collection(test_file);
 
             check_collection(loaded_snarl_collection, true, true, true, false, true);
 

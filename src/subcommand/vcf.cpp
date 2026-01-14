@@ -18,6 +18,7 @@
 #include "../post_processing.hpp"
 #include "../io/register_io.hpp"
 #include "../feature_tables.hpp"
+#include "../path_partitioner.hpp"
 
 namespace stoat_command {
 
@@ -296,10 +297,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
         stoat::LOG_TRACE("Reading snarl path file");
-        ifstream snarls_in;
-        snarls_in.open(snarl_path);
-        snarl_collection.load_snarl_data_collection(snarls_in);
-        snarls_in.close();
+        snarl_collection.load_snarl_data_collection(snarl_path);
 
     } else { // Otherwise, find them from the graph and snarl tree
         stoat::LOG_INFO("Starting snarl decomposition... ");
@@ -323,10 +321,19 @@ int main_stoat_vcf(int argc, char* argv[]) {
             sample_haplotypes.emplace_back(sample, "");
         }
 
+        // Get all the samples+haplotypes in the graph?
+        std::vector<stoat::sample_hap_t> all_sample_haplotypes;
+        graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+            std::string sample_name = stoat::get_sample_name_from_path(*graph, path);
+            all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*graph, path));
+            return true;
+        });
+
+        // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
         snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
             true, //find_alleles_first, doesn't matter in this case
             true, // walks_requested
-            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,std::vector<PathTraversal>& walks) { // function to fill in walks
+            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
                 SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's version and write the skipped snarls somewhere
             },
             false, //alleles_requested
@@ -338,10 +345,30 @@ int main_stoat_vcf(int argc, char* argv[]) {
             false //check distances
             ); 
 
+        // ideally we would like to enumerate only walks that correspond to real haplotypes, like stoat graph.
+        // however the current implementation doesn't scale well. It works for pg/hg, but we would need to use GBZ for our human pangenome that has a lot of haplotypes, and that is currently extremely slow.
+        // still, in that case, we might do something like this:
+        // snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, all_sample_haplotypes,
+        //     true, //find_alleles_first, doesn't matter in this case
+        //     true, // walks_requested
+        //     [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
+        //         SnarlDataCollection::get_walks_from_alleles(*path_position_graph, *distance_index, snarl, snarl_data, walks); // use Xian's better but not feasible for large pangenomes with many haplotypes (human)
+        //     },
+        //     true, //alleles_requested
+        //     // Function to find the alleles 
+        //     [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
+        //          const std::vector<stoat::sample_hap_t>& sample_haplotypes) {
+        //         return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, *distance_index, snarl, sample_haplotypes);
+        //     },
+        //     false, // sequence_requested 
+        //     ref_chrs, // reference 
+        //     false //check distances
+        //     ); 
+
         // Always write the snarls
         ofstream snarls_out;
         snarls_out.open(output_dir + "/snarl_info.tsv");
-        snarl_collection.write_snarl_data_collection(snarls_out);
+        snarl_collection.write_snarl_data_collection(snarls_out, false);
         snarls_out.close();
 
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
@@ -392,6 +419,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     snarl_analyzer->genotype_test_snarls_by_chr_from_vcf(ptr_vcf, hdr, rec, output_dir);
 
     // eventually, make a GAF to visualize the tested snarls and their association signal
+    // JEAN this also assumes that the graph was loaded, which technically happens only when we need to prepare the snarls
     if (snarl_analyzer->get_phenotype_type() == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
         std::string output_gaf = output_dir + "/stoat.assoc.gaf";

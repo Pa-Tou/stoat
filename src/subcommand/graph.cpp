@@ -370,10 +370,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     size_t walk_steps_limit = std::numeric_limits<size_t>::max();
     SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit);
     if (load_snarls) {
-        std::ifstream in_snarls;
-        in_snarls.open(snarls_filename);
-        snarl_collection.load_snarl_data_collection(in_snarls);
-        in_snarls.close();
+        snarl_collection.load_snarl_data_collection(snarls_filename);
     }
 
     ////////////////////////////////////////////////// Start doing work

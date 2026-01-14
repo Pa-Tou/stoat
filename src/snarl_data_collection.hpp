@@ -130,7 +130,7 @@ class SnarlDataCollection {
         /// The walks, sample sets, and sequences must all match each other, and the walks may be dependent on the sample sets or vice versa 
         /// find_alleles_first is true if we want to find the sample sets first and then walks based on the sample sets, and false to do the opposite.
         ///    If only one or the other of sample sets and walks is requested then find_alleles_first doesn't matter.
-        /// find_sample_sample_alleles and find_walks must be check the walks or sample sets accordingly to make sure that they match.
+        /// find_alleles_by_sample and find_walks must check the walks or sample sets accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
         /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_alleles that may be used for find_walks
         /// If reference_samples is not empty, get coordinates on one of these reference path. If it is empty then the coordinates will be on any path
@@ -165,11 +165,11 @@ class SnarlDataCollection {
         void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
 
         /// Write the collection of snarls to the given file
-        void write_snarl_data_collection(std::ostream& outstream) const;
+        void write_snarl_data_collection(std::ostream& outstream, const bool output_samples = true) const;
         
         /// Load the collection of snarls from the given file
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
-        void load_snarl_data_collection(std::istream& instream); 
+        void load_snarl_data_collection(std::string& filename); 
 
         size_t size() const {return all_snarl_data.size();}
 

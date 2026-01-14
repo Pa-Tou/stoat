@@ -145,7 +145,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 //This might cause problems because it is a reference but it doesn't get used so I think its fine
                                 // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
                                 GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
-
+                                
                                 // TODO decide how to deal with snarls without walks
                                 bool save_snarl = true;
 
@@ -791,7 +791,7 @@ The 9th item is all of the sequences, comma separated. "." if not present
 The remaining items are the allele number for each sample. "." if the sample is not present in the snarl
 
 */
-void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) const {
+void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, const bool output_samples) const {
 
     // Write the header
     outstream << file_header << endl;
@@ -806,16 +806,16 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
         outstream << "#" << ref << endl;
     }
     
-
     //Finally the snarls
     // Start with a header that will contain the names of all samples
     outstream << "#SNARLS" << endl;
     outstream << "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
 
     // The header also includes a list of sample/haplotypes
-    size_t sample_count = 0;
-    for (const auto& samp : all_sample_haplotypes) {
-        outstream << "\t" << samp.sample << "#" + samp.haplotype;
+    if (output_samples) {
+        for (const auto& samp : all_sample_haplotypes) {
+            outstream << "\t" << samp.sample << "#" + samp.haplotype;
+        }
     }
     outstream << endl;
 
@@ -859,7 +859,9 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
         }
 
         // Next add the allele assignments, if there are any
-        if (snarl_to_alleles_by_sample.empty()) {
+        if (not output_samples) {
+            // do nothing, we don't want to output samples
+        } else if (snarl_to_alleles_by_sample.empty()) {
             for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
                 outstream << "\t.";
             }
@@ -893,7 +895,10 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
     return;
 }
 
-void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
+void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
+    // open file connection
+    ifstream instream;
+    instream.open(filename);
 
     // Clear anything that has already been filled in, since we want it to match what was in the file
     all_snarl_data.clear();
@@ -1094,6 +1099,8 @@ void SnarlDataCollection::load_snarl_data_collection(std::istream& instream) {
         }
     }
 
+    // close file connection
+    instream.close();
     return;
 }
 
