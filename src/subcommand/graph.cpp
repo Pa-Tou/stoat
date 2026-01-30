@@ -529,7 +529,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                     group_paths = stoat_vcf::format_group_paths(sample_count_by_allele1, sample_count_by_allele2);
                 
                     // Run the statistical test
-                    std::tie(chi2_p_value, fastfisher_p_value) = fisher_chi2_tester.fisher_chi2(sample_count_by_allele1, sample_count_by_allele2);
+                    std::tie(fastfisher_p_value, chi2_p_value) = fisher_chi2_tester.fisher_chi2(sample_count_by_allele1, sample_count_by_allele2);
 
                     write_output = true;
                 

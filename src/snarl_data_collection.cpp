@@ -349,6 +349,91 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
 
 }
 
+void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, htsFile *&ptr_vcf, bcf_hdr_t *&hdr, bcf1_t *&rec) {
+    // we'll use this edge matrix object
+    // TODO find the vector of sample names from the VCF header?
+    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
+    // use the corresponding sample-haplotypes for this collection
+    // remove any existing sample in the collection first
+    all_sample_haplotypes.clear();
+    // add two haplotypes per sample
+    for (std::string sample_name: sample_names) {
+        for (std::string hap_name: {"0", "1"}) {
+            sample_hap_t samp_hap;
+            samp_hap.sample = sample_name;
+            samp_hap.haplotype = hap_name;
+            all_sample_haplotypes.emplace_back(samp_hap);
+        }
+    }
+    // Fill in sample_to_index
+    size_t sample_index = 0;
+    for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
+        if (!sample_to_index.count(sample_hap.sample)) {
+            sample_to_index.emplace(sample_hap.sample, sample_index++);
+        }
+    }
+    // now the index in the edge matrix should match the index in the collection sample-hap list
+    
+    // read the VCF by chunk, build the edge matrix and genotype each snarl
+    while (bcf_read(ptr_vcf, hdr, rec) >= 0) {
+        std::string chr = bcf_hdr_id2name(hdr, rec->rid);
+        // Skip chromosomes not in ref_chrs
+        while (std::find(reference_names.begin(), reference_names.end(), chr) == reference_names.end()) {
+            stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.");
+            bool found_new_chr = false;
+            while (bcf_read(ptr_vcf, hdr, rec) >= 0)
+                {
+                    std::string chr_next = bcf_hdr_id2name(hdr, rec->rid);
+                    if (chr_next != chr)
+                        {
+                            chr = chr_next; // Update to the new chromosome
+                            found_new_chr = true;
+                            break;
+                        }
+                }
+            
+            if (!found_new_chr)
+                {
+                    return; // exit if no more records are available
+                }
+        }
+        // start analyzing this chromosome chr
+        stoat::LOG_INFO("Analysing chr : " + chr);
+        auto timer_start_chr = std::chrono::high_resolution_clock::now();
+
+        // prepare the edge matrix for this chromosome by reading the VCF
+        auto [ptr_vcf_new, hdr_new, rec_new] = edge_matrix.load_vcf_chunk(ptr_vcf, hdr, rec, chr);
+        ptr_vcf = ptr_vcf_new;
+        hdr = hdr_new;
+        rec = rec_new;
+        
+        auto timer_end_matrix = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Edge matrix construction for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_matrix - timer_start_chr).count()) + " s");
+
+        add_alleles_by_sample([&] (const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) {
+            // JEAN init with max of size_t which I believe means "absent"/"no allele"
+            std::vector<size_t> allele_idx(all_sample_haplotypes.size(), std::numeric_limits<size_t>::max());
+
+            for (size_t al_idx = 0; al_idx < snarl_data.walks_by_allele.size(); al_idx++) {
+                stoat::PathTraversal path_trav = snarl_data.walks_by_allele.at(al_idx);
+                for (size_t samp_hap_idx: edge_matrix.get_samples_on_path(path_trav)) {
+                    allele_idx.at(samp_hap_idx) = al_idx;
+                }
+            }
+            
+            return allele_idx;
+        }, chr);
+
+        auto timer_end_chr = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Snarl genotypes retrieved in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_end_matrix).count()) + " s");
+        stoat::LOG_INFO("Total time for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_start_chr).count()) + " s");
+    }
+        
+    // Cleanup
+    bcf_destroy(rec);
+    bcf_hdr_destroy(hdr);
+    bcf_close(ptr_vcf);
+}
 
 // Call interatee for all snarls
 // TODO: Make this parallel
@@ -364,7 +449,7 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
             std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
         }
         #endif
-
+        
         // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
         // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
         if (snarl_to_alleles_by_sample.count(snarl_info.start_node)) {
@@ -375,7 +460,6 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
                 }
             }
         }
-
 
         allele_by_sample_t empty_alleles;
         std::vector<PathTraversal> empty_walks (0); 
@@ -790,8 +874,8 @@ The 9th item is all of the sequences, comma separated. "." if not present
 The remaining items are the allele number for each sample. "." if the sample is not present in the snarl
 
 */
-void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, const bool output_samples) const {
-
+void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) const {
+    
     // Write the header
     outstream << file_header << std::endl;
 
@@ -811,10 +895,8 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, c
     outstream << "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
 
     // The header also includes a list of sample/haplotypes
-    if (output_samples) {
-        for (const auto& samp : all_sample_haplotypes) {
-            outstream << "\t" << samp.sample << "#" + samp.haplotype;
-        }
+    for (const auto& samp : all_sample_haplotypes) {
+        outstream << "\t" << samp.sample << "#" + samp.haplotype;
     }
     outstream << std::endl;
 
@@ -858,9 +940,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream, c
         }
 
         // Next add the allele assignments, if there are any
-        if (not output_samples) {
-            // do nothing, we don't want to output samples
-        } else if (snarl_to_alleles_by_sample.empty()) {
+        if (snarl_to_alleles_by_sample.empty()) {
             for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
                 outstream << "\t.";
             }
@@ -1314,5 +1394,6 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
     }
     return true;
 }
+    
 }
 

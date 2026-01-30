@@ -94,18 +94,18 @@ std::vector<bool> parse_binary_pheno(
 
     return vector_binary_pheno;
 }
+    
+stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
+    // fill this map first
+    std::unordered_map<std::string, bool> binary_pheno;
+    // should we update the sample to index map? yes if it's empty at the start
+    bool update_sample_to_index = sample_to_index.empty();
 
-
-std::vector<double> parse_quantitative_pheno(
-    const std::string& file_path, 
-    const std::vector<std::string>& list_samples) {
-
-    std::unordered_map<std::string, double> quantitative_pheno;
-
+    // prepare to read the file
     std::ifstream file(file_path);
     std::string line;
 
-    // Read and validate header (assumes file open and first line exists)
+    // read the header and check for expected column names (SAMPLE, then PHENO)
     std::getline(file, line);
     std::istringstream header_stream(line);
     std::string sample_name, phenoStr;
@@ -113,42 +113,277 @@ std::vector<double> parse_quantitative_pheno(
     if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
         throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
     }
-
-    int count_pheno = 0;
-
+    
+    // read each line and tally the number of cases and controls (for the log)
+    int count_controls = 0;
+    int count_cases = 0;
+    size_t sample_idx = 0;
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-
         if (!(iss >> sample_name >> phenoStr)) {
-            throw std::invalid_argument("In parsing phenotype, malformed line: " + line);
+            throw std::invalid_argument("Malformed line: " + line);
         }
-
+        int pheno;
+        // make sure the phenotype is an integer
         try {
+            pheno = std::stoi(phenoStr);
+        } catch (...) {
+            throw std::invalid_argument("Bad phenotype type: " + phenoStr);
+        }
+        // make sure phenotype is 0 or 1
+        if (pheno == 0) {
+            ++count_controls;
+        } else if (pheno == 1) {
+            ++count_cases;
+        } else {
+            throw std::invalid_argument("Binary phenotype must be 0 or 1, got: " + std::to_string(pheno));
+        }
+        // add the sample and phenotype to the temporary map
+        binary_pheno[sample_name] = pheno == 1;
+        if (update_sample_to_index) {
+            sample_to_index[sample_name] = sample_idx++;
+        }
+    }
+
+    stoat::LOG_INFO("Binary phenotypes found: " + std::to_string(count_controls + count_cases)
+        + " (Control: " + std::to_string(count_controls)
+        + ", Case: " + std::to_string(count_cases) + ")");
+
+    file.close();
+
+    // Prepare the Table object to fill and output
+    // ideally we could fill it when reading each line
+    stoat::BinaryPhenotypeTable* output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
+    for (const auto samp_pheno: binary_pheno){
+        // add the sample and phenotype to the Table
+        if (output_table->has_sample(samp_pheno.first)) {
+            output_table->set_value_for_sample(samp_pheno.first, samp_pheno.second);
+        }
+    }
+
+    return (output_table);
+}
+
+stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
+    // fill this map first
+    std::unordered_map<std::string, double> quantitative_pheno;
+    // should we update the sample to index map? yes if it's empty at the start
+    bool update_sample_to_index = sample_to_index.empty();
+
+    // prepare to read the file
+    std::ifstream file(file_path);
+    std::string line;
+
+    // read the header and check for expected column names (SAMPLE, then PHENO)
+    std::getline(file, line);
+    std::istringstream header_stream(line);
+    std::string sample_name, phenoStr;
+    header_stream >> sample_name >> phenoStr;
+    if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
+        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
+    }
+    
+    // read each line and tally the number of cases and controls (for the log)
+    int samp_with_pheno = 0;
+    size_t sample_idx = 0;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        if (!(iss >> sample_name >> phenoStr)) {
+            throw std::invalid_argument("Malformed line: " + line);
+        }
+        // make sure the phenotype is a double
+        try {
+            // add the sample and phenotype to the temporary map
             quantitative_pheno[sample_name] = std::stod(phenoStr);
         } catch (...) {
             throw std::invalid_argument("Bad phenotype type: " + phenoStr);
         }
-
-        ++count_pheno;
+        samp_with_pheno++;
+        if (update_sample_to_index) {
+            sample_to_index[sample_name] = sample_idx++;
+        }
     }
-
-    stoat::LOG_INFO("Quantitative phenotypes found: " + std::to_string(count_pheno));
-
     file.close();
+    stoat::LOG_INFO("Quantitative phenotypes found for " + std::to_string(samp_with_pheno) + " samples");
 
-    check_match_samples(quantitative_pheno, list_samples);
-
-    std::vector<double> vector_quantitative_pheno;
-    vector_quantitative_pheno.reserve(list_samples.size());
-
-    for (const auto& sample : list_samples) {
-        auto it = quantitative_pheno.find(sample);
-        if (it != quantitative_pheno.end()) {
-            vector_quantitative_pheno.push_back(it->second);
+    // Prepare the Table object to fill and output
+    // ideally we could fill it when reading each line
+    stoat::QuantitativePhenotypeTable* output_table = new stoat::QuantitativePhenotypeTable(sample_to_index);
+    for (const auto samp_pheno: quantitative_pheno){
+        // add the sample and phenotype to the Table
+        if (output_table->has_sample(samp_pheno.first)) {
+            output_table->set_value_for_sample(samp_pheno.first, samp_pheno.second);
         }
     }
 
-    return vector_quantitative_pheno;
+    return (output_table);
+}
+
+stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_expression_path, const std::string& gene_position_path, std::unordered_map<std::string, size_t>& sample_to_index, std::unordered_map<std::string, size_t>& gene_to_index) {
+    // should we update the sample to index map? yes if it's empty at the start
+    bool update_sample_to_index = sample_to_index.empty();
+    // currently we expect an empty gene_to_index map because we might have gotten samples from
+    // another file but we won't have gotten genes from another file
+    assert(gene_to_index.empty());
+
+    // prepare to read and parse the gene expression file
+    std::ifstream file(gene_expression_path);
+    std::string line;
+    std::string line_value;
+    std::getline(file, line);
+
+    // read the header and define the map sample-> index
+    std::stringstream ss_header(line);
+    std::getline(ss_header, line_value, '\t'); // Skip the first column (gene name)
+    size_t samp_index = 0;
+    std::vector<std::string> sample_names;
+    while (std::getline(ss_header, line_value, '\t')) {
+        // always save the order of the samples to know which column corresponds to what
+        sample_names.emplace_back(line_value);
+        // eventually set the sample->index map
+        if (update_sample_to_index) {
+            sample_to_index[line_value] = samp_index++;
+        }
+    }
+
+    // fill this map: sample name -> expression vector for all genes
+    std::unordered_map<std::string, std::vector<double>> ge_map;
+    // read gene expressions for each gene
+    size_t gene_idx = 0;
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        // parse the gene name
+        std::string gene_name;
+        std::getline(ss, gene_name, '\t');
+        // append that gene's expression for each sample
+        samp_index = 0;
+        while (std::getline(ss, line_value, '\t')) {
+            try {
+                ge_map[sample_names[samp_index]].push_back(std::stod(line_value));
+                samp_index++;
+            } catch (...) {
+                throw std::invalid_argument("Invalid expression value for gene " + gene_name + ": " + line_value);
+            }
+        }
+        // save the gene index
+        gene_to_index[gene_name] = gene_idx++;
+    }
+
+    // close the file connection
+    file.close();
+
+    // Prepare the Table object to fill and output
+    // ideally we could fill it when reading each line
+    stoat::GeneExpressionTable* output_table = new stoat::GeneExpressionTable(sample_to_index, gene_to_index);
+    for (const auto samp_ge: ge_map){
+        // add the sample and gene expression to the Table
+        if (output_table->has_sample(samp_ge.first)) {
+            for (const auto& gene_idx : gene_to_index) {
+                output_table->set_value_for_sample_and_feature(samp_ge.first, gene_idx.first, samp_ge.second[gene_idx.second]);
+            }
+        }
+    }
+
+    // add gene positions from the file
+    output_table->read_gene_positions_from_file(gene_position_path);
+
+    return (output_table);
+
+}
+    
+stoat::CovariateTable* parse_covariate_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index,
+                                             std::unordered_map<std::string, size_t>& covar_to_index) {
+    // fill this map first
+    std::unordered_map<std::string, std::vector<double>> covariate_map;
+    // should we update the sample to index map? yes if it's empty at the start
+    bool update_sample_to_index = sample_to_index.empty();
+    // currently we need a non empty sample_to_index map defining which covariables to use
+    assert(!covar_to_index.empty());
+
+    // prepare to read the file
+    std::ifstream file(file_path);
+    std::string line;
+
+    // read the header and check for expected column names (at least SAMPLE)
+    std::vector<std::string> headers;
+    std::getline(file, line);
+    std::istringstream header_stream(line);
+    std::string head_val;
+    while (header_stream >> head_val) {
+        headers.push_back(head_val);
+    }
+
+    // check for a SAMPLE column
+    auto samp_head_it = std::find(headers.begin(), headers.end(), "SAMPLE");
+    if (samp_head_it == headers.end()) {
+        throw std::invalid_argument("header must include 'SAMPLE' column.\n");
+    }
+    size_t samp_head_idx = std::distance(headers.begin(), samp_head_it);
+
+    // save the position of each covariate column
+    std::unordered_map<std::string, size_t> col_index;
+    for (size_t i = 0; i < headers.size(); ++i) {
+        col_index[headers[i]] = i;
+    }
+
+    // check specified covariate columns
+    // also save the maximum covar index that will define the size of the vectors in covariate_map
+    size_t max_covar_idx = 0;
+    for (const auto& covar_idx : covar_to_index) {
+        if (col_index.find(covar_idx.first) == col_index.end()) {
+            throw std::invalid_argument("covariate column '" + covar_idx.first + "' not found in file.\n");
+        }
+        if (max_covar_idx < covar_idx.second) {
+            max_covar_idx = covar_idx.second;
+        }
+    }
+    
+    // read covariates for each sample
+    size_t sample_idx = 0;
+    while (std::getline(file, line)) {
+        // parse the line into a vector
+        std::istringstream line_stream(line);
+        std::vector<std::string> line_vec;
+        std::string line_val;
+        while (line_stream >> line_val) {
+            line_vec.push_back(line_val);
+        }
+        
+        if (line_vec.size() <= samp_head_idx) continue; // JEAN isn't that a sign that the file is wrong and we should raise an error?
+
+        // extract the specified covariables
+        std::string samp_name = line_vec[samp_head_idx];
+        // prepare a vector with enough elements to fill the value using covar_to_index
+        std::vector<double> samp_covars(max_covar_idx + 1);
+        try {
+            for (const auto& covar_idx : covar_to_index) {
+                samp_covars[covar_idx.second] = std::stod(line_vec[col_index[covar_idx.first]]);
+            }
+        } catch (...) {
+            throw std::invalid_argument("Individual " + samp_name + " got an non-numeric value\n");
+        }
+        covariate_map[samp_name] = samp_covars;
+        if (update_sample_to_index) {
+            sample_to_index[samp_name] = sample_idx++;
+        }
+    }
+
+    // close the file connection
+    file.close();
+
+    // Prepare the Table object to fill and output
+    // ideally we could fill it when reading each line
+    stoat::CovariateTable* output_table = new stoat::CovariateTable(sample_to_index, covar_to_index);
+    for (const auto samp_covar: covariate_map){
+        // add the sample and phenotype to the Table
+        if (output_table->has_sample(samp_covar.first)) {
+            for (const auto& covar_idx : covar_to_index) {
+                output_table->set_value_for_sample_and_feature(samp_covar.first, covar_idx.first, samp_covar.second[covar_idx.second]);
+            }
+        }
+    }
+
+    return (output_table);
 }
 
 // Function to open a VCF file and return pointers to the file, header, and record
@@ -203,221 +438,6 @@ void check_match_samples(const std::unordered_map<std::string, T>& map, const st
     if (map.size() != keys.size()) {
         stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").");
     }
-}
-
-// dict chr:string : vector{(geneName:string, sample_expression:vector<double>, start_pos:size_t, end_pos:size_t)}
-std::unordered_map<std::string, std::vector<Qtl_data>> parse_qtl_gene_file(
-    const std::string& eqtl_path, 
-    const std::string& gene_position_path, 
-    const std::vector<std::string>& list_samples) {
-
-    // dict sampleName:string : std::vector<double> sample_expression
-    auto qtl = parse_qtl_file(eqtl_path, list_samples); // and check in the same time
-
-    // dict geneName:string : tuple{chrom:string, start_pos:size_t, end_pos:size_t}
-    auto gene_position = parse_gene_positions(gene_position_path);
-    std::unordered_map<std::string, std::vector<Qtl_data>> qtl_map;
-
-    for (const auto& [gene, expression_vector] : qtl) {
-        auto it = gene_position.find(gene);
-        if (it != gene_position.end()) {
-            const auto& [chrom, start, end] = it->second;
-            Qtl_data qtl_info(gene, expression_vector, start, end);
-            qtl_map[chrom].emplace_back(qtl_info);
-        } else {
-            throw std::invalid_argument("Gene " + gene + " not found in gene positions.");
-        }
-    }
-  
-    // Warn if gene_position has more genes than qtl
-    if (gene_position.size() > qtl.size()) {
-        stoat::LOG_WARN("More genes present in the gene position file than in the QTL file.");
-    }
-
-    return qtl_map;
-}
-
-// Function to parse the gene positions file
-// dict geneName:string : tuple{chrom:string, start_pos:size_t, end_pos:size_t}
-std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_gene_positions(
-    const std::string& filename) {
-
-    std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> geneMap;
-    std::ifstream file(filename);
-    std::string line;
-
-    // Read and validate header (assumes file and first line already checked)
-    std::getline(file, line);
-    std::stringstream ss_header(line);
-    std::string gene, chrom, startStr, endStr;
-    std::getline(ss_header, gene, '\t');
-    std::getline(ss_header, chrom, '\t');
-    std::getline(ss_header, startStr, '\t');
-    std::getline(ss_header, endStr, '\t');
-
-    if (gene != "gene_name" || chrom != "chr" || startStr != "start" || endStr != "end") {
-        throw std::invalid_argument("Invalid gene position header. Expected: gene_name, chr, start, and end. Got " + line);
-    }
-
-    // Parse content
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string gene_val, chrom_val, start_val, end_val;
-
-        if (!std::getline(ss, gene_val, '\t') ||
-            !std::getline(ss, chrom_val, '\t') ||
-            !std::getline(ss, start_val, '\t') ||
-            !std::getline(ss, end_val, '\t')) {
-            throw std::invalid_argument("In parsing gene position file, malformed line: " + line);
-        }
-
-        try {
-            size_t start = std::stoull(start_val);
-            size_t end = std::stoull(end_val);
-            geneMap[gene_val] = std::make_tuple(chrom_val, start, end);
-        } catch (...) {
-            throw std::invalid_argument("In parsing gene position file, invalid numeric value in line: " + line);
-        }
-    }
-
-    file.close();
-    return geneMap;
-}
-
-// Function to parse the qtl file
-// dict sampleName:string : std::vector<double> sample_expression
-std::unordered_map<std::string, std::vector<double>> parse_qtl_file(
-    const std::string& filename, const std::vector<std::string>& list_samples) {
-
-    std::ifstream file(filename);
-    std::unordered_map<std::string, std::vector<double>> geneExpressions;
-
-    std::string line;
-
-    // --- Parse and validate header ---
-    std::getline(file, line);
-    std::stringstream ss_header(line);
-    std::string token;
-
-    std::getline(ss_header, token, '\t'); // Skip the first column (gene name)
-
-    std::vector<std::string> sampleNames;
-    while (std::getline(ss_header, token, '\t')) {
-        sampleNames.push_back(token);
-    }
-
-    // Validate sample names
-    for (const auto& sample : sampleNames) {
-        if (std::find(list_samples.begin(), list_samples.end(), sample) == list_samples.end()) {
-            throw std::invalid_argument("Sample " + sample + " not found in the list of samples.");
-        }
-    }
-
-    if (sampleNames.size() != list_samples.size()) {
-        stoat::LOG_WARN("Number of samples in the QTL file does not match the number of samples in the VCF.");
-    }
-
-    // --- Parse expression values ---
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string geneName;
-        std::vector<double> expressions;
-
-        std::getline(ss, geneName, '\t');
-        while (std::getline(ss, token, '\t')) {
-            try {
-                expressions.push_back(std::stod(token));
-            } catch (...) {
-                throw std::invalid_argument("Invalid expression value for gene " + geneName + ": " + token);
-            }
-        }
-
-        geneExpressions[geneName] = expressions;
-    }
-
-    file.close();
-    return geneExpressions;
-}
-
-// Function to parse covariates into an unordered_map
-std::vector<std::vector<double>> parse_covariates(
-    const std::string& filename, 
-    const std::vector<std::string>& covar_names,
-    const std::vector<std::string>& list_samples) {
-
-    std::ifstream file(filename);
-    std::string line;
-    std::vector<std::vector<double>> covariate;
-    std::unordered_map<std::string, std::vector<double>>covariate_map;
-
-    // Read header
-    std::getline(file, line);
-    std::istringstream headerStream(line);
-    std::vector<std::string> headers;
-    std::string col;
-
-    while (headerStream >> col) {
-        headers.push_back(col);
-    }
-
-    // Check for required columns
-    auto it_iid = std::find(headers.begin(), headers.end(), "SAMPLE");
-    if (it_iid == headers.end()) {
-        throw std::invalid_argument("header must include 'SAMPLE' column.\n");
-    }
-
-    size_t iid_index = std::distance(headers.begin(), it_iid);
-
-    std::unordered_map<std::string, size_t> col_index;
-    for (size_t i = 0; i < headers.size(); ++i) {
-        col_index[headers[i]] = i;
-    }
-
-    // Check header for covariate names
-    for (const auto& name : covar_names) {
-        if (col_index.find(name) == col_index.end()) {
-            throw std::invalid_argument("covariate column '" + name + "' not found in file.\n");
-        }
-    }
-
-    // Read data
-    while (std::getline(file, line)) {
-        std::istringstream lineStream(line);
-        std::vector<std::string> tokens;
-        std::string token;
-        while (lineStream >> token) {
-            tokens.push_back(token);
-        }
-
-        if (tokens.size() <= iid_index) continue; // JEAN isn't that a sign that the file is wrong and we should raise an error?
-        std::string iid = tokens[iid_index];
-
-        std::vector<double> selected;
-        try {
-            for (const auto& name : covar_names) {
-                double val = std::stod(tokens[col_index[name]]);
-                selected.push_back(val);
-            }
-        } catch (...) {
-            throw std::invalid_argument("Individual " + iid + " got an non-numeric value\n");
-        }
-        covariate_map[iid] = selected;
-    }
-
-    check_match_samples(covariate_map, list_samples); // JEAN this says phenotype in the error message and is tested again below. Unnecessary?
-
-    // Order covariate_map by list_samples
-    for (const auto& sample : list_samples) {
-        auto it = covariate_map.find(sample);
-        if (it != covariate_map.end()) {
-            covariate.push_back(it->second);
-        } else {
-            throw std::invalid_argument("Sample " + sample + " not found in the covariate file.");
-        }
-    }
-    file.close();
-
-    return covariate;
 }
 
 void check_file(const std::string& file_path) {

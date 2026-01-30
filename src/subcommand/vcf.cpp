@@ -60,7 +60,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // JEAN maybe avoid having so many different input files. Couldn't we guess the type of phenotype/analysis or just add a "mode" argument?
     std::string vcf_path, snarl_path, graph_path, dist_path, 
         chromosome_path, binary_path, quantitative_path, 
-        eqtl_path, covariate_path, gene_position_path;
+        gene_expression_path, covariate_path, gene_position_path;
 
     size_t phenotype = 0;
     size_t cycle_threshold = 1;
@@ -116,7 +116,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             case 'r': chromosome_path = optarg; stoat_vcf::check_file(chromosome_path); break;
             case 'b': binary_path = optarg; phenotype++; stoat_vcf::check_file(binary_path); break;
             case 'q': quantitative_path = optarg; phenotype++; stoat_vcf::check_file(quantitative_path); break;
-            case 'e': eqtl_path = optarg; phenotype++; stoat_vcf::check_file(eqtl_path); break;
+            case 'e': gene_expression_path = optarg; phenotype++; stoat_vcf::check_file(gene_expression_path); break;
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
             case 'C': {
                 std::stringstream ss(optarg);
@@ -200,7 +200,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    if ((!eqtl_path.empty() && gene_position_path.empty()) || (eqtl_path.empty() && !gene_position_path.empty())) {
+    if ((!gene_expression_path.empty() && gene_position_path.empty()) || (gene_expression_path.empty() && !gene_position_path.empty())) {
         stoat::LOG_ERROR("[stoat vcf] eqtl phenotype file and gene position file must be provided together");
         print_help_vcf();
         return EXIT_FAILURE;
@@ -245,55 +245,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
-    // start reading the VCF to get the sample list
-    std::vector<std::string> list_samples;
-    htsFile* ptr_vcf;
-    bcf_hdr_t* hdr;
-    bcf1_t* rec;
-
-    if (!only_snarl_parsing) {
-        stoat::LOG_TRACE("Parsing header VCF file");
-        std::tie(list_samples, ptr_vcf, hdr, rec) = stoat_vcf::parseHeader(vcf_path); 
-    }
-
-    //////////////////// Load the phenotypes and covariate matrix from files
-
-    // JEAN these phenotypes/covariate could be 1-2 objects, well-defined, and keeping the sample names/order somewhere
-    std::vector<bool> binary_phenotype;
-    std::vector<double> quantitative_phenotype;
-    unique_ptr<stoat::BinaryPhenotypeTable> binary_phenotype_table;
-
-    // dict chr:string : vector{geneName:string, sample_expression:vector<double>, start_pos:size_t, end_pos:size_t}
-    std::unordered_map<std::string, std::vector<stoat_vcf::Qtl_data>> eqtl_phenotype;
-    std::vector<std::vector<double>> covariate;
-
-    if (!covariate_path.empty()) {
-        stoat::LOG_TRACE("Parsing covariate file");
-        covariate = stoat_vcf::parse_covariates(covariate_path, covar_names, list_samples);
-    }
-
-    if (!binary_path.empty()) {
-        stoat::LOG_TRACE("Parsing binary phenotype file");
-        binary_phenotype = stoat_vcf::parse_binary_pheno(binary_path, list_samples);
-    } else if (!quantitative_path.empty()) {
-        stoat::LOG_TRACE("Parsing quantitative phenotype file");
-        quantitative_phenotype = stoat_vcf::parse_quantitative_pheno(quantitative_path, list_samples);
-
-    } else if (!eqtl_path.empty() && !gene_position_path.empty()) {
-        stoat::LOG_TRACE("Parsing eqtl phenotype file");
-        eqtl_phenotype = stoat_vcf::parse_qtl_gene_file(eqtl_path, gene_position_path, list_samples);
-    }
-
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
     stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
-
-    unique_ptr<bdsg::SnarlDistanceIndex> distance_index;
-    unique_ptr<handlegraph::PathHandleGraph> graph;
-
-    bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph;
-
     // handlegraph::net_handle_t root;
 
 // Start tracking with callgrind
@@ -302,39 +256,46 @@ int main_stoat_vcf(int argc, char* argv[]) {
 #endif
 
 
-    if (!snarl_path.empty()){ // If we have already saved the paths in snarls, load them
+    // we might need the graph at the end also, so this will point to it and ensure it's kept until the end
+    std::unique_ptr<handlegraph::PathHandleGraph> graph;
+        
+    //////////////////////////////////////// Enumerate/load the snarls in the pangenome
+    if (!snarl_path.empty()){ // if we have already saved the snarls info, load it
         stoat::LOG_TRACE("Reading snarl path file");
         snarl_collection.load_snarl_data_collection(snarl_path);
 
-    } else { // Otherwise, find them from the graph and snarl tree
+    } else { // otherwise, find them from the pangenome graph and snarl tree
         stoat::LOG_INFO("Starting snarl decomposition... ");
         auto start_dec_timer = std::chrono::high_resolution_clock::now();
 
         // Load the snarl tree and graph
-        std::tie(distance_index, graph) = stoat::load_graph_tree(graph_path, dist_path);
+        // Tell the IO library about libvg types.
+        if (!stoat::io::register_libvg_io()) {
+            throw std::runtime_error("error[stoat vgio]: Could not register libvg types with libvgio");
+        }
+
+        // Load the graph and make it a PathPositionHandleGraph
+        graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
+        bdsg::PathPositionOverlayHelper overlay_helper;
+        bdsg::PathPositionHandleGraph* path_position_graph;
         path_position_graph =  overlay_helper.apply(graph.get());
 
-        // Check if chr present in chr file is present in the graph
+        // Load the distance index
+        std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
+        distance_index->deserialize(dist_path);
+
+        // Check if chromosomes specified in the --chr file are present in the graph
         for (const auto& chr : ref_chrs) {
             stoat::LOG_TRACE("Sequence name not found in -r/--chr file: " + chr);
             if (!graph->has_path(chr)) {
                 throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
             }
         }
+        // JEAN maybe here add to find the reference paths from the graph if ref_chrs was empty
 
-        // The snarl collection requires sample_haplotypes instead of samples so make copy sample_hap_t's with empty haplotypes
+        // The snarl collection requires a sample_haplotypes but we don't want to work on the pangenome's haplotypes here,
+        // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
         std::vector<stoat::sample_hap_t> sample_haplotypes;
-        for (string sample : list_samples) {
-            sample_haplotypes.emplace_back(sample, "");
-        }
-
-        // Get all the samples+haplotypes in the graph?
-        std::vector<stoat::sample_hap_t> all_sample_haplotypes;
-        graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-            std::string sample_name = stoat::get_sample_name_from_path(*graph, path);
-            all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*graph, path));
-            return true;
-        });
 
         // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
         snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
@@ -352,30 +313,10 @@ int main_stoat_vcf(int argc, char* argv[]) {
             false //check distances
             ); 
 
-        // ideally we would like to enumerate only walks that correspond to real haplotypes, like stoat graph.
-        // however the current implementation doesn't scale well. It works for pg/hg, but we would need to use GBZ for our human pangenome that has a lot of haplotypes, and that is currently extremely slow.
-        // still, in that case, we might do something like this:
-        // snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, all_sample_haplotypes,
-        //     true, //find_alleles_first, doesn't matter in this case
-        //     true, // walks_requested
-        //     [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
-        //         SnarlDataCollection::get_walks_from_alleles(*path_position_graph, *distance_index, snarl, snarl_data, walks); // use Xian's better but not feasible for large pangenomes with many haplotypes (human)
-        //     },
-        //     true, //alleles_requested
-        //     // Function to find the alleles 
-        //     [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
-        //          const std::vector<stoat::sample_hap_t>& sample_haplotypes) {
-        //         return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, *distance_index, snarl, sample_haplotypes);
-        //     },
-        //     false, // sequence_requested 
-        //     ref_chrs, // reference 
-        //     false //check distances
-        //     ); 
-
         // Always write the snarls
         ofstream snarls_out;
         snarls_out.open(output_dir + "/snarl_info.tsv");
-        snarl_collection.write_snarl_data_collection(snarls_out, false);
+        snarl_collection.write_snarl_data_collection(snarls_out);
         snarls_out.close();
 
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
@@ -384,9 +325,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
         if (only_snarl_parsing) {
             return EXIT_SUCCESS;
         }
-
-        // Clean up unique_ptr except graph
-        distance_index.reset();
     }
 
     // If there were no references given, fill them in with the references from the snarl collection
@@ -396,39 +334,107 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
     }
 
-    //////////////////////////////////////// Go through the vcf, do the analysis, and write the output
+    //////////////////////////////////////// Go through the vcf, genotype all the snarls ( and save the intermediate file)
+    if (!only_snarl_parsing) {
+        stoat::LOG_INFO("Retrieving genotypes for all snarls...");
+        stoat::LOG_TRACE("Parsing header VCF file");
+
+        // JEAN maybe this could be part of genotype_snarls_by_chr_from_vcf?
+        // start reading the VCF to get the sample list
+        std::vector<std::string> list_samples;
+        htsFile* ptr_vcf;
+        bcf_hdr_t* hdr;
+        bcf1_t* rec;
+        std::tie(list_samples, ptr_vcf, hdr, rec) = stoat_vcf::parseHeader(vcf_path); 
+
+        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, ptr_vcf, hdr, rec);
+
+        // JEAN should we close the file connection to the VCF?
+        
+        // write the genotypes
+        ofstream snarls_out;
+        // JEAN would be nice to write in a bgzip file directly, otherwise it might get very big
+        snarls_out.open(output_dir + "/snarl_genotypes.tsv");
+        // JEAN would reduce memory to write the collection while genotyping the snarls, one chr at a time, appending to the output file (or in separate chr files).
+        snarl_collection.write_snarl_data_collection(snarls_out);
+        snarls_out.close();
+    }
+    
+    //////////////////////////////////////// Go through the genotypes and test against the phenotype    
     stoat::LOG_INFO("Starting GWAS analysis...");
     auto start_gwas_timer = std::chrono::high_resolution_clock::now();
-    std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
+    
+    //////////////////// Load the phenotypes and covariate matrix from files
+    unique_ptr<stoat::BinaryPhenotypeTable> binary_phenotype_table;
+    unique_ptr<stoat::QuantitativePhenotypeTable> quantitative_phenotype_table;
+    unique_ptr<stoat::GeneExpressionTable> gene_expression_table;
+    // prepare the vector mapping samples to index here because other objects (phenotype or genotypes) will use it
+    std::unordered_map<std::string, size_t> sample_to_index;
+    // prepare the vector mapping genes to index
+    std::unordered_map<std::string, size_t> gene_to_index;
 
-    // Decide which type of SnarlAnalyzer we want
+    // read the file
+    if (!binary_path.empty()) {
+        stoat::LOG_TRACE("Parsing binary phenotype file");
+        binary_phenotype_table = std::unique_ptr<stoat::BinaryPhenotypeTable>(stoat_vcf::parse_binary_pheno_table(binary_path, sample_to_index));
+    } else if (!quantitative_path.empty()) {
+        stoat::LOG_TRACE("Parsing quantitative phenotype file");
+        quantitative_phenotype_table = std::unique_ptr<stoat::QuantitativePhenotypeTable>(stoat_vcf::parse_quantitative_pheno_table(quantitative_path, sample_to_index));
+    } else if (!gene_expression_path.empty() && !gene_position_path.empty()) {
+        stoat::LOG_TRACE("Parsing eqtl phenotype file");
+        gene_expression_table = std::unique_ptr<stoat::GeneExpressionTable>(stoat_vcf::parse_gene_expression_table(gene_expression_path, gene_position_path, sample_to_index, gene_to_index));
+    }
+
+    // eventually parse the covariate file
+    unique_ptr<stoat::CovariateTable> covariate_table = std::unique_ptr<stoat::CovariateTable>(new CovariateTable({}, {}));
+    // prepare the vector mapping covariates to index
+    // needs to be defined here to stay in memory because the CovariateTable don't store it
+    std::unordered_map<std::string, size_t> covar_to_index;
+    for (std::string covar: covar_names) {
+        covar_to_index[covar] = covar_to_index.size();
+    }
+    if (!covariate_path.empty()) {
+        stoat::LOG_TRACE("Parsing covariate file");
+        covariate_table = std::unique_ptr<stoat::CovariateTable>(stoat_vcf::parse_covariate_table(covariate_path, sample_to_index, covar_to_index));
+    }
+    
+    // the object to orchestrate the testing of the snarls
+    std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
     if (!binary_path.empty()) {
         // binary
-        if (!covariate.empty()){
+        if (!covariate_path.empty()){
             // Binary covariate
-            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarl_collection, ref_chrs, list_samples, covariate, maf_threshold, binary_phenotype, min_individuals));
+            snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarl_collection, ref_chrs, *covariate_table, maf_threshold,
+                                                                         *binary_phenotype_table, min_individuals));
         } else {
             // Binary without covariate
-            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, ref_chrs, list_samples, maf_threshold,
-                                                                    binary_phenotype, min_individuals));
+            snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, ref_chrs, maf_threshold,
+                                                                    *binary_phenotype_table, min_individuals));
         }
     } else if (!quantitative_path.empty()) {
         // Quantitative
-        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarl_collection, ref_chrs, list_samples, covariate, maf_threshold, 
-                                                                      quantitative_phenotype, min_individuals));
-    } else if (!eqtl_path.empty()) {
+        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarl_collection, ref_chrs, *covariate_table, maf_threshold, 
+                                                                      *quantitative_phenotype_table, min_individuals));
+    } else if (!gene_expression_path.empty()) {
         // EQTL
-        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarl_collection, ref_chrs, list_samples, covariate, maf_threshold, 
-                                                              eqtl_phenotype, max_gene_dist, min_individuals));
+        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarl_collection, ref_chrs, *covariate_table, maf_threshold, 
+                                                              *gene_expression_table, max_gene_dist, min_individuals));
     }
-
-    // read the VCF by chromosomome, genotype each snarl and perform the association test
-    snarl_analyzer->genotype_test_snarls_by_chr_from_vcf(ptr_vcf, hdr, rec, output_dir);
-
+    
+    // Test each snarl, chromosome by chromosome
+    if (!only_snarl_parsing) {
+        snarl_analyzer->genotype_test_snarls_by_chr(output_dir);
+    }
+    
     // eventually, make a GAF to visualize the tested snarls and their association signal
-    // JEAN this also assumes that the graph was loaded, which technically happens only when we need to prepare the snarls
     if (snarl_analyzer->get_phenotype_type() == stoat::BINARY && gaf) {
         stoat::LOG_TRACE("Create GAF");
+
+        // if we haven't loaded the graph yet, load it
+        if (graph == nullptr) {
+            graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
+        }
+        
         std::string output_gaf = output_dir + "/stoat.assoc.gaf";
         stoat_vcf::gaf_creation(output_dir + "/stoat.assoc.pvalues.tsv", snarl_collection, *graph, output_gaf);
     }

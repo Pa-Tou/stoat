@@ -4,9 +4,12 @@
 #include <iostream>
 #include <handlegraph/path_position_handle_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
+#include <htslib/vcf.h>
+#include <htslib/hts.h>
 #include "types_and_structs.hpp"
 #include "utils.hpp"
 #include "feature_tables.hpp"
+#include "matrix.hpp"
 
 using namespace stoat;
 
@@ -164,7 +167,7 @@ class SnarlDataCollection {
         void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
 
         /// Write the collection of snarls to the given file
-        void write_snarl_data_collection(std::ostream& outstream, const bool output_samples = true) const;
+        void write_snarl_data_collection(std::ostream& outstream) const;
         
         /// Load the collection of snarls from the given file
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
@@ -193,7 +196,10 @@ class SnarlDataCollection {
         /// This requires a PathPositionHandleGraph to make sure that multiple traversals of the snarl are properly ordered
         static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl,  const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
-
+    
+    // fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
+    // the VCF is read and parsed by chromosome
+    void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, htsFile *&ptr_vcf, bcf_hdr_t *&hdr, bcf1_t *&rec);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members

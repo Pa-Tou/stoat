@@ -238,31 +238,6 @@ std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& p
     return paths;
 }
 
-std::tuple<
-    std::unique_ptr<bdsg::SnarlDistanceIndex>,
-    std::unique_ptr<handlegraph::PathHandleGraph>>
-    load_graph_tree(
-        const std::string& graph_file, 
-        const std::string& dist_file) {
-
-    // Tell the IO library about libvg types.
-    if (!stoat::io::register_libvg_io()) {
-        throw std::runtime_error("error[stoat vgio]: Could not register libvg types with libvgio");
-    }
-
-    // Load the graph and make it a PathPositionHandleGraph
-    std::unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_file);
-
-    // Load the distance index
-    std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
-    distance_index->deserialize(dist_file);
-
-    return std::make_tuple(
-        std::move(distance_index),
-        std::move(graph)
-    );
-}
-
 std::vector<stoat::PathTraversal> convert_path_traversals(
     const bdsg::SnarlDistanceIndex& distance_index, 
     const handlegraph::PathHandleGraph& graph, 

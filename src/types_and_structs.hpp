@@ -131,12 +131,6 @@ std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths, bool
 // Get a vector of path traversals from their string representation
 std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& path_string, const std::string& path_lengths_string);
 
-// Load the distance index and graph and return unique_ptrs to them
-std::tuple<
-    std::unique_ptr<bdsg::SnarlDistanceIndex>,
-    std::unique_ptr<handlegraph::PathHandleGraph>>
-load_graph_tree(const std::string& graph_file, const std::string& dist_file);
-
 // convert paths from the simple vector of net handles to the PathTraversal object
 std::vector<PathTraversal> convert_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 

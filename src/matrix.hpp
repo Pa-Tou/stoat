@@ -6,8 +6,13 @@
 #include <string>
 #include <unordered_map>
 #include <cstdint>
+#include <htslib/vcf.h>
+#include <htslib/hts.h>
 
 #include "types_and_structs.hpp"
+
+// JEAN just to use decompose_path_str_to_edge, remove once the "migration" is over
+// #include "snarl_analyzer.hpp"
 
 using namespace std;
 
@@ -45,6 +50,10 @@ public:
     // query the matrix: find sample-haplotypes that have all edges along the queried path
     std::vector<size_t> get_samples_on_path(const stoat::PathTraversal &path_trav) const;
 
+    // clear the matrix and load edges in a VCF for a chunk (corresponding to a chromosome)
+    // the returned pointers are the VCF file stream after reading that chunk
+    std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> load_vcf_chunk(htsFile *ptr_vcf, bcf_hdr_t *hdr, bcf1_t *rec, std::string &chr);
+
 protected:
     size_t n_samp_haps;
     size_t max_edges;
@@ -53,6 +62,8 @@ protected:
     std::vector<std::string> sample_names;
 
 };
+
+
 
 } // end namespace stoat
 

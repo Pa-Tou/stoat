@@ -11,13 +11,11 @@
 #include <stdexcept>
 #include <algorithm>
 #include <unordered_set>
-#include <tuple>
-#include <iomanip>
-#include <Eigen/Dense>
 #include <unordered_map>
+#include <iomanip>
+#include <cassert>
 #include <Eigen/Dense>
 #include <Eigen/Core>
-#include <cassert>
 
 #include <boost/math/distributions/fisher_f.hpp>
 #include <boost/math/distributions/students_t.hpp>
@@ -31,6 +29,20 @@
 #include "feature_tables.hpp"
 
 namespace stoat {
+
+// used to pass the result of a test (Fisher-Chi2 or regression)
+// up to the writer, hence why they're all stings
+// maybe not the best way but better than std::pairs and such
+// (second_pv can be used for Fisher-Chi2 for the Chi2 pvalue)
+struct test_result_t {
+    std::string pv;
+    std::string second_pv;
+    std::string group_paths;
+    std::string allele_paths;
+    std::string beta;
+    std::string se;
+    std::string r2;
+};
 
 // ------------------------ Regression class ------------------------
 
@@ -56,11 +68,10 @@ public:
 
     // depending on the number of alleles, uses Chi2 (>2 alleles) or the fast
     // Fisher exact test (2 alleles).
-    // returns two pvalues: chi2_p_value, fastfisher_p_value (which can be NA if >2 alleles)
-    // JEAN rename function or flip the returned pvalues to match the order in the function name
+    // returns two pvalues: fastfisher_p_value (which can be NA if >2 alleles), and chi2_p_value
     std::pair<std::string, std::string> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
     // JEAN don't really like that we are passing filtering thresholds as arguments. Should we make a well-defined struct with input parameters?
-    std::pair<std::string, std::string> fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const size_t maf, const size_t min_individuals);
+    test_result_t fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const double maf, const size_t min_individuals);
 
 private:
     // Constants with maximum usable precision for 'double'
@@ -73,21 +84,17 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        std::tuple<std::string, std::string> linear_regression(
-            const std::vector<std::vector<double>>& X_raw,
-            const std::vector<double>& y,
-            const std::vector<std::vector<double>>& covariates);
-        
-        std::vector<std::vector<double>> inverse(
-            const std::vector<std::vector<double>> &A, 
-            double tol = 1e-10);
+        test_result_t linear_regression(const QuantitativePhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
 
-        std::vector<std::vector<double>> pseudoInverse(
-            const std::vector<std::vector<double>>& A, 
-            double tol = 1e-10);
+        Eigen::MatrixXd inverse(const Eigen::MatrixXd& A, double tol = 1e-10);
+    
+        // std::vector<std::vector<double>> inverse(
+        //     const std::vector<std::vector<double>> &A, 
+        //     double tol = 1e-10);
 
-        std::vector<std::vector<double>> transpose(
-            const std::vector<std::vector<double>> &A);
+        Eigen::MatrixXd pseudo_inverse(const Eigen::MatrixXd& A, double tol = 1e-10);
+
+        std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>> &A);
 
         std::vector<double> mult_mat_vec(
             const std::vector<std::vector<double>> &A, 
@@ -112,10 +119,7 @@ class LogisticRegression {
         inline double clamp(double x, double lo, double hi);
 
         // GLM Implementation with Iteratively Reweighted Least Squares (IRLS)
-        std::tuple<std::string, std::string, std::string> logistic_regression(
-            const std::vector<std::vector<double>>& variant_data,
-            const std::vector<bool>& phenotype,
-            const std::vector<std::vector<double>>& covariates);
+        test_result_t logistic_regression(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
 
     private:
         const int max_iterations = 100;
@@ -124,30 +128,6 @@ class LogisticRegression {
         const double epsilon = 1e-8;
 };
 
-void combine_identical_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-// Modify g0 and g1 to remove any column (allele/path) where both g0 and g1 are empty
-// Return a vector of bools with true if the column was kept and false removed
-std::vector<bool> remove_empty_columns_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1);
-
-void remove_empty_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-void remove_last_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-bool check_last_columns_quantitative_table(
-    const std::vector<std::vector<double>>& df);
-
-/// Return true if snarl must be filtered
-bool filter_quantitative_table(
-    const std::vector<std::vector<double>>& df,
-    const size_t& min_individuals,
-    const double& maf);
-
 /// Return true if the snarl should be filtered out, false if it should be kept
 bool filter_binary_table(
     std::vector<size_t>& g0, 
@@ -155,6 +135,7 @@ bool filter_binary_table(
     const size_t& individuals_included,
     const size_t& min_individuals,
     const double& maf);
+    // JEAN remove once stoat graph is migrated to Tables
 
 } // namespace stoat
 

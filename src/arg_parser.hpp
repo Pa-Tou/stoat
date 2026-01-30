@@ -27,38 +27,18 @@
 
 namespace stoat_vcf {
 
-    // JEAN change all QTL to gene expression, even if this will change soon...
-struct Qtl_data {
-    std::string geneName;
-    std::vector<double> sampleExpresion;
-    size_t start_pos;
-    size_t end_pos;
+// Parse a pair of gene expression and position files covariate file and return a GeneExpressionTable
+// if the sample-to-index map provided is empty, it will be filled with the samples in the file.
+// otherwise the Table will use that sample-to-index map
+// the gene_to_index map is expected to be empty and will be filled
+stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_expression_path, const std::string& gene_position_path, std::unordered_map<std::string, size_t>& sample_to_index, std::unordered_map<std::string, size_t>& gene_to_index);
 
-    Qtl_data(const std::string& geneName_,
-        const std::vector<double>& sampleExpresion_,
-        const size_t& start_pos_,
-        const size_t& end_pos_) : 
-        geneName(geneName_),
-        start_pos(start_pos_),
-        end_pos(end_pos_)
-        {sampleExpresion = std::move(sampleExpresion_);}
-};
-
-std::unordered_map<std::string, std::vector<double>> parse_qtl_file(
-    const std::string& filename, const std::vector<std::string>& list_samples);
-
-std::unordered_map<std::string, std::tuple<std::string, size_t, size_t>> parse_gene_positions(
-    const std::string& filename);
-
-std::unordered_map<std::string, std::vector<stoat_vcf::Qtl_data>> parse_qtl_gene_file(
-    const std::string& eqtl_path, 
-    const std::string& gene_position_path, 
-    const std::vector<std::string>& list_samples);
-
-std::vector<std::vector<double>> parse_covariates(
-    const std::string& filename, 
-    const std::vector<std::string>& covar_names,
-    const std::vector<std::string>& list_samples);
+// Parse a covariate file and return a CovariateTable
+// if the sample-to-index map provided is empty, it will be filled with the samples in the file.
+// otherwise the Table will use that sample-to-index map
+// specify the names of the covariables to use with the covar_to_index map
+// the covar_to_index map can't be empty (although it could be useful to allow this when we want all covariables)
+stoat::CovariateTable* parse_covariate_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index, std::unordered_map<std::string, size_t>& covar_to_index);
 
 // Parse a binary phenotype file, formatted SAMPLE, phenotype
 // If list_samples is given, then it is const and the samples in the phenotype file will be checked against it.
@@ -67,11 +47,15 @@ std::vector<bool> parse_binary_pheno(
     const std::string& file_path,
     std::vector<std::string>& list_samples);
 
+// Parse a binary phenotype file and return a BinaryPhenotypeTable
+// if the sample-to-index map provided is be empty, it will be filled with the samples in the file.
+// otherwise the Table will use that sample-to-index map
+stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index);
 
-// Parses the phenotype file and returns a map with IID as keys and PHENO as float values.
-std::vector<double> parse_quantitative_pheno(
-    const std::string& file_path, 
-    const std::vector<std::string>& list_samples);
+// Parse a quantitative phenotype file and return a QuantitativePhenotypeTable
+// if the sample-to-index map provided is be empty, it will be filled with the samples in the file.
+// otherwise the Table will use that sample-to-index map
+stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index);
 
 std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> parse_vcf(const std::string& vcf_path);
 

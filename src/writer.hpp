@@ -6,6 +6,7 @@
 #include <bdsg/snarl_distance_index.hpp>
 #include "utils.hpp"
 #include "snarl_data_collection.hpp"
+#include "stats_test.hpp"
 
 namespace stoat {
 
@@ -18,15 +19,14 @@ void write_binary_header(std::ostream& outstream);
 void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
                     const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths, const std::vector<bool>& is_allele_included={});
 
-void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data,
-                        const std::string& p_value,
-                        const std::vector<size_t>& allele_paths);
+void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
+                  const stoat::test_result_t& test_result);
 
-void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data,
-                        const std::string& p_value, const std::string& r2, const std::vector<size_t>& allele_paths);
+void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
 
-void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data,
-                    const std::string& gene_name, const std::string& p_value, const std::string& r2, const std::vector<size_t>& allele_paths);
+void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+
+void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result);
 
 void write_vcf(std::ostream& outstream, const std::string& chr, const size_t& pos, const std::string& id,
                const std::string& ref, const std::string& alt, const std::string& paths, 

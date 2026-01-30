@@ -117,3 +117,94 @@ TEST_CASE("Chi-square & Fisher test function", "[fchi.chi2_2xN]") {
         REQUIRE(fchi.chi2_2xN(g0, g1)  == "8.8051e-23");
     }
 }
+
+TEST_CASE("Binary phenotype filters") {
+    FisherChi2 fchi;
+
+    SECTION("minor allele frequency filters") {
+        //     A0 A1
+        // S1 {2, 0}
+        // S2 {2, 0}
+        // S3 {2, 0}
+        // S4 {2, 0}
+        // S5 {0, 1}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
+
+        stoat::BinaryPhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 1);
+        pheno.set_value_for_sample("S2", 0);
+        pheno.set_value_for_sample("S3", 0);
+        pheno.set_value_for_sample("S4", 0);
+        pheno.set_value_for_sample("S5", 1);
+        
+        stoat::test_result_t tres = fchi.fisher_chi2(pheno, geno, 0.5, 0);
+
+        INFO("p_value fisher = " << tres.pv);
+        INFO("p_value chi2 = " << tres.second_pv);
+
+        REQUIRE(tres.pv == "NA");
+        REQUIRE(tres.second_pv == "NA");
+
+        tres = fchi.fisher_chi2(pheno, geno, 0.001, 0);
+
+        INFO("p_value fisher = " << tres.pv);
+        INFO("p_value chi2 = " << tres.second_pv);
+        
+        REQUIRE(tres.pv != "NA");
+        REQUIRE(tres.second_pv != "NA");
+    }
+
+    SECTION("minimum individual filters") {
+        //     A0 A1
+        // S1 {1, 0}
+        // S2 {1, 0}
+        // S3 {1, 0}
+        // S4 {1, 0}
+        // S5 {0, 1}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
+
+        stoat::BinaryPhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 1);
+        pheno.set_value_for_sample("S2", 0);
+        pheno.set_value_for_sample("S3", 0);
+        pheno.set_value_for_sample("S4", 0);
+        pheno.set_value_for_sample("S5", 1);
+        
+        stoat::test_result_t tres = fchi.fisher_chi2(pheno, geno, 0, 10);
+
+        INFO("p_value fisher = " << tres.pv);
+        INFO("p_value chi2 = " << tres.second_pv);
+
+        REQUIRE(tres.pv == "NA");
+        REQUIRE(tres.second_pv == "NA");
+
+        tres = fchi.fisher_chi2(pheno, geno, 0, 3);
+        
+        INFO("p_value fisher = " << tres.pv);
+        INFO("p_value chi2 = " << tres.second_pv);
+
+        REQUIRE(tres.pv != "NA");
+        REQUIRE(tres.second_pv != "NA");
+    }
+
+}

@@ -85,19 +85,6 @@ std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values)
     return {*min_iter, min_index};
 }
 
-template std::string vectorToString(const std::vector<std::string>& vec);
-template std::string vectorToString(const std::vector<size_t>& vec);
-
-template<typename T>
-std::string vectorToString(const std::vector<T>& vec) {
-    std::ostringstream oss;
-    for (size_t i = 0; i < vec.size(); ++i) {
-        if (i > 0) oss << ",";
-        oss << vec[i];
-    }
-    return oss.str();
-}
-
 template std::vector<std::string> stringToVector(const std::string& vec);
 template std::vector<size_t> stringToVector(const std::string& vec);
 

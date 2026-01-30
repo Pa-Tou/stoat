@@ -36,125 +36,114 @@ std::string create_test_covar_file(const std::string& content, const std::string
 TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
     SECTION("Valid phenotype file with mixed cases and controls") {
         
-        std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
-
         std::string file_content =
             "SAMPLE PHENO\n"
             "I1 0\n"
             "I2 1\n"
             "I3 0\n"
             "I4 1\n";
-
         std::string file_path = create_test_pheno_file(file_content);
-        std::vector<bool> result = stoat_vcf::parse_binary_pheno(file_path, list_samples);
 
-        REQUIRE(result.size() == 4);
-        REQUIRE(result[0] == false);
-        REQUIRE(result[1] == true);
-        REQUIRE(result[2] == false);
-        REQUIRE(result[3] == true);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        stoat::BinaryPhenotypeTable* result = stoat_vcf::parse_binary_pheno_table(file_path, sample_to_index);
+
+        REQUIRE(result->get_sample_names().size() == 4);
+        REQUIRE(result->get_value_for_sample("I1") == false);
+        REQUIRE(result->get_value_for_sample("I2") == true);
+        REQUIRE(result->get_value_for_sample("I3") == false);
+        REQUIRE(result->get_value_for_sample("I4") == true);
     }
 
     SECTION("Invalid header") {
-        std::vector<std::string> list_samples = {"I1"};
-
         std::string file_content =
             "ID PHENO\n"
             "I1 1\n";
         std::string file_path = create_test_pheno_file(file_content);
-
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
+        std::unordered_map<std::string, size_t> sample_to_index;
+       
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno_table(file_path, sample_to_index), std::invalid_argument);
     }
 
     SECTION("Non-binary phenotype value") {
-        std::vector<std::string> list_samples = {"I1"};
-
         std::string file_content =
             "SAMPLE PHENO\n"
             "I1 3\n";
         std::string file_path = create_test_pheno_file(file_content);
+        std::unordered_map<std::string, size_t> sample_to_index;
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno_table(file_path, sample_to_index), std::invalid_argument);
     }
 
     SECTION("Malformed line") {
-        std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
-
         std::string file_content =
             "SAMPLE PHENO\n"
             "I1\n";
         std::string file_path = create_test_pheno_file(file_content);
+        std::unordered_map<std::string, size_t> sample_to_index;
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno_table(file_path, sample_to_index), std::invalid_argument);
     }
 
     SECTION("Non-integer phenotype") {
-        std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
-
         std::string file_content =
             "SAMPLE PHENO\n"
             "I1 X\n";
         std::string file_path = create_test_pheno_file(file_content);
+        std::unordered_map<std::string, size_t> sample_to_index;
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno(file_path, list_samples), std::invalid_argument);
+        REQUIRE_THROWS_AS(stoat_vcf::parse_binary_pheno_table(file_path, sample_to_index), std::invalid_argument);
     }
 }
 
 
 TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_pheno]") {
     SECTION("Valid quantitative phenotype file") {
-
-        std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
-
         std::string file_content =
             "SAMPLE PHENO\n"
             "I1 1.5\n"
             "I2 2.0\n"
             "I3 -3.25\n"
             "I4 0.0\n";
-
         std::string file_path = create_test_pheno_file(file_content);
 
-        auto result = stoat_vcf::parse_quantitative_pheno(file_path, list_samples);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        stoat::QuantitativePhenotypeTable* result = stoat_vcf::parse_quantitative_pheno_table(file_path, sample_to_index);
 
-        REQUIRE(result.size() == 4);
-        REQUIRE(result[0] == 1.5);
-        REQUIRE(result[1] == 2.0);
-        REQUIRE(result[2] == -3.25);
-        REQUIRE(result[3] == 0.0);
+        REQUIRE(result->get_sample_names().size() == 4);
+        REQUIRE(result->get_value_for_sample("I1") == 1.5);
+        REQUIRE(result->get_value_for_sample("I2") == 2.0);
+        REQUIRE(result->get_value_for_sample("I3") == -3.25);
+        REQUIRE(result->get_value_for_sample("I4") == 0.0);
     }
 
     SECTION("Invalid header in quantitative phenotype file") {
-        std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
-
         std::string file_content =
             "ID PHENO\n"
             "I1 1.5\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno_table(file_path, sample_to_index), std::invalid_argument);
     }
 
     SECTION("Non-numeric phenotype value") {
-        std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
-
         std::string file_content =
             "SAMPLE PHENO\n"
             "I1 abc\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno_table(file_path, sample_to_index), std::invalid_argument);
     }
 
     SECTION("Malformed line in quantitative phenotype file") {
-        std::vector<std::string> list_samples = {"I1", "I2", "I3", "I4"};
-
         std::string file_content =
             "SAMPLE PHENO\n"
             "I1\n";
         std::string file_path = create_test_pheno_file(file_content);
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno(file_path, list_samples), std::invalid_argument);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        REQUIRE_THROWS_AS(stoat_vcf::parse_quantitative_pheno_table(file_path, sample_to_index), std::invalid_argument);
     }
 }
 
@@ -243,20 +232,20 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
             "samp0 25 1\n"
             "samp1 30 0\n"
             "samp2 45 1\n";
-
         std::string path = create_test_covar_file(content);
         std::vector<std::string> covars = {"age", "sex"};
-        std::vector<std::string> list_samples = {"samp0", "samp1", "samp2"};
 
-        auto result = stoat_vcf::parse_covariates(path, covars, list_samples);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        std::unordered_map<std::string, size_t> covar_to_index = {{"age", 0}, {"sex", 1}};
+        stoat::CovariateTable* result = stoat_vcf::parse_covariate_table(path, sample_to_index, covar_to_index);
 
-        REQUIRE(result.size() == 3);
-        REQUIRE(result[0][0] == 25);
-        REQUIRE(result[0][1] == 1);
-        REQUIRE(result[1][0] == 30);
-        REQUIRE(result[1][1] == 0);
-        REQUIRE(result[2][0] == 45);
-        REQUIRE(result[2][1] == 1);
+        REQUIRE(result->get_sample_names().size() == 3);
+        REQUIRE(result->get_value_for_sample_and_feature("samp0", "age") == 25);
+        REQUIRE(result->get_value_for_sample_and_feature("samp0", "sex") == 1);
+        REQUIRE(result->get_value_for_sample_and_feature("samp1", "age") == 30);
+        REQUIRE(result->get_value_for_sample_and_feature("samp1", "sex") == 0);
+        REQUIRE(result->get_value_for_sample_and_feature("samp2", "age") == 45);
+        REQUIRE(result->get_value_for_sample_and_feature("samp2", "sex") == 1);
     }
 
     SECTION("Missing SAMPLE column") {
@@ -264,10 +253,11 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
             "ID age sex\n"
             "samp0 25 1\n";
         std::string path = create_test_covar_file(content);
-        std::vector<std::string> column_covars = {"age", "sex"};
-        std::vector<std::string> list_samples = {"samp0", "samp1", "samp2"};
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::invalid_argument);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        std::unordered_map<std::string, size_t> covar_to_index = {{"age", 0}, {"sex", 1}};
+                
+        REQUIRE_THROWS_AS(stoat_vcf::parse_covariate_table(path, sample_to_index, covar_to_index), std::invalid_argument);
     }
 
     SECTION("Missing covariate column") {
@@ -275,20 +265,22 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
             "SAMPLE age sex\n"
             "A 25 1\n";
         std::string path = create_test_covar_file(content);
-        std::vector<std::string> column_covars = {"height"}; // not present
-        std::vector<std::string> list_samples = {"samp0", "samp1", "samp2"};
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::invalid_argument);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        std::unordered_map<std::string, size_t> covar_to_index = {{"height", 0}};
+                
+        REQUIRE_THROWS_AS(stoat_vcf::parse_covariate_table(path, sample_to_index, covar_to_index), std::invalid_argument);
     }
 
     SECTION("Non-numeric value in covariate field") {
         std::string content =
             "SAMPLE age sex\n"
-            "samp0 XX 1\n"; // XX is not numeric
+            "samp0 XX 1\n";
         std::string path = create_test_covar_file(content);
-        std::vector<std::string> column_covars = {"age", "sex"};
-        std::vector<std::string> list_samples = {"samp0"};
 
-        REQUIRE_THROWS_AS(stoat_vcf::parse_covariates(path, column_covars, list_samples), std::invalid_argument);
+        std::unordered_map<std::string, size_t> sample_to_index;
+        std::unordered_map<std::string, size_t> covar_to_index = {{"age", 0}, {"sex", 1}};
+
+        REQUIRE_THROWS_AS(stoat_vcf::parse_covariate_table(path, sample_to_index, covar_to_index), std::invalid_argument);
     }
 }

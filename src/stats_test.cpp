@@ -18,198 +18,6 @@ namespace stoat {
 
 // ------------------------ Functions to filter tables ------------------------
 
-// Return true when snarl must be filtered and false if not
-bool filter_quantitative_table(
-    const std::vector<std::vector<double>>& X,
-    const size_t& min_individuals,
-    const double& maf_threshold) {
-    
-    // not enough individuals/haplotypes OR number of paths < 2
-    if (X.empty()) {
-        stoat::LOG_DEBUG("Filtered: X is empty.");
-        return true;
-    }
-    if (X[0].size() < 2) {
-        stoat::LOG_DEBUG("Filtred: not enough paths (" + std::to_string(X[0].size()) + " < 2)");
-        return true;
-    }
-    if (X.size() < min_individuals) {
-        stoat::LOG_DEBUG("Filtered: not enough individuals (" + std::to_string(X.size()) + " < " + std::to_string(min_individuals) + ")");
-        return true;
-    }
-
-    // prepare the total allele count and each allele counts
-    size_t numPaths = X[0].size();
-    std::vector<double> allele_counts(numPaths, 0.0);
-    double total_allele_count = 0.0;
-    for (const auto& row : X) {
-        for (size_t i = 0; i < numPaths; ++i) {
-            allele_counts[i] += row[i];
-            total_allele_count += row[i];
-        }
-    }
-
-    // now count how many alleles have frequencies about the threshold
-    int alleles_above_threshold = 0;
-    for (size_t i = 0; i < numPaths; ++i) {
-        double freq = allele_counts[i] / total_allele_count;
-        freq = std::min(freq, 1.0 - freq);
-        // JEAN technically, should be >=, because it's the minimum accepted frequency
-        if (freq > maf_threshold) {
-            ++alleles_above_threshold;
-        }
-    }
-
-    if (alleles_above_threshold < 2) {
-        stoat::LOG_DEBUG("Filtered: less than two alleles with frequency above " + std::to_string(maf_threshold));
-    }
-    return alleles_above_threshold < 2;
-}
-
-void remove_empty_columns_quantitative_table(
-    std::vector<std::vector<double>>& X) {
-
-    if (X.empty() || X[0].size() < 2) return;
-
-    size_t num_rows = X.size();
-    size_t num_cols = X[0].size();
-
-    // Identify non-empty columns
-    std::vector<bool> keep_column(num_cols, false);
-
-    for (size_t col = 0; col < num_cols; ++col) {
-        for (size_t row = 0; row < num_rows; ++row) {
-            double val = X[row][col];
-            if (val != 0.0 && !std::isnan(val)) {
-                keep_column[col] = true;
-                break;
-            }
-        }
-    }
-
-    // Create filtered X
-    std::vector<std::vector<double>> df_filtered;
-    df_filtered.reserve(num_rows);
-
-    for (size_t row = 0; row < num_rows; ++row) {
-        std::vector<double> new_row;
-        for (size_t col = 0; col < num_cols; ++col) {
-            if (keep_column[col]) {
-                new_row.push_back(X[row][col]);
-            }
-        }
-        df_filtered.push_back(std::move(new_row));
-    }
-
-    // Replace original X with filtered one
-    X = std::move(df_filtered);
-}
-
-bool check_last_columns_quantitative_table(
-    const std::vector<std::vector<double>>& X) {
-
-    if (X[0].size() > 1) return false;
-
-    size_t num_rows = X.size();
-
-    // Check if the lonely columns have identical values
-    for (size_t r = 1; r < num_rows; ++r) {
-        if (X[r][0] != X[0][0]) {
-            return false; // Not identical, keep
-        }
-    }
-
-    return true; // Identical, filter out
-}
-
-void combine_identical_columns_quantitative_table(
-    std::vector<std::vector<double>>& X) {
-
-    size_t num_rows = X.size();
-    size_t num_cols = X[0].size();
-
-    if (num_cols < 3) {return;} // avoid creation of unique column
-
-    std::vector<bool> merged(num_cols, false);
-    std::vector<std::vector<double>> new_cols;
-
-    for (size_t i = 0; i < num_cols; ++i) {
-        if (merged[i]) continue;
-
-        std::vector<double> new_col = X[0][i] == X[0][i] ? std::vector<double>(num_rows, 0.0) : X[0]; // Init new column
-
-        // Start with current column
-        for (size_t r = 0; r < num_rows; ++r) {
-            new_col[r] = X[r][i];
-        }
-
-        // Try to find identical columns
-        for (size_t j = i + 1; j < num_cols; ++j) {
-            if (merged[j]) continue;
-
-            bool identical = true;
-            for (size_t r = 0; r < num_rows; ++r) {
-                if (X[r][j] != X[r][i]) {
-                    identical = false;
-                    break;
-                }
-            }
-
-            // If identical, sum the column into new_col
-            if (identical) {
-                for (size_t r = 0; r < num_rows; ++r) {
-                    new_col[r] += X[r][j];
-                }
-                merged[j] = true;
-            }
-        }
-
-        new_cols.push_back(std::move(new_col));
-    }
-
-    // Rebuild X from new_cols (transpose)
-    std::vector<std::vector<double>> result(num_rows, std::vector<double>(new_cols.size()));
-    for (size_t r = 0; r < num_rows; ++r) {
-        for (size_t c = 0; c < new_cols.size(); ++c) {
-            result[r][c] = new_cols[c][r];
-        }
-    }
-
-    X = std::move(result);
-}
-
-void remove_last_columns_quantitative_table(std::vector<std::vector<double>>& X) {
-    if (X.empty() || X[0].empty()) return;
-
-    for (auto& row : X) {
-        if (!row.empty()) {
-            row.pop_back(); // Remove last column from each row
-        }
-    }
-}
-
-std::vector<bool> remove_empty_columns_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1) {
-
-    std::vector<size_t> g0_filtered;
-    std::vector<size_t> g1_filtered;
-    std::vector<bool> column_was_kept(g0.size(), false);
-
-    for (size_t i = 0; i < g0.size(); ++i) {
-        if (g0[i] + g1[i] != 0) {
-            g0_filtered.push_back(g0[i]);
-            g1_filtered.push_back(g1[i]);
-            column_was_kept[i] = true;
-        }
-    }
-
-    g0 = std::move(g0_filtered);
-    g1 = std::move(g1_filtered);
-
-    return column_was_kept;
-}
-
 // Should we exclude this test? "filter" this table out
 bool filter_binary_table(
     std::vector<size_t>& g0, 
@@ -274,40 +82,42 @@ double LogisticRegression::calculate_log_likelihood(const Eigen::VectorXd& y, co
 }
 
 // GLM Implementation with Iteratively Reweighted Least Squares (IRLS)
-std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_regression(
-    const std::vector<std::vector<double>>& df,
-    const std::vector<bool>& phenotype,
-    const std::vector<std::vector<double>>& covariates) {
-
-    size_t num_samples = df.size();
-    size_t num_variants = df[0].size();
-    size_t num_covariates = 0;
-    size_t num_features = num_variants + 1; // +1 for intercept
-
-    if (!covariates.empty()) {
-        num_covariates = covariates[0].size();
-        num_features = num_variants + num_covariates + 1; // +1 for intercept
+test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covar, const double maf, const size_t min_individuals) {
+    // prepare an output objet and init to NA
+    test_result_t tres;
+    tres.pv = "NA";
+    tres.beta = "NA";
+    tres.se = "NA";
+    // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
+    // combine the phenotype and genotype information
+    CombinedTable combined_table(geno);
+    combined_table.combine_binary_phenotype(pheno);
+    combined_table.combine_covariates(covar);
+    // JEAN the functions below could be gathered in a "prepare_for_regression" function, for example, to avoid repetition in the linea regression function
+    // remove non-variable predictors, e.g. alleles absent in all samples
+    combined_table.remove_constant_predictors();    
+    // should we test this snarl?
+    if (!combined_table.passes_filters(maf, min_individuals)){
+        // JEAN what should we do here? returning NA for now
+        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
+        return tres;
     }
+    // add the allele path info to include in the output
+    tres.allele_paths = geno.allele_paths_as_str();
 
-    Eigen::MatrixXd X(num_samples, num_features);
-    X.col(0) = Eigen::VectorXd::Ones(num_samples);  // Intercept column
-    Eigen::VectorXd y(num_samples);
+    // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
+    combined_table.add_total_allele_count_covariable();
+
+    // before performing the regression, try to reduce potential colinearity
+    combined_table.remove_duplicated_predictors();    
+    combined_table.remove_one_allele();
     
-    for (size_t i = 0; i < num_samples; ++i) {
-        size_t col = 1;
-
-        // Copy variant data
-        for (size_t j = 0; j < num_variants; ++j) {
-            X(i, col++) = df[i][j];
-        }
-
-        for (size_t j = 0; j < num_covariates; ++j) {
-            X(i, col++) = covariates[i][j];
-        }
-
-        // Binary phenotype
-        y(i) = phenotype[i] ? 1.0 : 0.0;
-    }
+    // prepare the matrices for the regression
+    Eigen::MatrixXd X = combined_table.make_matrixXd_features();
+    Eigen::VectorXd y = combined_table.make_vectorxd_phenotype();
+    size_t num_samples = y.size();
+    size_t num_features = X.cols();
+    size_t num_covariates = combined_table.get_n_covariates();
 
     Eigen::VectorXd beta = Eigen::VectorXd::Zero(num_features);
     Eigen::VectorXd beta_old = beta;
@@ -329,11 +139,10 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
         Eigen::MatrixXd hessian = X_weighted.transpose() * X_weighted;
         hessian += l2_penalty * Eigen::MatrixXd::Identity(num_features, num_features);
 
-        Eigen::VectorXd gradient = X.transpose() * (y - p) - l2_penalty * beta;
-
         Eigen::LDLT<Eigen::MatrixXd> ldlt(hessian);
-        if (ldlt.info() != Eigen::Success) return std::make_tuple("NA", "NA", "NA");
+        if (ldlt.info() != Eigen::Success) return tres;
 
+        Eigen::VectorXd gradient = X.transpose() * (y - p) - l2_penalty * beta;
         Eigen::VectorXd delta = ldlt.solve(gradient);
         beta += delta;
 
@@ -344,7 +153,7 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
         beta_old = beta;
     }
 
-    if (!converged) return std::make_tuple("NA", "NA", "NA");
+    if (!converged) return tres;
 
     // Final weights
     Eigen::VectorXd z_final = X * beta;
@@ -387,7 +196,7 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
             p_values.push_back(p_value);
         }
     }
-
+    
     double p_value_adjusted = p_values[0];
     double beta_adjusted = beta(1);
     double se_adjusted = se(1);
@@ -401,11 +210,11 @@ std::tuple<std::string, std::string, std::string> LogisticRegression::logistic_r
 
     // set precision : 4 digit
     // std::string r2_str = stoat::set_precision(r2);
-    std::string p_value_str = stoat::set_precision(p_value_adjusted);
-    std::string beta_str = stoat::set_precision(beta_adjusted);
-    std::string se_str = stoat::set_precision(se_adjusted);
+    tres.pv = stoat::set_precision(p_value_adjusted);
+    tres.beta = stoat::set_precision(beta_adjusted);
+    tres.se = stoat::set_precision(se_adjusted);
 
-    return std::make_tuple(p_value_str, beta_str, se_str);
+    return tres;
 }
 
 // ------------------------ Chi2 test ------------------------
@@ -533,20 +342,25 @@ std::pair<std::string, std::string> FisherChi2::fisher_chi2(const std::vector<si
         chi2_p_value = chi2_2xN(g0, g1);
     }
 
-    return {chi2_p_value, fastfisher_p_value};
+    return {fastfisher_p_value, chi2_p_value};
 }
 
-std::pair<std::string, std::string> FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const size_t maf, const size_t min_individuals) {
+test_result_t FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const double maf, const size_t min_individuals) {
+    // prepare an output objet and init to NA
+    test_result_t tres;
+    tres.pv = "NA";
+    tres.second_pv = "NA";
     // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
     // combine the phenotype and genotype information
     CombinedTable combined_table(geno);
     combined_table.combine_binary_phenotype(pheno);
     // remove non-variable allele, e.g. absent in both groups
-    combined_table.remove_constant_predictors();
+    combined_table.remove_constant_predictors();    
     // should we test this snarl?
     if (!combined_table.passes_filters(maf, min_individuals)){
         // JEAN what should we do here? returning NA for now
-        return {"NA", "NA"};
+        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
+        return tres;
     }
     // fill up the contingency table (one vector per group)
     int n_alleles = combined_table.get_n_alleles();
@@ -569,59 +383,26 @@ std::pair<std::string, std::string> FisherChi2::fisher_chi2(const BinaryPhenotyp
         }
     }
 
-    return (fisher_chi2(g0, g1));
+    // performs the test
+    auto fc_res = fisher_chi2(g0, g1);
+    tres.pv = fc_res.first;
+    tres.second_pv = fc_res.second;
+    tres.group_paths = stoat::format_group_paths(g0, g1);
+    
+    return (tres);
 }
 
 // ------------------------ Linear regression ------------------------
-    
-// Multiply matrix A (m×n) with matrix B (n×p) -> result is m×p
-std::vector<std::vector<double>> LinearRegression::mult_mat_mat(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B) {
-    int m = A.size(), n = A[0].size(), p = B[0].size();
-    std::vector<std::vector<double>> result(m, std::vector<double>(p, 0.0));
-    for (int i = 0; i < m; ++i)
-        for (int k = 0; k < n; ++k)
-            for (int j = 0; j < p; ++j)
-                result[i][j] += A[i][k] * B[k][j];
-    return result;
-}
-
-// Multiply matrix A (m×n) with vector b (n) -> result is vector of size m
-std::vector<double> LinearRegression::mult_mat_vec(const std::vector<std::vector<double>> &A, const std::vector<double> &b) {
-    int m = A.size(), n = A[0].size();
-    std::vector<double> result(m, 0.0);
-    for (int i = 0; i < m; ++i)
-        for (int j = 0; j < n; ++j)
-            result[i] += A[i][j] * b[j];
-    return result;
-}
-
-// Transpose of a matrix
-std::vector<std::vector<double>> LinearRegression::transpose(const std::vector<std::vector<double>> &A) {
-    int m = A.size(), n = A[0].size();
-    std::vector<std::vector<double>> result(n, std::vector<double>(m, 0.0));
-    for (int i = 0; i < m; ++i)
-        for (int j = 0; j < n; ++j)
-            result[j][i] = A[i][j];
-    return result;
-}
 
 // Compute Moore-Penrose pseudoinverse using SVD
-std::vector<std::vector<double>> LinearRegression::pseudoInverse(const std::vector<std::vector<double>>& A, double tol) {
-    // convert vector x vector matrix to MatrixXd
-    int n_rows = A.size();
-    int n_cols = A[0].size();
-    Eigen::MatrixXd mat(n_rows, n_cols);
-    for (int i = 0; i < n_rows; ++i)
-        for (int j = 0; j < n_cols; ++j)
-            mat(i, j) = A[i][j];
-
+Eigen::MatrixXd LinearRegression::pseudo_inverse(const Eigen::MatrixXd& A, double tol) {
     // SVD
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(mat, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd(A, Eigen::ComputeThinU | Eigen::ComputeThinV);
     const auto& U = svd.matrixU();
     const auto& V = svd.matrixV();
     const auto& S = svd.singularValues();
 
-    Eigen::MatrixXd S_pinv(mat.cols(), mat.rows());
+    Eigen::MatrixXd S_pinv(A.cols(), A.rows());
     S_pinv.setZero();
 
     for (int i = 0; i < S.size(); ++i) {
@@ -629,53 +410,47 @@ std::vector<std::vector<double>> LinearRegression::pseudoInverse(const std::vect
             S_pinv(i, i) = 1.0 / S(i);
     }
 
-    Eigen::MatrixXd A_pinv = V * S_pinv * U.transpose();
-
-    // convert back to a vector x vector matrix format
-    n_rows = A_pinv.rows();
-    n_cols = A_pinv.cols();
-    std::vector<std::vector<double>> A_pinv_vecvec(n_rows, std::vector<double>(n_cols));
-    for (int i = 0; i < n_rows; ++i)
-        for (int j = 0; j < n_cols; ++j)
-            A_pinv_vecvec[i][j] = A_pinv(i, j);
-
-    return A_pinv_vecvec;
+    return V * S_pinv * U.transpose();
 }
 
 // Invert a square matrix (naive Gaussian elimination, no pivoting)
-std::vector<std::vector<double>> LinearRegression::inverse(
-    const std::vector<std::vector<double>> &A, double tol ) {
+// more info that might have inspired this code (?) https://math.uww.edu/~mcfarlat/inverse.htm and https://cppscripts.com/cpp-matrix-inversion
+Eigen::MatrixXd LinearRegression::inverse(const Eigen::MatrixXd &A, double tol) {
+    size_t nrows = A.rows();
 
-    int n = A.size();
-    std::vector<std::vector<double>> I(n, std::vector<double>(n, 0.0));
-    std::vector<std::vector<double>> B = A;
+    // the "augmented" matrix
+    Eigen::MatrixXd B = A;
 
-    for (int i = 0; i < n; ++i)
-        I[i][i] = 1.0;
+    // prepare the identity matrix
+    Eigen::MatrixXd I = Eigen::MatrixXd::Constant(nrows, nrows, 0);
+    for (int i = 0; i < nrows; ++i) {
+        I(i, i) = 1.0;
+    }
 
-    for (int i = 0; i < n; ++i) {
-        double diag = B[i][i];
+    // normalize and reduce each pivot (?)
+    for (int i = 0; i < nrows; ++i) {
+        double diag = B(i, i);
 
         // Check for near-zero pivot
         if (std::abs(diag) < tol) {
             // Matrix is likely singular or rank-deficient
             LOG_DEBUG("Using pseudo-inverse.");
-            return pseudoInverse(A);
+            return pseudo_inverse(A);
         }
 
         // Normalize the pivot row
-        for (int j = 0; j < n; ++j) {
-            B[i][j] /= diag;
-            I[i][j] /= diag;
+        for (int j = 0; j < nrows; ++j) {
+            B(i, j) /= diag;
+            I(i, j) /= diag;
         }
 
         // Eliminate other rows
-        for (int k = 0; k < n; ++k) {
+        for (int k = 0; k < nrows; ++k) {
             if (k == i) continue;
-            double factor = B[k][i];
-            for (int j = 0; j < n; ++j) {
-                B[k][j] -= factor * B[i][j];
-                I[k][j] -= factor * I[i][j];
+            double factor = B(k, i);
+            for (int j = 0; j < nrows; ++j) {
+                B(k, j) -= factor * B(i, j);
+                I(k, j) -= factor * I(i, j);
             }
         }
     }
@@ -684,127 +459,128 @@ std::vector<std::vector<double>> LinearRegression::inverse(
 }
 
 // Performs linear regression and F-test for predictors only
-std::tuple<std::string, std::string> LinearRegression::linear_regression(
-    const std::vector<std::vector<double>>& X_raw,
-    const std::vector<double>& y,
-    const std::vector<std::vector<double>>& covariates) {
+test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals) {
+    // prepare an output objet and init to NA
+    test_result_t tres;
+    tres.pv = "NA";
+    tres.r2 = "NA";
+    // JEAN will the GenotypeTable include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
+    // combine the phenotype and genotype information
+    CombinedTable combined_table(geno);
+    combined_table.combine_quantitative_phenotype(pheno);
+    combined_table.combine_covariates(covariates);
+    // remove non-variable allele, e.g. absent in both groups
+    combined_table.remove_constant_predictors();    
+    // should we test this snarl?
+    if (!combined_table.passes_filters(maf, min_individuals)){
+        // JEAN what should we do here? returning NA for now
+        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
+        return tres;
+    }
+    // add the allele path info to include in the output
+    tres.allele_paths = geno.allele_paths_as_str();
 
-    int num_samples = X_raw.size();                                     // number of observations
-    int num_predictors = X_raw[0].size();                               // number of predictors
-    int num_covariates = covariates.empty() ? 0 : covariates[0].size(); // number of covariates
+    // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
+    combined_table.add_total_allele_count_covariable();
 
+    // before performing the regression, try to reduce potential colinearity
+    combined_table.remove_duplicated_predictors();    
+    combined_table.remove_one_allele();
+    
+    Eigen::MatrixXd X_full = combined_table.make_matrixXd_features();
+    Eigen::VectorXd y = combined_table.make_vectorxd_phenotype();
+    size_t num_samples = y.size();
+    size_t num_predictors = combined_table.get_n_alleles();
+    size_t num_covariates = combined_table.get_n_covariates();
+    
     stoat::LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
     
-    // ---- FULL MODEL ----
-    int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
-    std::vector<std::vector<double>> X_full(num_samples, std::vector<double>(num_params_full, 1.0));
+    // fit the full model
+    Eigen::MatrixXd Xt = X_full.transpose();
+    Eigen::MatrixXd XtXi = inverse(Xt * X_full);
+    Eigen::VectorXd Xty = Xt * y;
+    Eigen::VectorXd beta = XtXi * Xty;
+    Eigen::VectorXd y_hat = X_full * beta;
 
-    for (int i = 0; i < num_samples; ++i) {
-        // Copy predictor variables
-        std::copy(X_raw[i].begin(), X_raw[i].end(), X_full[i].begin() + 1);
-
-        // Copy covariates if present
-        if (num_covariates > 0) {
-            std::copy(covariates[i].begin(), covariates[i].end(), X_full[i].begin() + 1 + num_predictors);
-        }
-    }
-
-    // ---- Fit FULL model ----
-    auto Xt = transpose(X_full);
-    auto XtX = mult_mat_mat(Xt, X_full);
-    auto XtXi = inverse(XtX);
-    auto Xty = mult_mat_vec(Xt, y);
-    auto beta = mult_mat_vec(XtXi, Xty);
-    auto y_hat = mult_mat_vec(X_full, beta);
-
-    // SSE (Sum of Squared Errors) for full model
+    // sum of squared errors and total sum of squares total (like using the mean as prediction)
     double SSE_full = 0.0;
-    for (int i = 0; i < num_samples; ++i) {SSE_full += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);}
-
-    // ---- Compute R² ----
-    double y_mean = std::accumulate(y.begin(), y.end(), 0.0) / num_samples;
     double SST = 0.0;
-    for (int i = 0; i < num_samples; ++i) {SST += (y[i] - y_mean) * (y[i] - y_mean);}
-    double R2 = 1.0 - SSE_full / SST;
+    double y_mean = y.sum() / y.size();
+    for (int i = 0; i < num_samples; ++i) {
+        SSE_full += (y(i) - y_hat(i)) * (y(i) - y_hat(i));
+        SST += (y[i] - y_mean) * (y[i] - y_mean);
+    }
+    // save the R2
+    tres.r2 = stoat::set_precision(1.0 - SSE_full / SST);
 
-    // ---- REDUCED MODEL ----
+    // reduced model without any predictor of interest (allele counts)
     double SSE_reduced = 0.0;
     if (num_covariates > 0) {
-        // reduced model: intercept + covariates only
-        int num_params_reduced = 1 + num_covariates;
-        std::vector<std::vector<double>> X_reduced(num_samples, std::vector<double>(num_params_reduced, 1.0));
+        // keep the intercept and covariates only
+        Eigen::MatrixXd X_reduced = Eigen::MatrixXd::Constant(X_full.rows(), 1 + num_covariates, 1);
+        X_reduced.block(0, 1, X_full.rows(), num_covariates) = X_full.block(0, 1 + num_predictors, X_full.rows(), num_covariates);
+
+        Eigen::MatrixXd Xt_r = X_reduced.transpose();
+        Eigen::MatrixXd XtXi_r = inverse(Xt_r * X_reduced);
+        Eigen::VectorXd Xty_r = Xt_r * y;
+        Eigen::VectorXd beta_r = XtXi_r * Xty_r;
+        Eigen::VectorXd y_hat_r = X_reduced * beta_r;
 
         for (int i = 0; i < num_samples; ++i) {
-            for (int j = 0; j < num_covariates; ++j) {
-                X_reduced[i][1 + j] = covariates[i][j];
-            }
+            SSE_reduced += (y(i) - y_hat_r(i)) * (y(i) - y_hat_r(i));
         }
-
-        auto Xt_r = transpose(X_reduced);
-        auto XtX_r = mult_mat_mat(Xt_r, X_reduced);
-        auto XtXi_r = inverse(XtX_r);
-        auto Xty_r = mult_mat_vec(Xt_r, y);
-        auto beta_r = mult_mat_vec(XtXi_r, Xty_r);
-        auto y_hat_r = mult_mat_vec(X_reduced, beta_r);
-
-        for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_hat_r[i]) * (y[i] - y_hat_r[i]);}
     } else {
         // no covariates: reduced model = intercept only
-        // JEAN same as SST already computed above then, right?
-        // for (int i = 0; i < num_samples; ++i) {SSE_reduced += (y[i] - y_mean) * (y[i] - y_mean);}
         SSE_reduced = SST;
     }
 
-    // ---- F-statistic ----
-    // Numerator df = number of tested predictors
-    // Denominator df = residual df in full model
-    int df_numerator = num_predictors;
-    int df_denominator = (num_samples - num_params_full) <= 0 ? 1 : num_samples - num_params_full;
-
-    // Compute F-statistic:
+    // time to compute the F-statistic
+    double F_stat = 0;
     // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]
-    double numerator = (SSE_reduced - SSE_full) / df_numerator;
-    double denominator = SSE_full / df_denominator;
-    double F_stat = numerator / denominator;
-
+    // Numerator df = number of tested predictors
+    int df_numerator = num_predictors;
+    // Denominator df = residual df in full model
+    int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
+    int df_denominator = num_samples - num_params_full;
+    
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
-    if (num_samples < num_params_full) {
+    if (df_denominator < 0) {
         stoat::LOG_WARN("Less samples (" + std::to_string(num_samples) + ") than alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Increasing the minimum number of individuals with -I to get more robust associations and avoid issues.");
+    } else {
+        double numerator = (SSE_reduced - SSE_full) / df_numerator;
+        double denominator = SSE_full / df_denominator;
+        F_stat = numerator / denominator;
+
+        if (F_stat < 0 && F_stat > -0.00001){
+            stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
+            F_stat = 0;
+        }
+        if (F_stat < -0.00001){
+            stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
+            F_stat = 0;
+        }
     }
-    if (F_stat < 0 && F_stat > -0.00001){
-        stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
-        F_stat = 0;
-    }
-    if (F_stat < -0.00001){
-        stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
-        F_stat = 0;
-    }
-    assert(F_stat >= 0);
+    
+    // compute a P-value
     boost::math::fisher_f_distribution<double> dist(df_numerator, df_denominator);
     double p_value = 1.0 - boost::math::cdf(dist, F_stat);
 
-    std::string p_value_str;
-
+    // recompute P-value with higher precision if underflow or invalid result
     if (p_value == 0.0 || !std::isfinite(p_value)) {
-
-        // Recompute only if underflow or invalid result
-        const boost::multiprecision::cpp_dec_float_50 F_hp      = F_stat;
-        const boost::multiprecision::cpp_dec_float_50 df_n_hp   = df_numerator;
-        const boost::multiprecision::cpp_dec_float_50 df_d_hp   = df_denominator;
-
+        const boost::multiprecision::cpp_dec_float_50 F_hp = F_stat;
+        const boost::multiprecision::cpp_dec_float_50 df_n_hp = df_numerator;
+        const boost::multiprecision::cpp_dec_float_50 df_d_hp = df_denominator;
         boost::math::fisher_f_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_n_hp, df_d_hp);
         boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_hp);
-
-        p_value_str = stoat::set_precision_float_50(p_hp);
-    
+        // convert to string
+        tres.pv = stoat::set_precision_float_50(p_hp);
     } else {
-        p_value_str = stoat::set_precision(p_value);
+        // convert to string
+        tres.pv = stoat::set_precision(p_value);
     }
-
-    // Format R² value
-    const std::string r2_str = stoat::set_precision(R2);
-    return std::make_tuple(p_value_str, r2_str);
+    
+    return tres;
 }
 
 } // namespace stoat

@@ -39,23 +39,24 @@ void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
               << snarl_data.depth << std::endl;
 }
 
-void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data,
-                        const std::string& p_value, const std::vector<size_t>& allele_paths) {
-
+void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    std::vector<bool> empty_vec;
+        
+    //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
     outstream << snarl_data.ref_path << "\t"
               << snarl_data.start_position << "\t"
               << snarl_data.end_position << "\t"
               << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << ((snarl_data.walks_by_allele.empty()) 
-                    ? "." 
-                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
-              << p_value << "\t"
-              << stoat::vectorToString(allele_paths) << "\t"
+              << (snarl_data.walks_by_allele.empty()
+                  ? "NA"
+                  : stoat::vectorPathToString(snarl_data.walks_by_allele, true, empty_vec)) << "\t"
+              << test_result.pv << "\t"
+              << test_result.second_pv << "\t"
+              << test_result.group_paths << "\t"
               << snarl_data.depth << std::endl;
 }
 
-void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data, 
-                        const std::string& p_value,  const std::string& r2, const std::vector<size_t>& allele_paths) {
+void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
 
     outstream << snarl_data.ref_path << "\t"
               << snarl_data.start_position << "\t"
@@ -64,15 +65,28 @@ void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data,
               << ((snarl_data.walks_by_allele.empty()) 
                     ? "." 
                     : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
-              << p_value  << "\t"
-              << r2 << "\t"
-              << stoat::vectorToString(allele_paths) << "\t"
+              << test_result.pv << "\t"
+              << test_result.allele_paths << "\t"
+              << snarl_data.depth << std::endl;
+}
+
+void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+
+    outstream << snarl_data.ref_path << "\t"
+              << snarl_data.start_position << "\t"
+              << snarl_data.end_position << "\t"
+              << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
+              << ((snarl_data.walks_by_allele.empty()) 
+                    ? "." 
+                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
+              << test_result.pv << "\t"
+              << test_result.r2 << "\t"
+              << test_result.allele_paths << "\t"
               << snarl_data.depth << "\n";
 
 }
 
-void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data, 
-                   const std::string& gene_name, const std::string& p_value,  const std::string& r2, const std::vector<size_t>& allele_paths) {
+void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
 
     outstream << snarl_data.ref_path << "\t"
               << snarl_data.start_position << "\t"
@@ -82,11 +96,10 @@ void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data,
                     ? "." 
                     : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
               << gene_name << "\t"
-              << p_value  << "\t"
-              << r2 << "\t"
-              << stoat::vectorToString(allele_paths) << "\t"
+              << test_result.pv << "\t"
+              << test_result.r2 << "\t"
+              << test_result.allele_paths << "\t"
               << snarl_data.depth << std::endl;
-
 }
 
 void write_vcf(std::ostream& outstream,

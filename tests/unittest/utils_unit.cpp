@@ -71,13 +71,6 @@ TEST_CASE("adjusted_hochberg same adjustement values") {
     REQUIRE(index == expected.second);
 }
 
-TEST_CASE("vectorToString handles string and numeric vectors") {
-    std::vector<std::string> svec = {"A", "B", "C"};
-    std::vector<size_t> ivec = {1, 2, 3};
-    REQUIRE(vectorToString(svec) == "A,B,C");
-    REQUIRE(vectorToString(ivec) == "1,2,3");
-}
-
 TEST_CASE("stringToVector parses comma-separated values to vector") {
     std::string s = "4,578,6";
     std::vector<size_t> v = stringToVector<size_t>(s);

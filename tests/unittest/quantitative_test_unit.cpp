@@ -8,321 +8,569 @@ using namespace stoat_vcf;
 
 TEST_CASE("Quantitative table modification") {
     SECTION("Remove empty columns quantitative table") {
-        
-        std::vector<std::vector<double>> df = {
-            {0.5, 0, 0.5},
-            {0.5, 0, 0.5},
-            {1, 0, 0},
-            {1, 0, 0},
-            {0, 0, 1}
-        };
-        
-        stoat::remove_empty_columns_quantitative_table(df);
 
-        std::vector<std::vector<double>> df_expected = {
-            {0.5, 0.5},
-            {0.5, 0.5},
-            {1, 0},
-            {1, 0},
-            {0, 1}
-        };
-        REQUIRE(df == df_expected);
+        //     A0 A1 A2
+        // S1 {1, 0, 1}
+        // S2 {1, 0, 1}
+        // S3 {1, 0, 0}
+        // S4 {1, 0, 0}
+        // S5 {0, 0, 1}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S1", 2);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S2", 2);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 2);
+        
+        stoat::CombinedTable ctab(geno);
+        std::vector<std::vector<double>> preds = ctab.get_predictors();
+
+        // only 3 alleles originally
+        REQUIRE(ctab.get_n_alleles() == 3);
+        // second allele should have an allele count of 0
+        REQUIRE(preds[1][0] == 0);
+
+        ctab.remove_constant_predictors();
+
+        // only 2 alleles now
+        REQUIRE(ctab.get_n_alleles() == 2);
+        // second allele should have an allele count of 1 now
+        preds = ctab.get_predictors();
+        REQUIRE(preds[1][0] == 1);
     }
 
     SECTION("Combine identical columns quantitative table") {
         
-        std::vector<std::vector<double>> df = {
-            {0.5, 0.5, 0.5},
-            {0.5, 0.5, 0.5},
-            {1, 0, 1},
-            {1, 0, 1},
-            {0, 1, 0}
-        };
-        
-        stoat::combine_identical_columns_quantitative_table(df);
+        //     A0 A1 A2
+        // S1 {0, 1, 1}
+        // S2 {1, 0, 0}
+        // S3 {1, 0, 0}
+        // S4 {1, 0, 0}
+        // S5 {0, 1, 1}
 
-        std::vector<std::vector<double>> df_expected = {
-            {1.0, 0.5},
-            {1.0, 0.5},
-            {2.0, 0},
-            {2.0, 0},
-            {0.0, 1.0}
-        };
-        REQUIRE(df == df_expected);
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 1);
+        geno.increment_count("S1", 2);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
+        geno.increment_count("S5", 2);
+        
+        stoat::CombinedTable ctab(geno);
+        std::vector<std::vector<double>> preds = ctab.get_predictors();
+
+        // 3 alleles originally
+        REQUIRE(ctab.get_n_alleles() == 3);
+        REQUIRE(preds.size() == 3);
+
+        ctab.remove_duplicated_predictors();
+
+        // only 2 alleles now
+        REQUIRE(ctab.get_n_alleles() == 2);
+        preds = ctab.get_predictors();
+        REQUIRE(preds.size() == 2);
     }
 
-    SECTION("Check last columns quantitative table") {
-        std::vector<std::vector<double>> df = {
-            {0.5},
-            {0.5},
-            {0.5},
-            {0.5},
-            {0.5}
-        };
-        
-        bool to_filter = stoat::check_last_columns_quantitative_table(df);
-        REQUIRE(to_filter == true);
+    SECTION("Filters monoallelic variants") {
+        //     A0
+        // S1 {1}
+        // S2 {1}
+        // S3 {1}
+        // S4 {1}
+        // S5 {1}
 
-        std::vector<std::vector<double>> df2 = {
-            {0.5},
-            {0.5},
-            {1.0},
-            {0.5},
-            {0.5}
-        };
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 1);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 0);
         
-        bool to_filter2 = stoat::check_last_columns_quantitative_table(df2);
-        REQUIRE(to_filter2 == false);
+        stoat::CombinedTable ctab(geno);
+
+        REQUIRE(!ctab.passes_filters(0, 0));
     }
 
     SECTION("Remove last columns quantitative table") {
-        
-        std::vector<std::vector<double>> df = {
-            {0.5, 0.5},
-            {0.5, 0.5},
-            {1, 0},
-            {1, 0},
-            {0, 1}
-        };
-        
-        stoat::remove_last_columns_quantitative_table(df);
+        //     A0 A1 A2
+        // S1 {0, 1, 1}
+        // S2 {1, 0, 0}
+        // S3 {1, 0, 0}
+        // S4 {1, 0, 0}
+        // S5 {0, 1, 1}
 
-        std::vector<std::vector<double>> df_expected = {
-            {0.5},
-            {0.5},
-            {1},
-            {1},
-            {0}
-        };
-        REQUIRE(df == df_expected);
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 1);
+        geno.increment_count("S1", 2);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
+        geno.increment_count("S5", 2);
+        
+        stoat::CombinedTable ctab(geno);
+        std::vector<std::vector<double>> preds = ctab.get_predictors();
+
+        // 3 alleles originally
+        REQUIRE(ctab.get_n_alleles() == 3);
+        REQUIRE(preds.size() == 3);
+        
+        ctab.remove_one_allele();
+
+        // 2 alleles now
+        preds = ctab.get_predictors();
+        REQUIRE(ctab.get_n_alleles() == 2);
+        REQUIRE(preds.size() == 2);
     }
 }
 
 TEST_CASE("Logistic Regression") {
-     SECTION("Logistic Regression 1 path - Perfect Relationship") {
+     SECTION("Logistic Regression 2 paths - Perfect Relationship") {
+        //     A0 A1
+        // S1 {0, 1}
+        // S2 {1, 0}
+        // S3 {1, 0}
+        // S4 {1, 0}
+        // S5 {0, 1}
 
-        std::vector<std::vector<double>> df = {
-            {0.5},
-            {1},
-            {0.5}
-        };
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4},
+                                                                   {"S11", 5}, {"S12", 6}, {"S13", 7},
+                                                                   {"S14", 8}, {"S15", 9}};
+        stoat::GenotypeTable geno(sample_to_index, 2);
+        geno.increment_count("S1", 1);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
+        geno.increment_count("S11", 1);
+        geno.increment_count("S12", 0);
+        geno.increment_count("S13", 0);
+        geno.increment_count("S14", 0);
+        geno.increment_count("S15", 1);
 
-        std::vector<bool> binary_phenotype = {0, 1, 0};
-        std::vector<std::vector<double>> covar;  // No covariates
+        
+        stoat::BinaryPhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 1);
+        pheno.set_value_for_sample("S2", 0);
+        pheno.set_value_for_sample("S3", 0);
+        pheno.set_value_for_sample("S4", 0);
+        pheno.set_value_for_sample("S5", 1);
+        pheno.set_value_for_sample("S11", 1);
+        pheno.set_value_for_sample("S12", 0);
+        pheno.set_value_for_sample("S13", 0);
+        pheno.set_value_for_sample("S14", 0);
+        pheno.set_value_for_sample("S15", 1);
+
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
 
         stoat::LogisticRegression lr;
-        auto [p_value, beta, se] = lr.logistic_regression(df, binary_phenotype, covar);
+        stoat::test_result_t tres = lr.logistic_regression(pheno, geno, covar, 0, 0);
 
-        INFO("p_value = " << p_value);
-        INFO("beta = " << beta);
-        INFO("se = " << se);
+        INFO("p_value = " << tres.pv);
+        INFO("beta = " << tres.beta);
+        INFO("se = " << tres.se);
 
-        REQUIRE(std::stod(p_value) == 0.5038);
-        REQUIRE(std::stod(beta) == 21.41);
-        REQUIRE(std::stod(se) == 32.02);
+        REQUIRE(std::stod(tres.pv) < 0.05);
+        REQUIRE(std::stod(tres.beta) == 21.41);
+        REQUIRE(std::stod(tres.se) == 32.02);
     }
 
     SECTION("Logistic Regression 2 paths - Moderate") {
+        //     A0 A1
+        // S1 {0, 1}
+        // S2 {1, 0}
+        // S3 {1, 0}
+        // S4 {1, 0}
+        // S5 {0, 1}
 
-        std::vector<std::vector<double>> df = {
-            {0.5, 0},
-            {0, 0.5},
-            {1, 0},
-            {0, 1},
-            {0, 0.5}
-        };
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 2);
+        geno.increment_count("S1", 1);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
 
-        std::vector<bool> binary_phenotype = {0, 1, 0, 1, 1};
-        std::vector<std::vector<double>> covar;
-        
+        stoat::BinaryPhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 1);
+        pheno.set_value_for_sample("S2", 1);
+        pheno.set_value_for_sample("S3", 0);
+        pheno.set_value_for_sample("S4", 0);
+        pheno.set_value_for_sample("S5", 1);
+
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
+
         stoat::LogisticRegression lr;
-        auto [p_value, beta, se] = lr.logistic_regression(df, binary_phenotype, covar);
+        stoat::test_result_t tres = lr.logistic_regression(pheno, geno, covar, 0, 0);
 
-        INFO("p_value = " << p_value);
-        INFO("beta = " << beta);
-        INFO("se = " << se);
+        INFO("p_value = " << tres.pv);
+        INFO("beta = " << tres.beta);
+        INFO("se = " << tres.se);
 
-        REQUIRE(std::stod(p_value) == 0.8601);
-        REQUIRE(std::stod(beta) == -12.58);
-        REQUIRE(std::stod(se) == 71.38);
-
+        REQUIRE(std::stod(tres.pv) == 0.5038);
+        REQUIRE(std::stod(tres.beta) == 21.41);
+        REQUIRE(std::stod(tres.se) == 32.02);
     }
 
     SECTION("Logistic Regression 3 paths - Moderate") {
 
-        std::vector<std::vector<double>> df = {
-            {0, 0.5, 0.5},
-            {0.5, 0, 0},
-            {0.25, 0.5, 0},
-            {0.5, 0, 0},
-            {0.333333, 0.333333, 0}
-        };
+        //     A0 A1 A2
+        // S1 {1, 0, 1}
+        // S2 {1, 0, 1}
+        // S3 {1, 1, 0}
+        // S4 {0, 1, 1}
+        // S5 {0, 1, 1}
 
-        std::vector<bool> binary_phenotype = {0, 1, 0, 1, 1};
-        std::vector<std::vector<double>> covar;
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S1", 2);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S2", 2);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S3", 1);
+        geno.increment_count("S4", 1);
+        geno.increment_count("S4", 2);
+        geno.increment_count("S5", 1);
+        geno.increment_count("S5", 2);
+
+        stoat::BinaryPhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 1);
+        pheno.set_value_for_sample("S2", 1);
+        pheno.set_value_for_sample("S3", 1);
+        pheno.set_value_for_sample("S4", 0);
+        pheno.set_value_for_sample("S5", 0);
+
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
         
         stoat::LogisticRegression lr;
-        auto [p_value, beta, se] = lr.logistic_regression(df, binary_phenotype, covar);
+        stoat::test_result_t tres = lr.logistic_regression(pheno, geno, covar, 0, 0);
 
-        INFO("p_value = " << p_value);
-        INFO("beta = " << beta);
-        INFO("se = " << se);
+        INFO("p_value = " << tres.pv);
+        INFO("beta = " << tres.beta);
+        INFO("se = " << tres.se);
 
-        REQUIRE(std::stod(p_value) == 0.7973);
-        REQUIRE(std::stod(beta) == 21.47);
-        REQUIRE(std::stod(se) == 83.62);
+        REQUIRE(std::stod(tres.pv) == 0.5038);
+        REQUIRE(std::stod(tres.beta) == 21.41);
+        REQUIRE(std::stod(tres.se) == 32.02);
     }
 }
 
 TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
-    SECTION("Linear Regression 1 path - Perfect Linear Relationship") {
+    SECTION("Linear Regression 2 paths - good linear relationship") {
+        //     A0 A1
+        // S1 {1, 0}
+        // S2 {1, 0}
+        // S3 {1, 0}
+        // S4 {0, 1}
+        // S5 {0, 1}
 
-        std::vector<std::vector<double>> df = {
-            {0.5},
-            {1},
-            {0.5}
-        };
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 1);
+        geno.increment_count("S5", 1);
 
-        std::vector<double> quantitative_phenotype = {39.83, 49.92, 34.56};
-        std::vector<std::vector<double>> covar;  // No covariates
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
 
-        stoat::LinearRegression lr;
-        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
-
-        INFO("p_value = " << p_value);
-        INFO("r2 = " << r2);
-
-        REQUIRE(p_value == "0.2192");
-        REQUIRE(r2 == "0.886");
-    }
-
-    SECTION("Linear Regression 2 paths - Moderate") {
-
-        std::vector<std::vector<double>> df = {
-            {0.5, 0},
-            {0, 0.5},
-            {1, 0},
-            {0, 1},
-            {0, 0.5}
-        };
-
-        std::vector<double> quantitative_phenotype = {10.5, 13.0, 15.8, 19.7, 21.5};
-        std::vector<std::vector<double>> covar;
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
         
         stoat::LinearRegression lr;
-        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
-        INFO("p_value = " << p_value);
-        INFO("r2 = " << r2);
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
 
-        REQUIRE(std::stod(p_value) == 0.5728);
-        REQUIRE(std::stod(r2) == 0.4272);
+        REQUIRE(std::stod(tres.pv) == 0.0496);
+        REQUIRE(std::stod(tres.r2) == 0.7726);
     }
 
-    SECTION("Linear Regression speudo inversion 3 paths - Moderate") {
+    SECTION("Linear Regression 3 paths - Moderate") {
+        //     A0 A1 A2
+        // S1 {1, 0, 1}
+        // S2 {1, 0, 1}
+        // S3 {1, 1, 0}
+        // S4 {0, 1, 1}
+        // S5 {0, 1, 1}
 
-        std::vector<std::vector<double>> df = {
-            {0, 0.5, 0.5},
-            {0.5, 0, 0},
-            {0.25, 0.5, 0},
-            {0.5, 0, 0},
-            {0.333333, 0.333333, 0}
-        };
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S1", 2);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S2", 2);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S3", 1);
+        geno.increment_count("S4", 1);
+        geno.increment_count("S4", 2);
+        geno.increment_count("S5", 1);
+        geno.increment_count("S5", 2);
 
-        std::vector<double> quantitative_phenotype = {39.83, 30.24, 49, 72, 54.36};
-        std::vector<std::vector<double>> covar;
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
+
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
         
         stoat::LinearRegression lr;
-        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
 
-        INFO("p_value = " << p_value);
-        INFO("r2 = " << r2);
+        REQUIRE(std::abs(std::stod(tres.pv) - 0.03133) < 0.01);
+        REQUIRE(std::stod(tres.r2) == 0.9687);
+    }
 
-        REQUIRE(std::stod(p_value) == 0.9844);
-        REQUIRE(std::stod(r2) == 0.108);
+    SECTION("Linear Regression pseudo inversion 3 paths - Moderate") {
+        //     A0 A1 A2
+        // S1 {1, 0, 0}
+        // S2 {0, 0, 1}
+        // S3 {0, 0, 1}
+        // S4 {0, 1, 0}
+        // S5 {0, 1, 0}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 2);
+        geno.increment_count("S3", 2);
+        geno.increment_count("S4", 1);
+        geno.increment_count("S5", 1);
+
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
+
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
+        
+        stoat::LinearRegression lr;
+        stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
+
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
+
+        REQUIRE(std::stod(tres.pv) == 0.1505);
+        REQUIRE(std::stod(tres.r2) == 0.8495);
     }
 }
 
 TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
-    SECTION("Linear Regression 1 path - Perfect Linear Relationship with Covariate") {
+    SECTION("Linear Regression 2 paths - Perfect Linear Relationship with Covariate") {
+        //     A0 A1
+        // S1 {1, 0}
+        // S2 {1, 0}
+        // S3 {1, 0}
+        // S4 {0, 1}
+        // S5 {0, 1}
 
-        std::vector<std::vector<double>> df = {
-            {0.5},
-            {1},
-            {0.5},
-            {1}
-        };
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 1);
+        geno.increment_count("S5", 1);
 
-        std::vector<double> quantitative_phenotype = {39.83, 49.92, 34.56, 33.46};
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
 
-        std::vector<std::vector<double>> covar = {
-            {1.2}, {0.8}, {1.0}, {0.9}
-        };
-
-        stoat::LinearRegression lr;
-        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
-
-
-        INFO("p_value = " << p_value);
-        INFO("r2 = " << r2);
-
-        REQUIRE(p_value == "0.9568");
-        REQUIRE(r2 == "0.1398");
-    }
-
-    SECTION("Linear Regression 2 paths - Moderate with Covariate") {
-
-        std::vector<std::vector<double>> df = {
-            {0.5, 0},
-            {0, 0.5},
-            {1, 0},
-            {0, 1},
-            {0, 0.5}
-        };
-
-        std::vector<double> quantitative_phenotype = {10.5, 13.0, 15.8, 19.7, 21.5};
-
-        std::vector<std::vector<double>> covar = {
-            {1.1}, {1.2}, {0.8}, {0.9}, {1.0}
-        };
-
-        stoat::LinearRegression lr;
-        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
-
-
-        INFO("p_value = " << p_value);
-        INFO("r2 = " << r2);
-
-        REQUIRE(p_value == "0.2344");
-        REQUIRE(r2 == "0.9595");
-
-    }
-
-    SECTION("Linear Regression speudo inversion 3 paths - Moderate with Covariate") {
-
-        std::vector<std::vector<double>> df = {
-            {0, 0.5, 0.5},
-            {0.5, 0, 0},
-            {0.25, 0.5, 0},
-            {0.5, 0, 0},
-            {0.333333, 0.333333, 0}
-        };
-
-        std::vector<double> quantitative_phenotype = {39.83, 30.24, 49, 72, 54.36};
-        std::vector<std::vector<double>> covar = {
-            {1.1}, {1.2}, {0.8}, {0.9}, {1.0}
-        };
+        std::unordered_map<std::string, size_t> covar_to_index = {{"covar1", 0}};
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
+        covar.set_value_for_sample_and_feature("S1", "covar1", 0.2);
+        covar.set_value_for_sample_and_feature("S2", "covar1", 10);
+        covar.set_value_for_sample_and_feature("S3", "covar1", 2);
+        covar.set_value_for_sample_and_feature("S4", "covar1", 5);
+        covar.set_value_for_sample_and_feature("S5", "covar1", 11);
         
         stoat::LinearRegression lr;
-        auto [p_value, r2] = lr.linear_regression(df, quantitative_phenotype, covar);
+        stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
 
-        INFO("p_value = " << p_value);
-        INFO("r2 = " << r2);
-
-        REQUIRE(std::stod(p_value) == 0.8031);
-        REQUIRE(std::stod(r2) == 0.7563);
-
+        REQUIRE(std::stod(tres.pv) == 0.1140625);
+        REQUIRE(std::stod(tres.r2) == 0.7987);
     }
+
+    SECTION("Linear Regression pseudo inversion 3 paths - Moderate with Covariate") {
+        //     A0 A1 A2
+        // S1 {1, 0, 0}
+        // S2 {0, 0, 1}
+        // S3 {0, 0, 1}
+        // S4 {0, 1, 0}
+        // S5 {0, 1, 0}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 2);
+        geno.increment_count("S3", 2);
+        geno.increment_count("S4", 1);
+        geno.increment_count("S5", 1);
+
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
+
+        std::unordered_map<std::string, size_t> covar_to_index = {{"covar1", 0}};
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
+        covar.set_value_for_sample_and_feature("S1", "covar1", 0.2);
+        covar.set_value_for_sample_and_feature("S2", "covar1", 10);
+        covar.set_value_for_sample_and_feature("S3", "covar1", 2);
+        covar.set_value_for_sample_and_feature("S4", "covar1", 5);
+        covar.set_value_for_sample_and_feature("S5", "covar1", 11);
+        
+        stoat::LinearRegression lr;
+        stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
+
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
+
+        REQUIRE(std::stod(tres.pv) == 0.08149071);
+        REQUIRE(std::stod(tres.r2) == 0.9938);
+    }
+}
+
+TEST_CASE("Quantitative phenotype filters") {
+    SECTION("minor allele frequency filters") {
+        //     A0 A1
+        // S1 {2, 0}
+        // S2 {2, 0}
+        // S3 {2, 0}
+        // S4 {2, 0}
+        // S5 {0, 1}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
+
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
+
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
+        
+        stoat::LinearRegression lr;
+        stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0.5, 0);
+
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
+
+        REQUIRE(tres.pv == "NA");
+        REQUIRE(tres.r2 == "NA");
+
+        tres = lr.linear_regression(pheno, geno, covar, 0.001, 0);
+
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
+        
+        REQUIRE(tres.pv != "NA");
+        REQUIRE(tres.r2 != "NA");
+    }
+
+    SECTION("minimum individual filters") {
+        //     A0 A1
+        // S1 {1, 0}
+        // S2 {1, 0}
+        // S3 {1, 0}
+        // S4 {1, 0}
+        // S5 {0, 1}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 3);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S4", 0);
+        geno.increment_count("S5", 1);
+
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
+
+        std::unordered_map<std::string, size_t> covar_to_index;
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
+        
+        stoat::LinearRegression lr;
+        stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 10);
+
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
+
+        REQUIRE(tres.pv == "NA");
+        REQUIRE(tres.r2 == "NA");
+
+        tres = lr.linear_regression(pheno, geno, covar, 0, 3);
+        
+        INFO("p_value = " << tres.pv);
+        INFO("r2 = " << tres.r2);
+        
+        REQUIRE(tres.pv != "NA");
+        REQUIRE(tres.r2 != "NA");
+    }
+
 }
