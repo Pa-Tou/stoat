@@ -11,6 +11,7 @@ class TestVCFParser : VCFParser {
     using VCFParser::initialize_parser;
     using VCFParser::get_next_chromosome_name;
     using VCFParser::for_each_record_on_chromosome;
+    using VCFParser::close_vcf;
 };
 
 TEST_CASE( "Parse empty vcf", "[vcf_parser]" ) {
