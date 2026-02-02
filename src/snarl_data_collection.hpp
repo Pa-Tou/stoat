@@ -167,6 +167,7 @@ class SnarlDataCollection {
         void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
 
         /// Starting from an empty SnarlDataCollection, run iteratee for all snarls, but one line at a time from a file instead of loading the whole thing into memory
+        /// This will load the header but not keep any of the snarls in the SnarlDataCollection
         void for_each_snarl_in_file(std::istream& instream, const std::function<void(const snarl_info_t& snarl_info)>& iteratee);
 
 
@@ -298,8 +299,13 @@ class SnarlDataCollection {
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
 
+        //////////////////// Helper functions for writing and loading stuff from files
 
-        //////////////////// Helper functions for loading stuff from files
+        /// Write just the header of the collection of snarls to the given file
+        void write_snarl_data_collection_header(std::ostream& outstream) const;
+
+        /// Write just one snarl from the collection
+        void write_snarl_data_line(std::ostream& outstream, const snarl_info_internal_t& snarl_info) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
         void load_snarl_data_collection_header(std::istream& instream);

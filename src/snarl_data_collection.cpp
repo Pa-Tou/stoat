@@ -919,7 +919,7 @@ The 9th item is all of the sequences, comma separated. "." if not present
 The remaining items are the allele number for each sample. "." if the sample is not present in the snarl
 
 */
-void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) const {
+void SnarlDataCollection::write_snarl_data_collection_header(std::ostream& outstream) const {
     
     // Write the header
     outstream << file_header << std::endl;
@@ -944,76 +944,84 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
         outstream << "\t" << samp.sample << "#" + samp.haplotype;
     }
     outstream << std::endl;
+}
+
+void SnarlDataCollection::write_snarl_data_line(std::ostream& outstream, const snarl_info_internal_t& snarl_data) const {
+
+    // Start with just the contents of the snarl_info_internal_t
+    outstream << snarl_data.start_node.to_string() << "\t"
+              << snarl_data.end_node.to_string() << "\t"
+              << snarl_data.reference_index << "\t"
+              << snarl_data.start_position << "\t"
+              << snarl_data.end_position << "\t"
+              << snarl_data.depth << "\t";
+    
+    // Next, optionally include the walks as a single comma-separated string
+    if (snarl_to_walks.count(snarl_data.start_node) == 0) {
+        outstream << ".\t.\t";
+    } else {
+        outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node), true) << "\t";
+        outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node)) << "\t";
+    }
+    
+    
+    // Add the sequences, if any, as comma separated strings
+    if (snarl_to_sequences.empty() || snarl_to_sequences.count(snarl_data.start_node) == 0) {
+    
+        outstream << ".";
+    } else {
+    
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sequences.at(snarl_data.start_node).size());
+        #endif
+        const std::vector<std::string>& sequences = snarl_to_sequences.at(snarl_data.start_node);
+        for (size_t i = 0 ; i < sequences.size() ; i++){
+            const std::string& seq = sequences[i];
+            outstream << seq ;
+            if (i != sequences.size()-1) {
+                outstream << ",";
+            }
+        }
+    }
+    
+    // Next add the allele assignments, if there are any
+    if (snarl_to_alleles_by_sample.empty()) {
+        for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
+            outstream << "\t.";
+        }
+    } else if (snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) {
+        for (size_t i = 0 ; i <  all_sample_haplotypes.size() ; i++ ) {
+            // . for a haplotype that doesn't traverse the snarl
+            outstream << "\t.";
+        }
+    } else {
+    
+        const allele_by_sample_t& alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_data.start_node);
+    
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(snarl_to_walks.at(snarl_data.start_node).size() == alleles_by_sample.allele_count);
+        std::cerr << alleles_by_sample.alleles.size() << " " << all_sample_haplotypes.size() << std::endl;
+        assert(alleles_by_sample.alleles.size() == all_sample_haplotypes.size());
+        #endif
+        for (size_t allele_num : alleles_by_sample.alleles) {
+            if (allele_num == std::numeric_limits<size_t>::max()) {
+                // . for a haplotype that doesn't traverse the snarl
+                outstream << "\t.";
+            } else {
+                outstream << "\t" << allele_num;
+            }
+        }
+    }
+    
+    outstream << std::endl;
+}
+
+void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) const {
+    write_snarl_data_collection_header(outstream);
 
     // Now write the snarls, one per line
     for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
-
-        // Start with just the contents of the snarl_info_internal_t
-        outstream << snarl_data.start_node.to_string() << "\t"
-                  << snarl_data.end_node.to_string() << "\t"
-                  << snarl_data.reference_index << "\t"
-                  << snarl_data.start_position << "\t"
-                  << snarl_data.end_position << "\t"
-                  << snarl_data.depth << "\t";
-
-        // Next, optionally include the walks as a single comma-separated string
-        if (snarl_to_walks.count(snarl_data.start_node) == 0) {
-            outstream << ".\t.\t";
-        } else {
-            outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node), true) << "\t";
-            outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node)) << "\t";
-        }
-
-
-        // Add the sequences, if any, as comma separated strings
-        if (snarl_to_sequences.empty() || snarl_to_sequences.count(snarl_data.start_node) == 0) {
-
-            outstream << ".";
-        } else {
-
-            #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sequences.at(snarl_data.start_node).size());
-            #endif
-            const std::vector<std::string>& sequences = snarl_to_sequences.at(snarl_data.start_node);
-            for (size_t i = 0 ; i < sequences.size() ; i++){
-                const std::string& seq = sequences[i];
-                outstream << seq ;
-                if (i != sequences.size()-1) {
-                    outstream << ",";
-                }
-            }
-        }
-
-        // Next add the allele assignments, if there are any
-        if (snarl_to_alleles_by_sample.empty()) {
-            for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
-                outstream << "\t.";
-            }
-        } else if (snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) {
-            for (size_t i = 0 ; i <  all_sample_haplotypes.size() ; i++ ) {
-                // . for a haplotype that doesn't traverse the snarl
-                outstream << "\t.";
-            }
-        } else {
-
-            const allele_by_sample_t& alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_data.start_node);
-
-            #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(snarl_to_walks.at(snarl_data.start_node).size() == alleles_by_sample.allele_count);
-            std::cerr << alleles_by_sample.alleles.size() << " " << all_sample_haplotypes.size() << std::endl;
-            assert(alleles_by_sample.alleles.size() == all_sample_haplotypes.size());
-            #endif
-            for (size_t allele_num : alleles_by_sample.alleles) {
-                if (allele_num == std::numeric_limits<size_t>::max()) {
-                    // . for a haplotype that doesn't traverse the snarl
-                    outstream << "\t.";
-                } else {
-                    outstream << "\t" << allele_num;
-                }
-            }
-        }
-        
-        outstream << std::endl;
+        write_snarl_data_line(outstream, snarl_data);
     }
 
     return;
