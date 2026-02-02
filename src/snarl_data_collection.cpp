@@ -395,7 +395,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
 
 }
 
-void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, htsFile *&ptr_vcf, bcf_hdr_t *&hdr, bcf1_t *&rec) {
+void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
     stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
@@ -418,40 +418,43 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
             sample_to_index.emplace(sample_hap.sample, sample_index++);
         }
     }
+
     // now the index in the edge matrix should match the index in the collection sample-hap list
     
     // read the VCF by chunk, build the edge matrix and genotype each snarl
-    while (bcf_read(ptr_vcf, hdr, rec) >= 0) {
-        std::string chr = bcf_hdr_id2name(hdr, rec->rid);
+    // 
+
+    // We assume that the vcf parser has read the header and is now ready to go through the snarls
+    std::string chr = vcf_parser.get_next_chromosome_name();
+    
+    // Go through to the end of the VCF. Chunk by chromosome 
+    while (chr != "") {
+
+
         // Skip chromosomes not in ref_chrs
         while (std::find(reference_names.begin(), reference_names.end(), chr) == reference_names.end()) {
             stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.");
             bool found_new_chr = false;
-            while (bcf_read(ptr_vcf, hdr, rec) >= 0)
-                {
-                    std::string chr_next = bcf_hdr_id2name(hdr, rec->rid);
-                    if (chr_next != chr)
-                        {
-                            chr = chr_next; // Update to the new chromosome
-                            found_new_chr = true;
-                            break;
-                        }
-                }
+
+            // Just skip to the next one without doing anything
+            vcf_parser.skip_to_next_chromosome(chr);
             
-            if (!found_new_chr)
-                {
-                    return; // exit if no more records are available
-                }
+            chr = vcf_parser.get_next_chromosome_name();
+            if (chr == "") {
+                // If we've reached the end of the file, return
+                return;
+            }
+
+            // chr is now the next chromosome we want to look at
+            
         }
         // start analyzing this chromosome chr
         stoat::LOG_INFO("Analysing chr : " + chr);
         auto timer_start_chr = std::chrono::high_resolution_clock::now();
 
         // prepare the edge matrix for this chromosome by reading the VCF
-        auto [ptr_vcf_new, hdr_new, rec_new] = edge_matrix.load_vcf_chunk(ptr_vcf, hdr, rec, chr);
-        ptr_vcf = ptr_vcf_new;
-        hdr = hdr_new;
-        rec = rec_new;
+        // this will read to the end of this chr
+        edge_matrix.load_vcf_chunk(vcf_parser, chr);
         
         auto timer_end_matrix = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Edge matrix construction for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_matrix - timer_start_chr).count()) + " s");
@@ -473,12 +476,11 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         auto timer_end_chr = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl genotypes retrieved in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_end_matrix).count()) + " s");
         stoat::LOG_INFO("Total time for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_start_chr).count()) + " s");
+
+
+        // The parser has now passed the current chromosome. Get the name of the next one
+        chr = vcf_parser.get_next_chromosome_name();
     }
-        
-    // Cleanup
-    bcf_destroy(rec);
-    bcf_hdr_destroy(hdr);
-    bcf_close(ptr_vcf);
 }
 
 // Call interatee for all snarls

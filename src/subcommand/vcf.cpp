@@ -341,15 +341,15 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Retrieving genotypes for all snarls...");
         stoat::LOG_TRACE("Parsing header VCF file");
 
-        // JEAN maybe this could be part of genotype_snarls_by_chr_from_vcf?
         // start reading the VCF to get the sample list
-        std::vector<std::string> list_samples;
-        htsFile* ptr_vcf;
-        bcf_hdr_t* hdr;
-        bcf1_t* rec;
-        std::tie(list_samples, ptr_vcf, hdr, rec) = stoat_vcf::parseHeader(vcf_path); 
 
-        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, ptr_vcf, hdr, rec);
+        stoat_vcf::VCFParser vcf_parser;
+        std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
+
+        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
+
+        // We are done reading through the vcf file so close it
+        vcf_parser.close_vcf();
 
         // JEAN should we close the file connection to the VCF?
         

@@ -167,111 +167,26 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTra
     return idx_samp_hap;
 }
 
-std::tuple<htsFile *, bcf_hdr_t *, bcf1_t *> EdgeBySampleMatrix::load_vcf_chunk(htsFile *ptr_vcf, bcf_hdr_t *hdr, bcf1_t *rec, std::string &chr) {
+void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::string &chr) {
     // init the edge matrix, allocating about 10 000 edges?
     clear_edges(10000);
 
-    // loop over the VCF file for each line and stop where chr is different
-    do {
-        bcf_unpack(rec, BCF_UN_STR);
-        
-        // check the INFO field for LV (Level in the snarl tree)
-        // skip if variant is lv != 0 to avoid duplication paths/snarl variant analysis
-        int32_t *lv = nullptr;
-        int n_lv = 0;
-        if (bcf_get_info_int32(hdr, rec, "LV", &lv, &n_lv) > 0) {
-            if (lv[0] != 0) {
-                free(lv);
-                continue;
-            }
-        }
-        free(lv);
-
-        // extract genotypes GT
-        int ngt = 0;
-        int32_t *gt = nullptr;
-        ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
-        if (ngt <= 0 || gt == nullptr) {
-            throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec->pos + 1));
-        }
-
-        // extract AT field from INFO
-        char *at = nullptr;
-        int nat = 0;
-        nat = bcf_get_info_string(hdr, rec, "AT", &at, &nat);
-        if (nat <= 0 || !at) {
-            // AT field is mandatory, throw an error
-            throw std::invalid_argument("AT field is missing in VCF at position " + std::to_string(rec->pos + 1));
-        }
-        std::string at_str(at); // convert to C++ std::string
-        free(at);
-
-        // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
-        // from: ">123>213<234", ">123<234", ">123<234<345"
-        // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
-        std::vector<std::vector<stoat::edge_t>> list_paths_edge;
-        std::stringstream at_ss(at_str);
-        std::string item;
-        while (std::getline(at_ss, item, ',')) {
-            // first make a PathTraversal object
-            stoat::PathTraversal nodes;
-            size_t i = 0;
-            while (i < item.size()) {
-                if (item[i] == '>' || item[i] == '<') {
-                    bool is_rev = (item[i] == '<');
-                    ++i;
-                    size_t node_id = 0;
-                    while (i < item.size() && isdigit(item[i])) {
-                        node_id = node_id * 10 + (item[i] - '0');
-                        ++i;
-                    }
-                    nodes.add_node_traversal_t({node_id, is_rev});
-                } else {
-                    // JEAN should we throw an error here? What are invalid characters?
-                    ++i; // Skip invalid characters
-                }
-            }
-
-            // we try flipping the path here to avoid most inconsistencies with vg call's ATs
-            // inconsistencies are still possiblt because this is potentially a very long path
-            // traversing the top-level snarl only while the ones used exploring the snarl tree
-            // and preparing the snarl paths are the "simplified"/net versions
-            nodes.check_path_flip();
-
-            // convert to a list of edges
-            std::vector<stoat::edge_t> edge_vec;
-            for (size_t j = 0; j + 1 < nodes.get_path().size(); ++j) {
-                stoat::edge_t edge(nodes.get_path()[j], nodes.get_path()[j + 1]);
-                edge_vec.emplace_back(edge);
-            }
-
-            // add this edge-decomposed path to the list
-            list_paths_edge.push_back(edge_vec);
-        }
-
-        // now look at the genotype of each sample and fill the edge matrix with the appropriately
-        for (int i = 0; i < rec->n_sample; ++i) {
-            int ploidy = 2;
-            size_t col_idx = i * 2;
-            for (int al_idx = 0; al_idx < ploidy; ++al_idx) {
-                // allele al_idx of that sample
-                // JEAN here we are assuming diploid genotypes. check how to make sure we're really/always getting the genotype for sample i with bcf_gt_allele
-                int idx_path_allele = bcf_gt_allele(gt[col_idx + al_idx]);
-                if (idx_path_allele != -1) { // Handle missing genotypes
-                    for (const auto &edge_path : list_paths_edge[idx_path_allele]) {
-                        add_sample_edge(edge_path, col_idx + al_idx);
-                    }
+    vcf_parser.for_each_record_on_chromosome(chr, [&](const stoat_vcf::vcf_info_t& vcf_info) {
+        for (size_t hap_num = 0 ; hap_num < vcf_parser.hap_count ; hap_num++) {
+            int allele_num = vcf_info.genotype[hap_num];
+            if (allele_num != -1) { // if the genotype wasn't .
+                const std::vector<stoat::node_traversal_t>& path = vcf_info.paths[allele_num];
+                for (size_t node_i = 0 ; node_i < path.size()-1 ; node_i++) {
+                    // Go through each edge (as pair of nodes) and add it to the edge matrix
+                    add_sample_edge(stoat::edge_t(path[node_i], path[node_i+1]), hap_num);
                 }
             }
         }
-        free(gt);
-    } while ((bcf_read(ptr_vcf, hdr, rec) >= 0) && (chr == bcf_hdr_id2name(hdr, rec->rid)));
+    });
 
     // we're done, we can shrink the matrix to rows set
     shrink();
 
-    // return the current VCF stream pointers
-    return std::make_tuple(ptr_vcf, hdr, rec);        
 }
     
 } // end namespace stoat
