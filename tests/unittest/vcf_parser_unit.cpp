@@ -666,7 +666,6 @@ TEST_CASE( "Untangle simple nested snarl multiple snps", "[vcf_parser]" ) {
         size_t snarl_num = 0;
         parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
             if (snarl_num == 0) {
-                // \tGT\t3/0\t2/1\t1/1\t0/3\t1/0
                 // For the outer snarl, should be
                 // >1>2>3>5>6>8>9   >1>2>4>5>7>8>9   >1>2>4>5>8>9   >1>6
                 // With 2-5 and 5-8 being nested snarls
@@ -771,7 +770,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
     vcf_out << "ref\t1\t>1>8\tACGTA\tACCTA,A\t60\t.\tLV=0;AT=>1>2>3>4>6>7>8,>1>2>7>8,>1>8\tGT\t2/0\t1/1\t1/1\t0/2\t1/0" << std::endl;
     // For the middle snarl, the two alleles are ins and del, so the 0's have the insertion
     vcf_out << "ref\t2\t>2>7\tCGT\tCCT,A\t60\t.\tLV=1;AT=>2>3>4>6>7,>2>7\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
-    vcf_out << "ref\t3\t>3>6\tCGT\tCCT,A\t60\t.\tLV=1;AT=>3>4>6,>3>5>6\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
+    vcf_out << "ref\t3\t>3>6\tCGT\tCCT,A\t60\t.\tLV=1;AT=>3>4>6,>3>5>6\tGT\t0/1\t1/0\t1/0\t0/1\t1/0" << std::endl;
     vcf_out.close();
 
 
@@ -839,6 +838,85 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
         REQUIRE(parser.does_sample_have_snarl(7, stoat::node_traversal_t(6, true)));
         REQUIRE(!parser.does_sample_have_snarl(8, stoat::node_traversal_t(6, true)));
         REQUIRE(parser.does_sample_have_snarl(9, stoat::node_traversal_t(6, true)));
+
+        parser.close_vcf();
+
+    }
+    SECTION("Go through the contents using the untangler") {
+        TestVCFParser parser (true);
+        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+
+        // Check first chr
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref"));
+        size_t snarl_num = 0;
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            if (snarl_num == 0) {
+                // For the outer snarl, should be
+                // >1>2>3>4>6>7>8  >1>2>7>8  >1>8 
+                // With 2-5 being nested snarl
+                //2/0  1/1  1/1  0/2  1/0
+                REQUIRE(vcf_info.lv == 0);
+                REQUIRE(vcf_info.paths.size() == 3); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">1>2>0>7>8");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">1>2>0>7>8");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[2]) == ">1>8");
+                REQUIRE(vcf_info.genotype[0] == 2); 
+                REQUIRE(vcf_info.genotype[1] == 0); 
+                REQUIRE(vcf_info.genotype[2] == 1); 
+                REQUIRE(vcf_info.genotype[3] == 1); 
+                REQUIRE(vcf_info.genotype[4] == 1); 
+                REQUIRE(vcf_info.genotype[5] == 1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == 2); 
+                REQUIRE(vcf_info.genotype[8] == 1); 
+                REQUIRE(vcf_info.genotype[9] == 0); 
+            } else if (snarl_num == 1) {
+                // For the middle snarl, should be
+                //>2>3>4>6>7  >2>7
+                // 0/0  0/1  1/1  0/0  1/0
+                // .                .
+                // With the . meaning that they weren't present according to the outer snarl 
+                REQUIRE(vcf_info.lv == 1);
+                REQUIRE(vcf_info.paths.size() == 2); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">2>3>0>6>7");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">2>7");
+                REQUIRE(vcf_info.genotype[0] == -1); 
+                REQUIRE(vcf_info.genotype[1] == 0); 
+                REQUIRE(vcf_info.genotype[2] == 0); 
+                REQUIRE(vcf_info.genotype[3] == 1); 
+                REQUIRE(vcf_info.genotype[4] == 1); 
+                REQUIRE(vcf_info.genotype[5] == 1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == -1); 
+                REQUIRE(vcf_info.genotype[8] == 1); 
+                REQUIRE(vcf_info.genotype[9] == 0); 
+            } else if (snarl_num == 2) {
+                // For the inner snarl, should be
+                //>3>4>6  >3>5>6
+                // 0/1  1/0  1/0  0/1  1/0
+                //        .  . .       .   
+                // With the . meaning that they weren't present according to the outer snarl 
+                REQUIRE(vcf_info.lv == 1);
+                REQUIRE(vcf_info.paths.size() == 2); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">3>4>6");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">3>5>6");
+                REQUIRE(vcf_info.genotype[0] == 0); 
+                REQUIRE(vcf_info.genotype[1] == 1); 
+                REQUIRE(vcf_info.genotype[2] == 1); 
+                REQUIRE(vcf_info.genotype[3] == -1); 
+                REQUIRE(vcf_info.genotype[4] == -1); 
+                REQUIRE(vcf_info.genotype[5] == -1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == 1); 
+                REQUIRE(vcf_info.genotype[8] == -1); 
+                REQUIRE(vcf_info.genotype[9] == 0); 
+            }
+            ++snarl_num;
+        });
+        REQUIRE(snarl_num == 3);
+
+
 
         parser.close_vcf();
 
