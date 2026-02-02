@@ -440,7 +440,7 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
 
 
 
-    SECTION("Make a VCFParser") {
+    SECTION("Check the untangler") {
         TestVCFParser parser (true);
         std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
 
@@ -454,6 +454,18 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
 
         REQUIRE(parser.get_opposite_snarl_bound(stoat::node_traversal_t(2, false)) == stoat::node_traversal_t(5, false));
         REQUIRE(parser.get_opposite_snarl_bound(stoat::node_traversal_t(5, true)) == stoat::node_traversal_t(2, true));
+
+        // Everything should have the top-level snarl
+        REQUIRE(parser.does_sample_have_snarl(0, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(1, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(2, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(3, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(4, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(5, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(6, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(7, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(8, stoat::node_traversal_t(1, false)));
+        REQUIRE(parser.does_sample_have_snarl(9, stoat::node_traversal_t(1, false)));
 
         REQUIRE(!parser.does_sample_have_snarl(0, stoat::node_traversal_t(2, false)));
         REQUIRE(parser.does_sample_have_snarl(1, stoat::node_traversal_t(2, false)));
@@ -476,6 +488,66 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
         REQUIRE(!parser.does_sample_have_snarl(7, stoat::node_traversal_t(5, true)));
         REQUIRE(parser.does_sample_have_snarl(8, stoat::node_traversal_t(5, true)));
         REQUIRE(parser.does_sample_have_snarl(9, stoat::node_traversal_t(5, true)));
+
+        parser.close_vcf();
+
+    }
+
+    SECTION("Go through the contents using the untangler") {
+        TestVCFParser parser (true);
+        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+
+        // Check first chr
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref"));
+        size_t snarl_num = 0;
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            if (snarl_num == 0) {
+                // For the outer snarl, should be
+                //>1>2>3>5>6   >1>2>4>5>6   >1>6
+                // With 2-5 being a nested chain
+                //2/0 0/1 1/1 0/2 1/0
+                REQUIRE(vcf_info.lv == 0);
+                REQUIRE(vcf_info.paths.size() == 3); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">1>2>0>5>6");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">1>2>0>5>6");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[2]) == ">1>6");
+                REQUIRE(vcf_info.genotype[0] == 2); 
+                REQUIRE(vcf_info.genotype[1] == 0); 
+                REQUIRE(vcf_info.genotype[2] == 0); 
+                REQUIRE(vcf_info.genotype[3] == 1); 
+                REQUIRE(vcf_info.genotype[4] == 1); 
+                REQUIRE(vcf_info.genotype[5] == 1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == 2); 
+                REQUIRE(vcf_info.genotype[8] == 1); 
+                REQUIRE(vcf_info.genotype[9] == 0); 
+            } else if (snarl_num == 1) {
+                // For the inner snarl, should be
+                //>2>3>5   >2>4>5
+                // 0/0  0/1  1/1  0/0  1/0
+                // .                .
+                // With the . meaning that they weren't present according to the outer snarl 
+                REQUIRE(vcf_info.lv == 1);
+                REQUIRE(vcf_info.paths.size() == 2); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">2>3>5");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">2>4>5");
+                REQUIRE(vcf_info.genotype[0] == -1); 
+                REQUIRE(vcf_info.genotype[1] == 0); 
+                REQUIRE(vcf_info.genotype[2] == 0); 
+                REQUIRE(vcf_info.genotype[3] == 1); 
+                REQUIRE(vcf_info.genotype[4] == 1); 
+                REQUIRE(vcf_info.genotype[5] == 1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == -1); 
+                REQUIRE(vcf_info.genotype[8] == 1); 
+                REQUIRE(vcf_info.genotype[9] == 0); 
+            }
+            ++snarl_num;
+        });
+        REQUIRE(snarl_num == 2);
+
+
 
         parser.close_vcf();
 

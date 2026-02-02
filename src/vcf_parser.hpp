@@ -110,7 +110,7 @@ class VCFParser {
     /// Clear the previous contents and get all the snarls for the given chromosome. Advance the file pointers
     void fill_in_snarls_for_chromosome(const std::string& chr);
 
-    /////////////////////////////////// Private data members
+    /////////////////////////////////// These would be private for the untangler
 
     // How many snarls do we have
     size_t snarl_count;

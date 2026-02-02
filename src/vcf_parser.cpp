@@ -62,6 +62,7 @@ std::string VCFParser::get_next_chromosome_name() {
 void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee) {
 
     if (untangle_snarls) {
+        std::cerr << "Untangle snarls for chr " << chr << std::endl;
         // If we are going to untangle stuff, process the snarls first
         // Clear out all the data and get the next chromosome
         snarl_in_to_out.clear();
@@ -70,6 +71,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
         fill_in_nested_snarl_bounds(chr);
         fill_in_nested_genotypes(chr);
+        std::cerr << "Found " << snarl_count << " snarls" << std::endl;
     }
 
     // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
@@ -85,6 +87,12 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
             level = lv[0];
         }
         free(lv);
+
+        // Get the snarl bounds, which are saved in the VCF as the ID
+        std::string snarl_bounds_string (rec->d.id);
+
+        // This should be a vector of two node_traversal_t's of the snarl bounds, first one pointing in, second one pointing out
+        std::vector<stoat::node_traversal_t> snarl_bounds = string_to_path_node_traversal(snarl_bounds_string);
         
         // extract genotypes GT
         int ngt = 0;
@@ -95,11 +103,18 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec->pos + 1));
         }
+
         // Make the actual vector of genotypes
+        // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
         std::vector<int> genotypes;
         genotypes.reserve(hap_count);
         for (size_t i = 0 ; i < hap_count ; i++) {
-            genotypes.emplace_back(bcf_gt_allele(gt[i]));
+            if (!untangle_snarls || level == 0 || does_sample_have_snarl(i, snarl_bounds[0])) {
+                // Always keep the genotype if we don't untangle snarls, or if this is a top-level snarl 
+                genotypes.emplace_back(bcf_gt_allele(gt[i]));
+            } else {
+                genotypes.emplace_back((int)-1);
+            }
         }
         free(gt);
         
@@ -123,7 +138,40 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         std::string item;
         while (std::getline(at_ss, item, ','))
         {
-            paths.push_back(string_to_path_node_traversal(item));
+            // If we are untangling snarls, then skip any nested snarls
+            std::vector<stoat::node_traversal_t> path_as_nodes = string_to_path_node_traversal(item);
+            if (untangle_snarls) {
+                // If we want to resolve snarls, remove any nested snarls by copying everything except nested snarls into new path
+                // Add a <0 node to represent the snarl
+                std::vector<stoat::node_traversal_t> filtered_path;
+                filtered_path.reserve(path_as_nodes.size());
+                size_t path_i = 0;
+                while (path_i < path_as_nodes.size()) {
+
+                    // Add the current node
+                    filtered_path.emplace_back(path_as_nodes[path_i]);
+
+                    // Check if the current node is the start of a snarl
+                    if (path_i != 0 && path_i != path_as_nodes.size()-1) {
+                        stoat::node_traversal_t skip_to_node = get_opposite_snarl_bound(filtered_path.back());
+                        if (skip_to_node != filtered_path.back()) {
+                            // If this is the start of a snarl, a fake snarl node, skip to the end of the snarl, and add the end.
+                            // The loop should continue on the node after the end node of the nested snarl
+                            filtered_path.emplace_back(0, false);
+                            while (path_as_nodes[path_i] != skip_to_node) {
+                                path_i++;
+                            }
+                            assert(path_as_nodes[path_i] == skip_to_node);
+                            filtered_path.emplace_back(path_as_nodes[path_i]);
+                        }
+                    }
+                    path_i++;
+                }
+                paths.push_back(std::move(filtered_path));
+            } else {
+                paths.push_back(std::move(path_as_nodes));
+            }
+            
         }
 
         iteratee(vcf_info_t({level, genotypes, paths}));
@@ -304,15 +352,17 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         }
         free(gt);
 
-
-       
-    
     } while ((bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes) >= 0) && (chr == bcf_hdr_id2name(hdr_genotypes, rec_genotypes->rid)));
     
 }
 
 bool VCFParser::does_sample_have_snarl(size_t sample_hap_index, stoat::node_traversal_t snarl_bound) {
-    return genotypes.at(genotype_index(sample_hap_index, snarl_bound));
+    if (snarl_in_to_out.count(snarl_bound)) {
+        return genotypes.at(genotype_index(sample_hap_index, snarl_bound));
+    } else {
+        // If this snarl wasn't saved, then it must be a top-level snarl so it is always present
+        return true;
+    }
 }
 
 stoat::node_traversal_t VCFParser::get_opposite_snarl_bound(stoat::node_traversal_t snarl_bound) {
