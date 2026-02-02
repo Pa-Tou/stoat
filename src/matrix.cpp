@@ -178,7 +178,10 @@ void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::s
                 const std::vector<stoat::node_traversal_t>& path = vcf_info.paths[allele_num];
                 for (size_t node_i = 0 ; node_i < path.size()-1 ; node_i++) {
                     // Go through each edge (as pair of nodes) and add it to the edge matrix
-                    add_sample_edge(stoat::edge_t(path[node_i], path[node_i+1]), hap_num);
+                    // ignoring any 0 nodes which indicate the inside of a snarl
+                    if (path[node_i].get_node_id() != 0 && path[node_i+1].get_node_id() != 0) {
+                        add_sample_edge(stoat::edge_t(path[node_i], path[node_i+1]), hap_num);
+                    }
                 }
             }
         }
