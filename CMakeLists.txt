@@ -150,7 +150,6 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/path_partitioner.cpp
     src/snarl_data_collection.cpp
     src/feature_tables.cpp
-    src/vcf_untangler.cpp
     src/vcf_parser.cpp
     
     src/io/register_loader_saver_gbz.cpp
@@ -205,7 +204,6 @@ add_executable(unit_tests
     tests/unittest/utils_unit.cpp
     tests/unittest/snarl_data_collection_unit.cpp
     tests/unittest/feature_tables_unit.cpp
-    tests/unittest/vcf_untangler_unit.cpp
     tests/unittest/vcf_parser_unit.cpp
 )
 
