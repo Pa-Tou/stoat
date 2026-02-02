@@ -27,10 +27,12 @@ struct vcf_info_t {
 
 /// This is used to walk through a VCF file with a VCFUntangler and keep everything synchronized
 /// A workflow would be 
-/// 1. Make a VCFParser and call initialize_parser
+/// 1. Make a VCFParser and call initialize_parser() to parse the header
 /// 2. Call get_next_chromosome to see what chromosome this is currently pointing at
-/// 3. If it is a chromosome we want, call for_each_record_on_chromosome to do whatever on everything on this chromosome
+/// 3. If it is a chromosome we want, call for_each_record_on_chromosome() to do whatever on everything on this chromosome
+///    Otherwise, call skip_to_next_chromosome() to continue reading until the next chromosome
 /// 4. Repeat 2 and 3 until get_next_chromosome returns an empty string 
+/// 5. Call close_vcf()
 class VCFParser {
 
     public:
@@ -50,6 +52,10 @@ class VCFParser {
     /// This advances through the VCF until it is pointing at the first thing not on this chromosome (or the end of the file)
     /// If the VCFParser is not pointing to a record on this chromosome, do nothing.
     void for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee);
+
+    /// Read through the VCF file until we find a new chromosome that is not chr.
+    /// This is equivalent to running for_each_record_on_chromosome and doing nothing in iteratee
+    void skip_to_next_chromosome(const std::string& chr);
 
     /// This should be called after running through the vcf to close the file
     void close_vcf(){

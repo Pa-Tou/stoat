@@ -115,4 +115,26 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 #endif
 }
 
+void VCFParser::skip_to_next_chromosome(const std::string& chr) {
+#ifdef DEBUG_VCF_PARSER
+        std::cerr << "Skip through chr " << chr << std::endl;
+#endif
+
+    // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
+    // At the end of this loop, we'll be looking at the first line that is not this chromosome
+    do {
+        bcf_unpack(rec, BCF_UN_STR);
+
+        read_status = bcf_read(ptr_vcf, hdr, rec);
+#ifdef DEBUG_VCF_PARSER
+        std::cerr << "\t" << read_status << " on chr " << chr << std::endl;
+#endif
+
+    } while ((read_status >= 0) && (chr == bcf_hdr_id2name(hdr, rec->rid)));
+
+#ifdef DEBUG_VCF_PARSER
+    std::cerr << " broke out of loop with " << read_status << " At chr " << bcf_hdr_id2name(hdr, rec->rid) << std::endl;
+#endif
+}
+
 }//end namespace
