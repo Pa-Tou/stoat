@@ -485,6 +485,11 @@ void SnarlDataCollection::get_all_walks_through_snarl(
         const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks, 
         size_t walk_cycle_limit ) {
 
+#ifdef DEBUG_SNARL_DATA_COLLECTION
+    std::cerr << "Get all possible walks through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
+#endif
+
+
 
     // Path exploration
     std::vector<std::vector<handlegraph::net_handle_t>> paths = {
@@ -557,7 +562,31 @@ void SnarlDataCollection::get_all_walks_through_snarl(
     if (break_snarl) {
         walks_as_net_handles.clear();
     }
+
+#ifdef DEBUG_SNARL_DATA_COLLECTION
+    // Validate paths
+    std::set<std::vector<handlegraph::net_handle_t>> found_walks;
+    for (const auto& walk : walks_as_net_handles) {
+        for (size_t i = 0 ; i < walk.size() - 1 ; i++) {
+            assert(distance_index.distance_in_parent(snarl, walk[i], distance_index.flip(walk[i+1])) == 0);
+        }
+        assert(found_walks.count(walk) == 0);
+        assert(walk.front() == distance_index.get_bound(snarl, false, true));
+        assert(walk.back() == distance_index.get_bound(snarl, true, false));
+        found_walks.insert(walk);
+    }
+#endif
+
     walks = stoat::convert_path_traversals(distance_index, graph, walks_as_net_handles);   
+#ifdef DEBUG_SNARL_DATA_COLLECTION
+    // Validate paths
+    std::cerr << "Found " << walks.size() << " paths through the snarl" << std::endl;
+    for (const auto& walk : walks) {
+        
+        std::cerr << "\t" << walk.to_string() << std::endl;
+    }
+#endif
+
     return ;
 }
 
