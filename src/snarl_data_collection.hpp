@@ -124,7 +124,7 @@ class SnarlDataCollection {
         SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
-        /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fill in sample_to_index based on sample_haplotypes 
+        /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fills in sample_to_index based on sample_haplotypes 
         /// If alleles_requested is true, then call find_alleles_by_sample to assign each sample/haplotype in all_sample_haplotypes to an allele
         /// find_alleles_by_sample must return a vector of length all_sample_haplotypes with the allele of each sample_hap_t (std::numeric_limits<size_t>::max() if not present).
         /// If walks_requested is true, then find the walks using find_walks.
@@ -137,7 +137,9 @@ class SnarlDataCollection {
         /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_alleles that may be used for find_walks
         /// If reference_samples is not empty, get coordinates on one of these reference path. If it is empty then the coordinates will be on any path
         /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
-        /// Write failed snarls to out_fail
+        /// If out_filename is not empty, then write the snarl collection to a file as well. If keep_snarls is False, then delete the snarls as they are found
+        /// instead of keeping them in the collection. This saves memory if writing the snarls. If out_filename is empty, then keep_snarls should be True
+
         void fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                 const std::vector<stoat::sample_hap_t>& sample_haplotypes,
                                 bool find_alleles_first,
@@ -148,7 +150,8 @@ class SnarlDataCollection {
                                 const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
-                                const std::unordered_set<std::string>& reference_samples, bool check_distances);
+                                const std::unordered_set<std::string>& reference_samples, bool check_distances,
+                                std::string out_filename, bool keep_snarls);
 
         
         /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through

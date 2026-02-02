@@ -310,7 +310,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
             }, 
             false, // sequence_requested 
             ref_chrs, // reference 
-            false //check distances
+            false, //check distances
+            "", // Filename to write the intermediate files
+            true // Keep the snarls in the collection?
             ); 
 
         // Always write the snarls

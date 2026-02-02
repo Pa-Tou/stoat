@@ -24,7 +24,24 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                              const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                                                                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                              bool sequence_requested,
-                                             const std::unordered_set<std::string>& reference_samples, bool check_distances) {
+                                             const std::unordered_set<std::string>& reference_samples, bool check_distances,
+                                             std::string out_filename, bool keep_snarls) {
+
+    // If we are going to write the snarls, then we are going to write all the snarls to a temporary file, then write the header (which isn't done until we find
+    // all the snarls since there could be new references added), then copy the temporary file after the header
+    std::ofstream out_snarls;
+    std::string out_temp_filename = out_filename + ".temp";
+
+    if (out_filename != "") {
+
+        // Make sure that the temporary file we write doesn't already exist 
+        // Since the actual file name is given by the user (probably) it can be overwritten (probably)
+        while (std::filesystem::exists(out_temp_filename)) {
+            out_temp_filename += "1";
+        }
+        out_snarls.open(out_temp_filename); 
+    }
+
 
     // Make a copy of the samples. Not a reference since it has to be able to be loaded from a file and stored
     all_sample_haplotypes = sample_haplotypes;
@@ -145,8 +162,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
                                 GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
                                 
-                                // TODO decide how to deal with snarls without walks
-                                bool save_snarl = true;
 
                                 // Make the snarl_info_t passed to the sample set/walk finders. They don't need to have all the information yet
                                 // the snarl_info is const in the finders so it won't change the walks/alleles/sequences
@@ -223,37 +238,39 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     throw std::runtime_error("stoat: Snarl data collection requested sequences without walks");
                                 }
 
-                                if (save_snarl) { 
    
-                                    // Add the snarl to the collection
-                                    if (walks_requested) {
-                                        #pragma omp critical(snarl_collection)
-                                        {
-                                        snarl_to_walks.emplace(snarl_data.start_node, std::move(walks_by_allele));
-                                        }
+                                // Add the snarl to the collection
+                                if (walks_requested) {
+                                    #pragma omp critical(snarl_collection)
+                                    {
+                                    snarl_to_walks.emplace(snarl_data.start_node, std::move(walks_by_allele));
                                     }
-                                    if (alleles_requested) {
-                                        #pragma omp critical(snarl_collection)
-                                        {
-                                        snarl_to_alleles_by_sample.emplace(snarl_data.start_node, alleles_by_sample);
-                                        }
+                                }
+                                if (alleles_requested) {
+                                    #pragma omp critical(snarl_collection)
+                                    {
+                                    snarl_to_alleles_by_sample.emplace(snarl_data.start_node, alleles_by_sample);
                                     }
-                                    if (sequence_requested) {
-                                        #pragma omp critical(snarl_collection)
-                                        {
-                                        snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
-                                        }
+                                }
+                                if (sequence_requested) {
+                                    #pragma omp critical(snarl_collection)
+                                    {
+                                    snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
                                     }
+                                }
+                                if (out_filename != "") {
+                                    #pragma omp critical(write_snarl_collection)
+                                    write_snarl_data_line(out_snarls, snarl_data);
+                                }
+
+                                if (keep_snarls) {
                                     #pragma omp critical(snarl_collection)
                                     {
                                     all_snarl_data.emplace_back(std::move(snarl_data));
                                     }
-
-
-
                                 }
-                            }// end if snarl_is_eligible
 
+                            }// end if snarl_is_eligible
 
     
                             #pragma omp critical(snarl_collection)
@@ -297,6 +314,35 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     std::cerr << "Added " << chains_added << " chains and processed " << chains_processed << std::endl;
     assert(chains_added == chains_processed);
     #endif
+
+    // If we want to write the snarls
+    if (out_filename != "") {
+
+        // We need to write the header to the final file then copy the snarls into the same file 
+        out_snarls.close();
+
+        std::ofstream out_final;
+        out_final.open(out_filename);
+        
+        //Write the final header
+        write_snarl_data_collection_header(out_final);
+
+        // Go through the temporary snarl file and copy it into the new file
+        std::ifstream in_temp;
+        in_temp.open(out_temp_filename);
+
+        std::string line;
+        while (std::getline(in_temp, line)) {
+            out_final << line << std::endl;
+        }
+
+        out_final.close();
+        in_temp.close();
+
+        // Remove the temporary file
+        std::filesystem::remove(out_temp_filename);
+    }
+
 }
 void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
                                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
@@ -445,7 +491,7 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_in
 
 void SnarlDataCollection::for_each_snarl_in_file(std::istream& instream, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) {
     load_snarl_data_collection_header(instream);
-    std::string(line);
+    std::string line;
     while (std::getline(instream, line)) {
 
         snarl_info_internal_t snarl_info = load_snarl_data_line(line);
@@ -1242,6 +1288,8 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
     while (std::getline(instream,line)) {
         all_snarl_data.emplace_back(load_snarl_data_line(line));
     }
+
+    instream.close();
 }
 
 

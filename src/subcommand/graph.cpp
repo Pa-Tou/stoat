@@ -411,7 +411,10 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             },
                                             output_format == "fasta", // find the sequences, only for fasta format
                                             reference_samples,
-                                            distance_index.has_distances());
+                                            distance_index.has_distances(),
+                                            "", // Filename to write the snarls to
+                                            true// Keep the snarls in the collection?
+                                            );
         if (save_snarls) {
             ofstream out_snarls;
             out_snarls.open(snarls_filename);
