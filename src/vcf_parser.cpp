@@ -1,6 +1,6 @@
 #include "vcf_parser.hpp"
 
-#define DEBUG_VCF_PARSER
+//#define DEBUG_VCF_PARSER
 
 using namespace stoat;
 namespace stoat_vcf{
@@ -62,7 +62,6 @@ std::string VCFParser::get_next_chromosome_name() {
 void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee) {
 
     if (untangle_snarls) {
-        std::cerr << "Untangle snarls for chr " << chr << std::endl;
         // If we are going to untangle stuff, process the snarls first
         // Clear out all the data and get the next chromosome
         snarl_in_to_out.clear();
@@ -71,7 +70,6 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
         fill_in_nested_snarl_bounds(chr);
         fill_in_nested_genotypes(chr);
-        std::cerr << "Found " << snarl_count << " snarls" << std::endl;
     }
 
     // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
@@ -155,17 +153,19 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
                     if (path_i != 0 && path_i != path_as_nodes.size()-1) {
                         stoat::node_traversal_t skip_to_node = get_opposite_snarl_bound(filtered_path.back());
                         if (skip_to_node != filtered_path.back()) {
-                            // If this is the start of a snarl, a fake snarl node, skip to the end of the snarl, and add the end.
-                            // The loop should continue on the node after the end node of the nested snarl
+                            // If this is the start of a snarl, a fake snarl node and skip to the end of the snarl
+                            // The loop should continue on the end node of the nested snarl
+                            // TODO: This will include the boundary nodes between snarls which is wasteful but simpler
                             filtered_path.emplace_back(0, false);
                             while (path_as_nodes[path_i] != skip_to_node) {
                                 path_i++;
                             }
-                            assert(path_as_nodes[path_i] == skip_to_node);
-                            filtered_path.emplace_back(path_as_nodes[path_i]);
+                        } else {
+                            path_i++;
                         }
+                    } else {
+                        path_i++;
                     }
-                    path_i++;
                 }
                 paths.push_back(std::move(filtered_path));
             } else {
