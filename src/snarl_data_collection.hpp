@@ -166,6 +166,10 @@ class SnarlDataCollection {
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
 
+        /// Starting from an empty SnarlDataCollection, run iteratee for all snarls, but one line at a time from a file instead of loading the whole thing into memory
+        void for_each_snarl_in_file(std::istream& instream, const std::function<void(const snarl_info_t& snarl_info)>& iteratee);
+
+
         /// Write the collection of snarls to the given file
         void write_snarl_data_collection(std::ostream& outstream) const;
         
@@ -293,6 +297,22 @@ class SnarlDataCollection {
 
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
+
+
+        //////////////////// Helper functions for loading stuff from files
+
+        /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
+        void load_snarl_data_collection_header(std::istream& instream);
+
+        /// Given a string representing a line in the file, load one snarl_info_internal_t
+        /// This assumes that load_snarl_collection_header() has already been called
+        snarl_info_internal_t load_snarl_data_line(std::string& line);
+
+        // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
+        // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
+        void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
+
+
 
     public:
         // Return true if the two SnarlDataCollections contain the same information (but possibly in a different order)

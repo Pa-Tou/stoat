@@ -719,7 +719,32 @@ TEST_CASE( "Snarl collection nested bubbles",
 
             int rm = system(rm_cmd.c_str()); 
         }
+        SECTION("Serialize it and load one line at a time") {
+            // This uses the same code as the normal loader so just test that it doesn't crash and gets the right number of snarls
+
+            std::string test_file = "./test_snarls.txt";
+            std::ofstream outstream;
+            outstream.open(test_file);
+            snarl_collection.write_snarl_data_collection(outstream);
+            outstream.close();
+
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::ifstream instream;
+            instream.open(test_file);
+            size_t loaded_snarl_count = 0;
+            loaded_snarl_collection.for_each_snarl_in_file(instream, [&](const snarl_info_t& snarl_info) {
+                ++loaded_snarl_count;
+            });
+            instream.close();
+
+            REQUIRE(loaded_snarl_count == 4);
+
+            std::string rm_cmd = "rm " + test_file;
+
+             int rm = system(rm_cmd.c_str());
+         }
     }
+
 
 }
 TEST_CASE( "Snarl collection multiple connected components",

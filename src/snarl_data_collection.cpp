@@ -439,44 +439,60 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 // TODO: Make this parallel
 void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
+        run_iteratee_on_one_snarl(snarl_info, iteratee);
+    }
+}
 
-        // GenotypeTable constructor takes a map from sample to index, and the number of alleles
-        GenotypeTable genotypes(sample_to_index, snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count
-                                                                                                         : 0);
-        #ifdef DEBUG_SNARL_DATA_COLLECTION
-        std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << (snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node).allele_count : 0) << " alleles" << std::endl; 
-        for (const auto& pair : sample_to_index) {
-            std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
-        }
-        #endif
-        
-        // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
-        // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
-        if (snarl_to_alleles_by_sample.count(snarl_info.start_node)) {
-            const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_info.start_node);
-            for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
-                if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
-                    genotypes.increment_count(all_sample_haplotypes[sample_hap_i].sample, alleles_by_sample.alleles[sample_hap_i]);
-                }
+void SnarlDataCollection::for_each_snarl_in_file(std::istream& instream, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) {
+    load_snarl_data_collection_header(instream);
+    std::string(line);
+    while (std::getline(instream, line)) {
+
+        snarl_info_internal_t snarl_info = load_snarl_data_line(line);
+        run_iteratee_on_one_snarl(snarl_info, iteratee);
+    }
+}
+ 
+void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
+
+
+    // GenotypeTable constructor takes a map from sample to index, and the number of alleles
+    GenotypeTable genotypes(sample_to_index, snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node).allele_count
+                                                                                                     : 0);
+    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << (snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node).allele_count : 0) << " alleles" << std::endl; 
+    for (const auto& pair : sample_to_index) {
+        std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
+    }
+    #endif
+    
+    // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
+    // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
+    if (snarl_to_alleles_by_sample.count(internal_snarl_info.start_node)) {
+        const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(internal_snarl_info.start_node);
+        for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
+            if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
+                genotypes.increment_count(all_sample_haplotypes[sample_hap_i].sample, alleles_by_sample.alleles[sample_hap_i]);
             }
         }
-
-        allele_by_sample_t empty_alleles;
-        std::vector<PathTraversal> empty_walks (0); 
-        std::vector<std::string> empty_sequences (0);
-        snarl_info_t new_snarl_info (snarl_info.start_node, 
-                              snarl_info.end_node, 
-                              snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
-                              snarl_info.start_position,
-                              snarl_info.end_position,
-                              snarl_info.depth,
-                              genotypes,
-                              all_sample_haplotypes,
-                              snarl_to_alleles_by_sample.count(snarl_info.start_node) ? snarl_to_alleles_by_sample.at(snarl_info.start_node) : empty_alleles,
-                              snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
-                              snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
-        iteratee(new_snarl_info);
     }
+
+    allele_by_sample_t empty_alleles;
+    std::vector<PathTraversal> empty_walks (0); 
+    std::vector<std::string> empty_sequences (0);
+    snarl_info_t new_snarl_info (internal_snarl_info.start_node, 
+                          internal_snarl_info.end_node, 
+                          internal_snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(internal_snarl_info.reference_index),
+                          internal_snarl_info.start_position,
+                          internal_snarl_info.end_position,
+                          internal_snarl_info.depth,
+                          genotypes,
+                          all_sample_haplotypes,
+                          snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node) : empty_alleles,
+                          snarl_to_walks.count(internal_snarl_info.start_node) ? snarl_to_walks.at(internal_snarl_info.start_node) : empty_walks,
+                          snarl_to_sequences.count(internal_snarl_info.start_node) ? snarl_to_sequences.at(internal_snarl_info.start_node) : empty_sequences);
+    iteratee(new_snarl_info);
+    
 }
 
 
@@ -1003,10 +1019,7 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
     return;
 }
 
-void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
-    // open file connection
-    std::ifstream instream;
-    instream.open(filename);
+void SnarlDataCollection::load_snarl_data_collection_header(std::istream& instream) {
 
     // Clear anything that has already been filled in, since we want it to match what was in the file
     all_snarl_data.clear();
@@ -1110,107 +1123,119 @@ void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
             sample_to_index.emplace(sample_hap.sample, sample_index++);
         }
     }
+}
+
+SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_line(std::string& line) {
+
+    snarl_info_internal_t snarl_info;
+
+    std::stringstream linestream(line);
+    std::string part;
+    //Snarl start node traversal
+    std::getline(linestream, part, '\t');
+    snarl_info.start_node = stoat::node_traversal_t(part);
+    
+    //Snarl start node traversal
+    std::getline(linestream, part, '\t');
+    snarl_info.end_node = stoat::node_traversal_t(part);
+    
+    // Index of reference
+    std::getline(linestream, part, '\t');
+    snarl_info.reference_index = std::stoull(part);
+    
+    // Start offset along reference
+    std::getline(linestream, part, '\t');
+    snarl_info.start_position = std::stoull(part);
+    
+    // End offset along reference
+    std::getline(linestream, part, '\t');
+    snarl_info.end_position = std::stoull(part);
+    
+    // Snarl depth
+    std::getline(linestream, part, '\t');
+    snarl_info.depth = std::stoull(part);
+    
+    // Next are the paths, first the lengths then the paths themselves
+    std::string path_lengths;
+    std::string paths;
+    std::getline(linestream, path_lengths, '\t');
+    std::getline(linestream, paths, '\t');
+    
+    snarl_to_walks[snarl_info.start_node] = stoat::string_to_path_traversals(paths, path_lengths);
+    
+    size_t walk_count = snarl_to_walks[snarl_info.start_node].size();
+    
+    // Next are the sequences, or "." if there are no sequences
+    std::getline(linestream, part, '\t');
+    if (part != ".") {
+        std::vector<std::string> sequences;
+        std::stringstream seqstream(part);
+        std::string seq;
+        bool last_empty_sequence = part.size() > 0 && part.at(part.size()-1) == ',';
+        while (std::getline(seqstream, seq, ',')) {
+            sequences.emplace_back(seq);
+        }
+    
+        if (last_empty_sequence) {
+            sequences.emplace_back("");
+        }
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(sequences.size() == walk_count);
+        #endif
+    
+        snarl_to_sequences[snarl_info.start_node] = std::move(sequences);
+    }
+    
+    
+    // The rest of the line will be the allele assignment of each sample
+    // "." means that that this sample didn't have an allele in this snarl. If all samples have "." then we just didn't store the samples
+    
+    // Fill this in with the contents of the line
+    bool has_samples = false;
+    std::vector<size_t> allele_assignments;
+    allele_assignments.reserve(all_sample_haplotypes.size());
+    size_t max_allele = 0;
+    bool has_allele = false;
+    while (std::getline(linestream, part, '\t')) {
+        if (part == ".") {
+            allele_assignments.emplace_back(std::numeric_limits<size_t>::max());
+        } else {
+            allele_assignments.emplace_back(std::stoull(part));
+            if (allele_assignments.back() != std::numeric_limits<size_t>::max()) {
+                has_allele = true;
+                max_allele = std::max(max_allele, allele_assignments.back());
+            }
+            has_samples = true;
+        }
+    };
+    
+    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    if (has_allele) {
+        assert(max_allele+1 == walk_count);
+    }
+    assert(allele_assignments.size() == all_sample_haplotypes.size()); 
+    #endif
+    if (has_samples) {
+        snarl_to_alleles_by_sample[snarl_info.start_node] = allele_by_sample_t(has_allele ? max_allele+1 : 0, allele_assignments);
+    }
+
+    return snarl_info;
+}
+
+void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
+    // open file connection
+    std::ifstream instream;
+    instream.open(filename);
+
+    load_snarl_data_collection_header(instream);
+    std::string line;
 
     // Get the snarls
     while (std::getline(instream,line)) {
-
-        all_snarl_data.emplace_back();
-
-        std::stringstream linestream(line);
-        std::string part;
-        //Snarl start node traversal
-        std::getline(linestream, part, '\t');
-        all_snarl_data.back().start_node = stoat::node_traversal_t(part);
-
-        //Snarl start node traversal
-        std::getline(linestream, part, '\t');
-        all_snarl_data.back().end_node = stoat::node_traversal_t(part);
-
-        // Index of reference
-        std::getline(linestream, part, '\t');
-        all_snarl_data.back().reference_index = std::stoull(part);
-
-        // Start offset along reference
-        std::getline(linestream, part, '\t');
-        all_snarl_data.back().start_position = std::stoull(part);
-
-        // End offset along reference
-        std::getline(linestream, part, '\t');
-        all_snarl_data.back().end_position = std::stoull(part);
-
-        // Snarl depth
-        std::getline(linestream, part, '\t');
-        all_snarl_data.back().depth = std::stoull(part);
-
-        // Next are the paths, first the lengths then the paths themselves
-        std::string path_lengths;
-        std::string paths;
-        std::getline(linestream, path_lengths, '\t');
-        std::getline(linestream, paths, '\t');
-
-        snarl_to_walks[all_snarl_data.back().start_node] = stoat::string_to_path_traversals(paths, path_lengths);
-
-        size_t walk_count = snarl_to_walks[all_snarl_data.back().start_node].size();
-
-        // Next are the sequences, or "." if there are no sequences
-        std::getline(linestream, part, '\t');
-        if (part != ".") {
-            std::vector<std::string> sequences;
-            std::stringstream seqstream(part);
-            std::string seq;
-            bool last_empty_sequence = part.size() > 0 && part.at(part.size()-1) == ',';
-            while (std::getline(seqstream, seq, ',')) {
-                sequences.emplace_back(seq);
-            }
-
-            if (last_empty_sequence) {
-                sequences.emplace_back("");
-            }
-            #ifdef DEBUG_SNARL_DATA_COLLECTION
-            assert(sequences.size() == walk_count);
-            #endif
-
-            snarl_to_sequences[all_snarl_data.back().start_node] = std::move(sequences);
-        }
-
-
-        // The rest of the line will be the allele assignment of each sample
-        // "." means that that this sample didn't have an allele in this snarl. If all samples have "." then we just didn't store the samples
-
-        // Fill this in with the contents of the line
-        bool has_samples = false;
-        std::vector<size_t> allele_assignments;
-        allele_assignments.reserve(all_sample_haplotypes.size());
-        size_t max_allele = 0;
-        bool has_allele = false;
-        while (std::getline(linestream, part, '\t')) {
-            if (part == ".") {
-                allele_assignments.emplace_back(std::numeric_limits<size_t>::max());
-            } else {
-                allele_assignments.emplace_back(std::stoull(part));
-                if (allele_assignments.back() != std::numeric_limits<size_t>::max()) {
-                    has_allele = true;
-                    max_allele = std::max(max_allele, allele_assignments.back());
-                }
-                has_samples = true;
-            }
-        };
-
-        #ifdef DEBUG_SNARL_DATA_COLLECTION
-        if (has_allele) {
-            assert(max_allele+1 == walk_count);
-        }
-        assert(allele_assignments.size() == all_sample_haplotypes.size()); 
-        #endif
-        if (has_samples) {
-            snarl_to_alleles_by_sample[all_snarl_data.back().start_node] = allele_by_sample_t(has_allele ? max_allele+1 : 0, allele_assignments);
-        }
+        all_snarl_data.emplace_back(load_snarl_data_line(line));
     }
-
-    // close file connection
-    instream.close();
-    return;
 }
+
 
 bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1, const SnarlDataCollection& collection2) {
 
