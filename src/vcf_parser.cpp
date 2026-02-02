@@ -1,6 +1,6 @@
 #include "vcf_parser.hpp"
 
-//#define DEBUG_VCF_PARSER
+#define DEBUG_VCF_PARSER
 
 using namespace stoat;
 namespace stoat_vcf{
@@ -9,34 +9,29 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
 
     // Open the VCF file
     ptr_vcf = bcf_open(vcf_path.c_str(), "r");
-    ptr_vcf_bounds = bcf_open(vcf_path.c_str(), "r");
-    ptr_vcf_genotypes = bcf_open(vcf_path.c_str(), "r");
     
     // Read the VCF header
     hdr = bcf_hdr_read(ptr_vcf);
-    hdr_bounds = bcf_hdr_read(ptr_vcf_bounds);
-    hdr_genotypes = bcf_hdr_read(ptr_vcf_genotypes);
     if (!hdr) {
         bcf_close(ptr_vcf);
-        bcf_close(ptr_vcf_bounds);
-        bcf_close(ptr_vcf_genotypes);
         throw std::invalid_argument("Could not read VCF header");
     }
-    
     // Initialize a record
     rec = bcf_init();
-    rec_bounds = bcf_init();
-    rec_genotypes = bcf_init();
     if (!rec) {
         bcf_hdr_destroy(hdr);
         bcf_close(ptr_vcf);
-
-        bcf_hdr_destroy(hdr_bounds);
-        bcf_close(ptr_vcf_bounds);
-
-        bcf_hdr_destroy(hdr_genotypes);
-        bcf_close(ptr_vcf_genotypes);
         throw std::invalid_argument("Failed to allocate memory for VCF record");
+    }
+
+    // If we want to untangle the snarls, then also open readers for the untangling steps
+    if (untangle_snarls) {
+        ptr_vcf_bounds = bcf_open(vcf_path.c_str(), "r");
+        ptr_vcf_genotypes = bcf_open(vcf_path.c_str(), "r");
+        hdr_bounds = bcf_hdr_read(ptr_vcf_bounds);
+        hdr_genotypes = bcf_hdr_read(ptr_vcf_genotypes);
+        rec_bounds = bcf_init();
+        rec_genotypes = bcf_init();
     }
 
     std::vector<std::string> list_samples;
@@ -49,8 +44,10 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
 
     // Read the current line
     read_status = bcf_read(ptr_vcf, hdr, rec);
-    bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
-    bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
+    if (untangle_snarls) {
+        bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
+        bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
+    }
         
     return list_samples;
 }
@@ -64,14 +61,16 @@ std::string VCFParser::get_next_chromosome_name() {
 
 void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee) {
 
-    // If we are going to untangle stuff, process the snarls first
-    // Clear out all the data and get the next chromosome
-    snarl_in_to_out.clear();
-    genotypes.clear();
-    snarl_count = 0;
+    if (untangle_snarls) {
+        // If we are going to untangle stuff, process the snarls first
+        // Clear out all the data and get the next chromosome
+        snarl_in_to_out.clear();
+        genotypes.clear();
+        snarl_count = 0;
 
-    fill_in_nested_snarl_bounds(chr);
-    fill_in_nested_genotypes(chr);
+        fill_in_nested_snarl_bounds(chr);
+        fill_in_nested_genotypes(chr);
+    }
 
     // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
     // At the end of this loop, we'll be looking at the first line that is not this chromosome
@@ -153,8 +152,10 @@ void VCFParser::skip_to_next_chromosome(const std::string& chr) {
         //bcf_unpack(rec, BCF_UN_STR);
 
         read_status = bcf_read(ptr_vcf, hdr, rec);
-        bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
-        bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
+        if (untangle_snarls) {
+            bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
+            bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
+        }
 #ifdef DEBUG_VCF_PARSER
         std::cerr << "\t" << read_status << " on chr " << chr << std::endl;
 #endif
@@ -326,6 +327,23 @@ size_t VCFParser::genotype_index(size_t sample_hap_index, const stoat::node_trav
     size_t snarl_index = snarl_in_to_out.at(snarl_bound).second;
     return snarl_index * hap_count + sample_hap_index;
 }
+
+void VCFParser::close_vcf(){
+    bcf_destroy(rec);
+    bcf_hdr_destroy(hdr);
+    bcf_close(ptr_vcf);
+
+    if (untangle_snarls) {
+        bcf_destroy(rec_bounds);
+        bcf_hdr_destroy(hdr_bounds);
+        bcf_close(ptr_vcf_bounds);
+
+        bcf_destroy(rec_genotypes);
+        bcf_hdr_destroy(hdr_genotypes);
+        bcf_close(ptr_vcf_genotypes);
+    }
+}
+
 
 }//end namespace
 

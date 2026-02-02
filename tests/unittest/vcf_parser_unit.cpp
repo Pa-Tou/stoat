@@ -6,8 +6,8 @@ using namespace stoat_vcf;
 
 class TestVCFParser : VCFParser {
     public: 
-    TestVCFParser() :
-        VCFParser() {} 
+    TestVCFParser(bool untangle) :
+        VCFParser(untangle) {} 
     using VCFParser::initialize_parser;
     using VCFParser::get_next_chromosome_name;
     using VCFParser::for_each_record_on_chromosome;
@@ -40,7 +40,7 @@ TEST_CASE( "Parse empty vcf", "[vcf_parser]" ) {
 
 
     SECTION("Make a VCFParser") {
-        TestVCFParser parser;
+        TestVCFParser parser (true);
         std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
 
 
@@ -95,8 +95,8 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
 
 
 
-    SECTION("Make a VCFParser") {
-        TestVCFParser parser;
+    SECTION("Make a VCFParser without untangling snarls") {
+        TestVCFParser parser(false);
         std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
 
         // Check first chr
@@ -276,7 +276,7 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
         parser.close_vcf();
     }
     SECTION("Skip a chromosome") {
-        TestVCFParser parser;
+        TestVCFParser parser (false);
         std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
 
         // Check first chr
@@ -441,7 +441,7 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
 
 
     SECTION("Make a VCFParser") {
-        TestVCFParser parser;
+        TestVCFParser parser (true);
         std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
@@ -518,7 +518,7 @@ TEST_CASE( "Untangle simple nested snarl multiple snps", "[vcf_parser]" ) {
 
 
     SECTION("Make a VCFParser") {
-        TestVCFParser parser;
+        TestVCFParser parser (true);
         std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
@@ -624,7 +624,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
 
 
     SECTION("Make a VCFParser") {
-        TestVCFParser parser;
+        TestVCFParser parser (true);
         std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});

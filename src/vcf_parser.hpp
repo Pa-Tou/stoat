@@ -38,7 +38,7 @@ class VCFParser {
     public:
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
-    VCFParser() {};
+    VCFParser(bool untangle_snarls) : untangle_snarls(untangle_snarls) {};
 
     /// Parse the header and return the sample names
     std::vector<std::string> initialize_parser(const std::string& vcf_path); 
@@ -58,19 +58,7 @@ class VCFParser {
     void skip_to_next_chromosome(const std::string& chr);
 
     /// This should be called after running through the vcf to close the file
-    void close_vcf(){
-        bcf_destroy(rec);
-        bcf_hdr_destroy(hdr);
-        bcf_close(ptr_vcf);
-
-        bcf_destroy(rec_bounds);
-        bcf_hdr_destroy(hdr_bounds);
-        bcf_close(ptr_vcf_bounds);
-
-        bcf_destroy(rec_genotypes);
-        bcf_hdr_destroy(hdr_genotypes);
-        bcf_close(ptr_vcf_genotypes);
-    }
+    void close_vcf();
 
     // How many haplotypes ? Number of samples * ploidy
     size_t hap_count;
@@ -104,6 +92,9 @@ class VCFParser {
     /// For the nested snarls, store the genotypes from the parent snarls to determine how many copies it should actually have.
     /// TODO: There could still be an issue if the outer snarl says it is het for the SNP, but the SNP also says it it het
     /// TODO: This assumes that all samples are always in the same order, which I guess they are
+
+    // If this is true, then fill all this stuff in and change the output of for_each_record_in_vcf to reflect untangled snarls
+    bool untangle_snarls;
 
 
 
