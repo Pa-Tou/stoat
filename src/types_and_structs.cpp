@@ -27,6 +27,10 @@ bool node_traversal_t::operator==(const node_traversal_t& other) const {
     return node_id == other.node_id && is_reverse == other.is_reverse;
 }
 
+bool node_traversal_t::operator!=(const node_traversal_t& other) const {
+    return node_id != other.node_id || is_reverse != other.is_reverse;
+}
+
 // edge_t
 edge_t::edge_t(const node_traversal_t &node_traversal_1, 
                const node_traversal_t &node_traversal_2) :
@@ -236,6 +240,36 @@ std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& p
     }
 
     return paths;
+}
+
+
+//TODO: this copies from string_to_path_traversals and could probably be called by it
+std::vector<stoat::node_traversal_t> string_to_path_node_traversal(const std::string& path_string) {
+
+    std::vector<stoat::node_traversal_t> path;
+    if (path_string.size() != 0 && path_string != ".") {
+        size_t i = 0;
+        const size_t len = path_string.size();
+        while (i < len) {
+            // Assume direction is always present and correct
+            bool is_reverse = (path_string[i] == '<');
+            ++i; // Move past '<' or '>'
+            // Parse node_id
+            size_t node_id = 0;
+            while (i < len && path_string[i] >= '0' && path_string[i] <= '9') {
+                node_id = node_id * 10 + (path_string[i++] - '0');
+            }
+            path.emplace_back(stoat::node_traversal_t(node_id, is_reverse));
+        }
+    }
+    return path;
+}
+std::string path_node_traversal_to_string(const std::vector<stoat::node_traversal_t>& path) {
+    std::string path_string;
+    for (const auto& x : path) {
+        path_string += x.to_string();
+    }
+    return path_string;
 }
 
 std::vector<stoat::PathTraversal> convert_path_traversals(
