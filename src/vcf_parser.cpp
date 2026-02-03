@@ -79,7 +79,8 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
         int32_t *lv = nullptr;
         int n_lv = 0;
-        size_t level;
+        // Default to LV=0 if it wasn't there
+        size_t level = 0;
         if (bcf_get_info_int32(hdr, rec, "LV", &lv, &n_lv) > 0)
         {
             level = lv[0];
