@@ -188,6 +188,57 @@ TEST_CASE("Binary association tests vcf", "[binary]") {
         REQUIRE(run_test_full(stoat_command, output_dir, expected_dir_covar, data_path, phenotype, true));
     }
 }
+TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
+    const std::string stoat_command = "../bin/stoat";
+    const std::string output_dir = "../output_binary";
+    const std::string expected_dir = "../tests/test_data/expected_output/vcf/output_binary";
+    const std::string expected_dir_covar = "../tests/test_data/expected_output/vcf/output_binary_covar";
+    const std::string data_path = "../tests/test_data/input_data/binary";
+    const std::string phenotype = "binary";
+
+    SECTION("Without covariate") {
+
+        std::string cmd = stoat_command + " vcf -R"
+        + " -g " + data_path + "/pg.full.pg"
+        + " -d " + data_path + "/pg.full.dist"
+        + " -r " + data_path + "/pg.chromosome"
+        + " -v " + data_path + "/merged_output.vcf.gz";
+
+        std::string type;
+
+        if (phenotype == "eqtl") {
+            cmd += " -e " + data_path + "/qtl.tsv" 
+            + " --gene-position " + data_path + "/gene_position.tsv";
+
+        } else if (phenotype == "binary") {
+            cmd += " -b " + data_path + "/phenotype.tsv";
+
+        } else if (phenotype == "quantitative") {
+            cmd += " -q " + data_path + "/phenotype.tsv";
+
+        } 
+
+        cmd += " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        bool result = compare_output_dirs(output_dir, expected_dir);
+
+        result &= compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
+
+        clean_output_dir(output_dir);
+
+        REQUIRE( result);
+
+    }
+
+}
 
 TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
     const std::string stoat_command = "../bin/stoat";
