@@ -403,6 +403,82 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
 
         parser.close_vcf();
     }
+    SECTION("Skip last chromosome") {
+        TestVCFParser parser (false);
+        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+
+        // Check first chr
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref1"));
+        size_t snarl_num = 0;
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            if (snarl_num == 0) {
+                REQUIRE(vcf_info.lv == 0);
+                REQUIRE(vcf_info.paths.size() == 4); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">1>2>3>5>6>8>9");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">1>2>4>5>7>8>9");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[2]) == ">1>2>4>5>8>9");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[3]) == ">1>6");
+                REQUIRE(vcf_info.genotype[0] == 3); 
+                REQUIRE(vcf_info.genotype[1] == 0); 
+                REQUIRE(vcf_info.genotype[2] == 2); 
+                REQUIRE(vcf_info.genotype[3] == 1); 
+                REQUIRE(vcf_info.genotype[4] == 1); 
+                REQUIRE(vcf_info.genotype[5] == 1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == 3); 
+                REQUIRE(vcf_info.genotype[8] == 1); 
+                REQUIRE(vcf_info.genotype[9] == 0); 
+            } else if (snarl_num == 1) {
+                REQUIRE(vcf_info.lv == 1);
+                REQUIRE(vcf_info.paths.size() == 2); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">2>3>5");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">2>4>5");
+                REQUIRE(vcf_info.genotype[0] == 0); 
+                REQUIRE(vcf_info.genotype[1] == 0); 
+                REQUIRE(vcf_info.genotype[2] == 0); 
+                REQUIRE(vcf_info.genotype[3] == 1); 
+                REQUIRE(vcf_info.genotype[4] == 1); 
+                REQUIRE(vcf_info.genotype[5] == 1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == 0); 
+                REQUIRE(vcf_info.genotype[8] == 1); 
+                REQUIRE(vcf_info.genotype[9] == 0); 
+            } else if (snarl_num == 2) {
+                REQUIRE(vcf_info.lv == 1);
+                REQUIRE(vcf_info.paths.size() == 2); 
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">5>6>8");
+                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">5>8");
+                REQUIRE(vcf_info.genotype[0] == 0); 
+                REQUIRE(vcf_info.genotype[1] == 0); 
+                REQUIRE(vcf_info.genotype[2] == 0); 
+                REQUIRE(vcf_info.genotype[3] == 1); 
+                REQUIRE(vcf_info.genotype[4] == 1); 
+                REQUIRE(vcf_info.genotype[5] == 1); 
+                REQUIRE(vcf_info.genotype[6] == 0); 
+                REQUIRE(vcf_info.genotype[7] == 0); 
+                REQUIRE(vcf_info.genotype[8] == 1); 
+                REQUIRE(vcf_info.genotype[9] == -1); 
+            }
+            ++snarl_num;
+        });
+        REQUIRE(snarl_num == 3);
+
+        // Check skip chr
+        chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref2"));
+        parser.skip_to_next_chromosome(chr);
+
+        //skip last chr
+        chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref3"));
+        parser.skip_to_next_chromosome(chr);
+
+        chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == "");
+
+        parser.close_vcf();
+    }
 
     // clean up
 
