@@ -25,7 +25,7 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
     }
 
     // If we want to untangle the snarls, then also open readers for the untangling steps
-    if (untangle_snarls) {
+    if (resolve_nested_calls) {
         ptr_vcf_bounds = bcf_open(vcf_path.c_str(), "r");
         ptr_vcf_genotypes = bcf_open(vcf_path.c_str(), "r");
         hdr_bounds = bcf_hdr_read(ptr_vcf_bounds);
@@ -44,7 +44,7 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
 
     // Read the current line
     read_status = bcf_read(ptr_vcf, hdr, rec);
-    if (untangle_snarls) {
+    if (resolve_nested_calls) {
         bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
         bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
     }
@@ -61,7 +61,7 @@ std::string VCFParser::get_next_chromosome_name() {
 
 void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee) {
 
-    if (untangle_snarls) {
+    if (resolve_nested_calls) {
         // If we are going to untangle stuff, process the snarls first
         // Clear out all the data and get the next chromosome
         snarl_in_to_out.clear();
@@ -107,7 +107,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         std::vector<int> genotypes;
         genotypes.reserve(hap_count);
         for (size_t i = 0 ; i < hap_count ; i++) {
-            if (!untangle_snarls || level == 0 || does_sample_have_snarl(i, snarl_bounds[0])) {
+            if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_bounds[0])) {
                 // Always keep the genotype if we don't untangle snarls, or if this is a top-level snarl 
                 genotypes.emplace_back(bcf_gt_allele(gt[i]));
             } else {
@@ -138,7 +138,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         {
             // If we are untangling snarls, then skip any nested snarls
             std::vector<stoat::node_traversal_t> path_as_nodes = string_to_path_node_traversal(item);
-            if (untangle_snarls) {
+            if (resolve_nested_calls) {
                 // If we want to resolve snarls, remove any nested snarls by copying everything except nested snarls into new path
                 // Add a <0 node to represent the snarl
                 std::vector<stoat::node_traversal_t> filtered_path;
@@ -200,7 +200,7 @@ void VCFParser::skip_to_next_chromosome(const std::string& chr) {
         //bcf_unpack(rec, BCF_UN_STR);
 
         read_status = bcf_read(ptr_vcf, hdr, rec);
-        if (untangle_snarls) {
+        if (resolve_nested_calls) {
             bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
             bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
         }
@@ -383,7 +383,7 @@ void VCFParser::close_vcf(){
     bcf_hdr_destroy(hdr);
     bcf_close(ptr_vcf);
 
-    if (untangle_snarls) {
+    if (resolve_nested_calls) {
         bcf_destroy(rec_bounds);
         bcf_hdr_destroy(hdr_bounds);
         bcf_close(ptr_vcf_bounds);

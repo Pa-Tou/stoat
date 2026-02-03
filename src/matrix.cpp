@@ -172,15 +172,18 @@ void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::s
     clear_edges(10000);
 
     vcf_parser.for_each_record_on_chromosome(chr, [&](const stoat_vcf::vcf_info_t& vcf_info) {
-        for (size_t hap_num = 0 ; hap_num < vcf_parser.hap_count ; hap_num++) {
-            int allele_num = vcf_info.genotype[hap_num];
-            if (allele_num != -1) { // if the genotype wasn't .
-                const std::vector<stoat::node_traversal_t>& path = vcf_info.paths[allele_num];
-                for (size_t node_i = 0 ; node_i < path.size()-1 ; node_i++) {
-                    // Go through each edge (as pair of nodes) and add it to the edge matrix
-                    // ignoring any 0 nodes which indicate the inside of a snarl
-                    if (path[node_i].get_node_id() != 0 && path[node_i+1].get_node_id() != 0) {
-                        add_sample_edge(stoat::edge_t(path[node_i], path[node_i+1]), hap_num);
+        if (vcf_info.lv == 0 || vcf_parser.resolve_nested_calls ) {
+            // If we resolve snarls, then keep edges in all snarls. If we aren't resolving snarls, then only keep lv=0 snarls
+            for (size_t hap_num = 0 ; hap_num < vcf_parser.hap_count ; hap_num++) {
+                int allele_num = vcf_info.genotype[hap_num];
+                if (allele_num != -1) { // if the genotype wasn't .
+                    const std::vector<stoat::node_traversal_t>& path = vcf_info.paths[allele_num];
+                    for (size_t node_i = 0 ; node_i < path.size()-1 ; node_i++) {
+                        // Go through each edge (as pair of nodes) and add it to the edge matrix
+                        // ignoring any 0 nodes which indicate the inside of a snarl
+                        if (path[node_i].get_node_id() != 0 && path[node_i+1].get_node_id() != 0) {
+                            add_sample_edge(stoat::edge_t(path[node_i], path[node_i+1]), hap_num);
+                        }
                     }
                 }
             }

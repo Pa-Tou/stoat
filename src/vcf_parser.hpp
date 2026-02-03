@@ -38,7 +38,7 @@ class VCFParser {
     public:
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
-    VCFParser(bool untangle_snarls) : untangle_snarls(untangle_snarls) {};
+    VCFParser(bool resolve_nested_calls) : resolve_nested_calls(resolve_nested_calls) {};
 
     /// Parse the header and return the sample names
     std::vector<std::string> initialize_parser(const std::string& vcf_path); 
@@ -62,6 +62,9 @@ class VCFParser {
 
     // How many haplotypes ? Number of samples * ploidy
     size_t hap_count;
+
+    // If this is true, then fill in all the snarl untangling stuff and change the output of for_each_record_in_vcf to reflect untangled snarls
+    bool resolve_nested_calls;
 
     protected:
 
@@ -93,8 +96,6 @@ class VCFParser {
     /// TODO: There could still be an issue if the outer snarl says it is het for the SNP, but the SNP also says it it het
     /// TODO: This assumes that all samples are always in the same order, which I guess they are
 
-    // If this is true, then fill all this stuff in and change the output of for_each_record_in_vcf to reflect untangled snarls
-    bool untangle_snarls;
 
 
 
