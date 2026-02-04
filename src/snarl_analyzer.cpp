@@ -105,7 +105,7 @@ void SnarlAnalyzer::genotype_test_snarls_by_chr(const std::string output_dir) {
     // for the log
     size_t total_number_snarl_filtered = 0;
 
-    for (std::string chrom: snarl_collection.get_reference_names()) {
+    for (std::string chrom : ref_chrs) {
         // start analyzing this chromosome
         stoat::LOG_INFO("Analysing chr : " + chrom);
         auto timer_start_chr = std::chrono::high_resolution_clock::now();
