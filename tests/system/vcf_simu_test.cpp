@@ -412,7 +412,7 @@ TEST_CASE("Output simple nested chain", "[detangle]") {
                 std::string walk;
                 std::vector<size_t> walk_indices(2,0);
 
-                for (size_t i = 0 ; i < 3 ; i++) {
+                for (size_t i = 0 ; i < 2 ; i++) {
                     std::getline(walkstream, walk, ',');
                     if (walk == ">4>5>0>7>8") {
                         walk_indices[0] = i;
@@ -427,7 +427,7 @@ TEST_CASE("Output simple nested chain", "[detangle]") {
                 // should be only two walks
                 REQUIRE(!std::getline(walkstream, walk, ','));
 
-                // Get the genotypes. Should be 0/1 2/0, assuming the same order
+                // Get the genotypes. Should be 0/1 2/0, assuming the same order, except 0 and 1 got combined
                 std::string genotype;
                 std::getline(linestream, genotype, '\t');
                 REQUIRE(genotype == std::to_string(walk_indices[0]));
@@ -439,7 +439,7 @@ TEST_CASE("Output simple nested chain", "[detangle]") {
                 REQUIRE(genotype == std::to_string(walk_indices[0]));
             } else if (first_node == ">5" || first_node == "<7") {
                 // Get the walks. should be >5>6>7, >5>7
-                // genotypes should be 0/1 ./0
+                // genotypes should be 0/1 ./0, the same as the parent
                 std::stringstream walkstream(walks);
                 std::string walk;
                 std::getline(walkstream, walk, ',');
