@@ -940,13 +940,11 @@ void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) c
         }
 
         // Next add the allele assignments, if there are any
-        if (snarl_to_alleles_by_sample.empty()) {
-            for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
-                outstream << "\t.";
-            }
-        } else if (snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) {
+        if (snarl_to_alleles_by_sample.empty()
+            || snarl_to_alleles_by_sample.count(snarl_data.start_node) == 0
+            || snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) {
             for (size_t i = 0 ; i <  all_sample_haplotypes.size() ; i++ ) {
-                // . for a haplotype that doesn't traverse the snarl
+                // If we don't have alleles or we don't have alleles for this snarl or the alleles for this snarl are empty
                 outstream << "\t.";
             }
         } else {
