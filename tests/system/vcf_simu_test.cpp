@@ -353,9 +353,45 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
         ifstream in_genotypes;
         in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
         std::string line; 
+        // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
+        std::vector<size_t> sample_index(4,0);
         while (std::getline(in_genotypes, line)) {
             if (line.at(0) == '#') {
-                //skip the header
+                //skip the header except to get the samples
+                std::string header = "#START_NODE";
+                if (std::mismatch(header.begin(), header.end(), line.begin()).first == header.end() ) {
+                    // If this is the header line with the sample names
+                    std::stringstream headerstream(line);
+                    std::string first_node;
+                    std::getline(headerstream, first_node, '\t');
+                    // Get to the 10th item, which is the first genotype
+                    std::string item;
+                    std::getline(headerstream, item, '\t'); // got end node
+                    std::getline(headerstream, item, '\t'); // got ref
+                    std::getline(headerstream, item, '\t'); // got start offset
+                    std::getline(headerstream, item, '\t'); // got end offset
+                    std::getline(headerstream, item, '\t'); // got depth
+                    std::getline(headerstream, item, '\t'); // got allele lengths
+                    std::getline(headerstream, item, '\t'); // got walks
+                    std::getline(headerstream, item, '\t'); // got sequences
+
+                    for (size_t i = 0 ; i < 4 ; i++) {
+                        std::getline(headerstream, item, '\t'); // sample name
+                        if (item == "S1#0") {
+                            sample_index[0] = i;
+                        } else if (item == "S1#1") {
+                            sample_index[1] = i;
+                        } else if (item == "S2#0") {
+                            sample_index[2] = i;
+                        } else if (item == "S2#1") {
+                            sample_index[3] = i;
+                        } else {
+                            std::cerr << "Unknown sample name " << item << std::endl;
+                            REQUIRE(false);
+                        }
+                    }
+                    REQUIRE(!std::getline(headerstream, item, '\t'));
+                }
                 continue;
             }
             // Get the start node, which is the first thing in the tab separated line
@@ -370,105 +406,97 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
             std::getline(linestream, item, '\t'); // got end offset
             std::getline(linestream, item, '\t'); // got depth
             std::getline(linestream, item, '\t'); // got allele lengths
-            std::string walks;
-            std::getline(linestream, walks, '\t'); // got walks
+            std::getline(linestream, item, '\t'); // got walks
+
+            // Get the walks split up into a vector
+            std::stringstream walkstream(item);
+            std::vector<std::string> walks;
+            std::string walk;
+            while(std::getline(walkstream, walk, ',')){
+                walks.emplace_back(walk);
+            }
+
             std::getline(linestream, item, '\t'); // got sequences
 
+            std::vector<std::string> genotypes;
+            std::string genotype;
+            while (std::getline(linestream, genotype, '\t')) {
+                genotypes.emplace_back(genotype);
+            }
             if (first_node == ">1" || first_node == "<4") {
                 // Get the walks. should be >1>2>4,1>3>4
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">1>2>4") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>3>4");
-                } else if (walk == ">1>3>4") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>2>4");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
-                }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
-
-                // Get the genotypes. Should be 0/0 0/1, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
-            } else if (first_node == ">4" || first_node == "<8") {
-                // Get the walks. should be >4>5>6>7>8,>4>5>7>8,>4>8
-                // genotypes should be 0/0 1/0
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::vector<size_t> walk_indices(2,0);
-
-                for (size_t i = 0 ; i < 2 ; i++) {
-                    std::getline(walkstream, walk, ',');
-                    if (walk == ">4>5>0>7>8") {
-                        walk_indices[0] = i;
-                    } else if (walk == ">4>8") {
-                        walk_indices[1] = i;
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">1>2>4") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">1>3>4") {
+                        walk_index[1] = std::to_string(i);
                     } else {
                         // Bad walk
-                        std::cerr << "Walk shouldn't exist " << walk << std::endl;
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
                         REQUIRE(false);
                     }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
+
+                // Get the genotypes. Should be 0/0 0/1, assuming the same order
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[1]);
+
+            } else if (first_node == ">4" || first_node == "<8") {
+
+
+                // Get the walks. should be >4>5>6>7>8,>4>5>7>8,>4>8
+                // genotypes should be 0/0 1/0
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">4>5>0>7>8") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">4>8") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
+                }
+                REQUIRE(walk_index[0] != walk_index[1]);
 
                 // Get the genotypes. Should be 0/1 2/0, assuming the same order, except 0 and 1 got combined
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[0]));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[0]));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[1]));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[0]));
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
+
             } else if (first_node == ">5" || first_node == "<7") {
+
                 // Get the walks. should be >5>6>7, >5>7
                 // genotypes should be 0/1 ./0, the same as the parent
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">5>6>7") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>7");
-                } else if (walk == ">5>7") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>6>7");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">5>6>7") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">5>7") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
 
                 // Get the genotypes. Should be 0/1 ./0, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == ".");
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[2]] == ".");
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
+
             } else if (first_node == ">8" || first_node == "<10") {
                 // This doesn't matter
             } else {
@@ -505,10 +533,47 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
         // Final values should be in output_dir/stoat.assoc.pvalues.tsv
         ifstream in_genotypes;
         in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
-        std::string line; 
+
+        // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
+        std::vector<size_t> sample_index(4,0);
+        std::string line;
         while (std::getline(in_genotypes, line)) {
             if (line.at(0) == '#') {
-                //skip the header
+                //skip the header except to get the samples
+                std::string header = "#START_NODE";
+                if (std::mismatch(header.begin(), header.end(), line.begin()).first == header.end() ) {
+                    // If this is the header line with the sample names
+                    std::stringstream headerstream(line);
+                    std::string first_node;
+                    std::getline(headerstream, first_node, '\t');
+                    // Get to the 10th item, which is the first genotype
+                    std::string item;
+                    std::getline(headerstream, item, '\t'); // got end node
+                    std::getline(headerstream, item, '\t'); // got ref
+                    std::getline(headerstream, item, '\t'); // got start offset
+                    std::getline(headerstream, item, '\t'); // got end offset
+                    std::getline(headerstream, item, '\t'); // got depth
+                    std::getline(headerstream, item, '\t'); // got allele lengths
+                    std::getline(headerstream, item, '\t'); // got walks
+                    std::getline(headerstream, item, '\t'); // got sequences
+
+                    for (size_t i = 0 ; i < 4 ; i++) {
+                        std::getline(headerstream, item, '\t'); // sample name
+                        if (item == "S1#0") {
+                            sample_index[0] = i;
+                        } else if (item == "S1#1") {
+                            sample_index[1] = i;
+                        } else if (item == "S2#0") {
+                            sample_index[2] = i;
+                        } else if (item == "S2#1") {
+                            sample_index[3] = i;
+                        } else {
+                            std::cerr << "Unknown sample name " << item << std::endl;
+                            REQUIRE(false);
+                        }
+                    }
+                    REQUIRE(!std::getline(headerstream, item, '\t'));
+                }
                 continue;
             }
             // Get the start node, which is the first thing in the tab separated line
@@ -523,105 +588,96 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
             std::getline(linestream, item, '\t'); // got end offset
             std::getline(linestream, item, '\t'); // got depth
             std::getline(linestream, item, '\t'); // got allele lengths
-            std::string walks;
-            std::getline(linestream, walks, '\t'); // got walks
+            std::getline(linestream, item, '\t'); // got walks
+
+            // Get the walks split up into a vector
+            std::stringstream walkstream(item);
+            std::vector<std::string> walks;
+            std::string walk;
+            while(std::getline(walkstream, walk, ',')){
+                walks.emplace_back(walk);
+            }
+
             std::getline(linestream, item, '\t'); // got sequences
 
+            std::vector<std::string> genotypes;
+            std::string genotype;
+            while (std::getline(linestream, genotype, '\t')) {
+                genotypes.emplace_back(genotype);
+            }
             if (first_node == ">1" || first_node == "<4") {
                 // Get the walks. should be >1>2>4,1>3>4
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">1>2>4") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>3>4");
-                } else if (walk == ">1>3>4") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>2>4");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">1>2>4") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">1>3>4") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
 
                 // Get the genotypes. Should be 0/0 0/1, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[1]);
+
             } else if (first_node == ">4" || first_node == "<8") {
-                // Get the walks. should be >4>5>0>5>8 and >4>8
+
+                // Get the walks. should be >4>5>6>7>8,>4>5>7>8,>4>8
                 // genotypes should be 0/0 1/0
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">4>5>0>7>8") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">4>8");
-                } else if (walk == ">4>8") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">4>5>0>7>8");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">4>5>0>7>8") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">4>8") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
 
-                // Get the genotypes. Should be 0/0 1/0, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
+                // Get the genotypes. Should be 0/1 2/0, assuming the same order, except 0 and 1 got combined
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
+
             } else if (first_node == ">5" || first_node == "<7") {
-                // Get the walks. should be >5>6>7, >5>7
-                // genotypes should be 1/0 ./0
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">5>6>7") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>7");
-                } else if (walk == ">5>7") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>6>7");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
-                }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
 
-                // Get the genotypes. Should be 1/0 ./0, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == ".");
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
+                // Get the walks. should be >5>6>7, >5>7
+                // genotypes should be 0/1 ./0, the same as the parent
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">5>6>7") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">5>7") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
+                }
+                REQUIRE(walk_index[0] != walk_index[1]);
+
+                // Get the genotypes. Should be 0/1 ./0
+                REQUIRE(genotypes[sample_index[0]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == ".");
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
+
             } else if (first_node == ">8" || first_node == "<10") {
                 // This doesn't matter
             } else {
@@ -721,9 +777,45 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
         ifstream in_genotypes;
         in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
         std::string line; 
+        // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
+        std::vector<size_t> sample_index(4,0);
         while (std::getline(in_genotypes, line)) {
             if (line.at(0) == '#') {
-                //skip the header
+                //skip the header except to get the samples
+                std::string header = "#START_NODE";
+                if (std::mismatch(header.begin(), header.end(), line.begin()).first == header.end() ) {
+                    // If this is the header line with the sample names
+                    std::stringstream headerstream(line);
+                    std::string first_node;
+                    std::getline(headerstream, first_node, '\t');
+                    // Get to the 10th item, which is the first genotype
+                    std::string item;
+                    std::getline(headerstream, item, '\t'); // got end node
+                    std::getline(headerstream, item, '\t'); // got ref
+                    std::getline(headerstream, item, '\t'); // got start offset
+                    std::getline(headerstream, item, '\t'); // got end offset
+                    std::getline(headerstream, item, '\t'); // got depth
+                    std::getline(headerstream, item, '\t'); // got allele lengths
+                    std::getline(headerstream, item, '\t'); // got walks
+                    std::getline(headerstream, item, '\t'); // got sequences
+
+                    for (size_t i = 0 ; i < 4 ; i++) {
+                        std::getline(headerstream, item, '\t'); // sample name
+                        if (item == "S1#0") {
+                            sample_index[0] = i;
+                        } else if (item == "S1#1") {
+                            sample_index[1] = i;
+                        } else if (item == "S2#0") {
+                            sample_index[2] = i;
+                        } else if (item == "S2#1") {
+                            sample_index[3] = i;
+                        } else {
+                            std::cerr << "Unknown sample name " << item << std::endl;
+                            REQUIRE(false);
+                        }
+                    }
+                    REQUIRE(!std::getline(headerstream, item, '\t'));
+                }
                 continue;
             }
             // Get the start node, which is the first thing in the tab separated line
@@ -738,105 +830,93 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
             std::getline(linestream, item, '\t'); // got end offset
             std::getline(linestream, item, '\t'); // got depth
             std::getline(linestream, item, '\t'); // got allele lengths
-            std::string walks;
-            std::getline(linestream, walks, '\t'); // got walks
+            std::getline(linestream, item, '\t'); // got walks
+
+            // Get the walks split up into a vector
+            std::stringstream walkstream(item);
+            std::vector<std::string> walks;
+            std::string walk;
+            while(std::getline(walkstream, walk, ',')){
+                walks.emplace_back(walk);
+            }
+
             std::getline(linestream, item, '\t'); // got sequences
+
+            std::vector<std::string> genotypes;
+            std::string genotype;
+            while (std::getline(linestream, genotype, '\t')) {
+                genotypes.emplace_back(genotype);
+            }
 
             if (first_node == ">1" || first_node == "<4") {
                 // Get the walks. should be >1>2>4,1>3>4
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">1>2>4") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>3>4");
-                } else if (walk == ">1>3>4") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>2>4");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
-                }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
-
-                // Get the genotypes. Should be 0/0 0/1, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
-            } else if (first_node == ">4" || first_node == "<8") {
-                // Get the walks. should be >4>5>6>7>8,>4>5>7>8,>4>8
-                // genotypes should be 0/0 1/0
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::vector<size_t> walk_indices(2,0);
-
-                for (size_t i = 0 ; i < 2 ; i++) {
-                    std::getline(walkstream, walk, ',');
-                    if (walk == ">4>5>0>7>8") {
-                        walk_indices[0] = i;
-                    } else if (walk == ">4>8") {
-                        walk_indices[1] = i;
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">1>2>4") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">1>3>4") {
+                        walk_index[1] = std::to_string(i);
                     } else {
                         // Bad walk
-                        std::cerr << "Walk shouldn't exist " << walk << std::endl;
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
                         REQUIRE(false);
                     }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
+
+                // Get the genotypes. Should be 0/0 0/1, assuming the same order
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[1]);
+            } else if (first_node == ">4" || first_node == "<8") {
+                // Get the walks. should be >4>5>6>7>8,>4>5>7>8,>4>8
+                // genotypes should be 0/0 1/0
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">4>5>0>7>8") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">4>8") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
+                }
+                REQUIRE(walk_index[0] != walk_index[1]);
 
                 // Get the genotypes. Should be 0/1 2/0, assuming the same order, except 0 and 1 got combined
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[0]));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[0]));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[1]));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == std::to_string(walk_indices[0]));
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
+
             } else if (first_node == ">5" || first_node == "<7") {
                 // Get the walks. should be >5>6>7, >5>7
                 // genotypes should be 0/1 ./0, the same as the parent
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">5>6>7") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>7");
-                } else if (walk == ">5>7") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>6>7");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">5>6>7") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">5>7") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
 
                 // Get the genotypes. Should be 0/1 ./0, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == ".");
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[2]] == ".");
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
             } else if (first_node == ">8" || first_node == "<10") {
                 // This doesn't matter
             } else {
@@ -874,9 +954,46 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
         ifstream in_genotypes;
         in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
         std::string line; 
+
+        // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
+        std::vector<size_t> sample_index(4,0);
         while (std::getline(in_genotypes, line)) {
             if (line.at(0) == '#') {
-                //skip the header
+                //skip the header except to get the samples
+                std::string header = "#START_NODE";
+                if (std::mismatch(header.begin(), header.end(), line.begin()).first == header.end() ) {
+                    // If this is the header line with the sample names
+                    std::stringstream headerstream(line);
+                    std::string first_node;
+                    std::getline(headerstream, first_node, '\t');
+                    // Get to the 10th item, which is the first genotype
+                    std::string item;
+                    std::getline(headerstream, item, '\t'); // got end node
+                    std::getline(headerstream, item, '\t'); // got ref
+                    std::getline(headerstream, item, '\t'); // got start offset
+                    std::getline(headerstream, item, '\t'); // got end offset
+                    std::getline(headerstream, item, '\t'); // got depth
+                    std::getline(headerstream, item, '\t'); // got allele lengths
+                    std::getline(headerstream, item, '\t'); // got walks
+                    std::getline(headerstream, item, '\t'); // got sequences
+
+                    for (size_t i = 0 ; i < 4 ; i++) {
+                        std::getline(headerstream, item, '\t'); // sample name
+                        if (item == "S1#0") {
+                            sample_index[0] = i;
+                        } else if (item == "S1#1") {
+                            sample_index[1] = i;
+                        } else if (item == "S2#0") {
+                            sample_index[2] = i;
+                        } else if (item == "S2#1") {
+                            sample_index[3] = i;
+                        } else {
+                            std::cerr << "Unknown sample name " << item << std::endl;
+                            REQUIRE(false);
+                        }
+                    }
+                    REQUIRE(!std::getline(headerstream, item, '\t'));
+                }
                 continue;
             }
             // Get the start node, which is the first thing in the tab separated line
@@ -891,105 +1008,97 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
             std::getline(linestream, item, '\t'); // got end offset
             std::getline(linestream, item, '\t'); // got depth
             std::getline(linestream, item, '\t'); // got allele lengths
-            std::string walks;
-            std::getline(linestream, walks, '\t'); // got walks
+            std::getline(linestream, item, '\t'); // got walks
+
+            // Get the walks split up into a vector
+            std::stringstream walkstream(item);
+            std::vector<std::string> walks;
+            std::string walk;
+            while(std::getline(walkstream, walk, ',')){
+                walks.emplace_back(walk);
+            }
+
             std::getline(linestream, item, '\t'); // got sequences
+
+            std::vector<std::string> genotypes;
+            std::string genotype;
+            while (std::getline(linestream, genotype, '\t')) {
+                genotypes.emplace_back(genotype);
+            }
 
             if (first_node == ">1" || first_node == "<4") {
                 // Get the walks. should be >1>2>4,1>3>4
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">1>2>4") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>3>4");
-                } else if (walk == ">1>3>4") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">1>2>4");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">1>2>4") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">1>3>4") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
 
                 // Get the genotypes. Should be 0/0 0/1, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[1]);
+
             } else if (first_node == ">4" || first_node == "<8") {
-                // Get the walks. should be >4>5>0>5>8 and >4>8
+
+                // Get the walks. should be >4>5>6>7>8,>4>5>7>8,>4>8
                 // genotypes should be 0/0 1/0
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">4>5>0>7>8") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">4>8");
-                } else if (walk == ">4>8") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">4>5>0>7>8");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">4>5>0>7>8") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">4>8") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
                 }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
+                REQUIRE(walk_index[0] != walk_index[1]);
 
-                // Get the genotypes. Should be 0/0 1/0, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "0" : "1"));
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
+                // Get the genotypes. Should be 0/1 2/0, assuming the same order, except 0 and 1 got combined
+                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
+
             } else if (first_node == ">5" || first_node == "<7") {
-                // Get the walks. should be >5>6>7, >5>7
-                // genotypes should be ./. ./0
-                std::stringstream walkstream(walks);
-                std::string walk;
-                std::getline(walkstream, walk, ',');
-                bool flipped = false;
-                if (walk == ">5>6>7") {
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>7");
-                } else if (walk == ">5>7") {
-                    flipped = true;
-                    std::getline(walkstream, walk, ',');
-                    REQUIRE(walk == ">5>6>7");
-                } else {
-                    // Bad walk
-                    std::cerr << "Walk shouldn't exist " << walk << std::endl;
-                    REQUIRE(false);
-                }
-                // should be only two walks
-                REQUIRE(!std::getline(walkstream, walk, ','));
 
-                // Get the genotypes. Should be ./. ./0, assuming the same order
-                std::string genotype;
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == ".");
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == ".");
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == ".");
-                std::getline(linestream, genotype, '\t');
-                REQUIRE(genotype == (flipped ? "1" : "0"));
+                // Get the walks. should be >5>6>7, >5>7
+                // genotypes should be 0/1 ./0, the same as the parent
+                std::vector<std::string> walk_index(2, "0");
+                REQUIRE(walks.size() == 2);
+                for (size_t i = 0 ; i < walks.size() ; i++) {
+                    if (walks[i] == ">5>6>7") {
+                        walk_index[0] = std::to_string(i);
+                    } else if (walks[i] == ">5>7") {
+                        walk_index[1] = std::to_string(i);
+                    } else {
+                        // Bad walk
+                        std::cerr << "Walk shouldn't exist " << walks[i] << std::endl;
+                        REQUIRE(false);
+                    }
+                }
+                REQUIRE(walk_index[0] != walk_index[1]);
+
+                // Get the genotypes. Should be 0/1 ./0, assuming the same order
+                REQUIRE(genotypes[sample_index[0]] == ".");
+                REQUIRE(genotypes[sample_index[1]] == ".");
+                REQUIRE(genotypes[sample_index[2]] == ".");
+                REQUIRE(genotypes[sample_index[3]] == walk_index[0]);
+
             } else if (first_node == ">8" || first_node == "<10") {
                 // This doesn't matter
             } else {
@@ -1009,4 +1118,3 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
     fs::remove(reference_filename);
     fs::remove(vcf_filename);
 }
-
