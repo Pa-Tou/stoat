@@ -79,7 +79,6 @@ void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data,
                     ? "." 
                     : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
               << test_result.pv << "\t"
-              << test_result.r2 << "\t"
               << test_result.allele_paths << "\t"
               << snarl_data.depth << "\n";
 
@@ -96,7 +95,6 @@ void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data, const s
                     : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
               << gene_name << "\t"
               << test_result.pv << "\t"
-              << test_result.r2 << "\t"
               << test_result.allele_paths << "\t"
               << snarl_data.depth << std::endl;
 }
