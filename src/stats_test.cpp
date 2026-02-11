@@ -14,6 +14,8 @@
 #  define S_CAST(type, val) (static_cast<type>(val))
 #endif
 
+//#define DEBUG_STATS_TEST
+
 namespace stoat {
 
 // ------------------------ Functions to filter tables ------------------------
@@ -535,7 +537,7 @@ test_result_t FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, const G
 // ------------------------ Linear regression ------------------------
 
 // Compute Moore-Penrose pseudoinverse using SVD
-Eigen::MatrixXd LinearRegression::pseudo_inverse(const Eigen::MatrixXd& A, double tol) {
+Eigen::MatrixXd pseudo_inverse(const Eigen::MatrixXd& A, double tol) {
     // SVD
     Eigen::JacobiSVD<Eigen::MatrixXd> svd(A, Eigen::ComputeThinU | Eigen::ComputeThinV);
     const auto& U = svd.matrixU();
@@ -553,49 +555,14 @@ Eigen::MatrixXd LinearRegression::pseudo_inverse(const Eigen::MatrixXd& A, doubl
     return V * S_pinv * U.transpose();
 }
 
-// Invert a square matrix (naive Gaussian elimination, no pivoting)
-// more info that might have inspired this code (?) https://math.uww.edu/~mcfarlat/inverse.htm and https://cppscripts.com/cpp-matrix-inversion
-Eigen::MatrixXd LinearRegression::inverse(const Eigen::MatrixXd &A, double tol) {
-    size_t nrows = A.rows();
-
-    // the "augmented" matrix
-    Eigen::MatrixXd B = A;
-
-    // prepare the identity matrix
-    Eigen::MatrixXd I = Eigen::MatrixXd::Constant(nrows, nrows, 0);
-    for (int i = 0; i < nrows; ++i) {
-        I(i, i) = 1.0;
+// Invert a square matrix
+// if the matrix looks non-invertible, use the pseudo-inverse (see above)
+Eigen::MatrixXd inverse(const Eigen::MatrixXd &A) {
+    if (A.determinant() < 1e-6) {
+        return pseudo_inverse(A);
+    } else {
+        return A.inverse();
     }
-
-    // normalize and reduce each pivot (?)
-    for (int i = 0; i < nrows; ++i) {
-        double diag = B(i, i);
-
-        // Check for near-zero pivot
-        if (std::abs(diag) < tol) {
-            // Matrix is likely singular or rank-deficient
-            LOG_DEBUG("Using pseudo-inverse.");
-            return pseudo_inverse(A);
-        }
-
-        // Normalize the pivot row
-        for (int j = 0; j < nrows; ++j) {
-            B(i, j) /= diag;
-            I(i, j) /= diag;
-        }
-
-        // Eliminate other rows
-        for (int k = 0; k < nrows; ++k) {
-            if (k == i) continue;
-            double factor = B(k, i);
-            for (int j = 0; j < nrows; ++j) {
-                B(k, j) -= factor * B(i, j);
-                I(k, j) -= factor * I(i, j);
-            }
-        }
-    }
-
-    return I;
 }
 
 // Performs linear regression and F-test for predictors only
@@ -636,12 +603,11 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     stoat::LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
     
     // fit the full model
-    Eigen::MatrixXd Xt = X_full.transpose();
-    Eigen::MatrixXd XtXi = inverse(Xt * X_full);
-    Eigen::VectorXd Xty = Xt * y;
-    Eigen::VectorXd beta = XtXi * Xty;
+    // Solve beta X = Y using QR decomposition
+    // colPivHouseholderQr is faster than fullPivHouseholderQr but less stable. could switch to full if we encounter problem (or try the HouseolderQR which is less stable but even faster)
+    Eigen::VectorXd beta = X_full.colPivHouseholderQr().solve(y);
     Eigen::VectorXd y_hat = X_full * beta;
-
+    
     // sum of squared errors and total sum of squares total (like using the mean as prediction)
     double SSE_full = 0.0;
     double SST = 0.0;
@@ -657,13 +623,8 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         // keep the intercept and covariates only
         Eigen::MatrixXd X_reduced = Eigen::MatrixXd::Constant(X_full.rows(), 1 + num_covariates, 1);
         X_reduced.block(0, 1, X_full.rows(), num_covariates) = X_full.block(0, 1 + num_predictors, X_full.rows(), num_covariates);
-
-        Eigen::MatrixXd Xt_r = X_reduced.transpose();
-        Eigen::MatrixXd XtXi_r = inverse(Xt_r * X_reduced);
-        Eigen::VectorXd Xty_r = Xt_r * y;
-        Eigen::VectorXd beta_r = XtXi_r * Xty_r;
+        Eigen::VectorXd beta_r = X_reduced.colPivHouseholderQr().solve(y);
         Eigen::VectorXd y_hat_r = X_reduced * beta_r;
-
         for (int i = 0; i < num_samples; ++i) {
             SSE_reduced += (y(i) - y_hat_r(i)) * (y(i) - y_hat_r(i));
         }
@@ -689,7 +650,6 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         double numerator = (SSE_reduced - SSE_full) / df_numerator;
         double denominator = SSE_full / df_denominator;
         F_stat = numerator / denominator;
-
         if (F_stat < 0 && F_stat > -0.00001){
             stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
             F_stat = 0;
