@@ -8,12 +8,11 @@ void write_stoat_output_header(std::ostream& outstream, stoat::phenotype_type_t 
     if (phenotype_type == stoat::BINARY) {
         outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH" << std::endl;
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        // JEAN why don't we have the R2 here?
         outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH" << std::endl;
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tR2\tALLELE_PATHS\tDEPTH" << std::endl;
+        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH" << std::endl;
     } else if (phenotype_type == stoat::EQTL) {
-        outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tR2\tALLELE_PATHS\tDEPTH" << std::endl;
+        outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tALLELE_PATHS\tDEPTH" << std::endl;
     } 
 }
 

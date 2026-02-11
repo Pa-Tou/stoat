@@ -60,34 +60,20 @@ bool filter_binary_table(
 
 // ------------------------ Logistic regression ------------------------
 
-// Sigmoid function
-inline double LogisticRegression::sigmoid(double x) {
-    return 1.0 / (1.0 + std::exp(-x));
-}
-
-// Clamp helper
-inline double LogisticRegression::clamp(double x, double lo, double hi) {
-    return std::max(lo, std::min(hi, x));
-}
-
-// Log-likelihood
-double LogisticRegression::calculate_log_likelihood(const Eigen::VectorXd& y, const Eigen::VectorXd& p) {
-    double epsilon = 1e-8;
-    double ll = 0.0;
-    for (int i = 0; i < y.size(); ++i) {
-        double pi = clamp(p(i), epsilon, 1.0 - epsilon);
-        ll += y(i) * std::log(pi) + (1 - y(i)) * std::log(1 - pi);
+// compute the sigmoid function, here corresponding to the "predicted" probability associated to a set of observations and the model (Beta x X)
+Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) {
+    Eigen::VectorXd res = Eigen::VectorXd::Constant(t.size(), 0);
+    for (size_t idx = 0; idx < t.size(); idx++) {
+        res(idx) = 1 / (1 + std::exp(-t(idx)));
     }
-    return ll;
+    return res;
 }
-
-// GLM Implementation with Iteratively Reweighted Least Squares (IRLS)
+    
+// logistic regression using the Maximum Likelihood Estimate with Newton-Raphson method
 test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covar, const double maf, const size_t min_individuals) {
     // prepare an output objet and init to NA
     test_result_t tres;
     tres.pv = "NA";
-    tres.beta = "NA";
-    tres.se = "NA";
     // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
     // combine the phenotype and genotype information
     CombinedTable combined_table(geno);
@@ -114,105 +100,259 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     
     // prepare the matrices for the regression
     Eigen::MatrixXd X = combined_table.make_matrixXd_features();
-    Eigen::VectorXd y = combined_table.make_vectorxd_phenotype();
-    size_t num_samples = y.size();
+    Eigen::VectorXd Y = combined_table.make_vectorxd_phenotype();
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "X:\n" << X << "\n";
+    std::cerr << "Y:\n" << Y << "\n";
+#endif
+    size_t num_samples = Y.size();
     size_t num_features = X.cols();
     size_t num_covariates = combined_table.get_n_covariates();
+    size_t num_predictors = combined_table.get_n_alleles();
 
-    Eigen::VectorXd beta = Eigen::VectorXd::Zero(num_features);
-    Eigen::VectorXd beta_old = beta;
-    Eigen::VectorXd p(num_samples);
-    Eigen::VectorXd weights(num_samples);
+    // we'll look for the beta coefficients that maximize the likelihood using the Newton-Raphson method
+    // it's an iterative approach so we start by initializing the coefficients (to 0)
+    Eigen::VectorXd beta = Eigen::VectorXd::Constant(X.cols(), 0);
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "beta:\n" << beta << "\n";
+#endif
 
+    // should we use Firth's penalized regression? Not at first
+    bool penalize = false;
+
+    // prepare matrices that we use multiple times below
+    Eigen::MatrixXd Xt = X.transpose();
+    // the score, i.e. the gradient or first derivative of the log-likelihood
+    // (that's what we are trying to find the root of)
+    Eigen::VectorXd score;
+    double max_score;
+    // how to update the betas, i.e. the delta or step to add to the beta vector
+    Eigen::VectorXd delta;
+    double max_delta;
+    // the predicted probs from the current beta coefficients
+    Eigen::VectorXd Ypred;
+    // the W matrix with S(BXi)(1-S(BXi)) on the diag
+    Eigen::MatrixXd W;
+    // the hessian and its inverse
+    Eigen::MatrixXd XtWX;
+    Eigen::MatrixXd XtWXi;
+        
+    // we'll iterate to find the MLE with the following parameters
     bool converged = false;
-    for (int iter = 0; iter < max_iterations; ++iter) {
-        Eigen::VectorXd z = X * beta;
-        for (int i = 0; i < num_samples; ++i) {
-            p(i) = sigmoid(z(i));
-            weights(i) = clamp(p(i) * (1.0 - p(i)), epsilon, 1.0);
+    // the maximum step currently used. Init with default from the class
+    double cur_max_step = max_step;
+    size_t iter = 0;
+    while(iter < max_iterations) {
+        // compute the predicted probs from the current beta coefficients
+        Ypred = sigmoid(X * beta);
+        // W is a diag matrix with S(BXi)(1-S(BXi)) on the diag
+        // JEAN might be quite big and used for the diag. Could do better here (sparse matrix? manually multiplying X's columns?)
+        W = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
+        for (size_t ii = 0; ii < Y.size(); ii++) {
+            W(ii, ii) = Ypred(ii) * (1 - Ypred(ii));
         }
 
-        Eigen::MatrixXd X_weighted = X;
-        for (int i = 0; i < num_samples; ++i)
-            X_weighted.row(i) *= std::sqrt(weights(i));
+        XtWX = Xt * W * X;
+        XtWXi = inverse(XtWX);
+        // if we want to penalize compute the penalty for the current betas
+        if (penalize) {
+            Eigen::MatrixXd sqrtW = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
+            for (size_t ii = 0; ii < Y.size(); ii++) {
+                sqrtW(ii, ii) = std::sqrt(Ypred(ii) * (1 - Ypred(ii)));
+            }
+            Eigen::MatrixXd hat = (sqrtW * X) * XtWXi * (Xt * sqrtW);
+            // the penalization uses the diagonal of this hat matrix as penalty
+            // update the Ypred used for the score below with that penalty
+            for (size_t ii = 0; ii < Y.size(); ii++) {
+                Ypred(ii) = Ypred(ii) - (hat(ii, ii) * (0.5 - Ypred(ii)));
+            }
+        }
 
-        Eigen::MatrixXd hessian = X_weighted.transpose() * X_weighted;
-        hessian += l2_penalty * Eigen::MatrixXd::Identity(num_features, num_features);
+        // compute the score
+        score = Xt * (Y - Ypred);
 
-        Eigen::LDLT<Eigen::MatrixXd> ldlt(hessian);
-        if (ldlt.info() != Eigen::Success) return tres;
+        // update the beta coefficients using the Newton-Raphton formula (XtWX is the hessian)
+        // first make sure the update is not too big (usually a bad sign)
+        delta = XtWXi * score;
+        max_delta = delta.cwiseAbs().maxCoeff();
+        if (max_delta > cur_max_step) {
+            // reduce the delta so that its largest component is cur_max_step
+            delta = cur_max_step * delta / max_delta;
+        }
+        // ready to update the betas
+        beta = beta + delta;
 
-        Eigen::VectorXd gradient = X.transpose() * (y - p) - l2_penalty * beta;
-        Eigen::VectorXd delta = ldlt.solve(gradient);
-        beta += delta;
+#ifdef DEBUG_STATS_TEST
+        std::cerr << "score:\n" << score << "\n\n";
+        std::cerr << "beta:\n" << beta << "\n\n";
+#endif
 
-        if ((beta - beta_old).norm() < tolerance) {
+        // switch to penalizing if betas get too large (and we were not already penalizing)
+        // JEAN any beta larger than 10 is suspicious and unexpected, but maybe there is a better way to decide if we should switch to Firth's regression
+        if (!penalize && (beta.maxCoeff() > 10 || beta.maxCoeff() < -10)) {
+            penalize = true;
+            // start again the iteration process
+            iter = 0;
+            beta = Eigen::VectorXd::Constant(X.cols(), 0);
+#ifdef DEBUG_STATS_TEST
+            std::cerr << "switching to penalized Firth regression\n";
+            std::cerr << "beta:\n" << beta << "\n\n";
+#endif
+            continue;
+        } else {
+            iter++;
+        }
+
+        max_score = score.cwiseAbs().maxCoeff();
+        // stop if it looks like we've converged (small score and small deltas)
+        if (max_score < conv_tol && max_delta < conv_tol) {
             converged = true;
             break;
         }
-        beta_old = beta;
+        // if we're at the last iteration and haven't converged try again with smaller
+        // steps from scratch
+        if (iter == max_iterations && cur_max_step > 1) {
+            iter = 0;
+            beta = Eigen::VectorXd::Constant(X.cols(), 0);
+            cur_max_step--;
+        }
     }
 
-    if (!converged) return tres;
-
-    // Final weights
-    Eigen::VectorXd z_final = X * beta;
-    for (int i = 0; i < num_samples; ++i) {
-        p(i) = sigmoid(z_final(i));
-        weights(i) = clamp(p(i) * (1.0 - p(i)), epsilon, 1.0);
-    }
-
-    // Covariance matrix
-    Eigen::MatrixXd X_weighted = X;
-    for (int i = 0; i < num_samples; ++i)
-        X_weighted.row(i) *= std::sqrt(weights(i));
-
-    Eigen::MatrixXd hessian = X_weighted.transpose() * X_weighted;
-    hessian += l2_penalty * Eigen::MatrixXd::Identity(num_features, num_features);
-    Eigen::MatrixXd cov = hessian.inverse();
-    Eigen::VectorXd se = cov.diagonal().array().sqrt();
-
-    // --- Wald Test (Normal approximation)
-    std::vector<double> p_values;
-    p_values.reserve(num_features - 1 - num_covariates);
-    for (size_t i = 1; i < num_features - num_covariates; ++i) {
-
-        const double z_score = beta(i) / se(i);
-
-        // --- Fast path (double precision) ---
-        const boost::math::normal_distribution<double> standard_normal(0.0, 1.0);
-        double p_value = 2.0 * (1.0 - boost::math::cdf(standard_normal, std::fabs(z_score)));
-
-        // --- Handle very significant (underflow) cases ---
-        if (p_value == 0.0 || !std::isfinite(p_value)) {
-
-            const boost::multiprecision::cpp_dec_float_50 z_hp = std::fabs(z_score);
-            const boost::math::normal_distribution<boost::multiprecision::cpp_dec_float_50> standard_normal_hp(0.0, 1.0);
-            boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(2) * (boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(standard_normal_hp, z_hp));
-
-            // convert to double (or keep string, depending on your output format)
-            p_values.push_back(p_hp.convert_to<double>());
+    // if it didn't converge, check if the last iteration looked close to a maximum
+    // likelihood (small score and small latest beta update)
+    if (!converged) {
+        if (max_score < 0.1 && max_delta < 0.1) {
+            // not that bad, continue with a warning?
+            stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + std::to_string(max_score) + ", max delta " + std::to_string(max_delta) + ") but not too bad. Continuing.");
         } else {
-            p_values.push_back(p_value);
+            // too far from a good fit, return NAs.
+            return tres;
+        }
+    }
+
+    // compute log-likelihood for current betas
+    Eigen::VectorXd Xbeta = X * beta;
+    double loglik = 0;
+    for (size_t ii = 0; ii < Y.size(); ii++) {
+        loglik += Y(ii) * Xbeta(ii) - std::log(1 + std::exp(Xbeta(ii)));
+    }
+    if (penalize) {
+        // if we're using the Firth penalized regression, the log-likelihood needs to
+        // include the penalty, here half the determinant of the Fisher information matrix (Xt W X)
+        Ypred = sigmoid(Xbeta);
+        W = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
+        for (size_t ii = 0; ii < Y.size(); ii++) {
+            W(ii, ii) = Ypred(ii) * (1 - Ypred(ii));
+        }
+        XtWX = X.transpose() * W * X;
+        loglik += log(XtWX.determinant()) / 2;
+    }
+
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "log-likelihood full model:" << loglik << "\n\n";
+#endif
+    
+    // to compute a pvalue, we'll also fit a reduced model without the variables of interest
+    // same process as above except we directly use either the standard or penalized
+    // approach to match whatever was used for the full model. We also reuse the same cur_max_step
+    // keep the intercept and covariates only
+    Eigen::MatrixXd X0 = Eigen::MatrixXd::Constant(X.rows(), 1 + num_covariates, 1);
+    X0.block(0, 1, X.rows(), num_covariates) = X.block(0, 1 + num_predictors, X.rows(), num_covariates);
+    beta = Eigen::VectorXd::Constant(X0.cols(), 0);
+
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "X0:\n" << X << "\n";
+#endif
+    
+    iter = 0;
+    while(iter < max_iterations) {
+        Ypred = sigmoid(X0 * beta);
+        W = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
+        for (size_t ii = 0; ii < Y.size(); ii++) {
+            W(ii, ii) = Ypred(ii) * (1 - Ypred(ii));
+        }
+        XtWX = X0.transpose() * W * X0;
+        XtWXi = inverse(XtWX);
+        if (penalize) {
+            Eigen::MatrixXd sqrtW = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
+            for (size_t ii = 0; ii < Y.size(); ii++) {
+                sqrtW(ii, ii) = std::sqrt(Ypred(ii) * (1 - Ypred(ii)));
+            }
+            Eigen::MatrixXd hat = (sqrtW * X0) * XtWXi * (X0.transpose() * sqrtW);
+            // the penalization uses the diagonal of this hat matrix as penalty
+            // update the Ypred used for the score below with that penalty
+            for (size_t ii = 0; ii < Y.size(); ii++) {
+                Ypred(ii) = Ypred(ii) - (hat(ii, ii) * (0.5 - Ypred(ii)));
+            }
+        }
+        score = X0.transpose() * (Y - Ypred);
+        // first make sure the update is not too big (usually a bad sign)
+        delta = XtWXi * score;
+        max_delta = delta.cwiseAbs().maxCoeff();
+        if (max_delta > cur_max_step) {
+            // reduce the delta so that its largest component is cur_max_step
+            delta = cur_max_step * delta / max_delta;
+        }
+        // update the betas
+        beta = beta + delta;
+        iter++;
+
+        // stop if it looks like we've converged
+        if (score.cwiseAbs().maxCoeff() < conv_tol && max_delta < conv_tol) {
+            break;
         }
     }
     
-    double p_value_adjusted = p_values[0];
-    double beta_adjusted = beta(1);
-    double se_adjusted = se(1);
-
-    // JEAN this needs to be updated to the "new" F-test, no? (then remove adjusted_hochberg)
-    if (p_values.size() > 1) { // case > 3 column/path
-        auto [p_values_adjusted, min_index] = stoat::adjusted_hochberg(p_values);
-        beta_adjusted = beta[min_index+1];
-        se_adjusted = se[min_index+1];
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "reduced model beta:\n" << beta << "\n\n";
+#endif
+    
+    // compute the reduced model
+    // compute log-likelihood for reduced model
+    Xbeta = X0 * beta;
+    double loglik0 = 0;
+    for (size_t ii = 0; ii < Y.size(); ii++) {
+        loglik0 += Y(ii) * Xbeta(ii) - std::log(1 + std::exp(Xbeta(ii)));
     }
+    if (penalize) {
+        // if we're using the Firth penalized regression, the log-likelihood needs to
+        // include the penalty, here half the determinant of the Fisher information matrix (Xt W X)
+        Ypred = sigmoid(Xbeta);
+        W = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
+        for (size_t ii = 0; ii < Y.size(); ii++) {
+            W(ii, ii) = Ypred(ii) * (1 - Ypred(ii));
+        }
+        XtWX = X0.transpose() * W * X0;
+        loglik0 += log(XtWX.determinant()) / 2;
+    }
+#ifdef DEBUG_STATS_TEST
+    std::cout << "log-likelihood reduced model:" << loglik0 << "\n\n";
+#endif
+    
+    // compute -2 * log-likelihood ratio of those models
+    double loglik_ratio = -2 * (loglik0 - loglik);
+    // should follow a chi2 distribution with df_full-df_reduced degrees of freedom
+    int df = X.cols() - X0.cols();
 
-    // set precision : 4 digit
-    // std::string r2_str = stoat::set_precision(r2);
-    tres.pv = stoat::set_precision(p_value_adjusted);
-    tres.beta = stoat::set_precision(beta_adjusted);
-    tres.se = stoat::set_precision(se_adjusted);
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "Chi2: " << loglik_ratio << " with df=" << df << "\n\n";
+#endif
+
+    // compute p-value (double first)
+    boost::math::chi_squared_distribution<double> dist(df);
+    double p_value = 1.0 - boost::math::cdf(dist, loglik_ratio);
+
+    // try again with more resolution if the pvalue is 0 or infinite (underflow?)
+    if (p_value == 0.0 || !std::isfinite(p_value)) {
+        boost::multiprecision::cpp_dec_float_50 chi2_hp = loglik_ratio;
+        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
+
+        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
+        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
+        tres.pv = stoat::set_precision_float_50(p_hp);
+    } else {
+        tres.pv = stoat::set_precision(p_value);
+    }
 
     return tres;
 }
@@ -463,12 +603,12 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     // prepare an output objet and init to NA
     test_result_t tres;
     tres.pv = "NA";
-    tres.r2 = "NA";
     // JEAN will the GenotypeTable include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
     // combine the phenotype and genotype information
     CombinedTable combined_table(geno);
     combined_table.combine_quantitative_phenotype(pheno);
     combined_table.combine_covariates(covariates);
+    Eigen::MatrixXd ctab = combined_table.make_matrixXd_features();
     // remove non-variable allele, e.g. absent in both groups
     combined_table.remove_constant_predictors();    
     // should we test this snarl?
@@ -510,8 +650,6 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         SSE_full += (y(i) - y_hat(i)) * (y(i) - y_hat(i));
         SST += (y[i] - y_mean) * (y[i] - y_mean);
     }
-    // save the R2
-    tres.r2 = stoat::set_precision(1.0 - SSE_full / SST);
 
     // reduced model without any predictor of interest (allele counts)
     double SSE_reduced = 0.0;

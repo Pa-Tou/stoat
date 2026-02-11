@@ -39,9 +39,6 @@ struct test_result_t {
     std::string second_pv;
     std::string group_paths;
     std::string allele_paths;
-    std::string beta;
-    std::string se;
-    std::string r2;
 };
 
 // ------------------------ Regression class ------------------------
@@ -86,14 +83,6 @@ class LinearRegression {
 
         test_result_t linear_regression(const QuantitativePhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
 
-        Eigen::MatrixXd inverse(const Eigen::MatrixXd& A, double tol = 1e-10);
-    
-        // std::vector<std::vector<double>> inverse(
-        //     const std::vector<std::vector<double>> &A, 
-        //     double tol = 1e-10);
-
-        Eigen::MatrixXd pseudo_inverse(const Eigen::MatrixXd& A, double tol = 1e-10);
-
         std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>> &A);
 
         std::vector<double> mult_mat_vec(
@@ -106,28 +95,31 @@ class LinearRegression {
 };
 
 class LogisticRegression {
-    public:
-        LogisticRegression() = default;
-        ~LogisticRegression() = default;
-
-        double calculate_log_likelihood(const Eigen::VectorXd& y, const Eigen::VectorXd& p);
-
-        // Sigmoid function
-        inline double sigmoid(double x);
-
-        // Clamp helper
-        inline double clamp(double x, double lo, double hi);
-
-        // GLM Implementation with Iteratively Reweighted Least Squares (IRLS)
-        test_result_t logistic_regression(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
-
-    private:
-        const int max_iterations = 100;
-        const double tolerance = 1e-6;
-        const double l2_penalty = 1e-4;
-        const double epsilon = 1e-8;
+public:
+    LogisticRegression() = default;
+    ~LogisticRegression() = default;
+    
+    // compute the sigmoid function, here corresponding to the "predicted" probability associated to a set of observations and the model (Beta x X)
+    Eigen::VectorXd sigmoid(const Eigen::VectorXd& t);
+    
+    // Logistic regression using the Newton-Raphson method to find the MLE
+    // if the betas get too high, it will switch to Firth penalized regression
+    // p-value is computed from the likelihood ratio of the full vs reduced model
+    test_result_t logistic_regression(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
+    
+private:
+    // maximum number of iterations to perform
+    const int max_iterations = 100;
+    // how big can the step/delta be when updating the betas
+    const double max_step = 3;
+    // tolerance to decide if the score and delta are small enough to consider the iteration to have converged
+    const double conv_tol = 0.001;
 };
 
+// Compute the inverse or Moore-Penrose pseudoinverse of a matrix
+Eigen::MatrixXd inverse(const Eigen::MatrixXd& A);
+Eigen::MatrixXd pseudo_inverse(const Eigen::MatrixXd& A, double tol = 1e-10);
+    
 /// Return true if the snarl should be filtered out, false if it should be kept
 bool filter_binary_table(
     std::vector<size_t>& g0, 
