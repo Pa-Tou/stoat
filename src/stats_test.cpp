@@ -14,7 +14,7 @@
 #  define S_CAST(type, val) (static_cast<type>(val))
 #endif
 
-//#define DEBUG_STATS_TEST
+// #define DEBUG_STATS_TEST
 
 namespace stoat {
 
@@ -94,7 +94,7 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     tres.allele_paths = geno.allele_paths_as_str();
 
     // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
-    combined_table.add_total_allele_count_covariable();
+    bool total_ac_added = combined_table.add_total_allele_count_covariable();
 
     // before performing the regression, try to reduce potential colinearity
     combined_table.remove_duplicated_predictors();    
@@ -258,12 +258,14 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     // same process as above except we directly use either the standard or penalized
     // approach to match whatever was used for the full model. We also reuse the same cur_max_step
     // keep the intercept and covariates only
-    Eigen::MatrixXd X0 = Eigen::MatrixXd::Constant(X.rows(), 1 + num_covariates, 1);
-    X0.block(0, 1, X.rows(), num_covariates) = X.block(0, 1 + num_predictors, X.rows(), num_covariates);
+    Eigen::MatrixXd X0 = Eigen::MatrixXd::Constant(X.rows(), 1 + num_covariates - int(total_ac_added), 1);
+    if (X0.cols() > 1) {
+        X0.block(0, 1, X.rows(), X0.cols() - 1) = X.block(0, 1 + num_predictors, X.rows(), num_covariates - int(total_ac_added));
+    }
     beta = Eigen::VectorXd::Constant(X0.cols(), 0);
 
 #ifdef DEBUG_STATS_TEST
-    std::cerr << "X0:\n" << X << "\n";
+    std::cerr << "X0:\n" << X0 << "\n";
 #endif
     
     iter = 0;
@@ -340,6 +342,11 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     std::cerr << "Chi2: " << loglik_ratio << " with df=" << df << "\n\n";
 #endif
 
+    if (loglik_ratio < 0) {
+        stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.");
+        return tres;
+    }
+    
     // compute p-value (double first)
     boost::math::chi_squared_distribution<double> dist(df);
     double p_value = 1.0 - boost::math::cdf(dist, loglik_ratio);
@@ -644,8 +651,9 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
-    if (df_denominator < 0) {
-        stoat::LOG_WARN("Less samples (" + std::to_string(num_samples) + ") than alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Increasing the minimum number of individuals with -I to get more robust associations and avoid issues.");
+    if (df_denominator <= 0) {
+        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.");
+        return tres;
     } else {
         double numerator = (SSE_reduced - SSE_full) / df_numerator;
         double denominator = SSE_full / df_denominator;

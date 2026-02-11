@@ -149,6 +149,9 @@ class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
     // Access the count value saved for a sample and allele
     size_t get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const;
 
+    // Get the total count for all alleles
+    size_t get_total_count_for_sample(const std::string& sample) const;
+
     // Get the genotype of a sample as a string of counts.
     // This is only really useful to compare if two genotypes are the same
     std::string get_genotype_as_string(const std::string& sample) const;
@@ -220,7 +223,8 @@ public:
     void remove_one_allele();
 
     // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize?)
-    void add_total_allele_count_covariable();
+    // return true if it did add a new column, otherwise false
+    bool add_total_allele_count_covariable();
 
     // specific table operations used before a regression. Includes: adding a copy number
     // covariate if needed, merging duplicated predictors, removing the first allele

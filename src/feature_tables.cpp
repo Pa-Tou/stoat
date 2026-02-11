@@ -119,6 +119,14 @@ size_t GenotypeTable::get_count_for_sample_and_allele(const std::string& sample,
     return this->values_per_sample[this->sample_to_index.at(sample)][allele_num];
 }
 
+size_t GenotypeTable::get_total_count_for_sample(const std::string& sample) const {
+    size_t total_count = 0;
+    for (size_t allele_count: this->values_per_sample[this->sample_to_index.at(sample)]) {
+        total_count += allele_count;
+    }
+    return total_count;
+}
+
 std::string GenotypeTable::get_genotype_as_string(const std::string& sample) const {
     std::string genotype = "";
     for (size_t i = 0 ; i < this->values_per_sample[this->sample_to_index.at(sample)].size() ; i++) {
@@ -225,11 +233,15 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
 CombinedTable::CombinedTable(const GenotypeTable& genotypes){
     n_alleles = genotypes.get_allele_count();
     predictors.resize(n_alleles);
-    sample_names = genotypes.get_sample_names();
-    for(std::string samp_name: sample_names) {
-        for (int al_i = 0; al_i < n_alleles; al_i++){
-            size_t ac = genotypes.get_count_for_sample_and_allele(samp_name, al_i);
-            predictors[al_i].push_back(static_cast<double>(ac));
+    for(std::string samp_name: genotypes.get_sample_names()) {
+        // only include samples with at least one allele
+        if (genotypes.get_total_count_for_sample(samp_name) > 0) {
+            // update the sample names and allele counts
+            sample_names.emplace_back(samp_name);
+            for (int al_i = 0; al_i < n_alleles; al_i++){
+                size_t ac = genotypes.get_count_for_sample_and_allele(samp_name, al_i);
+                predictors[al_i].push_back(static_cast<double>(ac));
+            }
         }
     }
 }
@@ -385,6 +397,11 @@ void CombinedTable::remove_missing_values() {
 void CombinedTable::remove_constant_predictors() {
     // just in case
     this->remove_missing_values();
+
+    // don't do anything if there are no samples or predictors, it will be filtered out later
+    if (predictors.size() == 0 || predictors[0].size() == 0) {
+        return;
+    }
     
     // check each predictor using an iterator to remove it efficiently(-ish) if needed
     auto preds_it = predictors.begin();
@@ -477,8 +494,10 @@ void CombinedTable::remove_one_allele() {
     // decrement the number of alleles
     n_alleles--;
 }
-    
-void CombinedTable::add_total_allele_count_covariable() {
+
+// potentially add a new column with the total allele count
+// return true if it did, otherwise false
+bool CombinedTable::add_total_allele_count_covariable() {
     // just in case
     this->remove_missing_values();
     
@@ -504,7 +523,9 @@ void CombinedTable::add_total_allele_count_covariable() {
     // add as a covariate if worth it
     if (!all_same_ac) {
         predictors.emplace_back(tot_ac);
+        return true;
     }
+    return false;
 }
     
 bool CombinedTable::passes_filters(const double maf, const size_t min_individuals) const {
