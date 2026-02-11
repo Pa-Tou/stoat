@@ -162,8 +162,8 @@ TEST_CASE("Binary phenotype filters") {
         INFO("p_value fisher = " << tres.pv);
         INFO("p_value chi2 = " << tres.second_pv);
         
-        REQUIRE(tres.pv != "NA");
-        REQUIRE(tres.second_pv != "NA");
+        REQUIRE(std::abs(std::stod(tres.pv) - 0.3333) < 0.01);
+        REQUIRE(std::abs(std::stod(tres.second_pv) - 0.1336) < 0.01);
     }
 
     SECTION("minimum individual filters") {
@@ -206,5 +206,44 @@ TEST_CASE("Binary phenotype filters") {
         REQUIRE(tres.pv != "NA");
         REQUIRE(tres.second_pv != "NA");
     }
+
+    SECTION("four alleles and some very low counts") {
+        //     A0 A1 A2 A3
+        // S1 {1, 0, 1, 0}
+        // S2 {1, 0, 1, 0}
+        // S3 {1, 1, 0, 0}
+        // S4 {0, 1, 1, 0}
+        // S5 {0, 0, 1, 1}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenotypeTable geno(sample_to_index, 4);
+        geno.increment_count("S1", 0);
+        geno.increment_count("S1", 2);
+        geno.increment_count("S2", 0);
+        geno.increment_count("S2", 2);
+        geno.increment_count("S3", 0);
+        geno.increment_count("S3", 1);
+        geno.increment_count("S4", 1);
+        geno.increment_count("S4", 2);
+        geno.increment_count("S5", 2);
+        geno.increment_count("S5", 3);
+
+        stoat::BinaryPhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 1);
+        pheno.set_value_for_sample("S2", 0);
+        pheno.set_value_for_sample("S3", 0);
+        pheno.set_value_for_sample("S4", 0);
+        pheno.set_value_for_sample("S5", 1);
+        
+        stoat::test_result_t tres = fchi.fisher_chi2(pheno, geno, 0, 0);
+
+        INFO("p_value fisher = " << tres.pv);
+        INFO("p_value chi2 = " << tres.second_pv);
+        
+        REQUIRE(tres.pv == "NA");
+        REQUIRE(std::abs(std::stod(tres.second_pv) - 0.3831) < 0.01);
+    }
+
 
 }

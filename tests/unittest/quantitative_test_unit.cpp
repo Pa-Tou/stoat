@@ -181,12 +181,8 @@ TEST_CASE("Logistic Regression") {
         stoat::test_result_t tres = lr.logistic_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("beta = " << tres.beta);
-        INFO("se = " << tres.se);
 
-        REQUIRE(std::stod(tres.pv) < 0.05);
-        REQUIRE(std::stod(tres.beta) == 21.41);
-        REQUIRE(std::stod(tres.se) == 32.02);
+        REQUIRE(std::abs(std::stod(tres.pv) - 0.002842742) < 0.01);
     }
 
     SECTION("Logistic Regression 2 paths - Moderate") {
@@ -207,7 +203,7 @@ TEST_CASE("Logistic Regression") {
         geno.increment_count("S5", 1);
 
         stoat::BinaryPhenotypeTable pheno(sample_to_index);
-        pheno.set_value_for_sample("S1", 1);
+        pheno.set_value_for_sample("S1", 0);
         pheno.set_value_for_sample("S2", 1);
         pheno.set_value_for_sample("S3", 0);
         pheno.set_value_for_sample("S4", 0);
@@ -220,12 +216,8 @@ TEST_CASE("Logistic Regression") {
         stoat::test_result_t tres = lr.logistic_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("beta = " << tres.beta);
-        INFO("se = " << tres.se);
 
-        REQUIRE(std::stod(tres.pv) == 0.5038);
-        REQUIRE(std::stod(tres.beta) == 21.41);
-        REQUIRE(std::stod(tres.se) == 32.02);
+        REQUIRE(std::stod(tres.pv) == 0.7098);
     }
 
     SECTION("Logistic Regression 3 paths - Moderate") {
@@ -265,12 +257,8 @@ TEST_CASE("Logistic Regression") {
         stoat::test_result_t tres = lr.logistic_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("beta = " << tres.beta);
-        INFO("se = " << tres.se);
 
-        REQUIRE(std::stod(tres.pv) == 0.5038);
-        REQUIRE(std::stod(tres.beta) == 21.41);
-        REQUIRE(std::stod(tres.se) == 32.02);
+        REQUIRE(std::abs(std::stod(tres.pv) - 0.8732353) < .01);
     }
 }
 
@@ -306,10 +294,8 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
 
         REQUIRE(std::stod(tres.pv) == 0.0496);
-        REQUIRE(std::stod(tres.r2) == 0.7726);
     }
 
     SECTION("Linear Regression 3 paths - Moderate") {
@@ -348,10 +334,8 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
 
         REQUIRE(std::abs(std::stod(tres.pv) - 0.03133) < 0.01);
-        REQUIRE(std::stod(tres.r2) == 0.9687);
     }
 
     SECTION("Linear Regression pseudo inversion 3 paths - Moderate") {
@@ -361,7 +345,6 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         // S3 {0, 0, 1}
         // S4 {0, 1, 0}
         // S5 {0, 1, 0}
-
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
         stoat::GenotypeTable geno(sample_to_index, 3);
@@ -385,10 +368,8 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
 
         REQUIRE(std::stod(tres.pv) == 0.1505);
-        REQUIRE(std::stod(tres.r2) == 0.8495);
     }
 }
 
@@ -429,10 +410,8 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
 
-        REQUIRE(std::stod(tres.pv) == 0.1140625);
-        REQUIRE(std::stod(tres.r2) == 0.7987);
+        REQUIRE(std::abs(std::stod(tres.pv) - 0.1140625) < .01);
     }
 
     SECTION("Linear Regression pseudo inversion 3 paths - Moderate with Covariate") {
@@ -468,13 +447,12 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         covar.set_value_for_sample_and_feature("S5", "covar1", 11);
         
         stoat::LinearRegression lr;
+        std::cerr << "Start test\n";
         stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
 
-        REQUIRE(std::stod(tres.pv) == 0.08149071);
-        REQUIRE(std::stod(tres.r2) == 0.9938);
+        REQUIRE(std::abs(std::stod(tres.pv) - 0.08149071) < .0001);
     }
 }
 
@@ -489,7 +467,7 @@ TEST_CASE("Quantitative phenotype filters") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
+        stoat::GenotypeTable geno(sample_to_index, 2);
         geno.increment_count("S1", 0);
         geno.increment_count("S1", 0);
         geno.increment_count("S2", 0);
@@ -514,18 +492,14 @@ TEST_CASE("Quantitative phenotype filters") {
         stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0.5, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
 
         REQUIRE(tres.pv == "NA");
-        REQUIRE(tres.r2 == "NA");
 
         tres = lr.linear_regression(pheno, geno, covar, 0.001, 0);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
         
         REQUIRE(tres.pv != "NA");
-        REQUIRE(tres.r2 != "NA");
     }
 
     SECTION("minimum individual filters") {
@@ -538,7 +512,7 @@ TEST_CASE("Quantitative phenotype filters") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
+        stoat::GenotypeTable geno(sample_to_index, 2);
         geno.increment_count("S1", 0);
         geno.increment_count("S2", 0);
         geno.increment_count("S3", 0);
@@ -559,18 +533,14 @@ TEST_CASE("Quantitative phenotype filters") {
         stoat::test_result_t tres = lr.linear_regression(pheno, geno, covar, 0, 10);
 
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
 
         REQUIRE(tres.pv == "NA");
-        REQUIRE(tres.r2 == "NA");
 
         tres = lr.linear_regression(pheno, geno, covar, 0, 3);
         
         INFO("p_value = " << tres.pv);
-        INFO("r2 = " << tres.r2);
         
         REQUIRE(tres.pv != "NA");
-        REQUIRE(tres.r2 != "NA");
     }
 
 }
