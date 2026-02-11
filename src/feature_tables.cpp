@@ -319,18 +319,16 @@ void CombinedTable::combine_covariates(const CovariateTable& covariates) {
         predictors.emplace_back(covar_init);
     }
     // fill the table with the covariate values
-    for(std::string samp_name: sample_names) {
+    for (size_t samp_ii = 0; samp_ii < sample_names.size(); samp_ii++) {
+        std::string samp_name = sample_names[samp_ii];
         if (covariates.has_sample(samp_name)) {
             for (int covar_i = 0; covar_i < ncovar; covar_i++){
                 double covar = covariates.get_value_for_sample_and_feature(samp_name, covar_names[covar_i]);
-                predictors[n_alleles + covar_i].push_back(covar);
+                predictors[n_alleles + covar_i][samp_ii] = covar;
             }
         } else {
             // this sample is not in the matrix, mark for filtering and fill with 0s
             samples_to_exclude[samp_name] = true;
-            for (int covar_i = 0; covar_i < ncovar; covar_i++){
-                predictors[n_alleles + covar_i].push_back(0);
-            }            
         }
     }
     // JEAN here we are marking samples to exclude because of missing values. Maybe we also want a check somewhere to warn the user when the different sample sets don't match? 
