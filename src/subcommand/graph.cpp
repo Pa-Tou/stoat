@@ -346,12 +346,10 @@ int main_stoat_graph(int argc, char *argv[]) {
 
 
     // Load the distance index
-    bdsg::SnarlDistanceIndex* distance_index_ptr = nullptr;
     bdsg::SnarlDistanceIndex distance_index;
     if (!distance_name.empty()) {
         // Load the distance index
         distance_index.deserialize(distance_name);
-        distance_index_ptr = &distance_index;
     }
 
 
