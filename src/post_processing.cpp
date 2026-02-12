@@ -217,7 +217,7 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
     }
 
     // Write the header line
-    std::cerr << header_line << std::endl;
+    std::cout << header_line << std::endl;
 
     std::string line;
     while (std::getline(instream, line)) {
@@ -243,25 +243,31 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
         // This could be done just with the graph but I prefer to use the function we already have with the snarls
         // to be consistent 
         handlegraph::net_handle_t node_net = distance_index.get_node_net_handle(start_id);
-        handlegraph::net_handle_t snarl_net;
+        handlegraph::net_handle_t snarl_net = distance_index.get_root();
+
+        // Get the next thing in the chain. If this node happened to be the end of the chain going out, this doesn't call the iteratee
         distance_index.follow_net_edges(node_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
             snarl_net = next;
             return true;
         });
+
+        // Check if we got the right snarl by checking if the other end of it is the end node of the snarl
         bool got_snarl = false;
-        distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
-            if (distance_index.node_id(next) == end_id) {
-                got_snarl = true;
-                return true;
-            }
-        });
+        if (!distance_index.is_root(snarl_net)) {
+            distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
+                if (distance_index.node_id(next) == end_id) {
+                    got_snarl = true;
+                    return true;
+                }
+            });
+        }
 
         if (!got_snarl) {
             // If we didn't find the right snarl, then go in the other direction to get the snarl
             distance_index.follow_net_edges(node_net, &graph, true, [&](const handlegraph::net_handle_t& next) {
                 snarl_net = next;
             });
-            distance_index.follow_net_edges(snarl_net, &graph, true, [&](const handlegraph::net_handle_t& next) {
+            distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
                 assert (distance_index.node_id(next) == end_id);
             });
         }

@@ -110,9 +110,7 @@ int main_stoat_change_reference(int argc, char *argv[]) {
 
 
     // Load the graph and make it a PathPositionHandleGraph
-    std::cerr << "LOAD GRAPH " << graph_name << std::endl;
     std::unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
-    std::cerr << "MAKE OVERLAY" << std::endl;
     bdsg::PathPositionOverlayHelper overlay_helper;
     bdsg::PathPositionHandleGraph* path_position_graph =  overlay_helper.apply(graph.get());
 
