@@ -6,6 +6,12 @@
 #include <omp.h>
 #include <filesystem>
 
+#include <bdsg/snarl_distance_index.hpp>
+#include <handlegraph/path_handle_graph.hpp>
+#include <bdsg/overlays/overlay_helper.hpp>
+#include <vg/io/vpkg.hpp>
+#include "../io/register_io.hpp"
+
 #include "../post_processing.hpp"
 
 using namespace std;
@@ -96,13 +102,19 @@ int main_stoat_change_reference(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    // Tell the IO library about libvg types.
+    if (!stoat::io::register_libvg_io()) {
+        stoat::LOG_ERROR("[stoat vgio] Could not register libvg types with libvgio");
+        return EXIT_FAILURE;
+    }
+
 
     // Load the graph and make it a PathPositionHandleGraph
-    std::unique_ptr<handlegraph::PathHandleGraph> graph;
-    graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name));
+    std::cerr << "LOAD GRAPH " << graph_name << std::endl;
+    std::unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
+    std::cerr << "MAKE OVERLAY" << std::endl;
     bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph;
-    path_position_graph =  overlay_helper.apply(graph.get());
+    bdsg::PathPositionHandleGraph* path_position_graph =  overlay_helper.apply(graph.get());
 
 
     // Load the distance index
