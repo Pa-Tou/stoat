@@ -26,6 +26,7 @@
 #include "subcommand/vcf.hpp"
 #include "subcommand/graph.hpp"
 #include "subcommand/bh_correct.hpp"
+#include "subcommand/change_reference.hpp"
 #include "log.hpp"
 
 // Global variable
@@ -41,7 +42,8 @@ void print_help() {
                 << "\n"
                 << "post-processing:\n"
                 << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file\n"
-                << "                   (this already done by `stoat vcf` and `stoat graph` by default)\n";     
+                << "                   (this already done by `stoat vcf` and `stoat graph` by default)\n"
+                << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n";     
 }
 
 int main(int argc, char* argv[]) {
@@ -69,6 +71,9 @@ int main(int argc, char* argv[]) {
 
     } else if (subcommand == "BHcorrect") {
         stoat_command::main_stoat_bh_correct(argc, argv);
+
+    } else if (subcommand == "change-ref") {
+        stoat_command::main_stoat_change_reference(argc, argv);
 
     } else if (subcommand == "version") {
         std::cout << "stoat: GWAS analysis tool, version " << VERSION;

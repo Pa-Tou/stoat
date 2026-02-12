@@ -1,0 +1,127 @@
+#include "change_reference.hpp"
+
+#include <iostream>
+#include <string>
+#include <getopt.h>
+#include <omp.h>
+#include <filesystem>
+
+#include "../post_processing.hpp"
+
+using namespace std;
+namespace stoat_command {
+
+void print_help_change_reference() {
+    std::cerr << "usage: stoat change-ref -t [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -r [reference name] > [renamed_tsv]" << endl << endl
+              << "options:" << endl
+              << "  -t, --tsv FILE                  The TSV file to be processed, the output file of stoat" << endl
+              << "  -g, --graph FILE                The graph used to find coordinates" << endl
+              << "  -d, --distance-index FILE       The distance index" << endl
+              << "  -r, --reference-names FILE      Rewrite the reference coordinates to be relative to the paths listed in FILE (one per line)" << endl
+              << "                                  Paths in the graph can be found with vg paths" << endl;
+}
+
+int main_stoat_change_reference(int argc, char *argv[]) {
+
+    if (argc <= 1) {
+        print_help_change_reference();
+        return EXIT_FAILURE;
+    }
+
+    std::string tsv_name;
+    std::string graph_name;
+    std::string dist_name;
+    std::string reference_file;
+
+    int c = 0;
+    optind = 1;
+    while (true) {
+        static struct option long_options[] =
+            {
+                {"tsv", required_argument, 0, 't'},
+                {"graph", required_argument, 0, 'g'},
+                {"dist_name", required_argument, 0, 'd'},
+                {"reference-prefix", required_argument, 0, 'r'},
+                {"help", no_argument, 0, 'h'},
+                {0, 0, 0, 0}
+            };
+
+        int option_index = 0;
+        c = getopt_long(argc, argv, "t:g:d:r:h",
+                        long_options, &option_index); 
+        if (c == -1) {
+            break;
+        }
+        switch (c) {
+            case 't':
+                tsv_name = optarg;
+                break;
+            case 'g':
+                graph_name = optarg;
+                break;
+            case 'd':
+                dist_name = optarg;
+                break;
+            case 'r':
+                reference_file = optarg;
+                break;
+            case 'h':
+                print_help_change_reference();
+                return EXIT_FAILURE;
+            default:
+                stoat::LOG_ERROR("[stoat change-ref] Unknown argument");
+                print_help_change_reference();
+                return EXIT_FAILURE;
+        }
+    }
+
+    if (tsv_name.empty()) {
+        stoat::LOG_ERROR("[stoat change-ref] stoat change-ref requires an input tsv");
+        print_help_change_reference();
+        return EXIT_FAILURE;
+    }
+    if (graph_name.empty()) {
+        stoat::LOG_ERROR("[stoat change-ref] stoat change-ref requires a graph");
+        print_help_change_reference();
+        return EXIT_FAILURE;
+    }
+    if (dist_name.empty()) {
+        stoat::LOG_ERROR("[stoat change-ref] stoat change-ref requires a distance index");
+        print_help_change_reference();
+        return EXIT_FAILURE;
+    }
+    if (reference_file.empty()) {
+        stoat::LOG_ERROR("[stoat change-ref] stoat change-ref requires a reference prefix");
+        print_help_change_reference();
+        return EXIT_FAILURE;
+    }
+
+
+    // Load the graph and make it a PathPositionHandleGraph
+    std::unique_ptr<handlegraph::PathHandleGraph> graph;
+    graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name));
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    bdsg::PathPositionHandleGraph* path_position_graph;
+    path_position_graph =  overlay_helper.apply(graph.get());
+
+
+    // Load the distance index
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize(dist_name);
+
+    // Get the reference paths
+    std::unordered_set<std::string> reference_names;
+    ifstream ref_stream;
+    ref_stream.open(reference_file);
+    std::string ref_name;
+    while (std::getline(ref_stream, ref_name)) {
+        reference_names.emplace(ref_name);
+    }
+    ref_stream.close();
+
+    // Write the new file to stdout
+    stoat::change_reference(*path_position_graph, distance_index, tsv_name, reference_names);
+
+    return EXIT_SUCCESS;
+}
+} //end namespace
