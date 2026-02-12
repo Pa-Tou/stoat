@@ -253,7 +253,7 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
 
         // Check if we got the right snarl by checking if the other end of it is the end node of the snarl
         bool got_snarl = false;
-        if (!distance_index.is_root(snarl_net)) {
+        if (distance_index.is_snarl(snarl_net)) {
             distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
                 if (distance_index.node_id(next) == end_id) {
                     got_snarl = true;
