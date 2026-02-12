@@ -127,6 +127,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     // Check if we have already seen the reference path and if not add it
                                     size_t ref_index;
 
+                                    //TODO: This just picks the first of possibly many reference ranges
                                     auto reference_range = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
                                     snarl_data.start_position = std::get<1>(reference_range);
                                     snarl_data.end_position = std::get<2>(reference_range);

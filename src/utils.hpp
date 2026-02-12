@@ -51,8 +51,6 @@ std::string get_sample_name_from_path(const handlegraph::PathHandleGraph& graph,
 /// Given a snarl, return a vector of path_ranges of that snarl (the boundary nodes).
 /// Since a path can traverse a snarl multiple times, this returns each start-to-end (or end-to-start) range
 /// of step_handle_t's, ordered according to the order of the path.
-/// If the path leaves by the same bound (for example start-> start<- start-> end->), then the range will include
-/// the outermost start->end range.
 /// If get_reference is true, return a reference path and its coordinates.
 /// This will first try to find a path with the sample name, if not empty, then a reference-sense path, then with any path traversing the snarl.
 /// If get_reference is false, try to find coordinates on a path containing the given sample name, or if it fails, with any path.

@@ -237,3 +237,15 @@ target_link_libraries(graph_simu_test PRIVATE
 
 # Register with CTest
 add_test(NAME GraphSimuTest COMMAND graph_simu_test)
+
+
+##### Add changing reference system test
+add_executable(change_ref_test tests/system/compare_files_utils.cpp tests/system/change_reference_test.cpp)
+
+# add src target lib + Catch2 lib 
+target_link_libraries(change_ref_test PRIVATE 
+    Boost::boost
+    ${HTSLIB_LIBRARIES})
+
+# Register with CTest
+add_test(NAME ChangeRefTest COMMAND change_ref_test)
