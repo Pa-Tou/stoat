@@ -4,7 +4,7 @@
 #include <cassert>
 #include <algorithm>
 
-#define DEBUG_TABLES
+// #define DEBUG_TABLES
 
 namespace stoat {
 
