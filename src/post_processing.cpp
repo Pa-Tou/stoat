@@ -257,8 +257,8 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
             distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
                 if ((distance_index.node_id(next) == end_id)) {
                     got_snarl = true;
-                    return true;
                 }
+                return true;
             });
         }
 
@@ -266,9 +266,11 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
             // If we didn't find the right snarl, then go in the other direction to get the snarl
             distance_index.follow_net_edges(node_net, &graph, true, [&](const handlegraph::net_handle_t& next) {
                 snarl_net = next;
+                return true;
             });
             distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
                 assert (distance_index.node_id(next) == end_id);
+                return true;
             });
         }
 
