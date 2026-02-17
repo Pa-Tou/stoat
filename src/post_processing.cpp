@@ -237,7 +237,7 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
         std::getline(snarl_stream, id_string, '_');
         size_t start_id = std::stoll(id_string);
         std::getline(snarl_stream, id_string, '_');
-        size_t end_id = std::stoll(id_string);
+        handlegraph::nid_t end_id = std::stoll(id_string);
 
         // The snarl is actually just id1_id2, so we don't know the direction needed to get it
         // This could be done just with the graph but I prefer to use the function we already have with the snarls
@@ -255,7 +255,7 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
         bool got_snarl = false;
         if (distance_index.is_snarl(snarl_net)) {
             distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
-                if (distance_index.node_id(next) == end_id) {
+                if ((distance_index.node_id(next) == end_id)) {
                     got_snarl = true;
                     return true;
                 }
