@@ -49,6 +49,15 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     }
 }
 
+void GenotypeTable::print_self() const {
+    const auto samples = get_sample_names();
+    std::cerr << " Allele count: " << get_allele_count() << std::endl;
+    std::cerr << "sample\tgenotype" << std::endl;
+    for (const auto& sample : samples) {
+        std::cerr << sample << "\t" << get_genotype_as_string(sample) << std::endl;;
+    }
+}
+
 // Getter for FeatureBySampleTable
 template<class ValueType>
 ValueType FeatureBySampleTable<ValueType>::get_value_for_sample(const std::string& sample) const {
@@ -113,16 +122,16 @@ void GenotypeTable::increment_count(const std::string& sample, size_t allele_num
     assert(this->sample_to_index.at(sample) < this->values_per_sample.size());
     assert(allele_num < this->values_per_sample.at(this->sample_to_index.at(sample)).size());
     #endif
-    this->values_per_sample[this->sample_to_index.at(sample)][allele_num]++;
+    this->values_per_sample.at(this->sample_to_index.at(sample)).at(allele_num)++;
 }
 size_t GenotypeTable::get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const {
-    return this->values_per_sample[this->sample_to_index.at(sample)][allele_num];
+    return this->values_per_sample.at(this->sample_to_index.at(sample)).at(allele_num);
 }
 
 std::string GenotypeTable::get_genotype_as_string(const std::string& sample) const {
     std::string genotype = "";
-    for (size_t i = 0 ; i < this->values_per_sample[this->sample_to_index.at(sample)].size() ; i++) {
-        size_t count = this->values_per_sample[this->sample_to_index.at(sample)][i];
+    for (size_t i = 0 ; i < this->values_per_sample.at(this->sample_to_index.at(sample)).size() ; i++) {
+        size_t count = this->values_per_sample.at(this->sample_to_index.at(sample)).at(i);
         if (i != 0) {
             genotype += ",";
         }
@@ -224,12 +233,32 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
     
 CombinedTable::CombinedTable(const GenotypeTable& genotypes){
     n_alleles = genotypes.get_allele_count();
-    predictors.resize(n_alleles);
     sample_names = genotypes.get_sample_names();
-    for(std::string samp_name: sample_names) {
+    predictors.resize(n_alleles, std::vector<double>(sample_names.size()));
+    for(size_t sample_i = 0 ; sample_i < sample_names.size() ; sample_i++) {
+        std::string samp_name = sample_names[sample_i];
         for (int al_i = 0; al_i < n_alleles; al_i++){
             size_t ac = genotypes.get_count_for_sample_and_allele(samp_name, al_i);
-            predictors[al_i].push_back(static_cast<double>(ac));
+            predictors.at(al_i).at(sample_i) = static_cast<double>(ac);
+        }
+    }
+}
+
+void CombinedTable::print_self() const {
+    std::cerr << "sample\texcluded\tphenotype\tpredictors" << std::endl;
+    std::vector<size_t> allele_counts (predictors.size(), 0);
+    for (size_t i = 0 ; i < sample_names.size() ; i++ ) {
+        std::cerr << sample_names.at(i) << "\t" << (samples_to_exclude.count(sample_names.at(i)) == 0 ? 0 : samples_to_exclude.at(sample_names.at(i))) << "\t" << phenotype_vec.at(i);
+        for (size_t allele_i = 0 ; allele_i < predictors.size() ; allele_i++) {
+            std::cerr << "\t" << predictors.at(allele_i).at(i);
+            allele_counts[allele_i] += predictors.at(allele_i).at(i);
+        }
+        std::cerr << std::endl;
+    }
+    std::cerr << "Predictor counts" << std::endl;
+    for (size_t allele_i = 0 ; allele_i < allele_counts.size() ; allele_i++) {
+        if (allele_counts[allele_i] != 0) {
+            std::cerr << "\t" << allele_counts[allele_i] << std::endl;
         }
     }
 }
@@ -248,7 +277,7 @@ Eigen::MatrixXd CombinedTable::make_matrixXd_features() {
     // fill other columns with the values all the predictors
     for (size_t pred_i = 0; pred_i < predictors.size(); ++pred_i) {
         for (size_t samp_i = 0; samp_i < X.rows(); ++samp_i) {
-            X(samp_i, pred_i + 1) = predictors[pred_i][samp_i];
+            X(samp_i, pred_i + 1) = predictors.at(pred_i).at(samp_i);
         }
     }
     return X;
@@ -257,7 +286,7 @@ Eigen::MatrixXd CombinedTable::make_matrixXd_features() {
 Eigen::VectorXd CombinedTable::make_vectorxd_phenotype() {
     Eigen::VectorXd y(phenotype_vec.size());
     for (size_t samp_i = 0; samp_i < phenotype_vec.size(); ++samp_i) {
-        y(samp_i) = phenotype_vec[samp_i];
+        y(samp_i) = phenotype_vec.at(samp_i);
     }
     return y;
 }
@@ -282,7 +311,7 @@ void CombinedTable::combine_binary_phenotype(const BinaryPhenotypeTable& phenoty
             }
         } else {
             // this sample is not in the matrix, mark for filtering and fill with 0s
-            samples_to_exclude[samp_name] = true;
+            samples_to_exclude.at(samp_name) = true;
             phenotype_vec.push_back(0);
         }
     }
@@ -296,7 +325,7 @@ void CombinedTable::combine_quantitative_phenotype(const QuantitativePhenotypeTa
             phenotype_vec.push_back(phenotype.get_value_for_sample(samp_name));
         } else {
             // this sample is not in the matrix, mark for filtering and fill with 0s
-            samples_to_exclude[samp_name] = true;
+            samples_to_exclude.at(samp_name) = true;
             phenotype_vec.push_back(0);
         }
     }
@@ -322,14 +351,14 @@ void CombinedTable::combine_covariates(const CovariateTable& covariates) {
     for(std::string samp_name: sample_names) {
         if (covariates.has_sample(samp_name)) {
             for (int covar_i = 0; covar_i < ncovar; covar_i++){
-                double covar = covariates.get_value_for_sample_and_feature(samp_name, covar_names[covar_i]);
-                predictors[n_alleles + covar_i].push_back(covar);
+                double covar = covariates.get_value_for_sample_and_feature(samp_name, covar_names.at(covar_i));
+                predictors.at(n_alleles + covar_i).push_back(covar);
             }
         } else {
             // this sample is not in the matrix, mark for filtering and fill with 0s
-            samples_to_exclude[samp_name] = true;
+            samples_to_exclude.at(samp_name) = true;
             for (int covar_i = 0; covar_i < ncovar; covar_i++){
-                predictors[n_alleles + covar_i].push_back(0);
+                predictors.at(n_alleles + covar_i).push_back(0);
             }            
         }
     }

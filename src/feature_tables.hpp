@@ -143,6 +143,8 @@ class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
 
     GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count);
 
+    void print_self() const;
+
     // Add 1 to the current value for sample and feature
     void increment_count(const std::string& sample, size_t allele_num);
 
@@ -241,6 +243,8 @@ public:
     Eigen::MatrixXd make_matrixXd_features();
     // prepare Eigen vector with the phenotypes
     Eigen::VectorXd make_vectorxd_phenotype();
+
+    void print_self() const;
     
 protected:
     // sample names in the current order

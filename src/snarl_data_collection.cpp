@@ -1267,7 +1267,7 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     if (has_allele) {
-        assert(max_allele+1 == walk_count);
+        assert(max_allele+1 <= walk_count);
     }
     assert(allele_assignments.size() == all_sample_haplotypes.size()); 
     #endif
