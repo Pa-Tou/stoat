@@ -48,6 +48,7 @@ void print_help_vcf() {
               << "  -P, --gene-position FILE        Path to the gene position file\n"
               << "  -w, --max-gene-distance INT     Include snarls up to this distance from the gene when looking for eQTLs [1000000]\n"
               << "  -M, --maf FLOAT                 Minimum allele frequency threshold [0.05]\n"
+              << "  -R, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name\n"
@@ -76,6 +77,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
     bool gaf = false;
     bool only_snarl_parsing = false;
 
+    bool resolve_vcf = false;
+
     std::vector<std::string> covar_names;
 
     // Parse arguments
@@ -100,6 +103,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"gene-position", required_argument, 0, 'P'},
         {"max-gene-distance", required_argument, 0, 'w'},
         {"maf", required_argument, 0, 'M'},
+        {"resolve-vcf", no_argument, 0, 'R'},
         {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
@@ -107,7 +111,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:i:y:l:P:w:M:t:V:I:o:Gh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:b:q:e:c:C:i:y:l:P:w:M:Rt:V:I:o:Gh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -161,6 +165,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 if (maf_threshold < 0 || maf_threshold > 1) {
                     throw std::runtime_error("Error: [stoat vcf] MAF must be in [0,1]");
                 }
+                break;
+            case 'R':
+                resolve_vcf=true;
                 break;
             case 't':
                 if (std::stoi(optarg) < 1) {
@@ -310,7 +317,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
             }, 
             false, // sequence_requested 
             ref_chrs, // reference 
-            false //check distances
+            false, //check distances
+            "", // Filename to write the intermediate files
+            true // Keep the snarls in the collection?
             ); 
 
         // Always write the snarls
@@ -339,15 +348,15 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Retrieving genotypes for all snarls...");
         stoat::LOG_TRACE("Parsing header VCF file");
 
-        // JEAN maybe this could be part of genotype_snarls_by_chr_from_vcf?
         // start reading the VCF to get the sample list
-        std::vector<std::string> list_samples;
-        htsFile* ptr_vcf;
-        bcf_hdr_t* hdr;
-        bcf1_t* rec;
-        std::tie(list_samples, ptr_vcf, hdr, rec) = stoat_vcf::parseHeader(vcf_path); 
 
-        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, ptr_vcf, hdr, rec);
+        stoat_vcf::VCFParser vcf_parser(resolve_vcf);
+        std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
+
+        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
+
+        // We are done reading through the vcf file so close it
+        vcf_parser.close_vcf();
 
         // JEAN should we close the file connection to the VCF?
         

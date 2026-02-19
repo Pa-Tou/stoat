@@ -197,4 +197,117 @@ void add_BH_adjusted_column(
     std::rename(output_temp_file.c_str(), input_file.c_str());
 }
 
+void change_reference(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                      const std::string& input_file, const std::unordered_set<std::string>& reference_names) {
+    std::ifstream instream;
+    instream.open(input_file);
+
+    // Read the header line
+    std::string header_line;
+    std::getline(instream, header_line);
+    std::stringstream header_ss(header_line);
+    std::vector<std::string> headers;
+    std::string col;
+    while (std::getline(header_ss, col, '\t')) {
+        headers.push_back(col);
+    }
+
+    if (headers[0] != "#CHR" || headers[1] != "START_POS" || headers[2] != "END_POS" || headers[3] != "SNARL") {
+        throw std::runtime_error("[stoat::change_reference]: error: input tsv has the wrong format");
+    }
+
+    // Write the header line
+    std::cout << header_line << std::endl;
+
+    std::string line;
+    while (std::getline(instream, line)) {
+
+        // Parse the line into a vector of strings
+        std::stringstream ss(line);
+        std::string token;
+        std::vector<std::string> columns;
+
+        while (std::getline(ss, token, '\t')) {
+            columns.push_back(token);
+        }
+
+        // Get the snarl bounds
+        std::string id_string;
+        std::stringstream snarl_stream(columns[3]);
+        std::getline(snarl_stream, id_string, '_');
+        size_t start_id = std::stoll(id_string);
+        std::getline(snarl_stream, id_string, '_');
+        handlegraph::nid_t end_id = std::stoll(id_string);
+
+        // The snarl is actually just id1_id2, so we don't know the direction needed to get it
+        // This could be done just with the graph but I prefer to use the function we already have with the snarls
+        // to be consistent 
+        handlegraph::net_handle_t node_net = distance_index.get_node_net_handle(start_id);
+        handlegraph::net_handle_t snarl_net = distance_index.get_root();
+
+        // Get the next thing in the chain. If this node happened to be the end of the chain going out, this doesn't call the iteratee
+        distance_index.follow_net_edges(node_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
+            snarl_net = next;
+            return true;
+        });
+
+        // Check if we got the right snarl by checking if the other end of it is the end node of the snarl
+        bool got_snarl = false;
+        if (distance_index.is_snarl(snarl_net)) {
+            distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
+                if ((distance_index.node_id(next) == end_id)) {
+                    got_snarl = true;
+                }
+                return true;
+            });
+        }
+
+        if (!got_snarl) {
+            // If we didn't find the right snarl, then go in the other direction to get the snarl
+            distance_index.follow_net_edges(node_net, &graph, true, [&](const handlegraph::net_handle_t& next) {
+                snarl_net = next;
+                return true;
+            });
+            distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
+                assert (distance_index.node_id(next) == end_id);
+                return true;
+            });
+        }
+
+        // Get the offsets of the start and end nodes along the reference
+        std::string new_reference_name;
+        size_t new_reference_start;
+        size_t new_reference_end;
+        std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, distance_index, snarl_net, true, reference_names, false);
+        if (ranges.size() != 0) {
+            // Check if we have already seen the reference path and if not add it
+        
+            auto reference_range = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
+            new_reference_name = std::get<0>(reference_range);
+            new_reference_start = std::get<1>(reference_range);
+            new_reference_end = std::get<2>(reference_range);
+        
+        } else {
+            new_reference_start = 0;
+            new_reference_end = 0;
+            new_reference_name = "NA";
+        }
+
+        // Now write the new reference coordinates and the rest of the line
+        // If we didn't find reference coordinates, write the old coordinates
+        if (new_reference_name == "NA" && new_reference_start == 0 && new_reference_end == 0) { 
+            std::cout << columns[0] << "\t" << columns[1] << "\t" << columns[2]; 
+        } else {
+            std::cout << new_reference_name << "\t" << new_reference_start << "\t" << new_reference_end; 
+        }
+
+        for (size_t i = 3 ; i < columns.size() ; i++ ) {
+            std::cout << "\t" << columns[i];
+        }
+        std::cout << std::endl;
+    }
+
+    instream.close();
+}
+
 } // namespace stoat_vcf

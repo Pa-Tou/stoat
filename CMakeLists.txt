@@ -150,6 +150,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/path_partitioner.cpp
     src/snarl_data_collection.cpp
     src/feature_tables.cpp
+    src/vcf_parser.cpp
     
     src/io/register_loader_saver_gbz.cpp
     src/io/register_loader_saver_gbzgraph.cpp
@@ -160,6 +161,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/subcommand/vcf.cpp
     src/subcommand/graph.cpp
     src/subcommand/bh_correct.cpp
+    src/subcommand/change_reference.cpp
 )
 
 # Include Directories
@@ -203,6 +205,7 @@ add_executable(unit_tests
     tests/unittest/utils_unit.cpp
     tests/unittest/snarl_data_collection_unit.cpp
     tests/unittest/feature_tables_unit.cpp
+    tests/unittest/vcf_parser_unit.cpp
 )
 
 target_compile_options(unit_tests PRIVATE -w) # fix warning
@@ -234,3 +237,15 @@ target_link_libraries(graph_simu_test PRIVATE
 
 # Register with CTest
 add_test(NAME GraphSimuTest COMMAND graph_simu_test)
+
+
+##### Add changing reference system test
+add_executable(change_ref_test tests/system/compare_files_utils.cpp tests/system/change_reference_test.cpp)
+
+# add src target lib + Catch2 lib 
+target_link_libraries(change_ref_test PRIVATE 
+    Boost::boost
+    ${HTSLIB_LIBRARIES})
+
+# Register with CTest
+add_test(NAME ChangeRefTest COMMAND change_ref_test)

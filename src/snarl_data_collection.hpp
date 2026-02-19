@@ -124,7 +124,7 @@ class SnarlDataCollection {
         SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
-        /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fill in sample_to_index based on sample_haplotypes 
+        /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fills in sample_to_index based on sample_haplotypes 
         /// If alleles_requested is true, then call find_alleles_by_sample to assign each sample/haplotype in all_sample_haplotypes to an allele
         /// find_alleles_by_sample must return a vector of length all_sample_haplotypes with the allele of each sample_hap_t (std::numeric_limits<size_t>::max() if not present).
         /// If walks_requested is true, then find the walks using find_walks.
@@ -137,7 +137,9 @@ class SnarlDataCollection {
         /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_alleles that may be used for find_walks
         /// If reference_samples is not empty, get coordinates on one of these reference path. If it is empty then the coordinates will be on any path
         /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
-        /// Write failed snarls to out_fail
+        /// If out_filename is not empty, then write the snarl collection to a file as well. If keep_snarls is False, then delete the snarls as they are found
+        /// instead of keeping them in the collection. This saves memory if writing the snarls. If out_filename is empty, then keep_snarls should be True
+
         void fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                 const std::vector<stoat::sample_hap_t>& sample_haplotypes,
                                 bool find_alleles_first,
@@ -148,7 +150,8 @@ class SnarlDataCollection {
                                 const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
-                                const std::unordered_set<std::string>& reference_samples, bool check_distances);
+                                const std::unordered_set<std::string>& reference_samples, bool check_distances,
+                                std::string out_filename, bool keep_snarls);
 
         
         /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through
@@ -165,6 +168,11 @@ class SnarlDataCollection {
 
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
+
+        /// Starting from an empty SnarlDataCollection, run iteratee for all snarls, but one line at a time from a file instead of loading the whole thing into memory
+        /// This will load the header but not keep any of the snarls in the SnarlDataCollection
+        void for_each_snarl_in_file(std::istream& instream, const std::function<void(const snarl_info_t& snarl_info)>& iteratee);
+
 
         /// Write the collection of snarls to the given file
         void write_snarl_data_collection(std::ostream& outstream) const;
@@ -199,7 +207,8 @@ class SnarlDataCollection {
     
     // fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
     // the VCF is read and parsed by chromosome
-    void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, htsFile *&ptr_vcf, bcf_hdr_t *&hdr, bcf1_t *&rec);
+    // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
+    void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
@@ -293,6 +302,27 @@ class SnarlDataCollection {
 
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
+
+        //////////////////// Helper functions for writing and loading stuff from files
+
+        /// Write just the header of the collection of snarls to the given file
+        void write_snarl_data_collection_header(std::ostream& outstream) const;
+
+        /// Write just one snarl from the collection
+        void write_snarl_data_line(std::ostream& outstream, const snarl_info_internal_t& snarl_info) const;
+
+        /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
+        void load_snarl_data_collection_header(std::istream& instream);
+
+        /// Given a string representing a line in the file, load one snarl_info_internal_t
+        /// This assumes that load_snarl_collection_header() has already been called
+        snarl_info_internal_t load_snarl_data_line(std::string& line);
+
+        // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
+        // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
+        void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
+
+
 
     public:
         // Return true if the two SnarlDataCollections contain the same information (but possibly in a different order)

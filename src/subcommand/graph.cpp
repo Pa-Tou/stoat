@@ -346,12 +346,10 @@ int main_stoat_graph(int argc, char *argv[]) {
 
 
     // Load the distance index
-    bdsg::SnarlDistanceIndex* distance_index_ptr = nullptr;
     bdsg::SnarlDistanceIndex distance_index;
     if (!distance_name.empty()) {
         // Load the distance index
         distance_index.deserialize(distance_name);
-        distance_index_ptr = &distance_index;
     }
 
 
@@ -393,6 +391,8 @@ int main_stoat_graph(int argc, char *argv[]) {
     CALLGRIND_START_INSTRUMENTATION;
 #endif
 
+    bool do_stats = !samples_filename.empty();
+
     ////////////////// If we didn't load the snarls, then we need to calculate them here
     if (!load_snarls) {
         snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
@@ -411,13 +411,10 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             },
                                             output_format == "fasta", // find the sequences, only for fasta format
                                             reference_samples,
-                                            distance_index.has_distances());
-        if (save_snarls) {
-            ofstream out_snarls;
-            out_snarls.open(snarls_filename);
-            snarl_collection.write_snarl_data_collection(out_snarls);
-            out_snarls.close();
-        }
+                                            distance_index.has_distances(),
+                                            save_snarls ? snarls_filename : "", // Filename to write the snarls to
+                                            do_stats// Keep the snarls in the collection?
+                                            );
     }
     auto end_2 = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
@@ -429,7 +426,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     // Make a tester
     stoat::FisherChi2 fisher_chi2_tester;
 
-    if (!samples_filename.empty()) {
+    if (do_stats) {
         // If we actually want to do the analysis
 
         ///////////// Write the header, if necessary

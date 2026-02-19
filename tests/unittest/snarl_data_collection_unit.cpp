@@ -55,7 +55,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
     }
     SECTION("Serialize snarl collection") {
@@ -73,7 +73,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
         std::string test_file = "./test.snarl_collection.txt";
 
@@ -590,7 +590,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
 
         check_collection(snarl_collection, false, false, false, true);
@@ -609,7 +609,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
 
         check_collection(snarl_collection, true, false, true, true);
@@ -630,7 +630,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
 
         check_collection(snarl_collection, true, false, true, true);
@@ -659,7 +659,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -696,7 +696,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return alleles;
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
         check_collection(snarl_collection, true, true, true, false);
 
@@ -719,8 +719,110 @@ TEST_CASE( "Snarl collection nested bubbles",
 
             int rm = system(rm_cmd.c_str()); 
         }
-    }
+        SECTION("Serialize it and load one line at a time") {
+            // This uses the same code as the normal loader so just test that it doesn't crash and gets the right number of snarls
 
+            std::string test_file = "./test_snarls.txt";
+            std::ofstream outstream;
+            outstream.open(test_file);
+            snarl_collection.write_snarl_data_collection(outstream);
+            outstream.close();
+
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::ifstream instream;
+            instream.open(test_file);
+            size_t loaded_snarl_count = 0;
+            loaded_snarl_collection.for_each_snarl_in_file(instream, [&](const snarl_info_t& snarl_info) {
+                ++loaded_snarl_count;
+            });
+            instream.close();
+
+            REQUIRE(loaded_snarl_count == 4);
+
+            std::string rm_cmd = "rm " + test_file;
+
+            int rm = system(rm_cmd.c_str());
+            
+        }
+        
+        SECTION("Write a snarl collection as its being filled in") {
+
+            std::string test_file = "./test_snarls.txt";
+
+            TestSnarlDataCollection written_snarl_collection(1,10,10);
+            written_snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
+                true, // alleles before walks
+                true, // get walks 
+                [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) {
+                    SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                    return;
+                },
+                true, // get alleles 
+                [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
+                    std::vector<size_t> alleles = get_alleles_per_snarl(snarl_data, samples);
+                    return alleles;
+                },
+                true, // get sequences
+                std::unordered_set<std::string>(), false, test_file, true);
+
+            check_collection(written_snarl_collection, true, true, true, false);
+
+            REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, written_snarl_collection));
+
+
+            // Load the written snarl collection
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            loaded_snarl_collection.load_snarl_data_collection(test_file);
+
+            check_collection(loaded_snarl_collection, true, true, true, false);
+
+            REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, loaded_snarl_collection));
+
+            std::string rm_cmd = "rm " + test_file;
+
+            int rm = system(rm_cmd.c_str()); 
+        }
+        SECTION("Write a snarl collection as its being filled in and don't keep the snarls") {
+
+            std::string test_file = "./test_snarls.txt";
+
+            TestSnarlDataCollection written_snarl_collection(1,10,10);
+            written_snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples,
+                true, // alleles before walks
+                true, // get walks
+                [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) {
+                    SnarlDataCollection::get_walks_from_alleles(*path_graph, distance_index, snarl, snarl_data, walks);
+                    return;
+                },
+                true, // get alleles
+                [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) {
+                    std::vector<size_t> alleles = get_alleles_per_snarl(snarl_data, samples);
+                    return alleles;
+                },
+                true, // get sequences
+                std::unordered_set<std::string>(), false, test_file, false);
+            // Make sure we properly deleted the temporary file
+            REQUIRE(!std::filesystem::exists(test_file+".tmp"));
+            size_t snarl_count = 0;
+            written_snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+                ++snarl_count;
+            });
+            REQUIRE(snarl_count == 0);
+
+
+            // Load the written snarl collection
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            loaded_snarl_collection.load_snarl_data_collection(test_file);
+
+            check_collection(loaded_snarl_collection, true, true, true, false);
+
+            REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, loaded_snarl_collection));
+
+            std::string rm_cmd = "rm " + test_file;
+
+             int rm = system(rm_cmd.c_str());
+         }
+    }
 }
 TEST_CASE( "Snarl collection multiple connected components",
           "[snarl_collection]" ) {
@@ -906,7 +1008,7 @@ TEST_CASE( "Snarl collection multiple connected components",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
 
 
@@ -1433,7 +1535,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
 
         check_collection(snarl_collection, false, false, false, true, true);
@@ -1455,7 +1557,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return  get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
         check_collection(snarl_collection, true, true, true, false, true);
 
@@ -1494,7 +1596,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -1713,7 +1815,7 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
                 return get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false);
+            std::unordered_set<std::string>(), false, "", true);
 
         check_collection(snarl_collection);
 

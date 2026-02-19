@@ -58,7 +58,12 @@ struct node_traversal_t { // 64 bits per node
         // Convert to std::string representation
         std::string to_string() const;
 
+
+        // Get the same node but flipped
+        node_traversal_t get_flipped() { return node_traversal_t(node_id, !is_reverse); }
+
         bool operator==(const node_traversal_t& other) const;
+        bool operator!=(const node_traversal_t& other) const;
 };
 
 // Define a edge_t structure to represent an edge between two node_traversal_t nodes
@@ -128,8 +133,14 @@ std::string pairToString(const std::pair<size_t, size_t>& name);
 // If is_allele_included is not empty, then only included those paths for which the corresponding entry in is_allele_included is true.
 std::string vectorPathToString(const std::vector<PathTraversal>& vec_paths, bool allele_lengths = false, const std::vector<bool>& is_allele_included = {});
 
-// Get a vector of path traversals from their string representation
+// Get a vector of path traversals from their string representation (from vectorPathToString())
 std::vector<stoat::PathTraversal> string_to_path_traversals(const std::string& path_string, const std::string& path_lengths_string);
+
+// Get a vector of node_traversal_t's representing a single path given as a string
+std::vector<stoat::node_traversal_t> string_to_path_node_traversal(const std::string& path_string);
+
+// Get a string representing a path of node_traversal_t's
+std::string path_node_traversal_to_string(const std::vector<stoat::node_traversal_t>& path);
 
 // convert paths from the simple vector of net handles to the PathTraversal object
 std::vector<PathTraversal> convert_path_traversals(

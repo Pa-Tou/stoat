@@ -17,7 +17,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
                           const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) {
 
     #ifdef DEBUG_PATH_PARTITIONER
-    cerr <<  "Get walk sets of " << distance_index.net_handle_as_string(snarl) << endl;;
+    std::cerr <<  "Get walk sets of " << distance_index.net_handle_as_string(snarl) << std::endl;;
     #endif
 
     // Map each sample(plus haplotype) to its index in all_sample_haplotypes
@@ -75,7 +75,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
     auto check_outgoing_edges = [&] (const handlegraph::net_handle_t& child, bool go_left, bool require_node, bool second_required_node) {
 
         #ifdef DEBUG_PATH_PARTITIONER
-        cerr << "At snarl child " << distance_index.net_handle_as_string(child) << " going " << (go_left ? "left" : "right") << endl;
+        std::cerr << "At snarl child " << distance_index.net_handle_as_string(child) << " going " << (go_left ? "left" : "right") << std::endl;
         #endif
         
         std::vector<path_edge_t> next_steps (all_sample_haplotypes.size());
@@ -98,7 +98,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
                                                       handlegraph::PathSense::HAPLOTYPE};
 
         #ifdef DEBUG_PATH_PARTITIONER
-        cerr << "\tgraph handle " << graph.get_id(handle) << " going " << (graph.get_is_reverse(handle) ? "left" : "right") << endl;
+        std::cerr << "\tgraph handle " << graph.get_id(handle) << " going " << (graph.get_is_reverse(handle) ? "left" : "right") << std::endl;
         #endif
 
         for (const auto& sense : senses) {
@@ -106,7 +106,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
                 // For each step on the node handle, keep track of which paths take different steps
 
                 #ifdef DEBUG_PATH_PARTITIONER
-                cerr << "\ton path " << graph.get_path_name(graph.get_path_handle_of_step(step)) << endl;
+                std::cerr << "\ton path " << graph.get_path_name(graph.get_path_handle_of_step(step)) << std::endl;
                 #endif
 
                 sample_hap_t step_sample_haplotype (graph, graph.get_path_handle_of_step(step));
@@ -129,7 +129,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
                 handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
         
                 #ifdef DEBUG_PATH_PARTITIONER
-                cerr << "" << "\t\tgoing to " << graph.get_id(next_handle) << endl;
+                std::cerr << "" << "\t\tgoing to " << graph.get_id(next_handle) << std::endl;
                 #endif
         
                 path_edge_t edge (graph.get_position_of_step(step), 
@@ -214,9 +214,9 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
             }
         }
         #ifdef DEBUG_PATH_PARTITIONER
-        cerr << "Intermediate sets: " << endl;
+        std::cerr << "Intermediate sets: " << std::endl;
         for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
-            cerr << "" << "\t" << all_sample_haplotypes[i] << ": " << intermediate_sets[i] << endl;
+            std::cerr << "" << "\t" << all_sample_haplotypes[i] << ": " << intermediate_sets[i] << std::endl;
         } 
         assert(additional_edge_count == additional_steps.size());
         #endif
@@ -251,9 +251,9 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
         old_set_count = new_set_count;
         
         #ifdef DEBUG_PATH_PARTITIONER
-        cerr << "New sets: " << endl;
+        std::cerr << "New sets: " << std::endl;
         for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
-            cerr << "" << "\t" << all_sample_haplotypes[i] << ": " << old_sets[i] << endl;
+            std::cerr << "" << "\t" << all_sample_haplotypes[i] << ": " << old_sets[i] << std::endl;
         } 
         #endif
     };
@@ -294,11 +294,11 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
             sample_sets_by_allele[old_sets[i]-1].emplace(all_sample_haplotypes[i]);
         }
     }
-    cerr << "Found walk sets " << endl;
+    std::cerr << "Found walk sets " << std::endl;
     for (const auto& s : sample_sets_by_allele) {
-        cerr <<  "Set" << endl;
+        std::cerr <<  "Set" << std::endl;
         for (const auto& x : s) {
-            cerr << "" << "\t" << x << endl;
+            std::cerr << "" << "\t" << x << std::endl;
         }
     }
     #endif
