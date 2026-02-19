@@ -198,6 +198,7 @@ TEST_CASE( "GeneExpressionTable with three samples and three genes", "[table]" )
         
     }
 }
+
 TEST_CASE( "CovariateTable with three samples and three covariates", "[table]" ) {
 
     // Get sample_to_index 
@@ -242,5 +243,150 @@ TEST_CASE( "CovariateTable with three samples and three covariates", "[table]" )
         REQUIRE(table.get_value_for_sample_and_feature("sample3", "covar3") == 8.234234);
         
     }
+}
+
+TEST_CASE( "Combined GenotypeTable", "[table]" ) {
+
+
+    //     A0 A1 A2 A3
+    // S1 {1, 0, 1, 1}
+    // S2 {1, 0, 1, 1}
+    // S3 {1, 0, 0, 0}
+    // S4 {1, 0, 0, 0}
+    // S5 {0, 0, 1, 1}
+    // S6 {0, 0, 0, 0}
+
+    std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                               {"S4", 3}, {"S5", 4}, {"S6", 5}};
+    stoat::GenoTable table(sample_to_index, 4);
+    table.increment_count(0, 0);
+    table.increment_count(0, 2);
+    table.increment_count(0, 3);
+    table.increment_count(1, 0);
+    table.increment_count(1, 2);
+    table.increment_count(1, 3);
+    table.increment_count(2, 0);
+    table.increment_count(3, 0);
+    table.increment_count(4, 2);
+    table.increment_count(4, 3);
+
+
+    SECTION("Table is the right size") {
+        REQUIRE(table.get_n_active_alleles() == 4);
+        REQUIRE(table.get_n_active_samples() == 6);
+    }
+
+    // add covariates
+    stoat::BinaryPhenotypeTable pheno(sample_to_index);
+    pheno.set_value_for_sample("S1", 1);
+    pheno.set_value_for_sample("S2", 0);
+    pheno.set_value_for_sample("S3", 0);
+    pheno.set_value_for_sample("S4", 0);
+    pheno.set_value_for_sample("S5", 1);
+    pheno.set_value_for_sample("S6", 1);
+    
+    std::unordered_map<std::string, size_t> covar_to_index = {{"covar1", 0}};
+    stoat::CovariateTable covar(sample_to_index, covar_to_index);
+    covar.set_value_for_sample_and_feature("S1", "covar1", 0.2);
+    covar.set_value_for_sample_and_feature("S2", "covar1", 10);
+    covar.set_value_for_sample_and_feature("S3", "covar1", 2);
+    covar.set_value_for_sample_and_feature("S4", "covar1", 5);
+    covar.set_value_for_sample_and_feature("S5", "covar1", 11);
+    covar.set_value_for_sample_and_feature("S6", "covar1", 1);
+
+    // link to them in the GenoTable
+    table.link_to_binary_phenotype(pheno);
+    table.link_to_covariates(covar);
+
+    SECTION("Table is the right size with covariates") {
+        REQUIRE(table.get_n_active_alleles() == 4);
+        REQUIRE(table.get_n_active_columns() == 5);
+        REQUIRE(table.get_n_active_samples() == 6);
+    }
+
+    SECTION("Accessor works on alleles and covariates") {
+        REQUIRE(table.get_value(0, 2) == 1);
+        REQUIRE(table.get_value(1, 4) == 10);
+    }
+
+    SECTION("Remove noncovered samples") {
+        table.remove_noncovered_samples();
+        REQUIRE(table.get_n_active_samples() == 5);
+    }
+
+    SECTION("Remove constant allele") {
+        table.remove_constant_predictors();
+        REQUIRE(table.get_n_active_alleles() == 3);
+        REQUIRE(table.get_n_active_columns() == 4);
+    }
+
+    SECTION("Remove first allele") {
+        table.remove_one_allele();
+        REQUIRE(table.get_n_active_alleles() == 3);
+        REQUIRE(table.get_n_active_columns() == 4);
+    }
+
+    SECTION("Remove duplicated predictor") {
+        table.remove_duplicated_predictors();
+        REQUIRE(table.get_n_active_alleles() == 3);
+        REQUIRE(table.get_n_active_columns() == 4);
+    }
+
+    SECTION("Add new total allele count column") {
+        Eigen::MatrixXd mat = table.make_matrixXd_features();
+        REQUIRE(mat.cols() == 6);
+        table.add_total_allele_count_covariable();
+        mat = table.make_matrixXd_features();
+        REQUIRE(mat.cols() == 7);
+    }
+
+    SECTION("Make the correct feature matrix, no filtering but with total allele counts") {
+        table.add_total_allele_count_covariable();
+        Eigen::MatrixXd mat = table.make_matrixXd_features();
+        // intercept
+        REQUIRE(mat(2,0) == 1);
+        // alleles
+        REQUIRE(mat(4,3) == 1);
+        REQUIRE(mat(4,4) == 1);
+        // covariates
+        REQUIRE(mat(4,5) == 11);
+        REQUIRE(mat(2,5) == 2);
+        // total allele count
+        REQUIRE(mat(0,6) == 3);
+        REQUIRE(mat(2,6) == 1);
+    }
+
+    SECTION("Make the correct feature matrix, after filtering") {
+        table.remove_noncovered_samples();
+        table.remove_constant_predictors();
+        table.remove_duplicated_predictors();
+        table.remove_one_allele();
+        Eigen::MatrixXd mat = table.make_matrixXd_features();
+        // alleles becomes
+        //    A2
+        // S1 1
+        // S2 1
+        // S3 0
+        // S4 0
+        // S5 1
+
+        // intercept
+        REQUIRE(mat(2,0) == 1);
+        // alleles
+        REQUIRE(mat(2,1) == 0);
+        REQUIRE(mat(4,1) == 1);
+    }
+
+    SECTION("Samples were masked also in the phenotype") {
+        Eigen::VectorXd Y = table.make_vectorxd_phenotype();
+        REQUIRE(Y.rows() == 6);
+        table.remove_noncovered_samples();
+        Y = table.make_vectorxd_phenotype();
+        REQUIRE(Y.rows() == 5);
+        REQUIRE(Y(0) == 1);
+        REQUIRE(Y(1) == 0);
+    }
+
+
 }
 
