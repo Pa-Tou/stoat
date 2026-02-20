@@ -18,30 +18,29 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S1", 2);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S2", 2);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 2);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(0, 2);
+        geno.increment_count(1, 0);
+        geno.increment_count(1, 2);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 2);
         
-        stoat::CombinedTable ctab(geno);
-        std::vector<std::vector<double>> preds = ctab.get_predictors();
-
         // only 3 alleles originally
-        REQUIRE(ctab.get_n_alleles() == 3);
+        REQUIRE(geno.get_n_active_alleles() == 3);
         // second allele should have an allele count of 0
-        REQUIRE(preds[1][0] == 0);
+        Eigen::MatrixXd mat = geno.make_matrixXd_features();
+        REQUIRE(mat(0, 2) == 0);
+        // note: second allele is at index 2 because of the added intercept column in the matrix
 
-        ctab.remove_constant_predictors();
+        geno.remove_constant_predictors();
 
         // only 2 alleles now
-        REQUIRE(ctab.get_n_alleles() == 2);
+        REQUIRE(geno.get_n_active_alleles() == 2);
         // second allele should have an allele count of 1 now
-        preds = ctab.get_predictors();
-        REQUIRE(preds[1][0] == 1);
+        mat = geno.make_matrixXd_features();
+        REQUIRE(mat(0, 2) == 1);
     }
 
     SECTION("Combine identical columns quantitative table") {
@@ -55,28 +54,22 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 1);
-        geno.increment_count("S1", 2);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
-        geno.increment_count("S5", 2);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 1);
+        geno.increment_count(0, 2);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
+        geno.increment_count(4, 2);
         
-        stoat::CombinedTable ctab(geno);
-        std::vector<std::vector<double>> preds = ctab.get_predictors();
-
         // 3 alleles originally
-        REQUIRE(ctab.get_n_alleles() == 3);
-        REQUIRE(preds.size() == 3);
-
-        ctab.remove_duplicated_predictors();
+        REQUIRE(geno.get_n_active_alleles() == 3);
+        
+        geno.remove_duplicated_predictors();
 
         // only 2 alleles now
-        REQUIRE(ctab.get_n_alleles() == 2);
-        preds = ctab.get_predictors();
-        REQUIRE(preds.size() == 2);
+        REQUIRE(geno.get_n_active_alleles() == 2);
     }
 
     SECTION("Filters monoallelic variants") {
@@ -89,16 +82,14 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 1);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 0);
+        stoat::GenoTable geno(sample_to_index, 1);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 0);
         
-        stoat::CombinedTable ctab(geno);
-
-        REQUIRE(!ctab.passes_filters(0, 0));
+        REQUIRE(!geno.passes_filters(0, 0));
     }
 
     SECTION("Remove last columns quantitative table") {
@@ -111,28 +102,22 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 1);
-        geno.increment_count("S1", 2);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
-        geno.increment_count("S5", 2);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 1);
+        geno.increment_count(0, 2);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
+        geno.increment_count(4, 2);
         
-        stoat::CombinedTable ctab(geno);
-        std::vector<std::vector<double>> preds = ctab.get_predictors();
-
         // 3 alleles originally
-        REQUIRE(ctab.get_n_alleles() == 3);
-        REQUIRE(preds.size() == 3);
+        REQUIRE(geno.get_n_active_alleles() == 3);
         
-        ctab.remove_one_allele();
+        geno.remove_one_allele();
 
         // 2 alleles now
-        preds = ctab.get_predictors();
-        REQUIRE(ctab.get_n_alleles() == 2);
-        REQUIRE(preds.size() == 2);
+        REQUIRE(geno.get_n_active_alleles() == 2);
     }
 }
 
@@ -149,17 +134,17 @@ TEST_CASE("Logistic Regression") {
                                                                    {"S4", 3}, {"S5", 4},
                                                                    {"S11", 5}, {"S12", 6}, {"S13", 7},
                                                                    {"S14", 8}, {"S15", 9}};
-        stoat::GenotypeTable geno(sample_to_index, 2);
-        geno.increment_count("S1", 1);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
-        geno.increment_count("S11", 1);
-        geno.increment_count("S12", 0);
-        geno.increment_count("S13", 0);
-        geno.increment_count("S14", 0);
-        geno.increment_count("S15", 1);
+        stoat::GenoTable geno(sample_to_index, 2);
+        geno.increment_count(0, 1);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
+        geno.increment_count(5, 1);
+        geno.increment_count(6, 0);
+        geno.increment_count(7, 0);
+        geno.increment_count(8, 0);
+        geno.increment_count(9, 1);
 
         
         stoat::BinaryPhenotypeTable pheno(sample_to_index);
@@ -195,12 +180,12 @@ TEST_CASE("Logistic Regression") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 2);
-        geno.increment_count("S1", 1);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 2);
+        geno.increment_count(0, 1);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
 
         stoat::BinaryPhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 0);
@@ -231,17 +216,17 @@ TEST_CASE("Logistic Regression") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S1", 2);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S2", 2);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S3", 1);
-        geno.increment_count("S4", 1);
-        geno.increment_count("S4", 2);
-        geno.increment_count("S5", 1);
-        geno.increment_count("S5", 2);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(0, 2);
+        geno.increment_count(1, 0);
+        geno.increment_count(1, 2);
+        geno.increment_count(2, 0);
+        geno.increment_count(2, 1);
+        geno.increment_count(3, 1);
+        geno.increment_count(3, 2);
+        geno.increment_count(4, 1);
+        geno.increment_count(4, 2);
 
         stoat::BinaryPhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 1);
@@ -273,12 +258,12 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 1);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 1);
+        geno.increment_count(4, 1);
 
         stoat::QuantitativePhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 11);
@@ -308,17 +293,17 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S1", 2);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S2", 2);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S3", 1);
-        geno.increment_count("S4", 1);
-        geno.increment_count("S4", 2);
-        geno.increment_count("S5", 1);
-        geno.increment_count("S5", 2);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(0, 2);
+        geno.increment_count(1, 0);
+        geno.increment_count(1, 2);
+        geno.increment_count(2, 0);
+        geno.increment_count(2, 1);
+        geno.increment_count(3, 1);
+        geno.increment_count(3, 2);
+        geno.increment_count(4, 1);
+        geno.increment_count(4, 2);
 
         stoat::QuantitativePhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 11);
@@ -347,12 +332,12 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         // S5 {0, 1, 0}
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 2);
-        geno.increment_count("S3", 2);
-        geno.increment_count("S4", 1);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 2);
+        geno.increment_count(2, 2);
+        geno.increment_count(3, 1);
+        geno.increment_count(4, 1);
 
         stoat::QuantitativePhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 11);
@@ -384,12 +369,12 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 1);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 1);
+        geno.increment_count(4, 1);
 
         stoat::QuantitativePhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 11);
@@ -424,12 +409,12 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 2);
-        geno.increment_count("S3", 2);
-        geno.increment_count("S4", 1);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 2);
+        geno.increment_count(2, 2);
+        geno.increment_count(3, 1);
+        geno.increment_count(4, 1);
 
         stoat::QuantitativePhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 11);
@@ -467,16 +452,16 @@ TEST_CASE("Quantitative phenotype filters") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 2);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 2);
+        geno.increment_count(0, 0);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
 
         stoat::QuantitativePhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 11);
@@ -512,12 +497,12 @@ TEST_CASE("Quantitative phenotype filters") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 2);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 2);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
 
         stoat::QuantitativePhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 11);

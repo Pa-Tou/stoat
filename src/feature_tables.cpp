@@ -376,7 +376,7 @@ void CombinedTable::combine_covariates(const CovariateTable& covariates) {
         if (covariates.has_sample(samp_name)) {
             for (int covar_i = 0; covar_i < ncovar; covar_i++){
                 double covar = covariates.get_value_for_sample_and_feature(samp_name, covar_names.at(covar_i));
-                predictors.at(n_alleles + covar_i).at(samp_ii).push_back(covar);
+                predictors.at(n_alleles + covar_i).at(samp_ii) = covar;
             }
         } else {
             // this sample is not in the matrix, mark for filtering and leave the 0s
@@ -632,12 +632,25 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         use_total_ac = false;
     }
         
+    void GenoTable::clear() {
+        // we don't touch the alleles but reinit the covariates (for now)
+        n_covariates = 0;
+        n_active_samples = n_samples;
+        n_active_alleles = n_alleles;
+        n_active_columns = n_alleles;
+        // reinit the masks
+        col_mask = std::vector<bool>(n_alleles, false);
+        row_mask = std::vector<bool>(n_samples, false);
+        // reinit the total allele count column too
+        use_total_ac = false;
+    }
+
     void GenoTable::increment_count(size_t sample_idx, size_t allele_num) {
         // increment the appropriate allele column and total count
         this->values_per_sample[sample_idx][allele_num]++;
         total_allele_counts_per_sample[sample_idx]++;
     }
-   
+    
     double GenoTable::get_value(size_t row, size_t col) const {
         // depending on the column index, get the value from the genotype or covariates
         // the virtual matrix starts with the alleles and then the covariates
@@ -653,6 +666,10 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         }
     }
 
+    size_t GenoTable::get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const {
+        return this->values_per_sample.at(this->sample_to_index.at(sample)).at(allele_num);
+    }
+    
     std::string GenoTable::allele_paths_as_str() const {
         std::vector<size_t> allele_paths(n_active_alleles, 0);
         // tally the alleles across samples
@@ -679,17 +696,29 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         return allele_paths_str.str();
     }
 
-    void GenoTable::link_to_binary_phenotype(BinaryPhenotypeTable& phenotype) {
+    std::string GenoTable::get_genotype_as_string(const std::string& sample) const {
+        std::string genotype = "";
+        for (size_t i = 0 ; i < this->values_per_sample.at(this->sample_to_index.at(sample)).size() ; i++) {
+            size_t count = this->values_per_sample.at(this->sample_to_index.at(sample)).at(i);
+            if (i != 0) {
+                genotype += ",";
+            }
+            genotype += std::to_string(count);
+        }
+        return genotype;
+    }
+
+    void GenoTable::link_to_binary_phenotype(const BinaryPhenotypeTable& phenotype) {
         b_phenotype = &phenotype;
         is_binary_pheno = true;
     }
     
-    void GenoTable::link_to_quantitative_phenotype(QuantitativePhenotypeTable& phenotype) {
+    void GenoTable::link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype) {
         q_phenotype = &phenotype;
         is_binary_pheno = false;
     }
     
-    void GenoTable::link_to_covariates(CovariateTable& in_covariates) {
+    void GenoTable::link_to_covariates(const CovariateTable& in_covariates) {
         covariates = &in_covariates;
         n_covariates = in_covariates.get_feature_number();
         n_active_columns += n_covariates;
@@ -797,14 +826,40 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
                 // if one value is different, we will stop before reaching the end
                 // if we reached the end, the columns are duplicated (on the active samples)
                 if (samp_i == n_samples) {
-                    // duplicated, then don't use tha total allele count column
+                    // duplicated, then don't use that total allele count column
                     use_total_ac = false;
+                    n_active_columns--;
                     break;
                 }
             }
         }
     }
 
+    void GenoTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<size_t>& g1) const {
+        g0.resize(n_active_alleles, 0);
+        g1.resize(n_active_alleles, 0);
+        size_t active_al_i = 0;
+        for (size_t al_i = 0; al_i < n_alleles; al_i++) {
+            if (col_mask[al_i]) {
+                continue;
+            }
+            for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
+                if (row_mask[samp_i]) {
+                    continue;
+                }
+                if (get_value(samp_i, al_i) > 0){
+                    // tally the allele counts in each group
+                    if (b_phenotype->get_value_for_sample_id(samp_i)){
+                        g1[active_al_i] += get_value(samp_i, al_i);
+                    } else {
+                        g0[active_al_i] += get_value(samp_i, al_i);
+                    }
+                }
+            }
+            active_al_i++;
+        }
+    }
+    
     // JEAN maybe these won't be used in the end. Remove at the end if not
     size_t GenoTable::get_n_active_alleles() const {
         return n_active_alleles;
@@ -854,7 +909,9 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
             } else {
                 // check if different from the first one
                 if (total_allele_counts_per_sample[samp_i] != first_tot_ac) {
+                    // "add" the new column
                     use_total_ac = true;
+                    n_active_columns++;
                     break;
                 }
             }
@@ -910,12 +967,8 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
 
     Eigen::MatrixXd GenoTable::make_matrixXd_features() {
         // we'll prepare a matrix with an additional "intercept" first column filled with ones
-        size_t nrows = n_active_samples;
         size_t ncols = n_active_columns + 1;
-        // add one more column if we need to include the total allele count column
-        if (use_total_ac) {
-            ncols++;
-        }
+        size_t nrows = n_active_samples;
         Eigen::MatrixXd X = Eigen::MatrixXd::Constant(nrows, ncols, 1);
         // fill other columns with the values all the predictors
         size_t cur_row;

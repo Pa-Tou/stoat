@@ -72,20 +72,19 @@ Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) {
 }
     
 // logistic regression using the Maximum Likelihood Estimate with Newton-Raphson method
-test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covar, const double maf, const size_t min_individuals) {
+test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable& pheno, GenoTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals) {
     // prepare an output objet and init to NA
     test_result_t tres;
     tres.pv = "NA";
     // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
-    // combine the phenotype and genotype information
-    CombinedTable combined_table(geno);
-    combined_table.combine_binary_phenotype(pheno);
-    combined_table.combine_covariates(covar);
-    // JEAN the functions below could be gathered in a "prepare_for_regression" function, for example, to avoid repetition in the linea regression function
+    // link the phenotype
+    geno.link_to_binary_phenotype(pheno);
+    geno.link_to_covariates(covariates);
     // remove non-variable predictors, e.g. alleles absent in all samples
-    combined_table.remove_constant_predictors();    
+    geno.remove_constant_predictors();    
+    geno.remove_noncovered_samples();    
     // should we test this snarl?
-    if (!combined_table.passes_filters(maf, min_individuals)){
+    if (!geno.passes_filters(maf, min_individuals)){
         // JEAN what should we do here? returning NA for now
         stoat::LOG_DEBUG("Filtered: didn't pass the filters");
         return tres;
@@ -94,23 +93,23 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     tres.allele_paths = geno.allele_paths_as_str();
 
     // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
-    bool total_ac_added = combined_table.add_total_allele_count_covariable();
+    geno.add_total_allele_count_covariable();
 
     // before performing the regression, try to reduce potential colinearity
-    combined_table.remove_duplicated_predictors();    
-    combined_table.remove_one_allele();
+    geno.remove_duplicated_predictors();    
+    geno.remove_one_allele();
     
     // prepare the matrices for the regression
-    Eigen::MatrixXd X = combined_table.make_matrixXd_features();
-    Eigen::VectorXd Y = combined_table.make_vectorxd_phenotype();
+    Eigen::MatrixXd X = geno.make_matrixXd_features();
+    Eigen::VectorXd Y = geno.make_vectorxd_phenotype();
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
     std::cerr << "Y:\n" << Y << "\n";
 #endif
     size_t num_samples = Y.size();
     size_t num_features = X.cols();
-    size_t num_covariates = combined_table.get_n_covariates();
-    size_t num_predictors = combined_table.get_n_alleles();
+    size_t num_predictors = geno.get_n_active_alleles();
+    size_t num_covariates = geno.get_n_active_columns() - num_predictors;
 
     // we'll look for the beta coefficients that maximize the likelihood using the Newton-Raphson method
     // it's an iterative approach so we start by initializing the coefficients (to 0)
@@ -258,9 +257,9 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     // same process as above except we directly use either the standard or penalized
     // approach to match whatever was used for the full model. We also reuse the same cur_max_step
     // keep the intercept and covariates only
-    Eigen::MatrixXd X0 = Eigen::MatrixXd::Constant(X.rows(), 1 + num_covariates - int(total_ac_added), 1);
+    Eigen::MatrixXd X0 = Eigen::MatrixXd::Constant(X.rows(), 1 + num_covariates, 1);
     if (X0.cols() > 1) {
-        X0.block(0, 1, X.rows(), X0.cols() - 1) = X.block(0, 1 + num_predictors, X.rows(), num_covariates - int(total_ac_added));
+        X0.block(0, 1, X.rows(), num_covariates) = X.block(0, 1 + num_predictors, X.rows(), num_covariates);
     }
     beta = Eigen::VectorXd::Constant(X0.cols(), 0);
 
@@ -494,43 +493,27 @@ std::pair<std::string, std::string> FisherChi2::fisher_chi2(const std::vector<si
     return {fastfisher_p_value, chi2_p_value};
 }
 
-test_result_t FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const double maf, const size_t min_individuals) {
+test_result_t FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, GenoTable& geno, const double maf, const size_t min_individuals) {
     // prepare an output objet and init to NA
     test_result_t tres;
     tres.pv = "NA";
     tres.second_pv = "NA";
     // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
-    // combine the phenotype and genotype information
-    CombinedTable combined_table(geno);
-    combined_table.combine_binary_phenotype(pheno);
+    // link to the phenotype
+    geno.link_to_binary_phenotype(pheno);
     // remove non-variable allele, e.g. absent in both groups
-    combined_table.remove_constant_predictors();    
+    geno.remove_constant_predictors();    
+    geno.remove_noncovered_samples();    
     // should we test this snarl?
-    if (!combined_table.passes_filters(maf, min_individuals)){
+    if (!geno.passes_filters(maf, min_individuals)){
         // JEAN what should we do here? returning NA for now
         stoat::LOG_DEBUG("Filtered: didn't pass the filters");
         return tres;
     }
     // fill up the contingency table (one vector per group)
-    int n_alleles = combined_table.get_n_alleles();
-    std::vector<size_t> g0(n_alleles, 0);
-    std::vector<size_t> g1(n_alleles, 0);
-    auto phenotype_vec = combined_table.get_phenotype();
-    auto genotype_mat = combined_table.get_predictors();
-    assert(genotype_mat.size() == n_alleles); // no covariates allowed here
-    // loop through the alleles and samples and update the contingency table
-    for (int al_ii=0; al_ii < n_alleles; al_ii++) {
-        for (int samp_ii=0; samp_ii < phenotype_vec.size(); samp_ii++) {
-            if (genotype_mat[al_ii][samp_ii] > 0){
-                // tally the allele counts in each group
-                if (phenotype_vec[samp_ii] == 0){
-                    g0[al_ii] += genotype_mat[al_ii][samp_ii];
-                } else {
-                    g1[al_ii] += genotype_mat[al_ii][samp_ii];
-                }
-            }
-        }
-    }
+    std::vector<size_t> g0;
+    std::vector<size_t> g1;
+    geno.fill_contingency_table(g0, g1);
 
     // performs the test
     auto fc_res = fisher_chi2(g0, g1);
@@ -573,20 +556,18 @@ Eigen::MatrixXd inverse(const Eigen::MatrixXd &A) {
 }
 
 // Performs linear regression and F-test for predictors only
-test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals) {
+test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTable& pheno, GenoTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals) {
     // prepare an output objet and init to NA
     test_result_t tres;
     tres.pv = "NA";
-    // JEAN will the GenotypeTable include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
-    // combine the phenotype and genotype information
-    CombinedTable combined_table(geno);
-    combined_table.combine_quantitative_phenotype(pheno);
-    combined_table.combine_covariates(covariates);
-    Eigen::MatrixXd ctab = combined_table.make_matrixXd_features();
+    // link the phenotype
+    geno.link_to_quantitative_phenotype(pheno);
+    geno.link_to_covariates(covariates);
     // remove non-variable allele, e.g. absent in both groups
-    combined_table.remove_constant_predictors();    
+    geno.remove_constant_predictors();    
+    geno.remove_noncovered_samples();    
     // should we test this snarl?
-    if (!combined_table.passes_filters(maf, min_individuals)){
+    if (!geno.passes_filters(maf, min_individuals)){
         // JEAN what should we do here? returning NA for now
         stoat::LOG_DEBUG("Filtered: didn't pass the filters");
         return tres;
@@ -595,17 +576,21 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     tres.allele_paths = geno.allele_paths_as_str();
 
     // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
-    combined_table.add_total_allele_count_covariable();
+    geno.add_total_allele_count_covariable();
 
     // before performing the regression, try to reduce potential colinearity
-    combined_table.remove_duplicated_predictors();    
-    combined_table.remove_one_allele();
+    geno.remove_duplicated_predictors();
+    geno.remove_one_allele();
     
-    Eigen::MatrixXd X_full = combined_table.make_matrixXd_features();
-    Eigen::VectorXd y = combined_table.make_vectorxd_phenotype();
+    Eigen::MatrixXd X_full = geno.make_matrixXd_features();
+    Eigen::VectorXd y = geno.make_vectorxd_phenotype();
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "X:\n" << X_full << "\n";
+    std::cerr << "Y:\n" << y << "\n";
+#endif
     size_t num_samples = y.size();
-    size_t num_predictors = combined_table.get_n_alleles();
-    size_t num_covariates = combined_table.get_n_covariates();
+    size_t num_predictors = geno.get_n_active_alleles();
+    size_t num_covariates = geno.get_n_active_columns() - num_predictors;
     
     stoat::LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
     
@@ -614,7 +599,11 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     // colPivHouseholderQr is faster than fullPivHouseholderQr but less stable. could switch to full if we encounter problem (or try the HouseolderQR which is less stable but even faster)
     Eigen::VectorXd beta = X_full.colPivHouseholderQr().solve(y);
     Eigen::VectorXd y_hat = X_full * beta;
-    
+
+#ifdef DEBUG_STATS_TEST
+    std::cerr << "beta:\n" << beta << "\n";
+#endif
+
     // sum of squared errors and total sum of squares total (like using the mean as prediction)
     double SSE_full = 0.0;
     double SST = 0.0;
@@ -630,6 +619,10 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         // keep the intercept and covariates only
         Eigen::MatrixXd X_reduced = Eigen::MatrixXd::Constant(X_full.rows(), 1 + num_covariates, 1);
         X_reduced.block(0, 1, X_full.rows(), num_covariates) = X_full.block(0, 1 + num_predictors, X_full.rows(), num_covariates);
+#ifdef DEBUG_STATS_TEST
+        std::cerr << "X reduced:\n" << X_reduced << "\n";
+#endif
+
         Eigen::VectorXd beta_r = X_reduced.colPivHouseholderQr().solve(y);
         Eigen::VectorXd y_hat_r = X_reduced * beta_r;
         for (int i = 0; i < num_samples; ++i) {

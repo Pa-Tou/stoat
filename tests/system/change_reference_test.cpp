@@ -59,7 +59,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
 
     SECTION("Change ref to same path") {
 
-        std::string rewrite_cmd = "stoat change-ref";
+        std::string rewrite_cmd = "../bin/stoat change-ref";
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -t " + output_dir+"/stoat.assoc.pvalues.tsv"
@@ -98,7 +98,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         write_cmd = "echo path1 > " + refs_file; 
         ignore = std::system(write_cmd.c_str());
 
-        std::string rewrite_cmd = "stoat change-ref";
+        std::string rewrite_cmd = "../bin/stoat change-ref";
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -t " + output_dir+"/stoat.assoc.pvalues.tsv"

@@ -68,7 +68,7 @@ public:
     // returns two pvalues: fastfisher_p_value (which can be NA if >2 alleles), and chi2_p_value
     std::pair<std::string, std::string> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
     // JEAN don't really like that we are passing filtering thresholds as arguments. Should we make a well-defined struct with input parameters?
-    test_result_t fisher_chi2(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const double maf, const size_t min_individuals);
+    test_result_t fisher_chi2(const BinaryPhenotypeTable& pheno, GenoTable& geno, const double maf, const size_t min_individuals);
 
 private:
     // Constants with maximum usable precision for 'double'
@@ -81,7 +81,7 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        test_result_t linear_regression(const QuantitativePhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
+        test_result_t linear_regression(const QuantitativePhenotypeTable& pheno, GenoTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
 
         std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>> &A);
 
@@ -105,7 +105,7 @@ public:
     // Logistic regression using the Newton-Raphson method to find the MLE
     // if the betas get too high, it will switch to Firth penalized regression
     // p-value is computed from the likelihood ratio of the full vs reduced model
-    test_result_t logistic_regression(const BinaryPhenotypeTable& pheno, const GenotypeTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
+    test_result_t logistic_regression(const BinaryPhenotypeTable& pheno, GenoTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals);
     
 private:
     // maximum number of iterations to perform

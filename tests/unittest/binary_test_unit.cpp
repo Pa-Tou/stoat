@@ -131,16 +131,16 @@ TEST_CASE("Binary phenotype filters") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
 
         stoat::BinaryPhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 1);
@@ -176,12 +176,12 @@ TEST_CASE("Binary phenotype filters") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 3);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S4", 0);
-        geno.increment_count("S5", 1);
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 0);
+        geno.increment_count(4, 1);
 
         stoat::BinaryPhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 1);
@@ -217,17 +217,17 @@ TEST_CASE("Binary phenotype filters") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenotypeTable geno(sample_to_index, 4);
-        geno.increment_count("S1", 0);
-        geno.increment_count("S1", 2);
-        geno.increment_count("S2", 0);
-        geno.increment_count("S2", 2);
-        geno.increment_count("S3", 0);
-        geno.increment_count("S3", 1);
-        geno.increment_count("S4", 1);
-        geno.increment_count("S4", 2);
-        geno.increment_count("S5", 2);
-        geno.increment_count("S5", 3);
+        stoat::GenoTable geno(sample_to_index, 4);
+        geno.increment_count(0, 0);
+        geno.increment_count(0, 2);
+        geno.increment_count(1, 0);
+        geno.increment_count(1, 2);
+        geno.increment_count(2, 0);
+        geno.increment_count(2, 1);
+        geno.increment_count(3, 1);
+        geno.increment_count(3, 2);
+        geno.increment_count(4, 2);
+        geno.increment_count(4, 3);
 
         stoat::BinaryPhenotypeTable pheno(sample_to_index);
         pheno.set_value_for_sample("S1", 1);

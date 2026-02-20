@@ -434,7 +434,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             stoat::write_binary_header(out_stream);
         }
 
-        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info){
+        snarl_collection.for_each_snarl([&](snarl_info_t& snarl_info){
             // For each snarl, get the genotype/phenotype matrix, do the statistics, and write the output
 
             // Declare a bunch of strings that are needed for the output
@@ -474,7 +474,7 @@ int main_stoat_graph(int argc, char *argv[]) {
 
             } else if (test_method == "chi2") {
 
-                const GenotypeTable& genotype_table = snarl_info.genotypes;
+                const GenoTable& genotype_table = snarl_info.genotypes;
 
                 // Fill in the phenotype/genotype count vectors. Each item in these vectors is an allele (/walk through the snarl/partition of samples)
                 // One vector for each phenotype

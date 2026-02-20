@@ -124,7 +124,7 @@ void gaf_creation(const std::string& input_file,
     // path so that it can be written when going through the input_file
     // Snarl is saved as the start node and end node concatinated
     std::unordered_map<std::string, std::vector<std::string>> snarl_to_paths; 
-    snarl_collection.for_each_snarl([&](const stoat::snarl_info_t& snarl_info) {
+    snarl_collection.for_each_snarl([&](stoat::snarl_info_t& snarl_info) {
         std::vector<std::string> paths;
         for (const PathTraversal& path : snarl_info.walks_by_allele) {
             paths.emplace_back(path.to_string());

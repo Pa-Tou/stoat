@@ -332,7 +332,7 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
     SECTION("Test without untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -512,7 +512,7 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
     SECTION("Test untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -756,7 +756,7 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
     SECTION("Test without untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -932,7 +932,7 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
     SECTION("Test untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -1172,7 +1172,7 @@ TEST_CASE("Output simple nested chain with many samples", "[detangle]") {
     SECTION("Test without untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename

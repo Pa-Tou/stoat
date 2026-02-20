@@ -161,7 +161,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                 //This might cause problems because it is a reference but it doesn't get used so I think its fine
                                 // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
-                                GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+                                GenoTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
                                 
 
                                 // Make the snarl_info_t passed to the sample set/walk finders. They don't need to have all the information yet
@@ -361,7 +361,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
         
         //This might cause problems because it is a reference but it doesn't get used so I think its fine
         // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
-        GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+        GenoTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
 
         // Make the snarl_info_t from the information we have
         std::vector<PathTraversal> empty_walks (0); 
@@ -486,13 +486,13 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
 // Call interatee for all snarls
 // TODO: Make this parallel
-void SnarlDataCollection::for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
+void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
         run_iteratee_on_one_snarl(snarl_info, iteratee);
     }
 }
 
-void SnarlDataCollection::for_each_snarl_in_file(std::istream& instream, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) {
+void SnarlDataCollection::for_each_snarl_in_file(std::istream& instream, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
     load_snarl_data_collection_header(instream);
     std::string line;
     while (std::getline(instream, line)) {
@@ -502,12 +502,12 @@ void SnarlDataCollection::for_each_snarl_in_file(std::istream& instream, const s
     }
 }
  
-void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const {
+void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
 
 
     // GenotypeTable constructor takes a map from sample to index, and the number of alleles
-    GenotypeTable genotypes(sample_to_index, snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node).allele_count
-                                                                                                     : 0);
+    GenoTable genotypes(sample_to_index,
+                        snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node).allele_count : 0);
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << (snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node).allele_count : 0) << " alleles" << std::endl; 
     for (const auto& pair : sample_to_index) {
@@ -521,7 +521,9 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
         const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(internal_snarl_info.start_node);
         for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
             if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
-                genotypes.increment_count(all_sample_haplotypes[sample_hap_i].sample, alleles_by_sample.alleles[sample_hap_i]);
+                // JEAN ideally we would access the count in the collection by index but I'm not sure why so I'm using the map sample_to_index for now. Maybe Xian knows
+                size_t sample_idx = this->sample_to_index.at(all_sample_haplotypes.at(sample_hap_i).sample);
+                genotypes.increment_count(sample_idx, alleles_by_sample.alleles[sample_hap_i]);
             }
         }
     }
@@ -1332,7 +1334,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
     // Go through collection1 and make a map from snarl identifier to a new snarl_info_copy_t that copies all information
     size_t snarl_count1 = 0;
     std::unordered_map<std::string, snarl_info_copy_t> snarl_to_info;
-    collection1.for_each_snarl([&](const snarl_info_t& original) {
+    collection1.for_each_snarl([&](snarl_info_t& original) {
 
 
         // Make a copy of the snarl_info_t original
@@ -1377,7 +1379,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
     // Go through collection2 and check that it matches something from collection 1
     // Also check that the two collections have the same number of snarls
     size_t snarl_count2 = 0;
-    collection2.for_each_snarl([&](const snarl_info_t& snarl_info2) {
+    collection2.for_each_snarl([&](snarl_info_t& snarl_info2) {
         std::string snarl_id = get_snarl_id(snarl_info2.start_node, snarl_info2.end_node);
 
 

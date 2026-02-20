@@ -112,7 +112,7 @@ void SnarlAnalyzer::genotype_test_snarls_by_chr(const std::string output_dir) {
         size_t chr_number_snarl_filtered = 0;
 
         // JEAN parallelize here?    
-        snarl_collection.for_each_snarl([&](const snarl_info_t& snarl_info) {
+        snarl_collection.for_each_snarl([&](snarl_info_t& snarl_info) {
             if (snarl_info.ref_path == chrom) {
                 bool filtered = test_and_write_snarl(snarl_info, outf);
                 chr_number_snarl_filtered += (filtered ? 1 : 0);
@@ -171,7 +171,7 @@ std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
     return edges;
 }
 
-bool BinarySnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
     // test this snarl using Fisher exact test and chi-squared test
     test_result_t test_res = fchi.fisher_chi2(phenotype, snarl_data.genotypes, maf_threshold, min_individuals);
     if (test_res.pv == "NA" && test_res.second_pv == "NA") {
@@ -186,7 +186,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &snarl_
     return false;
 }
     
-bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
     test_result_t test_res = lr.logistic_regression(phenotype, snarl_data.genotypes, covariate, maf_threshold, min_individuals);
     if (test_res.pv == "NA") {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
@@ -201,7 +201,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &s
 }
 
 // Quantitative Table Generation
-bool QuantitativeSnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
     test_result_t test_res = lr.linear_regression(phenotype, snarl_data.genotypes, covariate, maf_threshold, min_individuals);
     if (test_res.pv == "NA") {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
@@ -215,7 +215,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &
     return false;
 }
 
-bool EQTLSnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
     // get genes near snarl
     std::vector<std::string> genes_near = gene_expression.get_genes_around_pos(snarl_data.ref_path, snarl_data.start_position, snarl_data.end_position, max_gene_dist);
 
@@ -229,9 +229,11 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(const stoat::snarl_info_t &snarl_da
             gene_phenotype.set_value_for_sample(sample_name, gene_expression.get_value_for_sample_and_feature(sample_name, gene_name));
         }
         // test the gene
+        // reinitialize the genotype object (remove masks etc set when testing other genes)
+        snarl_data.genotypes.clear();
         test_result_t test_res = lr.linear_regression(gene_phenotype, snarl_data.genotypes, covariate, maf_threshold, min_individuals);
         if (test_res.pv == "NA") {
-            stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
+            stoat::LOG_DEBUG("filtered: gene " + gene_name + ", " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
             continue;
         }
  

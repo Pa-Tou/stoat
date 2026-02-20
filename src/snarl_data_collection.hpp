@@ -40,7 +40,7 @@ struct snarl_info_t {
         // Constructor from elements
         snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node, std::string ref_path, 
                      size_t start_position, size_t end_position, size_t depth,
-                     const GenotypeTable& genotypes, 
+                     GenoTable& genotypes, 
                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
                      const allele_by_sample_t& alleles_by_sample,
                      const std::vector<PathTraversal>& walks_by_allele, 
@@ -68,7 +68,7 @@ struct snarl_info_t {
 
         // A genotype table of the counts of each allele for each sample (see feature_table.hpp).
         // Alleles have the same numbering as walks_by_allele and sequences_by_allele
-        const GenotypeTable& genotypes;
+        GenoTable& genotypes;
 
         // This stores all the sample/haplotypes 
         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes;
@@ -167,11 +167,11 @@ class SnarlDataCollection {
                                    std::string chr);
 
         /// Run iteratee for all snarls
-        void for_each_snarl(const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
+        void for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
         /// Starting from an empty SnarlDataCollection, run iteratee for all snarls, but one line at a time from a file instead of loading the whole thing into memory
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
-        void for_each_snarl_in_file(std::istream& instream, const std::function<void(const snarl_info_t& snarl_info)>& iteratee);
+        void for_each_snarl_in_file(std::istream& instream, const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
 
         /// Write the collection of snarls to the given file
@@ -320,7 +320,7 @@ class SnarlDataCollection {
 
         // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
         // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
-        void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(const snarl_info_t& snarl_info)>& iteratee) const;
+        void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
 
 

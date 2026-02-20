@@ -285,19 +285,30 @@ class GenoTable : public FeatureBySampleTable<std::vector<double>> {
 public:
     GenoTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count);
 
+    // clear any mask, covariate etc, for example when wanting to test a new phenotype (eQTL)
+    void clear();
+    
     // accessor function to get value for a row and a column
     double get_value(size_t row, size_t col) const;
+
+    size_t get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const;
     
     // Add 1 to the current value for sample and feature
     void increment_count(const size_t sample_idx, size_t allele_num);
 
     // get the number of samples passing through each allele, as a string (to include in the output file)
     std::string allele_paths_as_str() const;
+    std::string get_genotype_as_string(const std::string& sample) const;
+
+    // How many alleles are there?
+    size_t get_allele_count() const {
+        return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
+    }
 
     // link to a phenotype or covariate table 
-    void link_to_binary_phenotype(BinaryPhenotypeTable& phenotype);
-    void link_to_quantitative_phenotype(QuantitativePhenotypeTable& phenotype);
-    void link_to_covariates(CovariateTable& covariates);
+    void link_to_binary_phenotype(const BinaryPhenotypeTable& phenotype);
+    void link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype);
+    void link_to_covariates(const CovariateTable& covariates);
 
     // remove samples with no alleles supported
     void remove_noncovered_samples();
@@ -328,9 +339,12 @@ public:
     // prepare Eigen vector with the phenotypes
     Eigen::VectorXd make_vectorxd_phenotype();
 
+    void fill_contingency_table(std::vector<size_t>& g0, std::vector<size_t>& g1) const;
+        
     // how many alleles are not masked
     // JEAN maybe more efficient to keep track of this instead of recomputing from the mask each time?
     size_t get_n_active_alleles() const;
+    /// this will include alleles, covariates, and the total allele count if it was added by add_total_allele_count_covariable
     size_t get_n_active_columns() const;
     size_t get_n_active_samples() const;
 
@@ -354,9 +368,9 @@ protected:
     std::vector<bool> row_mask;
 
     // the pointers to the phenotype and covariate tables
-    BinaryPhenotypeTable* b_phenotype;
-    QuantitativePhenotypeTable* q_phenotype;
-    CovariateTable* covariates;
+    const BinaryPhenotypeTable* b_phenotype;
+    const QuantitativePhenotypeTable* q_phenotype;
+    const CovariateTable* covariates;
 
     // a vector with an additional column for the total allele count for each sample
     std::vector<double> total_allele_counts_per_sample;

@@ -19,7 +19,7 @@
 #include "../feature_tables.hpp"
 #include "../path_partitioner.hpp"
 
-//#define USE_CALLGRIND
+// #define USE_CALLGRIND
 
 #ifdef USE_CALLGRIND
     #include <valgrind/callgrind.h>
@@ -349,7 +349,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_TRACE("Parsing header VCF file");
 
         // start reading the VCF to get the sample list
-
         stoat_vcf::VCFParser vcf_parser(resolve_vcf);
         std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
 
@@ -359,7 +358,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         vcf_parser.close_vcf();
 
         // JEAN should we close the file connection to the VCF?
-        
+
         // write the genotypes
         ofstream snarls_out;
         // JEAN would be nice to write in a bgzip file directly, otherwise it might get very big
