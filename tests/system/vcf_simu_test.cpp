@@ -50,35 +50,20 @@ bool run_test(
     const std::string& expected_dir,
     const std::string& data_path,
     const std::string& phenotype,
+    bool from_graph_files = false,
     bool use_covariate = false) {
 
     std::string cmd = stoat_command + " vcf"
-    + " -s " + data_path + "/snarl_info.tsv"
-    + " -v " + data_path + "/merged_output.vcf.gz";
+        + " -v " + data_path + "/merged_output.vcf.gz"
+        + " --output " + output_dir;
 
-    std::string type;
-
-    if (phenotype == "eqtl") {
-        cmd += " -e " + data_path + "/qtl.tsv" 
-        + " --gene-position " + data_path + "/gene_position.tsv";
-
-    } else if (phenotype == "binary") {
-        cmd += " -b " + data_path + "/phenotype.tsv";
-
-    } else if (phenotype == "quantitative") {
-        cmd += " -q " + data_path + "/phenotype.tsv";
-
+    if (from_graph_files) {
+        cmd += " -g " + data_path + "/pg.full.pg"
+            + " -d " + data_path + "/pg.full.dist"
+            + " -r " + data_path + "/pg.chromosome";
     } else {
-        std::cerr << "Phenotype Error !" << std::endl;
-        return false;
+        cmd += " -s " + data_path + "/snarl_info.tsv";
     }
-
-    if (use_covariate) {
-        cmd += " --covariate " + data_path + "/covariate.tsv"
-             + " --covar-name PC1,SEX,PC3";
-    }
-
-    cmd += " --output " + output_dir;
 
     std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -88,61 +73,43 @@ bool run_test(
         return false;
     }
 
-    bool result = compare_output_dirs(output_dir, expected_dir);
-    clean_output_dir(output_dir);
-
-    return result;
-}
-
-bool run_test_full(
-    const std::string& stoat_command,
-    const std::string& output_dir,
-    const std::string& expected_dir,
-    const std::string& data_path,
-    const std::string& phenotype,
-    bool use_covariate = false) {
-
-    std::string cmd = stoat_command + " vcf"
-    + " -g " + data_path + "/pg.full.pg"
-    + " -d " + data_path + "/pg.full.dist"
-    + " -r " + data_path + "/pg.chromosome"
-    + " -v " + data_path + "/merged_output.vcf.gz";
-
-    std::string type;
+    std::string cmd_test = stoat_command + " test"
+        + " -g " + output_dir + "/snarl_genotypes.tsv"
+        + " -p " + data_path + "/phenotype.tsv"
+        + " --output " + output_dir;
 
     if (phenotype == "eqtl") {
-        cmd += " -e " + data_path + "/qtl.tsv" 
-        + " --gene-position " + data_path + "/gene_position.tsv";
-
+        cmd_test += " -m linreg --gene-position " + data_path + "/gene_position.tsv";
     } else if (phenotype == "binary") {
-        cmd += " -b " + data_path + "/phenotype.tsv";
-
+        if (use_covariate) {
+            cmd_test += " -m logreg";
+        } else {
+            cmd_test += " -m chi2";
+        }
     } else if (phenotype == "quantitative") {
-        cmd += " -q " + data_path + "/phenotype.tsv";
-
-    } else {
-        std::cerr << "Phenotype Error !" << std::endl;
-        return false;
+        cmd_test += " -m linreg";
     }
 
     if (use_covariate) {
-        cmd += " --covariate " + data_path + "/covariate.tsv"
+        cmd_test += " --covariate " + data_path + "/covariate.tsv"
              + " --covar-name PC1,SEX,PC3";
     }
 
-    cmd += " --output " + output_dir;
 
-    std::cout << "Command run : \n" << cmd << std::endl;
+    std::cout << "Command run : \n" << cmd_test << std::endl;
 
-    int command_output = std::system(cmd.c_str());
-    if (command_output != 0) {
-        std::cerr << "Command failed: " << cmd << "\n";
+    int command_output_test = std::system(cmd_test.c_str());
+    if (command_output_test != 0) {
+        std::cerr << "Command failed: " << cmd_test << "\n";
         return false;
     }
 
     bool result = compare_output_dirs(output_dir, expected_dir);
 
-    result &= compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
+    if (from_graph_files) {
+        // if we generated the snarl collection, check that it's good
+        result &= compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
+    }
 
     clean_output_dir(output_dir);
 
@@ -181,11 +148,11 @@ TEST_CASE("Binary association tests vcf", "[binary]") {
     const std::string phenotype = "binary";
 
     SECTION("Without covariate") {
-        REQUIRE(run_test_full(stoat_command, output_dir, expected_dir, data_path, phenotype, false));
+        REQUIRE(run_test(stoat_command, output_dir, expected_dir, data_path, phenotype, true, false));
     }
 
     SECTION("With covariate") {
-        REQUIRE(run_test_full(stoat_command, output_dir, expected_dir_covar, data_path, phenotype, true));
+        REQUIRE(run_test(stoat_command, output_dir, expected_dir_covar, data_path, phenotype, true, true));
     }
 }
 TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
@@ -202,26 +169,10 @@ TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
         + " -g " + data_path + "/pg.full.pg"
         + " -d " + data_path + "/pg.full.dist"
         + " -r " + data_path + "/pg.chromosome"
-        + " -v " + data_path + "/merged_output.vcf.gz";
-
-        std::string type;
-
-        if (phenotype == "eqtl") {
-            cmd += " -e " + data_path + "/qtl.tsv" 
-            + " --gene-position " + data_path + "/gene_position.tsv";
-
-        } else if (phenotype == "binary") {
-            cmd += " -b " + data_path + "/phenotype.tsv";
-
-        } else if (phenotype == "quantitative") {
-            cmd += " -q " + data_path + "/phenotype.tsv";
-
-        } 
-
-        cmd += " --output " + output_dir;
-
+        + " -v " + data_path + "/merged_output.vcf.gz"
+        + " --output " + output_dir;
+        
         std::cout << "Command run : \n" << cmd << std::endl;
-
         int command_output = std::system(cmd.c_str());
         if (command_output != 0) {
             std::cerr << "Command failed: " << cmd << "\n";
@@ -244,11 +195,11 @@ TEST_CASE("Quantitative trait tests vcf", "[quantitative]") {
     const std::string phenotype = "quantitative";
 
     SECTION("Without covariate") {
-        REQUIRE(run_test_full(stoat_command, output_dir, expected_dir, data_path, phenotype, false));
+        REQUIRE(run_test(stoat_command, output_dir, expected_dir, data_path, phenotype, true, false));
     }
 
     SECTION("With covariate") {
-        REQUIRE(run_test_full(stoat_command, output_dir, expected_dir_covar, data_path, phenotype, true));
+        REQUIRE(run_test(stoat_command, output_dir, expected_dir_covar, data_path, phenotype, true, true));
     }
 }
 
@@ -261,11 +212,11 @@ TEST_CASE("eQTL tests vcf", "[eqtl]") {
     const std::string phenotype = "eqtl";
 
     SECTION("Without covariate") {
-        REQUIRE(run_test(stoat_command, output_dir, expected_dir, data_path, phenotype, false));
+        REQUIRE(run_test(stoat_command, output_dir, expected_dir, data_path, phenotype, false, false));
     }
 
     SECTION("With covariate") {
-        REQUIRE(run_test(stoat_command, output_dir, expected_dir_covar, data_path, phenotype, true));
+        REQUIRE(run_test(stoat_command, output_dir, expected_dir_covar, data_path, phenotype, false, true));
     }
 }
 
@@ -332,7 +283,6 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
             + " -v " + vcf_filename
-            + " -b " + samples_filename
             + " -o " + output_dir;
         std::cerr << "Run command " << cmd << std::endl;
         int command_output = std::system(cmd.c_str());
@@ -512,7 +462,6 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
             + " -v " + vcf_filename
-            + " -b " + samples_filename
             + " -o " + output_dir
             + " -R";
         std::cerr << "Run command " << cmd << std::endl;
@@ -756,7 +705,6 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
             + " -v " + vcf_filename
-            + " -b " + samples_filename
             + " -o " + output_dir;
         std::cerr << "Run command " << cmd << std::endl;
         int command_output = std::system(cmd.c_str());
@@ -932,7 +880,6 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
             + " -v " + vcf_filename
-            + " -b " + samples_filename
             + " -o " + output_dir
             + " -R";
         std::cerr << "Run command " << cmd << std::endl;
@@ -1172,7 +1119,6 @@ TEST_CASE("Output simple nested chain with many samples", "[detangle]") {
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
             + " -v " + vcf_filename
-            + " -b " + samples_filename
             + " -o " + output_dir;
         std::cerr << "Run command " << cmd << std::endl;
         int command_output = std::system(cmd.c_str());

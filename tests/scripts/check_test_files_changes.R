@@ -39,6 +39,9 @@ df %>% arrange(desc(abs(P.e-P.c))) %>% head
 ##
 ## Investigate the differences
 ##
+library(logistf) ## to test Firth regression as an more robust logistic regression
+library(car)
+library(lmtest)
 
 ## read the genotypes
 gen.df = read.table(paste0('../../', cur.lab, '/snarl_genotypes.tsv'),
@@ -47,7 +50,7 @@ gen.df = gen.df %>% mutate(snarl=paste0(gsub('^.', '', X.START_NODE), '_', gsub(
 gen.df = gen.df[,c('snarl', grep('samp', colnames(gen.df), value=TRUE))]
 
 ## extract genotypes for a particular snarl and convert to a data.frame compatible with regression
-snarl.n = '288_291'
+snarl.n = '650_647'
 reg.df = gen.df %>% filter(snarl==snarl.n) %>% pivot_longer(-snarl) %>%
   filter(value!='.') %>% 
   mutate(sample=gsub('\\..*', '', name), value=paste0('A', value)) %>%
@@ -55,9 +58,10 @@ reg.df = gen.df %>% filter(snarl==snarl.n) %>% pivot_longer(-snarl) %>%
   pivot_wider(names_from=value, values_from=ac, values_fill=0)
 
 ## read phenotype and merge
-pheno = read.table('../test_data/input_data/quantitative/phenotype.tsv',
+pheno = read.table('../test_data/input_data/binary/phenotype.tsv',
                    header=TRUE, as.is=TRUE)
 colnames(pheno) = c('sample', 'pheno')
+
 reg.df = merge(reg.df, pheno)
 
 ## should we add a column with the total allele count?
@@ -66,3 +70,54 @@ reg.df$c = reg.df$A0 + reg.df$A1
 
 ## fit a linear regression model
 summary(lm(pheno ~ A1 + c, data=reg.df))
+
+summary(glm(pheno ~ A1 + c, data=reg.df, family="binomial"))
+
+firth = TRUE
+mod.f = logistf(pheno~A1+c, data=reg.df, firth=firth)
+mod.f2 = logistf(pheno~A1, data=reg.df, firth=firth)
+mod.n = logistf(pheno~1, data=reg.df, firth=firth)
+mod.n2 = logistf(pheno~c, data=reg.df, firth=firth)
+
+pchisq(-2*(mod.n2$loglik[1]-mod.f$loglik[1]), 1, lower.tail=FALSE)
+pchisq(-2*(mod.n$loglik[1]-mod.f$loglik[1]), 2, lower.tail=FALSE)
+pchisq(-2*(mod.n$loglik[1]-mod.f2$loglik[1]), 2, lower.tail=FALSE)
+
+mod.f = glm(pheno ~ A1 + c, data=reg.df, family="binomial")
+mod.f2 = glm(pheno ~ A1, data=reg.df, family="binomial")
+mod.n = glm(pheno ~ 1, data=reg.df, family="binomial")
+mod.n2 = glm(pheno ~ c, data=reg.df, family="binomial")
+
+lrtest(mod.f, mod.n2)
+lrtest(mod.f, mod.n)
+
+lrtest(mod.f2, mod.n)
+
+
+## read the covariates
+covar = read.table('../test_data/input_data/binary/covariate.tsv',
+                   header=TRUE, as.is=TRUE)
+colnames(covar)[1] = 'sample'
+
+reg.df = merge(reg.df, covar)
+
+firth = TRUE
+mod.f = logistf(pheno~A1+c+PC1+SEX+PC3, data=reg.df, firth=firth)
+mod.f2 = logistf(pheno~A1+PC1+SEX+PC3, data=reg.df, firth=firth)
+mod.n = logistf(pheno~PC1+SEX+PC3, data=reg.df, firth=firth)
+mod.n2 = logistf(pheno~c+PC1+SEX+PC3, data=reg.df, firth=firth)
+
+pchisq(-2*(mod.n2$loglik[1]-mod.f$loglik[1]), 1, lower.tail=FALSE)
+pchisq(-2*(mod.n$loglik[1]-mod.f$loglik[1]), 2, lower.tail=FALSE)
+pchisq(-2*(mod.n$loglik[1]-mod.f2$loglik[1]), 2, lower.tail=FALSE)
+
+mod.f = glm(pheno ~ A1 + c+PC1+SEX+PC3, data=reg.df, family="binomial")
+mod.f2 = glm(pheno ~ A1+PC1+SEX+PC3, data=reg.df, family="binomial")
+mod.n = glm(pheno ~ PC1+SEX+PC3, data=reg.df, family="binomial")
+mod.n2 = glm(pheno ~ c+PC1+SEX+PC3, data=reg.df, family="binomial")
+
+lrtest(mod.f, mod.n2)
+lrtest(mod.f, mod.n)
+
+lrtest(mod.f2, mod.n)
+

@@ -1,23 +1,11 @@
 #include "test.hpp"
 
-// #include <iostream>
-// #include <string>
-// #include <unordered_map>
-// #include <unordered_set>
 #include <chrono>
-// #include <cstdlib>
 #include <getopt.h>
-// #include <omp.h>
 
 #include "../log.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
-// #include "../feature_tables.hpp"
-// #include "../matrix.hpp"
-// #include "../gaf_creator.hpp"
-// #include "../post_processing.hpp"
-// #include "../io/register_io.hpp"
-// #include "../path_partitioner.hpp"
 
 // #define USE_CALLGRIND
 
@@ -224,6 +212,7 @@ int main_stoat_test(int argc, char* argv[]) {
     // the object to orchestrate the testing of the snarls
     std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
     std::unordered_set<std::string> empty_chr_list;
+
     if (method == "chi2") {
         // Binary using Chi2/Fisher (no covariate)
         snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, empty_chr_list, maf_threshold,
