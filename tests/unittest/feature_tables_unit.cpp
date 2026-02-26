@@ -418,5 +418,41 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         REQUIRE(Y(3) == -0.3);        
     }
 
+    SECTION("Check that filters work") {
+        //     A0 A1
+        // S1 {1, 0}
+        // S2 {1, 0}
+        // S3 {1, 0}
+        // S4 {0, 1}
+        // S5 {0, 1}
+
+        std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                                   {"S4", 3}, {"S5", 4}};
+        stoat::GenoTable geno(sample_to_index, 3);
+        geno.increment_count(0, 0);
+        geno.increment_count(1, 0);
+        geno.increment_count(2, 0);
+        geno.increment_count(3, 1);
+        geno.increment_count(4, 1);
+
+        stoat::QuantitativePhenotypeTable pheno(sample_to_index);
+        pheno.set_value_for_sample("S1", 11);
+        pheno.set_value_for_sample("S2", 10.1);
+        pheno.set_value_for_sample("S3", 5.2);
+        pheno.set_value_for_sample("S4", -0.3);
+        pheno.set_value_for_sample("S5", 2);
+
+        geno.link_to_quantitative_phenotype(pheno);
+
+        // remove non-variable allele, e.g. absent in both groups
+        geno.remove_noncovered_samples();    
+        geno.remove_constant_predictors();
+        
+        REQUIRE(geno.passes_filters(0, 0));
+        REQUIRE(geno.passes_filters(.2, 5));
+        REQUIRE(!geno.passes_filters(0.5, 0));
+        REQUIRE(!geno.passes_filters(0, 6));
+    }
+
 }
 

@@ -63,7 +63,7 @@ bool filter_binary_table(
 // ------------------------ Logistic regression ------------------------
 
 // compute the sigmoid function, here corresponding to the "predicted" probability associated to a set of observations and the model (Beta x X)
-Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) {
+Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) const {
     Eigen::VectorXd res = Eigen::VectorXd::Constant(t.size(), 0);
     for (size_t idx = 0; idx < t.size(); idx++) {
         res(idx) = 1 / (1 + std::exp(-t(idx)));
@@ -72,44 +72,15 @@ Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) {
 }
     
 // logistic regression using the Maximum Likelihood Estimate with Newton-Raphson method
-test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable& pheno, GenoTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals) {
-    // prepare an output objet and init to NA
-    test_result_t tres;
-    tres.pv = "NA";
-    // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
-    // link the phenotype
-    geno.link_to_binary_phenotype(pheno);
-    geno.link_to_covariates(covariates);
-    // remove non-variable predictors, e.g. alleles absent in all samples
-    geno.remove_noncovered_samples();
-    geno.remove_constant_predictors();    
-    // should we test this snarl?
-    if (!geno.passes_filters(maf, min_individuals)){
-        // JEAN what should we do here? returning NA for now
-        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
-        return tres;
-    }
-    // add the allele path info to include in the output
-    tres.allele_paths = geno.allele_paths_as_str();
+std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
 
-    // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
-    geno.add_total_allele_count_covariable();
-
-    // before performing the regression, try to reduce potential colinearity
-    geno.remove_duplicated_predictors();    
-    geno.remove_one_allele();
-    
-    // prepare the matrices for the regression
-    Eigen::MatrixXd X = geno.make_matrixXd_features();
-    Eigen::VectorXd Y = geno.make_vectorxd_phenotype();
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
     std::cerr << "Y:\n" << Y << "\n";
 #endif
     size_t num_samples = Y.size();
     size_t num_features = X.cols();
-    size_t num_predictors = geno.get_n_active_alleles();
-    size_t num_covariates = geno.get_n_active_columns() - num_predictors;
+    size_t num_covariates = num_features - num_predictors - 1;
 
     // we'll look for the beta coefficients that maximize the likelihood using the Newton-Raphson method
     // it's an iterative approach so we start by initializing the coefficients (to 0)
@@ -227,7 +198,7 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
             stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + std::to_string(max_score) + ", max delta " + std::to_string(max_delta) + ") but not too bad. Continuing.");
         } else {
             // too far from a good fit, return NAs.
-            return tres;
+            return "NA";
         }
     }
 
@@ -358,7 +329,7 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
 
     if (loglik_ratio < 0) {
         stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.");
-        return tres;
+        return "NA";
     }
 
     // compute p-value (double first)
@@ -372,12 +343,12 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
 
         boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
         boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
-        tres.pv = stoat::set_precision_float_50(p_hp);
+        return stoat::set_precision_float_50(p_hp);
     } else {
-        tres.pv = stoat::set_precision(p_value);
+        return stoat::set_precision(p_value);
     }
 
-    return tres;
+    return "NA";
 }
 
 // ------------------------ Chi2 test ------------------------
@@ -508,37 +479,6 @@ std::pair<std::string, std::string> FisherChi2::fisher_chi2(const std::vector<si
     return {fastfisher_p_value, chi2_p_value};
 }
 
-test_result_t FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, GenoTable& geno, const double maf, const size_t min_individuals) {
-    // prepare an output objet and init to NA
-    test_result_t tres;
-    tres.pv = "NA";
-    tres.second_pv = "NA";
-    // JEAN will the genotype table include samples with no alleles? If yes, we'll need to filter them out (assuming no for now)
-    // link to the phenotype
-    geno.link_to_binary_phenotype(pheno);
-    // remove non-variable allele, e.g. absent in both groups
-    geno.remove_noncovered_samples();    
-    geno.remove_constant_predictors();
-    // should we test this snarl?
-    if (!geno.passes_filters(maf, min_individuals)){
-        // JEAN what should we do here? returning NA for now
-        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
-        return tres;
-    }
-    // fill up the contingency table (one vector per group)
-    std::vector<size_t> g0;
-    std::vector<size_t> g1;
-    geno.fill_contingency_table(g0, g1);
-
-    // performs the test
-    auto fc_res = fisher_chi2(g0, g1);
-    tres.pv = fc_res.first;
-    tres.second_pv = fc_res.second;
-    tres.group_paths = stoat::format_group_paths(g0, g1);
-    
-    return (tres);
-}
-
 // ------------------------ Linear regression ------------------------
 
 // Compute Moore-Penrose pseudoinverse using SVD
@@ -571,49 +511,21 @@ Eigen::MatrixXd inverse(const Eigen::MatrixXd &A) {
 }
 
 // Performs linear regression and F-test for predictors only
-test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTable& pheno, GenoTable& geno, const CovariateTable& covariates, const double maf, const size_t min_individuals) {
-    // prepare an output objet and init to NA
-    test_result_t tres;
-    tres.pv = "NA";
-    // link the phenotype
-    geno.link_to_quantitative_phenotype(pheno);
-    geno.link_to_covariates(covariates);
-    // remove non-variable allele, e.g. absent in both groups
-    geno.remove_noncovered_samples();    
-    geno.remove_constant_predictors();
-    // should we test this snarl?
-    if (!geno.passes_filters(maf, min_individuals)){
-        // JEAN what should we do here? returning NA for now
-        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
-        return tres;
-    }
-    // add the allele path info to include in the output
-    tres.allele_paths = geno.allele_paths_as_str();
-
-    // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
-    geno.add_total_allele_count_covariable();
-
-    // before performing the regression, try to reduce potential colinearity
-    geno.remove_duplicated_predictors();
-    geno.remove_one_allele();
-    
-    Eigen::MatrixXd X_full = geno.make_matrixXd_features();
-    Eigen::VectorXd y = geno.make_vectorxd_phenotype();
+std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
 #ifdef DEBUG_STATS_TEST
-    std::cerr << "X:\n" << X_full << "\n";
-    std::cerr << "Y:\n" << y << "\n";
+    std::cerr << "X:\n" << X << "\n";
+    std::cerr << "Y:\n" << Y << "\n";
 #endif
-    size_t num_samples = y.size();
-    size_t num_predictors = geno.get_n_active_alleles();
-    size_t num_covariates = geno.get_n_active_columns() - num_predictors;
+    size_t num_samples = Y.size();
+    size_t num_covariates = X.cols() - num_predictors - 1;
     
     stoat::LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
     
     // fit the full model
     // Solve beta X = Y using QR decomposition
     // colPivHouseholderQr is faster than fullPivHouseholderQr but less stable. could switch to full if we encounter problem (or try the HouseolderQR which is less stable but even faster)
-    Eigen::VectorXd beta = X_full.colPivHouseholderQr().solve(y);
-    Eigen::VectorXd y_hat = X_full * beta;
+    Eigen::VectorXd beta = X.colPivHouseholderQr().solve(Y);
+    Eigen::VectorXd y_hat = X * beta;
 
 #ifdef DEBUG_STATS_TEST
     std::cerr << "beta:\n" << beta << "\n";
@@ -622,26 +534,26 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     // sum of squared errors and total sum of squares total (like using the mean as prediction)
     double SSE_full = 0.0;
     double SST = 0.0;
-    double y_mean = y.sum() / y.size();
+    double y_mean = Y.sum() / Y.size();
     for (int i = 0; i < num_samples; ++i) {
-        SSE_full += (y(i) - y_hat(i)) * (y(i) - y_hat(i));
-        SST += (y[i] - y_mean) * (y[i] - y_mean);
+        SSE_full += (Y(i) - y_hat(i)) * (Y(i) - y_hat(i));
+        SST += (Y(i) - y_mean) * (Y(i) - y_mean);
     }
 
     // reduced model without any predictor of interest (allele counts)
     double SSE_reduced = 0.0;
     if (num_covariates > 0) {
         // keep the intercept and covariates only
-        Eigen::MatrixXd X_reduced = Eigen::MatrixXd::Constant(X_full.rows(), 1 + num_covariates, 1);
-        X_reduced.block(0, 1, X_full.rows(), num_covariates) = X_full.block(0, 1 + num_predictors, X_full.rows(), num_covariates);
+        Eigen::MatrixXd X_reduced = Eigen::MatrixXd::Constant(X.rows(), 1 + num_covariates, 1);
+        X_reduced.block(0, 1, X.rows(), num_covariates) = X.block(0, 1 + num_predictors, X.rows(), num_covariates);
 #ifdef DEBUG_STATS_TEST
         std::cerr << "X reduced:\n" << X_reduced << "\n";
 #endif
 
-        Eigen::VectorXd beta_r = X_reduced.colPivHouseholderQr().solve(y);
+        Eigen::VectorXd beta_r = X_reduced.colPivHouseholderQr().solve(Y);
         Eigen::VectorXd y_hat_r = X_reduced * beta_r;
         for (int i = 0; i < num_samples; ++i) {
-            SSE_reduced += (y(i) - y_hat_r(i)) * (y(i) - y_hat_r(i));
+            SSE_reduced += (Y(i) - y_hat_r(i)) * (Y(i) - y_hat_r(i));
         }
     } else {
         // no covariates: reduced model = intercept only
@@ -652,7 +564,7 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         // rare but can happen. What should we do?
         if (SSE_reduced == 0) {
             stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.");
-            return tres;
+            return "NA";
         } else {
             // not sure what to do here. Adding 0.1% errors to the perfect predictions?
             for (int i = 0; i < num_samples; ++i) {
@@ -674,7 +586,7 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (df_denominator <= 0) {
         stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.");
-        return tres;
+        return "NA";
     } else {
         double numerator = (SSE_reduced - SSE_full) / df_numerator;
         double denominator = SSE_full / df_denominator;
@@ -685,7 +597,7 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         }
         if (F_stat < -0.00001){
             stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
-            return tres;
+            return "NA";
         }
     }
 
@@ -701,13 +613,13 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         boost::math::fisher_f_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_n_hp, df_d_hp);
         boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_hp);
         // convert to string
-        tres.pv = stoat::set_precision_float_50(p_hp);
+        return stoat::set_precision_float_50(p_hp);
     } else {
         // convert to string
-        tres.pv = stoat::set_precision(p_value);
+        return stoat::set_precision(p_value);
     }
     
-    return tres;
+    return "NA";
 }
 
 } // namespace stoat

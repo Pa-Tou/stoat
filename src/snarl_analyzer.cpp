@@ -202,8 +202,35 @@ std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
 }
 
 bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+    // link to the phenotype
+    snarl_data.genotypes.link_to_binary_phenotype(phenotype);
+    // remove non-variable allele, e.g. absent in both groups
+    snarl_data.genotypes.remove_noncovered_samples();
+    snarl_data.genotypes.remove_constant_predictors();
+
+    // prepare an output objet and init to NA
+    test_result_t test_res;
+    test_res.pv = "NA";
+    test_res.second_pv = "NA";
+
+    // should we test this snarl?
+    if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
+        // fill up the contingency table (one vector per group)
+        std::vector<size_t> g0;
+        std::vector<size_t> g1;
+        snarl_data.genotypes.fill_contingency_table(g0, g1);
+        
+        // performs the test
+        auto fc_res = fchi.fisher_chi2(g0, g1);
+        test_res.pv = fc_res.first;
+        test_res.second_pv = fc_res.second;
+        test_res.group_paths = stoat::format_group_paths(g0, g1);
+    } else {
+        // JEAN what should we do here? returning NA for now
+        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
+    }
+    
     // test this snarl using Fisher exact test and chi-squared test
-    test_result_t test_res = fchi.fisher_chi2(phenotype, snarl_data.genotypes, maf_threshold, min_individuals);
     if (test_res.pv == "NA" && test_res.second_pv == "NA") {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
         return true;
@@ -217,7 +244,38 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
 }
     
 bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
-    test_result_t test_res = lr.logistic_regression(phenotype, snarl_data.genotypes, covariate, maf_threshold, min_individuals);
+    // link the phenotype
+    snarl_data.genotypes.link_to_binary_phenotype(phenotype);
+    snarl_data.genotypes.link_to_covariates(covariate);
+
+    // remove non-variable predictors, e.g. alleles absent in all samples
+    snarl_data.genotypes.remove_noncovered_samples();
+    snarl_data.genotypes.remove_constant_predictors();    
+
+    // prepare an output objet and init to NA
+    test_result_t test_res;
+    test_res.pv = "NA";
+    
+    // should we test this snarl?
+    if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
+        // add the allele path info to include in the output
+        test_res.allele_paths = snarl_data.genotypes.allele_paths_as_str();
+    
+        // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
+        snarl_data.genotypes.add_total_allele_count_covariable();
+    
+        // before performing the regression, try to reduce potential colinearity
+        snarl_data.genotypes.remove_duplicated_predictors();    
+        snarl_data.genotypes.remove_one_allele();
+    
+        // prepare the matrices, fit the logistic model and test effect of alleles
+        Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
+        Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
+        test_res.pv = lr.logistic_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
+    } else {
+        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
+    }
+    
     if (test_res.pv == "NA") {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
         return true;
@@ -232,7 +290,39 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
 
 // Quantitative Table Generation
 bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
-    test_result_t test_res = lr.linear_regression(phenotype, snarl_data.genotypes, covariate, maf_threshold, min_individuals);
+
+    // link the phenotype
+    snarl_data.genotypes.link_to_quantitative_phenotype(phenotype);
+    snarl_data.genotypes.link_to_covariates(covariate);
+    // remove non-variable allele, e.g. absent in both groups
+    snarl_data.genotypes.remove_noncovered_samples();    
+    snarl_data.genotypes.remove_constant_predictors();
+
+    // prepare an output objet and init to NA
+    test_result_t test_res;
+    test_res.pv = "NA";
+
+    // should we test this snarl?
+    if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
+        // add the allele path info to include in the output
+        test_res.allele_paths = snarl_data.genotypes.allele_paths_as_str();
+
+        // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
+        snarl_data.genotypes.add_total_allele_count_covariable();
+
+        // before performing the regression, try to reduce potential colinearity
+        snarl_data.genotypes.remove_duplicated_predictors();
+        snarl_data.genotypes.remove_one_allele();
+    
+        Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
+        Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
+
+        test_res.pv = lr.linear_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
+    } else {
+        // JEAN what should we do here? returning NA for now
+        stoat::LOG_DEBUG("Filtered: didn't pass the filters");
+    }
+
     if (test_res.pv == "NA") {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
         return true;
@@ -261,12 +351,44 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
         // test the gene
         // reinitialize the genotype object (remove masks etc set when testing other genes)
         snarl_data.genotypes.clear();
-        test_result_t test_res = lr.linear_regression(gene_phenotype, snarl_data.genotypes, covariate, maf_threshold, min_individuals);
+
+        // link the phenotype
+        snarl_data.genotypes.link_to_quantitative_phenotype(gene_phenotype);
+        snarl_data.genotypes.link_to_covariates(covariate);
+        // remove non-variable allele, e.g. absent in both groups
+        snarl_data.genotypes.remove_noncovered_samples();    
+        snarl_data.genotypes.remove_constant_predictors();
+
+        // prepare an output objet and init to NA
+        test_result_t test_res;
+        test_res.pv = "NA";
+
+        // should we test this snarl?
+        if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
+            // add the allele path info to include in the output
+            test_res.allele_paths = snarl_data.genotypes.allele_paths_as_str();
+
+            // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
+            snarl_data.genotypes.add_total_allele_count_covariable();
+
+            // before performing the regression, try to reduce potential colinearity
+            snarl_data.genotypes.remove_duplicated_predictors();
+            snarl_data.genotypes.remove_one_allele();
+    
+            Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
+            Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
+
+            test_res.pv = lr.linear_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
+        } else {
+            // JEAN what should we do here? returning NA for now
+            stoat::LOG_DEBUG("Filtered: didn't pass the filters");
+        }
+
         if (test_res.pv == "NA") {
             stoat::LOG_DEBUG("filtered: gene " + gene_name + ", " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
             continue;
         }
- 
+  
 #pragma omp critical(outf)
         {
             stoat::write_eqtl(outf, snarl_data, gene_name, test_res);
