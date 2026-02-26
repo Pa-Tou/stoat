@@ -228,14 +228,9 @@ TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
             REQUIRE( false);
         }
 
-        bool result = compare_output_dirs(output_dir, expected_dir);
-
-        result &= compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv");
+        REQUIRE(compare_snarl_collection(output_dir + "/snarl_info.tsv", expected_dir + "/snarl_info.tsv"));
 
         clean_output_dir(output_dir);
-
-        REQUIRE( result);
-
     }
 
 }

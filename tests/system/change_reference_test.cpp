@@ -62,7 +62,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::string rewrite_cmd = "../bin/stoat change-ref";
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -t " + output_dir+"/stoat.assoc.pvalues.tsv"
+            + " -T " + output_dir+"/stoat.assoc.pvalues.tsv"
             + " -r " + refs_file 
             + " > " + output_dir+"/stoat.assoc.pvalues.path0.tsv"; 
 
@@ -101,7 +101,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
         std::string rewrite_cmd = "../bin/stoat change-ref";
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -t " + output_dir+"/stoat.assoc.pvalues.tsv"
+            + " -T " + output_dir+"/stoat.assoc.pvalues.tsv"
             + " -r " + refs_file 
             + " > " + output_dir+"/stoat.assoc.pvalues.path1.tsv"; 
 
