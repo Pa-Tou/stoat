@@ -129,6 +129,36 @@ void SnarlAnalyzer::genotype_test_snarls_by_chr(const std::string output_dir) {
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(total_number_snarl_filtered));
 }
 
+void SnarlAnalyzer::test_snarls_from_file(const std::string snarl_genotype_path, const std::string output_dir) {
+
+    // prepare snarl collection that will stream the snarls and open connection to the file
+    stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0);
+    std::ifstream snarl_stream;
+    snarl_stream.open(snarl_genotype_path);
+
+    std::string output_filename = output_dir + "/stoat.assoc.pvalues.tsv";
+    std::ofstream outf(output_filename, std::ios::binary);
+    
+    // Write the header of the output file
+    write_header(outf);
+
+    // count snarls filterd for the log
+    size_t total_number_snarl_filtered = 0;
+
+    // read each snarl and test it
+    // JEAN parallelize here?
+    size_t number_snarl_filtered = 0;
+    snarl_collection_stream.for_each_snarl_in_file(snarl_stream, [&](snarl_info_t& snarl_info) {
+        bool filtered = test_and_write_snarl(snarl_info, outf);
+        number_snarl_filtered += (filtered ? 1 : 0);
+    });
+
+    snarl_stream.close();
+    outf.close();
+    
+    stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(number_snarl_filtered));
+}
+
 // Decompose path std::string to vectorstoat::edge_t
 std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
     std::vector<stoat::edge_t> edges;

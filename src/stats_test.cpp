@@ -81,8 +81,8 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     geno.link_to_binary_phenotype(pheno);
     geno.link_to_covariates(covariates);
     // remove non-variable predictors, e.g. alleles absent in all samples
+    geno.remove_noncovered_samples();
     geno.remove_constant_predictors();    
-    geno.remove_noncovered_samples();    
     // should we test this snarl?
     if (!geno.passes_filters(maf, min_individuals)){
         // JEAN what should we do here? returning NA for now
@@ -231,12 +231,14 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
         }
     }
 
+
     // compute log-likelihood for current betas
     Eigen::VectorXd Xbeta = X * beta;
     double loglik = 0;
     for (size_t ii = 0; ii < Y.size(); ii++) {
         loglik += Y(ii) * Xbeta(ii) - std::log(1 + std::exp(Xbeta(ii)));
     }
+
     if (penalize) {
         // if we're using the Firth penalized regression, the log-likelihood needs to
         // include the penalty, here half the determinant of the Fisher information matrix (Xt W X)
@@ -246,7 +248,11 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
             W(ii, ii) = Ypred(ii) * (1 - Ypred(ii));
         }
         XtWX = X.transpose() * W * X;
-        loglik += log(XtWX.determinant()) / 2;
+        double XtWX_det = XtWX.determinant();
+        if (XtWX_det <= .00000000001) {
+            XtWX_det = .00000000001;
+        }
+        loglik += log(XtWX_det) / 2;
     }
 
 #ifdef DEBUG_STATS_TEST
@@ -261,72 +267,81 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
     if (X0.cols() > 1) {
         X0.block(0, 1, X.rows(), num_covariates) = X.block(0, 1 + num_predictors, X.rows(), num_covariates);
     }
-    beta = Eigen::VectorXd::Constant(X0.cols(), 0);
+    Eigen::VectorXd beta0 = Eigen::VectorXd::Constant(X0.cols(), 0);
+    Eigen::VectorXd delta0;
+    Eigen::VectorXd score0;
+    Eigen::MatrixXd XtWX0;
+    Eigen::MatrixXd XtWXi0;
 
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X0:\n" << X0 << "\n";
+    std::cerr << "beta:\n" << beta0 << "\n";
 #endif
-    
+
     iter = 0;
     while(iter < max_iterations) {
-        Ypred = sigmoid(X0 * beta);
+        Ypred = sigmoid(X0 * beta0);
         W = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
         for (size_t ii = 0; ii < Y.size(); ii++) {
             W(ii, ii) = Ypred(ii) * (1 - Ypred(ii));
         }
-        XtWX = X0.transpose() * W * X0;
-        XtWXi = inverse(XtWX);
+        XtWX0 = X0.transpose() * W * X0;
+        XtWXi0 = inverse(XtWX0);
         if (penalize) {
             Eigen::MatrixXd sqrtW = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
             for (size_t ii = 0; ii < Y.size(); ii++) {
                 sqrtW(ii, ii) = std::sqrt(Ypred(ii) * (1 - Ypred(ii)));
             }
-            Eigen::MatrixXd hat = (sqrtW * X0) * XtWXi * (X0.transpose() * sqrtW);
+            Eigen::MatrixXd hat = (sqrtW * X0) * XtWXi0 * (X0.transpose() * sqrtW);
             // the penalization uses the diagonal of this hat matrix as penalty
             // update the Ypred used for the score below with that penalty
             for (size_t ii = 0; ii < Y.size(); ii++) {
                 Ypred(ii) = Ypred(ii) - (hat(ii, ii) * (0.5 - Ypred(ii)));
             }
         }
-        score = X0.transpose() * (Y - Ypred);
+        score0 = X0.transpose() * (Y - Ypred);
         // first make sure the update is not too big (usually a bad sign)
-        delta = XtWXi * score;
-        max_delta = delta.cwiseAbs().maxCoeff();
+        delta0 = XtWXi0 * score0;
+        max_delta = delta0.cwiseAbs().maxCoeff();
         if (max_delta > cur_max_step) {
             // reduce the delta so that its largest component is cur_max_step
-            delta = cur_max_step * delta / max_delta;
+            delta0 = cur_max_step * delta0 / max_delta;
         }
         // update the betas
-        beta = beta + delta;
+        beta0 = beta0 + delta0;
         iter++;
 
         // stop if it looks like we've converged
-        if (score.cwiseAbs().maxCoeff() < conv_tol && max_delta < conv_tol) {
+        if (score0.cwiseAbs().maxCoeff() < conv_tol && max_delta < conv_tol) {
             break;
         }
     }
-    
+
 #ifdef DEBUG_STATS_TEST
-    std::cerr << "reduced model beta:\n" << beta << "\n\n";
+    std::cerr << "reduced model beta:\n" << beta0 << "\n\n";
 #endif
     
     // compute the reduced model
     // compute log-likelihood for reduced model
-    Xbeta = X0 * beta;
+    Eigen::VectorXd Xbeta0 = X0 * beta0;
     double loglik0 = 0;
     for (size_t ii = 0; ii < Y.size(); ii++) {
-        loglik0 += Y(ii) * Xbeta(ii) - std::log(1 + std::exp(Xbeta(ii)));
+        loglik0 += Y(ii) * Xbeta0(ii) - std::log(1 + std::exp(Xbeta0(ii)));
     }
     if (penalize) {
         // if we're using the Firth penalized regression, the log-likelihood needs to
         // include the penalty, here half the determinant of the Fisher information matrix (Xt W X)
-        Ypred = sigmoid(Xbeta);
+        Ypred = sigmoid(Xbeta0);
         W = Eigen::MatrixXd::Constant(Y.size(), Y.size(), 0);
         for (size_t ii = 0; ii < Y.size(); ii++) {
             W(ii, ii) = Ypred(ii) * (1 - Ypred(ii));
         }
-        XtWX = X0.transpose() * W * X0;
-        loglik0 += log(XtWX.determinant()) / 2;
+        XtWX0 = X0.transpose() * W * X0;
+        double XtWX_det = XtWX0.determinant();
+        if (XtWX_det <= .00000000001) {
+            XtWX_det = .00000000001;
+        }
+        loglik0 += log(XtWX_det) / 2;
     }
 #ifdef DEBUG_STATS_TEST
     std::cout << "log-likelihood reduced model:" << loglik0 << "\n\n";
@@ -345,7 +360,7 @@ test_result_t LogisticRegression::logistic_regression(const BinaryPhenotypeTable
         stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.");
         return tres;
     }
-    
+
     // compute p-value (double first)
     boost::math::chi_squared_distribution<double> dist(df);
     double p_value = 1.0 - boost::math::cdf(dist, loglik_ratio);
@@ -502,8 +517,8 @@ test_result_t FisherChi2::fisher_chi2(const BinaryPhenotypeTable& pheno, GenoTab
     // link to the phenotype
     geno.link_to_binary_phenotype(pheno);
     // remove non-variable allele, e.g. absent in both groups
-    geno.remove_constant_predictors();    
     geno.remove_noncovered_samples();    
+    geno.remove_constant_predictors();
     // should we test this snarl?
     if (!geno.passes_filters(maf, min_individuals)){
         // JEAN what should we do here? returning NA for now
@@ -564,8 +579,8 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
     geno.link_to_quantitative_phenotype(pheno);
     geno.link_to_covariates(covariates);
     // remove non-variable allele, e.g. absent in both groups
-    geno.remove_constant_predictors();    
     geno.remove_noncovered_samples();    
+    geno.remove_constant_predictors();
     // should we test this snarl?
     if (!geno.passes_filters(maf, min_individuals)){
         // JEAN what should we do here? returning NA for now
@@ -633,6 +648,19 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
         SSE_reduced = SST;
     }
 
+    if (SSE_full == 0) {
+        // rare but can happen. What should we do?
+        if (SSE_reduced == 0) {
+            stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.");
+            return tres;
+        } else {
+            // not sure what to do here. Adding 0.1% errors to the perfect predictions?
+            for (int i = 0; i < num_samples; ++i) {
+                SSE_full += 0.001 * 0.001;
+            }
+        }
+    }
+    
     // time to compute the F-statistic
     double F_stat = 0;
     // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]
@@ -656,11 +684,11 @@ test_result_t LinearRegression::linear_regression(const QuantitativePhenotypeTab
             F_stat = 0;
         }
         if (F_stat < -0.00001){
-            stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
-            F_stat = 0;
+            stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
+            return tres;
         }
     }
-    
+
     // compute a P-value
     boost::math::fisher_f_distribution<double> dist(df_numerator, df_denominator);
     double p_value = 1.0 - boost::math::cdf(dist, F_stat);

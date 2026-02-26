@@ -678,12 +678,14 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
             if (row_mask[samp_i]) {
                 continue;
             }
+            size_t al_c_i = 0;
             for (size_t al_i = 0; al_i < n_alleles; al_i++) {
                 // skip if allele was masked
                 if (col_mask[al_i]) {
                     continue;
                 }
-                allele_paths[al_i] += values_per_sample[samp_i][al_i];
+                allele_paths[al_c_i] += values_per_sample.at(samp_i).at(al_i);
+                al_c_i++;
             }
         }
 
@@ -753,12 +755,12 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
             bool constant = false;
             for (size_t row_ii = 0; row_ii < n_samples; row_ii++) {
                 // skip if already masked
-                if (col_mask[col_ii]) {
+                if (row_mask[row_ii]) {
                     continue;
                 }
                 // if first value to consider, save it
                 if (!constant) {
-                    first_value = get_value(0, col_ii);
+                    first_value = get_value(row_ii, col_ii);
                     constant = true;
                 }
                 if (get_value(row_ii, col_ii) != first_value) {

@@ -39,6 +39,10 @@ struct test_result_t {
     std::string second_pv;
     std::string group_paths;
     std::string allele_paths;
+
+    std::string to_string(){
+        return pv + " " + second_pv + " " + group_paths + " " + allele_paths;
+    };
 };
 
 // ------------------------ Regression class ------------------------

@@ -1280,22 +1280,28 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     return snarl_info;
 }
 
-void SnarlDataCollection::load_snarl_data_collection(std::string& filename) {
+void SnarlDataCollection::load_snarl_data_collection(std::string& filename, const bool header_only) {
     // open file connection
     std::ifstream instream;
     instream.open(filename);
 
     load_snarl_data_collection_header(instream);
-    std::string line;
 
-    // Get the snarls
-    while (std::getline(instream,line)) {
-        all_snarl_data.emplace_back(load_snarl_data_line(line));
+    if (!header_only) {
+        std::string line;
+
+        // Get the snarls
+        while (std::getline(instream,line)) {
+            all_snarl_data.emplace_back(load_snarl_data_line(line));
+        }
     }
-
+    
     instream.close();
 }
 
+std::unordered_map<std::string, size_t> SnarlDataCollection::get_sample_to_index_copy() const {
+    return sample_to_index;
+}
 
 bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1, const SnarlDataCollection& collection2) {
 

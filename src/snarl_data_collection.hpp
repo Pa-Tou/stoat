@@ -179,8 +179,11 @@ class SnarlDataCollection {
         
         /// Load the collection of snarls from the given file
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
-        void load_snarl_data_collection(std::string& filename); 
+        /// also a mode to load just the header used to reuse the same sample_to_index for other objects and then run snarl file line by line (although it means loading the sample_to_index map twice technically)
+        void load_snarl_data_collection(std::string& filename, const bool header_only = false); 
 
+        std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
+    
         size_t size() const {return all_snarl_data.size();}
 
         // Get a reference to the reference path names that are stored in the collection
