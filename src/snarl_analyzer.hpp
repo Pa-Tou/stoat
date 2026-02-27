@@ -104,6 +104,24 @@ protected:
     stoat::FisherChi2 fchi;
 };
 
+class ExactBinarySnarlAnalyzer : public SnarlAnalyzer {
+
+public:
+    
+    ExactBinarySnarlAnalyzer(
+        const stoat::SnarlDataCollection& snarl_collection,
+        const std::unordered_set<std::string>& ref_chrs,
+        const double maf_threshold,
+        const stoat::BinaryPhenotypeTable& phenotype,
+        const size_t min_individuals);
+
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, std::ofstream& outf);
+
+protected:
+    std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
+    
+};
+
 class BinaryCovarSnarlAnalyzer : public SnarlAnalyzer {
 
 public:

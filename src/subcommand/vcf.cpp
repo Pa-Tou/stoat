@@ -1,23 +1,15 @@
 #include "vcf.hpp"
 
-#include <iostream>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
 #include <chrono>
-#include <cstdlib>
 #include <getopt.h>
 #include <omp.h>
 
 #include "../log.hpp"
-#include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
-#include "../matrix.hpp"
-#include "../gaf_creator.hpp"
-#include "../post_processing.hpp"
 #include "../io/register_io.hpp"
-#include "../feature_tables.hpp"
-#include "../path_partitioner.hpp"
+#include "../snarl_data_collection.hpp"
 
 // #define USE_CALLGRIND
 

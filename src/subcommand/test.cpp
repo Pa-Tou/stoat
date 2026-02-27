@@ -19,7 +19,8 @@ namespace stoat_command {
 void print_help_test() {
     std::cerr << "Usage: stoat test [options]\n\n"
               << "  -g, --genotype FILE             Path to the genotype file from stoat graph or stoat vcf\n"
-              << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), logreg (logistic regression)\n"
+              << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), \n"
+              << "                                                            logreg (logistic regression), exact (exact phenotype/genotype match)\n"
               << "  -p, --phenotype FILE            Path to the phenotype file\n"
               << "  -P, --gene-position FILE        Path to the gene position file (activates the eQTL testing mode)\n"
               << "  -w, --max-gene-distance INT     Include snarls up to this distance from the gene when looking for eQTLs [1000000]\n"
@@ -188,7 +189,7 @@ int main_stoat_test(int argc, char* argv[]) {
             stoat::LOG_INFO("Looks like we are looking for eQTLs, switching to a linear regression model");
             method = "linreg";
         }
-    } else if (method == "chi2" || method == "logreg" ) {
+    } else if (method == "chi2" || method == "logreg" || method == "exact") {
         stoat::LOG_TRACE("Parsing binary phenotype file");
         binary_phenotype_table = std::unique_ptr<stoat::BinaryPhenotypeTable>(stoat_vcf::parse_binary_pheno_table(phenotype_path, sample_to_index));
     } else if (method == "linreg") {
@@ -213,7 +214,11 @@ int main_stoat_test(int argc, char* argv[]) {
     std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
     std::unordered_set<std::string> empty_chr_list;
 
-    if (method == "chi2") {
+    if (method == "exact") {
+        // Exact test between binary phenotype and genotypes
+        snarl_analyzer.reset(new stoat_vcf::ExactBinarySnarlAnalyzer(snarl_collection, empty_chr_list, maf_threshold,
+                                                                     *binary_phenotype_table, min_individuals));
+    } else if (method == "chi2") {
         // Binary using Chi2/Fisher (no covariate)
         snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, empty_chr_list, maf_threshold,
                                                                 *binary_phenotype_table, min_individuals));

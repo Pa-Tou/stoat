@@ -45,6 +45,24 @@ namespace stoat_vcf {
         phenotype_type = stoat::BINARY;
     };
 
+    ExactBinarySnarlAnalyzer::ExactBinarySnarlAnalyzer(
+        const SnarlDataCollection &snarl_collection,
+        const std::unordered_set<std::string>& ref_chrs,
+        const double maf_threshold,
+        const stoat::BinaryPhenotypeTable& phenotype,
+        const size_t min_individuals) :
+        SnarlAnalyzer(snarl_collection, ref_chrs, maf_threshold, min_individuals) {
+        phenotype_type = stoat::BINARY;
+        // fill the sample sets
+        for (std::string sample: phenotype.get_sample_names()) {
+            if (phenotype.get_value_for_sample(sample)) {
+                sample_sets.first.emplace(sample);
+            } else {
+                sample_sets.second.emplace(sample);
+            }
+        }
+    };
+
     BinaryCovarSnarlAnalyzer::BinaryCovarSnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
         const std::unordered_set<std::string>& ref_chrs,
@@ -233,6 +251,52 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     // test this snarl using Fisher exact test and chi-squared test
     if (test_res.pv == "NA" && test_res.second_pv == "NA") {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
+        return true;
+    }
+    
+#pragma omp critical(outf)
+    {
+        stoat::write_binary(outf, snarl_data, test_res);
+    }
+    return false;
+}
+    
+bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+    // This test checks if all members of one of the phenotype groups has the same allele that no other sample has.
+
+    // prepare an output objet and init to NA
+    test_result_t test_res;
+    test_res.pv = "NA";
+    test_res.second_pv = "NA";
+    test_res.group_paths = "NA";
+
+    // From the genotype matrix, make sets of sample that have the same genotype and compare to the sets of phenotype groups.
+    std::unordered_map<std::string, std::set<std::string>> genotype_to_sample_set;
+    for (const sample_hap_t& sample_hap : snarl_data.all_sample_haplotypes) {
+        string genotype_str = snarl_data.genotypes.get_genotype_as_string(sample_hap.sample);
+        if (genotype_to_sample_set.count(genotype_str) == 0) {
+            genotype_to_sample_set.emplace(genotype_str, std::set<std::string>());
+        }
+        genotype_to_sample_set.at(genotype_str).emplace(sample_hap.sample);
+    }
+
+    // If we only want to know if there is one allele that matches exactly one of the phenotype groups
+    bool write_output = false;
+    for (const auto& genotype_samples : genotype_to_sample_set) {
+        const std::set<std::string>& partition = genotype_samples.second;
+                
+        // If one partition exactly matches one group we want, then all other partitions combined (including things not in the snarl) will match
+        // the other.
+        // TODO: This could be better but I don't think it's worth working on it yet
+        if (partition == sample_sets.first || partition == sample_sets.second) {
+            // There was an exact match, we'll want to write that one
+            write_output = true;
+            break;
+        }
+    }
+
+    // skip if we don't want to write that one
+    if (!write_output) {
         return true;
     }
     

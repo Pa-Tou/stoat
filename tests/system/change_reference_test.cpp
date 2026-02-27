@@ -49,14 +49,22 @@ TEST_CASE("Output loop with snarl", "[graph]") {
     std::string cmd = "../bin/stoat graph";
     cmd += " -g " + graph_base + ".hg"
         + " -d " + graph_base + ".dist"
-        + " -b " + samples_file
         + " -L"
-        + " -T chi2 -r " + refs_file
+        + " -r " + refs_file
         + " --output " + output_dir;
 
     std::cout << "Command run : \n" << cmd << std::endl;
     int command_output = std::system(cmd.c_str());
 
+    std::string cmd_test = "../bin/stoat test";
+    cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+        + " -p " + samples_file
+        + " -m chi2"
+        + " --output " + output_dir;
+
+    std::cout << "Command run : \n" << cmd_test << std::endl;
+    command_output = std::system(cmd_test.c_str());
+    
     SECTION("Change ref to same path") {
 
         std::string rewrite_cmd = "../bin/stoat change-ref";
@@ -75,7 +83,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
 
         REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.path0.tsv"));
 
-        // Go through each file line by line and check that they are identical except for the coordinates
+        // Go through each file line by line and check that they are identical
 
         ifstream in_original;
         ifstream in_new;
