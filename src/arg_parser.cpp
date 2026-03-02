@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "log.hpp"
 #include "arg_parser.hpp"
 

@@ -6,6 +6,7 @@
 #include <getopt.h>
 #include <omp.h>
 #include <iostream>
+#include <filesystem>
 
 #include <bdsg/overlays/overlay_helper.hpp>
 #include <vg/io/vpkg.hpp>

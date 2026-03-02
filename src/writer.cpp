@@ -1,4 +1,5 @@
 #include "writer.hpp"
+#include "htslib/hts.h"
 
 //#define DEBUG_WRITER
 

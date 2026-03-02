@@ -1,4 +1,7 @@
 #include "gaf_creator.hpp"
+#include "utils.hpp"
+#include <fstream>
+#include <regex>
 
 namespace stoat_vcf {
 
@@ -68,7 +71,7 @@ void writeGafLines(const std::string& sequenceName, const std::string& path,
 }
 
 // Adds a suffix to a filename before the file extension
-string add_suffix_to_filename(const std::string& filename, const std::string& suffix) {
+std::string add_suffix_to_filename(const std::string& filename, const std::string& suffix) {
     size_t dotPos = filename.find_last_of(".");
     if (dotPos == std::string::npos) {
         return filename + suffix;
@@ -79,11 +82,12 @@ string add_suffix_to_filename(const std::string& filename, const std::string& su
 // TODO : change this to use already implemented function in utils.hpp
 std::vector<size_t> decompose_snarl(const std::string& snarl) {
     std::vector<size_t> snarl_node;
-    regex re("\\d+");
-    sregex_iterator begin(snarl.begin(), snarl.end(), re), end;
+    std::regex re("\\d+");
+    std::sregex_iterator begin(snarl.begin(), snarl.end(), re);
+    std::sregex_iterator end = std::sregex_iterator();
     
     for (auto it = begin; it != end; ++it) {
-        snarl_node.push_back(stoi(it->str()));
+        snarl_node.push_back(std::stoi(it->str()));
     }
     return snarl_node;
 }
@@ -100,7 +104,7 @@ int calcul_path_length(handlegraph::PathHandleGraph& graph, const std::string& s
 }
 
 // Writes a formatted line to the output file
-void write_gaf_lines(const std::string& sequence_name, const std::string& path, int length, double prop, ofstream& outfile) {
+void write_gaf_lines(const std::string& sequence_name, const std::string& path, int length, double prop, std::ofstream& outfile) {
     outfile << sequence_name << "\t" << path << "\t" << length << "\t" << prop << "\n";
 }
 
@@ -113,8 +117,8 @@ void gaf_creation(const std::string& input_file,
     std::string output_file_1 = add_suffix_to_filename(output_file, "_0");
     std::string output_file_2 = add_suffix_to_filename(output_file, "_1");
 
-    ifstream infile(input_file);
-    ofstream outfile1(output_file_1), outfile2(output_file_2);
+    std::ifstream infile(input_file);
+    std::ofstream outfile1(output_file_1), outfile2(output_file_2);
     if (!infile || !outfile1 || !outfile2) {
         throw std::runtime_error("Error opening files");
     }
@@ -138,7 +142,7 @@ void gaf_creation(const std::string& input_file,
     getline(infile, line); // Skip header
 
     while (getline(infile, line)) {
-        stringstream ss(line);
+        std::stringstream ss(line);
         std::vector<std::string> columns;
         std::string token;
         while (ss >> token) {
@@ -156,7 +160,7 @@ void gaf_creation(const std::string& input_file,
 
         // Split group paths by comma
         std::vector<std::string> decomposed_group_paths;
-        stringstream gp_ss(group_paths);
+        std::stringstream gp_ss(group_paths);
         while (getline(gp_ss, token, ',')) {
             decomposed_group_paths.push_back(token);
         }
@@ -167,8 +171,8 @@ void gaf_creation(const std::string& input_file,
             if (pos == std::string::npos) continue;
             group_0.push_back(path_group.substr(0, pos));
             group_1.push_back(path_group.substr(pos + 1));
-            sequence_name_g0.push_back(snarl_list + "_G0_" + group_0.back() + "_F" + to_string(pfisher) + "_C" + to_string(pchi));
-            sequence_name_g1.push_back(snarl_list + "_G1_" + group_1.back() + "_F" + to_string(pfisher) + "_C" + to_string(pchi));
+            sequence_name_g0.push_back(snarl_list + "_G0_" + group_0.back() + "_F" + std::to_string(pfisher) + "_C" + std::to_string(pchi));
+            sequence_name_g1.push_back(snarl_list + "_G1_" + group_1.back() + "_F" + std::to_string(pfisher) + "_C" + std::to_string(pchi));
         }
 
         for (size_t idx = 0; idx < list_path.size(); ++idx) {
@@ -184,7 +188,7 @@ void gaf_creation(const std::string& input_file,
 
                 int len1 = calcul_path_length(graph, star_path_1);
                 int len2 = calcul_path_length(graph, star_path_2);
-                auto [prop_g0, prop_g1] = calcul_proportion_signi(stoi(group_0[idx]), stoi(group_1[idx]), pfisher);
+                auto [prop_g0, prop_g1] = calcul_proportion_signi(std::stoi(group_0[idx]), std::stoi(group_1[idx]), pfisher);
 
                 // Write lines for start_path_1
                 write_gaf_lines(sequence_name_g0[idx], star_path_1, len1, prop_g0, outfile1);
@@ -196,7 +200,7 @@ void gaf_creation(const std::string& input_file,
             } else {
                 // Case where "*" is NOT in path
                 int len = calcul_path_length(graph, path);
-                auto [prop_g0, prop_g1] = calcul_proportion_signi(stoi(group_0[idx]), stoi(group_1[idx]), pfisher);
+                auto [prop_g0, prop_g1] = calcul_proportion_signi(std::stoi(group_0[idx]), std::stoi(group_1[idx]), pfisher);
                 write_gaf_lines(sequence_name_g0[idx], path, len, prop_g0, outfile1);
                 write_gaf_lines(sequence_name_g1[idx], path, len, prop_g1, outfile2);
             }

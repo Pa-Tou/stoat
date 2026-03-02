@@ -1,29 +1,16 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <sstream>
 #include <vector>
-#include <cmath>
-#include <iostream>
 #include <string>
-#include <map>
-#include <numeric>
-#include <stdexcept>
-#include <algorithm>
 #include <tuple>
 #include <unordered_set>
-#include <iomanip>
-#include <Eigen/Dense>
-#include <fstream>
 
-#include <bdsg/hash_graph.hpp>
-#include <bdsg/packed_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
 #include <bdsg/overlays/packed_path_position_overlay.hpp>
 #include <handlegraph/handle_graph.hpp>
 #include <handlegraph/path_handle_graph.hpp>
 
-#include <boost/math/distributions/chi_squared.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
 #include "types_and_structs.hpp"
@@ -81,8 +68,6 @@ template<typename T>
 bool is_equal(T a, T b, T e = std::numeric_limits<T>::epsilon()) {
     return std::fabs(a-b) <= e;
 };
-
-enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // namespace stoat
 

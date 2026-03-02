@@ -1,32 +1,10 @@
 #ifndef stats_test_HPP
 #define stats_test_HPP
 
-#include <sstream>
-#include <vector>
-#include <cmath>
-#include <iostream>
 #include <string>
-#include <map>
-#include <numeric>
-#include <stdexcept>
-#include <algorithm>
-#include <unordered_set>
-#include <unordered_map>
-#include <iomanip>
-#include <cassert>
+#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Core>
-
-#include <boost/math/distributions/fisher_f.hpp>
-#include <boost/math/distributions/students_t.hpp>
-#include <boost/math/distributions/chi_squared.hpp>
-#include <boost/multiprecision/cpp_dec_float.hpp>
-#include <boost/math/distributions/normal.hpp>
-
-#include "arg_parser.hpp"
-#include "matrix.hpp"
-#include "utils.hpp"
-#include "feature_tables.hpp"
 
 namespace stoat {
 
@@ -123,15 +101,6 @@ private:
 Eigen::MatrixXd inverse(const Eigen::MatrixXd& A);
 Eigen::MatrixXd pseudo_inverse(const Eigen::MatrixXd& A, double tol = 1e-10);
     
-/// Return true if the snarl should be filtered out, false if it should be kept
-bool filter_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1,
-    const size_t& individuals_included,
-    const size_t& min_individuals,
-    const double& maf);
-    // JEAN remove once stoat graph is migrated to Tables
-
 } // namespace stoat
 
 #endif 

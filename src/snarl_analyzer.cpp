@@ -1,5 +1,4 @@
 #include "snarl_analyzer.hpp"
-#include "matrix.hpp"
 #include "omp.h"
 #include "log.hpp"
 
@@ -252,7 +251,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     // From the genotype matrix, make sets of sample that have the same genotype and compare to the sets of phenotype groups.
     std::unordered_map<std::string, std::set<std::string>> genotype_to_sample_set;
     for (const sample_hap_t& sample_hap : snarl_data.all_sample_haplotypes) {
-        string genotype_str = snarl_data.genotypes.get_genotype_as_string(sample_hap.sample);
+        std::string genotype_str = snarl_data.genotypes.get_genotype_as_string(sample_hap.sample);
         if (genotype_to_sample_set.count(genotype_str) == 0) {
             genotype_to_sample_set.emplace(genotype_str, std::set<std::string>());
         }

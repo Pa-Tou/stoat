@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <getopt.h>
+#include <filesystem>
 
 #include "../log.hpp"
 #include "../snarl_analyzer.hpp"

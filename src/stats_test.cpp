@@ -1,13 +1,17 @@
 #include "stats_test.hpp"
+#include "utils.hpp"
+#include <boost/math/distributions/fisher_f.hpp>
+#include <boost/math/distributions/chi_squared.hpp>
 
-// using boost::multiprecision::cpp_dec_float_50;
-// using boost::math::chi_squared_distribution;
+using boost::multiprecision::cpp_dec_float_50;
+using boost::math::chi_squared_distribution;
 
 // Fisher's Exact Test for 2x2 contingency table
 #ifndef DBL_MAX
 #  define DBL_MAX 1.7976931348623157e308
 #endif
 
+// JEAN what's that for??
 #ifdef __cplusplus
 #  define K_CAST(type, val) (const_cast<type>(val))
 #  define R_CAST(type, val) (reinterpret_cast<type>(val))
@@ -17,48 +21,6 @@
 // #define DEBUG_STATS_TEST
 
 namespace stoat {
-
-// ------------------------ Functions to filter tables ------------------------
-
-// Should we exclude this test? "filter" this table out
-bool filter_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1,
-    const size_t& individuals_included, 
-    const size_t& min_individuals,
-    const double& maf_threshold) {
-
-    // not enough individuals/haplotypes OR number of paths < 2
-    if (individuals_included < min_individuals || g0.size() < 2) {
-        stoat::LOG_DEBUG("Filtered: not enough individuals: " + std::to_string(individuals_included));
-        return true; // Empty or invalid input → filter
-    }
-
-    // prepare the total allele count
-    size_t total_allele_count = 0;
-    for (size_t i = 0 ; i < g0.size() ; i++) {
-        total_allele_count += g0[i];
-        total_allele_count += g1[i];
-    }
-
-    // now check if allele frequencies are above the threshold
-    int alleles_above_threshold = 0;
-    for (size_t i = 0; i < g0.size(); ++i) {
-        size_t allele_count = g0[i] + g1[i];
-        double allele_freq = static_cast<double>(allele_count) / total_allele_count;
-        allele_freq = std::min(allele_freq, 1.0 - allele_freq);
-
-        if (allele_freq > maf_threshold) {
-            ++alleles_above_threshold;
-        }
-    }
-
-    if (alleles_above_threshold < 2) {
-        stoat::LOG_DEBUG("Filtered: less than two alleles with frequency above " + std::to_string(maf_threshold));
-    }
-    // filter if there is not at least two path with frequency > MAF threshold
-    return alleles_above_threshold < 2; 
-}
 
 // ------------------------ Logistic regression ------------------------
 

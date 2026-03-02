@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <catch.hpp>
 #include <bdsg/hash_graph.hpp>
 #include <bdsg/overlays/overlay_helper.hpp>

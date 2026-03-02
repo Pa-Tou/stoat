@@ -142,7 +142,6 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/types_and_structs.cpp
     src/matrix.cpp
     src/log.cpp
-    src/quantitative_table.cpp
     src/stats_test.cpp
     src/fast_fishers_exact_test.cpp
     src/writer.cpp

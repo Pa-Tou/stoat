@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <bdsg/overlays/overlay_helper.hpp>
+#include <bdsg/hash_graph.hpp>
 
 #include "../../src/types_and_structs.hpp"
 #include "../../src/utils.hpp"

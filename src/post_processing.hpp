@@ -3,14 +3,9 @@
 
 #include <vector>
 #include <tuple>
-#include <algorithm>
-#include <iostream>
-#include <cmath>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <cstdio>
-#include "utils.hpp"
+#include "types_and_structs.hpp"
+
 #include <handlegraph/path_position_handle_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
 

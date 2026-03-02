@@ -1,6 +1,8 @@
 #include "snarl_data_collection.hpp"
 #include <fstream>
+#include <filesystem>
 #include "matrix.hpp"
+#include "utils.hpp"
 
 //#define DEBUG_SNARL_DATA_COLLECTION
 

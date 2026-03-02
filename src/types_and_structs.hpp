@@ -250,6 +250,8 @@ struct snarl_info_t {
 
 };
 
+enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
+
 } // end namespace stoat
 
 // Hash functions for node_traversal_t
@@ -285,8 +287,6 @@ namespace std {
             return std::hash<std::string>()(sample_hap.sample + "#" + sample_hap.haplotype);
         }
     };
-
-enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // end namespace std
 

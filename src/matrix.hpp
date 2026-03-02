@@ -5,15 +5,9 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include <cstdint>
-#include <htslib/vcf.h>
-#include <htslib/hts.h>
 
 #include "types_and_structs.hpp"
 #include "vcf_parser.hpp"
-
-// JEAN just to use decompose_path_str_to_edge, remove once the "migration" is over
-// #include "snarl_analyzer.hpp"
 
 using namespace std;
 

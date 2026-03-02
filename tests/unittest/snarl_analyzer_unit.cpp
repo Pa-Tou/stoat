@@ -82,35 +82,3 @@ TEST_CASE("identify_path with EdgeBySampleMatrix") {
     auto result = matrix.get_samples_on_path(path);
     REQUIRE(result == std::vector<size_t>({0, 2}));
 }
-
-TEST_CASE("filter_binary_table logic correctness") {
-    SECTION("Valid case, should NOT be filtered") {
-        std::vector<size_t> g0 = {5, 1};
-        std::vector<size_t> g1 = {1, 5};
-
-        // filter_binary_table g0, g1, totalSum, individuals_included, min_individuals, maf_threshold           
-        bool result = filter_binary_table(g0, g1, 6, 2, 0.1);
-        REQUIRE(result == false);
-    }
-
-    SECTION("Too few individuals, should be filtered") {
-        std::vector<size_t> g0 = {5, 1};
-        std::vector<size_t> g1 = {1, 5};
-        bool result = filter_binary_table(g0, g1, 3, 4, 0.1);
-        REQUIRE(result == true);
-    }
-
-    SECTION("Too few individuals multi-paths, should be filtered") {
-        std::vector<size_t> g0 = {5, 1, 6, 4};
-        std::vector<size_t> g1 = {1, 5, 5, 0};
-        bool result = filter_binary_table(g0, g1, 5, 6, 0.1);
-        REQUIRE(result == true);
-    }
-
-    SECTION("High MAFs, should be filtered") {
-        std::vector<size_t> g0 = {5, 1, 4, 3, 5};
-        std::vector<size_t> g1 = {0, 4, 6, 1, 5};
-        bool result = filter_binary_table(g0, g1, 12, 2, 0.45);
-        REQUIRE(result == true);
-    }
-}

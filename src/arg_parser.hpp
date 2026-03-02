@@ -1,22 +1,9 @@
 #ifndef ARG_PARSER_HPP
 #define ARG_PARSER_HPP
 
-#include <iostream>
-#include <fstream>
 #include <unordered_map>
 #include <unordered_set>
-#include <string>
-#include <sstream>
 #include <vector>
-#include <tuple>
-#include <map>
-#include <algorithm>
-#include <limits>
-#include <filesystem>
-#include <stdexcept>
-#include <regex>
-
-#include <Eigen/Dense>
 #include <htslib/vcf.h>
 #include <htslib/hts.h>
 
