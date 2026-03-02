@@ -19,7 +19,7 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
 
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
@@ -83,7 +83,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -L"
@@ -98,7 +98,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
         
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m chi2"
@@ -173,7 +173,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r path0 -V 4"
@@ -187,7 +187,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m chi2"
@@ -262,7 +262,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -L"
@@ -277,7 +277,7 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m exact"
@@ -347,7 +347,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -L"
@@ -362,7 +362,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m chi2"
@@ -438,7 +438,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -L"
@@ -453,7 +453,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m exact"
@@ -493,7 +493,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -L"
@@ -508,7 +508,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m chi2 -M 0.26"
@@ -570,7 +570,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
             + " -L"
@@ -585,7 +585,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m chi2 -I 4"
@@ -673,7 +673,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -L"
@@ -688,7 +688,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             REQUIRE( false);
         }
         
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
             + " -m chi2"
@@ -748,7 +748,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
 
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
@@ -764,7 +764,7 @@ TEST_CASE("Output loop with snarl", "[graph][bug]") {
             REQUIRE( false);
         }
         
-        std::string cmd_test = "../bin/stoat test";
+        std::string cmd_test = "../bin/stoat test -u";
 
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
@@ -847,7 +847,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
         cmd += " -g " + data_path + graph_base + ".hg"
             + " -d " + data_path + graph_base + ".dist"
             + " -L"
@@ -887,7 +887,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
         cmd += " -g " + data_path + graph_base + ".hg"
             + " -d " + data_path + graph_base + ".dist"
             + " -L"

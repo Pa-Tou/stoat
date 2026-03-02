@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
+#include <string>
 
 #include "compare_files_utils.hpp"
 #include "../../src/snarl_data_collection.hpp"
@@ -12,9 +13,25 @@ bool compare_snarl_collection(std::string test_name, std::string truth_name) {
     SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
     SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
 
-    test_snarl.load_snarl_data_collection(test_name);
-    truth_snarl.load_snarl_data_collection(truth_name);
-
+    if ((test_name.compare(test_name.length()-3, 3, ".gz") == 0)) {
+        stoat::BgzReader test_reader(test_name);
+        test_snarl.load_snarl_data_collection(test_reader);
+        test_reader.close();
+    } else {
+        stoat::StdReader test_reader(test_name);
+        test_snarl.load_snarl_data_collection(test_reader);
+        test_reader.close();
+    }
+    
+    if ((truth_name.compare(truth_name.length()-3, 3, ".gz") == 0)) {
+        stoat::BgzReader truth_reader(truth_name);
+        truth_snarl.load_snarl_data_collection(truth_reader);
+        truth_reader.close();
+    } else {
+        stoat::StdReader truth_reader(truth_name);
+        truth_snarl.load_snarl_data_collection(truth_reader);
+        truth_reader.close();
+    }
     return SnarlDataCollection::is_equivalent(test_snarl, truth_snarl); 
 }
 
@@ -24,7 +41,7 @@ bool run_test_snarl(
     const std::string& expected_dir,
     const std::string& data_path) {
 
-    std::string cmd = stoat_command + " vcf"
+    std::string cmd = stoat_command + " vcf -u"
     + " -g " + data_path + "/pg.full.pg"
     + " -d " + data_path + "/pg.full.dist"
     + " -r " + data_path + "/pg.chromosome"
@@ -53,7 +70,7 @@ bool run_test(
     bool from_graph_files = false,
     bool use_covariate = false) {
 
-    std::string cmd = stoat_command + " vcf"
+    std::string cmd = stoat_command + " vcf -u"
         + " -v " + data_path + "/merged_output.vcf.gz"
         + " --output " + output_dir;
 
@@ -73,7 +90,7 @@ bool run_test(
         return false;
     }
 
-    std::string cmd_test = stoat_command + " test"
+    std::string cmd_test = stoat_command + " test -u"
         + " -g " + output_dir + "/snarl_genotypes.tsv"
         + " -p " + data_path + "/phenotype.tsv"
         + " --output " + output_dir;
@@ -165,7 +182,7 @@ TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
 
     SECTION("Without covariate") {
 
-        std::string cmd = stoat_command + " vcf -R"
+        std::string cmd = stoat_command + " vcf -u -R"
         + " -g " + data_path + "/pg.full.pg"
         + " -d " + data_path + "/pg.full.dist"
         + " -r " + data_path + "/pg.chromosome"
@@ -260,7 +277,7 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
     std::vector<std::string> samples_of_interest = {"S1"};
     std::vector<std::string> other_samples = {"S2"};
 
-    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_filename;
+    std::string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_filename;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
         write_cmd = "echo \"" + sample + "\t1\" >> " + samples_filename;
@@ -278,7 +295,7 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
     SECTION("Test without untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"../bin/stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -295,12 +312,11 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
         // Snarls should now be in output_dir/snarl_info.tsv
         // Genotypes should be in output_dir/snarl_genotypes.tsv
         // Final values should be in output_dir/stoat.assoc.pvalues.tsv
-        ifstream in_genotypes;
-        in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
+        stoat::BgzReader gt_reader(output_dir + "/snarl_genotypes.tsv");
         std::string line; 
         // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
         std::vector<size_t> sample_index(4,0);
-        while (std::getline(in_genotypes, line)) {
+        while (gt_reader.getline(line)) {
             if (line.at(0) == '#') {
                 //skip the header except to get the samples
                 std::string header = "#START_NODE";
@@ -451,13 +467,13 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
             }
         }
 
-        in_genotypes.close();
+        gt_reader.close();
         clean_output_dir(output_dir);
     }
     SECTION("Test untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"../bin/stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -475,13 +491,12 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
         // Snarls should now be in output_dir/snarl_info.tsv
         // Genotypes should be in output_dir/snarl_genotypes.tsv
         // Final values should be in output_dir/stoat.assoc.pvalues.tsv
-        ifstream in_genotypes;
-        in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
+        stoat::BgzReader gt_reader(output_dir + "/snarl_genotypes.tsv");
 
         // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
         std::vector<size_t> sample_index(4,0);
         std::string line;
-        while (std::getline(in_genotypes, line)) {
+        while (gt_reader.getline(line)) {
             if (line.at(0) == '#') {
                 //skip the header except to get the samples
                 std::string header = "#START_NODE";
@@ -631,7 +646,7 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
             }
         }
 
-        in_genotypes.close();
+        gt_reader.close();
         clean_output_dir(output_dir);
     }
 
@@ -682,7 +697,7 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
     std::vector<std::string> samples_of_interest = {"S1"};
     std::vector<std::string> other_samples = {"S2"};
 
-    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_filename;
+    std::string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_filename;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
         write_cmd = "echo \"" + sample + "\t1\" >> " + samples_filename;
@@ -700,7 +715,7 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
     SECTION("Test without untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"../bin/stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -717,12 +732,11 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
         // Snarls should now be in output_dir/snarl_info.tsv
         // Genotypes should be in output_dir/snarl_genotypes.tsv
         // Final values should be in output_dir/stoat.assoc.pvalues.tsv
-        ifstream in_genotypes;
-        in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
+        stoat::BgzReader gt_reader(output_dir + "/snarl_genotypes.tsv");
         std::string line; 
         // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
         std::vector<size_t> sample_index(4,0);
-        while (std::getline(in_genotypes, line)) {
+        while (gt_reader.getline(line)) {
             if (line.at(0) == '#') {
                 //skip the header except to get the samples
                 std::string header = "#START_NODE";
@@ -869,13 +883,13 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
             }
         }
 
-        in_genotypes.close();
+        gt_reader.close();
         clean_output_dir(output_dir);
     }
     SECTION("Test untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"../bin/stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -893,13 +907,12 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
         // Snarls should now be in output_dir/snarl_info.tsv
         // Genotypes should be in output_dir/snarl_genotypes.tsv
         // Final values should be in output_dir/stoat.assoc.pvalues.tsv
-        ifstream in_genotypes;
-        in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
+        stoat::BgzReader gt_reader(output_dir + "/snarl_genotypes.tsv");
         std::string line; 
 
         // Get the index of each sample in the vcf (S1#0, S1#1, S2#0, S2#1)
         std::vector<size_t> sample_index(4,0);
-        while (std::getline(in_genotypes, line)) {
+        while (gt_reader.getline(line)) {
             if (line.at(0) == '#') {
                 //skip the header except to get the samples
                 std::string header = "#START_NODE";
@@ -1050,7 +1063,7 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
             }
         }
 
-        in_genotypes.close();
+        gt_reader.close();
         clean_output_dir(output_dir);
     }
 
@@ -1096,7 +1109,7 @@ TEST_CASE("Output simple nested chain with many samples", "[detangle]") {
     std::vector<std::string> samples_of_interest = {"Sample1", "DSFKSD", "a", "aaaaa", "S9"};
     std::vector<std::string> other_samples = {"samp2", "four", "S6", "234#2132", "S10"};
 
-    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_filename;
+    std::string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_filename;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
         write_cmd = "echo \"" + sample + "\t1\" >> " + samples_filename;
@@ -1114,7 +1127,7 @@ TEST_CASE("Output simple nested chain with many samples", "[detangle]") {
     SECTION("Test without untangling") {
         // Make the snarl file
 
-        std::string cmd = (std::string)"../bin/stoat vcf"
+        std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -r " + reference_filename
@@ -1131,11 +1144,10 @@ TEST_CASE("Output simple nested chain with many samples", "[detangle]") {
         // Snarls should now be in output_dir/snarl_info.tsv
         // Genotypes should be in output_dir/snarl_genotypes.tsv
         // Final values should be in output_dir/stoat.assoc.pvalues.tsv
-        ifstream in_genotypes;
-        in_genotypes.open(output_dir + "/snarl_genotypes.tsv");
+        stoat::BgzReader gt_reader(output_dir + "/snarl_genotypes.tsv");
         std::string line; 
         std::vector<size_t> sample_index(20,0);
-        while (std::getline(in_genotypes, line)) {
+        while (gt_reader.getline(line)) {
             if (line.at(0) == '#') {
                 //skip the header except to get the samples
                 std::string header = "#START_NODE";
@@ -1254,7 +1266,7 @@ TEST_CASE("Output simple nested chain with many samples", "[detangle]") {
             }
         }
 
-        in_genotypes.close();
+        gt_reader.close();
         //clean_output_dir(output_dir);
     }
 

@@ -46,7 +46,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
     ignore = std::system(write_cmd.c_str());
 
     // Run stoat to get 
-    std::string cmd = "../bin/stoat graph";
+    std::string cmd = "../bin/stoat graph -u";
     cmd += " -g " + graph_base + ".hg"
         + " -d " + graph_base + ".dist"
         + " -L"
@@ -56,7 +56,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
     std::cout << "Command run : \n" << cmd << std::endl;
     int command_output = std::system(cmd.c_str());
 
-    std::string cmd_test = "../bin/stoat test";
+    std::string cmd_test = "../bin/stoat test -u";
     cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
         + " -p " + samples_file
         + " -m chi2"

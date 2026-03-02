@@ -4,215 +4,184 @@
 
 namespace stoat {
 
-void write_stoat_output_header(std::ostream& outstream, stoat::phenotype_type_t phenotype_type) {
+Writer::Writer(const std::string output_file_path) : file_path(output_file_path) {};
+
+std::string Writer::get_file_path() const {
+    return file_path;
+}
+
+// Uncompressed writer using a standard output file stream
+StdWriter::StdWriter(const std::string output_file_path) : Writer(output_file_path) {
+    // do nothing if the file path is null
+    if (output_file_path == "") {
+        return;
+    }
+    // open steam
+    file_stream.open(file_path);
+}
+
+bool StdWriter::write(const std::string out_content) {
+    file_stream << out_content;
+    return true;
+}
+
+void StdWriter::close() {
+    // close steam
+    file_stream.close();
+}
+
+// Bgzipped writer using a HTSlib
+BgzWriter::BgzWriter(const std::string output_file_path) : Writer(output_file_path) {
+    // do nothing if the file path is null
+    if (output_file_path == "") {
+        return;
+    }
+    // open hts connections
+    file_p = bgzf_open(output_file_path.c_str(), "w6");
+    if (!file_p) {
+        stoat::LOG_ERROR("Error opening file for writing: " + output_file_path + "\n");
+    }
+}
+
+bool BgzWriter::write(const std::string out_content) {
+    if (bgzf_write(file_p, out_content.c_str(), out_content.size()) < 0) {
+        stoat::LOG_ERROR("Error writing to BGZ output: " + file_path + "\n");
+        bgzf_close(file_p);
+        return 0;
+    }
+    return 1;
+}
+
+void BgzWriter::close() {
+    // close steam
+    bgzf_close(file_p);
+}
+
+// Reader management
+Reader::Reader(const std::string input_file_path): file_path(input_file_path) {}
+
+// Standard reader using infile stream
+StdReader::StdReader(const std::string input_file_path): Reader(input_file_path) {
+    // do nothing if the file path is null
+    if (input_file_path == "") {
+        return;
+    }
+    // open hts connections
+    file_stream.open(input_file_path);
+}
+
+bool StdReader::getline(std::string& line) {
+    if(std::getline(file_stream, line)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void StdReader::close() {
+    // close steam
+    file_stream.close();
+}
+
+// Bgzipped TSV writer using a HTSlib
+BgzReader::BgzReader(const std::string input_file_path): Reader(input_file_path) {
+    // do nothing if the file path is null
+    if (input_file_path == "") {
+        return;
+    }
+    // open hts connections
+    file_p = bgzf_open(input_file_path.c_str(), "r");
+    if (!file_p) {
+        stoat::LOG_ERROR("Error opening file for reading: " + input_file_path + "\n");
+    }
+}
+
+bool BgzReader::getline(std::string& line) {
+    kstring_t tmp_kline = KS_INITIALIZE;
+    int ret = bgzf_getline(file_p, '\n', &tmp_kline);
+    if (ret < 0) {
+        return false;
+    }
+    std::string tmp_line(ks_str(&tmp_kline), ks_len(&tmp_kline));
+    line = tmp_line;
+    return ret >= 0;
+}
+
+void BgzReader::close() {
+    // close steam
+    bgzf_close(file_p);
+}
+
+void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
     if (phenotype_type == stoat::BINARY) {
-        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH" << std::endl;
+        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH\n");
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH" << std::endl;
+        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH\n");
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH" << std::endl;
+        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH\n");
     } else if (phenotype_type == stoat::EQTL) {
-        outstream <<  "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tALLELE_PATHS\tDEPTH" << std::endl;
-    } 
-}
-
-void write_binary_header(std::ostream& outstream) {
-    outstream << "#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH" << std::endl;
-}
-
-void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data,
-                  const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths,
-                  const std::vector<bool>& is_allele_included) {
-
-    //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
-    outstream << snarl_data.ref_path << "\t"
-              << snarl_data.start_position << "\t"
-              << snarl_data.end_position << "\t"
-              << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << (snarl_data.walks_by_allele.empty()
-                    ? "NA" 
-                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true, is_allele_included)) << "\t"
-              << fastfisher_p_value << "\t"
-              << chi2_p_value << "\t"
-              << group_paths << "\t"
-              << snarl_data.depth << std::endl;
-}
-
-void write_binary(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
-    std::vector<bool> empty_vec;
-        
-    //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
-    outstream << snarl_data.ref_path << "\t"
-              << snarl_data.start_position << "\t"
-              << snarl_data.end_position << "\t"
-              << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << (snarl_data.walks_by_allele.empty()
-                  ? "NA"
-                  : stoat::vectorPathToString(snarl_data.walks_by_allele, true, empty_vec)) << "\t"
-              << test_result.pv << "\t"
-              << test_result.second_pv << "\t"
-              << test_result.group_paths << "\t"
-              << snarl_data.depth << std::endl;
-}
-
-void write_binary_covar(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
-
-    outstream << snarl_data.ref_path << "\t"
-              << snarl_data.start_position << "\t"
-              << snarl_data.end_position << "\t"
-              << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << ((snarl_data.walks_by_allele.empty()) 
-                    ? "." 
-                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
-              << test_result.pv << "\t"
-              << test_result.allele_paths << "\t"
-              << snarl_data.depth << std::endl;
-}
-
-void write_quantitative(std::ostream& outstream, const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
-
-    outstream << snarl_data.ref_path << "\t"
-              << snarl_data.start_position << "\t"
-              << snarl_data.end_position << "\t"
-              << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << ((snarl_data.walks_by_allele.empty()) 
-                    ? "." 
-                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
-              << test_result.pv << "\t"
-              << test_result.allele_paths << "\t"
-              << snarl_data.depth << "\n";
-
-}
-
-void write_eqtl(std::ostream& outstream, const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
-
-    outstream << snarl_data.ref_path << "\t"
-              << snarl_data.start_position << "\t"
-              << snarl_data.end_position << "\t"
-              << stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id())) << "\t"
-              << ((snarl_data.walks_by_allele.empty()) 
-                    ? "." 
-                    : stoat::vectorPathToString(snarl_data.walks_by_allele, true)) << "\t"
-              << gene_name << "\t"
-              << test_result.pv << "\t"
-              << test_result.allele_paths << "\t"
-              << snarl_data.depth << std::endl;
-}
-
-void write_vcf(std::ostream& outstream,
-               const std::string& chr,
-               const size_t& pos,
-               const std::string& id,
-               const std::string& ref,
-               const std::string& alt,
-               const std::string& paths,
-               const std::vector<std::vector<char>>& genotype) {
-    
-    // Build genotype string for all samples (e.g., "0/1", "1/1", "0/0")
-    std::ostringstream gt_stream;
-    for (size_t i = 0; i < genotype.size(); ++i) {
-        const auto& sample_gt = genotype[i];
-        // Join alleles with '/'
-        for (size_t j = 0; j < sample_gt.size(); ++j) {
-            gt_stream << sample_gt[j];
-            if (j + 1 < sample_gt.size()) {
-                gt_stream << '/';
-            }
-        }
-        if (i + 1 < genotype.size()) {
-            gt_stream << '\t'; // separate multiple samples by tab
-        }
+        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tALLELE_PATHS\tDEPTH\n");
     }
-
-    outstream << chr << '\t'
-              << pos << '\t'
-              << id << '\t'
-              << ref << '\t'
-              << alt << '\t'
-              << '.' << '\t'             // QUAL placeholder
-              << '.' << '\t'             // FILTER placeholder
-              << "AT=" << paths << '\t'  // INFO field
-              << "GT" << '\t'            // FORMAT field
-              << gt_stream.str()          // Sample genotypes
-              << '\n';
 }
 
-void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph,
-                 const bdsg::SnarlDistanceIndex& distance_index, const snarl_info_t& snarl_info) {
-    
-    // The reference coordinates of this snarl as a string
-    std::string ref_coordinates = snarl_info.ref_path + ":" + std::to_string(snarl_info.start_position) + "-" + std::to_string(snarl_info.end_position);
-
-
-    // Get the coordinate range of every sample going through this snarl
-    // We will match each sample to one of these ranges later
-    handlegraph::handle_t start_node = graph.get_handle(snarl_info.start_node.get_node_id(), snarl_info.start_node.get_is_reverse());
-    handlegraph::handle_t end_node = graph.get_handle(snarl_info.end_node.get_node_id(), snarl_info.end_node.get_is_reverse());
-    std::vector<stoat::path_range_t> path_ranges = get_coordinates_between_nodes(graph, start_node, end_node, false, std::unordered_set<std::string>(), true);
-
-    // We want to find one haplotype for each allele
-    std::vector<stoat::sample_hap_t> representative_haplotypes(snarl_info.walks_by_allele.size());
-    for (size_t hap_i = 0 ; hap_i < snarl_info.alleles_by_sample.alleles.size(); hap_i++) {
-        if (snarl_info.alleles_by_sample.alleles[hap_i] != std::numeric_limits<size_t>::max()) {
-            representative_haplotypes[snarl_info.alleles_by_sample.alleles[hap_i]] = snarl_info.all_sample_haplotypes[hap_i];
-        }
+void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    // snarl information
+    std::string outl = snarl_data.ref_path;
+    outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
+    outl += "\t" + stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id()));
+    // allele counts
+    if (snarl_data.walks_by_allele.empty()) {
+        //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
+        outl += "\tNA";
+    } else {
+        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
+    // pvalues and contingency table
+    outl += "\t" + test_result.pv + "\t" + test_result.second_pv + "\t" + test_result.group_paths + "\t" +
+        std::to_string(snarl_data.depth) + "\n";
+    // write
+    write(outl);
+}
 
-    for (size_t allele_i = 0 ; allele_i < snarl_info.walks_by_allele.size() ; allele_i++) {
-        // For each allele
-
-        // These sequence of the allele
-        std::string sequence = snarl_info.sequences_by_allele[allele_i];
-
-        std::tuple<std::string, size_t, size_t> range_coordinates ("", std::numeric_limits<size_t>::max(), 0);
-
-        // For any one haplotype with this allele, find the coordinates from path_ranges
-        for (const stoat::path_range_t& path_range : path_ranges) {
-
-            handlegraph::path_handle_t path = graph.get_path_handle_of_step(path_range.start);
-
-            if (stoat::sample_hap_t(graph, path) == representative_haplotypes[allele_i]) {
-                // If the sample/haplotype of this path is in the set for this allele
-
-                auto this_range_coordinates = get_name_and_offsets_of_snarl_path_range(graph, path_range);
-                std::get<0>(range_coordinates) = std::get<0>(this_range_coordinates);
-                std::get<1>(range_coordinates) = std::min(std::get<1>(this_range_coordinates), std::get<1>(range_coordinates));
-                std::get<2>(range_coordinates) = std::max(std::get<2>(this_range_coordinates), std::get<2>(range_coordinates));
-            }
-        }
-
-
-
-        //////// Now print the fasta 
-
-        // Print the header
-        outstream << ">snarl:" << stoat::pairToString(std::make_pair(snarl_info.start_node.get_node_id(), snarl_info.end_node.get_node_id())) << "|"
-            << ref_coordinates << "|"
-            << std::get<0>(range_coordinates) << ":"
-            << std::get<1>(range_coordinates) << "-"
-            << std::get<2>(range_coordinates) << std::endl;
-
-
-        // Now print the sequence in 80bp chunks.
-        // Keep a buffer to print 80 bp at a time
-        std::string sequence_buffer = "";
-        while (sequence.size() != 0) { 
-            // Fill in sequence_buffer up to 80 characters
-            size_t to_add = 80 - sequence_buffer.size();
-            sequence_buffer += sequence.substr(0, to_add);
-            sequence.erase(0, to_add);
-            
-            // If the buffer is full, write it and clear it
-            if (sequence_buffer.size() == 80) {
-                outstream << sequence_buffer << std::endl;
-                sequence_buffer.clear();
-            }
-
-        }
-        if (!sequence_buffer.empty()) {
-            outstream << sequence_buffer << std::endl;
-        }
+void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    // snarl information
+    std::string outl = snarl_data.ref_path;
+    outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
+    outl += "\t" + stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id()));
+    // allele counts
+    if (snarl_data.walks_by_allele.empty()) {
+        //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
+        outl += "\tNA";
+    } else {
+        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
+    // pvalues and contingency table
+    outl += "\t" + test_result.pv + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
+    // write
+    write(outl);
+}
+
+void Writer::write_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    // now it's the same output
+    write_quantitative(snarl_data, test_result);
+}
+
+void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
+    // snarl information
+    std::string outl = snarl_data.ref_path;
+    outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
+    outl += "\t" + stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id()));
+    // allele counts
+    if (snarl_data.walks_by_allele.empty()) {
+        //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
+        outl += "\tNA";
+    } else {
+        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
+    }
+    // pvalues and contingency table
+    outl += "\t" + gene_name + "\t" + test_result.pv + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
+    // write
+    write(outl);
 }
 
 }//end namespace

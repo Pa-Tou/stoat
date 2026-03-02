@@ -1,94 +1,13 @@
 #ifndef STOAT_SNARL_DATA_COLLECTION_HPP_INCLUDED
 #define STOAT_SNARL_DATA_COLLECTION_HPP_INCLUDED
 
-#include <iostream>
 #include <handlegraph/path_position_handle_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
-#include <htslib/vcf.h>
-#include <htslib/hts.h>
 #include "types_and_structs.hpp"
-#include "utils.hpp"
-#include "feature_tables.hpp"
-#include "matrix.hpp"
-
-using namespace stoat;
+#include "writer.hpp"
+#include "vcf_parser.hpp"
 
 namespace stoat {
-
-// Used to store the allele assignment for a vector of samples. 
-// This struct only makes sense when it is paired with a vector of samples or sample_hap_t's (as a member of a snarl_info_t). 
-// Each entry in alleles is the identifier of an allele
-// The allele identifiers are also used as indices into other per-allele vectors, so they should start from 0 and go up to the number of alleles-1.
-// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample. This is not enforced though
-struct allele_by_sample_t{
-    size_t allele_count;
-    std::vector<size_t> alleles;
-
-    allele_by_sample_t(size_t count, std::vector<size_t> alleles) :
-        allele_count(count),
-        alleles(std::move(alleles)) {}
-    allele_by_sample_t() :
-        allele_count(0), alleles(0) {}
-};
-
-// This holds snarl information from the distance index and graph: id and reference coordinates of the snarl, genotypes, reference coordinates, walks, 
-// the sequences of the walks and sets samples/haplotypes taking each walk
-// The latter four may be empty if they were not filled in by the SnarlDataCollection
-struct snarl_info_t {
-    public:
-
-        // Constructor from elements
-        snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node, std::string ref_path, 
-                     size_t start_position, size_t end_position, size_t depth,
-                     GenoTable& genotypes, 
-                     const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
-                     const allele_by_sample_t& alleles_by_sample,
-                     const std::vector<PathTraversal>& walks_by_allele, 
-                     const std::vector<std::string>& sequences_by_allele) :
-
-                     start_node(start_node), end_node(end_node), 
-                     ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
-                     genotypes(genotypes), all_sample_haplotypes(all_sample_haplotypes), alleles_by_sample(alleles_by_sample),
-                     walks_by_allele(walks_by_allele), sequences_by_allele(sequences_by_allele)
-                     {};
-
-        // Start and end nodes, both pointing into the snarl
-        stoat::node_traversal_t start_node;
-        stoat::node_traversal_t end_node;
-
-        // The reference chromosome/path
-        std::string ref_path; 
-
-        // Start and end offset along the reference path
-        size_t start_position;
-        size_t end_position;
-
-        // The depth of the snarl in the snarl tree
-        size_t depth;
-
-        // A genotype table of the counts of each allele for each sample (see feature_table.hpp).
-        // Alleles have the same numbering as walks_by_allele and sequences_by_allele
-        GenoTable& genotypes;
-
-        // This stores all the sample/haplotypes 
-        const std::vector<stoat::sample_hap_t>& all_sample_haplotypes;
-
-        // For each haplotype in all_sample_haplotypes, an assignment to an allele number
-        const allele_by_sample_t& alleles_by_sample;
-
-        // For each allele, the walk through the snarl
-        // The walk includes the boundary nodes of the snarl
-        // Nested chains are included in the walk as the boundary node of the chain going into the chain, an empty node 0 going forward, 
-        //    and the other bound of the chain going out.
-        // When a walk leaves the snarl and comes back, it will include the boundary node of the snarl leaving it, an empty node 0 going backward, and the 
-        //    boundary of the snarl going back in
-        const std::vector<PathTraversal>& walks_by_allele;
-
-        // For each allele, what is its sequence?
-        // The sequences don't include sequences of the boundary nodes
-        const std::vector<std::string>& sequences_by_allele;
-
-};
 
 /// A class for holding per-snarl data for a collection of snarls
 /// Publicly, this allow access to snarl_info_t's for holding basic information about the snarl, the genotypes, the walks through the snarl 
@@ -110,8 +29,6 @@ struct snarl_info_t {
 /// Once the collection is filled in with snarls, the data can be accessed by calling for_each_snarl()
 
 class SnarlDataCollection {
-
-
 
     public:
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +68,7 @@ class SnarlDataCollection {
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
                                 const std::unordered_set<std::string>& reference_samples, bool check_distances,
-                                std::string out_filename, bool keep_snarls);
+                                Writer& out_writer, bool keep_snarls);
 
         
         /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through
@@ -171,16 +88,16 @@ class SnarlDataCollection {
 
         /// Starting from an empty SnarlDataCollection, run iteratee for all snarls, but one line at a time from a file instead of loading the whole thing into memory
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
-        void for_each_snarl_in_file(std::istream& instream, const std::function<void(snarl_info_t& snarl_info)>& iteratee);
+        void for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
 
         /// Write the collection of snarls to the given file
-        void write_snarl_data_collection(std::ostream& outstream) const;
+        void write_snarl_data_collection(Writer& out_writer) const;
         
         /// Load the collection of snarls from the given file
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
         /// also a mode to load just the header used to reuse the same sample_to_index for other objects and then run snarl file line by line (although it means loading the sample_to_index map twice technically)
-        void load_snarl_data_collection(std::string& filename, const bool header_only = false); 
+       void load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only = false); 
 
         std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
     
@@ -309,13 +226,13 @@ class SnarlDataCollection {
         //////////////////// Helper functions for writing and loading stuff from files
 
         /// Write just the header of the collection of snarls to the given file
-        void write_snarl_data_collection_header(std::ostream& outstream) const;
+        void write_snarl_data_collection_header(Writer& out_writer) const;
 
         /// Write just one snarl from the collection
-        void write_snarl_data_line(std::ostream& outstream, const snarl_info_internal_t& snarl_info) const;
+        void write_snarl_data_line(Writer& out_writer, const snarl_info_internal_t& snarl_info) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
-        void load_snarl_data_collection_header(std::istream& instream);
+    void load_snarl_data_collection_header(stoat::Reader& in_reader);
 
         /// Given a string representing a line in the file, load one snarl_info_internal_t
         /// This assumes that load_snarl_collection_header() has already been called

@@ -1,4 +1,5 @@
 #include "types_and_structs.hpp"
+#include <cassert>
 
 //#define DEBUG_STRUCTS
 

@@ -6,6 +6,7 @@
 #include "../log.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
+#include "../writer.hpp"
 
 // #define USE_CALLGRIND
 
@@ -31,6 +32,7 @@ void print_help_test() {
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name\n"
+              << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
               << "  -h, --help                      Print this help message\n";
 }
 
@@ -38,6 +40,7 @@ int main_stoat_test(int argc, char* argv[]) {
     
     // Declare variables to hold argument values
     std::string genotype_path, phenotype_path, covariate_path, gene_position_path;
+    bool bgzip_output = true;
 
     // default value for the filter thresholds
     double maf_threshold = 0.05;
@@ -69,11 +72,12 @@ int main_stoat_test(int argc, char* argv[]) {
         {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
+        {"no-bgz", no_argument, 0, 'u'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:t:V:o:h", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:t:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'g': genotype_path = optarg; stoat_vcf::check_file(genotype_path); break;
             case 'm': method = optarg; break;
@@ -115,6 +119,7 @@ int main_stoat_test(int argc, char* argv[]) {
                 break;
                 }
             case 'o': output_dir = optarg; break;
+            case 'u': bgzip_output = false; break;
             case 'h': 
                 print_help_test(); 
                 return EXIT_SUCCESS; 
@@ -143,7 +148,7 @@ int main_stoat_test(int argc, char* argv[]) {
     }
 
     if (!covariate_path.empty() && covar_names.empty()) {
-        stoat::LOG_ERROR("[stoat test] If --covariate path is provided you must add the column name(s), using --covar-name");
+        stoat::LOG_ERROR("[stoat test] If --covariate path is provided you must specify column name(s), using --covar-name");
         print_help_test();
         return EXIT_FAILURE;
     }
@@ -167,15 +172,23 @@ int main_stoat_test(int argc, char* argv[]) {
     // Load the SnarlDataCollection
     stoat::SnarlDataCollection snarl_collection(0, 0, 0);
     // load the header from the snarl collection file. We'll use those sample indices
-    snarl_collection.load_snarl_data_collection(genotype_path, true);
+    std::shared_ptr<stoat::Reader> snarl_reader;
+    if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
+        (genotype_path.compare(genotype_path.length()-4, 4, ".bgz") == 0)) {
+        snarl_reader.reset(new BgzReader(genotype_path));
+    } else {
+        snarl_reader.reset(new StdReader(genotype_path));
+    }
+    snarl_collection.load_snarl_data_collection(*snarl_reader, true);
+    snarl_reader->close();
 
     //////////////////////////////////////// Go through the genotypes and test against the phenotype    
     stoat::LOG_INFO("Starting GWAS analysis...");
     
     //////////////////// Load the phenotypes and covariate matrix from files
-    unique_ptr<stoat::BinaryPhenotypeTable> binary_phenotype_table;
-    unique_ptr<stoat::QuantitativePhenotypeTable> quantitative_phenotype_table;
-    unique_ptr<stoat::GeneExpressionTable> gene_expression_table;
+    std::unique_ptr<stoat::BinaryPhenotypeTable> binary_phenotype_table;
+    std::unique_ptr<stoat::QuantitativePhenotypeTable> quantitative_phenotype_table;
+    std::unique_ptr<stoat::GeneExpressionTable> gene_expression_table;
     // prepare the vector mapping samples to index here because other objects (phenotype or genotypes) will use it
     std::unordered_map<std::string, size_t> sample_to_index = snarl_collection.get_sample_to_index_copy();
     // prepare the vector mapping genes to index
@@ -198,7 +211,7 @@ int main_stoat_test(int argc, char* argv[]) {
     }
 
     // eventually parse the covariate file
-    unique_ptr<stoat::CovariateTable> covariate_table = std::unique_ptr<stoat::CovariateTable>(new CovariateTable({}, {}));
+    std::unique_ptr<stoat::CovariateTable> covariate_table = std::unique_ptr<stoat::CovariateTable>(new CovariateTable({}, {}));
     // prepare the vector mapping covariates to index
     // needs to be defined here to stay in memory because the CovariateTable don't store it
     std::unordered_map<std::string, size_t> covar_to_index;
@@ -235,10 +248,32 @@ int main_stoat_test(int argc, char* argv[]) {
         snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarl_collection, empty_chr_list, *covariate_table, maf_threshold, 
                                                                       *quantitative_phenotype_table, min_individuals));
     }
-    
+
+    // prepare to write the TSV
+    // JEAN if we want to keep track of what was run, we might as well include a header in the file with the full info (all parameters, input files, etc)
+    std::shared_ptr<stoat::Writer> out_writer;
+    if (bgzip_output) {
+        out_writer.reset(new BgzWriter(output_dir + "/stoat.assoc.pvalues.tsv.gz"));
+    } else {
+        out_writer.reset(new StdWriter(output_dir + "/stoat.assoc.pvalues.tsv"));
+    }
+
+    // guess if the input genotype file is bgzipped based on the suffix
+    std::shared_ptr<stoat::Reader> gt_reader;
+    if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
+        (genotype_path.compare(genotype_path.length()-4, 4, ".bgz") == 0)) {
+        gt_reader.reset(new BgzReader(genotype_path));
+    } else {
+        gt_reader.reset(new StdReader(genotype_path));
+    }
+
     // Test each snarl, line by line
-    snarl_analyzer->test_snarls_from_file(genotype_path, output_dir);
-    
+    snarl_analyzer->test_snarls_from_file(*gt_reader, *out_writer);
+
+    // close the file connections
+    gt_reader->close();
+    out_writer->close();
+
     auto end_total_timer = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("stoat test took " + std::to_string(std::chrono::duration<double>(end_total_timer - start_total_timer).count()) + " s");
     return EXIT_SUCCESS;

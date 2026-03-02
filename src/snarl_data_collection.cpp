@@ -1,5 +1,6 @@
 #include "snarl_data_collection.hpp"
 #include <fstream>
+#include "matrix.hpp"
 
 //#define DEBUG_SNARL_DATA_COLLECTION
 
@@ -25,23 +26,23 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                                                                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                              bool sequence_requested,
                                              const std::unordered_set<std::string>& reference_samples, bool check_distances,
-                                             std::string out_filename, bool keep_snarls) {
+                                             stoat::Writer& out_writer, bool keep_snarls) {
 
     // If we are going to write the snarls, then we are going to write all the snarls to a temporary file, then write the header (which isn't done until we find
     // all the snarls since there could be new references added), then copy the temporary file after the header
-    std::ofstream out_snarls;
+    std::string out_filename = out_writer.get_file_path();
     std::string out_temp_filename = out_filename + ".temp";
+    std::shared_ptr<BgzWriter> temp_writer;
 
     if (out_filename != "") {
-
         // Make sure that the temporary file we write doesn't already exist 
         // Since the actual file name is given by the user (probably) it can be overwritten (probably)
         while (std::filesystem::exists(out_temp_filename)) {
             out_temp_filename += "1";
         }
-        out_snarls.open(out_temp_filename); 
+        out_temp_filename += ".gz";
+        temp_writer.reset(new BgzWriter(out_temp_filename));
     }
-
 
     // Make a copy of the samples. Not a reference since it has to be able to be loaded from a file and stored
     all_sample_haplotypes = sample_haplotypes;
@@ -261,7 +262,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 }
                                 if (out_filename != "") {
                                     #pragma omp critical(write_snarl_collection)
-                                    write_snarl_data_line(out_snarls, snarl_data);
+                                    write_snarl_data_line(*temp_writer, snarl_data);
                                 }
 
                                 if (keep_snarls) {
@@ -319,25 +320,20 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     // If we want to write the snarls
     if (out_filename != "") {
 
-        // We need to write the header to the final file then copy the snarls into the same file 
-        out_snarls.close();
+        // We need to write the header to the final file then copy the snarls into the same file
+        temp_writer->close();
 
-        std::ofstream out_final;
-        out_final.open(out_filename);
-        
         //Write the final header
-        write_snarl_data_collection_header(out_final);
+        write_snarl_data_collection_header(out_writer);
 
         // Go through the temporary snarl file and copy it into the new file
-        std::ifstream in_temp;
-        in_temp.open(out_temp_filename);
+        BgzReader in_temp(out_temp_filename);
 
         std::string line;
-        while (std::getline(in_temp, line)) {
-            out_final << line << std::endl;
+        while (in_temp.getline(line)) {
+            out_writer.write(line + "\n");
         }
 
-        out_final.close();
         in_temp.close();
 
         // Remove the temporary file
@@ -492,10 +488,10 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& 
     }
 }
 
-void SnarlDataCollection::for_each_snarl_in_file(std::istream& instream, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
-    load_snarl_data_collection_header(instream);
+void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+    load_snarl_data_collection_header(in_reader);
     std::string line;
-    while (std::getline(instream, line)) {
+    while (in_reader.getline(line)) {
 
         snarl_info_internal_t snarl_info = load_snarl_data_line(line);
         run_iteratee_on_one_snarl(snarl_info, iteratee);
@@ -970,7 +966,8 @@ The 9th item is all of the sequences, comma separated. "." if not present
 The remaining items are the allele number for each sample. "." if the sample is not present in the snarl
 
 */
-void SnarlDataCollection::write_snarl_data_collection_header(std::ostream& outstream) const {
+void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_writer) const {
+    std::stringstream outstream;
     
     // Write the header
     outstream << file_header << std::endl;
@@ -995,10 +992,13 @@ void SnarlDataCollection::write_snarl_data_collection_header(std::ostream& outst
         outstream << "\t" << samp.sample << "#" + samp.haplotype;
     }
     outstream << std::endl;
+
+    out_writer.write(outstream.str());
 }
 
-void SnarlDataCollection::write_snarl_data_line(std::ostream& outstream, const snarl_info_internal_t& snarl_data) const {
-
+void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const snarl_info_internal_t& snarl_data) const {
+    std::stringstream outstream;
+    
     // Start with just the contents of the snarl_info_internal_t
     outstream << snarl_data.start_node.to_string() << "\t"
               << snarl_data.end_node.to_string() << "\t"
@@ -1064,20 +1064,21 @@ void SnarlDataCollection::write_snarl_data_line(std::ostream& outstream, const s
     }
     
     outstream << std::endl;
+    out_writer.write(outstream.str());
 }
 
-void SnarlDataCollection::write_snarl_data_collection(std::ostream& outstream) const {
-    write_snarl_data_collection_header(outstream);
+void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer) const {
+    write_snarl_data_collection_header(out_writer);
 
     // Now write the snarls, one per line
     for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
-        write_snarl_data_line(outstream, snarl_data);
+        write_snarl_data_line(out_writer, snarl_data);
     }
 
     return;
 }
 
-void SnarlDataCollection::load_snarl_data_collection_header(std::istream& instream) {
+void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_reader) {
 
     // Clear anything that has already been filled in, since we want it to match what was in the file
     all_snarl_data.clear();
@@ -1088,17 +1089,15 @@ void SnarlDataCollection::load_snarl_data_collection_header(std::istream& instre
     all_sample_haplotypes.clear(); 
     sample_to_index.clear();
 
-
-    std::string line;
-
     // Read the first line, which must match the header
-    std::getline(instream, line);
+    std::string line;
+    in_reader.getline(line);
     if (line != file_header) {
         throw std::runtime_error("stoat: Snarl data file contains the wrong header: " + line);
     }
 
     // Next should be the allele size limit
-    std::getline(instream, line);
+    in_reader.getline(line);
     {
         std::stringstream linestream(line);
         std::string limit_str;
@@ -1112,9 +1111,8 @@ void SnarlDataCollection::load_snarl_data_collection_header(std::istream& instre
         }
     }
 
-
     // And the snarl child limit
-    std::getline(instream, line);
+    in_reader.getline(line);
     {
         std::stringstream linestream(line);
         std::string limit_str;
@@ -1129,7 +1127,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(std::istream& instre
     }
 
     // And the walk steps limit
-    std::getline(instream, line);
+    in_reader.getline(line);
     {
         std::stringstream linestream(line);
         std::string limit_str;
@@ -1144,23 +1142,22 @@ void SnarlDataCollection::load_snarl_data_collection_header(std::istream& instre
     }
 
     // Next are the references
-    std::getline(instream, line);
+    in_reader.getline(line);
     if (line != "#REFS") {
         throw std::runtime_error("stoat: Snarl file is not formatted correctly");
     }
 
-    std::getline(instream, line);
+    in_reader.getline(line);
     
     // Get the reference path names from the file
     while (line != "#SNARLS") {
         std::string ref (line.begin()+1, line.end());
         reference_names.emplace_back(std::move(ref));
-        std::getline(instream, line);
+        in_reader.getline(line);
     }
 
-
     // The next header is  "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES", plus all of the sample/haplotypes
-    std::getline(instream, line);
+    in_reader.getline(line);
     {
         std::stringstream linestream(line);
         std::string sample_name;
@@ -1280,23 +1277,17 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     return snarl_info;
 }
 
-void SnarlDataCollection::load_snarl_data_collection(std::string& filename, const bool header_only) {
-    // open file connection
-    std::ifstream instream;
-    instream.open(filename);
-
-    load_snarl_data_collection_header(instream);
+void SnarlDataCollection::load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only) {
+    load_snarl_data_collection_header(in_reader);
 
     if (!header_only) {
         std::string line;
 
         // Get the snarls
-        while (std::getline(instream,line)) {
+        while (in_reader.getline(line)) {
             all_snarl_data.emplace_back(load_snarl_data_line(line));
         }
     }
-    
-    instream.close();
 }
 
 std::unordered_map<std::string, size_t> SnarlDataCollection::get_sample_to_index_copy() const {

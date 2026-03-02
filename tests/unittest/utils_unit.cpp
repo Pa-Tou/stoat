@@ -1,4 +1,6 @@
 #include <catch.hpp>
+#include <bdsg/overlays/overlay_helper.hpp>
+
 #include "../../src/types_and_structs.hpp"
 #include "../../src/utils.hpp"
 

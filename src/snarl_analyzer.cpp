@@ -1,10 +1,7 @@
 #include "snarl_analyzer.hpp"
 #include "matrix.hpp"
-#include "quantitative_table.hpp"
-#include "utils.hpp"
-#include "arg_parser.hpp"
-#include "writer.hpp"
 #include "omp.h"
+#include "log.hpp"
 
 using namespace stoat;
 namespace stoat_vcf {
@@ -102,24 +99,14 @@ namespace stoat_vcf {
         phenotype_type = stoat::EQTL;
     };
 
-    void SnarlAnalyzer::write_header(std::ofstream &outf)
-    {
-        stoat::write_stoat_output_header(outf, phenotype_type);
-    }
-
     stoat::phenotype_type_t SnarlAnalyzer::get_phenotype_type() const {
         return (phenotype_type);
     }
 
-void SnarlAnalyzer::genotype_test_snarls_by_chr(const std::string output_dir) {
-    
-    // JEAN if we want to keep track of what was run, we might as well include a header in the file with the full info (all parameters, input files, etc)
-    std::string output_filename = output_dir + "/stoat.assoc.pvalues.tsv";
-    std::ofstream outf(output_filename, std::ios::binary);
-    
+void SnarlAnalyzer::genotype_test_snarls_by_chr(stoat::Writer& out_writer) {
     // Write the header of the output file
-    write_header(outf);
-
+    out_writer.write_stoat_output_header(phenotype_type);
+    
     // for the log
     size_t total_number_snarl_filtered = 0;
 
@@ -132,7 +119,7 @@ void SnarlAnalyzer::genotype_test_snarls_by_chr(const std::string output_dir) {
         // JEAN parallelize here?    
         snarl_collection.for_each_snarl([&](snarl_info_t& snarl_info) {
             if (snarl_info.ref_path == chrom) {
-                bool filtered = test_and_write_snarl(snarl_info, outf);
+                bool filtered = test_and_write_snarl(snarl_info, out_writer);
                 chr_number_snarl_filtered += (filtered ? 1 : 0);
             }
         });
@@ -147,32 +134,24 @@ void SnarlAnalyzer::genotype_test_snarls_by_chr(const std::string output_dir) {
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(total_number_snarl_filtered));
 }
 
-void SnarlAnalyzer::test_snarls_from_file(const std::string snarl_genotype_path, const std::string output_dir) {
+void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) {
 
     // prepare snarl collection that will stream the snarls and open connection to the file
     stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0);
-    std::ifstream snarl_stream;
-    snarl_stream.open(snarl_genotype_path);
 
-    std::string output_filename = output_dir + "/stoat.assoc.pvalues.tsv";
-    std::ofstream outf(output_filename, std::ios::binary);
-    
     // Write the header of the output file
-    write_header(outf);
-
+    out_writer.write_stoat_output_header(phenotype_type);
+ 
     // count snarls filterd for the log
     size_t total_number_snarl_filtered = 0;
 
     // read each snarl and test it
     // JEAN parallelize here?
     size_t number_snarl_filtered = 0;
-    snarl_collection_stream.for_each_snarl_in_file(snarl_stream, [&](snarl_info_t& snarl_info) {
-        bool filtered = test_and_write_snarl(snarl_info, outf);
+    snarl_collection_stream.for_each_snarl_in_file(gt_reader, [&](snarl_info_t& snarl_info) {
+        bool filtered = test_and_write_snarl(snarl_info, out_writer);
         number_snarl_filtered += (filtered ? 1 : 0);
     });
-
-    snarl_stream.close();
-    outf.close();
     
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(number_snarl_filtered));
 }
@@ -219,7 +198,7 @@ std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
     return edges;
 }
 
-bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
     // link to the phenotype
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
     // remove non-variable allele, e.g. absent in both groups
@@ -254,14 +233,14 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
         return true;
     }
     
-#pragma omp critical(outf)
+#pragma omp critical(out_writer)
     {
-        stoat::write_binary(outf, snarl_data, test_res);
+        out_writer.write_binary(snarl_data, test_res);
     }
     return false;
 }
     
-bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+    bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
     // This test checks if all members of one of the phenotype groups has the same allele that no other sample has.
 
     // prepare an output objet and init to NA
@@ -300,14 +279,14 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         return true;
     }
     
-#pragma omp critical(outf)
+#pragma omp critical(out_writer)
     {
-        stoat::write_binary(outf, snarl_data, test_res);
+        out_writer.write_binary(snarl_data, test_res);
     }
     return false;
 }
     
-bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
     // link the phenotype
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
     snarl_data.genotypes.link_to_covariates(covariate);
@@ -345,15 +324,15 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         return true;
     }
  
-#pragma omp critical(outf)
+#pragma omp critical(out_writer)
     {
-        stoat::write_binary_covar(outf, snarl_data, test_res);
+        out_writer.write_binary_covar(snarl_data, test_res);
     }
     return false;
 }
 
 // Quantitative Table Generation
-bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
 
     // link the phenotype
     snarl_data.genotypes.link_to_quantitative_phenotype(phenotype);
@@ -392,14 +371,14 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
         return true;
     }
  
-#pragma omp critical(outf)
+#pragma omp critical(out_writer)
     {
-        stoat::write_quantitative(outf, snarl_data, test_res);
+        out_writer.write_quantitative(snarl_data, test_res);
     }
     return false;
 }
 
-bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, std::ofstream &outf) {
+bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
     // get genes near snarl
     std::vector<std::string> genes_near = gene_expression.get_genes_around_pos(snarl_data.ref_path, snarl_data.start_position, snarl_data.end_position, max_gene_dist);
 
@@ -453,9 +432,9 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
             continue;
         }
   
-#pragma omp critical(outf)
+#pragma omp critical(out_writer)
         {
-            stoat::write_eqtl(outf, snarl_data, gene_name, test_res);
+            out_writer.write_eqtl(snarl_data, gene_name, test_res);
         }
         // at least this test was not filtered
         filtered = false;

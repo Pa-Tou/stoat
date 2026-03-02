@@ -42,6 +42,8 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
     std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph,graph.get_path_handle("path"))});
     std::unordered_map<std::string, size_t> sample_to_index;
 
+    stoat::StdWriter null_writer("");
+    
     SECTION("Make and fill in snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
         TestSnarlDataCollection snarl_collection(1,1,1);
@@ -55,9 +57,9 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, "", true);
-
+            std::unordered_set<std::string>(), false, null_writer, true);
     }
+    
     SECTION("Serialize snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
 
@@ -73,17 +75,18 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
         std::string test_file = "./test.snarl_collection.txt";
 
-        std::ofstream outstream;
-        outstream.open(test_file);
-        snarl_collection.write_snarl_data_collection(outstream);
-        outstream.close();
+        stoat::StdWriter out_writer(test_file);
+        snarl_collection.write_snarl_data_collection(out_writer);
+        out_writer.close();
         
         TestSnarlDataCollection snarl_collection_loaded(1,1,1);
-        snarl_collection_loaded.load_snarl_data_collection(test_file);
+        stoat::StdReader snarl_reader(test_file);
+        snarl_collection_loaded.load_snarl_data_collection(snarl_reader);
+        snarl_reader.close();
 
         REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, snarl_collection_loaded));
 
@@ -570,6 +573,7 @@ TEST_CASE( "Snarl collection nested bubbles",
     sample_to_index.emplace("path1", 1);
     sample_to_index.emplace("path2", 2);
     sample_to_index.emplace("path3", 3);
+    stoat::StdWriter null_writer("");
 
     std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
                                          stoat::sample_hap_t(*path_graph, paths[1]),
@@ -590,7 +594,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
 
         check_collection(snarl_collection, false, false, false, true);
@@ -609,7 +613,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
 
         check_collection(snarl_collection, true, false, true, true);
@@ -630,7 +634,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
 
         check_collection(snarl_collection, true, false, true, true);
@@ -659,7 +663,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -696,20 +700,21 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return alleles;
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
         check_collection(snarl_collection, true, true, true, false);
 
         SECTION("Serialize it") {
 
             std::string test_file = "./test_snarls.txt";
-            std::ofstream outstream;
-            outstream.open(test_file);
-            snarl_collection.write_snarl_data_collection(outstream);
-            outstream.close();
+            stoat::StdWriter out_writer(test_file);
+            snarl_collection.write_snarl_data_collection(out_writer);
+            out_writer.close();
 
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            loaded_snarl_collection.load_snarl_data_collection(test_file);
+            stoat::StdReader snarl_reader(test_file);
+            loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
+            snarl_reader.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false);
 
@@ -723,19 +728,17 @@ TEST_CASE( "Snarl collection nested bubbles",
             // This uses the same code as the normal loader so just test that it doesn't crash and gets the right number of snarls
 
             std::string test_file = "./test_snarls.txt";
-            std::ofstream outstream;
-            outstream.open(test_file);
-            snarl_collection.write_snarl_data_collection(outstream);
-            outstream.close();
+            stoat::StdWriter out_writer(test_file);
+            snarl_collection.write_snarl_data_collection(out_writer);
+            out_writer.close();
 
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            std::ifstream instream;
-            instream.open(test_file);
+            stoat::StdReader snarl_reader(test_file);
             size_t loaded_snarl_count = 0;
-            loaded_snarl_collection.for_each_snarl_in_file(instream, [&](const snarl_info_t& snarl_info) {
+            loaded_snarl_collection.for_each_snarl_in_file(snarl_reader, [&](const snarl_info_t& snarl_info) {
                 ++loaded_snarl_count;
             });
-            instream.close();
+            snarl_reader.close();
 
             REQUIRE(loaded_snarl_count == 4);
 
@@ -748,6 +751,7 @@ TEST_CASE( "Snarl collection nested bubbles",
         SECTION("Write a snarl collection as its being filled in") {
 
             std::string test_file = "./test_snarls.txt";
+            stoat::StdWriter out_writer(test_file);
 
             TestSnarlDataCollection written_snarl_collection(1,10,10);
             written_snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
@@ -763,7 +767,9 @@ TEST_CASE( "Snarl collection nested bubbles",
                     return alleles;
                 },
                 true, // get sequences
-                std::unordered_set<std::string>(), false, test_file, true);
+                std::unordered_set<std::string>(), false, out_writer, true);
+
+            out_writer.close();
 
             check_collection(written_snarl_collection, true, true, true, false);
 
@@ -772,7 +778,9 @@ TEST_CASE( "Snarl collection nested bubbles",
 
             // Load the written snarl collection
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            loaded_snarl_collection.load_snarl_data_collection(test_file);
+            stoat::StdReader snarl_reader(test_file);
+            loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
+            snarl_reader.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false);
 
@@ -785,6 +793,7 @@ TEST_CASE( "Snarl collection nested bubbles",
         SECTION("Write a snarl collection as its being filled in and don't keep the snarls") {
 
             std::string test_file = "./test_snarls.txt";
+            stoat::StdWriter out_writer(test_file);
 
             TestSnarlDataCollection written_snarl_collection(1,10,10);
             written_snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples,
@@ -800,7 +809,10 @@ TEST_CASE( "Snarl collection nested bubbles",
                     return alleles;
                 },
                 true, // get sequences
-                std::unordered_set<std::string>(), false, test_file, false);
+                std::unordered_set<std::string>(), false, out_writer, false);
+
+            out_writer.close();
+            
             // Make sure we properly deleted the temporary file
             REQUIRE(!std::filesystem::exists(test_file+".tmp"));
             size_t snarl_count = 0;
@@ -812,7 +824,9 @@ TEST_CASE( "Snarl collection nested bubbles",
 
             // Load the written snarl collection
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            loaded_snarl_collection.load_snarl_data_collection(test_file);
+            stoat::StdReader snarl_reader(test_file);
+            loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
+            snarl_reader.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false);
 
@@ -990,8 +1004,7 @@ TEST_CASE( "Snarl collection multiple connected components",
     sample_to_index.emplace("path1", 1);
     sample_to_index.emplace("path2", 2);
     sample_to_index.emplace("path3", 3);
-
-    
+    stoat::StdWriter null_writer("");
 
     SECTION("Make and fill in snarl collection with no alleles, then fill in alleles later by chromosome") {
 
@@ -1008,7 +1021,7 @@ TEST_CASE( "Snarl collection multiple connected components",
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
 
 
@@ -1521,7 +1534,8 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
     sample_to_index.emplace("path0", 0);
     sample_to_index.emplace("path1", 1);
     sample_to_index.emplace("path2", 2);
-
+    stoat::StdWriter null_writer("");
+    
     SECTION("Make and fill in snarl collection with no walks, alleles, or sequences") {
 
         TestSnarlDataCollection snarl_collection(1,10,10);
@@ -1535,7 +1549,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
 
         check_collection(snarl_collection, false, false, false, true, true);
@@ -1557,20 +1571,21 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return  get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
         check_collection(snarl_collection, true, true, true, false, true);
 
         SECTION("Serialize it") {
 
             std::string test_file = "./test_snarls.txt";
-            std::ofstream outstream;
-            outstream.open(test_file);
-            snarl_collection.write_snarl_data_collection(outstream);
-            outstream.close();
+            stoat::StdWriter out_writer(test_file);
+            snarl_collection.write_snarl_data_collection(out_writer);
+            out_writer.close();
 
             TestSnarlDataCollection loaded_snarl_collection(1,10,10);
-            loaded_snarl_collection.load_snarl_data_collection(test_file);
+            stoat::StdReader snarl_reader(test_file);
+            loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
+            snarl_reader.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false, true);
 
@@ -1585,6 +1600,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
 
         // Don't get the alleles or anything else
         TestSnarlDataCollection snarl_collection(1,10,10);
+
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             false, // walks before alleles but it doesn't matter here
             true, // get walks  
@@ -1596,7 +1612,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
+            std::unordered_set<std::string>(), false, null_writer, true);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -1800,10 +1816,12 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
     sample_to_index.emplace("path0", 0);
     sample_to_index.emplace("path1", 1);
     sample_to_index.emplace("path2", 2);
+    stoat::StdWriter null_writer("");
 
     SECTION("Make and fill in snarl collection with walks, alleles, and sequences") {
 
         TestSnarlDataCollection snarl_collection(1,10,10);
+        
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
             true, // get walks 
@@ -1815,8 +1833,8 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
                 return get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, "", true);
-
+            std::unordered_set<std::string>(), false, null_writer, true);
+        
         check_collection(snarl_collection);
 
     }

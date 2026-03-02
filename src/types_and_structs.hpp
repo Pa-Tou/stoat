@@ -3,33 +3,14 @@
 
 #include <vector>
 #include <string>
-#include <algorithm>
-#include <numeric>
-#include <unordered_map>
-#include <unordered_set>
-#include <functional>
 #include <iostream>
-#include <array>
-#include <chrono>
-#include <cassert>
-#include <regex>
-#include <cstddef>
-#include <stdexcept>
-#include <utility>
 
-#include <bdsg/hash_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
-#include <bdsg/overlays/path_position_overlays.hpp>
 #include <handlegraph/handle_graph.hpp>
 #include <handlegraph/path_handle_graph.hpp>
-#include <bdsg/overlays/overlay_helper.hpp>
-#include <vg/io/vpkg.hpp>
 
 #include "log.hpp"
-
-#include <filesystem>
-#include "io/register_io.hpp"
-
+#include "feature_tables.hpp"
 
 using handlegraph::step_handle_t;
 using handlegraph::handle_t;
@@ -194,6 +175,80 @@ struct path_range_t {
     handlegraph::step_handle_t end;
 };
 
+// Used to store the allele assignment for a vector of samples. 
+// This struct only makes sense when it is paired with a vector of samples or sample_hap_t's (as a member of a snarl_info_t). 
+// Each entry in alleles is the identifier of an allele
+// The allele identifiers are also used as indices into other per-allele vectors, so they should start from 0 and go up to the number of alleles-1.
+// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample. This is not enforced though
+struct allele_by_sample_t{
+    size_t allele_count;
+    std::vector<size_t> alleles;
+
+    allele_by_sample_t(size_t count, std::vector<size_t> alleles) :
+        allele_count(count),
+        alleles(std::move(alleles)) {}
+    allele_by_sample_t() :
+        allele_count(0), alleles(0) {}
+};
+
+// This holds snarl information from the distance index and graph: id and reference coordinates of the snarl, genotypes, reference coordinates, walks, 
+// the sequences of the walks and sets samples/haplotypes taking each walk
+// The latter four may be empty if they were not filled in by the SnarlDataCollection
+struct snarl_info_t {
+    public:
+
+        // Constructor from elements
+        snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node, std::string ref_path, 
+                     size_t start_position, size_t end_position, size_t depth,
+                     GenoTable& genotypes, 
+                     const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
+                     const allele_by_sample_t& alleles_by_sample,
+                     const std::vector<PathTraversal>& walks_by_allele, 
+                     const std::vector<std::string>& sequences_by_allele) :
+
+                     start_node(start_node), end_node(end_node), 
+                     ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
+                     genotypes(genotypes), all_sample_haplotypes(all_sample_haplotypes), alleles_by_sample(alleles_by_sample),
+                     walks_by_allele(walks_by_allele), sequences_by_allele(sequences_by_allele)
+                     {};
+
+        // Start and end nodes, both pointing into the snarl
+        stoat::node_traversal_t start_node;
+        stoat::node_traversal_t end_node;
+
+        // The reference chromosome/path
+        std::string ref_path; 
+
+        // Start and end offset along the reference path
+        size_t start_position;
+        size_t end_position;
+
+        // The depth of the snarl in the snarl tree
+        size_t depth;
+
+        // A genotype table of the counts of each allele for each sample (see feature_table.hpp).
+        // Alleles have the same numbering as walks_by_allele and sequences_by_allele
+        GenoTable& genotypes;
+
+        // This stores all the sample/haplotypes 
+        const std::vector<stoat::sample_hap_t>& all_sample_haplotypes;
+
+        // For each haplotype in all_sample_haplotypes, an assignment to an allele number
+        const allele_by_sample_t& alleles_by_sample;
+
+        // For each allele, the walk through the snarl
+        // The walk includes the boundary nodes of the snarl
+        // Nested chains are included in the walk as the boundary node of the chain going into the chain, an empty node 0 going forward, 
+        //    and the other bound of the chain going out.
+        // When a walk leaves the snarl and comes back, it will include the boundary node of the snarl leaving it, an empty node 0 going backward, and the 
+        //    boundary of the snarl going back in
+        const std::vector<PathTraversal>& walks_by_allele;
+
+        // For each allele, what is its sequence?
+        // The sequences don't include sequences of the boundary nodes
+        const std::vector<std::string>& sequences_by_allele;
+
+};
 
 } // end namespace stoat
 
@@ -231,6 +286,7 @@ namespace std {
         }
     };
 
+enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // end namespace std
 

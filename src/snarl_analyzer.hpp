@@ -3,29 +3,11 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <fstream>
 #include <unordered_set>
-#include <sstream>
-#include <cstdlib>
-#include <utility>
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <future>
-#include <chrono>
-#include <htslib/vcf.h>
-#include <htslib/hts.h>
 
-#include "arg_parser.hpp"
-#include "stats_test.hpp"
-#include "matrix.hpp"
-#include "types_and_structs.hpp"
-#include "quantitative_table.hpp"
 #include "snarl_data_collection.hpp"
-#include "utils.hpp"
-#include "log.hpp"
-
+#include "writer.hpp"
+#include "feature_tables.hpp"
 
 namespace stoat_vcf {
 
@@ -49,21 +31,17 @@ public:
     /// Go through the SnarlCollection (which contains genotypes) by chromosome
     /// then test the association with phenotype and write the output (also depending on the phenotype type).
     /// This calls write_header() to write the appropriate output header and test_and_write_snarl() for each snarl
-    void genotype_test_snarls_by_chr(const std::string output_dir);
+    void genotype_test_snarls_by_chr(stoat::Writer& out_writer);
 
     // Go throught the snarls in a file and test the association with the phenotype.
     // Avoids loading the entire snarl collection with all the genotypes at once.
-    void test_snarls_from_file(const std::string snarl_genotype_path, const std::string output_dir);
+    void test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer);
     
     // get the type of phenotype, in case we do specific things outside of this class (although we should try to avoid it)
     stoat::phenotype_type_t get_phenotype_type() const;
     
     /// For the given snarl, get the genotypes and test the snarl, then write results to outf
-    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, std::ofstream& outf) = 0;
-
-    /// Write the header of the output tsv file
-    /// This should ideally call a write_header() function from writer.hpp to keep things consistent
-    virtual void write_header(std::ofstream& outf);
+    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) = 0;
     
 //////////////// Private data members
 protected:
@@ -96,7 +74,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, std::ofstream& outf);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
 
 protected:
 
@@ -115,7 +93,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, std::ofstream& outf);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
 
 protected:
     std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
@@ -134,7 +112,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, std::ofstream& outf);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
 
 /////////////////// Private data members
 protected:
@@ -155,7 +133,7 @@ public:
         const stoat::QuantitativePhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, std::ofstream& outf) ;
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) ;
 
 /////////////////// Private data members
 protected:
@@ -176,7 +154,7 @@ public:
                       const size_t max_gene_dist,
                       const size_t min_individuals);
     
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, std::ofstream& outf);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
     
 protected:
 

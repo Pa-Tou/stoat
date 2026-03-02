@@ -5,11 +5,17 @@
 #include <chrono>
 #include <getopt.h>
 #include <omp.h>
+#include <iostream>
+
+#include <bdsg/overlays/overlay_helper.hpp>
+#include <vg/io/vpkg.hpp>
 
 #include "../log.hpp"
 #include "../arg_parser.hpp"
 #include "../io/register_io.hpp"
 #include "../snarl_data_collection.hpp"
+#include "../writer.hpp"
+#include "../vcf_parser.hpp"
 
 // #define USE_CALLGRIND
 
@@ -34,6 +40,7 @@ void print_help_vcf() {
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name\n"
+              << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
               << "  -h, --help                      Print this help message\n";
 }
 
@@ -50,6 +57,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     std::string output_dir = "output";
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
+    bool bgzip_output = true;
 
     // Parse arguments
     int c;
@@ -67,11 +75,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
+        {"no-bgz", no_argument, 0, 'u'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:i:y:l:Rt:V:o:h", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:i:y:l:Rt:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -116,6 +125,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 break;
                 }
             case 'o': output_dir = optarg; break;
+            case 'u':
+                bgzip_output = false;
+                break;
             case 'h': 
                 print_help_vcf(); 
                 return EXIT_SUCCESS; 
@@ -131,17 +143,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     
-    std::filesystem::create_directory(output_dir);
-    std::unordered_set<std::string> ref_chrs = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
-    stoat::Logger::instance().setLogFile(output_dir + "/stoat.vcf.log");
-
-    // add command launch in log file
-    std::stringstream ss;
-    ss << "stoat ";
-    for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
-    stoat::LOG_SILENTE(ss.str());
-
     // Enforce valid argument combinations
+    // Either we just want to prepare the snarls (from pangenome index files) or genotype those snarls from a VCF (or both)
     if (!graph_path.empty() && !dist_path.empty() && vcf_path.empty() && snarl_path.empty()) {
         //stoat::LOG_TRACE("Case Snarl path decomposition");
         // Case 1: Only graph_path + dist_path
@@ -149,15 +152,34 @@ int main_stoat_vcf(int argc, char* argv[]) {
     } else if ( vcf_path.empty() || (snarl_path.empty() && (graph_path.empty() || dist_path.empty())) ) {
         stoat::LOG_ERROR("[stoat vcf] " +
             std::string("Invalid argument combination provided.\n") +
-            "There are only 3 ways to launch stoat vcf:\n" +
-            "Case 1 (snarl path decomposition): graph_path + dist_path\n" +
-            "Case 2 (snarl path decomposition and genotyping): graph_path + dist_path + vcf_path\n" +
-            "Case 3 (snarl genotyping): snarl_path + vcf_path"
+            "There are three ways to launch stoat vcf:\n" +
+            "Case 1 (snarl path decomposition): -g graph_path -d dist_path\n" +
+            "Case 2 (snarl path decomposition and genotyping): -g graph_path -d dist_path -v vcf_path\n" +
+            "Case 3 (snarl genotyping): -s snarl_path -v vcf_path"
         );
         print_help_vcf();
         return EXIT_FAILURE;
     }
 
+    // create output directory and prepare the log file
+    std::filesystem::create_directory(output_dir);
+    if (only_prepare_snarls) {
+        stoat::Logger::instance().setLogFile(output_dir + "/stoat.vcf.snarl_prep.log");
+    } else {
+        stoat::Logger::instance().setLogFile(output_dir + "/stoat.vcf.log");
+    }
+
+    // add command launch in log file
+    std::stringstream ss;
+    ss << "stoat ";
+    for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
+    stoat::LOG_SILENTE(ss.str());
+
+    // read reference chromosome, if provided
+    // if not, we will use reference haplotypes in the pangenome
+    std::unordered_set<std::string> ref_chrs = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
+
+    // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
     // Make an empty SnarlDataCollection, to be filled in or loaded
@@ -169,14 +191,21 @@ int main_stoat_vcf(int argc, char* argv[]) {
     CALLGRIND_START_INSTRUMENTATION;
 #endif
 
-    // we might need the graph at the end also, so this will point to it and ensure it's kept until the end
-    std::unique_ptr<handlegraph::PathHandleGraph> graph;
-        
     //////////////////////////////////////// Enumerate/load the snarls in the pangenome
     if (!snarl_path.empty()){ // if we have already saved the snarls info, load it
         stoat::LOG_INFO("Loading snarls from " + snarl_path);
-        snarl_collection.load_snarl_data_collection(snarl_path);
-
+        std::shared_ptr<stoat::Reader> snarl_reader;
+        if ((snarl_path.compare(snarl_path.length()-3, 3, ".gz") == 0) ||
+            (snarl_path.compare(snarl_path.length()-4, 4, ".bgz") == 0)) {
+            snarl_reader.reset(new BgzReader(snarl_path));
+        } else {
+            snarl_reader.reset(new StdReader(snarl_path));
+        }
+        auto start_load_timer = std::chrono::high_resolution_clock::now();
+        snarl_collection.load_snarl_data_collection(*snarl_reader);
+        auto end_load_timer = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Loading snarl information took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_load_timer).count()) + " s");
+        snarl_reader->close();
     } else { // otherwise, find them from the pangenome graph and snarl tree
         stoat::LOG_INFO("Starting snarl decomposition... ");
         auto start_dec_timer = std::chrono::high_resolution_clock::now();
@@ -188,7 +217,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
         // Load the graph and make it a PathPositionHandleGraph
-        graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
+        std::unique_ptr<handlegraph::PathHandleGraph> graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
         bdsg::PathPositionOverlayHelper overlay_helper;
         bdsg::PathPositionHandleGraph* path_position_graph;
         path_position_graph =  overlay_helper.apply(graph.get());
@@ -204,12 +233,25 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
             }
         }
-        // JEAN maybe here add to find the reference paths from the graph if ref_chrs was empty
+        // JEAN if ref_chrs was empty, maybe here add helpful message on how to find the reference paths from the graph
 
         // The snarl collection requires a sample_haplotypes but we don't want to work on the pangenome's haplotypes here,
         // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
         std::vector<stoat::sample_hap_t> sample_haplotypes;
 
+        // prepare a Writer for the collection
+        std::string snarls_filename = output_dir + "/snarl_info.tsv";
+        if (bgzip_output) {
+            snarls_filename += ".gz";
+        }
+        std::shared_ptr<stoat::Writer> snarl_writer;
+        if ((snarls_filename.compare(snarls_filename.length()-3, 3, ".gz") == 0) ||
+            (snarls_filename.compare(snarls_filename.length()-4, 4, ".bgz") == 0)) {
+            snarl_writer.reset(new BgzWriter(snarls_filename));
+        } else {
+            snarl_writer.reset(new StdWriter(snarls_filename));
+        }
+        
         // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
         snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
             true, //find_alleles_first, doesn't matter in this case
@@ -224,20 +266,18 @@ int main_stoat_vcf(int argc, char* argv[]) {
             false, // sequence_requested 
             ref_chrs, // reference 
             false, //check distances
-            "", // Filename to write the intermediate files
+            *snarl_writer, // Writer object for the snarls
             true // Keep the snarls in the collection?
             ); 
 
-        // Always write the snarls
-        ofstream snarls_out;
-        snarls_out.open(output_dir + "/snarl_info.tsv");
-        snarl_collection.write_snarl_data_collection(snarls_out);
-        snarls_out.close();
+        // done saving the snarls, close the writer
+        snarl_writer->close();
 
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
 
         if (only_prepare_snarls) {
+            // we're done
             return EXIT_SUCCESS;
         }
     }
@@ -258,6 +298,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat_vcf::VCFParser vcf_parser(resolve_vcf);
         std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
 
+        // retrieve genotypes one chromosome at a time
         snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
 
         // We are done reading through the vcf file so close it
@@ -267,13 +308,24 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Retrieving snarl genotypes took " + std::to_string(std::chrono::duration<double>(end_gt_timer - start_gt_timer).count()) + " s");
               
         // write the genotypes
-        ofstream snarls_out;
-        // JEAN would be nice to write in a bgzip file directly, otherwise it might get very big
-        stoat::LOG_INFO("Writing genotypes in " + output_dir + "/snarl_genotypes.tsv");
-        snarls_out.open(output_dir + "/snarl_genotypes.tsv");
+        std::string genotype_path = output_dir + "/snarl_genotypes.tsv";
+        if (bgzip_output) {
+            genotype_path += ".gz";
+        }
+        std::shared_ptr<stoat::Writer> gt_writer;
+        if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
+            (genotype_path.compare(genotype_path.length()-4, 4, ".bgz") == 0)) {
+            gt_writer.reset(new BgzWriter(genotype_path));
+        } else {
+            gt_writer.reset(new StdWriter(genotype_path));
+        }
+        stoat::LOG_INFO("Writing genotypes in " + genotype_path);
         // JEAN would reduce memory to write the collection while genotyping the snarls, one chr at a time, appending to the output file (or in separate chr files).
-        snarl_collection.write_snarl_data_collection(snarls_out);
-        snarls_out.close();
+        auto start_writegt_timer = std::chrono::high_resolution_clock::now();
+        snarl_collection.write_snarl_data_collection(*gt_writer);
+        gt_writer->close();
+        auto end_writegt_timer = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Writing genotypes took " + std::to_string(std::chrono::duration<double>(end_writegt_timer - start_writegt_timer).count()) + " s");
     }
     
     auto end_total_timer = std::chrono::high_resolution_clock::now();

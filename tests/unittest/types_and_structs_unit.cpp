@@ -1,4 +1,6 @@
 #include <catch.hpp>
+#include <vg/io/vpkg.hpp>
+#include "../../src/io/register_io.hpp"
 #include "../../src/types_and_structs.hpp"
 #include "../../src/utils.hpp"
 

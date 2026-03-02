@@ -36,6 +36,7 @@ void print_help_graph() {
         << "output:" << std::endl
         << "  -o, --output DIR                   Output directory name [output]" << std::endl
         << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << std::endl
+        << "  -u, --no-bgzip                     Don't compress the output file with bgzip\n"
         << std::endl
         << "options:" << std::endl
         << "  -t, --threads N                    Number of threads to use" << std::endl
@@ -60,6 +61,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::string reference_path;
     std::vector<std::string> samples;
     std::string output_dir="output";
+    bool bgzip_output = true;
 
     bool find_allele_lengths = false; 
 
@@ -76,12 +78,13 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"output", required_argument, 0, 'o'},
                 {"allele-length", no_argument, 0, 'L'},
                 {"verbose", required_argument, 0, 'V'},
+                {"no-bgz", no_argument, 0, 'u'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:r:V:o:Lh",
+        c = getopt_long(argc, argv, "g:d:l:t:r:V:o:Luh",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -127,6 +130,9 @@ int main_stoat_graph(int argc, char *argv[]) {
             case 'L':
                 find_allele_lengths = true;
                 break;
+            case 'u':
+                bgzip_output = false;
+                break;
             case 'h':
                 print_help_graph();
                 return EXIT_SUCCESS;
@@ -138,6 +144,9 @@ int main_stoat_graph(int argc, char *argv[]) {
     }
 
     std::string snarls_filename = output_dir + "/snarl_genotypes.tsv";
+    if (bgzip_output) {
+        snarls_filename += ".gz";
+    }
 
     //////////////////////////////////////////////////// Check the inputs and outputs and logs
 
@@ -229,6 +238,16 @@ int main_stoat_graph(int argc, char *argv[]) {
     CALLGRIND_START_INSTRUMENTATION;
 #endif
 
+    // prepare a Writer for the collection
+    std::shared_ptr<stoat::Writer> snarl_writer;
+    if ((snarls_filename.compare(snarls_filename.length()-3, 3, ".gz") == 0) ||
+        (snarls_filename.compare(snarls_filename.length()-4, 4, ".bgz") == 0)) {
+        snarl_writer.reset(new BgzWriter(snarls_filename));
+    } else {
+        snarl_writer.reset(new StdWriter(snarls_filename));
+    }
+
+    // Find and write the information (inc. paths and genotypes) for each snarl in the index
     snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
                                         true, // Find the sets of samples in each allele (walk through the snarl) before finding the walks themselves
                                         find_allele_lengths, // find walks (used for sequences or for lengths)
@@ -246,10 +265,13 @@ int main_stoat_graph(int argc, char *argv[]) {
                                         false, // find the sequences, only for fasta format
                                         reference_samples,
                                         distance_index.has_distances(),
-                                        snarls_filename, // Filename to write the snarls to
+                                        *snarl_writer, // Filename to write the snarls to
                                         false // Keep the snarls in the collection?
                                         );
 
+    // we're done writing the snarl info, close Writer
+    snarl_writer->close();
+    
     auto end_2 = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
     stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_2 - start_1).count()) + " s");
