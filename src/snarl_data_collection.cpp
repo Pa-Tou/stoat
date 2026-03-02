@@ -164,7 +164,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                 //This might cause problems because it is a reference but it doesn't get used so I think its fine
                                 // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
-                                GenoTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+                                GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
                                 
 
                                 // Make the snarl_info_t passed to the sample set/walk finders. They don't need to have all the information yet
@@ -359,7 +359,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
         
         //This might cause problems because it is a reference but it doesn't get used so I think its fine
         // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
-        GenoTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+        GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
 
         // Make the snarl_info_t from the information we have
         std::vector<PathTraversal> empty_walks (0); 
@@ -504,7 +504,7 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
 
 
     // GenotypeTable constructor takes a map from sample to index, and the number of alleles
-    GenoTable genotypes(sample_to_index,
+    GenotypeTable genotypes(sample_to_index,
                         snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node).allele_count : 0);
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << (snarl_to_alleles_by_sample.count(internal_snarl_info.start_node) ? snarl_to_alleles_by_sample.at(internal_snarl_info.start_node).allele_count : 0) << " alleles" << std::endl; 

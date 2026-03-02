@@ -38,26 +38,6 @@ CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const s
     }
 }
     
-
-// Constructor for a genotype table fills everything in with a default value of 0 for the counts
-GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
-    FeatureBySampleTable<std::vector<size_t>>::FeatureBySampleTable(sample_to_index) {
-
-    this->values_per_sample.reserve(this->sample_to_index.size());
-    for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
-        this->values_per_sample[i] = std::vector<size_t>(allele_count, 0);
-    }
-}
-
-void GenotypeTable::print_self() const {
-    const auto samples = get_sample_names();
-    std::cerr << " Allele count: " << get_allele_count() << std::endl;
-    std::cerr << "sample\tgenotype" << std::endl;
-    for (const auto& sample : samples) {
-        std::cerr << sample << "\t" << get_genotype_as_string(sample) << std::endl;;
-    }
-}
-
 // Getter for FeatureBySampleTable
 template<class ValueType>
 ValueType FeatureBySampleTable<ValueType>::get_value_for_sample(const std::string& sample) const {
@@ -131,59 +111,6 @@ size_t CategoricalFeatureBySampleTable<ValueType>::get_feature_number() const {
 }
 
     
-void GenotypeTable::increment_count(const std::string& sample, size_t allele_num) {
-    #ifdef DEBUG_TABLES
-    assert(this->sample_to_index.count(sample));
-    assert(this->sample_to_index.at(sample) < this->values_per_sample.size());
-    assert(allele_num < this->values_per_sample.at(this->sample_to_index.at(sample)).size());
-    #endif
-    this->values_per_sample.at(this->sample_to_index.at(sample)).at(allele_num)++;
-}
-size_t GenotypeTable::get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const {
-    return this->values_per_sample.at(this->sample_to_index.at(sample)).at(allele_num);
-}
-
-size_t GenotypeTable::get_total_count_for_sample(const std::string& sample) const {
-    size_t total_count = 0;
-    for (size_t allele_count: this->values_per_sample[this->sample_to_index.at(sample)]) {
-        total_count += allele_count;
-    }
-    return total_count;
-}
-
-std::string GenotypeTable::get_genotype_as_string(const std::string& sample) const {
-    std::string genotype = "";
-    for (size_t i = 0 ; i < this->values_per_sample.at(this->sample_to_index.at(sample)).size() ; i++) {
-        size_t count = this->values_per_sample.at(this->sample_to_index.at(sample)).at(i);
-        if (i != 0) {
-            genotype += ",";
-        }
-        genotype += std::to_string(count);
-    }
-    return genotype;
-}
-
-std::string GenotypeTable::allele_paths_as_str() const {
-    size_t n_alleles = get_allele_count();
-    std::vector<size_t> allele_paths(n_alleles, 0);
-    // tally the alleles across samples
-    for (auto samp_idx: sample_to_index) {
-        for (size_t al_idx = 0; al_idx < n_alleles; al_idx++) {
-            if (values_per_sample[samp_idx.second][al_idx] > 0){
-                allele_paths[al_idx] += values_per_sample[samp_idx.second][al_idx];
-            }
-        }
-    }
-
-    // join into a string with comma separators
-    std::ostringstream allele_paths_str;
-    for (size_t i = 0; i < allele_paths.size(); ++i) {
-        if (i > 0) allele_paths_str << ",";
-        allele_paths_str << allele_paths[i];
-    }
-    return allele_paths_str.str();
-}
-    
 // Constructor for a gene_expression table fills everything except the gene positions
 GeneExpressionTable::GeneExpressionTable(const std::unordered_map<std::string, size_t>& sample_to_index, const std::unordered_map<std::string, size_t>& gene_to_index) :
     CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(sample_to_index, gene_to_index) {}
@@ -253,365 +180,9 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
     
     return near_genes;
 }
-    
-CombinedTable::CombinedTable(const GenotypeTable& genotypes){
-    n_alleles = genotypes.get_allele_count();
-    sample_names = genotypes.get_sample_names();
-    predictors.resize(n_alleles, std::vector<double>(sample_names.size()));
-    for(size_t sample_i = 0 ; sample_i < sample_names.size() ; sample_i++) {
-        std::string samp_name = sample_names[sample_i];
-        for (int al_i = 0; al_i < n_alleles; al_i++){
-            size_t ac = genotypes.get_count_for_sample_and_allele(samp_name, al_i);
-            predictors.at(al_i).at(sample_i) = static_cast<double>(ac);
-        }
-    }
-}
-
-void CombinedTable::print_self() const {
-    std::cerr << "sample\texcluded\tphenotype\tpredictors" << std::endl;
-    std::vector<size_t> allele_counts (predictors.size(), 0);
-    for (size_t i = 0 ; i < sample_names.size() ; i++ ) {
-        std::cerr << sample_names.at(i) << "\t" << (samples_to_exclude.count(sample_names.at(i)) == 0 ? 0 : samples_to_exclude.at(sample_names.at(i))) << "\t" << phenotype_vec.at(i);
-        for (size_t allele_i = 0 ; allele_i < predictors.size() ; allele_i++) {
-            std::cerr << "\t" << predictors.at(allele_i).at(i);
-            allele_counts[allele_i] += predictors.at(allele_i).at(i);
-        }
-        std::cerr << std::endl;
-    }
-    std::cerr << "Predictor counts" << std::endl;
-    for (size_t allele_i = 0 ; allele_i < allele_counts.size() ; allele_i++) {
-        if (allele_counts[allele_i] != 0) {
-            std::cerr << "\t" << allele_counts[allele_i] << std::endl;
-        }
-    }
-}
-    
-int CombinedTable::get_n_alleles() const {
-    return n_alleles;
-}
-
-int CombinedTable::get_n_covariates() const {
-    return predictors.size() - n_alleles;
-}
-
-Eigen::MatrixXd CombinedTable::make_matrixXd_features() {
-    // we'll prepare a matrix with an additional "intercept" first column, filled with ones
-    Eigen::MatrixXd X = Eigen::MatrixXd::Constant(phenotype_vec.size(), predictors.size() + 1, 1);
-    // fill other columns with the values all the predictors
-    for (size_t pred_i = 0; pred_i < predictors.size(); ++pred_i) {
-        for (size_t samp_i = 0; samp_i < X.rows(); ++samp_i) {
-            X(samp_i, pred_i + 1) = predictors.at(pred_i).at(samp_i);
-        }
-    }
-    return X;
-}
-
-Eigen::VectorXd CombinedTable::make_vectorxd_phenotype() {
-    Eigen::VectorXd y(phenotype_vec.size());
-    for (size_t samp_i = 0; samp_i < phenotype_vec.size(); ++samp_i) {
-        y(samp_i) = phenotype_vec.at(samp_i);
-    }
-    return y;
-}
-
-std::vector<double> CombinedTable::get_phenotype() const {
-    return phenotype_vec;
-}
-    
-std::vector<std::vector<double>> CombinedTable::get_predictors() const {
-    return predictors;
-}
-    
-void CombinedTable::combine_binary_phenotype(const BinaryPhenotypeTable& phenotype) {
-    assert(phenotype_vec.empty());
-    // loop over the samples and fill up the phenotype vector
-    for(std::string samp_name: sample_names) {
-        if (phenotype.has_sample(samp_name)) {
-            if (phenotype.get_value_for_sample(samp_name)){
-                phenotype_vec.push_back(1);
-            } else {
-                phenotype_vec.push_back(0);
-            }
-        } else {
-            // this sample is not in the matrix, mark for filtering and fill with 0s
-            samples_to_exclude.at(samp_name) = true;
-            phenotype_vec.push_back(0);
-        }
-    }
-}
-
-void CombinedTable::combine_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype) {
-    assert(phenotype_vec.empty());
-    // loop over the samples and fill up the phenotype vector
-    for(std::string samp_name: sample_names) {
-        if (phenotype.has_sample(samp_name)) {
-            phenotype_vec.push_back(phenotype.get_value_for_sample(samp_name));
-        } else {
-            // this sample is not in the matrix, mark for filtering and fill with 0s
-            samples_to_exclude.at(samp_name) = true;
-            phenotype_vec.push_back(0);
-        }
-    }
-}
-
-void CombinedTable::combine_covariates(const CovariateTable& covariates) {
-    // don't do anything if there are no covariates
-    if (covariates.get_feature_names().size() == 0) {
-        return;
-    }
-    // there should only be alleles in the combined table at this point
-    assert(predictors.size() == n_alleles);
-    // loop over the samples and covariates and fill new columns in the table
-    std::vector<std::string> covar_names = covariates.get_feature_names();
-    size_t ncovar = covar_names.size();
-    // extend the predictors
-    for (int covar_i = 0; covar_i < ncovar; covar_i++){
-        // init with 0?
-        std::vector<double> covar_init(sample_names.size(), 0);
-        predictors.emplace_back(covar_init);
-    }
-    // fill the table with the covariate values
-    for (size_t samp_ii = 0; samp_ii < sample_names.size(); samp_ii++) {
-        std::string samp_name = sample_names[samp_ii];
-        if (covariates.has_sample(samp_name)) {
-            for (int covar_i = 0; covar_i < ncovar; covar_i++){
-                double covar = covariates.get_value_for_sample_and_feature(samp_name, covar_names.at(covar_i));
-                predictors.at(n_alleles + covar_i).at(samp_ii) = covar;
-            }
-        } else {
-            // this sample is not in the matrix, mark for filtering and leave the 0s
-            samples_to_exclude.at(samp_name) = true;
-        }
-    }
-    // JEAN here we are marking samples to exclude because of missing values. Maybe we also want a check somewhere to warn the user when the different sample sets don't match? 
-}
-
-void CombinedTable::remove_missing_values() {
-    // nothing to do if no samples to exclude
-    if (samples_to_exclude.empty()) {
-        return;
-    }
-    
-    // remove marked samples in the phenotype vector
-    auto pheno_it = phenotype_vec.begin();
-    int samp_i = 0;
-    while (pheno_it != phenotype_vec.end()) {
-        if (samples_to_exclude.find(sample_names[samp_i]) != samples_to_exclude.end()) {
-            pheno_it = phenotype_vec.erase(pheno_it);
-        } else {
-            pheno_it++;
-        }
-        samp_i++;
-    }
-    
-    // remove marked samples in the predictor matrix
-    for (size_t pred_i = 0; pred_i < predictors.size(); pred_i++) {
-        auto pred_it = predictors[pred_i].begin();
-        samp_i = 0;
-        while (pred_it != predictors[pred_i].end()) {
-            if (samples_to_exclude.find(sample_names[samp_i]) != samples_to_exclude.end()) {
-                pred_it = predictors[pred_i].erase(pred_it);
-            } else {
-                pred_it++;
-            }
-            samp_i++;
-        }
-    }
-
-    // remove sample from sample names
-    auto sampnames_it = sample_names.begin();
-    samp_i = 0;
-    while (sampnames_it != sample_names.end()) {
-        if (samples_to_exclude.find(sample_names[samp_i]) != samples_to_exclude.end()) {
-            sampnames_it = sample_names.erase(sampnames_it);
-        } else {
-            sampnames_it++;
-        }
-        samp_i++;
-    }
-    
-    // clear samples_to_exclude
-    samples_to_exclude.clear();
-}
-
-void CombinedTable::remove_constant_predictors() {
-    // just in case
-    this->remove_missing_values();
-
-    // don't do anything if there are no samples or predictors, it will be filtered out later
-    if (predictors.size() == 0 || predictors[0].size() == 0) {
-        return;
-    }
-    
-    // check each predictor using an iterator to remove it efficiently(-ish) if needed
-    auto preds_it = predictors.begin();
-    int pred_idx = 0; // to figure out if we removed an allele or covariate
-    while (preds_it != predictors.end()) {
-        // we'll test if any value is different from the first value
-        std::vector<double>& pred_it = *preds_it; // dereference the iterator to get a reference to predictor vector
-        double first_value = pred_it[0];
-        bool constant = true;
-        for (double pred_value: pred_it) {
-            if (pred_value != first_value) {
-                // not constant, we can stop already
-                constant = false;
-                break;
-            }
-        }
-        // remove if constant
-        if (constant){
-            preds_it = predictors.erase(preds_it);
-            // if we've removed an allele, decrement the counter
-            if (pred_idx < n_alleles){
-                n_alleles--;
-            }
-        } else {
-            preds_it++;
-            pred_idx++;
-        }
-    }
-}
-
-void CombinedTable::remove_duplicated_predictors() {
-    // just in case
-    this->remove_missing_values();
-
-    // first find which predictor should be removed, starting from the end so that we remove covariates over alleles
-    std::vector<bool> to_remove(predictors.size(), false);
-    size_t n_samples = predictors.front().size();
-    bool any_removed = false;
-    for (size_t pred_i = predictors.size() - 1; pred_i > 0; pred_i--) {
-        // compare to all the other predictors before
-        for (size_t pred_j = 0; pred_j < pred_i; pred_j++) {
-            size_t samp_i = 0;
-            while (samp_i < n_samples && predictors[pred_i][samp_i] == predictors[pred_j][samp_i]) {
-                samp_i++;
-            }
-            if (samp_i == n_samples) {
-                // duplicated predictors, mark and stop looking for more
-                to_remove[pred_i] = true;
-                any_removed = true;
-                break;
-            }
-        }
-    }
-
-    // stop if none were marked for removal
-    if (!any_removed) {
-        return;
-    }
-    
-    // remove the predictors efficiently(-ish) using an iterator
-    auto preds_it = predictors.begin();
-    int new_pred_idx = 0; // to figure out if we're removing an allele or covariate
-    int old_pred_idx = 0; // to check if the original predictor was marked for removal
-    while (preds_it != predictors.end()) {
-        // remove if marked
-        if (to_remove[old_pred_idx]){
-            preds_it = predictors.erase(preds_it);
-            // if we've removed an allele, decrement the counter
-            if (new_pred_idx < n_alleles){
-                n_alleles--;
-            }
-        } else {
-            // move to the next element
-            preds_it++;
-            new_pred_idx++;
-        }
-        old_pred_idx++;
-    }
-}
-
-void CombinedTable::remove_one_allele() {
-    // if there is only one allele, do nothing
-    if (n_alleles < 2) {
-        return;
-    }
-
-    // remove the first predictor
-    predictors.erase(predictors.begin());
-    
-    // decrement the number of alleles
-    n_alleles--;
-}
-
-// potentially add a new column with the total allele count
-// return true if it did, otherwise false
-bool CombinedTable::add_total_allele_count_covariable() {
-    // just in case
-    this->remove_missing_values();
-    
-    // to check if at least one sample has a different total allele count
-    bool all_same_ac = true;
-    // prepare the new "covariate" holding the total allele count per sample
-    size_t n_samples = sample_names.size();
-    std::vector<double> tot_ac(n_samples, 0);
-    for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
-        // compute the total allele count for this sample
-        size_t samp_ac = 0;
-        for (size_t pred_i = 0; pred_i < n_alleles; pred_i++) {
-            if (predictors[pred_i][samp_i] > 0) {
-                samp_ac += predictors[pred_i][samp_i];
-            }
-        }
-        // append to new vector and check if different from the first one
-        tot_ac[samp_i] = samp_ac;
-        if (samp_i > 0 && samp_ac != tot_ac[0]) {
-            all_same_ac = false;
-        }
-    }
-    // add as a covariate if worth it
-    if (!all_same_ac) {
-        predictors.emplace_back(tot_ac);
-        return true;
-    }
-    return false;
-}
-    
-bool CombinedTable::passes_filters(const double maf, const size_t min_individuals) const {
-    // JEAN this assumes we've removed samples with no genotype information (or that they've never were included in that combined table)
-
-    // make sure there is/was at least two alleles
-    if (n_alleles < 2) {
-        stoat::LOG_DEBUG("Filtered: less than 2 independent alleles (" + std::to_string(n_alleles) + ")");
-        return false;
-    }
-
-    // make sure there are enough individuals
-    if(sample_names.size() < min_individuals) {
-        stoat::LOG_DEBUG("Filtered: not enough individuals: " + std::to_string(sample_names.size()));
-        return false;
-    }
-    
-    // make sure the allele frequency is high enough
-    if (maf == 0) {
-        return true;
-    }
-    // first count the total number of observed alleles for each allele
-    size_t total_allele_counts = 0;
-    std::vector<size_t> allele_counts(n_alleles, 0);
-    for (size_t al_ii = 0; al_ii < n_alleles; al_ii++) {
-        size_t allele_count_ii = 0;
-        for (double ac: predictors[al_ii]){
-            allele_count_ii += ac;
-        }
-        total_allele_counts += allele_count_ii;
-        allele_counts[al_ii] = allele_count_ii;
-    }
-    // compute the frequency of the second most frequent allele
-    std::sort(allele_counts.begin(), allele_counts.end(), std::greater<size_t>());
-    double af = static_cast<double>(allele_counts[1]) / total_allele_counts;
-    // filter if too low
-    if (af < maf) {
-        stoat::LOG_DEBUG("Filtered: less than two alleles with frequency above " + std::to_string(maf));
-        return false;
-    }
-    return true;
-}
-
 
     // Constructor for a genotype table fills everything in with a default value of 0 for the counts
-    GenoTable::GenoTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
+    GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
         FeatureBySampleTable<std::vector<double>>::FeatureBySampleTable(sample_to_index) {
         this->values_per_sample.reserve(this->sample_to_index.size());
         for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
@@ -632,7 +203,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         use_total_ac = false;
     }
         
-    void GenoTable::clear() {
+    void GenotypeTable::clear() {
         // we don't touch the alleles but reinit the covariates (for now)
         n_covariates = 0;
         n_active_samples = n_samples;
@@ -645,13 +216,13 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         use_total_ac = false;
     }
 
-    void GenoTable::increment_count(size_t sample_idx, size_t allele_num) {
+    void GenotypeTable::increment_count(size_t sample_idx, size_t allele_num) {
         // increment the appropriate allele column and total count
         this->values_per_sample[sample_idx][allele_num]++;
         total_allele_counts_per_sample[sample_idx]++;
     }
     
-    double GenoTable::get_value(size_t row, size_t col) const {
+    double GenotypeTable::get_value(size_t row, size_t col) const {
         // depending on the column index, get the value from the genotype or covariates
         // the virtual matrix starts with the alleles and then the covariates
         if (col < n_alleles) {
@@ -666,11 +237,11 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         }
     }
 
-    size_t GenoTable::get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const {
+    size_t GenotypeTable::get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const {
         return this->values_per_sample.at(this->sample_to_index.at(sample)).at(allele_num);
     }
     
-    std::string GenoTable::allele_paths_as_str() const {
+    std::string GenotypeTable::allele_paths_as_str() const {
         std::vector<size_t> allele_paths(n_active_alleles, 0);
         // tally the alleles across samples
         for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
@@ -698,7 +269,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         return allele_paths_str.str();
     }
 
-    std::string GenoTable::get_genotype_as_string(const std::string& sample) const {
+    std::string GenotypeTable::get_genotype_as_string(const std::string& sample) const {
         std::string genotype = "";
         for (size_t i = 0 ; i < this->values_per_sample.at(this->sample_to_index.at(sample)).size() ; i++) {
             size_t count = this->values_per_sample.at(this->sample_to_index.at(sample)).at(i);
@@ -710,24 +281,24 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         return genotype;
     }
 
-    void GenoTable::link_to_binary_phenotype(const BinaryPhenotypeTable& phenotype) {
+    void GenotypeTable::link_to_binary_phenotype(const BinaryPhenotypeTable& phenotype) {
         b_phenotype = &phenotype;
         is_binary_pheno = true;
     }
     
-    void GenoTable::link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype) {
+    void GenotypeTable::link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype) {
         q_phenotype = &phenotype;
         is_binary_pheno = false;
     }
     
-    void GenoTable::link_to_covariates(const CovariateTable& in_covariates) {
+    void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
         covariates = &in_covariates;
         n_covariates = in_covariates.get_feature_number();
         n_active_columns += n_covariates;
         col_mask.resize(n_alleles + n_covariates, false);
     }
 
-    void GenoTable::remove_noncovered_samples() {
+    void GenotypeTable::remove_noncovered_samples() {
         // check the total allele count (filled previously) to decide if a sample should be masked
         for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
             if (total_allele_counts_per_sample[samp_i] == 0 && !row_mask[samp_i]) {
@@ -738,7 +309,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         // JEAN TODO check that this is called before the test/regression
     }
     
-    void GenoTable::remove_constant_predictors() {
+    void GenotypeTable::remove_constant_predictors() {
         // don't do anything if there are no samples or predictors, it will be filtered out later
         if (n_alleles + n_covariates == 0 || n_samples == 0) {
             return;
@@ -781,7 +352,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         }
     }
 
-    void GenoTable::remove_duplicated_predictors() {
+    void GenotypeTable::remove_duplicated_predictors() {
         // first find which predictor should be removed, starting from the end so that we remove covariates over alleles
         for (size_t col_ii = 0; col_ii < n_alleles + n_covariates; col_ii++) {
             // skip if already masked
@@ -837,7 +408,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         }
     }
 
-    void GenoTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<size_t>& g1) const {
+    void GenotypeTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<size_t>& g1) const {
         g0.resize(n_active_alleles, 0);
         g1.resize(n_active_alleles, 0);
         size_t active_al_i = 0;
@@ -863,17 +434,17 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
     }
     
     // JEAN maybe these won't be used in the end. Remove at the end if not
-    size_t GenoTable::get_n_active_alleles() const {
+    size_t GenotypeTable::get_n_active_alleles() const {
         return n_active_alleles;
     }
-    size_t GenoTable::get_n_active_columns() const {
+    size_t GenotypeTable::get_n_active_columns() const {
         return n_active_columns;
     }
-    size_t GenoTable::get_n_active_samples() const {
+    size_t GenotypeTable::get_n_active_samples() const {
         return n_active_samples;
     }
     
-    void GenoTable::remove_one_allele() {
+    void GenotypeTable::remove_one_allele() {
         // if there is only one allele, do nothing
         if (n_active_alleles < 2) {
             return;
@@ -892,7 +463,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
 
     // potentially add a new column with the total allele count
     // return true if it did, otherwise false
-    void GenoTable::add_total_allele_count_covariable() {
+    void GenotypeTable::add_total_allele_count_covariable() {
         // to check if at least one sample has a different total allele count
         use_total_ac = true;
         double first_tot_ac;
@@ -920,7 +491,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         }
     }
     
-    bool GenoTable::passes_filters(const double maf, const size_t min_individuals) const {
+    bool GenotypeTable::passes_filters(const double maf, const size_t min_individuals) const {
         // make sure there is/was at least two alleles
         if (n_active_alleles < 2) {
             stoat::LOG_DEBUG("Filtered: less than 2 independent alleles.");
@@ -967,7 +538,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         return true;
     }
 
-    Eigen::MatrixXd GenoTable::make_matrixXd_features() {
+    Eigen::MatrixXd GenotypeTable::make_matrixXd_features() {
         // we'll prepare a matrix with an additional "intercept" first column filled with ones
         size_t ncols = n_active_columns + 1;
         size_t nrows = n_active_samples;
@@ -1003,7 +574,7 @@ bool CombinedTable::passes_filters(const double maf, const size_t min_individual
         return X;
     }
 
-    Eigen::VectorXd GenoTable::make_vectorxd_phenotype() {
+    Eigen::VectorXd GenotypeTable::make_vectorxd_phenotype() {
         size_t nrows = n_active_samples;
         Eigen::VectorXd y(nrows);
         size_t cur_row = -1;

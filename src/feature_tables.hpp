@@ -143,39 +143,6 @@ CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const s
     
 using CovariateTable = CategoricalFeatureBySampleTable<double>;
     
-/// A GenotypeTable is a 2D matrix of per-sample per-allele counts. The alleles are accessed by index, instead of by name
-/// Technically this also has get_value_for_sample() which would return the vector but it shouldn't be used because it will return a copy of the vector 
-class GenotypeTable : public FeatureBySampleTable<std::vector<size_t>> {
-    public:
-
-    GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count);
-
-    void print_self() const;
-
-    // Add 1 to the current value for sample and feature
-    void increment_count(const std::string& sample, size_t allele_num);
-
-    // Access the count value saved for a sample and allele
-    size_t get_count_for_sample_and_allele(const std::string& sample, size_t allele_num) const;
-
-    // Get the total count for all alleles
-    size_t get_total_count_for_sample(const std::string& sample) const;
-
-    // Get the genotype of a sample as a string of counts.
-    // This is only really useful to compare if two genotypes are the same
-    std::string get_genotype_as_string(const std::string& sample) const;
-
-    // How many alleles are there?
-    size_t get_allele_count() const {
-        return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
-    }
-
-    // get the number of samples passing through each allele, as a string (to include in the output file)
-    std::string allele_paths_as_str() const;
-
-};
-
-
 // struct to save the position of a gene defined by an index, used in the GeneExpressionTable below
 struct gene_position_t {
     std::string gene;
@@ -203,75 +170,6 @@ protected:
 };
 
 
-class CombinedTable {
-public:
-    CombinedTable(const GenotypeTable& genotypes);
-
-    // combine a phenotype table with the current table (matching sample order etc)
-    void combine_binary_phenotype(const BinaryPhenotypeTable& phenotype);
-    void combine_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype);
-    // void combine_gene_expression(const GeneExpressionTable& ge, std::string gene_name);
-
-    // combine covariates
-    void combine_covariates(const CovariateTable& covariates);
-
-    // remove values for samples to exclude because they contain missing values (e.g. in genotype but not in phenotype)
-    void remove_missing_values();
-    
-    // remove predictors with the same values across all samples
-    // (typically 0, i.e. alleles carried by no one)
-    void remove_constant_predictors();
-
-    // remove predictors that are exactly the same as another predictor
-    // perfect colinearity can mess up the regression and we won't be able to differentiate those effects anyway
-    void remove_duplicated_predictors();
-
-    // remove one allele to avoid colinearity when performing regression
-    // for most snarls, samples will have the same ploidy (2) so the allele count of one allele can be found using the allele counts of all the others
-    // if samples don't have the same ploidy, we'll be adding the total allele count with the function below anyway
-    void remove_one_allele();
-
-    // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize?)
-    // return true if it did add a new column, otherwise false
-    bool add_total_allele_count_covariable();
-
-    // specific table operations used before a regression. Includes: adding a copy number
-    // covariate if needed, merging duplicated predictors, removing the first allele
-    // void prepare_for_regression();
-
-    // should we test this table? does it pass the filters?
-    bool passes_filters(const double maf, const size_t min_individuals) const;
-
-    // get the (usually final) tables
-    std::vector<double> get_phenotype() const;
-    std::vector<std::vector<double>> get_predictors() const;
-
-    // how many of the predictors are alleles or covariates?
-    int get_n_alleles() const;
-    int get_n_covariates() const;
-
-    // prepare Eigen matrix with all the features (intercept, genotypes, covariates)
-    Eigen::MatrixXd make_matrixXd_features();
-    // prepare Eigen vector with the phenotypes
-    Eigen::VectorXd make_vectorxd_phenotype();
-
-    void print_self() const;
-    
-protected:
-    // sample names in the current order
-    std::vector<std::string> sample_names;
-    // vector of phenotypes. For binary traits, 0 and 1 are used
-    std::vector<double> phenotype_vec;
-    // for each predictor (allele counts + other covariates), what are the values for each sample
-    std::vector<std::vector<double>> predictors;
-    // how many of the predictors are alleles (the rest will be covariates)
-    int n_alleles;
-    // which samples should be excluded from the matrix during filtering
-    // (because some info is missing)
-    std::unordered_map<std::string, bool> samples_to_exclude;
-    
-};
-
 // A genotype table will contain the allele counts across samples for a snarl, and
 // also will point to other relevant tables (phenotype, covariates).
 // The goal is to have a virtual table of doubles that we can work on before running a
@@ -281,9 +179,9 @@ protected:
 // the same sample->index map for those three Tables. We define an accessor function on
 // this virtual matrix of double to simplify the other operations.
 // In the table, rows are samples and columns are variables (allele counts or covariates)
-class GenoTable : public FeatureBySampleTable<std::vector<double>> {
+class GenotypeTable : public FeatureBySampleTable<std::vector<double>> {
 public:
-    GenoTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count);
+    GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count);
 
     // clear any mask, covariate etc, for example when wanting to test a new phenotype (eQTL)
     void clear();

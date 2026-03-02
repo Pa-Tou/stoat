@@ -17,7 +17,7 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenoTable geno(sample_to_index, 3);
+        stoat::GenotypeTable geno(sample_to_index, 3);
         geno.increment_count(0, 0);
         geno.increment_count(0, 2);
         geno.increment_count(1, 0);
@@ -53,7 +53,7 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenoTable geno(sample_to_index, 3);
+        stoat::GenotypeTable geno(sample_to_index, 3);
         geno.increment_count(0, 1);
         geno.increment_count(0, 2);
         geno.increment_count(1, 0);
@@ -81,7 +81,7 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenoTable geno(sample_to_index, 1);
+        stoat::GenotypeTable geno(sample_to_index, 1);
         geno.increment_count(0, 0);
         geno.increment_count(1, 0);
         geno.increment_count(2, 0);
@@ -101,7 +101,7 @@ TEST_CASE("Quantitative table modification") {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenoTable geno(sample_to_index, 3);
+        stoat::GenotypeTable geno(sample_to_index, 3);
         geno.increment_count(0, 1);
         geno.increment_count(0, 2);
         geno.increment_count(1, 0);

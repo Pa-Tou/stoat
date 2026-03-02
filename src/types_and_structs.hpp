@@ -200,7 +200,7 @@ struct snarl_info_t {
         // Constructor from elements
         snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node, std::string ref_path, 
                      size_t start_position, size_t end_position, size_t depth,
-                     GenoTable& genotypes, 
+                     GenotypeTable& genotypes, 
                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
                      const allele_by_sample_t& alleles_by_sample,
                      const std::vector<PathTraversal>& walks_by_allele, 
@@ -228,7 +228,7 @@ struct snarl_info_t {
 
         // A genotype table of the counts of each allele for each sample (see feature_table.hpp).
         // Alleles have the same numbering as walks_by_allele and sequences_by_allele
-        GenoTable& genotypes;
+        GenotypeTable& genotypes;
 
         // This stores all the sample/haplotypes 
         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes;

@@ -17,13 +17,6 @@ class TestQuantitativePhenotypeTable : QuantitativePhenotypeTable {
     using QuantitativePhenotypeTable::get_value_for_sample;
     using QuantitativePhenotypeTable::values_per_sample;
 };
-class TestGenotypeTable : GenotypeTable { 
-    public:
-    TestGenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) : GenotypeTable(sample_to_index, allele_count){}
-    using GenotypeTable::get_count_for_sample_and_allele;
-    using GenotypeTable::increment_count;
-    using GenotypeTable::values_per_sample;
-};
 class TestGeneExpressionTable : GeneExpressionTable { 
     public:
     TestGeneExpressionTable(const std::unordered_map<std::string, size_t>& sample_to_index, 
@@ -96,58 +89,6 @@ TEST_CASE( "QuantitativePhenotypeTable with five samples", "[table]" ) {
         REQUIRE(table.get_value_for_sample("sample3") == 0.0);
         REQUIRE(table.get_value_for_sample("sample4") == 4.43243);
         REQUIRE(table.get_value_for_sample("sample5") == 4.43243);
-        
-    }
-}
-
-
-TEST_CASE( "GenotypeTable with three samples and three alleles", "[table]" ) {
-
-    // Get sample_to_index 
-    std::unordered_map<std::string, size_t> sample_to_index;
-    for (size_t i = 0 ; i < 3 ; i++) {
-        sample_to_index.emplace("sample" + std::to_string(i+1), i);
-    }
-
-    // Make the table
-    TestGenotypeTable table(sample_to_index, 3);
-
-
-    SECTION("Table is the right size") {
-        REQUIRE(table.values_per_sample.size() == 3);
-        for (size_t i = 3 ; i < table.values_per_sample.size() ; i++) {
-            REQUIRE(table.values_per_sample.at(i).size() == 3);
-        }
-    }
-
-    SECTION("Set and get values") {
-
-        table.increment_count("sample1", 1);
-        table.increment_count("sample1", 1);
-        table.increment_count("sample1", 1);
-
-        table.increment_count("sample1", 2);
-
-        table.increment_count("sample2", 0);
-        table.increment_count("sample2", 0);
-
-        table.increment_count("sample2", 1);
-
-        table.increment_count("sample2", 2);
-        table.increment_count("sample2", 2);
-
-        table.increment_count("sample3", 2);
-
-
-        REQUIRE(table.get_count_for_sample_and_allele("sample1", 0) == 0);
-        REQUIRE(table.get_count_for_sample_and_allele("sample1", 1) == 3);
-        REQUIRE(table.get_count_for_sample_and_allele("sample1", 2) == 1);
-        REQUIRE(table.get_count_for_sample_and_allele("sample2", 0) == 2);
-        REQUIRE(table.get_count_for_sample_and_allele("sample2", 1) == 1);
-        REQUIRE(table.get_count_for_sample_and_allele("sample2", 2) == 2);
-        REQUIRE(table.get_count_for_sample_and_allele("sample3", 0) == 0);
-        REQUIRE(table.get_count_for_sample_and_allele("sample3", 1) == 0);
-        REQUIRE(table.get_count_for_sample_and_allele("sample3", 2) == 1);
         
     }
 }
@@ -258,7 +199,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
 
     std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                {"S4", 3}, {"S5", 4}, {"S6", 5}};
-    stoat::GenoTable table(sample_to_index, 4);
+    stoat::GenotypeTable table(sample_to_index, 4);
     table.increment_count(0, 0);
     table.increment_count(0, 2);
     table.increment_count(0, 3);
@@ -294,7 +235,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
     covar.set_value_for_sample_and_feature("S5", "covar1", 11);
     covar.set_value_for_sample_and_feature("S6", "covar1", 1);
 
-    // link to them in the GenoTable
+    // link to them in the GenotypeTable
     table.link_to_binary_phenotype(pheno);
     table.link_to_covariates(covar);
 
@@ -397,7 +338,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenoTable geno(sample_to_index, 3);
+        stoat::GenotypeTable geno(sample_to_index, 3);
         geno.increment_count(0, 0);
         geno.increment_count(1, 0);
         geno.increment_count(2, 0);
@@ -428,7 +369,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
 
         std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
                                                                    {"S4", 3}, {"S5", 4}};
-        stoat::GenoTable geno(sample_to_index, 3);
+        stoat::GenotypeTable geno(sample_to_index, 3);
         geno.increment_count(0, 0);
         geno.increment_count(1, 0);
         geno.increment_count(2, 0);
