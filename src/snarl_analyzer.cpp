@@ -7,12 +7,10 @@ namespace stoat_vcf {
 
     SnarlAnalyzer::SnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const stoat::CovariateTable& covariate,
         const double maf_threshold,
         const size_t min_individuals) :
         snarl_collection(snarl_collection),
-        ref_chrs(ref_chrs),
         covariate(covariate),
         maf_threshold(maf_threshold),
         min_individuals(min_individuals),
@@ -20,11 +18,9 @@ namespace stoat_vcf {
 
     SnarlAnalyzer::SnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const double maf_threshold,
         const size_t min_individuals) :
         snarl_collection(snarl_collection),
-        ref_chrs(ref_chrs),
         covariate(covariate),
         maf_threshold(maf_threshold),
         min_individuals(min_individuals),
@@ -32,22 +28,20 @@ namespace stoat_vcf {
 
     BinarySnarlAnalyzer::BinarySnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const double maf_threshold,
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals) :
-        SnarlAnalyzer(snarl_collection, ref_chrs, maf_threshold, min_individuals),
+        SnarlAnalyzer(snarl_collection, maf_threshold, min_individuals),
         phenotype(phenotype), fchi() {
         phenotype_type = stoat::BINARY;
     };
 
     ExactBinarySnarlAnalyzer::ExactBinarySnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const double maf_threshold,
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals) :
-        SnarlAnalyzer(snarl_collection, ref_chrs, maf_threshold, min_individuals) {
+        SnarlAnalyzer(snarl_collection, maf_threshold, min_individuals) {
         phenotype_type = stoat::BINARY;
         // fill the sample sets
         for (std::string sample: phenotype.get_sample_names()) {
@@ -61,39 +55,36 @@ namespace stoat_vcf {
 
     BinaryCovarSnarlAnalyzer::BinaryCovarSnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const stoat::CovariateTable& covariate,
         const double maf_threshold,
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals) :
 
-        SnarlAnalyzer(snarl_collection, ref_chrs, covariate, maf_threshold, min_individuals),
+        SnarlAnalyzer(snarl_collection, covariate, maf_threshold, min_individuals),
         phenotype(phenotype), lr() {
         phenotype_type = stoat::BINARY_COVAR;
     };
 
     QuantitativeSnarlAnalyzer::QuantitativeSnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const stoat::CovariateTable& covariate,
         const double maf_threshold,
         const stoat::QuantitativePhenotypeTable& phenotype,
         const size_t min_individuals) :
 
-        SnarlAnalyzer(snarl_collection, ref_chrs, covariate, maf_threshold, min_individuals),
+        SnarlAnalyzer(snarl_collection, covariate, maf_threshold, min_individuals),
         phenotype(phenotype), lr() {
         phenotype_type = stoat::QUANTITATIVE;
     };
 
     EQTLSnarlAnalyzer::EQTLSnarlAnalyzer(
         const SnarlDataCollection &snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const stoat::CovariateTable& covariate,
         const double maf_threshold,
         const stoat::GeneExpressionTable& gene_expression,
         const size_t max_gene_dist,
         const size_t min_individuals) :
-        SnarlAnalyzer(snarl_collection, ref_chrs, covariate, maf_threshold, min_individuals),
+        SnarlAnalyzer(snarl_collection, covariate, maf_threshold, min_individuals),
         gene_expression(gene_expression), max_gene_dist(max_gene_dist), lr() {
         phenotype_type = stoat::EQTL;
     };
@@ -101,37 +92,6 @@ namespace stoat_vcf {
     stoat::phenotype_type_t SnarlAnalyzer::get_phenotype_type() const {
         return (phenotype_type);
     }
-
-void SnarlAnalyzer::genotype_test_snarls_by_chr(stoat::Writer& out_writer) {
-    // Write the header of the output file
-    out_writer.write_stoat_output_header(phenotype_type);
-    
-    // for the log
-    size_t total_number_snarl_filtered = 0;
-
-    for (std::string chrom : ref_chrs) {
-        // start analyzing this chromosome
-        stoat::LOG_INFO("Analysing chr : " + chrom);
-        auto timer_start_chr = std::chrono::high_resolution_clock::now();
-        size_t chr_number_snarl_filtered = 0;
-
-        // JEAN parallelize here?    
-        snarl_collection.for_each_snarl([&](snarl_info_t& snarl_info) {
-            if (snarl_info.ref_path == chrom) {
-                bool filtered = test_and_write_snarl(snarl_info, out_writer);
-                chr_number_snarl_filtered += (filtered ? 1 : 0);
-            }
-        });
-
-        total_number_snarl_filtered += chr_number_snarl_filtered;
-        auto timer_end_chr = std::chrono::high_resolution_clock::now();
-
-        stoat::LOG_INFO("Number of snarl filtered in chr " + chrom + " : " + std::to_string(chr_number_snarl_filtered));
-        stoat::LOG_INFO("Total time for chr " + chrom + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_start_chr).count()) + " s");
-    }
-    
-    stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(total_number_snarl_filtered));
-}
 
 void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) {
 

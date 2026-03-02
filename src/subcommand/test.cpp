@@ -226,27 +226,26 @@ int main_stoat_test(int argc, char* argv[]) {
     
     // the object to orchestrate the testing of the snarls
     std::shared_ptr<stoat_vcf::SnarlAnalyzer> snarl_analyzer;
-    std::unordered_set<std::string> empty_chr_list;
 
     if (method == "exact") {
         // Exact test between binary phenotype and genotypes
-        snarl_analyzer.reset(new stoat_vcf::ExactBinarySnarlAnalyzer(snarl_collection, empty_chr_list, maf_threshold,
+        snarl_analyzer.reset(new stoat_vcf::ExactBinarySnarlAnalyzer(snarl_collection, maf_threshold,
                                                                      *binary_phenotype_table, min_individuals));
     } else if (method == "chi2") {
         // Binary using Chi2/Fisher (no covariate)
-        snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, empty_chr_list, maf_threshold,
+        snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, maf_threshold,
                                                                 *binary_phenotype_table, min_individuals));
     } else if (method == "logreg") {
         // Binary using logistic regression, possibly with covariates
-        snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarl_collection, empty_chr_list, *covariate_table, maf_threshold,
+        snarl_analyzer.reset(new stoat_vcf::BinaryCovarSnarlAnalyzer(snarl_collection, *covariate_table, maf_threshold,
                                                                      *binary_phenotype_table, min_individuals));
     } else if (!gene_position_path.empty()) {
         // expression QTL analysis
-        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarl_collection, empty_chr_list, *covariate_table, maf_threshold, 
+        snarl_analyzer.reset(new stoat_vcf::EQTLSnarlAnalyzer(snarl_collection, *covariate_table, maf_threshold, 
                                                               *gene_expression_table, max_gene_dist, min_individuals));
     } else if (method == "linreg") {
         // quantitative phenotype using linear regression
-        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarl_collection, empty_chr_list, *covariate_table, maf_threshold, 
+        snarl_analyzer.reset(new stoat_vcf::QuantitativeSnarlAnalyzer(snarl_collection, *covariate_table, maf_threshold, 
                                                                       *quantitative_phenotype_table, min_individuals));
     }
 

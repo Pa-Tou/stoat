@@ -15,23 +15,16 @@ class SnarlAnalyzer {
 public:
     SnarlAnalyzer(
         const stoat::SnarlDataCollection& snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const stoat::CovariateTable& covariate,
         const double maf_threshold,
         const size_t min_individuals);
 
     SnarlAnalyzer(
         const stoat::SnarlDataCollection& snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const double maf_threshold,
         const size_t min_individuals);
 
     ~SnarlAnalyzer()=default;
-
-    /// Go through the SnarlCollection (which contains genotypes) by chromosome
-    /// then test the association with phenotype and write the output (also depending on the phenotype type).
-    /// This calls write_header() to write the appropriate output header and test_and_write_snarl() for each snarl
-    void genotype_test_snarls_by_chr(stoat::Writer& out_writer);
 
     // Go throught the snarls in a file and test the association with the phenotype.
     // Avoids loading the entire snarl collection with all the genotypes at once.
@@ -48,9 +41,6 @@ protected:
     
     // a collection of all snarls
     const stoat::SnarlDataCollection& snarl_collection;
-
-    // The reference path names
-    const std::unordered_set<std::string>& ref_chrs;
 
     // Covariate matrix
     const stoat::CovariateTable& covariate;
@@ -69,7 +59,6 @@ public:
     
     BinarySnarlAnalyzer(
         const stoat::SnarlDataCollection& snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const double maf_threshold,
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
@@ -88,7 +77,6 @@ public:
     
     ExactBinarySnarlAnalyzer(
         const stoat::SnarlDataCollection& snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const double maf_threshold,
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
@@ -106,7 +94,6 @@ public:
     
     BinaryCovarSnarlAnalyzer(
         const stoat::SnarlDataCollection& snarl_collection,
-        const std::unordered_set<std::string>& ref_chrs,
         const stoat::CovariateTable& covariate,
         const double maf_threshold, 
         const stoat::BinaryPhenotypeTable& phenotype,
@@ -127,7 +114,6 @@ public:
     
     QuantitativeSnarlAnalyzer(
         const stoat::SnarlDataCollection& snarl_collection, 
-        const std::unordered_set<std::string>& ref_chrs,
         const stoat::CovariateTable& covariate,
         const double maf_threshold, 
         const stoat::QuantitativePhenotypeTable& phenotype,
@@ -147,7 +133,6 @@ class EQTLSnarlAnalyzer : public SnarlAnalyzer {
 public:
     
     EQTLSnarlAnalyzer(const stoat::SnarlDataCollection& snarl_collection, 
-                      const std::unordered_set<std::string>& ref_chrs,
                       const stoat::CovariateTable& covariate,
                       const double maf_threshold, 
                       const stoat::GeneExpressionTable& gene_expression,
