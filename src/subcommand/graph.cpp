@@ -24,17 +24,15 @@
 namespace stoat_command {
 
 void print_help_graph() {
-    std::cerr << "usage: stoat graph -g [graph] -d [distance index] -b [phenotype file] [options]" << std::endl
-        << "Find associated variants based on the haplotype paths present in the graph"<< std::endl
-        << "Computing the snarls from the distance index may be slow, so they can be saved or loaded with -s." << std::endl
-        << "Requires either -b to compute the associations, or -s to save the snarls in the graph. Or both to do both" << std::endl 
+    std::cerr << "usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
+        << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
         << std::endl
         << "input:" << std::endl
         << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << std::endl
         << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
         << std::endl
         << "output:" << std::endl
-        << "  -o, --output DIR                   Output directory name [output]" << std::endl
+        << "  -o, --output DIR                   Output directory name [stoat_output]" << std::endl
         << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << std::endl
         << "  -u, --no-bgzip                     Don't compress the output file with bgzip\n"
         << std::endl
@@ -42,7 +40,7 @@ void print_help_graph() {
         << "  -t, --threads N                    Number of threads to use" << std::endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << std::endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << std::endl
-        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)."
+        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
         << "                                     If not given, use any reference-sense paths in the graph as the references" << std::endl
         << "  -h, --help                         Print this help message" << std::endl;
 }
@@ -57,10 +55,9 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::string graph_name;
     std::string distance_name;
     size_t allele_size_limit = 0;
-    std::string test_method = "chi2";
     std::string reference_path;
     std::vector<std::string> samples;
-    std::string output_dir="output";
+    std::string output_dir="stoat_output";
     bool bgzip_output = true;
 
     bool find_allele_lengths = false; 

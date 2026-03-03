@@ -33,14 +33,14 @@ void print_help_vcf() {
               << "  -d, --dist FILE                 Path to the distance index file\n"
               << "  -v, --vcf FILE                  Path to the VCF file\n"
               << "  -s, --snarl FILE                Path to the snarl file\n"
-              << "  -r, --reference-chrs FILE       Path to the chromosome reference file, one path name per line\n"
+              << "  -r, --reference-chrs FILE       Path to the chromosome reference file, one path name per line (optional)\n"
               << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
               << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
               << "  -R, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
-              << "  -o, --output FILE               Output directory name\n"
+              << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
               << "  -h, --help                      Print this help message\n";
 }
@@ -55,7 +55,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     size_t min_individuals = 0;
     // JEAN this threshold is a bit redundant with children_threshold and cycle_threshold but I guess could be useful if we want to set it lower than (children_threshold * (cycle_threshold+1))
     size_t path_length_threshold = 50;
-    std::string output_dir = "output";
+    std::string output_dir = "stoat_output";
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
     bool bgzip_output = true;

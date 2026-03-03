@@ -32,7 +32,7 @@ void print_help_test() {
               << "  -M, --maf FLOAT                 Minimum allele frequency threshold [0.05]\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
-              << "  -o, --output FILE               Output directory name\n"
+              << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
               << "  -h, --help                      Print this help message\n";
 }
@@ -52,7 +52,7 @@ int main_stoat_test(int argc, char* argv[]) {
     std::string method = "linreg";
     
     // default output directory
-    std::string output_dir = "output";
+    std::string output_dir = "stoat_output";
 
     // will store the names of the covariates to use
     std::vector<std::string> covar_names;
