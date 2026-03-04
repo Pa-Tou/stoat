@@ -12,6 +12,11 @@
 
 <img src="pictures/STOAT_schema.png">
 
+The two take-home messages are that:
+
+1. Snarls (bubbles) are tested independently without taking into account the nested snarls. Each snarl is tested in its "simplified" form. 
+2. All snarls are tested, even if they are not on the reference path and deeply embedded in the graph.
+
 ## Dependency
 
 Manual installation : 
@@ -31,7 +36,7 @@ In general, the latest versions of all of these tools should work.
 ## Docker
 
 - [`Dockerfile`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile)
-- Docker container: `quay.io/jmonlong/stoat`
+- Docker container: `quay.io/patou/stoat`
 
 ## Build
 
@@ -65,40 +70,60 @@ source ~/.bashrc
 
 ## Running STOAT
 
-STOAT is a specialized tool developed for conducting Genome-Wide Association Studies (GWAS) with a unique focus on snarl structures within pangenome graphs. Unlike traditional GWAS tools that analyze linear genome variants, STOAT uses the [snarl decomposition](https://github.com/vgteam/vg/wiki/Snarls-and-chains) of a graph, which represents nested and overlapping variant patterns within a pangenome. This approach allows for a more nuanced understanding of genetic variations in diverse populations and complex traits.
+STOAT is designed to test association across a pangenome graph. 
+It tests each *snarl* (bubble variant site) to conduct a Genome-Wide Association Studies (GWAS). 
+Hence, STOAT uses the [snarl decomposition](https://github.com/vgteam/vg/wiki/Snarls-and-chains) of a graph, which represents nested and overlapping variant patterns within a pangenome. 
 
-STOAT supports both binary and quantitative phenotypes:
+STOAT can test the association between snarls genotypes across samples and 
 
-- For binary phenotypes (e.g., case vs control studies), it utilizes chi-squared tests and Fisher’s exact test to evaluate associations between phenotype groups and snarl variants, providing robust statistical validation even in cases of sparse data.
-
-- For quantitative phenotypes (e.g., traits measured on a continuous scale), the tool employs linear regression models to assess the association between snarl structures and phenotype values, allowing for continuous trait mapping with greater precision.
+- binary phenotypes (e.g. cases vs controls)
+    -  without covariates using Fisher's exact test of chi-squared test
+    -  with (or without) covariates using a logistic regression model. Penalized Firth regression is used when the first model fails to converge.
+- quantitative phenotypes using a linear regression model.
+    - Single quantitative phenotype (GWAS study)
+    - Gene expression (expression QTL study)
 
 ### Usage
-  
-Stoat has two main use cases, finding associations from a [VCF file](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf) and finding associations from [paths in the graph](https://github.com/Pa-Tou/stoat/wiki/stoat-graph).
 
-- Use `stoat vcf` if you want to run a GWAS from a VCF file : 
+STOAT has two steps:
 
-```bash
-# decompose pangenome
-stoat vcf -g <pg.full.pg> -d <dist.dist> -o <paths.txt>
+1. Retrieve the genotypes of each snarl using `stoat graph` or `stoat vcf`
+2. Test for the association using `stoat test`
 
-# binary trait with already decompose pangenome
-stoat vcf -s <paths.txt> -v <vcf_file.vcf.gz> -b <phenotype.txt> --chr <ref.tsv> -o output
+#### Retrieving snarl genotypes
 
-# decompose pangenome + binary trait
-stoat vcf -g <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -b <phenotype.txt> --chr <ref.tsv> -o output
+STOAT can either retrieve the snarl genotypes from [paths in the graph](https://github.com/Pa-Tou/stoat/wiki/stoat-graph) or from a [VCF file](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf) from genotyping other samples with sequencing data.
 
-# decompose pangenome + quantative trait
-stoat vcf -g <pg.full.pg> -d <dist.dist> -v <vcf_file.vcf.gz> -q <phenotype.txt> --chr <ref.tsv> -o output
-```
+##### `stoat graph` to test haplotypes embedded as paths in the pangenome
 
+Use `stoat graph` with the pangenome index files. 
+More information in the [`stoat graph` wiki page](https://github.com/Pa-Tou/stoat/wiki/stoat-graph).
 
-- Use `stoat graph` if you want to find associations with paths in the graph : 
+A typical command looks like:
 
 ```bash
-stoat graph -g <graph> -d <dist.dist> -b <phenotype.tsv>
+stoat graph -g <graph.pg> -d <graph.dist> -o <output_directory>
 ```
+
+##### `stoat vcf` to test samples genotyped from sequencing data
+
+Use `stoat vcf` on the merged VCF. 
+More information in the [`stoat vcf` wiki page](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf).
+
+A typical command looks like:
+
+```bash
+stoat vcf -g <graph.pg> -d <graph.dist> -v <genotypes.vcf.gz> --chr <ref_paths.txt> -o <output_directory>
+```
+
+#### Test for association
+
+A typical command looks like:
+
+```bash
+stoat test -s <output_directory/snarl_genotypes.tsv.gz> -p <phenotype.tsv> -m chi2 -o <output_directory>
+```
+
 ### Wiki
 
-For more information about Stoat, see our [wiki documentation](https://github.com/Pa-Tou/stoat/wiki).
+For more information about STOAT, see our [wiki documentation](https://github.com/Pa-Tou/stoat/wiki).

@@ -5,9 +5,9 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include <cstdint>
 
-#include "snarl_data_t.hpp"
+#include "types_and_structs.hpp"
+#include "vcf_parser.hpp"
 
 using namespace std;
 
@@ -18,46 +18,47 @@ namespace stoat_vcf {
 // Columns represent samples/haplotypes
 class EdgeBySampleMatrix {
 public:
-    EdgeBySampleMatrix(const std::vector<std::string>& sampleNames, size_t rows, size_t cols);
+    EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges);
     ~EdgeBySampleMatrix()=default;
 
     // Operator to get the value
     bool operator()(size_t row, size_t col) const;
-
+    bool get_edge(size_t row, size_t col) const;
+    
     // Add this edge to the matrix
-    void push_matrix(const stoat::Edge_t& EdgePath, size_t indexColumn);
+    void add_sample_edge(const stoat::edge_t& edge, size_t col_index);
 
     // Set this value to true
-    void set(size_t row, size_t col);
+    void set_edge(size_t row, size_t col);
 
-    // Get the maximum index into the vector representing the matrix
-    size_t getMaxElement() const;
-    
     // Double the size of the matrix
-    void expandMatrix();
+    void expand_matrix();
 
     // Shrink to use the minimum amount of memory possible allowing the current number of rows
     void shrink();
 
     // Clear the memory and re-initialize
-    void reset(const std::vector<std::string>& newSampleNames, size_t rows, size_t cols);
+    void clear_edges(size_t new_n_edges);
     
-    // Return the index of the edge in row_header, std::numeric_limits<size_t>::max() if the edge does not exist
-    size_t find_edge(const stoat::Edge_t& edge) const;
+    std::string get_sample_name(size_t sample_idx) const;
 
-    // Retrieve the index of `edge` if it exists. Otherwise, add it and return the new index.
-    size_t getOrAddIndex(const stoat::Edge_t& key, const size_t& size_edge_index_dict);
+    // query the matrix: find sample-haplotypes that have all edges along the queried path
+    std::vector<size_t> get_samples_on_path(const stoat::PathTraversal &path_trav) const;
+
+    // clear the matrix and load edges in a VCF for a chunk (corresponding to a chromosome)
+    // the returned pointers are the VCF file stream after reading that chunk
+    void load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::string &chr);
 
 protected:
-    size_t cols_;
-    size_t MaxElement;
-    std::vector<uint8_t> matrix_1D;
-    std::unordered_map<stoat::Edge_t, size_t> row_header;
+    size_t n_samp_haps;
+    size_t max_edges;
+    std::vector<bool> matrix_1D;
+    std::unordered_map<stoat::edge_t, size_t> row_header;
+    std::vector<std::string> sample_names;
 
-// TODO: This shouldn't be public
-public:
-    std::vector<std::string> sampleNames;
 };
+
+
 
 } // end namespace stoat
 

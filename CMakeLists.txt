@@ -139,17 +139,17 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/arg_parser.cpp
     src/post_processing.cpp
     src/gaf_creator.cpp
-    src/snarl_data_t.cpp
+    src/types_and_structs.cpp
     src/matrix.cpp
     src/log.cpp
-    src/binary_table.cpp
-    src/quantitative_table.cpp
-    src/genotype_table.cpp
     src/stats_test.cpp
+    src/fast_fishers_exact_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp
-    src/graph_path_association_finder.cpp
-    src/partitioner.cpp
+    src/path_partitioner.cpp
+    src/snarl_data_collection.cpp
+    src/feature_tables.cpp
+    src/vcf_parser.cpp
     
     src/io/register_loader_saver_gbz.cpp
     src/io/register_loader_saver_gbzgraph.cpp
@@ -159,7 +159,9 @@ add_library(${PROJECT_NAME}_objs OBJECT
 
     src/subcommand/vcf.cpp
     src/subcommand/graph.cpp
+    src/subcommand/test.cpp
     src/subcommand/bh_correct.cpp
+    src/subcommand/change_reference.cpp
 )
 
 # Include Directories
@@ -193,7 +195,7 @@ add_executable(unit_tests
     tests/unittest/main_test.cpp
     tests/unittest/binary_test_unit.cpp
     tests/unittest/gaf_creator_unit.cpp
-    tests/unittest/snarl_data_t_unit.cpp
+    tests/unittest/types_and_structs_unit.cpp
     tests/unittest/matrix_unit.cpp
     tests/unittest/quantitative_test_unit.cpp
     tests/unittest/path_partitioner_unit.cpp
@@ -201,6 +203,9 @@ add_executable(unit_tests
     tests/unittest/post_processing_unit.cpp
     tests/unittest/snarl_analyzer_unit.cpp
     tests/unittest/utils_unit.cpp
+    tests/unittest/snarl_data_collection_unit.cpp
+    tests/unittest/feature_tables_unit.cpp
+    tests/unittest/vcf_parser_unit.cpp
 )
 
 target_compile_options(unit_tests PRIVATE -w) # fix warning
@@ -218,11 +223,12 @@ add_executable(vcf_simu_test tests/system/compare_files_utils.cpp tests/system/v
 # add src target lib + Catch2 lib 
 target_link_libraries(vcf_simu_test PRIVATE 
     Boost::boost
-    ${HTSLIB_LIBRARIES})
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
 
 add_test(NAME VcfSimuTest COMMAND vcf_simu_test)
 
-add_executable(graph_simu_test tests/system/compare_files_utils.cpp tests/system/graph_simu_test.cpp)
+add_executable(graph_simu_test tests/system/compare_files_utils.cpp tests/system/load_tables.cpp tests/system/graph_simu_test.cpp)
 
 # add src target lib + Catch2 lib 
 target_link_libraries(graph_simu_test PRIVATE 
@@ -231,3 +237,15 @@ target_link_libraries(graph_simu_test PRIVATE
 
 # Register with CTest
 add_test(NAME GraphSimuTest COMMAND graph_simu_test)
+
+
+##### Add changing reference system test
+add_executable(change_ref_test tests/system/compare_files_utils.cpp tests/system/change_reference_test.cpp)
+
+# add src target lib + Catch2 lib 
+target_link_libraries(change_ref_test PRIVATE 
+    Boost::boost
+    ${HTSLIB_LIBRARIES})
+
+# Register with CTest
+add_test(NAME ChangeRefTest COMMAND change_ref_test)

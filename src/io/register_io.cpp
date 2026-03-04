@@ -8,8 +8,8 @@
 
 #include "register_loader_saver_gbz.hpp"
 #include "register_loader_saver_gbzgraph.hpp"
-#include "register_loader_saver_packed_graph.hpp"
 #include "register_loader_saver_hash_graph.hpp"
+#include "register_loader_saver_packed_graph.hpp"
 
 #include "register_io.hpp"
 

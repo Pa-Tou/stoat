@@ -1,11 +1,10 @@
 #include <catch.hpp>
-#include "../../src/binary_table.hpp"
 #include "../../src/stats_test.hpp"
 
 using namespace stoat; 
 
-TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
-    FisherKhi2 fk;
+TEST_CASE("Chi-square & Fisher test function", "[fchi.chi2_2xN]") {
+    FisherChi2 fchi;
 
     SECTION("Valid chi-square test & valid Fisher test calculation") {
         std::vector<size_t> g0 = {10, 20};
@@ -14,8 +13,8 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2x2(a, b, c, d)  == "9.8233e-03");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1.9383e-02");
+        REQUIRE(fchi.chi2_2x2(a, b, c, d)  == "9.8233e-03");
+        REQUIRE(fchi.fastFishersExactTest(a, b, c, d)  == "1.9383e-02");
     }
 
     SECTION("Chi-square & Fisher test (significatif)") {
@@ -25,26 +24,26 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2x2(a, b, c, d)  == "9.5037e-10");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "3.5379e-10");
+        REQUIRE(fchi.chi2_2x2(a, b, c, d)  == "9.5037e-10");
+        REQUIRE(fchi.fastFishersExactTest(a, b, c, d)  == "3.5379e-10");
     }
 
     SECTION("Chi-square fail (N row)") {
         std::vector<size_t> g0 = {10, 15, 5};
         std::vector<size_t> g1 = {20, 10, 10};
-        REQUIRE(fk.chi2_2xN(g0, g1) == "9.6972e-02");
+        REQUIRE(fchi.chi2_2xN(g0, g1) == "9.6972e-02");
     }
 
     SECTION("Chi-square N row significatif") {
         std::vector<size_t> g0 = {5, 10, 15, 20};
         std::vector<size_t> g1 = {20, 15, 10, 5};
-        REQUIRE(fk.chi2_2xN(g0, g1) == "1.6974e-04");
+        REQUIRE(fchi.chi2_2xN(g0, g1) == "1.6974e-04");
     }
 
     SECTION("Chi-square fail (N row 1)") {
         std::vector<size_t> g0 = {10, 10, 10, 10, 10};
         std::vector<size_t> g1 = {10, 10, 10, 10, 10};
-        REQUIRE(fk.chi2_2xN(g0, g1) == "1");
+        REQUIRE(fchi.chi2_2xN(g0, g1) == "1");
     }
 
     SECTION("Chi-square fail & Fisher test fail (full zero row)") {
@@ -54,14 +53,14 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2x2(a, b, c, d)  == "NA");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "NA");
+        REQUIRE(fchi.chi2_2x2(a, b, c, d)  == "NA");
+        REQUIRE(fchi.fastFishersExactTest(a, b, c, d)  == "NA");
     }
 
     SECTION("Chi-square fail (zero row)") {
         std::vector<size_t> g0 = {0, 0, 0};
         std::vector<size_t> g1 = {10, 20, 30};
-        REQUIRE(fk.chi2_2xN(g0, g1) == "NA");
+        REQUIRE(fchi.chi2_2xN(g0, g1) == "NA");
     }
 
     SECTION("Chi-square fail & Fisher test valid (zero row + column)") {
@@ -71,8 +70,8 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2x2(a, b, c, d) == "NA");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d) == "NA");
+        REQUIRE(fchi.chi2_2x2(a, b, c, d) == "NA");
+        REQUIRE(fchi.fastFishersExactTest(a, b, c, d) == "NA");
     }
 
     SECTION("Chi-square & Fisher test (1/0 0/1)") {
@@ -82,8 +81,8 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2x2(a, b, c, d)  == "0.1573");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1");
+        REQUIRE(fchi.chi2_2x2(a, b, c, d)  == "0.1573");
+        REQUIRE(fchi.fastFishersExactTest(a, b, c, d)  == "1");
     }
 
     SECTION("Chi-square & Fisher test (strange but correct)") {
@@ -93,8 +92,8 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2x2(a, b, c, d)  == "0.8857");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1");
+        REQUIRE(fchi.chi2_2x2(a, b, c, d)  == "0.8857");
+        REQUIRE(fchi.fastFishersExactTest(a, b, c, d)  == "1");
     }
 
     SECTION("Chi-square & Fisher test (very significative)") {
@@ -104,8 +103,8 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2x2(a, b, c, d)  == "8.8051e-23");
-        REQUIRE(fk.fastFishersExactTest(a, b, c, d)  == "1.4799e-23");
+        REQUIRE(fchi.chi2_2x2(a, b, c, d)  == "8.8051e-23");
+        REQUIRE(fchi.fastFishersExactTest(a, b, c, d)  == "1.4799e-23");
     }
     SECTION("Chi-square & Fisher test (very significative) with empty counts") {
         std::vector<size_t> g0 = {122, 0, 78};
@@ -114,6 +113,28 @@ TEST_CASE("Chi-square & Fisher test function", "[fk.chi2_2xN]") {
         size_t b = g0[1];
         size_t c = g1[0];
         size_t d = g1[1];
-        REQUIRE(fk.chi2_2xN(g0, g1)  == "8.8051e-23");
+        REQUIRE(fchi.chi2_2xN(g0, g1)  == "8.8051e-23");
     }
+
+    SECTION("four alleles and some very low counts") {
+        //     A0 A1 A2 A3
+        // S1 {1, 0, 1, 0}
+        // S2 {1, 0, 1, 0}
+        // S3 {1, 1, 0, 0}
+        // S4 {0, 1, 1, 0}
+        // S5 {0, 0, 1, 1}
+
+        std::vector<size_t> g0 = {2, 2, 2, 0};
+        std::vector<size_t> g1 = {1, 0, 2, 1};
+        
+        std::pair<std::string, std::string> pvs = fchi.fisher_chi2(g0, g1);
+
+        INFO("p_value fisher = " << pvs.first);
+        INFO("p_value chi2 = " << pvs.second);
+        
+        REQUIRE(pvs.first == "NA");
+        REQUIRE(std::abs(std::stod(pvs.second) - 0.3831) < 0.01);
+    }
+
+
 }

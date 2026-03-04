@@ -1,66 +1,59 @@
 #ifndef stats_test_HPP
 #define stats_test_HPP
 
-#include <sstream>
-#include <vector>
-#include <cmath>
-#include <iostream>
 #include <string>
-#include <map>
-#include <numeric>
-#include <stdexcept>
-#include <algorithm>
-#include <unordered_set>
-#include <tuple>
-#include <iomanip>
-#include <Eigen/Dense>
-#include <unordered_map>
+#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
-#include <boost/math/distributions/fisher_f.hpp>
-#include <boost/math/distributions/students_t.hpp>
-#include <boost/math/distributions/chi_squared.hpp>
-#include <boost/multiprecision/cpp_dec_float.hpp>
-#include <boost/math/distributions/normal.hpp>
-
-#include "arg_parser.hpp"
-#include "matrix.hpp"
-#include "utils.hpp"
-
 namespace stoat {
+
+// used to pass the result of a test (Fisher-Chi2 or regression)
+// up to the writer, hence why they're all stings
+// maybe not the best way but better than std::pairs and such
+// (second_pv can be used for Fisher-Chi2 for the Chi2 pvalue)
+struct test_result_t {
+    std::string pv;
+    std::string second_pv;
+    std::string group_paths;
+    std::string allele_paths;
+
+    std::string to_string(){
+        return pv + " " + second_pv + " " + group_paths + " " + allele_paths;
+    };
+};
 
 // ------------------------ Regression class ------------------------
 
-class FisherKhi2 {
-    public:
-        FisherKhi2(size_t degrees_of_freedom = 1);
-        ~FisherKhi2() = default;
+class FisherChi2 {
+public:
+    FisherChi2() = default;
+    ~FisherChi2() = default;
+    
+    // Function to perform the Chi-square test on row size > 2 
+    // If one of the genotypes has no counts, return "NA"
+    // If one of the columns (alleles) has no counts, ignore it
+    std::string chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
-        // Function to perform the Chi-square test on row size > 2 
-        // If one of the genotypes has no counts, return "NA"
-        // If one of the columns (alleles) has no counts, ignore it
-        std::string chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    // Function to perform the Chi-square test on row size == 2 
+    std::string chi2_2x2(const size_t& m11, const size_t& m12,
+                         const size_t& m21, const size_t& m22);
 
-        // Function to perform the Chi-square test on row size == 2 
-        std::string chi2_2x2(const size_t& m11, const size_t& m12,
-            const size_t& m21, const size_t& m22);
+    // Function to perform Fisher's exact test
+    // not const& because we change the value
+    // This is implemented in fast_fishers_exact_test.cpp because it was not us who wrote it
+    std::string fastFishersExactTest(size_t m11, size_t m12,
+                                     size_t m21, size_t m22);
 
-        // Function to perform Fisher's exact test
-        // not const& because we change the value
-        std::string fastFishersExactTest(size_t m11, size_t m12,
-            size_t m21, size_t m22);
-        
-        std::pair<std::string, std::string> fisher_khi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    // depending on the number of alleles, uses Chi2 (>2 alleles) or the fast
+    // Fisher exact test (2 alleles).
+    // returns two pvalues: fastfisher_p_value (which can be NA if >2 alleles), and chi2_p_value
+    std::pair<std::string, std::string> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
-    private:
-        // Constants with maximum usable precision for 'double'
-        static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
-        static constexpr double kExactTestBias = 1.0339757656912846e-25;
-
-        // Chi-squared distribution
-        const boost::math::chi_squared chi_squared_dist;
-        const boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> cpp_dec_float_50_dist;
+private:
+    // Constants with maximum usable precision for 'double'
+    static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
+    static constexpr double kExactTestBias = 1.0339757656912846e-25;
 };
 
 class LinearRegression {
@@ -68,105 +61,46 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        std::tuple<std::string, std::string> linear_regression(
-            const std::vector<std::vector<double>>& X_raw,
-            const std::vector<double>& y,
-            const std::vector<std::vector<double>>& covariates);
-        
-        std::vector<std::vector<double>> inverse(
-            const std::vector<std::vector<double>> &A, 
-            double tol = 1e-10);
+        std::string linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
 
-        std::vector<std::vector<double>> pseudoInverse(
-            const std::vector<std::vector<double>>& A, 
-            double tol = 1e-10);
-        
-        std::vector<std::vector<double>> fromEigenMatrix(
-            const Eigen::MatrixXd& mat);
-        
-        Eigen::MatrixXd toEigenMatrix(
-            const std::vector<std::vector<double>>& mat);
-        
-        std::vector<std::vector<double>> transpose(
-            const std::vector<std::vector<double>> &A);
+        std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>> &A);
 
-        std::vector<double> matvec(
+        std::vector<double> mult_mat_vec(
             const std::vector<std::vector<double>> &A, 
             const std::vector<double> &b);
 
-        std::vector<std::vector<double>> matmul(
+        std::vector<std::vector<double>> mult_mat_mat(
             const std::vector<std::vector<double>> &A, 
             const std::vector<std::vector<double>> &B);
 };
 
 class LogisticRegression {
-    public:
-        LogisticRegression() = default;
-        ~LogisticRegression() = default;
-
-        double calculate_log_likelihood(const Eigen::VectorXd& y, const Eigen::VectorXd& p);
-
-        // Sigmoid function
-        inline double sigmoid(double x);
-
-        // Clamp helper
-        inline double clamp(double x, double lo, double hi);
-
-        // GLM Implementation with Iteratively Reweighted Least Squares (IRLS)
-        std::tuple<std::string, std::string, std::string> logistic_regression(
-            const std::vector<std::vector<double>>& variant_data,
-            const std::vector<bool>& phenotype,
-            const std::vector<std::vector<double>>& covariates);
-
-    private:
-        const int max_iterations = 100;
-        const double tolerance = 1e-6;
-        const double l2_penalty = 1e-4;
-        const double epsilon = 1e-8;
+public:
+    LogisticRegression() = default;
+    ~LogisticRegression() = default;
+    
+    // compute the sigmoid function, here corresponding to the "predicted" probability associated to a set of observations and the model (Beta x X)
+    Eigen::VectorXd sigmoid(const Eigen::VectorXd& t) const;
+    
+    // Logistic regression using the Newton-Raphson method to find the MLE
+    // if the betas get too high, it will switch to Firth penalized regression
+    // p-value is computed from the likelihood ratio of the full vs reduced model
+    // returns the pvalue as a string, ready to be written to the output
+    std::string logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
+    
+private:
+    // maximum number of iterations to perform
+    const int max_iterations = 100;
+    // how big can the step/delta be when updating the betas
+    const double max_step = 3;
+    // tolerance to decide if the score and delta are small enough to consider the iteration to have converged
+    const double conv_tol = 0.001;
 };
 
-class LMM {
-    public:
-        LMM() = default;
-        ~LMM() = default;
-
-        // template <typename T> 
-        // lmm(const std::vector<std::vector<double>>& df,
-        //     const std::vector<T>& phenotype_table,
-        //     const stoat_vcf::KinshipMatrix& kinship,
-        //     const std::vector<std::vector<double>>& covariates);
-};
-
-void combine_identical_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-void remove_empty_columns_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1);
-
-void remove_empty_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-void remove_last_columns_quantitative_table(
-    std::vector<std::vector<double>>& df);
-
-bool check_last_columns_quantitative_table(
-    const std::vector<std::vector<double>>& df);
-
-/// Return true if snarl must be filtered
-bool filtration_quantitative_table(
-    const std::vector<std::vector<double>>& df,
-    const size_t& min_individuals,
-    const double& maf);
-
-/// Return true if the snarl should be filtered out, false if it should be kept
-bool filtration_binary_table(
-    std::vector<size_t>& g0, 
-    std::vector<size_t>& g1,
-    const size_t& individuals_included,
-    const size_t& min_individuals,
-    const double& maf);
-
+// Compute the inverse or Moore-Penrose pseudoinverse of a matrix
+Eigen::MatrixXd inverse(const Eigen::MatrixXd& A);
+Eigen::MatrixXd pseudo_inverse(const Eigen::MatrixXd& A, double tol = 1e-10);
+    
 } // namespace stoat
 
 #endif 

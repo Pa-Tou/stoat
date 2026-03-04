@@ -3,103 +3,54 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <fstream>
 #include <unordered_set>
-#include <sstream>
-#include <cstdlib>
-#include <utility>
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <future>
-#include <chrono>
-#include <htslib/vcf.h>
-#include <htslib/hts.h>
 
-#include "arg_parser.hpp"
-#include "stats_test.hpp"
-#include "matrix.hpp"
-#include "snarl_data_t.hpp"
-#include "binary_table.hpp"
-#include "quantitative_table.hpp"
-#include "genotype_table.hpp"
-#include "utils.hpp"
-#include "log.hpp"
-
-using namespace std;
+#include "snarl_data_collection.hpp"
+#include "writer.hpp"
+#include "feature_tables.hpp"
 
 namespace stoat_vcf {
 
 class SnarlAnalyzer {
 public:
     SnarlAnalyzer(
-        const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
-        EdgeBySampleMatrix& edge_matrix,
-        const std::vector<std::string>& list_samples, 
-        const std::vector<std::vector<double>>& covariate,
-        const double& maf_threshold,
-        const double& table_threshold,
-        const size_t& min_individuals,
-        const std::string& regression_dir);
+        const stoat::SnarlDataCollection& snarl_collection,
+        const stoat::CovariateTable& covariate,
+        const double maf_threshold,
+        const size_t min_individuals);
+
+    SnarlAnalyzer(
+        const stoat::SnarlDataCollection& snarl_collection,
+        const double maf_threshold,
+        const size_t min_individuals);
 
     ~SnarlAnalyzer()=default;
 
-    /// Go through the vcf by chromosome, parse it to get a matrix of genotypes (either binary, quantitative, or eqtl, depending on the phenotype type),
-    /// then write the output (also depending on the phenotype type).
-    /// This calls write_header() to write the appropriate output header and analyze_and_write_snarl() for each snarl
-    void process_snarls_by_chromosome_chunk(
-        htsFile* &ptr_vcf, 
-        bcf_hdr_t* &hdr, 
-        bcf1_t* &rec,
-        const std::string& output_filename);
-
-    /// Update the EdgeBySampleMatrix representing the genotypes in a vcf and the pointers to the vcf but advanced to the end of the chromosome?
-    std::tuple<htsFile*, bcf_hdr_t*, bcf1_t*> make_edge_matrix(
-        htsFile *ptr_vcf, 
-        bcf_hdr_t *hdr, 
-        bcf1_t *rec, 
-        std::string &chr, 
-        size_t &num_paths_ch);
-
-    /// For the given snarl, analyze the snarl and write it to outf
-    virtual bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf) = 0;
-
-    /// Write the header of the output tsv file
-    /// This should ideally call a write_header() function from writer.hpp to keep things consistent
-    virtual void write_header(std::ofstream& outf) = 0;
-
+    // Go throught the snarls in a file and test the association with the phenotype.
+    // Avoids loading the entire snarl collection with all the genotypes at once.
+    void test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer);
+    
+    // get the type of phenotype, in case we do specific things outside of this class (although we should try to avoid it)
+    stoat::phenotype_type_t get_phenotype_type() const;
+    
+    /// For the given snarl, get the genotypes and test the snarl, then write results to outf
+    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) = 0;
+    
 //////////////// Private data members
 protected:
     
-    // Map chromosome name to a vector of snarl_data_t
-    const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data;
-
-    // A list of sample names
-    const std::vector<std::string>& list_samples;
+    // a collection of all snarls
+    const stoat::SnarlDataCollection& snarl_collection;
 
     // Covariate matrix
-    const std::vector<std::vector<double>>& covariate;
+    const stoat::CovariateTable& covariate;
 
-    // Matrix of edges in each sample/haplotype
-    // This generally is a per-chromosome or per-chunk matrix, so it must be updated for each new chunk being analyzed 
-    EdgeBySampleMatrix& edge_matrix;
-    const double& maf_threshold; 
-    const double& table_threshold;
-    const size_t& min_individuals;
-    const std::string& regression_dir;
-    std::ofstream* outf;
-};
+    // save the type of phenotype for that SnarlAnalyzer (e.g. BINARY, QUANTITATIVE)
+    stoat::phenotype_type_t phenotype_type;
 
-class VcfSnarlAnalyzer : public SnarlAnalyzer {
-    public:
-        VcfSnarlAnalyzer(
-            const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
-            EdgeBySampleMatrix& edge_matrix,
-            const std::vector<std::string>& list_samples);
-
-        bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
-        void write_header(std::ofstream &outf);
+    // threshold used to filter snarls 
+    const double maf_threshold; 
+    const size_t min_individuals;
 };
 
 class BinarySnarlAnalyzer : public SnarlAnalyzer {
@@ -107,23 +58,34 @@ class BinarySnarlAnalyzer : public SnarlAnalyzer {
 public:
     
     BinarySnarlAnalyzer(
-        const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
-        EdgeBySampleMatrix& edge_matrix,
-        const std::vector<std::string>& list_samples, 
-        const double& maf_threshold,
-        const double& table_threshold,
-        const std::vector<bool>& binary_phenotype,
-        const size_t& min_individuals,
-        const std::string& regression_dir);
+        const stoat::SnarlDataCollection& snarl_collection,
+        const double maf_threshold,
+        const stoat::BinaryPhenotypeTable& phenotype,
+        const size_t min_individuals);
 
-    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
-    void write_header(std::ofstream &outf);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
 
-/////////////////// Private data members
 protected:
 
-    const std::vector<bool>& binary_phenotype;
-    stoat::FisherKhi2 fk;
+    const stoat::BinaryPhenotypeTable& phenotype;
+    stoat::FisherChi2 fchi;
+};
+
+class ExactBinarySnarlAnalyzer : public SnarlAnalyzer {
+
+public:
+    
+    ExactBinarySnarlAnalyzer(
+        const stoat::SnarlDataCollection& snarl_collection,
+        const double maf_threshold,
+        const stoat::BinaryPhenotypeTable& phenotype,
+        const size_t min_individuals);
+
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+
+protected:
+    std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
+    
 };
 
 class BinaryCovarSnarlAnalyzer : public SnarlAnalyzer {
@@ -131,24 +93,18 @@ class BinaryCovarSnarlAnalyzer : public SnarlAnalyzer {
 public:
     
     BinaryCovarSnarlAnalyzer(
-        const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data,
-        EdgeBySampleMatrix& edge_matrix,
-        const std::vector<std::string>& list_samples, 
-        const std::vector<std::vector<double>>& covariate, 
-        const double& maf_threshold, 
-        const double& table_threshold,
-        const std::vector<bool>& binary_phenotype,
-        const size_t& min_individuals,
-        const std::string& regression_dir);
+        const stoat::SnarlDataCollection& snarl_collection,
+        const stoat::CovariateTable& covariate,
+        const double maf_threshold, 
+        const stoat::BinaryPhenotypeTable& phenotype,
+        const size_t min_individuals);
 
-    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
-
-    void write_header(std::ofstream &outf);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
 
 /////////////////// Private data members
 protected:
 
-    const std::vector<bool>& binary_phenotype;
+    const stoat::BinaryPhenotypeTable& phenotype;
     stoat::LogisticRegression lr;
 };
 
@@ -157,24 +113,18 @@ class QuantitativeSnarlAnalyzer : public SnarlAnalyzer {
 public:
     
     QuantitativeSnarlAnalyzer(
-        const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data, 
-        EdgeBySampleMatrix& edge_matrix,
-        const std::vector<std::string>& list_samples, 
-        const std::vector<std::vector<double>>& covariate, 
-        const double& maf_threshold, 
-        const double& table_threshold,
-        const std::vector<double>& quantitative_phenotype,
-        const size_t& min_individuals,
-        const std::string& regression_dir);
+        const stoat::SnarlDataCollection& snarl_collection, 
+        const stoat::CovariateTable& covariate,
+        const double maf_threshold, 
+        const stoat::QuantitativePhenotypeTable& phenotype,
+        const size_t min_individuals);
 
-    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf) ;
-
-    void write_header(std::ofstream &outf);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) ;
 
 /////////////////// Private data members
 protected:
 
-    const std::vector<double>& quantitative_phenotype;
+    const stoat::QuantitativePhenotypeTable& phenotype;
     stoat::LinearRegression lr;
 };
 
@@ -182,57 +132,29 @@ class EQTLSnarlAnalyzer : public SnarlAnalyzer {
 
 public:
     
-    EQTLSnarlAnalyzer(
-        const std::unordered_map<std::string, std::vector<stoat::Snarl_data_t>>& chr_to_snarl_data, 
-        EdgeBySampleMatrix& edge_matrix,
-        const std::vector<std::string>& list_samples, 
-        const std::vector<std::vector<double>>& covariate, 
-        const double& maf_threshold, 
-        const double& table_threshold,
-        const std::unordered_map<std::string, std::vector<Qtl_data>>& eqtl_map,
-        const size_t& windows_gene_threshold,
-        const size_t& min_individuals,
-        const std::string& regression_dir);
-
-    bool analyze_and_write_snarl(const stoat::Snarl_data_t& snarl_data, const std::string& chr, std::ofstream& outf);
-
-    void write_header(std::ofstream &outf);
-
-/////////////////// Private data members
+    EQTLSnarlAnalyzer(const stoat::SnarlDataCollection& snarl_collection, 
+                      const stoat::CovariateTable& covariate,
+                      const double maf_threshold, 
+                      const stoat::GeneExpressionTable& gene_expression,
+                      const size_t max_gene_dist,
+                      const size_t min_individuals);
+    
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    
 protected:
 
-    // TODO idk what these are 
-    // Maps something to something else?
-    // Matis ans : eqtl_map is an {chr name : std::vector<Qtl_data>}
-    // is organise like that in the first place to optimize edge_matrix / eqtl linking
-    // but now we can just use std::vector<Qtl_data> because we already know the chr
-    // that we gonna use
-    const std::unordered_map<std::string, std::vector<Qtl_data>>& eqtl_map;
-    const size_t& windows_gene_threshold;
+    // the Table with gene expression and positions
+    const stoat::GeneExpressionTable& gene_expression;
+
+    // the maximum distance allowed between a snarl and a gene
+    const size_t max_gene_dist;
+
+    // an object from the linear regression helper class
     stoat::LinearRegression lr;
 };
 
-std::vector<size_t> found_gene_snarl(
-    const std::vector<Qtl_data>& gene_position, 
-    const size_t& start_pos, 
-    const size_t& end_pos,
-    const size_t& windows_gene_threshold);
-
-// Decompose path stoat::Path_traversal_t to vectorstoat::Edge_t
-std::vector<stoat::Edge_t> decompose_path_to_edges(const stoat::Path_traversal_t& s);
-
-// Decompose a list of paths std::string into a vector ofstoat::Edge_t
-const std::vector<std::vector<stoat::Edge_t>> decompose_path_list_str(const std::vector<std::string>& list_paths);
-
-// Decompose path std::string to vectorstoat::Edge_t
-std::vector<stoat::Edge_t> decompose_path_str_to_edge(const std::string& s);
-
-/// Given a path through the snarl, a matrix of edges for each sample/haplotype, and the number of columns (samples/haplotypes),
-/// return the columns for which all edges (rows) in the path are set, i.e. the haplotypes with the given path.
-std::vector<size_t> identify_path(
-    const std::vector<stoat::Edge_t>& list_edge_path,
-    const EdgeBySampleMatrix& matrix,
-    const size_t num_cols);
+// Decompose path std::string to vectorstoat::edge_t
+std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s);
 
 } //end stoat namespace
 

@@ -1,49 +1,111 @@
 #ifndef WRITER_INCLUDED
 #define WRITER_INCLUDED
 
-#include <iostream>
-#include <handlegraph/path_position_handle_graph.hpp>
-#include <bdsg/snarl_distance_index.hpp>
-#include "utils.hpp"
-#include "snarl_data_t.hpp"
+#include <fstream>
+#include <htslib/bgzf.h>
 
-using namespace std;
+#include "types_and_structs.hpp"
+#include "stats_test.hpp"
+
+// Classes to abstract the writing (and reading) of files in stoat. Standard write/read can be done with StdWriter/StdReader,
+// while bgzipped content can be written/read using BgzWriter/BgzReader. For Writers, some specialized methods are implemented
+// to write specific output. Or the generic *write* function can be used. For Readers, it implements the basic getline function.
+
 namespace stoat {
 
-// Write headers
-void write_binary_header(std::ostream& outstream);
-void write_binary_covar_header(std::ostream& outstream);
-void write_quantitative_header(std::ostream& outstream);
-void write_eqtl_header(std::ostream& outstream);
-void write_vcf_header(std::ostream& outstream, const std::vector<std::string> &list_samples, const std::vector<std::string>& chr_list);
+// Generic Writer class with the specialized output writer functions
+class Writer {
+public:
+    Writer(const std::string output_file_path);
 
-// Write lines
-void write_binary(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                    const std::string& fastfisher_p_value, const std::string& chi2_p_value, const std::string& group_paths);
+    std::string get_file_path() const;
 
-void write_binary_covar(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value,
-                        const std::string& beta, const std::string& se, const std::vector<size_t>& allele_paths);
+    // write the given string
+    virtual bool write(const std::string out_content) = 0;
 
-void write_quantitative(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                        const std::string& p_value, const std::string& r2, const std::vector<size_t>& allele_paths);
+    // cleanly close the writer
+    virtual void close() = 0;
 
-void write_eqtl(std::ostream& outstream, const std::string& chr, const Snarl_data_t& snarl_data_s, const std::string& type_var_str,
-                    const std::string& gene_name, const std::string& p_value, const std::string& r2, const std::vector<size_t>& allele_paths);
+    // header writer
+    void write_stoat_output_header(phenotype_type_t phenotype_type);
 
-void write_vcf(std::ostream& outstream, const std::string& chr, const size_t& pos, const std::string& id,
-               const std::string& ref, const std::string& alt, const std::string& paths, 
-               const std::vector<std::vector<char>>& genotype);
+    // stoat output writers
+    void write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
 
-// Write the fasta for paths in a snarl. If samples is given, only write the fast for samples present to outstream. If samples is not given, write all samples.
-void write_fasta(std::ostream& outstream, const handlegraph::PathPositionHandleGraph& graph, 
-                 const snarl_partition_t& snarl_info, const std::unordered_map<std::string, bool>& samples, const string& reference_name);
+    void write_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
 
-void writeSignificantTableToTSV(
-    const std::vector<std::vector<double>>& table,
-    const std::vector<std::string>& list_snarl,
-    const std::vector<std::string>& list_samples,
-    const std::string& filename);
+    void write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+
+    void write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result);
+    
+protected:
+    const std::string file_path;
+    
+};
+
+// Standart Writer: uncompressed using a standard output file stream
+class StdWriter: public Writer {
+public:
+    StdWriter(const std::string output_file_path);
+
+    bool write(const std::string out_content);
+
+    void close();
+protected:
+    std::ofstream file_stream;
+    
+};
+
+// Bgzipped writer using a HTSlib
+class BgzWriter: public Writer {
+public:
+    BgzWriter(const std::string output_file_path);
+
+    bool write(const std::string out_content);
+
+    void close();
+protected:
+    BGZF *file_p;    
+};
+
+// Generic Reader class
+class Reader {
+public:
+    Reader(const std::string input_file_path);
+
+    // read a line and update the *line* argument. Returns false if EOF.
+    virtual bool getline(std::string& line) = 0;
+
+    virtual void close() = 0;
+protected:
+    const std::string file_path;
+};
+
+// Standart Reader for uncompressed content using a standard output file stream
+class StdReader: public Reader {
+public:
+    StdReader(const std::string input_file_path);
+
+    // read a line and update the *line* argument. Returns false if EOF.
+    bool getline(std::string& line);
+
+    void close();
+protected:
+    std::ifstream file_stream;
+};
+
+// Bgzipped reader using a HTSlib
+class BgzReader: public Reader {
+public:
+    BgzReader(const std::string input_file_path);
+
+    // read a line and update the *line* argument. Returns false if EOF.
+    bool getline(std::string& line);
+
+    void close();
+protected:
+    BGZF *file_p;    
+};
 
 } //end namespace
 

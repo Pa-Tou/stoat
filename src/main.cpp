@@ -25,23 +25,29 @@
 
 #include "subcommand/vcf.hpp"
 #include "subcommand/graph.hpp"
+#include "subcommand/test.hpp"
 #include "subcommand/bh_correct.hpp"
+#include "subcommand/change_reference.hpp"
 #include "log.hpp"
 
 // Global variable
 const std::string VERSION = "v0.0.3";
 
 void print_help() {
-    std::cerr   << "stoat: gwas analysis tool, version " << VERSION << "\n"
+    std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls. Version " << VERSION << "\n"
                 << "usage: stoat <command> [options]\n\n"    
-                << "main usage:\n"
-                << "  -- vcf           gwas analysis base on vcf pangenome calling\n"
-                << "  -- graph         gwas analysis base on pangenome graph\n"
                 << "  -- version       version information\n"
                 << "\n"
+                << "snarl genotyping:\n"
+                << "  -- vcf           genotypes snarls using a VCF from a pangenome genotyping\n"
+                << "  -- graph         genotypes snarls from the haplotypes in a pangenome graph\n"
+                << "\n"
+                << "association testing:\n"
+                << "  -- test          performs the test between snarl genotypes and a phenotype\n"
+                << "\n"
                 << "post-processing:\n"
-                << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file\n"
-                << "                   (this already done by `stoat vcf` and `stoat graph` by default)\n";     
+                << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file (DEPRECATED?)\n"
+                << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n";     
 }
 
 int main(int argc, char* argv[]) {
@@ -62,13 +68,19 @@ int main(int argc, char* argv[]) {
     omp_set_num_threads(1);
 
     if (subcommand == "vcf") {
-        stoat_command::main_stoat_vcf(argc, argv, verbosity);
+        stoat_command::main_stoat_vcf(argc, argv);
 
     } else if (subcommand == "graph") {
-        stoat_command::main_stoat_graph(argc, argv, verbosity);
+        stoat_command::main_stoat_graph(argc, argv);
+
+    } else if (subcommand == "test") {
+        stoat_command::main_stoat_test(argc, argv);
 
     } else if (subcommand == "BHcorrect") {
-        stoat_command::main_stoat_bh_correct(argc, argv, verbosity);
+        stoat_command::main_stoat_bh_correct(argc, argv);
+
+    } else if (subcommand == "change-ref") {
+        stoat_command::main_stoat_change_reference(argc, argv);
 
     } else if (subcommand == "version") {
         std::cout << "stoat: GWAS analysis tool, version " << VERSION;

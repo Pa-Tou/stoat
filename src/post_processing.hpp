@@ -3,16 +3,12 @@
 
 #include <vector>
 #include <tuple>
-#include <algorithm>
-#include <iostream>
-#include <cmath>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <cstdio>
-#include "utils.hpp"
+#include "types_and_structs.hpp"
 
-using namespace std;
+#include <handlegraph/path_position_handle_graph.hpp>
+#include <bdsg/snarl_distance_index.hpp>
+
 
 namespace stoat{
 
@@ -37,6 +33,13 @@ void add_BH_adjusted_column(
     const std::string& output_dir,
     const std::string& output_file_significant,
     size_t p_col);
+
+
+/// Copy the input file (which is the output of stoat) and re-write it with reference coordinates on any path starting with reference_prefix
+/// write result to stdout
+/// This deals with its own file handling
+void change_reference(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                      const std::string& input_file, const std::unordered_set<std::string>& reference_names);
 
 } // namespace stoat_vcf
 

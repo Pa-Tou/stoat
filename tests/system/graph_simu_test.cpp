@@ -2,63 +2,28 @@
 #include <catch.hpp>
 
 #include "compare_files_utils.hpp"
+#include "load_tables.hpp"
 
 namespace fs = std::filesystem;
 using namespace std;
 
-TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
+
+TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
-    const std::string data_path = "../data/binary";
+    const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string graph_base = "pg.full";
 
-
-    SECTION("Test tsv output") {
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
-            + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -T chi2 -r ref";
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE(false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
-        std::ifstream testfile;
-        testfile.open(output_dir+"/binary_table_graph.tsv");
-        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
-        testfile.close();
-
-        // TODO: Add something that actually checks this
-        //bool passed = compare_output_dirs(output_dir, expected_dir);
-        //REQUIRE(passed);
-
-    }
     SECTION("Test tsv output saving snarls") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
 
         cmd +=" -g " + data_path + "/" + graph_base + ".pg"
             + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -M 0 -l 0 -s " + data_path + "/" + graph_base + ".snarls.txt" 
-            + " -T chi2 -r ref";
-
-        cmd += " --output " + output_dir;
+            + " -L -r ref --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -68,27 +33,17 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
-        std::ifstream testfile;
-        testfile.open(output_dir+"/binary_table_graph.tsv");
-        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
-        testfile.close();
-
-        REQUIRE(std::filesystem::exists(data_path+"/"+graph_base+".snarls.txt"));
+        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
         std::ifstream snarlsfile;
-        snarlsfile.open(data_path+"/"+graph_base+".snarls.txt");
+        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
         REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
-        bool start_counting= false;
         std::string line;
         while (std::getline(snarlsfile, line)) {
             // Only start counting snarls after proper header
-            if (start_counting) {
+            if (line[0] != '#') {
                 line_count++;
-            }
-            if (line == "#SNARLS") {
-                start_counting = true;
             }
         }
         snarlsfile.close();
@@ -100,159 +55,26 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph][bug]") {
 
     }
 
-
-    SECTION("Test chi2 fasta output") {
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
-            + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -T chi2 -r ref -O fasta";
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE( false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
-        std::ifstream testfile;
-        testfile.open(output_dir+"/binary_output.fasta");
-        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
-        testfile.close();
-
-
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-
-    }
-
-    SECTION("Test exact fasta output") {
-
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + data_path + "/" + graph_base + ".pg"
-            + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -T exact -r ref -O fasta";
-
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE( false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
-        std::ifstream testfile;
-        testfile.open(output_dir+"/binary_output.fasta");
-        //REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
-        testfile.close();
-
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-    }
-
-    SECTION("Test serialization of snarls") {
-
-        clean_output_dir(output_dir);
-        string output_dir_loaded = output_dir + "_loaded";
-        clean_output_dir(output_dir_loaded);
-        std::filesystem::create_directory(output_dir_loaded);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
-            + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
-            + " -T chi2 -r ref";
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE(false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir_loaded+"/" + graph_base + ".saved_snarls"));
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
-        std::ifstream testfile;
-        testfile.open(output_dir+"/binary_table_graph.tsv");
-        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
-        testfile.close();
-
-        // Now run it again but using the saved snarls
-
-        cmd = "../bin/stoat graph";
-
-        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
-            + " -b " + data_path + "/phenotype_samples.tsv"
-            + " -s " + output_dir_loaded + "/" + graph_base + ".saved_snarls"
-            + " -T chi2 -r ref";
-
-        cmd += " --output " + output_dir_loaded;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE(false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir_loaded+"/binary_table_graph.tsv"));
-        testfile;
-        testfile.open(output_dir_loaded+"/binary_table_graph.tsv");
-        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
-        testfile.close();
-
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", output_dir_loaded+"/binary_table_graph.tsv"));
-
-        // TODO: Add something that actually checks this
-        //bool passed = compare_output_dirs(output_dir, expected_dir);
-        //REQUIRE(passed);
-
-    }
-
-    //clean_output_dir(output_dir);
-    //clean_output_dir(output_dir_loaded);
+    clean_output_dir(output_dir);
 }
 
 TEST_CASE("Output simple nested chain", "[graph]") {
     const std::string output_dir = "../output_binary";
-    const std::string graph_base = "../tests/graph_test/simple_nested_chain";
+    const std::string graph_base = "../tests/test_data/test_graphs/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
     
 
     std::vector<std::string> samples_of_interest = {"path1", "path3"};
     std::vector<std::string> other_samples = {"path0", "path2"};
     
-    string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
+    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_file;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
 
@@ -261,15 +83,101 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".hg"
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T chi2 -r path0 -V 4";
+            + " -L"
+            + " -r path0 -V 4"
+            + " --output " + output_dir;
 
+        std::cout << "Command run : \n" << cmd << std::endl;
 
-        cmd += " --output " + output_dir;
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+        
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m chi2"
+            + " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd_test << std::endl;
+
+        command_output = std::system(cmd_test.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd_test << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({"0","2/3"}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"1:0","1:2"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"0:2","1:0"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            } else if (test == truth3) {
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+        REQUIRE(found_snarls[2]);
+
+    }
+
+    SECTION("Test chi2 tsv output without lengths") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -r path0 -V 4"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -279,30 +187,87 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m chi2"
+            + " --output " + output_dir;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+        std::cout << "Command run : \n" << cmd_test << std::endl;
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        command_output = std::system(cmd_test.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd_test << "\n";
+            REQUIRE( false);
+        }
+        
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"1:0","1:2"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"0:2","1:0"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            } else if (test == truth3) {
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+        REQUIRE(found_snarls[2]);
+
     }
 
     SECTION("Test exact tsv output") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".hg"
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T exact -r path0";
-
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r path0"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -312,95 +277,41 @@ TEST_CASE("Output simple nested chain", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m exact"
+            + " --output " + output_dir;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
+        std::cout << "Command run : \n" << cmd_test << std::endl;
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
-    }
-
-    SECTION("Test chi2 fasta output") {
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".hg"
-            + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T chi2 -r path0 -O fasta";
-
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
+        command_output = std::system(cmd_test.c_str());
         if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
+            std::cerr << "Command failed: " << cmd_test << "\n";
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path2:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path3:1-2", "C");
-
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path0#0#path0:3-6", "TCA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path3:3-6", "TA");
-        truth_fasta.emplace_back(4, ">snarl:4-8|path0#0#path0:3-6|path2:3-3", "");
-
-        truth_fasta.emplace_back(5, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
-
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
-
-    }
-
-    SECTION("Test exact fasta output") {
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".hg"
-            + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T exact -r path0 -O fasta";
-
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE( false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
-
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-
-        truth_fasta.emplace_back(2, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
-
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
-
+        binary_table_values_t truth ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::getline(in_table, line);
+        binary_table_values_t test = load_binary_snarl_line(line);
+        REQUIRE(test == truth);
+        REQUIRE((!std::getline(in_table, line)));
+        in_table.close();
 
     }
 
@@ -410,21 +321,21 @@ TEST_CASE("Output simple nested chain", "[graph]") {
 
 TEST_CASE("Output simple nested chain gbz", "[graph]") {
     const std::string output_dir = "../output_binary";
-    const std::string graph_base = "../tests/graph_test/simple_nested_chain";
+    const std::string graph_base = "../tests/test_data/test_graphs/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
     
 
     std::vector<std::string> samples_of_interest = {"path1", "path3"};
     std::vector<std::string> other_samples = {"path0", "path2"};
     
-    string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
+    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_file;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
         write_cmd = "cat " + samples_file;
@@ -436,15 +347,12 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".gbz"
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T chi2 -r path0 -V 4";
-
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r path0 -V 4"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -454,30 +362,88 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m chi2"
+            + " --output " + output_dir;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+        std::cout << "Command run : \n" << cmd_test << std::endl;
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        command_output = std::system(cmd_test.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd_test << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({"0","2/3"}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"1:0","1:2"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"0:2","1:0"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            } else if (test == truth3) {
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+        REQUIRE(found_snarls[2]);
+
+
     }
 
     SECTION("Test exact tsv output") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".gbz"
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T exact -r path0";
-
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r path0"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -487,112 +453,52 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m exact"
+            + " --output " + output_dir;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\tNA\tNA\tNA\t2");
+        std::cout << "Command run : \n" << cmd_test << std::endl;
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
-    }
-
-    SECTION("Test chi2 fasta output") {
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".gbz"
-            + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T chi2 -r path0 -O fasta";
-
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
+        command_output = std::system(cmd_test.c_str());
         if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
+            std::cerr << "Command failed: " << cmd_test << "\n";
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path0#0#path0:1-2", "C");
-        truth_fasta.emplace_back(1, ">snarl:1-4|path0#0#path0:1-2|path1#0#path1#0:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path2:1-2", "C");
-        truth_fasta.emplace_back(2, ">snarl:1-4|path0#0#path0:1-2|path3:1-2", "C");
-
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path0#0#path0:3-6", "TCA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path1#0#path1#0:3-6", "TA");
-        truth_fasta.emplace_back(3, ">snarl:4-8|path0#0#path0:3-6|path3:3-6", "TA");
-        truth_fasta.emplace_back(4, ">snarl:4-8|path0#0#path0:3-6|path2:3-3", "");
-
-        truth_fasta.emplace_back(5, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(6, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
-
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
-
-    }
-
-    SECTION("Test exact fasta output") {
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".gbz"
-            + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T exact -r path0 -O fasta";
-
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE( false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
-
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-
-        truth_fasta.emplace_back(2, ">snarl:5-7|path0#0#path0:4-5|path0#0#path0:4-5", "C");
-
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path1#0#path1#0:4-4", "");
-        truth_fasta.emplace_back(1, ">snarl:5-7|path0#0#path0:4-5|path3:4-4", "");
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
-
-
+        binary_table_values_t truth ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)2});
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::getline(in_table, line);
+        binary_table_values_t test = load_binary_snarl_line(line);
+        REQUIRE(test == truth);
+        REQUIRE((!std::getline(in_table, line)));
+        in_table.close();
     }
 
     SECTION("Test chi2 tsv output with maf excluding one snarl") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".gbz"
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -M 0.26"
-            + " -T chi2 -r path0 -V 4";
-
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r path0 -V 4"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -602,29 +508,74 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m chi2 -M 0.26"
+            + " --output " + output_dir;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t4\t5\t5_7\t0,1\t0.3333\t8.3265e-02\t0:1,2:0\t2");
+        std::cout << "Command run : \n" << cmd_test << std::endl;
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        command_output = std::system(cmd_test.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd_test << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth3 ({(std::string)"path0#0#path0", 
+                                  (size_t)4, 
+                                  (size_t)5, 
+                                  std::make_pair<size_t, size_t>(5,7), 
+                                  std::vector<std::string>({"0","1"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"0:2","1:0"}), 
+                                  (size_t)2});
+
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth3) {
+                found_snarls[2] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[2]);
     }
+
     SECTION("Test chi2 tsv output with individual count excluding one snarl") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=  " -g " + graph_base + ".gbz"
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -I 4"
-            + " -T chi2 -r path0 -V 4";
-
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r path0 -V 4"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -634,37 +585,87 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
             REQUIRE( false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m chi2 -I 4"
+            + " --output " + output_dir;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0#0#path0\t1\t2\t1_4\t1,1\t1\t1\t1:1,1:1\t1");
-        truth_lines.emplace_back("path0#0#path0\t3\t6\t4_8\t0,3\t1\t0.2482\t2:1,0:1\t1");
+        std::cout << "Command run : \n" << cmd_test << std::endl;
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        command_output = std::system(cmd_test.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd_test << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+
+        binary_table_values_t truth1 ({(std::string)"path0#0#path0", 
+                                  (size_t)1, 
+                                  (size_t)2, 
+                                  std::make_pair<size_t, size_t>(1,4), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "1", 
+                                  std::vector<std::string>({"1:1","1:1"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0#0#path0", 
+                                  (size_t)3, 
+                                  (size_t)6, 
+                                  std::make_pair<size_t, size_t>(4,8), 
+                                  std::vector<std::string>({"0","2/3"}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"1:0","1:2"}), 
+                                  (size_t)1});
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (3, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            } else if (test.chr != "NA") { // could include the extra snarl but maybe not
+                cerr << "Line doesn't match the truth" << endl;
+                cerr << line << endl;
+                REQUIRE(false);
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+
+
     }
 
     clean_output_dir(output_dir);
     fs::remove(samples_file);
 }
 
-TEST_CASE("Output loop with snarl", "[graph]") {
+TEST_CASE("Output loop with snarl", "[graph][bug]") {
     const std::string output_dir = "../output_binary";
-    const std::string graph_base = "../tests/graph_test/loop_with_indel";
+    const std::string graph_base = "../tests/test_data/test_graphs/loop_with_indel";
 
     std::vector<std::string> samples_of_interest = {"path1", "path2"};
     std::vector<std::string> other_samples = {"path0"};
 
     const std::string samples_file = "./samples.tsv";
     
-    string write_cmd = "echo \"FID\tIID\tPHENO\" > " + samples_file;
+    string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_file;
     int ignore = std::system(write_cmd.c_str());
     for (auto sample : samples_of_interest) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t2\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
     for (auto sample : other_samples) {
-        write_cmd = "echo \"" + sample + "\t" + sample + "\t1\" >> " + samples_file;
+        write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
 
@@ -672,14 +673,12 @@ TEST_CASE("Output loop with snarl", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-        cmd += " -g " + graph_base + ".hg"
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T chi2 -r path0";
-
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r path0"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -688,29 +687,74 @@ TEST_CASE("Output loop with snarl", "[graph]") {
             std::cerr << "Command failed: " << cmd << "\n";
             REQUIRE( false);
         }
+        
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m chi2"
+            + " --output " + output_dir;
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        std::cout << "Command run : \n" << cmd_test << std::endl;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\t0.3333\t8.3265e-02\t0:1,2:0\t1");
-        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\t0.2231\t0:1,1:0,1:0\t2");
+        command_output = std::system(cmd_test.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd_test << "\n";
+            REQUIRE( false);
+        }
 
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+        binary_table_values_t truth1 ({(std::string)"path0", 
+                                  (size_t)10, 
+                                  (size_t)14, 
+                                  std::make_pair<size_t, size_t>(1,6), 
+                                  std::vector<std::string>({"3/4","6/8"}),
+                                  (std::string) "0.3333",
+                                  (std::string) "8.3265e-02", 
+                                  std::vector<std::string>({"1:0","0:2"}), 
+                                  (size_t)1});
+
+        binary_table_values_t truth2 ({(std::string)"path0", 
+                                  (size_t)11, 
+                                  (size_t)12, 
+                                  std::make_pair<size_t, size_t>(2,4), 
+                                  std::vector<std::string>({"1","0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "0.2231", 
+                                  std::vector<std::string>({"1:0","0:1", "0:1"}), 
+                                  (size_t)2});
+
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (2, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            cerr << "LINE: " << line << endl;
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
+
     }
 
     SECTION("Test exact tsv output") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
+        std::string cmd = "../bin/stoat graph -u";
+
         cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T exact -r path0";
-
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r path0"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -719,110 +763,63 @@ TEST_CASE("Output loop with snarl", "[graph]") {
             std::cerr << "Command failed: " << cmd << "\n";
             REQUIRE( false);
         }
+        
+        std::string cmd_test = "../bin/stoat test -u";
 
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_table_graph.tsv"));
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m exact"
+            + " --output " + output_dir;
 
-        std::vector<std::string> truth_lines;
-        truth_lines.emplace_back("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH");
-        truth_lines.emplace_back("path0\t10\t14\t6_1\t3,4\tNA\tNA\tNA\t1");
-        truth_lines.emplace_back("path0\t11\t12\t2_4\t0,1\tNA\tNA\tNA\t2");
-
-        REQUIRE(files_equal(output_dir+"/binary_table_graph.tsv", truth_lines));
-    }
-
-    SECTION("Test chi2 fasta output") {
-
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-        cmd += " -g " + graph_base + ".hg"
-            + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T chi2 -r path0 -O fasta";
-
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
+        std::cout << "Command run : \n" << cmd_test << std::endl;
+        
+        command_output = std::system(cmd_test.c_str());
         if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
+            std::cerr << "Command failed: " << cmd_test << "\n";
             REQUIRE( false);
         }
 
-
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
-
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
-
-        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path1:10-16", "ACTACT");
-        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
-
-        // For snarl 2-4, each path is in a different group, and there needs to be one of each
-        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
-
-        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
-        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
-
-        truth_fasta.emplace_back(6, ">snarl:2-4|path0:11-12|path2:11-12", "G");
-        truth_fasta.emplace_back(7, ">snarl:2-4|path0:11-12|path2:15-15", "");
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
 
 
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
-    }
+        binary_table_values_t truth1 ({(std::string)"path0", 
+                                  (size_t)10, 
+                                  (size_t)14, 
+                                  std::make_pair<size_t, size_t>(1,6), 
+                                  std::vector<std::string>({"3/4","6/8"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)1});
 
-    SECTION("Test exact fasta output") {
+        binary_table_values_t truth2 ({(std::string)"path0", 
+                                  (size_t)11, 
+                                  (size_t)12, 
+                                  std::make_pair<size_t, size_t>(2,4), 
+                                  std::vector<std::string>({"1","0","1"}),
+                                  (std::string) "NA",
+                                  (std::string) "NA", 
+                                  std::vector<std::string>({"NA"}), 
+                                  (size_t)2});
 
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph";
-        cmd += " -g " + graph_base + ".hg"
-            + " -d " + graph_base + ".dist"
-            + " -b " + samples_file
-            + " -T exact -r path0 -O fasta";
-
-
-        cmd += " --output " + output_dir;
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE( false);
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (2, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            cerr << "LINE: " << line << endl;
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            }
         }
-
-
-        REQUIRE(std::filesystem::exists(output_dir+"/binary_output.fasta"));
-
-        REQUIRE(is_valid_fasta(output_dir+"/binary_output.fasta"));
-
-        std::vector<std::tuple<size_t, std::string, std::string>> truth_fasta;
-        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path1:10-16", "ACTACT");
-        truth_fasta.emplace_back(1, ">snarl:6-1|path0:10-14|path2:10-17", "ACTAGCT");
-
-        truth_fasta.emplace_back(2, ">snarl:6-1|path0:10-14|path0:10-14", "AGCT");
-
-        // Snarl 2
-        // Path0 goes through once with insertion node 3
-        // Path 1 goes through twice with deletion
-        // Path 2 goes through twice, with insertion then with deletion 
-        truth_fasta.emplace_back(3, ">snarl:2-4|path0:11-12|path0:11-12", "G");
-
-        truth_fasta.emplace_back(4, ">snarl:2-4|path0:11-12|path1:11-11", "");
-        truth_fasta.emplace_back(5, ">snarl:2-4|path0:11-12|path1:14-14", "");
-
-        truth_fasta.emplace_back(6, ">snarl:2-4|path0:11-12|path2:11-12", "G");
-        truth_fasta.emplace_back(7, ">snarl:2-4|path0:11-12|path2:15-15", "");
-
-        REQUIRE(fasta_equal(output_dir+"/binary_output.fasta", truth_fasta));
-
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+        REQUIRE(found_snarls[1]);
     }
-
 
     fs::remove(samples_file);
     clean_output_dir(output_dir);
@@ -843,21 +840,19 @@ TEST_CASE("Multiple connected components", "[graph]") {
 
 
     const std::string output_dir = "../output_binary/";
-    const std::string data_path = "../tests/graph_test/";
+    const std::string data_path = "../tests/test_data/test_graphs/";
     const std::string graph_base = "simple_nested_chains";
 
     SECTION("Test snarls output") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=" -g " + data_path + graph_base + ".hg"
+        std::string cmd = "../bin/stoat graph -u";
+        cmd += " -g " + data_path + graph_base + ".hg"
             + " -d " + data_path + graph_base + ".dist"
-            + " -M 0 -l 0 -s " + output_dir + graph_base + ".snarls.txt" 
-            + " -T chi2 -r ref";
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r ref"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -867,21 +862,17 @@ TEST_CASE("Multiple connected components", "[graph]") {
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir+graph_base+".snarls.txt"));
+        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
         std::ifstream snarlsfile;
-        snarlsfile.open(output_dir+graph_base+".snarls.txt");
+        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
         REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
-        bool start_counting= false;
         std::string line;
         while (std::getline(snarlsfile, line)) {
             // Only start counting snarls after proper header
-            if (start_counting) {
+            if (line[0] != '#') {
                 line_count++;
-            }
-            if (line == "#SNARLS") {
-                start_counting = true;
             }
         }
         snarlsfile.close();
@@ -896,14 +887,12 @@ TEST_CASE("Multiple connected components", "[graph]") {
 
         clean_output_dir(output_dir);
 
-        std::string cmd = "../bin/stoat graph";
-
-        cmd +=" -g " + data_path + graph_base + ".hg"
+        std::string cmd = "../bin/stoat graph -u";
+        cmd += " -g " + data_path + graph_base + ".hg"
             + " -d " + data_path + graph_base + ".dist"
-            + " -M 0 -l 0 -s " + output_dir + graph_base + ".snarls.txt" 
-            + " -T chi2 -r ref -t 4";
-
-        cmd += " --output " + output_dir;
+            + " -L"
+            + " -r ref -t 4"
+            + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -914,21 +903,17 @@ TEST_CASE("Multiple connected components", "[graph]") {
         }
 
 
-        REQUIRE(std::filesystem::exists(output_dir+graph_base+".snarls.txt"));
+        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
         std::ifstream snarlsfile;
-        snarlsfile.open(output_dir+graph_base+".snarls.txt");
+        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
         REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
-        bool start_counting= false;
         std::string line;
         while (std::getline(snarlsfile, line)) {
-            // Only start counting snarls after proper header
-            if (start_counting) {
+            // Only count non-header lines
+            if (line[0] != '#') {
                 line_count++;
-            }
-            if (line == "#SNARLS") {
-                start_counting = true;
             }
         }
         snarlsfile.close();

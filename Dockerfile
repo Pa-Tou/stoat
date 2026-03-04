@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     bcftools \
     && rm -rf /var/lib/apt/lists/*
 
+# Get vg binary
 WORKDIR /bin
 
 RUN wget https://github.com/vgteam/vg/releases/download/v1.67.0/vg \
@@ -27,6 +28,7 @@ RUN wget https://github.com/vgteam/vg/releases/download/v1.67.0/vg \
 
 ENV PATH=$PATH:/bin/
 
+#Make stoat
 WORKDIR /stoat
 
 COPY . /stoat
