@@ -3,7 +3,7 @@
 <p align="center">
     <a href="https://isocpp.org/"><img src="https://img.shields.io/badge/C++-17-blue.svg"></a>
     <a href="https://github.com/vgteam/libbdsg/releases/tag/v0.3"><img src="https://img.shields.io/badge/bdsg-0.3-green.svg"></a>
-    <a href="https://quay.io/repository/jmonlong/stoat"><img src="https://quay.io/repository/jmonlong/stoat/status"></a>
+    <a href="https://quay.io/repository/patou/stoat"><img src="https://quay.io/repository/patou/stoat/status"></a>
 </p>
 
 <img src="pictures/logo.png" width="150">
@@ -36,7 +36,7 @@ In general, the latest versions of all of these tools should work.
 ## Docker
 
 - [`Dockerfile`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile)
-- Docker container: `quay.io/patou/stoat`
+- Docker container on [Quay.io](https://quay.io/repository/patou/stoat?tab=tags): `quay.io/patou/stoat`
 
 ## Build
 
