@@ -8,3 +8,5 @@ bin/*
 output/*
 output_binary/*
 output_quantitative/*
+data/binary
+data/quantitative

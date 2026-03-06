@@ -75,7 +75,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"output", required_argument, 0, 'o'},
                 {"allele-length", no_argument, 0, 'L'},
                 {"verbose", required_argument, 0, 'V'},
-                {"no-bgz", no_argument, 0, 'u'},
+                {"no-bgzip", no_argument, 0, 'u'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };

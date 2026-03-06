@@ -76,7 +76,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
-        {"no-bgz", no_argument, 0, 'u'},
+        {"no-bgzip", no_argument, 0, 'u'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
