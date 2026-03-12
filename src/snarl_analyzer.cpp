@@ -192,10 +192,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
         return true;
     }
     
-#pragma omp critical(out_writer)
-    {
-        out_writer.write_binary(snarl_data, test_res);
-    }
+    out_writer.write_binary(snarl_data, test_res);
     return false;
 }
     
@@ -238,10 +235,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
         return true;
     }
     
-#pragma omp critical(out_writer)
-    {
-        out_writer.write_binary(snarl_data, test_res);
-    }
+    out_writer.write_binary(snarl_data, test_res);
     return false;
 }
     
@@ -283,10 +277,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         return true;
     }
  
-#pragma omp critical(out_writer)
-    {
-        out_writer.write_binary_covar(snarl_data, test_res);
-    }
+    out_writer.write_binary_covar(snarl_data, test_res);
     return false;
 }
 
@@ -330,10 +321,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
         return true;
     }
  
-#pragma omp critical(out_writer)
-    {
-        out_writer.write_quantitative(snarl_data, test_res);
-    }
+    out_writer.write_quantitative(snarl_data, test_res);
     return false;
 }
 
@@ -391,10 +379,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
             continue;
         }
   
-#pragma omp critical(out_writer)
-        {
-            out_writer.write_eqtl(snarl_data, gene_name, test_res);
-        }
+        out_writer.write_eqtl(snarl_data, gene_name, test_res);
         // at least this test was not filtered
         filtered = false;
     }
