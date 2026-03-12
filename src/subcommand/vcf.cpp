@@ -232,7 +232,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
             std::string path_name = graph->get_path_name(path);
         
-            if (std::mismatch(path_name.begin(), path_name.end(),
+            if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
                 ref_path_names.emplace(graph->get_path_name(path));
