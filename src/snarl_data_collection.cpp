@@ -75,6 +75,12 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
     // Keep track of which references we've seen and their index in reference_names
     std::unordered_map<std::string, size_t> reference_name_to_index;
+
+    // Get all the references in reference_samples first
+    for (const std::string& ref_name : reference_samples) {
+        reference_name_to_index[ref_name] = reference_names.size();
+        reference_names.emplace_back(ref_name);
+    }
     
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
