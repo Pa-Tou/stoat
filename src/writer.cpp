@@ -22,7 +22,10 @@ StdWriter::StdWriter(const std::string output_file_path) : Writer(output_file_pa
 }
 
 bool StdWriter::write(const std::string out_content) {
-    file_stream << out_content;
+    #pragma omp critical (writer)
+    {
+        file_stream << out_content;
+    }
     return true;
 }
 
@@ -114,6 +117,7 @@ void BgzReader::close() {
 }
 
 void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
+
     if (phenotype_type == stoat::BINARY) {
         write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH\n");
     } else if (phenotype_type == stoat::BINARY_COVAR) {
