@@ -56,7 +56,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::string graph_name;
     std::string distance_name;
     size_t allele_size_limit = 0;
-    std::string reference_path;
+    std::string reference_file;
     std::string reference_prefix;
     std::vector<std::string> samples;
     std::string output_dir="stoat_output";
@@ -122,7 +122,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 break;
                 }
             case 'R':
-                reference_path = optarg;
+                reference_file = optarg;
                 break;
             case 'r':
                 reference_prefix = optarg;
@@ -220,7 +220,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     }
 
     // Get the reference sample names from the file
-    std::unordered_set<std::string> reference_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
+    std::unordered_set<std::string> reference_path_names = (!reference_file.empty()) ? stoat_vcf::parse_chromosome_reference(reference_file) : std::unordered_set<std::string>{};
 
     // Get the reference sample names from the prefix
     handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
