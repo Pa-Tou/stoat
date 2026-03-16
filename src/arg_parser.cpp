@@ -8,6 +8,10 @@ namespace stoat_vcf {
 
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;
+    if (!std::filesystem::exists(file_path)) {
+        std::cerr << "[stoat] warning: given reference file " << file_path << " does not exist. Defaulting to using any reference- or generic-sense paths as references" << std::endl;
+        return reference;
+    }
     std::ifstream file(file_path);
     std::string line;
 
@@ -16,6 +20,10 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     }
 
     file.close();
+
+    if (references.size() == 0) {
+        std::cerr << "[stoat] warning: given reference file " << file_path << " is empty. Defaulting to using any reference- or generic-sense paths as references" << std::endl;
+    }
     return reference;
 }
 
