@@ -26,7 +26,7 @@ struct snarl_genotype_values_t {
 
 // Given the file name, load the snarl genotypes into a vector
 // Throw an error if the file seems bad
-std::vector<snarl_genotype_values_t> load_gnotype_file(const std::string& infile);
+std::vector<snarl_genotype_values_t> load_genotype_file(const std::string& infile);
 
 
 /////////////////////////////////////////// Binary table from stoat test

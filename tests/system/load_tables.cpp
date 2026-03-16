@@ -131,7 +131,7 @@ bool snarl_genotype_values_t::operator==(const snarl_genotype_values_t& other) c
 }
 
 
-std::vector<snarl_genotype_values_t> load_gnotype_file(const std::string& infile) {
+std::vector<snarl_genotype_values_t> load_genotype_file(const std::string& infile) {
     std::ifstream instream;
     instream.open(infile);
 
