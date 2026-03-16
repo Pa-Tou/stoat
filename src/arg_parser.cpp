@@ -21,7 +21,7 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
 
     file.close();
 
-    if (references.size() == 0) {
+    if (reference.size() == 0) {
         std::cerr << "[stoat] warning: given reference file " << file_path << " is empty. Defaulting to using any reference- or generic-sense paths as references" << std::endl;
     }
     return reference;
