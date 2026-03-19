@@ -15,7 +15,7 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
     const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string graph_base = "pg.full";
 
-    SECTION("Test tsv output saving snarls") {
+    SECTION("Test stoat graph output") {
 
         clean_output_dir(output_dir);
 
@@ -54,7 +54,7 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
         //REQUIRE(passed);
 
     }
-    SECTION("Test tsv output saving snarls multithreaded") {
+    SECTION("Test stoat graph output multithreaded") {
 
         clean_output_dir(output_dir);
 
@@ -98,7 +98,7 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
     clean_output_dir(output_dir);
 }
 
-TEST_CASE("Output simple nested chain stats", "[test]") {
+TEST_CASE("Output simple nested chain stats", "[test][bug]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/test_data/test_graphs/simple_nested_chain";
 
@@ -174,6 +174,268 @@ TEST_CASE("Output simple nested chain stats", "[test]") {
         allele_assignment["path3#"] = 0;
         snarl_genotype_values_t truth3 ({">5", "<7",
                                        (std::string)"path0#0#path0", (size_t)4, (size_t)5, 
+                                       (size_t) 2,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+        
+        lengths.clear();
+        paths.clear();
+        allele_assignment.clear();
+        allele_assignment["path0#0#path0"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path1#0#path1#0"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path3#"] = std::numeric_limits<size_t>::max();
+        snarl_genotype_values_t truth4 ({">8", "<10",
+                                       (std::string)".", (size_t)0, (size_t)0, 
+                                       (size_t) 1,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+
+        std::vector<snarl_genotype_values_t> loaded_snarls= load_genotype_file(output_dir+"/snarl_genotypes.tsv");
+        std::vector<bool> found_snarls (4, false);
+        for (const snarl_genotype_values_t& test : loaded_snarls) {
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            }  else if (test == truth3) {
+                found_snarls[2] = true;
+            }  else if (test == truth4) {
+                found_snarls[3] = true;
+            } else {
+                std::cerr << "Unknown snarl " << std::endl << test << std::endl;
+            }
+        }
+
+        if (!found_snarls[0]) {
+            std::cerr << "Missing snarl " << std::endl << truth1 << std::endl;
+            REQUIRE(false);
+        }
+        if (!found_snarls[1]) {
+            std::cerr << "Missing snarl " << std::endl << truth2 << std::endl;
+            REQUIRE(false);
+        }
+        if (!found_snarls[2]) {
+            std::cerr << "Missing snarl " << std::endl << truth3 << std::endl;
+            REQUIRE(false);
+        }
+        if (!found_snarls[3]) {
+            std::cerr << "Missing snarl " << std::endl << truth4 << std::endl;
+            REQUIRE(false);
+        }
+
+    }
+    SECTION("Test stoat graph with reference prefix") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -L"
+            + " -r path1 -V 4"
+            + " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/snarl_genotypes.tsv"));
+       
+
+        std::vector<std::string> lengths(2, "1");
+        std::vector<std::string> paths;
+        paths.emplace_back(">1>2>4");
+        paths.emplace_back(">1>3>4");
+        std::vector<std::string> sequences;
+        std::unordered_map<std::string, size_t> allele_assignment;
+        allele_assignment["path0#0#path0"] = 0;
+        allele_assignment["path1#0#path1#0"] = 0;
+        allele_assignment["path2#"] = 1;
+        allele_assignment["path3#"] = 1;
+        snarl_genotype_values_t truth1 ({">1", "<4",
+                                       (std::string)"path1#0#path1#0", (size_t)1, (size_t)2, 
+                                       (size_t) 1,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+
+        lengths.clear();
+        lengths.emplace_back("0");
+        lengths.emplace_back("2/3");
+        paths.clear();
+        paths.emplace_back(">4>8");
+        paths.emplace_back(">4>5>0>7>8");
+        allele_assignment.clear();
+        allele_assignment["path0#0#path0"] = 1;
+        allele_assignment["path1#0#path1#0"] = 1;
+        allele_assignment["path2#"] = 0;
+        allele_assignment["path3#"] = 1;
+        snarl_genotype_values_t truth2 ({">4", "<8",
+                                       (std::string)"path1#0#path1#0", (size_t)3, (size_t)5, 
+                                       (size_t) 1,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+
+        lengths.clear();
+        lengths.emplace_back("0");
+        lengths.emplace_back("1");
+        paths.clear();
+        paths.emplace_back(">5>7");
+        paths.emplace_back(">5>6>7");
+        allele_assignment.clear();
+        allele_assignment["path0#0#path0"] = 1;
+        allele_assignment["path1#0#path1#0"] = 0;
+        allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path3#"] = 0;
+        snarl_genotype_values_t truth3 ({">5", "<7",
+                                       (std::string)"path1#0#path1#0", (size_t)4, (size_t)4, 
+                                       (size_t) 2,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+        
+        lengths.clear();
+        paths.clear();
+        allele_assignment.clear();
+        allele_assignment["path0#0#path0"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path1#0#path1#0"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path3#"] = std::numeric_limits<size_t>::max();
+        snarl_genotype_values_t truth4 ({">8", "<10",
+                                       (std::string)".", (size_t)0, (size_t)0, 
+                                       (size_t) 1,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+
+        std::vector<snarl_genotype_values_t> loaded_snarls= load_genotype_file(output_dir+"/snarl_genotypes.tsv");
+        std::vector<bool> found_snarls (4, false);
+        for (const snarl_genotype_values_t& test : loaded_snarls) {
+            if (test == truth1) {
+                found_snarls[0] = true;
+            } else if (test == truth2) {
+                found_snarls[1] = true;
+            }  else if (test == truth3) {
+                found_snarls[2] = true;
+            }  else if (test == truth4) {
+                found_snarls[3] = true;
+            } else {
+                std::cerr << "Unknown snarl " << std::endl << test << std::endl;
+            }
+        }
+
+        if (!found_snarls[0]) {
+            std::cerr << "Missing snarl " << std::endl << truth1 << std::endl;
+            REQUIRE(false);
+        }
+        if (!found_snarls[1]) {
+            std::cerr << "Missing snarl " << std::endl << truth2 << std::endl;
+            REQUIRE(false);
+        }
+        if (!found_snarls[2]) {
+            std::cerr << "Missing snarl " << std::endl << truth3 << std::endl;
+            REQUIRE(false);
+        }
+        if (!found_snarls[3]) {
+            std::cerr << "Missing snarl " << std::endl << truth4 << std::endl;
+            REQUIRE(false);
+        }
+
+    }
+    SECTION("Test stoat graph with reference file") {
+
+        clean_output_dir(output_dir);
+
+        string write_cmd = "echo \"path1#0#path1#0\" > paths.txt";
+        int write_command_output = std::system(write_cmd.c_str());
+        if (write_command_output != 0) {
+            std::cerr << "Command failed: " << write_cmd << "\n";
+            REQUIRE( false);
+        }
+
+        std::string cmd = "../bin/stoat graph -u";
+           cmd += " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -L"
+            + " -R paths.txt -V 4"
+            + " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE( false);
+        }
+        fs::remove("paths.txt");
+
+        REQUIRE(std::filesystem::exists(output_dir+"/snarl_genotypes.tsv"));
+       
+
+        std::vector<std::string> lengths(2, "1");
+        std::vector<std::string> paths;
+        paths.emplace_back(">1>2>4");
+        paths.emplace_back(">1>3>4");
+        std::vector<std::string> sequences;
+        std::unordered_map<std::string, size_t> allele_assignment;
+        allele_assignment["path0#0#path0"] = 0;
+        allele_assignment["path1#0#path1#0"] = 0;
+        allele_assignment["path2#"] = 1;
+        allele_assignment["path3#"] = 1;
+        snarl_genotype_values_t truth1 ({">1", "<4",
+                                       (std::string)"path1#0#path1#0", (size_t)1, (size_t)2, 
+                                       (size_t) 1,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+
+        lengths.clear();
+        lengths.emplace_back("0");
+        lengths.emplace_back("2/3");
+        paths.clear();
+        paths.emplace_back(">4>8");
+        paths.emplace_back(">4>5>0>7>8");
+        allele_assignment.clear();
+        allele_assignment["path0#0#path0"] = 1;
+        allele_assignment["path1#0#path1#0"] = 1;
+        allele_assignment["path2#"] = 0;
+        allele_assignment["path3#"] = 1;
+        snarl_genotype_values_t truth2 ({">4", "<8",
+                                       (std::string)"path1#0#path1#0", (size_t)3, (size_t)5, 
+                                       (size_t) 1,
+                                       lengths,
+                                       paths, 
+                                       sequences,
+                                       allele_assignment});
+
+        lengths.clear();
+        lengths.emplace_back("0");
+        lengths.emplace_back("1");
+        paths.clear();
+        paths.emplace_back(">5>7");
+        paths.emplace_back(">5>6>7");
+        allele_assignment.clear();
+        allele_assignment["path0#0#path0"] = 1;
+        allele_assignment["path1#0#path1#0"] = 0;
+        allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
+        allele_assignment["path3#"] = 0;
+        snarl_genotype_values_t truth3 ({">5", "<7",
+                                       (std::string)"path1#0#path1#0", (size_t)4, (size_t)4, 
                                        (size_t) 2,
                                        lengths,
                                        paths, 

@@ -690,7 +690,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
     fs::remove(samples_file);
 }
 
-TEST_CASE("Output loop with snarl", "[graph][bug]") {
+TEST_CASE("Output loop with snarl", "[graph]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/test_data/test_graphs/loop_with_indel";
 
