@@ -9,8 +9,7 @@
 #include <string>
 
 bool snarl_genotype_values_t::operator==(const snarl_genotype_values_t& other) const {
-    if (start_node != other.start_node ||
-        end_node != other.end_node ||
+    if (!((start_node == other.start_node && end_node == other.end_node) || (end_node == other.start_node && start_node == other.end_node)) ||
         reference != other.reference ||
         start_offset != other.start_offset ||
         end_offset != other.end_offset ||
@@ -93,9 +92,9 @@ bool snarl_genotype_values_t::operator==(const snarl_genotype_values_t& other) c
     if (allele_conversion.size() == 0) {
 
         // If we didn't get the conversion already then sort the lengths and check if they are the same
-        std::vector<size_t> sorted_lengths = allele_lengths;
+        std::vector<std::string> sorted_lengths = allele_lengths;
         std::sort(sorted_lengths.begin(), sorted_lengths.end());
-        std::vector<size_t> other_sorted_lengths = other.allele_lengths;
+        std::vector<std::string> other_sorted_lengths = other.allele_lengths;
         std::sort(other_sorted_lengths.begin(), other_sorted_lengths.end());
 
         for (size_t i = 0 ; i < sorted_lengths.size() ; i++ ){
@@ -113,6 +112,9 @@ bool snarl_genotype_values_t::operator==(const snarl_genotype_values_t& other) c
         }
     }
     for (const auto& x : sample_to_allele) {
+        if (other.sample_to_allele.count(x.first) == 0) {
+            std::cerr << "Other missing sample " << x.first << std::endl;
+        }
         if (x.second == std::numeric_limits<size_t>::max()) {
             if (other.sample_to_allele.at(x.first) != std::numeric_limits<size_t>::max()) {
                 return false;
@@ -120,8 +122,12 @@ bool snarl_genotype_values_t::operator==(const snarl_genotype_values_t& other) c
         } else {
             if (other.sample_to_allele.at(x.first) == std::numeric_limits<size_t>::max()) {
                 return false;
-            } else if (x.second != allele_conversion[other.sample_to_allele.at(x.first)]) {
-                return false;
+            } else {
+                if (allele_conversion.count(other.sample_to_allele.at(x.first)) == 0) {
+                    allele_conversion[other.sample_to_allele.at(x.first)] = x.second;
+                } else if (x.second != allele_conversion[other.sample_to_allele.at(x.first)]) {
+                    return false;
+                }
             }
         }
     } 
@@ -129,6 +135,7 @@ bool snarl_genotype_values_t::operator==(const snarl_genotype_values_t& other) c
     
     return true;
 }
+
 
 
 std::vector<snarl_genotype_values_t> load_genotype_file(const std::string& infile) {
@@ -192,7 +199,7 @@ std::vector<snarl_genotype_values_t> load_genotype_file(const std::string& infil
         
         // Index of reference
         std::getline(snarlstream, part, '\t');
-        snarl.reference = references.at(std::stoull(part));
+        snarl.reference = part == "18446744073709551615" ? "." : references.at(std::stoull(part));
         
         // Start offset along reference
         std::getline(snarlstream, part, '\t');
@@ -207,18 +214,26 @@ std::vector<snarl_genotype_values_t> load_genotype_file(const std::string& infil
         snarl.depth = std::stoull(part);
 
         // Lengths of paths
-        std::vector<size_t> lengths;
-        std::string length_str;
-        while (std::getline(snarlstream, length_str, ',')) {
-            lengths.emplace_back(std::stoull(length_str));
+        std::getline(snarlstream, part, '\t');
+        std::vector<std::string> lengths;
+        if (part != ".") {
+            std::string length_str;
+            std::stringstream lengthstream(part);
+            while (std::getline(lengthstream, length_str, ',')) {
+                lengths.emplace_back(length_str);
+            }
         }
         snarl.allele_lengths = std::move(lengths);
 
         // Walks
         std::vector<std::string> walks;
-        std::string path_str;
-        while (std::getline(snarlstream, path_str, ',')) {
-            walks.emplace_back(std::move(path_str));
+        std::getline(snarlstream, part, '\t');
+        if (part != ".") {
+            std::string path_str;
+            std::stringstream pathstream(part);
+            while (std::getline(pathstream, path_str, ',')) {
+                walks.emplace_back(std::move(path_str));
+            }
         }
         snarl.walks = std::move(walks);
 
@@ -251,6 +266,7 @@ std::vector<snarl_genotype_values_t> load_genotype_file(const std::string& infil
         snarl.sample_to_allele = std::move(sample_to_allele);
     
 
+        snarls.emplace_back(std::move(snarl));
     }
 
     instream.close();
