@@ -365,7 +365,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
-            + " -m chi2"
+            + " -m chi2" + " -V 4"
             + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd_test << std::endl;
@@ -441,7 +441,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".gbz"
             + " -d " + graph_base + ".dist"
-            + " -L"
+            + " -L" + " -V 4"
             + " -r path0"
             + " --output " + output_dir;
 
@@ -456,7 +456,7 @@ TEST_CASE("Output simple nested chain gbz", "[graph]") {
         std::string cmd_test = "../bin/stoat test -u";
         cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
             + " -p " + samples_file
-            + " -m exact"
+            + " -m exact" + " -V 4"
             + " --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd_test << std::endl;

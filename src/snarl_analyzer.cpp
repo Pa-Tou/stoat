@@ -199,14 +199,14 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     return false;
 }
 
-    bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
+bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
     // This test checks if all members of one of the phenotype groups has the same allele that no other sample has.
 
     // prepare an output objet and init to NA
     test_result_t test_res;
     test_res.pv = std::nan("");
     test_res.second_pv = std::nan("");
-    test_res.group_paths = std::nan("");
+    test_res.group_paths = "";
 
     // From the genotype matrix, make sets of sample that have the same genotype and compare to the sets of phenotype groups.
     std::unordered_map<std::string, std::set<std::string>> genotype_to_sample_set;
