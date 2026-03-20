@@ -166,8 +166,8 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
 
     // prepare an output objet and init to NA
     test_result_t test_res;
-    test_res.pv = "NA";
-    test_res.second_pv = "NA";
+    test_res.pv = std::nan("");
+    test_res.second_pv = std::nan("");
 
     // should we test this snarl?
     if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
@@ -187,7 +187,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     }
     
     // test this snarl using Fisher exact test and chi-squared test
-    if (test_res.pv == "NA" && test_res.second_pv == "NA") {
+    if (std::isnan(test_res.pv) && std::isnan(test_res.second_pv)) {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
         return true;
     }
@@ -198,15 +198,15 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     }
     return false;
 }
-    
+
     bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
     // This test checks if all members of one of the phenotype groups has the same allele that no other sample has.
 
     // prepare an output objet and init to NA
     test_result_t test_res;
-    test_res.pv = "NA";
-    test_res.second_pv = "NA";
-    test_res.group_paths = "NA";
+    test_res.pv = std::nan("");
+    test_res.second_pv = std::nan("");
+    test_res.group_paths = std::nan("");
 
     // From the genotype matrix, make sets of sample that have the same genotype and compare to the sets of phenotype groups.
     std::unordered_map<std::string, std::set<std::string>> genotype_to_sample_set;
@@ -222,7 +222,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     bool write_output = false;
     for (const auto& genotype_samples : genotype_to_sample_set) {
         const std::set<std::string>& partition = genotype_samples.second;
-                
+
         // If one partition exactly matches one group we want, then all other partitions combined (including things not in the snarl) will match
         // the other.
         // TODO: This could be better but I don't think it's worth working on it yet
@@ -256,7 +256,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
 
     // prepare an output objet and init to NA
     test_result_t test_res;
-    test_res.pv = "NA";
+    test_res.pv = std::nan("");
     
     // should we test this snarl?
     if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
@@ -278,7 +278,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         stoat::LOG_DEBUG("Filtered: didn't pass the filters");
     }
     
-    if (test_res.pv == "NA") {
+    if (std::isnan(test_res.pv)) {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
         return true;
     }
@@ -302,7 +302,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
 
     // prepare an output objet and init to NA
     test_result_t test_res;
-    test_res.pv = "NA";
+    test_res.pv = std::nan("");
 
     // should we test this snarl?
     if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
@@ -325,7 +325,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
         stoat::LOG_DEBUG("Filtered: didn't pass the filters");
     }
 
-    if (test_res.pv == "NA") {
+    if (std::isnan(test_res.pv)) {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
         return true;
     }
@@ -363,7 +363,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
 
         // prepare an output objet and init to NA
         test_result_t test_res;
-        test_res.pv = "NA";
+        test_res.pv = std::nan("");
 
         // should we test this snarl?
         if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
@@ -386,7 +386,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
             stoat::LOG_DEBUG("Filtered: didn't pass the filters");
         }
 
-        if (test_res.pv == "NA") {
+        if (std::isnan(test_res.pv)) {
             stoat::LOG_DEBUG("filtered: gene " + gene_name + ", " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
             continue;
         }

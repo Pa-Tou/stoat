@@ -81,7 +81,7 @@ int main_stoat_test(int argc, char* argv[]) {
     while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:t:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'g': genotype_path = optarg; stoat_vcf::check_file(genotype_path); break;
-            case 'm': method = optarg; break;
+            case 'm': method = optarg; stoat_vcf::check_methods(method); break;
             case 'p': phenotype_path = optarg; stoat_vcf::check_file(phenotype_path); break;
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
             case 'C': {

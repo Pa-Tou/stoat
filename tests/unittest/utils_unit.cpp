@@ -25,13 +25,6 @@ TEST_CASE("set_precision handles small and normal values 3") {
     REQUIRE(set_precision(1.000000000) == "1");
 }
 
-TEST_CASE("set_precision_float_50 handles small and large cpp_dec_float_50 values") {
-    cpp_dec_float_50 small("0.00001234567890123456789");
-    cpp_dec_float_50 normal("0.34567890123456789");
-    REQUIRE(set_precision_float_50(small) == "1.2346e-05");
-    REQUIRE(set_precision_float_50(normal) == "0.3457");
-}
-
 TEST_CASE("string_to_pvalue converts valid p-values or returns 1.0 for NA") {
     REQUIRE(stoat::string_to_pvalue("0.01") == 0.01);
     REQUIRE(stoat::string_to_pvalue("NA") == 1.0);

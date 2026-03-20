@@ -138,7 +138,7 @@ void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::te
         outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
     // pvalues and contingency table
-    outl += "\t" + test_result.pv + "\t" + test_result.second_pv + "\t" + test_result.group_paths + "\t" +
+    outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + stoat::set_precision(test_result.second_pv) + "\t" + test_result.group_paths + "\t" +
         std::to_string(snarl_data.depth) + "\n";
     // write
     write(outl);
@@ -157,7 +157,7 @@ void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::tes
         outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
     // pvalues and contingency table
-    outl += "\t" + test_result.pv + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
+    outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
     // write
     write(outl);
 }
@@ -180,7 +180,7 @@ void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_
         outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
     // pvalues and contingency table
-    outl += "\t" + gene_name + "\t" + test_result.pv + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
+    outl += "\t" + gene_name + "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
     // write
     write(outl);
 }

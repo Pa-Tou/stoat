@@ -150,10 +150,8 @@ TEST_CASE("Logistic Regression") {
         Y << 1, 0, 0, 0, 1, 1, 0, 0, 0, 1;
         
         stoat::LogisticRegression lr;
-        std::string pv = lr.logistic_regression(X, Y, 1);
-
+        std::string pv = stoat::set_precision(lr.logistic_regression(X, Y, 1));
         INFO("p_value = " << pv);
-
         REQUIRE(std::abs(std::stod(pv) - 0.002842742) < 0.01);
     }
 
@@ -176,10 +174,8 @@ TEST_CASE("Logistic Regression") {
         Y << 0, 1, 0, 0, 1;
         
         stoat::LogisticRegression lr;
-        std::string pv = lr.logistic_regression(X, Y, 1);
-
+        std::string pv = stoat::set_precision(lr.logistic_regression(X, Y, 1));
         INFO("p_value = " << pv);
-
         REQUIRE(std::stod(pv) == 0.7098);
     }
 
@@ -203,10 +199,8 @@ TEST_CASE("Logistic Regression") {
         Y << 1, 1, 1, 0, 0;
         
         stoat::LogisticRegression lr;
-        std::string pv = lr.logistic_regression(X, Y, 2);
-
+        std::string pv = stoat::set_precision(lr.logistic_regression(X, Y, 2));
         INFO("p_value = " << pv);
-
         REQUIRE(std::abs(std::stod(pv) - 0.8732353) < .01);
     }
 }
@@ -231,10 +225,8 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         Y << 11, 10.1, 5.2, -0.3, 2;
 
         stoat::LinearRegression lr;
-        std::string pv = lr.linear_regression(X, Y, 1);
-
+        std::string pv = stoat::set_precision(lr.linear_regression(X, Y, 1));
         INFO("p_value = " << pv);
-
         REQUIRE(std::stod(pv) == 0.0496);
     }
 
@@ -257,10 +249,8 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         Y << 11, 10.1, 5.2, -0.3, 2;
 
         stoat::LinearRegression lr;
-        std::string pv = lr.linear_regression(X, Y, 2);
-
+        std::string pv = stoat::set_precision(lr.linear_regression(X, Y, 2));
         INFO("p_value = " << pv);
-
         REQUIRE(std::abs(std::stod(pv) - 0.03133) < 0.01);
     }
 
@@ -284,10 +274,8 @@ TEST_CASE("Linear Regression Test without cov", "[linear_regression]") {
         Y << 11, 10.1, 5.2, -0.3, 2;
 
         stoat::LinearRegression lr;
-        std::string pv = lr.linear_regression(X, Y, 2);
-
+        std::string pv = stoat::set_precision(lr.linear_regression(X, Y, 2));
         INFO("p_value = " << pv);
-
         REQUIRE(std::stod(pv) == 0.1505);
     }
 }
@@ -313,10 +301,8 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         Y << 11, 10.1, 5.2, -0.3, 2;
 
         stoat::LinearRegression lr;
-        std::string pv = lr.linear_regression(X, Y, 1);
-
+        std::string pv = stoat::set_precision(lr.linear_regression(X, Y, 1));
         INFO("p_value = " << pv);
-
         REQUIRE(std::abs(std::stod(pv) - 0.1140625) < .01);
     }
 
@@ -339,10 +325,8 @@ TEST_CASE("Linear Regression Test with covariates", "[linear_regression]") {
         Y << 11, 10.1, 5.2, -0.3, 2;
 
         stoat::LinearRegression lr;
-        std::string pv = lr.linear_regression(X, Y, 2);
-
+        std::string pv = stoat::set_precision(lr.linear_regression(X, Y, 2));
         INFO("p_value = " << pv);
-
         REQUIRE(std::abs(std::stod(pv) - 0.08149071) < .0001);
     }
 }
