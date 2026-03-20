@@ -206,7 +206,7 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     test_result_t test_res;
     test_res.pv = std::nan("");
     test_res.second_pv = std::nan("");
-    test_res.group_paths = "";
+    test_res.group_paths = "NA";
 
     // From the genotype matrix, make sets of sample that have the same genotype and compare to the sets of phenotype groups.
     std::unordered_map<std::string, std::set<std::string>> genotype_to_sample_set;
