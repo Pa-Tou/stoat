@@ -10,6 +10,7 @@
 #include <handlegraph/path_handle_graph.hpp>
 #include <vg/io/vpkg.hpp>
 
+#include "../banner.hpp"
 #include "../snarl_data_collection.hpp"
 #include "../path_partitioner.hpp"
 #include "../io/register_io.hpp"
@@ -24,7 +25,7 @@
 namespace stoat_command {
 
 void print_help_graph() {
-    print_full_banner();
+    print_banner_v1(__VERSION__);
 
     std::cerr << "Usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
         << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
@@ -45,6 +46,7 @@ void print_help_graph() {
         << "  -R, --reference-file FILE          Path to the reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
         << "  -r, --reference-prefix NAME        The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
         << "                                     If not given, use any reference-sense paths in the graph as the references" << std::endl
+        << "  -a, --ascii                        Print the STOAT ascii art banner"  << std::endl
         << "  -h, --help                         Print this help message" << std::endl;
 }
 
@@ -62,8 +64,9 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::string reference_prefix;
     std::vector<std::string> samples;
     std::string output_dir="stoat_output";
-    bool bgzip_output = true;
 
+    bool bgzip_output = true;
+    bool ascii = false;
     bool find_allele_lengths = false; 
 
     int c = 0;
@@ -81,12 +84,13 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"allele-length", no_argument, 0, 'L'},
                 {"verbose", required_argument, 0, 'V'},
                 {"no-bgzip", no_argument, 0, 'u'},
+                {"ascii", no_argument, 0, 'a'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:R:r:V:o:Luh",
+        c = getopt_long(argc, argv, "g:d:l:t:R:r:V:o:Luah",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -95,6 +99,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             case 'g':
                 graph_name = optarg;
                 break;
+            case 'a': ascii = true; break;
             case 'd':
                 distance_name = optarg;
                 break;
@@ -171,6 +176,12 @@ int main_stoat_graph(int argc, char *argv[]) {
     stoat::Logger::instance().setLogFile(output_dir + "/stoat.graph.log");
 
     // add command launch in log file
+    if (ascii) {
+        print_ascii_banner(__VERSION__);
+    } else {
+        print_banner_v1(__VERSION__);
+    }
+
     std::stringstream ss;
     ss << "stoat ";
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";

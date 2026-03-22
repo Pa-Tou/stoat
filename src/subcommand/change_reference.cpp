@@ -10,15 +10,16 @@
 #include <handlegraph/path_handle_graph.hpp>
 #include <bdsg/overlays/overlay_helper.hpp>
 #include <vg/io/vpkg.hpp>
-#include "../io/register_io.hpp"
 
+#include "../banner.hpp"
+#include "../io/register_io.hpp"
 #include "../post_processing.hpp"
 
 using namespace std;
 namespace stoat_command {
 
 void print_help_change_reference() {
-    print_full_banner();
+    print_banner_v1(__VERSION__);
     std::cerr << "Usage: stoat change-ref -T [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -r [reference name] > [renamed_tsv]" << endl << endl
               << "options:" << endl
               << "  -T, --tsv FILE                  The TSV file to be processed, the output file of stoat" << endl

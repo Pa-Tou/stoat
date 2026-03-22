@@ -150,7 +150,8 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/snarl_data_collection.cpp
     src/feature_tables.cpp
     src/vcf_parser.cpp
-    
+    src/banner.cpp
+
     src/io/register_loader_saver_gbz.cpp
     src/io/register_loader_saver_gbzgraph.cpp
     src/io/register_loader_saver_hash_graph.cpp

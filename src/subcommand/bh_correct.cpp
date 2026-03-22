@@ -6,13 +6,14 @@
 #include <omp.h>
 #include <filesystem>
 
+#include "../banner.hpp"
 #include "../post_processing.hpp"
 
 using namespace std;
 namespace stoat_command {
 
 void print_help_bh_correct() {
-    print_full_banner();
+    print_banner_v1(__VERSION__);
     std::cerr << "Usage: stoat BHcorrect [options] " << endl << endl
               << "options:" << endl
               << "  -t, --tsv FILE                  The TSV file to be processed" << endl

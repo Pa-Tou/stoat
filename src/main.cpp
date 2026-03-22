@@ -29,11 +29,13 @@
 #include "subcommand/bh_correct.hpp"
 #include "subcommand/change_reference.hpp"
 #include "log.hpp"
+#include "banner.hpp"
 
 // Global variable
 #define __VERSION__ = "v0.0.4";
 
 void print_help() {
+    print_banner_v1(__VERSION__);
     std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls. Version " << VERSION << "\n"
                 << "usage: stoat <command> [options]\n\n"    
                 << "  -- version       version information\n"

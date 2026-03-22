@@ -28,7 +28,7 @@
 namespace stoat_command {
 
 void print_help_vcf() {
-    print_full_banner();
+    print_banner_v1(__VERSION__);
     std::cerr << "Usage: stoat vcf [options]\n\n"
               << "  -g, --graph FILE                Path to the graph file (only Packed Graph works for now)\n"
               << "  -d, --dist FILE                 Path to the distance index file\n"
@@ -44,6 +44,7 @@ void print_help_vcf() {
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
+              << "  -a, --ascii                     Print the STOAT ascii art banner\n";
               << "  -h, --help                      Print this help message\n";
 }
 
@@ -61,6 +62,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
     bool bgzip_output = true;
+    bool ascii = false;
 
     // Parse arguments
     int c;
@@ -80,11 +82,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
         {"no-bgzip", no_argument, 0, 'u'},
+        {"ascii", no_argument, 0, 'a'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:R:i:y:l:ft:V:o:uh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -92,6 +95,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
             case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
             case 'r': reference_prefix = optarg; break;
+            case 'a': ascii = true; break;
             case 'i':
                 children_threshold = std::stoi(optarg);
                 if (children_threshold < 2) {
@@ -175,7 +179,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
     }
 
     // add command launch in log file + print banner
-    print_small_banner(__VERSION__);
+    if (ascii) {
+        print_ascii_banner(__VERSION__);
+    } else {
+        print_banner_v1(__VERSION__);
+    }
+
     std::stringstream ss;
     ss << "stoat ";
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
