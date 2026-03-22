@@ -19,6 +19,7 @@
 namespace stoat_command {
 
 void print_help_test() {
+    print_full_banner();
     std::cerr << "Usage: stoat test [options]\n\n"
               << "  -g, --genotype FILE             Path to the genotype file from stoat graph or stoat vcf\n"
               << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), \n"

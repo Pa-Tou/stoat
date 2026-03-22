@@ -18,7 +18,8 @@ using namespace std;
 namespace stoat_command {
 
 void print_help_change_reference() {
-    std::cerr << "usage: stoat change-ref -T [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -r [reference name] > [renamed_tsv]" << endl << endl
+    print_full_banner();
+    std::cerr << "Usage: stoat change-ref -T [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -r [reference name] > [renamed_tsv]" << endl << endl
               << "options:" << endl
               << "  -T, --tsv FILE                  The TSV file to be processed, the output file of stoat" << endl
               << "  -g, --graph FILE                The graph used to find coordinates" << endl

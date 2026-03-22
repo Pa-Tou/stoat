@@ -31,7 +31,7 @@
 #include "log.hpp"
 
 // Global variable
-const std::string VERSION = "v0.0.3";
+#define __VERSION__ = "v0.0.4";
 
 void print_help() {
     std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls. Version " << VERSION << "\n"
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
         stoat_command::main_stoat_change_reference(argc, argv);
 
     } else if (subcommand == "version") {
-        std::cout << "stoat: GWAS analysis tool, version " << VERSION;
+        std::cout << "stoat: GWAS analysis tool, version " << __VERSION__;
         // stoat::LOG_INFO("Compiled with g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 on Linux)";
         // stoat::LOG_INFO("Linked against libstd++ 20230528)";
 

@@ -24,7 +24,9 @@
 namespace stoat_command {
 
 void print_help_graph() {
-    std::cerr << "usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
+    print_full_banner();
+
+    std::cerr << "Usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
         << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
         << std::endl
         << "input:" << std::endl

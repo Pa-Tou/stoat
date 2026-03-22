@@ -11,6 +11,7 @@
 #include <bdsg/overlays/overlay_helper.hpp>
 #include <vg/io/vpkg.hpp>
 
+#include "../banner.hpp"
 #include "../log.hpp"
 #include "../arg_parser.hpp"
 #include "../io/register_io.hpp"
@@ -24,10 +25,10 @@
     #include <valgrind/callgrind.h>
 #endif
 
-
 namespace stoat_command {
 
 void print_help_vcf() {
+    print_full_banner();
     std::cerr << "Usage: stoat vcf [options]\n\n"
               << "  -g, --graph FILE                Path to the graph file (only Packed Graph works for now)\n"
               << "  -d, --dist FILE                 Path to the distance index file\n"
@@ -173,7 +174,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::Logger::instance().setLogFile(output_dir + "/stoat.vcf.log");
     }
 
-    // add command launch in log file
+    // add command launch in log file + print banner
+    print_small_banner(__VERSION__);
     std::stringstream ss;
     ss << "stoat ";
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
@@ -182,8 +184,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // read reference chromosome, if provided
     // if not, we will use reference haplotypes in the pangenome
     std::unordered_set<std::string> ref_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
-
-
 
     // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
