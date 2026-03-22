@@ -30,7 +30,7 @@ void print_help_test() {
               << "  -C, --covar-name NAME           Covariate column name(s) used\n"
               << "  -I, --min-individuals INT       Minimum number of individuals per snarl [0]\n"
               << "  -M, --maf FLOAT                 Minimum allele frequency threshold [0.05]\n"
-              << "  -t, --threads INT               Number of threads to use [1]\n"
+              //<< "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
@@ -70,7 +70,7 @@ int main_stoat_test(int argc, char* argv[]) {
         {"covar-name", required_argument, 0, 'C'},
         {"min-individuals", required_argument, 0, 'I'},
         {"maf", required_argument, 0, 'M'},
-        {"thread", required_argument, 0, 't'},
+        //{"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
         {"no-bgzip", no_argument, 0, 'u'},
@@ -78,7 +78,7 @@ int main_stoat_test(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:t:V:o:uh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'g': genotype_path = optarg; stoat_vcf::check_file(genotype_path); break;
             case 'm': method = optarg; stoat_vcf::check_methods(method); break;
@@ -125,7 +125,7 @@ int main_stoat_test(int argc, char* argv[]) {
                 print_help_test(); 
                 return EXIT_SUCCESS; 
             default:
-                stoat::LOG_ERROR("[stoat test] Unknown argument");
+                stoat::LOG_ERROR("[stoat test] Unknown argument " + c);
                 print_help_test();
                 return EXIT_FAILURE;
         }
