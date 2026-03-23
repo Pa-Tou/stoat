@@ -20,7 +20,7 @@
 namespace stoat_command {
 
 void print_help_test() {
-    print_banner_v1(__VERSION__);
+    stoat::print_banner_v1(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat test [options]\n\n"
               << "  -g, --genotype FILE             Path to the genotype file from stoat graph or stoat vcf\n"
               << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), \n"
@@ -36,7 +36,7 @@ void print_help_test() {
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
-              << "  -a, --ascii                     Print the STOAT ascii art banner\n";
+              << "  -a, --ascii                     Print the STOAT ascii art banner\n"
               << "  -h, --help                      Print this help message\n";
 }
 
@@ -165,9 +165,9 @@ int main_stoat_test(int argc, char* argv[]) {
 
     // add command launch in log file
     if (ascii) {
-        print_ascii_banner(__VERSION__);
+        print_ascii_banner(std::string(STOAT_VERSION));
     } else {
-        print_banner_v1(__VERSION__);
+        print_banner_v1(std::string(STOAT_VERSION));
     }
 
     std::stringstream ss;

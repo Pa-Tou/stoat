@@ -31,12 +31,10 @@
 #include "log.hpp"
 #include "banner.hpp"
 
-// Global variable
-#define __VERSION__ = "v0.0.4";
-
+// STOAT_VERSION are available in the CMAKELIST file
 void print_help() {
-    print_banner_v1(__VERSION__);
-    std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls. Version " << VERSION << "\n"
+    stoat::print_banner_v1(std::string(STOAT_VERSION));
+    std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls.\n"
                 << "usage: stoat <command> [options]\n\n"    
                 << "  -- version       version information\n"
                 << "\n"
@@ -85,7 +83,7 @@ int main(int argc, char* argv[]) {
         stoat_command::main_stoat_change_reference(argc, argv);
 
     } else if (subcommand == "version") {
-        std::cout << "stoat: GWAS analysis tool, version " << __VERSION__;
+        std::cout << "stoat: GWAS analysis tool, version " << STOAT_VERSION;
         // stoat::LOG_INFO("Compiled with g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 on Linux)";
         // stoat::LOG_INFO("Linked against libstd++ 20230528)";
 

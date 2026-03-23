@@ -25,7 +25,7 @@
 namespace stoat_command {
 
 void print_help_graph() {
-    print_banner_v1(__VERSION__);
+    stoat::print_banner_v1(std::string(STOAT_VERSION));
 
     std::cerr << "Usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
         << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
@@ -177,9 +177,9 @@ int main_stoat_graph(int argc, char *argv[]) {
 
     // add command launch in log file
     if (ascii) {
-        print_ascii_banner(__VERSION__);
+        print_ascii_banner(std::string(STOAT_VERSION));
     } else {
-        print_banner_v1(__VERSION__);
+        print_banner_v1(std::string(STOAT_VERSION));
     }
 
     std::stringstream ss;

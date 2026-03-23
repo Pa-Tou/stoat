@@ -28,7 +28,7 @@
 namespace stoat_command {
 
 void print_help_vcf() {
-    print_banner_v1(__VERSION__);
+    stoat::print_banner_v1(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n"
               << "  -g, --graph FILE                Path to the graph file (only Packed Graph works for now)\n"
               << "  -d, --dist FILE                 Path to the distance index file\n"
@@ -44,7 +44,7 @@ void print_help_vcf() {
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
-              << "  -a, --ascii                     Print the STOAT ascii art banner\n";
+              << "  -a, --ascii                     Print the STOAT ascii art banner\n"
               << "  -h, --help                      Print this help message\n";
 }
 
@@ -180,9 +180,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     // add command launch in log file + print banner
     if (ascii) {
-        print_ascii_banner(__VERSION__);
+        print_ascii_banner(std::string(STOAT_VERSION));
     } else {
-        print_banner_v1(__VERSION__);
+        print_banner_v1(std::string(STOAT_VERSION));
     }
 
     std::stringstream ss;
@@ -285,7 +285,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             true, //find_alleles_first, doesn't matter in this case
             true, // walks_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
-                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's version and write the skipped snarls somewhere
+                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
             },
             false, //alleles_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles

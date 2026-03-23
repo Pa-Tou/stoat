@@ -13,7 +13,7 @@ using namespace std;
 namespace stoat_command {
 
 void print_help_bh_correct() {
-    print_banner_v1(__VERSION__);
+    stoat::print_banner_v1(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat BHcorrect [options] " << endl << endl
               << "options:" << endl
               << "  -t, --tsv FILE                  The TSV file to be processed" << endl
