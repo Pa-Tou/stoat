@@ -49,7 +49,7 @@ int main_stoat_test(int argc, char* argv[]) {
     size_t max_gene_dist = 1000000;
 
     // which method to use
-    std::string method = "linreg";
+    std::string method = "";
     
     // default output directory
     std::string output_dir = "stoat_output";
@@ -195,6 +195,13 @@ int main_stoat_test(int argc, char* argv[]) {
     // prepare the vector mapping genes to index
     std::unordered_map<std::string, size_t> gene_to_index;
 
+    // predict methods
+    if (method.empty()) {
+        bool covariate = !covariate_path.empty();
+        bool eqtl = !gene_position_path.empty();
+        method = stoat_vcf::methods_stats_prediction(phenotype_path, covariate, eqtl);
+    }
+
     // read the file
     if (!gene_position_path.empty()) {
         stoat::LOG_TRACE("Parsing eqtl phenotype file");
@@ -232,6 +239,9 @@ int main_stoat_test(int argc, char* argv[]) {
         snarl_analyzer.reset(new stoat_vcf::ExactBinarySnarlAnalyzer(snarl_collection, maf_threshold,
                                                                      *binary_phenotype_table, min_individuals));
     } else if (method == "chi2") {
+        if (!covariate_path.empty()) {
+            stoat::LOG_WARN("Covariate will be disable using chi2 test, try -m logreg instead.");
+        }
         // Binary using Chi2/Fisher (no covariate)
         snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, maf_threshold,
                                                                 *binary_phenotype_table, min_individuals));

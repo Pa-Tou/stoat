@@ -537,13 +537,15 @@ std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const 
     
     // time to compute the F-statistic
     double F_stat = 0;
+    
     // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]
     // Numerator df = number of tested predictors
     int df_numerator = num_predictors;
+
     // Denominator df = residual df in full model
     int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
     int df_denominator = num_samples - num_params_full;
-    
+
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (df_denominator <= 0) {
