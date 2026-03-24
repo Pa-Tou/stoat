@@ -219,9 +219,9 @@ class SnarlDataCollection {
         std::vector<std::string> get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                 const std::vector<stoat::PathTraversal>& paths) const; 
     
-
         // Do we want to analyze this snarl, based on the various limits we were given?
-        bool snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
+        bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances, 
+            size_t& number_of_snarl_limit_distance, size_t& number_of_snarl_limit_children) const; 
 
         //////////////////// Helper functions for writing and loading stuff from files
 

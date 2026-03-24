@@ -94,7 +94,7 @@ public:
 
     // TODO : change sum_path to definition using the length of the path including in the boundary nodes
     // Matis ans : i don t know how to do it
-    std::string get_allele_length() const;
+    std::string get_allele_length(size_t& count_path_lengths_warn) const;
         
     // Getters
     const std::vector<node_traversal_t>& get_path() const;

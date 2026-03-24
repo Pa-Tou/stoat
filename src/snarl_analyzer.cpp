@@ -306,7 +306,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
         // before performing the regression, try to reduce potential colinearity
         snarl_data.genotypes.remove_duplicated_predictors();
         snarl_data.genotypes.remove_one_allele();
-    
+
         Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
         Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
 

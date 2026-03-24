@@ -34,7 +34,7 @@ Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) const {
 }
     
 // logistic regression using the Maximum Likelihood Estimate with Newton-Raphson method
-std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
+std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) {
 
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
@@ -157,7 +157,10 @@ std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, co
     if (!converged) {
         if (max_score < 0.1 && max_delta < 0.1) {
             // not that bad, continue with a warning?
-            stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + std::to_string(max_score) + ", max delta " + std::to_string(max_delta) + ") but not too bad. Continuing.");
+            stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + 
+                std::to_string(max_score) + ", max delta " + std::to_string(max_delta) +
+                ") but not too bad. Continuing.", count_number_not_convergence);
+            count_number_not_convergence++;
         } else {
             // too far from a good fit, return NAs.
             return "NA";
@@ -290,7 +293,8 @@ std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, co
 #endif
 
     if (loglik_ratio < 0) {
-        stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.");
+        stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.", count_number_negative_log_likelihood);
+        count_number_negative_log_likelihood++;
         return "NA";
     }
 
@@ -473,16 +477,15 @@ Eigen::MatrixXd inverse(const Eigen::MatrixXd &A) {
 }
 
 // Performs linear regression and F-test for predictors only
-std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
+std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) {
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
     std::cerr << "Y:\n" << Y << "\n";
 #endif
     size_t num_samples = Y.size();
     size_t num_covariates = X.cols() - num_predictors - 1;
-    
     stoat::LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
-    
+
     // fit the full model
     // Solve beta X = Y using QR decomposition
     // colPivHouseholderQr is faster than fullPivHouseholderQr but less stable. could switch to full if we encounter problem (or try the HouseolderQR which is less stable but even faster)
@@ -525,7 +528,8 @@ std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const 
     if (SSE_full == 0) {
         // rare but can happen. What should we do?
         if (SSE_reduced == 0) {
-            stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.");
+            stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.", count_number_sse_null);
+            count_number_sse_null++;
             return "NA";
         } else {
             // not sure what to do here. Adding 0.1% errors to the perfect predictions?
@@ -549,18 +553,22 @@ std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const 
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (df_denominator <= 0) {
-        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.");
+        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.", count_number_few_sample);
+        count_number_few_sample++;
         return "NA";
     } else {
         double numerator = (SSE_reduced - SSE_full) / df_numerator;
         double denominator = SSE_full / df_denominator;
         F_stat = numerator / denominator;
         if (F_stat < 0 && F_stat > -0.00001){
-            stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
+            stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.", count_number_f_stat_close_to_0);
+            count_number_f_stat_close_to_0++;
             F_stat = 0;
         }
+
         if (F_stat < -0.00001){
-            stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
+            stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.", count_number_f_stat_negative);
+            count_number_f_stat_negative++;
             return "NA";
         }
     }

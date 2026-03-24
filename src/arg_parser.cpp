@@ -9,7 +9,7 @@ namespace stoat_vcf {
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;
     if (!std::filesystem::exists(file_path)) {
-        std::cerr << "[stoat] warning: given reference file " << file_path << " does not exist. Defaulting to using any reference- or generic-sense paths as references" << std::endl;
+        stoat::LOG_WARN("given reference file " + file_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", 0);
         return reference;
     }
     std::ifstream file(file_path);
@@ -22,7 +22,7 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     file.close();
 
     if (reference.size() == 0) {
-        std::cerr << "[stoat] warning: given reference file " << file_path << " is empty. Defaulting to using any reference- or generic-sense paths as references" << std::endl;
+        stoat::LOG_WARN("given reference file " + file_path + " is empty. Defaulting to using any reference- or generic-sense paths as references", 0);
     }
     return reference;
 }
@@ -181,14 +181,19 @@ std::string methods_stats_prediction(const std::string& file_path, const bool& c
 
     std::string line, sample_name, phenoStr;
     std::getline(file, line); // header
+
     std::istringstream header_stream(line);
-    header_stream >> sample_name >> phenoStr;
-    if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
-        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
+    std::string col1, col2;
+    header_stream >> col1 >> col2;
+
+    // If not SAMPLE PHENO format, assume gene expression matrix
+    if (col1 != "SAMPLE" || col2 != "PHENO") {
+        return "linreg"; // assuming eqtl format
     }
 
     std::set<double> unique_values;
     bool has_non_integer = false;
+
     while (std::getline(file, line)) {
         std::istringstream iss(line);
         if (!(iss >> sample_name >> phenoStr)) {
@@ -209,11 +214,11 @@ std::string methods_stats_prediction(const std::string& file_path, const bool& c
     file.close();
 
     if (eqtl || has_non_integer) {
-        return "linear"; // quantitative
+        return "linreg"; // quantitative
     } else if (unique_values.size() == 2 && covariate) {
-        return "logistic"; // binary
+        return "logreg"; // binary + covar
     } else {
-        return "chi2"; // categorical >2
+        return "chi2"; // binary no covar
     }
 }
 
@@ -339,7 +344,6 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
 
     // add gene positions from the file
     output_table->read_gene_positions_from_file(gene_position_path);
-
     return (output_table);
 
 }
@@ -489,7 +493,7 @@ void check_match_samples(const std::unordered_map<std::string, T>& map, const st
         }
     }
     if (map.size() != keys.size()) {
-        stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").");
+        stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").", 0);
     }
 }
 

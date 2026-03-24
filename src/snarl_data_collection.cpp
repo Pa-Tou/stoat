@@ -70,6 +70,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     // as a way of debugging the parallelization. Not in ifdef because it needs to go in the omp parallel shared
     size_t chains_added = chains.size();
     size_t chains_processed = 0;
+    size_t number_of_snarl_limit_distance = 0;
+    size_t number_of_snarl_limit_children = 0;
 
     bool keep_going = !chains.empty();
 
@@ -111,7 +113,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                             #ifdef DEBUG_SNARL_DATA_COLLECTION
                             std::cerr << "At snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
                             #endif
-                            if (snarl_is_eligible(distance_index, snarl, check_distances)) {
+                            if (snarl_is_eligible(distance_index, snarl, check_distances, number_of_snarl_limit_distance, number_of_snarl_limit_children)) {
 
                                 // Make the snarl_info_internal_t to fill in. Since it's multithreaded its better to move() it instead of adding it here
                                 snarl_info_internal_t snarl_data;
@@ -280,7 +282,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     }
                                 }
 
-                            }// end if snarl_is_eligible
+                            } // end if snarl_is_eligible
 
     
                             #pragma omp critical(snarl_collection)
@@ -319,6 +321,10 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
             }// end while loop
         }// End omp single
     }//end omp shared
+
+    stoat::LOG_INFO("Number of filtered snarl: " + std::to_string(number_of_snarl_limit_distance + number_of_snarl_limit_children) 
+        + " (number_of_snarl_limit_distance: " + std::to_string(number_of_snarl_limit_distance) + ", number_of_snarl_limit_children: "
+        + std::to_string(number_of_snarl_limit_children) + ")");
     
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     std::cerr << "Added " << chains_added << " chains and processed " << chains_processed << std::endl;
@@ -425,20 +431,16 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
     }
 
     // now the index in the edge matrix should match the index in the collection sample-hap list
-    
     // read the VCF by chunk, build the edge matrix and genotype each snarl
-    // 
-
     // We assume that the vcf parser has read the header and is now ready to go through the snarls
     std::string chr = vcf_parser.get_next_chromosome_name();
     
     // Go through to the end of the VCF. Chunk by chromosome 
     while (chr != "") {
 
-
         // Skip chromosomes not in ref_chrs
         while (std::find(reference_names.begin(), reference_names.end(), chr) == reference_names.end()) {
-            stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.");
+            stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.", 0);
             bool found_new_chr = false;
 
             // Just skip to the next one without doing anything
@@ -481,7 +483,6 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         auto timer_end_chr = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl genotypes retrieved in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_end_matrix).count()) + " s");
         stoat::LOG_INFO("Total time for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_start_chr).count()) + " s");
-
 
         // The parser has now passed the current chromosome. Get the name of the next one
         chr = vcf_parser.get_next_chromosome_name();
@@ -912,13 +913,13 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
     return sequences;
 }
 
-
-
-bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const {
+bool SnarlDataCollection::snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances, 
+    size_t& number_of_snarl_limit_distance, size_t& number_of_snarl_limit_children) const {
 
     // If we have distances in the index, make sure that the snarl's maximum length is big enough
     if (check_distances && (allele_size_limit > distance_index.maximum_length(snarl))) {
-
+        stoat::LOG_WARN("Snarl allele_size_limit > distance_index.maximum_length(snarl)", number_of_snarl_limit_distance);
+        number_of_snarl_limit_distance++;
         return false;
     }
     //TODO: Once the libbdsg branch is merged we can use this instead of going through all the children to count them
@@ -931,16 +932,13 @@ bool SnarlDataCollection::snarl_is_eligible( const bdsg::SnarlDistanceIndex& dis
         return true;
     });
     if (snarl_child_limit < children) {
-        std::cerr << "Snarl had too many children" << std::endl;
-
+        stoat::LOG_WARN("Snarl had too many children", number_of_snarl_limit_children);
+        number_of_snarl_limit_children++;
         return false;
     }
 
     return true;
 }
-
-
-
 
 /////////////////////////////////////////// Writing/reading the snarl data
 /*
@@ -1115,7 +1113,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         #endif
         std::getline(linestream, limit_str, ':');
         if (allele_size_limit < std::stoull(limit_str)) {
-            std::cerr << "warning [stoat]: The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed" << std::endl;;
+            stoat::LOG_WARN("The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed", 0);
         }
     }
 
@@ -1130,7 +1128,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         #endif
         std::getline(linestream, limit_str, ':');
         if (snarl_child_limit < std::stoull(limit_str)) {
-            std::cerr << "warning [stoat]: The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed" << std::endl;;
+            stoat::LOG_WARN("The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed", 0);
         }
     }
 
@@ -1145,7 +1143,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         #endif
         std::getline(linestream, limit_str, ':');
         if (walk_steps_limit > std::stoull(limit_str)) {
-            std::cerr << "warning [stoat]: The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed" << std::endl;;
+            stoat::LOG_WARN("The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed", 0);
         }
     }
 

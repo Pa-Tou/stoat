@@ -61,17 +61,13 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        std::string linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
+        std::string linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
 
-        std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>> &A);
-
-        std::vector<double> mult_mat_vec(
-            const std::vector<std::vector<double>> &A, 
-            const std::vector<double> &b);
-
-        std::vector<std::vector<double>> mult_mat_mat(
-            const std::vector<std::vector<double>> &A, 
-            const std::vector<std::vector<double>> &B);
+    private:
+        size_t count_number_sse_null = 0;
+        size_t count_number_few_sample = 0;
+        size_t count_number_f_stat_close_to_0 = 0;
+        size_t count_number_f_stat_negative = 0;
 };
 
 class LogisticRegression {
@@ -86,7 +82,7 @@ public:
     // if the betas get too high, it will switch to Firth penalized regression
     // p-value is computed from the likelihood ratio of the full vs reduced model
     // returns the pvalue as a string, ready to be written to the output
-    std::string logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
+    std::string logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
     
 private:
     // maximum number of iterations to perform
@@ -95,6 +91,10 @@ private:
     const double max_step = 3;
     // tolerance to decide if the score and delta are small enough to consider the iteration to have converged
     const double conv_tol = 0.001;
+
+    size_t count_number_not_convergence = 0;
+    size_t count_number_negative_log_likelihood = 0;
+
 };
 
 // Compute the inverse or Moore-Penrose pseudoinverse of a matrix

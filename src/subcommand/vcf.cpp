@@ -183,8 +183,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // if not, we will use reference haplotypes in the pangenome
     std::unordered_set<std::string> ref_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
 
-
-
     // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
@@ -309,7 +307,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
     }
 
-    //////////////////////////////////////// Go through the vcf, genotype all the snarls ( and save the intermediate file)
+    //////////////////////////////////////// Go through the vcf, genotype all the snarls (and save the intermediate file)
     if (!only_prepare_snarls) {
         stoat::LOG_INFO("Retrieving genotypes for all snarls...");
         auto start_gt_timer = std::chrono::high_resolution_clock::now();
