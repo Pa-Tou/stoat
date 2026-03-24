@@ -149,7 +149,7 @@ void add_BH_adjusted_column(
     if ((input_file.compare(input_file.length()-3, 3, ".gz") == 0) ||
         (input_file.compare(input_file.length()-4, 4, ".bgz") == 0)) {
         new_reader.reset(new BgzReader(input_file));
-        writer.reset(new BgzWriter(output_temp_file + ".gz"));
+        writer.reset(new BgzWriter(output_temp_file));
     } else {
         new_reader.reset(new StdReader(input_file));
         writer.reset(new StdWriter(output_temp_file));
