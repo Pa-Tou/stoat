@@ -1,5 +1,6 @@
 #include "post_processing.hpp"
 #include "utils.hpp"
+#include "writer.hpp"
 
 namespace stoat {
 
@@ -62,7 +63,16 @@ void add_BH_adjusted_column(
     const std::string& output_file_significant,
     size_t p_col_index) {
 
-    std::ifstream infile(input_file);
+    // Get the reader
+    std::shared_ptr<stoat::Reader> reader;
+    if ((input_file.compare(input_file.length()-3, 3, ".gz") == 0) ||
+        (input_file.compare(input_file.length()-4, 4, ".bgz") == 0)) {
+        reader.reset(new BgzReader(input_file));
+    } else {
+        reader.reset(new StdReader(input_file));
+    }
+
+
     std::string col;
 
     // First pass: Collect p-values
@@ -72,7 +82,7 @@ void add_BH_adjusted_column(
 
     // Read the header line
     std::string header_line;
-    std::getline(infile, header_line);
+    reader->getline(header_line);
     std::stringstream header_ss(header_line);
     std::vector<std::string> headers;
     while (std::getline(header_ss, col, '\t')) {
@@ -107,7 +117,7 @@ void add_BH_adjusted_column(
         }
     }
 
-    while (std::getline(infile, line)) {
+    while (reader->getline(line)) {
         std::stringstream ss(line);
         std::string token;
         std::vector<std::string> columns;
@@ -124,38 +134,55 @@ void add_BH_adjusted_column(
         //}
         pvalues.emplace_back(pval, 1.0, line_index++);
     }
-    infile.close();
+    reader->close();
 
     // Apply BH correction
     adjust_pvalues_with_BH(pvalues);
 
     // Second pass: rewrite with BH-adjusted values
-    infile.open(input_file);
+
+    // Open the reader again
+    std::shared_ptr<stoat::Reader> new_reader;
+    std::shared_ptr<stoat::Writer> writer;
+    std::shared_ptr<stoat::Writer> writer_significant;
     const std::string output_temp_file = output_dir + "/temp_output.tsv";
-    std::ofstream outfile(output_temp_file);
+    if ((input_file.compare(input_file.length()-3, 3, ".gz") == 0) ||
+        (input_file.compare(input_file.length()-4, 4, ".bgz") == 0)) {
+        reader.reset(new BgzReader(input_file));
+        writer.reset(new BgzWriter(output_temp_file + ".gz"));
+    } else {
+        reader.reset(new StdReader(input_file));
+        writer.reset(new StdWriter(output_temp_file));
+    }
+    if ((output_file_significant.compare(output_file_significant.length()-3, 3, ".gz") == 0) ||
+        (output_file_significant.compare(output_file_significant.length()-4, 4, ".bgz") == 0)) {
+        writer_significant.reset(new BgzWriter(output_file_significant));
+    } else {
+        writer_significant.reset(new StdWriter(output_file_significant));
+    }
     std::ofstream outfile_significant(output_file_significant);
 
     // Write headers
     for (size_t i = 0 ; i < headers.size() ; i++ ) {
-        outfile << headers[i];
+        writer->write(headers[i]);
         if (i == p_col_index) {
-            outfile << "\t" << "P_ADJUSTED";
-            outfile_significant << "\t" << "P_ADJUSTED";
+            writer->write("\tP_ADJUSTED");
+            writer_significant->write("\tP_ADJUSTED");
         } 
 
         if (i == headers.size()-1) {
-            outfile << std::endl;
-            outfile_significant << std::endl;
+            writer->write("\n");
+            writer_significant->write("\n");
         } else {
-            outfile << "\t";
-            outfile_significant << "\t";
+            writer->write("\t");
+            writer_significant->write("\t");
         }
     }
 
-    std::getline(infile, line); // Skip header again
+    new_reader->getline(line); // Skip header again
     line_index = 0;
 
-    while (std::getline(infile, line)) {
+    while (new_reader->getline(line)) {
         std::stringstream ss(line);
         std::string token;
         std::vector<std::string> columns;
@@ -169,28 +196,29 @@ void add_BH_adjusted_column(
 
         // Write updated line
         for (size_t i = 0; i < columns.size(); ++i) {
-            outfile << columns[i];
+            writer->write(columns[i]);
             if (i == p_col_index) {
-                outfile << "\t" << adj_str;
+                writer->write("\t");
+                writer->write(adj_str);
             }
-            if (i != columns.size() - 1) outfile << '\t';
+            if (i != columns.size() - 1) writer->write("\t");
         }
 
-        outfile << '\n';
+        writer->write("\n");
 
         if (adjusted_p < 1e-5) {
             for (size_t i = 0; i < columns.size(); ++i) {
-                outfile_significant << columns[i];
-                if (i != columns.size() - 1) outfile_significant << '\t';
+                writer_significant->write(columns[i]);
+                if (i != columns.size() - 1) writer_significant->write("\t");
             }
-            outfile_significant << '\n';
+            writer_significant->write("\n");
         }
         ++line_index;
     }
 
-    infile.close();
-    outfile.close();
-    outfile_significant.close();
+    new_reader->close();
+    writer->close();
+    writer_significant->close();
 
     // Replace original file
     std::remove(input_file.c_str());
