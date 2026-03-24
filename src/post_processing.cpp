@@ -227,12 +227,18 @@ void add_BH_adjusted_column(
 
 void change_reference(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                       const std::string& input_file, const std::unordered_set<std::string>& reference_names) {
-    std::ifstream instream;
-    instream.open(input_file);
+
+    std::shared_ptr<stoat::Reader> reader;
+    if ((input_file.compare(input_file.length()-3, 3, ".gz") == 0) ||
+        (input_file.compare(input_file.length()-4, 4, ".bgz") == 0)) {
+        reader.reset(new BgzReader(input_file));
+    } else {
+        reader.reset(new StdReader(input_file));
+    }
 
     // Read the header line
     std::string header_line;
-    std::getline(instream, header_line);
+    reader->getline(header_line);
     std::stringstream header_ss(header_line);
     std::vector<std::string> headers;
     std::string col;
@@ -248,7 +254,7 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
     std::cout << header_line << std::endl;
 
     std::string line;
-    while (std::getline(instream, line)) {
+    while (reader->getline(line)) {
 
         // Parse the line into a vector of strings
         std::stringstream ss(line);
@@ -309,7 +315,7 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
         std::cout << std::endl;
     }
 
-    instream.close();
+    reader->close();
 }
 
 } // namespace stoat_vcf
