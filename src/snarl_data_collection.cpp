@@ -993,7 +993,7 @@ void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_
     //Finally the snarls
     // Start with a header that will contain the names of all samples
     outstream << "#SNARLS" << std::endl;
-    outstream << "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
+    outstream << "#START_NODE\tEND_NODE\tREF_INDEX\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
 
     // The header also includes a list of sample/haplotypes
     for (const auto& samp : all_sample_haplotypes) {

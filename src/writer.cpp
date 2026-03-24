@@ -119,13 +119,13 @@ void BgzReader::close() {
 void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
 
     if (phenotype_type == stoat::BINARY) {
-        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH\n");
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n");
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP\tALLELE_PATHS\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n");
     } else if (phenotype_type == stoat::EQTL) {
-        write("#CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tGENE\tP\tALLELE_PATHS\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tGENE\tP\tALLEL_COUNT\tDEPTH\n");
     }
 }
 
@@ -133,7 +133,7 @@ void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::te
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
-    outl += "\t" + stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id()));
+    outl += "\t" + snarl_data.start_node.to_string() + "\t" + snarl_data.end_node.to_string();
     // allele counts
     if (snarl_data.walks_by_allele.empty()) {
         //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
@@ -152,7 +152,7 @@ void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::tes
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
-    outl += "\t" + stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id()));
+    outl += "\t" + snarl_data.start_node.to_string() + "\t" + snarl_data.end_node.to_string();
     // allele counts
     if (snarl_data.walks_by_allele.empty()) {
         //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
@@ -175,7 +175,7 @@ void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
-    outl += "\t" + stoat::pairToString(std::make_pair(snarl_data.start_node.get_node_id(), snarl_data.end_node.get_node_id()));
+    outl += "\t" + snarl_data.start_node.to_string() + "\t" + snarl_data.end_node.to_string();
     // allele counts
     if (snarl_data.walks_by_allele.empty()) {
         //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
