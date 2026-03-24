@@ -230,6 +230,8 @@ class SnarlDataCollection {
 
         /// Write just one snarl from the collection
         void write_snarl_data_line(Writer& out_writer, const snarl_info_internal_t& snarl_info) const;
+        void write_snarl_data_line(Writer& out_writer, const snarl_info_internal_t& snarl_info, const std::vector<stoat::PathTraversal>* walks_by_allele, 
+                                    const std::vector<std::string>* snarl_sequences, const allele_by_sample_t* alleles_by_sample) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
     void load_snarl_data_collection_header(stoat::Reader& in_reader);

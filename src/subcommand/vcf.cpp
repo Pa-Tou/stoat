@@ -87,7 +87,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:R:r:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -295,7 +295,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             ref_path_names, // reference 
             false, //check distances
             *snarl_writer, // Writer object for the snarls
-            true // Keep the snarls in the collection?
+            !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
             ); 
 
         // done saving the snarls, close the writer
