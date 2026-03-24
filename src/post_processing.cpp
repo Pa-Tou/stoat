@@ -148,10 +148,10 @@ void add_BH_adjusted_column(
     const std::string output_temp_file = output_dir + "/temp_output.tsv";
     if ((input_file.compare(input_file.length()-3, 3, ".gz") == 0) ||
         (input_file.compare(input_file.length()-4, 4, ".bgz") == 0)) {
-        reader.reset(new BgzReader(input_file));
+        new_reader.reset(new BgzReader(input_file));
         writer.reset(new BgzWriter(output_temp_file + ".gz"));
     } else {
-        reader.reset(new StdReader(input_file));
+        new_reader.reset(new StdReader(input_file));
         writer.reset(new StdWriter(output_temp_file));
     }
     if ((output_file_significant.compare(output_file_significant.length()-3, 3, ".gz") == 0) ||
