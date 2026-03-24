@@ -57,7 +57,7 @@ struct binary_table_values_t{
     std::string chr;
     size_t start_pos;
     size_t end_pos;
-    std::pair<size_t, size_t> snarl_ids;
+    std::pair<std::string, std::string> snarl_ids;
     std::vector<std::string> path_lengths; // min/max lengths of paths per allele
     std::string p_fishers;
     std::string p_chi2;
