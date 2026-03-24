@@ -44,7 +44,7 @@ bool run_test_snarl(
     std::string cmd = stoat_command + " vcf -u"
     + " -g " + data_path + "/pg.full.pg"
     + " -d " + data_path + "/pg.full.dist"
-    + " -r " + data_path + "/pg.chromosome"
+    + " -R " + data_path + "/pg.chromosome"
     + " --output " + output_dir;
 
     std::cout << "Command run : \n" << cmd << std::endl;
@@ -77,7 +77,7 @@ bool run_test(
     if (from_graph_files) {
         cmd += " -g " + data_path + "/pg.full.pg"
             + " -d " + data_path + "/pg.full.dist"
-            + " -r " + data_path + "/pg.chromosome";
+            + " -R " + data_path + "/pg.chromosome";
     } else {
         cmd += " -s " + data_path + "/snarl_info.tsv";
     }
@@ -182,10 +182,10 @@ TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
 
     SECTION("Without covariate") {
 
-        std::string cmd = stoat_command + " vcf -u -R"
+        std::string cmd = stoat_command + " vcf -u -f"
         + " -g " + data_path + "/pg.full.pg"
         + " -d " + data_path + "/pg.full.dist"
-        + " -r " + data_path + "/pg.chromosome"
+        + " -R " + data_path + "/pg.chromosome"
         + " -v " + data_path + "/merged_output.vcf.gz"
         + " --output " + output_dir;
         
@@ -298,7 +298,7 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
         std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -r " + reference_filename
+            + " -R " + reference_filename
             + " -v " + vcf_filename
             + " -o " + output_dir;
         std::cerr << "Run command " << cmd << std::endl;
@@ -476,10 +476,10 @@ TEST_CASE("Output simple nested chain with conflicting calls", "[detangle]") {
         std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -r " + reference_filename
+            + " -R " + reference_filename
             + " -v " + vcf_filename
             + " -o " + output_dir
-            + " -R";
+            + " -f";
         std::cerr << "Run command " << cmd << std::endl;
         int command_output = std::system(cmd.c_str());
 
@@ -718,7 +718,7 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
         std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -r " + reference_filename
+            + " -R " + reference_filename
             + " -v " + vcf_filename
             + " -o " + output_dir;
         std::cerr << "Run command " << cmd << std::endl;
@@ -892,10 +892,10 @@ TEST_CASE("Output simple nested chain with missing calls", "[detangle]") {
         std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -r " + reference_filename
+            + " -R " + reference_filename
             + " -v " + vcf_filename
             + " -o " + output_dir
-            + " -R";
+            + " -f";
         std::cerr << "Run command " << cmd << std::endl;
         int command_output = std::system(cmd.c_str());
 
@@ -1130,7 +1130,7 @@ TEST_CASE("Output simple nested chain with many samples", "[detangle]") {
         std::string cmd = (std::string)"../bin/stoat vcf -u"
             + " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
-            + " -r " + reference_filename
+            + " -R " + reference_filename
             + " -v " + vcf_filename
             + " -o " + output_dir;
         std::cerr << "Run command " << cmd << std::endl;

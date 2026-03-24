@@ -33,11 +33,12 @@ void print_help_vcf() {
               << "  -d, --dist FILE                 Path to the distance index file\n"
               << "  -v, --vcf FILE                  Path to the VCF file\n"
               << "  -s, --snarl FILE                Path to the snarl file\n"
-              << "  -r, --reference-chrs FILE       Path to the chromosome reference file, one path name per line (optional)\n"
+              << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
+              << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
               << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
               << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
-              << "  -R, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow\n"
+              << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
@@ -48,7 +49,7 @@ void print_help_vcf() {
 int main_stoat_vcf(int argc, char* argv[]) {
     
     // Declare variables to hold argument values
-    std::string vcf_path, snarl_path, graph_path, dist_path, chromosome_path;
+    std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix;
 
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
@@ -68,11 +69,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"snarl", required_argument, 0, 's'},
         {"graph", required_argument, 0, 'g'},
         {"dist", required_argument, 0, 'd'},
-        {"reference-chrs", required_argument, 0, 'r'},
+        {"reference-file", required_argument, 0, 'R'},
+        {"reference-prefix", required_argument, 0, 'r'},
         {"children", required_argument, 0, 'i'},
         {"cycle", required_argument, 0, 'y'},
         {"path-length", required_argument, 0, 'l'},
-        {"resolve-vcf", no_argument, 0, 'R'},
+        {"resolve-vcf", no_argument, 0, 'f'},
         {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
@@ -81,13 +83,14 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:i:y:l:Rt:V:o:uh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:R:r:i:y:l:ft:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
             case 'g': graph_path = optarg; stoat_vcf::check_file(graph_path); break;
             case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
-            case 'r': chromosome_path = optarg; stoat_vcf::check_file(chromosome_path); break;
+            case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
+            case 'r': reference_prefix = optarg; break;
             case 'i':
                 children_threshold = std::stoi(optarg);
                 if (children_threshold < 2) {
@@ -106,7 +109,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
                     throw std::runtime_error("Error: [stoat vcf] Path length threshold must be > 1");
                 }
                 break;
-            case 'R':
+            case 'f':
                 resolve_vcf=true;
                 break;
             case 't':
@@ -178,7 +181,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     // read reference chromosome, if provided
     // if not, we will use reference haplotypes in the pangenome
-    std::unordered_set<std::string> ref_chrs = (!chromosome_path.empty()) ? stoat_vcf::parse_chromosome_reference(chromosome_path) : std::unordered_set<std::string>{};
+    std::unordered_set<std::string> ref_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
+
+
 
     // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
@@ -223,18 +228,31 @@ int main_stoat_vcf(int argc, char* argv[]) {
         bdsg::PathPositionHandleGraph* path_position_graph;
         path_position_graph =  overlay_helper.apply(graph.get());
 
+        // Get the reference sample names from the prefix
+        graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+            std::string path_name = graph->get_path_name(path);
+        
+            if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
+                              reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
+                // If these paths match
+                ref_path_names.emplace(graph->get_path_name(path));
+            }
+        
+            return true;
+        });
+
         // Load the distance index
         std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
         distance_index->deserialize(dist_path);
 
         // Check if chromosomes specified in the --chr file are present in the graph
-        for (const auto& chr : ref_chrs) {
+        for (const auto& chr : ref_path_names) {
             stoat::LOG_TRACE("Sequence name not found in -r/--chr file: " + chr);
             if (!graph->has_path(chr)) {
                 throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
             }
         }
-        // JEAN if ref_chrs was empty, maybe here add helpful message on how to find the reference paths from the graph
+        // JEAN if ref_path_names was empty, maybe here add helpful message on how to find the reference paths from the graph
 
         // The snarl collection requires a sample_haplotypes but we don't want to work on the pangenome's haplotypes here,
         // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
@@ -265,7 +283,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 return std::vector<size_t>();
             }, 
             false, // sequence_requested 
-            ref_chrs, // reference 
+            ref_path_names, // reference 
             false, //check distances
             *snarl_writer, // Writer object for the snarls
             true // Keep the snarls in the collection?
@@ -284,9 +302,10 @@ int main_stoat_vcf(int argc, char* argv[]) {
     }
 
     // If there were no references given, fill them in with the references from the snarl collection
-    if (ref_chrs.empty()) {
+    //TODO: I don't think this is used
+    if (ref_path_names.empty()) {
         for (const std::string& ref : snarl_collection.get_reference_names()) {
-            ref_chrs.insert(ref);
+            ref_path_names.insert(ref);
         }
     }
 

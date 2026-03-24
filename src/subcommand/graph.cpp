@@ -40,7 +40,8 @@ void print_help_graph() {
         << "  -t, --threads N                    Number of threads to use" << std::endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << std::endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << std::endl
-        << "  -r, --reference-chrs FILE          Path to the chromosome reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
+        << "  -R, --reference-file FILE          Path to the reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
+        << "  -r, --reference-prefix NAME        The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
         << "                                     If not given, use any reference-sense paths in the graph as the references" << std::endl
         << "  -h, --help                         Print this help message" << std::endl;
 }
@@ -55,7 +56,8 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::string graph_name;
     std::string distance_name;
     size_t allele_size_limit = 0;
-    std::string reference_path;
+    std::string reference_file;
+    std::string reference_prefix;
     std::vector<std::string> samples;
     std::string output_dir="stoat_output";
     bool bgzip_output = true;
@@ -71,7 +73,8 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"distance-index", required_argument, 0, 'd'},
                 {"allele-size-limit", required_argument, 0, 'l'},
                 {"threads", required_argument, 0, 't'},
-                {"reference-chrs", required_argument, 0, 'r'},
+                {"reference-file", required_argument, 0, 'R'},
+                {"reference-prefix", required_argument, 0, 'r'},
                 {"output", required_argument, 0, 'o'},
                 {"allele-length", no_argument, 0, 'L'},
                 {"verbose", required_argument, 0, 'V'},
@@ -81,7 +84,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:r:V:o:Luh",
+        c = getopt_long(argc, argv, "g:d:l:t:R:r:V:o:Luh",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -118,8 +121,11 @@ int main_stoat_graph(int argc, char *argv[]) {
                 stoat::Logger::instance().setLevel(logLevel);                
                 break;
                 }
+            case 'R':
+                reference_file = optarg;
+                break;
             case 'r':
-                reference_path = optarg;
+                reference_prefix = optarg;
                 break;
             case 'o':
                 output_dir = optarg;
@@ -213,8 +219,21 @@ int main_stoat_graph(int argc, char *argv[]) {
         distance_index.deserialize(distance_name);
     }
 
-    // Get the reference sample names
-    std::unordered_set<std::string> reference_samples = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
+    // Get the reference sample names from the file
+    std::unordered_set<std::string> reference_path_names = (!reference_file.empty()) ? stoat_vcf::parse_chromosome_reference(reference_file) : std::unordered_set<std::string>{};
+
+    // Get the reference sample names from the prefix
+    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+        std::string path_name = handle_graph->get_path_name(path);
+        
+        if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
+                          reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
+            // If these paths match
+            reference_path_names.emplace(handle_graph->get_path_name(path));
+        }
+
+        return true;
+    });
 
     //////////////////////////////// Make the snarls file and load it if possible
     // If it is being built, it will count towards the time of analysis
@@ -260,7 +279,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
                                         },
                                         false, // find the sequences, only for fasta format
-                                        reference_samples,
+                                        reference_path_names,
                                         distance_index.has_distances(),
                                         *snarl_writer, // Filename to write the snarls to
                                         false // Keep the snarls in the collection?
