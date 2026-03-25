@@ -1,4 +1,4 @@
-// This file is part of STOAT 0.0.1, copyright (C) 2024-2025 
+// This file is part of STOAT 0.0.1, copyright (C) 2024-2025
 // Authors : Matis Alias-Bagarre, Xian Hui Chang & Jean Monlong.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -32,33 +32,36 @@
 #include "banner.hpp"
 
 // STOAT_VERSION are available in the CMAKELIST file
-void print_help() {
-    stoat::print_banner_v1(std::string(STOAT_VERSION));
-    std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls.\n"
-                << "usage: stoat <command> [options]\n\n"    
-                << "  -- version       version information\n"
-                << "\n"
-                << "snarl genotyping:\n"
-                << "  -- vcf           genotypes snarls using a VCF from a pangenome genotyping\n"
-                << "  -- graph         genotypes snarls from the haplotypes in a pangenome graph\n"
-                << "\n"
-                << "association testing:\n"
-                << "  -- test          performs the test between snarl genotypes and a phenotype\n"
-                << "\n"
-                << "post-processing:\n"
-                << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file (DEPRECATED?)\n"
-                << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n";     
+void print_help()
+{
+    stoat::print_banner(std::string(STOAT_VERSION));
+    std::cerr << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls.\n"
+              << "usage: stoat <command> [options]\n\n"
+              << "  -- version       version information\n"
+              << "\n"
+              << "snarl genotyping:\n"
+              << "  -- vcf           genotypes snarls using a VCF from a pangenome genotyping\n"
+              << "  -- graph         genotypes snarls from the haplotypes in a pangenome graph\n"
+              << "\n"
+              << "association testing:\n"
+              << "  -- test          performs the test between snarl genotypes and a phenotype\n"
+              << "\n"
+              << "post-processing:\n"
+              << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file (DEPRECATED?)\n"
+              << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n";
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
 
-    if (argc < 2) {
+    if (argc < 2)
+    {
         print_help();
         return EXIT_FAILURE;
     }
 
     std::string subcommand = argv[1];
-    stoat::LogLevel verbosity = stoat::LogLevel::Info;  // default level info
+    stoat::LogLevel verbosity = stoat::LogLevel::Info; // default level info
 
     // Shift argv to skip the subcommand itself
     argc -= 1;
@@ -67,27 +70,34 @@ int main(int argc, char* argv[]) {
     // Set the number of threads to 1 by default
     omp_set_num_threads(1);
 
-    if (subcommand == "vcf") {
+    if (subcommand == "vcf")
+    {
         stoat_command::main_stoat_vcf(argc, argv);
-
-    } else if (subcommand == "graph") {
+    }
+    else if (subcommand == "graph")
+    {
         stoat_command::main_stoat_graph(argc, argv);
-
-    } else if (subcommand == "test") {
+    }
+    else if (subcommand == "test")
+    {
         stoat_command::main_stoat_test(argc, argv);
-
-    } else if (subcommand == "BHcorrect") {
+    }
+    else if (subcommand == "BHcorrect")
+    {
         stoat_command::main_stoat_bh_correct(argc, argv);
-
-    } else if (subcommand == "change-ref") {
+    }
+    else if (subcommand == "change-ref")
+    {
         stoat_command::main_stoat_change_reference(argc, argv);
-
-    } else if (subcommand == "version") {
+    }
+    else if (subcommand == "version")
+    {
         std::cout << "stoat: GWAS analysis tool, version " << STOAT_VERSION;
         // stoat::LOG_INFO("Compiled with g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 on Linux)";
         // stoat::LOG_INFO("Linked against libstd++ 20230528)";
-
-    } else {
+    }
+    else
+    {
         print_help();
         return EXIT_FAILURE;
     }
