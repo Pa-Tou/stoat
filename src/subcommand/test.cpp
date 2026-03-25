@@ -4,6 +4,7 @@
 #include <getopt.h>
 #include <filesystem>
 
+#include "../banner.hpp"
 #include "../log.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
@@ -18,7 +19,9 @@
 
 namespace stoat_command {
 
+// STOAT_VERSION are define in the CMAKELIST file
 void print_help_test() {
+    stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat test [options]\n\n"
               << "  -g, --genotype FILE             Path to the genotype file from stoat graph or stoat vcf\n"
               << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), \n"
@@ -34,6 +37,7 @@ void print_help_test() {
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
+              << "  -a, --ascii                     Print the STOAT ascii art banner\n"
               << "  -h, --help                      Print this help message\n";
 }
 
@@ -42,6 +46,7 @@ int main_stoat_test(int argc, char* argv[]) {
     // Declare variables to hold argument values
     std::string genotype_path, phenotype_path, covariate_path, gene_position_path;
     bool bgzip_output = true;
+    bool ascii = false;
 
     // default value for the filter thresholds
     double maf_threshold = 0.05;
@@ -73,6 +78,7 @@ int main_stoat_test(int argc, char* argv[]) {
         //{"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
+        {"ascii", no_argument, 0, 'a'},
         {"no-bgzip", no_argument, 0, 'u'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
@@ -81,6 +87,7 @@ int main_stoat_test(int argc, char* argv[]) {
     while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'g': genotype_path = optarg; stoat_vcf::check_file(genotype_path); break;
+            case 'a': ascii = true; break;
             case 'm': method = optarg; stoat_vcf::check_methods(method); break;
             case 'p': phenotype_path = optarg; stoat_vcf::check_file(phenotype_path); break;
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
@@ -158,6 +165,12 @@ int main_stoat_test(int argc, char* argv[]) {
     stoat::Logger::instance().setLogFile(output_dir + "/stoat.test.log");
 
     // add command launch in log file
+    if (ascii) {
+        print_ascii_banner(std::string(STOAT_VERSION));
+    } else {
+        print_banner(std::string(STOAT_VERSION));
+    }
+
     std::stringstream ss;
     ss << "stoat ";
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";

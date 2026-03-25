@@ -6,13 +6,15 @@
 #include <omp.h>
 #include <filesystem>
 
+#include "../banner.hpp"
 #include "../post_processing.hpp"
 
 using namespace std;
 namespace stoat_command {
 
 void print_help_bh_correct() {
-    std::cerr << "usage: stoat BHcorrect [options] " << endl << endl
+    stoat::print_banner(std::string(STOAT_VERSION));
+    std::cerr << "Usage: stoat BHcorrect [options] " << endl << endl
               << "options:" << endl
               << "  -t, --tsv FILE                  The TSV file to be processed" << endl
               << "  -p, --p-index N                 The column of the p-value in the tsv (1-indexed)" << endl
@@ -102,6 +104,10 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
         print_help_bh_correct();
         return EXIT_FAILURE;
     }
+
+    // print banner
+    stoat::print_banner(std::string(STOAT_VERSION));
+
     // Add the BH adjusted column
     // Indices are 1-indexed by the subcommand, 0-indexed by the actual function
     stoat::add_BH_adjusted_column(tsv_name, output_dir, top_variant, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);

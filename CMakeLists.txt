@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(stoat VERSION 0.3.0 LANGUAGES CXX)
+project(stoat VERSION 0.0.4 LANGUAGES CXX)
+
+add_compile_definitions(STOAT_VERSION="v${PROJECT_VERSION}")
+message(STATUS "Stoat version: ${PROJECT_VERSION}")
 
 # C++ Standard Settings
 set(CMAKE_CXX_STANDARD 17)
@@ -150,7 +153,8 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/snarl_data_collection.cpp
     src/feature_tables.cpp
     src/vcf_parser.cpp
-    
+    src/banner.cpp
+
     src/io/register_loader_saver_gbz.cpp
     src/io/register_loader_saver_gbzgraph.cpp
     src/io/register_loader_saver_hash_graph.cpp
