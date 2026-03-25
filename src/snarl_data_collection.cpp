@@ -35,6 +35,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     std::string out_filename = out_writer.get_file_path();
     std::string out_temp_filename = out_filename + ".temp";
     std::shared_ptr<BgzWriter> temp_writer;
+    size_t total_number_snarl = 0;
+    size_t total_number_paths = 0;
 
     if (out_filename != "") {
         // Make sure that the temporary file we write doesn't already exist 
@@ -117,6 +119,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                 // Make the snarl_info_internal_t to fill in. Since it's multithreaded its better to move() it instead of adding it here
                                 snarl_info_internal_t snarl_data;
+                                total_number_snarl++;
 
                                 // Get the start and end nodes
                                 // Do it through the graph because it's a pain to get the orientation from the distance index
@@ -196,7 +199,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     if (alleles_requested) {
                                        alleles_by_sample_vector = find_alleles_by_sample(snarl, new_snarl_info, all_sample_haplotypes); 
 
-                                        //Make the struct here so that it exists for finding the walks
+                                        // Make the struct here so that it exists for finding the walks
                                         // TODO: This could be done earlier but I don't think it's a big deal
                                         size_t max_allele = 0;
                                         bool has_allele = false;
@@ -252,6 +255,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                 if (out_filename != "") {
                                     write_snarl_data_line(*temp_writer, snarl_data, &walks_by_allele, &snarl_sequences, &alleles_by_sample);
+                                    total_number_paths += walks_by_allele.size();
                                 }
    
 
@@ -316,6 +320,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
         + " (number_of_snarl_limit_distance: " + std::to_string(number_of_snarl_limit_distance) + ", number_of_snarl_limit_children: "
         + std::to_string(number_of_snarl_limit_children) + ")");
     
+    stoat::LOG_INFO("Total number of snarl analyse: " + std::to_string(total_number_snarl));
+    stoat::LOG_INFO("Total number of paths analyse: " + std::to_string(total_number_paths));
+
     #ifdef DEBUG_SNARL_DATA_COLLECTION
     std::cerr << "Added " << chains_added << " chains and processed " << chains_processed << std::endl;
     assert(chains_added == chains_processed);
@@ -345,6 +352,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     }
 
 }
+
 void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
                                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                                 std::string chr){

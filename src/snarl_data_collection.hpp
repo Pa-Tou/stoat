@@ -140,7 +140,7 @@ class SnarlDataCollection {
     
             // Start and end nodes, both pointing into the snarl
             stoat::node_traversal_t start_node = stoat::node_traversal_t(0, false);
-            stoat::node_traversal_t end_node= stoat::node_traversal_t(0, false);
+            stoat::node_traversal_t end_node = stoat::node_traversal_t(0, false);
 
             // Index into reference_names to get the string representation of the reference path
             size_t reference_index;
