@@ -126,6 +126,8 @@ int main_stoat_change_reference(int argc, char *argv[]) {
     bdsg::PathPositionOverlayHelper overlay_helper;
     bdsg::PathPositionHandleGraph* path_position_graph =  overlay_helper.apply(graph.get());
 
+    // print banner
+    stoat::print_banner(std::string(STOAT_VERSION));
 
     // Load the distance index
     bdsg::SnarlDistanceIndex distance_index;

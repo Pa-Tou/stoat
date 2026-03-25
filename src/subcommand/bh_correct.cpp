@@ -104,6 +104,10 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
         print_help_bh_correct();
         return EXIT_FAILURE;
     }
+
+    // print banner
+    stoat::print_banner(std::string(STOAT_VERSION));
+
     // Add the BH adjusted column
     // Indices are 1-indexed by the subcommand, 0-indexed by the actual function
     stoat::add_BH_adjusted_column(tsv_name, output_dir, top_variant, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);
