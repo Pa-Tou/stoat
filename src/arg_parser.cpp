@@ -375,6 +375,7 @@ stoat::CovariateTable* parse_covariate_table(const std::string& file_path, std::
     if (samp_head_it == headers.end()) {
         throw std::invalid_argument("header must include 'SAMPLE' column.\n");
     }
+
     size_t samp_head_idx = std::distance(headers.begin(), samp_head_it);
 
     // save the position of each covariate column
@@ -406,7 +407,7 @@ stoat::CovariateTable* parse_covariate_table(const std::string& file_path, std::
             line_vec.push_back(line_val);
         }
         
-        if (line_vec.size() <= samp_head_idx) continue; // JEAN isn't that a sign that the file is wrong and we should raise an error?
+        if (line_vec.size() <= samp_head_idx) continue; // JEAN isn't that a sign that the file is wrong and we should raise an error ?
 
         // extract the specified covariables
         std::string samp_name = line_vec[samp_head_idx];
@@ -494,6 +495,12 @@ void check_match_samples(const std::unordered_map<std::string, T>& map, const st
     }
     if (map.size() != keys.size()) {
         stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").", 0);
+    }
+}
+
+void check_methods(const std::string& method_name) {
+    if (method_name != "chi2" && method_name != "linreg" && method_name != "logreg" && method_name != "exact") {
+        throw std::invalid_argument("Invalid methods: " + method_name + ". Available methods are: chi2, linreg, logreg, exact.");
     }
 }
 

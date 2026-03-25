@@ -6,25 +6,16 @@
 namespace stoat {
 
 std::string set_precision(const double& value) {
+
+    if (std::isnan(value)) {
+        return "NA";
+    }
+
     std::ostringstream oss;
     if (std::abs(value) < 1e-1 && value != 0.0) {
         oss << std::scientific << std::setprecision(4);
     } else {
         oss << std::defaultfloat << std::setprecision(4);
-    }
-
-    oss << value;
-    return oss.str();
-}
-
-std::string set_precision_float_50(const boost::multiprecision::cpp_dec_float_50& value) {
-    std::ostringstream oss;
-
-    // Use scientific notation only for very small values
-    if (value != 0 && abs(value) < boost::multiprecision::cpp_dec_float_50("1e-1")) {
-        oss << std::scientific << std::setprecision(4);
-    } else {
-        oss << std::defaultfloat << std::setprecision(4);  // Avoid trailing zeros
     }
 
     oss << value;

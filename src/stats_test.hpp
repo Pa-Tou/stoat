@@ -6,6 +6,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
+#include "utils.hpp"
+
 namespace stoat {
 
 // used to pass the result of a test (Fisher-Chi2 or regression)
@@ -13,13 +15,13 @@ namespace stoat {
 // maybe not the best way but better than std::pairs and such
 // (second_pv can be used for Fisher-Chi2 for the Chi2 pvalue)
 struct test_result_t {
-    std::string pv;
-    std::string second_pv;
+    double pv;
+    double second_pv;
     std::string group_paths;
     std::string allele_paths;
 
     std::string to_string(){
-        return pv + " " + second_pv + " " + group_paths + " " + allele_paths;
+        return set_precision(pv) + " " + set_precision(second_pv) + " " + group_paths + " " + allele_paths;
     };
 };
 
@@ -33,22 +35,22 @@ public:
     // Function to perform the Chi-square test on row size > 2 
     // If one of the genotypes has no counts, return "NA"
     // If one of the columns (alleles) has no counts, ignore it
-    std::string chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    double chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
     // Function to perform the Chi-square test on row size == 2 
-    std::string chi2_2x2(const size_t& m11, const size_t& m12,
+    double chi2_2x2(const size_t& m11, const size_t& m12,
                          const size_t& m21, const size_t& m22);
 
     // Function to perform Fisher's exact test
     // not const& because we change the value
     // This is implemented in fast_fishers_exact_test.cpp because it was not us who wrote it
-    std::string fastFishersExactTest(size_t m11, size_t m12,
+    double fastFishersExactTest(size_t m11, size_t m12,
                                      size_t m21, size_t m22);
 
     // depending on the number of alleles, uses Chi2 (>2 alleles) or the fast
     // Fisher exact test (2 alleles).
     // returns two pvalues: fastfisher_p_value (which can be NA if >2 alleles), and chi2_p_value
-    std::pair<std::string, std::string> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    std::pair<double, double> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 
 private:
     // Constants with maximum usable precision for 'double'
@@ -82,7 +84,7 @@ public:
     // if the betas get too high, it will switch to Firth penalized regression
     // p-value is computed from the likelihood ratio of the full vs reduced model
     // returns the pvalue as a string, ready to be written to the output
-    std::string logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
+    double logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
     
 private:
     // maximum number of iterations to perform

@@ -109,6 +109,7 @@ stoat graph -g <graph.pg> -d <graph.dist> -o <output_directory>
 
 Use `stoat vcf` on the merged VCF. 
 More information in the [`stoat vcf` wiki page](https://github.com/Pa-Tou/stoat/wiki/stoat-vcf).
+Note: Sorting the VCF using `bcftools sort` before running `stoat vcf` can improve runtime and reduce memory usage.
 
 A typical command looks like:
 

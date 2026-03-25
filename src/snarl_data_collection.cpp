@@ -250,35 +250,25 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     throw std::runtime_error("stoat: Snarl data collection requested sequences without walks");
                                 }
 
-   
-                                // Add the snarl to the collection
-                                if (walks_requested) {
-                                    #pragma omp critical(snarl_collection)
-                                    {
-                                    snarl_to_walks.emplace(snarl_data.start_node, std::move(walks_by_allele));
-                                    }
-                                }
-                                if (alleles_requested) {
-                                    #pragma omp critical(snarl_collection)
-                                    {
-                                    snarl_to_alleles_by_sample.emplace(snarl_data.start_node, alleles_by_sample);
-                                    }
-                                }
-                                if (sequence_requested) {
-                                    #pragma omp critical(snarl_collection)
-                                    {
-                                    snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
-                                    }
-                                }
                                 if (out_filename != "") {
-                                    #pragma omp critical(write_snarl_collection)
-                                    write_snarl_data_line(*temp_writer, snarl_data);
+                                    write_snarl_data_line(*temp_writer, snarl_data, &walks_by_allele, &snarl_sequences, &alleles_by_sample);
                                 }
+   
 
                                 if (keep_snarls) {
+                                    // Add the snarl to the collection
                                     #pragma omp critical(snarl_collection)
                                     {
-                                    all_snarl_data.emplace_back(std::move(snarl_data));
+                                        if (walks_requested) {
+                                            snarl_to_walks.emplace(snarl_data.start_node, std::move(walks_by_allele));
+                                        }
+                                        if (alleles_requested) {
+                                            snarl_to_alleles_by_sample.emplace(snarl_data.start_node, std::move(alleles_by_sample));
+                                        }
+                                        if (sequence_requested) {
+                                            snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
+                                        }
+                                        all_snarl_data.emplace_back(std::move(snarl_data));
                                     }
                                 }
 
@@ -991,7 +981,7 @@ void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_
     //Finally the snarls
     // Start with a header that will contain the names of all samples
     outstream << "#SNARLS" << std::endl;
-    outstream << "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
+    outstream << "#START_NODE\tEND_NODE\tREF_INDEX\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES";
 
     // The header also includes a list of sample/haplotypes
     for (const auto& samp : all_sample_haplotypes) {
@@ -1003,6 +993,14 @@ void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_
 }
 
 void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const snarl_info_internal_t& snarl_data) const {
+    write_snarl_data_line(out_writer, snarl_data, snarl_to_walks.count(snarl_data.start_node) == 0 ? nullptr : &snarl_to_walks.at(snarl_data.start_node), 
+                          snarl_to_sequences.empty() || snarl_to_sequences.count(snarl_data.start_node) == 0 ? nullptr : &snarl_to_sequences.at(snarl_data.start_node),
+                          (snarl_to_alleles_by_sample.empty() || snarl_to_alleles_by_sample.count(snarl_data.start_node) == 0 
+                                || snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) ? nullptr : &snarl_to_alleles_by_sample.at(snarl_data.start_node)); 
+}
+
+void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const snarl_info_internal_t& snarl_data, const std::vector<stoat::PathTraversal>* walks_by_allele, 
+                                                const std::vector<std::string>* sequences, const allele_by_sample_t* alleles_by_sample) const {
     std::stringstream outstream;
     
     // Start with just the contents of the snarl_info_internal_t
@@ -1013,38 +1011,38 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
               << snarl_data.end_position << "\t"
               << snarl_data.depth << "\t";
     
+    // Since writing can occur while building the collection, all the big maps could change so we need guards
+    #pragma omp critical(snarl_collection)
+    {
     // Next, optionally include the walks as a single comma-separated string
-    if (snarl_to_walks.count(snarl_data.start_node) == 0) {
+    if (walks_by_allele == nullptr) {
         outstream << ".\t.\t";
     } else {
-        outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node), true) << "\t";
-        outstream << stoat::vectorPathToString(snarl_to_walks.at(snarl_data.start_node)) << "\t";
+        outstream << stoat::vectorPathToString(*walks_by_allele, true) << "\t";
+        outstream << stoat::vectorPathToString(*walks_by_allele) << "\t";
     }
     
     
     // Add the sequences, if any, as comma separated strings
-    if (snarl_to_sequences.empty() || snarl_to_sequences.count(snarl_data.start_node) == 0) {
+    if (sequences == nullptr) {
     
         outstream << ".";
     } else {
     
         #ifdef DEBUG_SNARL_DATA_COLLECTION
-        assert(snarl_to_walks.at(snarl_data.start_node).size() == snarl_to_sequences.at(snarl_data.start_node).size());
+        assert(walks_by_allele.size() == sequences->size());
         #endif
-        const std::vector<std::string>& sequences = snarl_to_sequences.at(snarl_data.start_node);
-        for (size_t i = 0 ; i < sequences.size() ; i++){
-            const std::string& seq = sequences[i];
+        for (size_t i = 0 ; i < sequences->size() ; i++){
+            const std::string& seq = sequences->at(i);
             outstream << seq ;
-            if (i != sequences.size()-1) {
+            if (i != sequences->size()-1) {
                 outstream << ",";
             }
         }
     }
     
     // Next add the allele assignments, if there are any
-    if (snarl_to_alleles_by_sample.empty() ||
-        snarl_to_alleles_by_sample.count(snarl_data.start_node) == 0 ||
-        snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) {
+    if (alleles_by_sample == nullptr) {
         // If we don't have alleles or we don't have alleles for this snarl or the alleles for this snarl are empty
         for (size_t i = 0 ; i <  all_sample_haplotypes.size() ; i++ ) {
             // . for a haplotype that doesn't traverse the snarl
@@ -1052,14 +1050,12 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
         }
     } else {
     
-        const allele_by_sample_t& alleles_by_sample = snarl_to_alleles_by_sample.at(snarl_data.start_node);
-    
         #ifdef DEBUG_SNARL_DATA_COLLECTION
-        assert(snarl_to_walks.at(snarl_data.start_node).size() == alleles_by_sample.allele_count);
-        std::cerr << alleles_by_sample.alleles.size() << " " << all_sample_haplotypes.size() << std::endl;
-        assert(alleles_by_sample.alleles.size() == all_sample_haplotypes.size());
+        assert(snarl_to_walks.at(snarl_data.start_node).size() == alleles_by_sample->allele_count);
+        std::cerr << alleles_by_sample->alleles.size() << " " << all_sample_haplotypes.size() << std::endl;
+        assert(alleles_by_sample->alleles.size() == all_sample_haplotypes.size());
         #endif
-        for (size_t allele_num : alleles_by_sample.alleles) {
+        for (size_t allele_num : alleles_by_sample->alleles) {
             if (allele_num == std::numeric_limits<size_t>::max()) {
                 // . for a haplotype that doesn't traverse the snarl
                 outstream << "\t.";
@@ -1068,9 +1064,13 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
             }
         }
     }
+    }
     
     outstream << std::endl;
+    #pragma omp critical(write_snarl_collection) 
+    {
     out_writer.write(outstream.str());
+    }
 }
 
 void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer) const {

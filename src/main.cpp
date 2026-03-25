@@ -29,12 +29,12 @@
 #include "subcommand/bh_correct.hpp"
 #include "subcommand/change_reference.hpp"
 #include "log.hpp"
+#include "banner.hpp"
 
-// Global variable
-const std::string VERSION = "v0.0.3";
-
+// STOAT_VERSION are define in the CMAKELIST file
 void print_help() {
-    std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls. Version " << VERSION << "\n"
+    stoat::print_banner(std::string(STOAT_VERSION));
+    std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls.\n"
                 << "usage: stoat <command> [options]\n\n"    
                 << "  -- version       version information\n"
                 << "\n"
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
         stoat_command::main_stoat_change_reference(argc, argv);
 
     } else if (subcommand == "version") {
-        std::cout << "stoat: GWAS analysis tool, version " << VERSION;
+        std::cout << "stoat: GWAS analysis tool, version " << STOAT_VERSION;
         // stoat::LOG_INFO("Compiled with g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 on Linux)";
         // stoat::LOG_INFO("Linked against libstd++ 20230528)";
 
@@ -97,11 +97,14 @@ int main(int argc, char* argv[]) {
 
 // -------------------------------------------------------------- VCF --------------------------------------------------------------
 
-// SNARL
-// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --output ../output_snarl
+// BINARY SNARL
+// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
 
-// BINARY
-// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output_binary
+// BINARY GENOTYPE
+// ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
+
+// BINARY TEST + Fisher/Chi-Squared
+// ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test
 
 // BINARY + COVARIATE
 // ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --covariate ../data/binary/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_binary_covar
@@ -176,3 +179,8 @@ int main(int argc, char* argv[]) {
 // GDB
 // gdb --args ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output_binary
 // (gdb) run
+
+// BINARY SNARL
+// gdb --args ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
+// gdb --args ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
+// gdb --args ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test

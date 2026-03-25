@@ -61,6 +61,8 @@ void check_match_samples(const std::unordered_map<std::string, T>& map, const st
 
 void check_file(const std::string& file_path);
 
+void check_methods(const std::string& method_name);
+
 } //end stoat namespace
 
 #endif
