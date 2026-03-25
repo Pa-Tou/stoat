@@ -19,7 +19,7 @@ using namespace std;
 namespace stoat_command {
 
 void print_help_change_reference() {
-    stoat::print_banner_v1(std::string(STOAT_VERSION));
+    stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat change-ref -T [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -r [reference name] > [renamed_tsv]" << endl << endl
               << "options:" << endl
               << "  -T, --tsv FILE                  The TSV file to be processed, the output file of stoat" << endl

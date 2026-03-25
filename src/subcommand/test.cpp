@@ -19,8 +19,9 @@
 
 namespace stoat_command {
 
+// STOAT_VERSION are define in the CMAKELIST file
 void print_help_test() {
-    stoat::print_banner_v1(std::string(STOAT_VERSION));
+    stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat test [options]\n\n"
               << "  -g, --genotype FILE             Path to the genotype file from stoat graph or stoat vcf\n"
               << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), \n"
@@ -167,7 +168,7 @@ int main_stoat_test(int argc, char* argv[]) {
     if (ascii) {
         print_ascii_banner(std::string(STOAT_VERSION));
     } else {
-        print_banner_v1(std::string(STOAT_VERSION));
+        print_banner(std::string(STOAT_VERSION));
     }
 
     std::stringstream ss;

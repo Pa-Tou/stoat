@@ -27,8 +27,9 @@
 
 namespace stoat_command {
 
+// STOAT_VERSION are define in the CMAKELIST file
 void print_help_vcf() {
-    stoat::print_banner_v1(std::string(STOAT_VERSION));
+    stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n"
               << "  -g, --graph FILE                Path to the graph file (only Packed Graph works for now)\n"
               << "  -d, --dist FILE                 Path to the distance index file\n"
@@ -182,7 +183,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     if (ascii) {
         print_ascii_banner(std::string(STOAT_VERSION));
     } else {
-        print_banner_v1(std::string(STOAT_VERSION));
+        print_banner(std::string(STOAT_VERSION));
     }
 
     std::stringstream ss;

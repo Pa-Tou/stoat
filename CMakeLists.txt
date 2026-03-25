@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(stoat VERSION 0.0.4 LANGUAGES CXX)
+
 add_compile_definitions(STOAT_VERSION="v${PROJECT_VERSION}")
 message(STATUS "Stoat version: ${PROJECT_VERSION}")
 

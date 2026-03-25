@@ -24,8 +24,9 @@
 
 namespace stoat_command {
 
+// STOAT_VERSION are define in the CMAKELIST file
 void print_help_graph() {
-    stoat::print_banner_v1(std::string(STOAT_VERSION));
+    stoat::print_banner(std::string(STOAT_VERSION));
 
     std::cerr << "Usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
         << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
@@ -179,7 +180,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     if (ascii) {
         print_ascii_banner(std::string(STOAT_VERSION));
     } else {
-        print_banner_v1(std::string(STOAT_VERSION));
+        print_banner(std::string(STOAT_VERSION));
     }
 
     std::stringstream ss;

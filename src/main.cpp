@@ -31,9 +31,9 @@
 #include "log.hpp"
 #include "banner.hpp"
 
-// STOAT_VERSION are available in the CMAKELIST file
+// STOAT_VERSION are define in the CMAKELIST file
 void print_help() {
-    stoat::print_banner_v1(std::string(STOAT_VERSION));
+    stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr   << "stoat: Snarl Tree Orchestrated Association Test, i.e GWAS on a pangenome's snarls.\n"
                 << "usage: stoat <command> [options]\n\n"    
                 << "  -- version       version information\n"
