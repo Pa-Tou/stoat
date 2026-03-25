@@ -70,55 +70,35 @@ namespace stoat_command
         // Parse arguments
         int c;
 
-        static struct option long_options[] = {
-            {"vcf", required_argument, 0, 'v'},
-            {"snarl", required_argument, 0, 's'},
-            {"graph", required_argument, 0, 'g'},
-            {"dist", required_argument, 0, 'd'},
-            {"reference-file", required_argument, 0, 'R'},
-            {"reference-prefix", required_argument, 0, 'r'},
-            {"children", required_argument, 0, 'i'},
-            {"cycle", required_argument, 0, 'y'},
-            {"path-length", required_argument, 0, 'l'},
-            {"resolve-vcf", no_argument, 0, 'f'},
-            {"thread", required_argument, 0, 't'},
-            {"verbose", required_argument, 0, 'V'},
-            {"output", required_argument, 0, 'o'},
-            {"no-bgzip", no_argument, 0, 'u'},
-            {"ascii", no_argument, 0, 'a'},
-            {"help", no_argument, 0, 'h'},
-            {0, 0, 0, 0}};
+    static struct option long_options[] = {
+        {"vcf", required_argument, 0, 'v'},
+        {"snarl", required_argument, 0, 's'},
+        {"graph", required_argument, 0, 'g'},
+        {"dist", required_argument, 0, 'd'},
+        {"reference-file", required_argument, 0, 'R'},
+        {"reference-prefix", required_argument, 0, 'r'},
+        {"children", required_argument, 0, 'i'},
+        {"cycle", required_argument, 0, 'y'},
+        {"path-length", required_argument, 0, 'l'},
+        {"resolve-vcf", no_argument, 0, 'f'},
+        {"thread", required_argument, 0, 't'},
+        {"verbose", required_argument, 0, 'V'},
+        {"output", required_argument, 0, 'o'},
+        {"no-bgzip", no_argument, 0, 'u'},
+        {"ascii", no_argument, 0, 'a'},
+        {"help", no_argument, 0, 'h'},
+        {0, 0, 0, 0}
+    };
 
-        while ((c = getopt_long(argc, argv, "v:s:g:d:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1)
-        {
-            switch (c)
-            {
-            case 'v':
-                vcf_path = optarg;
-                stoat_vcf::check_file(vcf_path);
-                break;
-            case 's':
-                snarl_path = optarg;
-                stoat_vcf::check_file(snarl_path);
-                break;
-            case 'g':
-                graph_path = optarg;
-                stoat_vcf::check_file(graph_path);
-                break;
-            case 'd':
-                dist_path = optarg;
-                stoat_vcf::check_file(dist_path);
-                break;
-            case 'R':
-                reference_path = optarg;
-                stoat_vcf::check_file(reference_path);
-                break;
-            case 'r':
-                reference_prefix = optarg;
-                break;
-            case 'a':
-                ascii = true;
-                break;
+    while ((c = getopt_long(argc, argv, "v:s:g:d:R:r:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+        switch (c) {
+            case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
+            case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
+            case 'g': graph_path = optarg; stoat_vcf::check_file(graph_path); break;
+            case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
+            case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
+            case 'r': reference_prefix = optarg; break;
+            case 'a': ascii = true; break;
             case 'i':
                 children_threshold = std::stoi(optarg);
                 if (children_threshold < 2)
@@ -316,40 +296,36 @@ namespace stoat_command
             // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
             std::vector<stoat::sample_hap_t> sample_haplotypes;
 
-            // prepare a Writer for the collection
-            std::string snarls_filename = output_dir + "/snarl_info.tsv";
-            if (bgzip_output)
-            {
-                snarls_filename += ".gz";
-            }
-            std::shared_ptr<stoat::Writer> snarl_writer;
-            if ((snarls_filename.compare(snarls_filename.length() - 3, 3, ".gz") == 0) ||
-                (snarls_filename.compare(snarls_filename.length() - 4, 4, ".bgz") == 0))
-            {
-                snarl_writer.reset(new BgzWriter(snarls_filename));
-            }
-            else
-            {
-                snarl_writer.reset(new StdWriter(snarls_filename));
-            }
-
-            // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
-            snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
-                                                true,                                                                                                                                   // find_alleles_first, doesn't matter in this case
-                                                true,                                                                                                                                   // walks_requested
-                                                [&](const net_handle_t &snarl, const snarl_info_t &snarl_data, std::vector<PathTraversal> &walks) {                                     // function to fill in walks
-                                                    SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); // TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
-                                                },
-                                                false,                                                                                                                          // alleles_requested
-                                                [&](const net_handle_t &snarl, const snarl_info_t &snarl_data, const std::vector<stoat::sample_hap_t> &all_sample_haplotypes) { // function to find alleles
-                                                    return std::vector<size_t>();
-                                                },
-                                                false,          // sequence_requested
-                                                ref_path_names, // reference
-                                                false,          // check distances
-                                                *snarl_writer,  // Writer object for the snarls
-                                                true            // Keep the snarls in the collection?
-            );
+        // prepare a Writer for the collection
+        std::string snarls_filename = output_dir + "/snarl_info.tsv";
+        if (bgzip_output) {
+            snarls_filename += ".gz";
+        }
+        std::shared_ptr<stoat::Writer> snarl_writer;
+        if ((snarls_filename.compare(snarls_filename.length()-3, 3, ".gz") == 0) ||
+            (snarls_filename.compare(snarls_filename.length()-4, 4, ".bgz") == 0)) {
+            snarl_writer.reset(new BgzWriter(snarls_filename));
+        } else {
+            snarl_writer.reset(new StdWriter(snarls_filename));
+        }
+        
+        // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
+        snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
+            true, //find_alleles_first, doesn't matter in this case
+            true, // walks_requested
+            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
+                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
+            },
+            false, //alleles_requested
+            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles
+                return std::vector<size_t>();
+            }, 
+            false, // sequence_requested 
+            ref_path_names, // reference 
+            false, //check distances
+            *snarl_writer, // Writer object for the snarls
+            !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
+            ); 
 
             // done saving the snarls, close the writer
             snarl_writer->close();
