@@ -56,6 +56,9 @@ private:
     // Constants with maximum usable precision for 'double'
     static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
     static constexpr double kExactTestBias = 1.0339757656912846e-25;
+
+    size_t chi2_zero = 0;
+    size_t chi2_inf = 0;
 };
 
 class LinearRegression {
@@ -63,7 +66,7 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        std::string linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
+        double linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
 
     private:
         size_t count_number_sse_null = 0;
@@ -84,7 +87,7 @@ public:
     // if the betas get too high, it will switch to Firth penalized regression
     // p-value is computed from the likelihood ratio of the full vs reduced model
     // returns the pvalue as a string, ready to be written to the output
-    double logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
+    double logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
     
 private:
     // maximum number of iterations to perform

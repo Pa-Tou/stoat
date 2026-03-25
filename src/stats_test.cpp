@@ -22,7 +22,7 @@ Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) const {
 }
     
 // logistic regression using the Maximum Likelihood Estimate with Newton-Raphson method
-double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
+double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) {
 
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
@@ -280,7 +280,8 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
 #endif
 
     if (loglik_ratio < 0) {
-        stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.");
+        stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.", count_number_negative_log_likelihood);
+        count_number_negative_log_likelihood++;
         return std::nan("");
     }
 
@@ -315,7 +316,8 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
 
     // Early check: zero row or column
     if (row1 == 0 || row2 == 0 || col1 == 0 || col2 == 0) {
-        stoat::LOG_WARN("Chi2 2x2: row or column sum is zero, returning NaN");
+        stoat::LOG_WARN("Chi2 2x2: row or column sum is zero, returning NaN", chi2_zero);
+        chi2_zero++;
         return std::nan("");
     }
 
@@ -331,7 +333,8 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
         expected_c <= 0.0 || expected_d <= 0.0 ||
         !std::isfinite(expected_a) || !std::isfinite(expected_b) || 
         !std::isfinite(expected_c) || !std::isfinite(expected_d)) {
-        stoat::LOG_WARN("Chi2 2x2: expected counts out of valid range (zero or overflow), returning NaN");
+        stoat::LOG_WARN("Chi2 2x2: expected counts out of valid range (zero or overflow), returning NaN", chi2_inf);
+        chi2_inf++;
         return std::nan("");
     }
 
@@ -475,7 +478,7 @@ Eigen::MatrixXd inverse(const Eigen::MatrixXd &A) {
 }
 
 // Performs linear regression and F-test for predictors only
-double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
+double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) {
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
     std::cerr << "Y:\n" << Y << "\n";
@@ -490,7 +493,8 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (df_denominator <= 0) {
-        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.");
+        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.", count_number_few_sample);
+        count_number_few_sample++;
         return std::nan("");
     }
 
@@ -560,13 +564,15 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     double F_stat = numerator / denominator;
 
     if (F_stat < 0 && F_stat > -0.00001){
-        stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
+        stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.", count_number_f_stat_close_to_0);
+        count_number_f_stat_close_to_0++;
         F_stat = 0;
     }
 
     if (F_stat < -0.00001){
-        stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + " = " + std::to_string(numerator) + "/" + std::to_string(denominator) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
+        stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + " = " + std::to_string(numerator) + "/" + std::to_string(denominator) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.", count_number_f_stat_negative);
         stoat::LOG_DEBUG("SSE_reduced: " + std::to_string(SSE_reduced) + ",SSE_full: " + std::to_string(SSE_full));
+        count_number_f_stat_negative++;
         return std::nan("");
     }
 
