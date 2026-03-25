@@ -296,7 +296,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             ref_path_names, // reference 
             false, //check distances
             *snarl_writer, // Writer object for the snarls
-            true // Keep the snarls in the collection?
+            !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
             ); 
 
         // done saving the snarls, close the writer
