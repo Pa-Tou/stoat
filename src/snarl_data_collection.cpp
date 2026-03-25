@@ -269,7 +269,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     }
                                 }
                                 if (out_filename != "") {
-                                    #pragma omp critical(write_snarl_collection)
                                     write_snarl_data_line(*temp_writer, snarl_data);
                                 }
 
@@ -1015,6 +1014,9 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
               << snarl_data.end_position << "\t"
               << snarl_data.depth << "\t";
     
+    // Since writing can occur while building the collection, all the big maps could change so we need guards
+    #pragma omp critical(snarl_collection)
+    {
     // Next, optionally include the walks as a single comma-separated string
     if (snarl_to_walks.count(snarl_data.start_node) == 0) {
         outstream << ".\t.\t";
@@ -1070,9 +1072,13 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
             }
         }
     }
+    }
     
     outstream << std::endl;
+    #pragma omp critical(write_snarl_collection) 
+    {
     out_writer.write(outstream.str());
+    }
 }
 
 void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer) const {
