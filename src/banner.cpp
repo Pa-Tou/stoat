@@ -21,9 +21,9 @@ Run 'stoat --help' for full documentation.
 }
 
 // Modern minimal banner :
-// Stoat 0.0.4
+// Stoat v0.0.4
 void print_banner(const std::string& version) {
-    std::cerr << "\nStoat " << version << "\n";
+    std::cerr << "\nStoat v" << version << "\n";
 }
 
 } // namespace stoat
