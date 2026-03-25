@@ -6,18 +6,6 @@
 using boost::multiprecision::cpp_dec_float_50;
 using boost::math::chi_squared_distribution;
 
-// Fisher's Exact Test for 2x2 contingency table
-#ifndef DBL_MAX
-#  define DBL_MAX 1.7976931348623157e308
-#endif
-
-// JEAN what's that for??
-#ifdef __cplusplus
-#  define K_CAST(type, val) (const_cast<type>(val))
-#  define R_CAST(type, val) (reinterpret_cast<type>(val))
-#  define S_CAST(type, val) (static_cast<type>(val))
-#endif
-
 // #define DEBUG_STATS_TEST
 
 namespace stoat {
@@ -34,7 +22,7 @@ Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) const {
 }
     
 // logistic regression using the Maximum Likelihood Estimate with Newton-Raphson method
-std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
+double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
 
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
@@ -160,10 +148,9 @@ std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, co
             stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + std::to_string(max_score) + ", max delta " + std::to_string(max_delta) + ") but not too bad. Continuing.");
         } else {
             // too far from a good fit, return NAs.
-            return "NA";
+            return std::nan("");
         }
     }
-
 
     // compute log-likelihood for current betas
     Eigen::VectorXd Xbeta = X * beta;
@@ -283,7 +270,7 @@ std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, co
     // compute -2 * log-likelihood ratio of those models
     double loglik_ratio = -2 * (loglik0 - loglik);
     // should follow a chi2 distribution with df_full-df_reduced degrees of freedom
-    int df = X.cols() - X0.cols();
+    size_t df = X.cols() - X0.cols();
 
 #ifdef DEBUG_STATS_TEST
     std::cerr << "Chi2: " << loglik_ratio << " with df=" << df << "\n\n";
@@ -291,7 +278,7 @@ std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, co
 
     if (loglik_ratio < 0) {
         stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.");
-        return "NA";
+        return std::nan("");
     }
 
     // compute p-value (double first)
@@ -302,36 +289,48 @@ std::string LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, co
     if (p_value == 0.0 || !std::isfinite(p_value)) {
         boost::multiprecision::cpp_dec_float_50 chi2_hp = loglik_ratio;
         boost::multiprecision::cpp_dec_float_50 df_hp   = df;
-
         boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
         boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
-        return stoat::set_precision_float_50(p_hp);
+        return static_cast<double>(p_hp);
     } else {
-        return stoat::set_precision(p_value);
+        return p_value;
     }
 
-    return "NA";
+    return std::nan("");
 }
 
 // ------------------------ Chi2 test ------------------------
 
-std::string FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, const size_t& d) {
+double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, const size_t& d) {
 
-    int64_t row1 = a + b;
-    int64_t row2 = c + d;
-    int64_t col1 = a + c;
-    int64_t col2 = b + d;
-    int64_t total = row1 + row2;
+    // Row and column sums
+    double row1 = static_cast<double>(a + b);
+    double row2 = static_cast<double>(c + d);
+    double col1 = static_cast<double>(a + c);
+    double col2 = static_cast<double>(b + d);
+    double total = row1 + row2;
 
-    if (row1 == 0 || row2 == 0 || col1 == 0 || col2 == 0) return "NA";
+    // Early check: zero row or column
+    if (row1 == 0 || row2 == 0 || col1 == 0 || col2 == 0) {
+        stoat::LOG_WARN("Chi2 2x2: row or column sum is zero, returning NaN");
+        return std::nan("");
+    }
 
-    double expected_a = (double)(row1) * (col1) / total;
-    double expected_b = (double)(row1) * (col2) / total;
-    double expected_c = (double)(col1) * (row2) / total;
-    double expected_d = (double)(col2) * (row2) / total;
+    // Expected counts
+    double expected_a = row1 * col1 / total;
+    double expected_b = row1 * col2 / total;
+    double expected_c = row2 * col1 / total;
+    double expected_d = row2 * col2 / total;
 
-    if (expected_a == 0 || expected_b == 0 || expected_c == 0 || expected_d == 0)
-        return stoat::set_precision(std::numeric_limits<double>::max());
+    // Check for zero, infinity, or NaN
+    // matis: I don't really know what we expect to output here, at least I add an warning for user/log
+    if (expected_a <= 0.0 || expected_b <= 0.0 || 
+        expected_c <= 0.0 || expected_d <= 0.0 ||
+        !std::isfinite(expected_a) || !std::isfinite(expected_b) || 
+        !std::isfinite(expected_c) || !std::isfinite(expected_d)) {
+        stoat::LOG_WARN("Chi2 2x2: expected counts out of valid range (zero or overflow), returning NaN");
+        return std::nan("");
+    }
 
     double chi2_stat = 0;
     chi2_stat += std::pow((double)a - expected_a, 2) / expected_a;
@@ -340,7 +339,7 @@ std::string FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t&
     chi2_stat += std::pow((double)d - expected_d, 2) / expected_d;
 
     // Degrees of freedom for 2×2 table
-    int df = 1;
+    size_t df = 1;
 
     // --- Compute p-value (double first) ---
     boost::math::chi_squared_distribution<double> dist(df);
@@ -354,14 +353,14 @@ std::string FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t&
 
         boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
         boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
-        return stoat::set_precision_float_50(p_hp);
+        return static_cast<double>(p_hp);
     }
 
-    return stoat::set_precision(p_value);
+    return p_value;
 }
 
 // Check if the observed matrix is valid (no zero rows/columns)
-std::string FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
+double FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
 
     size_t cols = g0.size();
     std::vector<size_t> col_totals(cols);
@@ -377,9 +376,10 @@ std::string FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
     }
 
     if (total == 0)
-        return "NA";
+        return std::nan("");
+
     if (row_total_0 == 0 || row_total_1 == 0)
-        return "NA";
+        return std::nan("");
 
     // Compute chi-squared
     double chi2 = 0.0;
@@ -410,21 +410,20 @@ std::string FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vecto
         boost::multiprecision::cpp_dec_float_50 chi2_hp = chi2;
         boost::multiprecision::cpp_dec_float_50 df_hp   = df;
         boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
-
         boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
-        return stoat::set_precision_float_50(p_hp);
+        return static_cast<double>(p_hp);
     }
 
-    return stoat::set_precision(p_value);
+    return p_value;
 }
 
 // ------------------------ Fisher exact test ------------------------
 
 
-std::pair<std::string, std::string> FisherChi2::fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
+std::pair<double, double> FisherChi2::fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
     
-    std::string chi2_p_value = "NA";
-    std::string fastfisher_p_value = "NA";
+    double chi2_p_value = std::nan("");
+    double fastfisher_p_value = std::nan("");
     
     // compute  Fisher's exact or Chi-squared test p-value
     if (g0.size() == 2) {
@@ -473,7 +472,7 @@ Eigen::MatrixXd inverse(const Eigen::MatrixXd &A) {
 }
 
 // Performs linear regression and F-test for predictors only
-std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
+double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
     std::cerr << "Y:\n" << Y << "\n";
@@ -483,6 +482,16 @@ std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const 
     
     stoat::LOG_TRACE("Linear regression. " + std::to_string(num_samples) + " samples, " + std::to_string(num_predictors) + " predictors, " + std::to_string(num_covariates) + " covariates.");
     
+    int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
+    int df_denominator = num_samples - num_params_full;
+
+    // JEAN problem can arise if we have less samples than variables
+    // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
+    if (df_denominator <= 0) {
+        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.");
+        return std::nan("");
+    }
+
     // fit the full model
     // Solve beta X = Y using QR decomposition
     // colPivHouseholderQr is faster than fullPivHouseholderQr but less stable. could switch to full if we encounter problem (or try the HouseolderQR which is less stable but even faster)
@@ -526,41 +535,36 @@ std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const 
         // rare but can happen. What should we do?
         if (SSE_reduced == 0) {
             stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.");
-            return "NA";
+            return std::nan("");
         } else {
             // not sure what to do here. Adding 0.1% errors to the perfect predictions?
+            stoat::LOG_DEBUG("SSE_full == 0. Adding 0.1 percentage errors to the perfect predictions.");
             for (int i = 0; i < num_samples; ++i) {
                 SSE_full += 0.001 * 0.001;
             }
         }
     }
     
-    // time to compute the F-statistic
-    double F_stat = 0;
     // F = [(SSE_reduced - SSE_full) / df_numerator] / [SSE_full / df_denominator]
     // Numerator df = number of tested predictors
-    int df_numerator = num_predictors;
+    size_t df_numerator = num_predictors;
+    double numerator = (SSE_reduced - SSE_full) / df_numerator;
+
     // Denominator df = residual df in full model
-    int num_params_full = 1 + num_predictors + num_covariates; // intercept + predictors + covariates
-    int df_denominator = num_samples - num_params_full;
-    
-    // JEAN problem can arise if we have less samples than variables
-    // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
-    if (df_denominator <= 0) {
-        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.");
-        return "NA";
-    } else {
-        double numerator = (SSE_reduced - SSE_full) / df_numerator;
-        double denominator = SSE_full / df_denominator;
-        F_stat = numerator / denominator;
-        if (F_stat < 0 && F_stat > -0.00001){
-            stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
-            F_stat = 0;
-        }
-        if (F_stat < -0.00001){
-            stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
-            return "NA";
-        }
+    double denominator = SSE_full / df_denominator;
+
+    // time to compute the F-statistic
+    double F_stat = numerator / denominator;
+
+    if (F_stat < 0 && F_stat > -0.00001){
+        stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.");
+        F_stat = 0;
+    }
+
+    if (F_stat < -0.00001){
+        stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + " = " + std::to_string(numerator) + "/" + std::to_string(denominator) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.");
+        stoat::LOG_DEBUG("SSE_reduced: " + std::to_string(SSE_reduced) + ",SSE_full: " + std::to_string(SSE_full));
+        return std::nan("");
     }
 
     // compute a P-value
@@ -574,14 +578,12 @@ std::string LinearRegression::linear_regression(const Eigen::MatrixXd& X, const 
         const boost::multiprecision::cpp_dec_float_50 df_d_hp = df_denominator;
         boost::math::fisher_f_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_n_hp, df_d_hp);
         boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_hp);
-        // convert to string
-        return stoat::set_precision_float_50(p_hp);
+        return static_cast<double>(p_hp);
     } else {
-        // convert to string
-        return stoat::set_precision(p_value);
+        return p_value;
     }
     
-    return "NA";
+    return std::nan("");
 }
 
 } // namespace stoat

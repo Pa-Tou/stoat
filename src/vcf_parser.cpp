@@ -271,9 +271,9 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
     // One row for each snarl, except flattened
     // Index into genotypes can be found with get_genotype_index()
     genotypes.resize(hap_count * snarl_count, 0);
-    
+
     // loop over the VCF file for each line and stop where chr is different
-     do {
+    do {
         // Unpack the vcf up to ALT field
         bcf_unpack(rec_genotypes, BCF_UN_STR);
 
@@ -307,10 +307,10 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
             std::vector<stoat::node_traversal_t> path_as_node_traversal = string_to_path_node_traversal(item);
             allele_paths.push_back(std::move(path_as_node_traversal));
         }
-        
+
         // Now go through the paths and for each snarl in the path, remember how many copies of the snarl we see
+        const size_t ploidy = 2;
         for (int sample_num = 0; sample_num < rec_genotypes->n_sample; ++sample_num){
-            int ploidy = 2;
             for (int hap_num = 0; hap_num < ploidy; ++hap_num){
                 // allele hap_num of that sample
                 // JEAN here we are assuming diploid genotypes. check how to make sure we're really/always getting the genotype for sample sample_num with bcf_gt_allele
