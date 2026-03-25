@@ -97,11 +97,14 @@ int main(int argc, char* argv[]) {
 
 // -------------------------------------------------------------- VCF --------------------------------------------------------------
 
-// SNARL
-// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --output ../output_snarl
+// BINARY SNARL
+// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
 
-// BINARY
-// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output_binary
+// BINARY GENOTYPE
+// ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
+
+// BINARY TEST + Fisher/Chi-Squared
+// ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test
 
 // BINARY + COVARIATE
 // ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --covariate ../data/binary/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_binary_covar
@@ -176,3 +179,8 @@ int main(int argc, char* argv[]) {
 // GDB
 // gdb --args ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome -v ../data/binary/merged_output.vcf.gz -b ../data/binary/phenotype.tsv --output ../output_binary
 // (gdb) run
+
+// BINARY SNARL
+// gdb --args ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
+// gdb --args ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
+// gdb --args ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test

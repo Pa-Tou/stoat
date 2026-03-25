@@ -22,7 +22,6 @@ namespace stoat {
 
     // std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
 std::string set_precision(const double& value);
-std::string set_precision_float_50(const boost::multiprecision::cpp_dec_float_50& value);
 
 bool is_na(const std::string& s);
 double string_to_pvalue(const std::string& p1);
