@@ -54,7 +54,7 @@ int main_stoat_test(int argc, char* argv[]) {
     size_t max_gene_dist = 1000000;
 
     // which method to use
-    std::string method = "linreg";
+    std::string method = "";
     
     // default output directory
     std::string output_dir = "stoat_output";
@@ -208,20 +208,24 @@ int main_stoat_test(int argc, char* argv[]) {
     // prepare the vector mapping genes to index
     std::unordered_map<std::string, size_t> gene_to_index;
 
+    // predict methods
+    if (method.empty()) {
+        method = stoat_vcf::methods_stats_prediction(phenotype_path, !covariate_path.empty(), !gene_position_path.empty());
+        stoat::LOG_INFO("No statistical method provided; using " + method + " test.");
+    }
+
     // read the file
     if (!gene_position_path.empty()) {
         stoat::LOG_TRACE("Parsing eqtl phenotype file");
         gene_expression_table = std::unique_ptr<stoat::GeneExpressionTable>(stoat_vcf::parse_gene_expression_table(phenotype_path, gene_position_path, sample_to_index, gene_to_index));
-        if (method != "linreg") {
-            stoat::LOG_INFO("Looks like we are looking for eQTLs, switching to a linear regression model");
-            method = "linreg";
-        }
     } else if (method == "chi2" || method == "logreg" || method == "exact") {
         stoat::LOG_TRACE("Parsing binary phenotype file");
         binary_phenotype_table = std::unique_ptr<stoat::BinaryPhenotypeTable>(stoat_vcf::parse_binary_pheno_table(phenotype_path, sample_to_index));
     } else if (method == "linreg") {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
         quantitative_phenotype_table = std::unique_ptr<stoat::QuantitativePhenotypeTable>(stoat_vcf::parse_quantitative_pheno_table(phenotype_path, sample_to_index));
+    } else {
+        stoat::LOG_ERROR("Method : " + method + " not reconize");
     }
 
     // eventually parse the covariate file
@@ -245,6 +249,9 @@ int main_stoat_test(int argc, char* argv[]) {
         snarl_analyzer.reset(new stoat_vcf::ExactBinarySnarlAnalyzer(snarl_collection, maf_threshold,
                                                                      *binary_phenotype_table, min_individuals));
     } else if (method == "chi2") {
+        if (!covariate_path.empty()) {
+            stoat::LOG_WARN("Covariate will be disable using chi2 test, try -m logreg instead.", 0);
+        }
         // Binary using Chi2/Fisher (no covariate)
         snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, maf_threshold,
                                                                 *binary_phenotype_table, min_individuals));

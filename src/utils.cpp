@@ -317,7 +317,7 @@ void print_nodes_in_snarl(const bdsg::SnarlDistanceIndex& distance_index, const 
         to_print.pop_back();
 
         if (distance_index.is_node(net)) {
-            std::cerr << distance_index.node_id(net) << std::endl;
+            stoat::LOG_INFO(std::to_string(distance_index.node_id(net)));
         } else {
             distance_index.for_each_child(net, [&](const handlegraph::net_handle_t& child) {
                 to_print.emplace_back(child);

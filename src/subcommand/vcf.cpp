@@ -319,7 +319,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
     }
 
-    //////////////////////////////////////// Go through the vcf, genotype all the snarls ( and save the intermediate file)
+    //////////////////////////////////////// Go through the vcf, genotype all the snarls (and save the intermediate file)
     if (!only_prepare_snarls) {
         stoat::LOG_INFO("Retrieving genotypes for all snarls...");
         auto start_gt_timer = std::chrono::high_resolution_clock::now();

@@ -56,6 +56,9 @@ private:
     // Constants with maximum usable precision for 'double'
     static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
     static constexpr double kExactTestBias = 1.0339757656912846e-25;
+
+    size_t chi2_zero = 0;
+    size_t chi2_inf = 0;
 };
 
 class LinearRegression {
@@ -63,8 +66,13 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        double linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
+        double linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
 
+    private:
+        size_t count_number_sse_null = 0;
+        size_t count_number_few_sample = 0;
+        size_t count_number_f_stat_close_to_0 = 0;
+        size_t count_number_f_stat_negative = 0;
 };
 
 class LogisticRegression {
@@ -79,7 +87,7 @@ public:
     // if the betas get too high, it will switch to Firth penalized regression
     // p-value is computed from the likelihood ratio of the full vs reduced model
     // returns the pvalue as a string, ready to be written to the output
-    double logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
+    double logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
     
 private:
     // maximum number of iterations to perform
@@ -88,6 +96,10 @@ private:
     const double max_step = 3;
     // tolerance to decide if the score and delta are small enough to consider the iteration to have converged
     const double conv_tol = 0.001;
+
+    size_t count_number_not_convergence = 0;
+    size_t count_number_negative_log_likelihood = 0;
+
 };
 
 // Compute the inverse or Moore-Penrose pseudoinverse of a matrix

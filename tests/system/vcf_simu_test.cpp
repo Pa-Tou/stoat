@@ -60,7 +60,6 @@ bool run_test_snarl(
     return passed;
 }
 
-
 bool run_test(
     const std::string& stoat_command,
     const std::string& output_dir,
@@ -96,15 +95,7 @@ bool run_test(
         + " --output " + output_dir;
 
     if (phenotype == "eqtl") {
-        cmd_test += " -m linreg --gene-position " + data_path + "/gene_position.tsv";
-    } else if (phenotype == "binary") {
-        if (use_covariate) {
-            cmd_test += " -m logreg";
-        } else {
-            cmd_test += " -m chi2";
-        }
-    } else if (phenotype == "quantitative") {
-        cmd_test += " -m linreg";
+        cmd_test += " --gene-position " + data_path + "/gene_position.tsv";
     }
 
     if (use_covariate) {
