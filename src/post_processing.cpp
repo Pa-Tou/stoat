@@ -212,7 +212,7 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
         headers.push_back(col);
     }
 
-    if (headers[0] != "#CHR" || headers[1] != "START_POS" || headers[2] != "END_POS" || headers[3] != "SNARL") {
+    if (headers[0] != "#CHR" || headers[1] != "START_OFFSET" || headers[2] != "END_OFFSET" || headers[3] != "START_NODE" || headers[4] != "END_NODE") {
         throw std::runtime_error("[stoat::change_reference]: error: input tsv has the wrong format");
     }
 
@@ -232,47 +232,21 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
         }
 
         // Get the snarl bounds
-        std::string id_string;
-        std::stringstream snarl_stream(columns[3]);
-        std::getline(snarl_stream, id_string, '_');
-        size_t start_id = std::stoll(id_string);
-        std::getline(snarl_stream, id_string, '_');
-        handlegraph::nid_t end_id = std::stoll(id_string);
+        stoat::node_traversal_t start_node(columns[3]);
+        stoat::node_traversal_t end_node(columns[4]);
 
         // The snarl is actually just id1_id2, so we don't know the direction needed to get it
         // This could be done just with the graph but I prefer to use the function we already have with the snarls
         // to be consistent 
-        handlegraph::net_handle_t node_net = distance_index.get_node_net_handle(start_id);
+        handlegraph::net_handle_t node_net = distance_index.get_node_net_handle(start_node.get_node_id(), start_node.get_is_reverse());
         handlegraph::net_handle_t snarl_net = distance_index.get_root();
 
-        // Get the next thing in the chain. If this node happened to be the end of the chain going out, this doesn't call the iteratee
+        // Get the snarl, which should be next thing in the chain
         distance_index.follow_net_edges(node_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
             snarl_net = next;
             return true;
         });
 
-        // Check if we got the right snarl by checking if the other end of it is the end node of the snarl
-        bool got_snarl = false;
-        if (distance_index.is_snarl(snarl_net)) {
-            distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
-                if ((distance_index.node_id(next) == end_id)) {
-                    got_snarl = true;
-                }
-                return true;
-            });
-        }
-
-        if (!got_snarl) {
-            // If we didn't find the right snarl, then go in the other direction to get the snarl
-            distance_index.follow_net_edges(node_net, &graph, true, [&](const handlegraph::net_handle_t& next) {
-                snarl_net = next;
-                return true;
-            });
-            distance_index.follow_net_edges(snarl_net, &graph, false, [&](const handlegraph::net_handle_t& next) {
-                assert (distance_index.node_id(next) == end_id);
-                return true;
-            });
-        }
 
         // Get the offsets of the start and end nodes along the reference
         std::string new_reference_name;

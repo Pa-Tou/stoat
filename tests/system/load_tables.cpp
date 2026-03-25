@@ -323,7 +323,7 @@ bool binary_table_values_t::operator==(const binary_table_values_t& other) const
 }
 
 
-//CHR\tSTART_POS\tEND_POS\tSNARL\tPATH_LENGTHS\tP_FISHER\tP_CHI2\tGROUP_PATHS\tDEPTH
+//CHR\tSTART_POS\tEND_POS\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH
 binary_table_values_t load_binary_snarl_line(std::string line) {
 
 
@@ -354,12 +354,12 @@ binary_table_values_t load_binary_snarl_line(std::string line) {
     vals.end_pos = std::stoull(part);
 
     // start id
-    std::getline(linestream, part, '_');
-    vals.snarl_ids.first = std::stoull(part);
+    std::getline(linestream, part, '\t');
+    vals.snarl_ids.first = part;
 
     // end id
     std::getline(linestream, part, '\t');
-    vals.snarl_ids.second = std::stoull(part);
+    vals.snarl_ids.second = part;
 
     // path lengths, comma separated by allele, /-separated for min/max in one allele
     std::getline(linestream, part, '\t');

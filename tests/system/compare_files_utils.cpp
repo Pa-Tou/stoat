@@ -36,7 +36,7 @@ std::tuple<int, int> parse_header_eqtl(
 
     while (std::getline(ss, token, '\t')) {
 
-        if (token == "SNARL") {
+        if (token == "START_NODE") {
             snarl_column_index = index;
         } else if (token == "GENE") {
             gene_column_index = index;
@@ -51,7 +51,7 @@ std::tuple<int, int> parse_header_eqtl(
     }
 
     if (snarl_column_index == -1 || gene_column_index == -1) {
-        std::cerr << "SNARL and/or GENE column not found in header of file: " << file_name << std::endl;
+        std::cerr << "START_NODE and/or GENE column not found in header of file: " << file_name << std::endl;
         std::exit(1);
     }
 
@@ -77,10 +77,11 @@ void process_tsv_line_eqtl(const std::string& line,
         std::exit(1);
     }
 
-    const std::string& snarl_id = columns[snarl_column];
+    const std::string& snarl_start_id = columns[snarl_column];
+    const std::string& snarl_end_id = columns[snarl_column+1];
     const std::string& gene_id  = columns[gene_column];
 
-    const std::string composite_key = snarl_id + "_" + gene_id;
+    const std::string composite_key = snarl_start_id + snarl_end_id + "_" + gene_id;
     map[composite_key] = line;
 }
 
@@ -92,13 +93,13 @@ int parse_header(const std::string& header_line,
     int snarl_column_index = 0;
 
     while (std::getline(ss, token, '\t')) {
-        if (token == "SNARL") {
+        if (token == "START_NODE") {
             return snarl_column_index;
         }
         ++snarl_column_index;
     }
 
-    std::cerr << "SNARL column not found in header of file: " << file_name << std::endl;
+    std::cerr << "START_NODE column not found in header of file: " << file_name << std::endl;
     std::exit(1);
 }
 
@@ -121,8 +122,9 @@ void process_tsv_line(const std::string& line,
         std::exit(1);
     }
 
-    const std::string& snarl_id = columns[snarl_column];
-    map[snarl_id] = line;
+    const std::string& snarl_start_id = columns[snarl_column];
+    const std::string& snarl_end_id = columns[snarl_column+1];
+    map[snarl_start_id + snarl_end_id] = line;
 }
 
 void load_tsv_file_eqtl(const std::string& path,
@@ -230,10 +232,10 @@ bool compare_file(const std::unordered_map<std::string, std::string>& map1,
     for (const auto& [snarl, line1] : map1) {
         auto it = map2.find(snarl);
         if (it == map2.end()) {
-            std::cerr << "Missing SNARL in file2: " << snarl << std::endl;
+            std::cerr << "Missing START_NODE/END_NODE in file2: " << snarl << std::endl;
             return false;
         } else if (line1 != it->second) {
-            std::cerr << "Mismatch for SNARL " << snarl << ":\n"
+            std::cerr << "Mismatch for START_NODE/END_NODE " << snarl << ":\n"
                       << "File1: " << line1 << "\n"
                       << "File2: " << it->second << "\n";
             return false;
@@ -243,7 +245,7 @@ bool compare_file(const std::unordered_map<std::string, std::string>& map1,
     // Compare file2 against file1
     for (const auto& [snarl, _] : map2) {
         if (map1.find(snarl) == map1.end()) {
-            std::cerr << "Missing SNARL in file1: " << snarl << std::endl;
+            std::cerr << "Missing START_NODE/END_NODE in file1: " << snarl << std::endl;
             return false;
         }
     }
