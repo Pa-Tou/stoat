@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 // -------------------------------------------------------------- VCF --------------------------------------------------------------
 
 // BINARY SNARL
-// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -r ../data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
+// ./stoat vcf -g ../data/binary/pg.full.pg -d ../data/binary/pg.full.dist -R ../data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
 
 // BINARY GENOTYPE
 // ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
@@ -119,10 +119,10 @@ int main(int argc, char* argv[]) {
 // ./stoat vcf -g ../data/quantitative/pg.full.pg -d ../data/quantitative/pg.full.dist -r ../data/quantitative/pg.chromosome -v ../data/quantitative/merged_output.vcf.gz -q ../data/quantitative/phenotype.tsv  --covariate ../data/quantitative/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_quantitative_covar
 
 // EQTL
-// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --output ../output_eqtl
+// ./stoat vcf -s ../data/eqtl/snarl_info.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --output ../output_eqtl
 
 // EQTL + COVARIATE
-// ./stoat vcf -s ../data/eqtl/snarl_analyse.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --covariate ../data/eqtl/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_eqtl_covar
+// ./stoat vcf -s ../data/eqtl/snarl_info.tsv -v ../data/eqtl/merged_output.vcf.gz -e ../data/eqtl/qtl.tsv --gene-position ../data/eqtl/gene_position.tsv --covariate ../data/eqtl/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_eqtl_covar
 
 // SIMU TEST
 // ./stoat vcf -g ../tests/graph_test/3th_snp.pg -d ../tests/graph_test/3th_snp.dist --output ../output
@@ -160,15 +160,17 @@ int main(int argc, char* argv[]) {
 
 // DROSO
 // ./stoat vcf -g ../../lab/gwas/droso/data/fly.pg -d ../../lab/gwas/droso/data/fly.dist -R ../../lab/gwas/droso/data/chromosome_ref.tsv --output ../output_droso
-// sed -i 's/dm6#0#chr2L/1/g' ../output_droso/snarl_analyse.tsv
-// sed -i 's/dm6#0#chr2R/2/g' ../output_droso/snarl_analyse.tsv
-// sed -i 's/dm6#0#chr3L/3/g' ../output_droso/snarl_analyse.tsv
-// sed -i 's/dm6#0#chr3R/4/g' ../output_droso/snarl_analyse.tsv
-// sed -i 's/dm6#0#chr4/5/g' ../output_droso/snarl_analyse.tsv
-// sed -i 's/dm6#0#chrX/6/g' ../output_droso/snarl_analyse.tsv
-// sed -i 's/dm6#0#chrY/7/g' ../output_droso/snarl_analyse.tsv
-// sed -i 's/dm6#0#chrM/8/g' ../output_droso/snarl_analyse.tsv
-// ./stoat vcf -s ../output_droso/snarl_analyse.tsv -v ../../lab/droso/data/merging_stoat.vcf -q ../../lab/droso/data/dgrpool.dm6.male.phenotype.tsv --output ../output_droso
+// sed -i 's/dm6#0#chr2L/1/g' ../output_droso/snarl_info.tsv
+// sed -i 's/dm6#0#chr2R/2/g' ../output_droso/snarl_info.tsv
+// sed -i 's/dm6#0#chr3L/3/g' ../output_droso/snarl_info.tsv
+// sed -i 's/dm6#0#chr3R/4/g' ../output_droso/snarl_info.tsv
+// sed -i 's/dm6#0#chr4/5/g' ../output_droso/snarl_info.tsv
+// sed -i 's/dm6#0#chrX/6/g' ../output_droso/snarl_info.tsv
+// sed -i 's/dm6#0#chrY/7/g' ../output_droso/snarl_info.tsv
+// sed -i 's/dm6#0#chrM/8/g' ../output_droso/snarl_info.tsv
+// ./stoat vcf -s ../output_droso/snarl_info.tsv -v ../../lab/gwas/droso/results/data/merging_dm6.vcf -u --output ../output_droso
+// ./stoat test -g ../output_droso/snarl_genotypes.tsv -p ../../lab/gwas/droso/results/data/stoat_phenotype.binary_mean.dm6.tsv \
+ -c ../../lab/gwas/droso/results/data/stoat_covar.dm6.tsv -C Inversion2Lt,Inversion2RNS,Inversion3RP,Inversion3RK,Inversion3RMo,WolbachiaStatus -u --output ../output_droso > /dev/null 2>&1
 
 // -------------------------------------------------------------- DEBUG --------------------------------------------------------------
 

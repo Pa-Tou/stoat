@@ -278,7 +278,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                             } // end if snarl_is_eligible
 
-    
                             #pragma omp critical(snarl_collection)
                             {
    
@@ -353,9 +352,10 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
 }
 
-void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
-                                                                                        const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
-                                                std::string chr){
+void SnarlDataCollection::add_alleles_by_sample(
+                const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
+                                                        const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
+                std::string chr, size_t& total_snarl_chr_analyse) {
 
     #pragma omp parallel for schedule(dynamic)
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
@@ -367,14 +367,14 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
 
         std::vector<size_t> empty_alleles_by_sample;
         
-        //This might cause problems because it is a reference but it doesn't get used so I think its fine
+        // This might cause problems because it is a reference but it doesn't get used so I think its fine
         // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
         GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
 
         // Make the snarl_info_t from the information we have
         std::vector<PathTraversal> empty_walks (0); 
         std::vector<std::string> empty_sequences (0);
-        snarl_info_t new_snarl_info (snarl_info.start_node, 
+        snarl_info_t new_snarl_info(snarl_info.start_node, 
                                 snarl_info.end_node, 
                                 snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
                                 snarl_info.start_position,
@@ -399,9 +399,9 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
         #pragma omp critical(snarl_collection)
         {
             snarl_to_alleles_by_sample.emplace(snarl_info.start_node, allele_by_sample_t(max_allele+1, std::move(new_alleles_by_sample)));
+            total_snarl_chr_analyse++;
         }
     }
-
 }
 
 void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
@@ -451,8 +451,8 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
             }
 
             // chr is now the next chromosome we want to look at
-            
         }
+
         // start analyzing this chromosome chr
         stoat::LOG_INFO("Analysing chr : " + chr);
         auto timer_start_chr = std::chrono::high_resolution_clock::now();
@@ -460,9 +460,11 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         // prepare the edge matrix for this chromosome by reading the VCF
         // this will read to the end of this chr
         edge_matrix.load_vcf_chunk(vcf_parser, chr);
-        
+
         auto timer_end_matrix = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Edge matrix construction for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_matrix - timer_start_chr).count()) + " s");
+
+        size_t total_snarl_chr_analyse = 0;
 
         add_alleles_by_sample([&] (const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) {
             // JEAN init with max of size_t which I believe means "absent"/"no allele"
@@ -474,9 +476,11 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
                     allele_idx.at(samp_hap_idx) = al_idx;
                 }
             }
-            
+
             return allele_idx;
-        }, chr);
+        }, chr, total_snarl_chr_analyse);
+
+        stoat::LOG_INFO("Total number of snarl found in chr " + chr + " : " + std::to_string(total_snarl_chr_analyse));
 
         auto timer_end_chr = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl genotypes retrieved in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_end_matrix).count()) + " s");
@@ -488,23 +492,37 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 }
 
 // Call interatee for all snarls
-// TODO: Make this parallel
-void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
-    for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
+void SnarlDataCollection::for_each_snarl(
+    const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
+
+    #pragma omp parallel for schedule(dynamic)
+    for (size_t i = 0; i < all_snarl_data.size(); ++i) {
+        const snarl_info_internal_t& snarl_info = all_snarl_data[i];
         run_iteratee_on_one_snarl(snarl_info, iteratee);
     }
 }
 
-void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+void SnarlDataCollection::for_each_snarl_in_file(
+    stoat::Reader& in_reader,
+    const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+
     load_snarl_data_collection_header(in_reader);
-    std::string line;
-    while (in_reader.getline(line)) {
 
-        snarl_info_internal_t snarl_info = load_snarl_data_line(line);
-        run_iteratee_on_one_snarl(snarl_info, iteratee);
+    std::string line;
+    std::vector<snarl_info_internal_t> snarls;
+
+    // Phase 1: sequential read
+    while (in_reader.getline(line)) {
+        snarls.push_back(load_snarl_data_line(line));
+    }
+
+    // Phase 2: parallel processing
+    #pragma omp parallel for schedule(dynamic)
+    for (size_t i = 0; i < snarls.size(); ++i) {
+        run_iteratee_on_one_snarl(snarls[i], iteratee);
     }
 }
- 
+
 void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
 
 

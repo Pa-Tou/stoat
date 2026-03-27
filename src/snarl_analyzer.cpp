@@ -101,9 +101,6 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);
  
-    // count snarls filterd for the log
-    size_t total_number_snarl_filtered = 0;
-
     // read each snarl and test it
     // JEAN parallelize here?
     size_t number_snarl_filtered = 0;
@@ -111,7 +108,7 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
         bool filtered = test_and_write_snarl(snarl_info, out_writer);
         number_snarl_filtered += (filtered ? 1 : 0);
     });
-    
+
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(number_snarl_filtered));
 }
 

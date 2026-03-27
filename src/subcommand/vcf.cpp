@@ -309,7 +309,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
     }
 
-    //////////////////////////////////////// Go through the vcf, genotype all the snarls ( and save the intermediate file)
+    //////////////////////////////////////// Go through the vcf, genotype all the snarls (and save the intermediate file)
     if (!only_prepare_snarls) {
         stoat::LOG_INFO("Retrieving genotypes for all snarls...");
         auto start_gt_timer = std::chrono::high_resolution_clock::now();
@@ -347,7 +347,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         auto end_writegt_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Writing genotypes took " + std::to_string(std::chrono::duration<double>(end_writegt_timer - start_writegt_timer).count()) + " s");
     }
-    
+
     auto end_total_timer = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Total time: " + std::to_string(std::chrono::duration<double>(end_total_timer - start_total_timer).count()) + " s");
     return EXIT_SUCCESS;

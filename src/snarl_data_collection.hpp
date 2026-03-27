@@ -81,14 +81,15 @@ class SnarlDataCollection {
         //        stores a reference to the vector somewhere else in memory
         void add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
                                                                            const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
-                                   std::string chr);
+                                   std::string chr, size_t& total_snarl_chr_analyse);
 
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
         /// Starting from an empty SnarlDataCollection, run iteratee for all snarls, but one line at a time from a file instead of loading the whole thing into memory
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
-        void for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee);
+        void for_each_snarl_in_file(stoat::Reader& in_reader, 
+            const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
 
         /// Write the collection of snarls to the given file
