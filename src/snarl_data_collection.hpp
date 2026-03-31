@@ -11,7 +11,7 @@ namespace stoat {
 
 /// A class for holding per-snarl data for a collection of snarls
 /// Publicly, this allow access to snarl_info_t's for holding basic information about the snarl, the genotypes, the walks through the snarl 
-///    the groups of haplotypes following each walk, and the sequence of each walk.
+/// the groups of haplotypes following each walk, and the sequence of each walk.
 /// The latter four are optional and may be empty if the SnarlDataCollection was built without them.
 /// Internally, the basic snarl information, the walks, haplotype samples sets, and sequences are each stored separately. 
 /// Build the collection either from the distance index or by loading from a file
@@ -48,7 +48,7 @@ class SnarlDataCollection {
         /// If sequence_requested is true, then find the sequence of each walk.
         /// The walks, sample sets, and sequences must all match each other, and the walks may be dependent on the sample sets or vice versa 
         /// find_alleles_first is true if we want to find the sample sets first and then walks based on the sample sets, and false to do the opposite.
-        ///    If only one or the other of sample sets and walks is requested then find_alleles_first doesn't matter.
+        /// If only one or the other of sample sets and walks is requested then find_alleles_first doesn't matter.
         /// find_alleles_by_sample and find_walks must check the walks or sample sets accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
         /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_alleles that may be used for find_walks
@@ -77,11 +77,11 @@ class SnarlDataCollection {
         /// doesn't exist in the SnarlDataCollection it is immutable and the allele_by_sample must be returned and saved separately 
         /// Note that this will overwrite any existing allele_by_sample. 
         /// If chr is not empty, run this only on snarls on the given chromosome (as reference path name)
-        //TODO:  I think this should be fine to run multithreaded as long as the list of snarl data doesn't move around, and I think the object
-        //        stores a reference to the vector somewhere else in memory
+        // TODO:  I think this should be fine to run multithreaded as long as the list of snarl data doesn't move around, and I think the object
+        //       stores a reference to the vector somewhere else in memory
         void add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
                                                                            const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
-                                   std::string chr, size_t& total_snarl_chr_analyse);
+                                   std::string chr);
 
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
@@ -155,20 +155,17 @@ class SnarlDataCollection {
 
         };
 
-        //////////////////////////// The stuff holding the data 
-
+        //////////////////////////// The stuff holding the data for each snarl, indexed by snarl start node (which uniquely identifies the snarl)
 
         /// This holds the snarl data as a map from the chromosome name to the data
-        //TODO: Make sure that this gets the chr name the way Matis did it
-        //TODO: idk if I want it to be a map from chr to vector of snarl data or just a vector and then check the chromosome for the per-chromosome calls 
+        // TODO: Make sure that this gets the chr name the way Matis did it
+        // TODO: idk if I want it to be a map from chr to vector of snarl data or just a vector and then check the chromosome for the per-chromosome calls 
         //std::unordered_map<std::string, std::vector<snarl_info_internal_t>> chr_to_snarl_data;
         std::vector<snarl_info_internal_t> all_snarl_data;
-
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the walks through the snarl.
         /// Each entry in the vector is considered to be one allele.
         std::unordered_map<stoat::node_traversal_t, std::vector<PathTraversal>> snarl_to_walks;
-
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the alleles_by_sample vector.
         /// So each entry in the alleles_by_sample vector is the allele number of one sample_hap_t. The allele number
@@ -178,7 +175,6 @@ class SnarlDataCollection {
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the sequences of the walks.
         /// Each string in the vector is the sequence for the walk in the corresponding vector in snarl_to_walks. 
         std::unordered_map<stoat::node_traversal_t, std::vector<std::string>> snarl_to_sequences;
-
 
         ///////////////// Lists of strings and stuff that are stored as indexes in the real data structures instead of duplicating them a bunch
 
@@ -196,7 +192,6 @@ class SnarlDataCollection {
         // This gets made based on all_sample_halpotypes
         std::unordered_map<std::string, size_t> sample_to_index;
 
-
         //////////////////////////// Extra housekeeping stuff
 
         /// This goes at the beginning of the file to ensure that it is the right file type and version
@@ -211,6 +206,11 @@ class SnarlDataCollection {
         /// Don't include snarls if enumerating all its walks takes more than this many steps
         size_t walk_steps_limit;
 
+        /// These are just for logging purposes to keep track of snarls info
+        size_t number_snarl_limit_distance;
+        size_t number_snarl_limit_children;
+        size_t number_snarl_analyzed;
+        size_t number_paths_analyzed;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////// Private functions
@@ -221,8 +221,7 @@ class SnarlDataCollection {
                 const std::vector<stoat::PathTraversal>& paths) const; 
     
         // Do we want to analyze this snarl, based on the various limits we were given?
-        bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances, 
-            size_t& number_of_snarl_limit_distance, size_t& number_of_snarl_limit_children) const; 
+        bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
 
         //////////////////// Helper functions for writing and loading stuff from files
 
@@ -244,8 +243,6 @@ class SnarlDataCollection {
         // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
         // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
         void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
-
-
 
     public:
         // Return true if the two SnarlDataCollections contain the same information (but possibly in a different order)

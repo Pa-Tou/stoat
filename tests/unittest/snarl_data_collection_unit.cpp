@@ -7,7 +7,6 @@
 
 using namespace stoat;
 
-
 class TestSnarlDataCollection : public SnarlDataCollection {
     public: 
     TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
@@ -21,7 +20,6 @@ class TestSnarlDataCollection : public SnarlDataCollection {
 };
 
 TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
-
 
     bdsg::HashGraph graph;
         
@@ -90,12 +88,9 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
         snarl_reader.close();
 
         REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, snarl_collection_loaded));
-
         std::string rm_cmd = "rm " + test_file;
-
         int rm = system(rm_cmd.c_str()); 
     }
-
 }
 
 TEST_CASE( "Snarl collection nested bubbles",
@@ -159,8 +154,6 @@ TEST_CASE( "Snarl collection nested bubbles",
     //built = system("rm ../tests/test_data/test_graphs/simple_nested_chain2.hg"); 
     //built = system("vg gbwt -x ../tests/test_data/test_graphs/simple_nested_chain.hg -E --gbz-format -g ../tests/test_data/test_graphs/simple_nested_chain.gbz "); 
 
-
-
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.dist");
 
@@ -181,13 +174,11 @@ TEST_CASE( "Snarl collection nested bubbles",
     auto check_collection = [&] (const TestSnarlDataCollection& snarl_collection, bool check_walks, bool check_alleles, bool check_sequences, bool get_all_walks) {
 
         // Get the alleles again so we can check them. the order might be different though
-
         // Make alleles for each snarl
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
             sample_haps.emplace_back(stoat::sample_hap_t(*path_graph, path));
         }
-
 
         // Check that we got all snarls and that we got the correct snarls
         size_t snarl_count = 0;
@@ -234,6 +225,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                     REQUIRE((snarl_info.genotypes.get_count_for_sample_and_allele("path3", 0) == 0 || snarl_info.genotypes.get_count_for_sample_and_allele("path3", 1) == 0 ));
                     REQUIRE((snarl_info.genotypes.get_count_for_sample_and_allele("path3", 0) == 1 || snarl_info.genotypes.get_count_for_sample_and_allele("path3", 1) == 1 ));
                 }
+
                 if (check_walks) {
                     REQUIRE(snarl_info.walks_by_allele.size() == 2);
                     REQUIRE(snarl_info.walks_by_allele[0].get_path().size() == 3);
@@ -258,7 +250,6 @@ TEST_CASE( "Snarl collection nested bubbles",
 
                 // Check that the walks and alleles match
                 if (check_walks && check_alleles) {
-
                     if (snarl_info.walks_by_allele[0].get_path()[1] == node_traversal_t(2, false)) {
                         REQUIRE(snarl_info.walks_by_allele[1].get_path()[1] == node_traversal_t(3, false));
                         // If allele 0 is 2 and allele 1 is 3
@@ -274,8 +265,8 @@ TEST_CASE( "Snarl collection nested bubbles",
 
                             REQUIRE(snarl_info.genotypes.get_count_for_sample_and_allele("path3", 0) == 0);
                             REQUIRE(snarl_info.genotypes.get_count_for_sample_and_allele("path3", 1) == 1);
-
                         }
+
                     } else {
                         // If allele 0 is 3 and allele 1 is 1
                         REQUIRE(snarl_info.walks_by_allele[0].get_path()[1] == node_traversal_t(3, false));
@@ -295,7 +286,6 @@ TEST_CASE( "Snarl collection nested bubbles",
                         }
                     }
                 }
-
 
                 if (check_sequences) {
                     // The sequences should both be CCA, oops
@@ -342,6 +332,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                     REQUIRE((snarl_info.genotypes.get_count_for_sample_and_allele("path3", 0) == 0 || snarl_info.genotypes.get_count_for_sample_and_allele("path3", 1) == 0 ));
                     REQUIRE((snarl_info.genotypes.get_count_for_sample_and_allele("path3", 0) == 1 || snarl_info.genotypes.get_count_for_sample_and_allele("path3", 1) == 1 ));
                 }
+
                 if (check_walks) {
                     REQUIRE(snarl_info.walks_by_allele.size() == 2);
                     if (snarl_info.walks_by_allele[0].get_path().size() == 2) {
@@ -359,7 +350,6 @@ TEST_CASE( "Snarl collection nested bubbles",
                         REQUIRE(stoat::vectorPathToString(snarl_info.walks_by_allele, true) == "2/3,0");
                     }
                
-
                     // The paths should be 4-8 and 4-5-0-7-8
                     REQUIRE(snarl_info.walks_by_allele[deletion_index].get_path()[0] == node_traversal_t(4, false));
                     REQUIRE(snarl_info.walks_by_allele[deletion_index].get_path()[1] == node_traversal_t(8, false));
@@ -376,6 +366,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                         REQUIRE(snarl_info.sequences_by_allele[insertion_index] == "TNA");
                         REQUIRE(snarl_info.sequences_by_allele[deletion_index] == "");
                     }
+
                     if (check_alleles) {
                         // 0,1,3 take the insertion, 2 takes the deletion
                         REQUIRE(snarl_info.genotypes.get_count_for_sample_and_allele("path0", insertion_index) == 1);
@@ -393,14 +384,12 @@ TEST_CASE( "Snarl collection nested bubbles",
                     }
                 }
 
-
             }  else if ((snarl_info.start_node == stoat::node_traversal_t(5, false) && snarl_info.end_node == stoat::node_traversal_t(7, true)) ||
                 (snarl_info.start_node == stoat::node_traversal_t(7, true) && snarl_info.end_node == stoat::node_traversal_t(5, false))) {
                 REQUIRE(snarl_info.ref_path == "path0#0#path0");
                 REQUIRE(snarl_info.start_position == 4);
                 REQUIRE(snarl_info.end_position == 5);
                 REQUIRE(snarl_info.depth == 2);
-
 
                 if (check_walks) {
                     REQUIRE(snarl_info.walks_by_allele.size() == 2);
@@ -637,11 +626,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             true, // get sequences
             std::unordered_set<std::string>(), false, null_writer, true);
 
-
         check_collection(snarl_collection, true, false, true, true);
-
-
-
 
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
         snarl_collection.add_alleles_by_sample(get_alleles_per_snarl, "");
@@ -649,6 +634,7 @@ TEST_CASE( "Snarl collection nested bubbles",
         check_collection(snarl_collection, true, true, true, true);
 
     }
+
     SECTION("Make and fill in snarl collection with no alleles, then fill in alleles later by chromosome") {
 
         // Don't get the alleles or anything else
@@ -679,13 +665,10 @@ TEST_CASE( "Snarl collection nested bubbles",
 
         // Now fill it in with the paths
         snarl_collection.add_alleles_by_sample(get_alleles_per_snarl, "path0#0#path0");
-
         check_collection(snarl_collection, true, true, true, true);
-
     }
+
     SECTION("Make and fill in snarl collection with walks, alleles, and sequences") {
-
-
 
         TestSnarlDataCollection snarl_collection(1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
@@ -718,13 +701,11 @@ TEST_CASE( "Snarl collection nested bubbles",
             snarl_reader.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false);
-
             REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, loaded_snarl_collection));
-
             std::string rm_cmd = "rm " + test_file;
-
             int rm = system(rm_cmd.c_str()); 
         }
+
         SECTION("Serialize it and load one line at a time") {
             // This uses the same code as the normal loader so just test that it doesn't crash and gets the right number of snarls
 
@@ -740,11 +721,8 @@ TEST_CASE( "Snarl collection nested bubbles",
                 ++loaded_snarl_count;
             });
             snarl_reader.close();
-
             REQUIRE(loaded_snarl_count == 4);
-
             std::string rm_cmd = "rm " + test_file;
-
             int rm = system(rm_cmd.c_str());
             
         }
@@ -784,13 +762,11 @@ TEST_CASE( "Snarl collection nested bubbles",
             snarl_reader.close();
 
             check_collection(loaded_snarl_collection, true, true, true, false);
-
             REQUIRE(SnarlDataCollection::is_equivalent(snarl_collection, loaded_snarl_collection));
-
             std::string rm_cmd = "rm " + test_file;
-
             int rm = system(rm_cmd.c_str()); 
         }
+
         SECTION("Write a snarl collection as its being filled in and don't keep the snarls") {
 
             std::string test_file = "./test_snarls.txt";
@@ -1023,9 +999,6 @@ TEST_CASE( "Snarl collection multiple connected components",
             },
             true, // get sequences
             std::unordered_set<std::string>(), false, null_writer, true);
-
-
-
 
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
