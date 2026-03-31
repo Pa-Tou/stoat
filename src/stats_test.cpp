@@ -158,6 +158,10 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
             // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
         } else {
             // too far from a good fit, return NAs.
+            stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + 
+                std::to_string(max_score) + ", max delta " + std::to_string(max_delta) +
+                ") too far from a good fit. Skipping.", count_number_not_convergence_skipping);
+            count_number_not_convergence_skipping++;
             return std::nan("");
         }
     }
@@ -289,13 +293,13 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
     if (loglik_ratio < 0) {
         stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.", count_number_negative_log_likelihood);
         count_number_negative_log_likelihood++;
-        std::stringstream ss_X;
-        ss_X << X;
-        stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
+        // std::stringstream ss_X;
+        // ss_X << X;
+        // stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
         
-        std::stringstream ss_Y;
-        ss_Y << Y;
-        stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
+        // std::stringstream ss_Y;
+        // ss_Y << Y;
+        // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
         return std::nan("");
     }
 
@@ -393,11 +397,17 @@ double FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<siz
         row_total_1 += g1[i];
     }
 
-    if (total == 0)
+    if (total == 0) {
+        stoat::LOG_WARN("Total equal to 0. Skipping.", count_number_total_zero);
+        count_number_total_zero++;
         return std::nan("");
+    }
 
-    if (row_total_0 == 0 || row_total_1 == 0)
+    if (row_total_0 == 0 || row_total_1 == 0) {
+        stoat::LOG_WARN("One of the rows has a total of 0. Skipping.", count_number_row_zero);
+        count_number_row_zero++;
         return std::nan("");
+    }
 
     // Compute chi-squared
     double chi2 = 0.0;
@@ -542,7 +552,8 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
         // keep the intercept and covariates only
         Eigen::MatrixXd X_reduced = Eigen::MatrixXd::Constant(X.rows(), 1 + num_covariates, 1);
         X_reduced.block(0, 1, X.rows(), num_covariates) = X.block(0, 1 + num_predictors, X.rows(), num_covariates);
-#ifdef DEBUG_STATS_TEST
+
+        #ifdef DEBUG_STATS_TEST
         std::cerr << "X reduced:\n" << X_reduced << "\n";
 #endif
 
