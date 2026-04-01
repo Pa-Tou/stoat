@@ -92,12 +92,12 @@ class SnarlDataCollection {
 
 
         /// Write the collection of snarls to the given file
-        void write_snarl_data_collection(Writer& out_writer) const;
+        void write_snarl_data_collection(Writer& out_writer, const std::string& remove_prefix_str="") const;
         
         /// Load the collection of snarls from the given file
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
         /// also a mode to load just the header used to reuse the same sample_to_index for other objects and then run snarl file line by line (although it means loading the sample_to_index map twice technically)
-       void load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only = false); 
+       void load_snarl_data_collection(stoat::Reader& in_reader, const std::string remove_prefix_str="", const bool header_only = false); 
 
         std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
     
@@ -226,7 +226,7 @@ class SnarlDataCollection {
         //////////////////// Helper functions for writing and loading stuff from files
 
         /// Write just the header of the collection of snarls to the given file
-        void write_snarl_data_collection_header(Writer& out_writer) const;
+        void write_snarl_data_collection_header(Writer& out_writer, const std::string& remove_prefix_str="") const;
 
         /// Write just one snarl from the collection
         void write_snarl_data_line(Writer& out_writer, const snarl_info_internal_t& snarl_info) const;
@@ -234,7 +234,7 @@ class SnarlDataCollection {
                                     const std::vector<std::string>* snarl_sequences, const allele_by_sample_t* alleles_by_sample) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
-    void load_snarl_data_collection_header(stoat::Reader& in_reader);
+        void load_snarl_data_collection_header(stoat::Reader& in_reader, const std::string& remove_prefix_str="");
 
         /// Given a string representing a line in the file, load one snarl_info_internal_t
         /// This assumes that load_snarl_collection_header() has already been called

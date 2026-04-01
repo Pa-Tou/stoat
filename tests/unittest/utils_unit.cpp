@@ -31,6 +31,17 @@ TEST_CASE("string_to_pvalue converts valid p-values or returns 1.0 for NA") {
     REQUIRE(stoat::string_to_pvalue("") == 1.0);
 }
 
+TEST_CASE("remove_prefix cases") {
+
+    REQUIRE(remove_prefix("", "foo") == "");
+    REQUIRE(remove_prefix("foo", "") == "foo");
+    REQUIRE(remove_prefix("$$#$value", "$$") == "#$value");
+
+    std::string prefix = "prefix_";
+    std::string long_str = prefix + std::string(1000, 'a');
+    REQUIRE(remove_prefix(long_str, prefix) == std::string(1000, 'a'));
+}
+
 TEST_CASE("adjusted_hochberg basic example") {
     std::vector<double> raw = {0.02, 0.15, 0.03, 0.001, 0.25, 0.05};
     std::pair<double, size_t> expected = {0.006, 3};

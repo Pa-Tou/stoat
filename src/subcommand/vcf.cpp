@@ -37,6 +37,7 @@ void print_help_vcf() {
               << "  -s, --snarl FILE                Path to the snarl file\n"
               << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
               << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
+              << "  -p, --remove-prefix STR         Remove the given prefix from the reference names in the snarl decomposition file (optional)\n"
               << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
               << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
@@ -52,7 +53,7 @@ void print_help_vcf() {
 int main_stoat_vcf(int argc, char* argv[]) {
     
     // Declare variables to hold argument values
-    std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix;
+    std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix, remove_prefix_str;
 
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
@@ -75,6 +76,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"dist", required_argument, 0, 'd'},
         {"reference-file", required_argument, 0, 'R'},
         {"reference-prefix", required_argument, 0, 'r'},
+        {"remove-prefix", required_argument, 0, 'p'},
         {"children", required_argument, 0, 'i'},
         {"cycle", required_argument, 0, 'y'},
         {"path-length", required_argument, 0, 'l'},
@@ -88,7 +90,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:R:r:p:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -96,6 +98,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
             case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
             case 'r': reference_prefix = optarg; break;
+            case 'p': remove_prefix_str = optarg; break;
             case 'a': ascii = true; break;
             case 'i':
                 children_threshold = std::stoi(optarg);
@@ -218,7 +221,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             snarl_reader.reset(new StdReader(snarl_path));
         }
         auto start_load_timer = std::chrono::high_resolution_clock::now();
-        snarl_collection.load_snarl_data_collection(*snarl_reader);
+        snarl_collection.load_snarl_data_collection(*snarl_reader, remove_prefix_str);
         auto end_load_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Loading snarl information took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_load_timer).count()) + " s");
         snarl_reader->close();
@@ -352,7 +355,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Writing genotypes in " + genotype_path);
         // JEAN would reduce memory to write the collection while genotyping the snarls, one chr at a time, appending to the output file (or in separate chr files).
         auto start_writegt_timer = std::chrono::high_resolution_clock::now();
-        snarl_collection.write_snarl_data_collection(*gt_writer);
+        snarl_collection.write_snarl_data_collection(*gt_writer, remove_prefix_str);
         gt_writer->close();
         auto end_writegt_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Writing genotypes took " + std::to_string(std::chrono::duration<double>(end_writegt_timer - start_writegt_timer).count()) + " s");

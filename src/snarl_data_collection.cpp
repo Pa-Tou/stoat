@@ -962,7 +962,7 @@ The 9th item is all of the sequences, comma separated. "." if not present
 The remaining items are the allele number for each sample. "." if the sample is not present in the snarl
 
 */
-void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_writer) const {
+void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_writer, const std::string& remove_prefix_str) const {
     std::stringstream outstream;
     
     // Write the header
@@ -974,10 +974,17 @@ void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_
 
     // Next will be a list of reference path names.
     outstream << "#REFS" << std::endl;
-    for (const auto& ref : reference_names) {
-        outstream << "#" << ref << std::endl;
+    if (remove_prefix_str != "") { // case where remove prefix is specified
+        for (const auto& ref : reference_names) {
+            std::string reference_str = stoat::remove_prefix(ref, remove_prefix_str); 
+            outstream << "#" << reference_str << std::endl;
+        }
+    } else {
+        for (const auto& ref : reference_names) {
+            outstream << "#" << ref << std::endl;
+        }
     }
-    
+
     //Finally the snarls
     // Start with a header that will contain the names of all samples
     outstream << "#SNARLS" << std::endl;
@@ -1073,8 +1080,8 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
     }
 }
 
-void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer) const {
-    write_snarl_data_collection_header(out_writer);
+void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer, const std::string& remove_prefix_str) const {
+    write_snarl_data_collection_header(out_writer, remove_prefix_str);
 
     // Now write the snarls, one per line
     for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
@@ -1084,7 +1091,7 @@ void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer)
     return;
 }
 
-void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_reader) {
+void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_reader, const std::string& remove_prefix_str) {
 
     // Clear anything that has already been filled in, since we want it to match what was in the file
     all_snarl_data.clear();
@@ -1157,10 +1164,14 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     
     // Get the reference path names from the file
     while (line != "#SNARLS") {
-        std::string ref (line.begin()+1, line.end());
+        std::string ref(line.begin()+1, line.end());
+        if (remove_prefix_str != "") {
+            ref = stoat::remove_prefix(ref, remove_prefix_str);
+        }
         reference_names.emplace_back(std::move(ref));
         in_reader.getline(line);
     }
+
 
     // The next header is  "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES", plus all of the sample/haplotypes
     in_reader.getline(line);
@@ -1283,8 +1294,8 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     return snarl_info;
 }
 
-void SnarlDataCollection::load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only) {
-    load_snarl_data_collection_header(in_reader);
+void SnarlDataCollection::load_snarl_data_collection(stoat::Reader& in_reader, const std::string remove_prefix_str, const bool header_only) {
+    load_snarl_data_collection_header(in_reader, remove_prefix_str);
 
     if (!header_only) {
         std::string line;

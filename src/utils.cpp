@@ -36,6 +36,16 @@ double string_to_pvalue(const std::string& p1) {
     }
 }
 
+std::string remove_prefix(const std::string& str, const std::string& prefix) {
+    if (str.size() <= prefix.size()) { // avoiding out-of-range errors or returning an empty string
+        return str;
+    }
+    if (str.rfind(prefix, 0) == 0) { // Check if 'str' starts with 'prefix'
+        return str.substr(prefix.length()); // Remove the prefix
+    }
+    return str; // Return the original string if it doesn't start with the prefix
+}
+
 // Adjust p-values using Hochberg correction
 std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values) {
     size_t m = p_values.size();

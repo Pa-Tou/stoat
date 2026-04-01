@@ -25,6 +25,7 @@ std::string set_precision(const double& value);
 
 bool is_na(const std::string& s);
 double string_to_pvalue(const std::string& p1);
+std::string remove_prefix(const std::string& str, const std::string& prefix);
 
 std::pair<double, size_t> adjusted_hochberg(const std::vector<double>& p_values);
 
