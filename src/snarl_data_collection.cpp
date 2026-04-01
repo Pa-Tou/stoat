@@ -490,34 +490,19 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 }
 
 // Call interatee for all snarls
-void SnarlDataCollection::for_each_snarl(
-    const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
-
-    #pragma omp parallel for schedule(dynamic)
-    for (size_t i = 0; i < all_snarl_data.size(); ++i) {
-        const snarl_info_internal_t& snarl_info = all_snarl_data[i];
+void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
+    for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
         run_iteratee_on_one_snarl(snarl_info, iteratee);
     }
 }
 
-void SnarlDataCollection::for_each_snarl_in_file(
-    stoat::Reader& in_reader,
-    const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
-
+void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
     load_snarl_data_collection_header(in_reader);
-
     std::string line;
-    std::vector<snarl_info_internal_t> snarls;
-
-    // Phase 1: sequential read
     while (in_reader.getline(line)) {
-        snarls.push_back(load_snarl_data_line(line));
-    }
 
-    // Phase 2: parallel processing
-    #pragma omp parallel for schedule(dynamic)
-    for (size_t i = 0; i < snarls.size(); ++i) {
-        run_iteratee_on_one_snarl(snarls[i], iteratee);
+        snarl_info_internal_t snarl_info = load_snarl_data_line(line);
+        run_iteratee_on_one_snarl(snarl_info, iteratee);
     }
 }
 
