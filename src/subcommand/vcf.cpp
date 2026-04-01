@@ -11,6 +11,7 @@
 #include <bdsg/overlays/overlay_helper.hpp>
 #include <vg/io/vpkg.hpp>
 
+#include "../banner.hpp"
 #include "../log.hpp"
 #include "../arg_parser.hpp"
 #include "../io/register_io.hpp"
@@ -24,10 +25,11 @@
     #include <valgrind/callgrind.h>
 #endif
 
-
 namespace stoat_command {
 
+// STOAT_VERSION are define in the CMAKELIST file
 void print_help_vcf() {
+    stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n"
               << "  -g, --graph FILE                Path to the graph file (only Packed Graph works for now)\n"
               << "  -d, --dist FILE                 Path to the distance index file\n"
@@ -43,11 +45,12 @@ void print_help_vcf() {
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
+              << "  -a, --ascii                     Print the STOAT ascii art banner\n"
               << "  -h, --help                      Print this help message\n";
 }
 
 int main_stoat_vcf(int argc, char* argv[]) {
-    
+
     // Declare variables to hold argument values
     std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix;
 
@@ -60,6 +63,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
     bool bgzip_output = true;
+    bool ascii = false;
 
     // Parse arguments
     int c;
@@ -79,11 +83,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
         {"no-bgzip", no_argument, 0, 'u'},
+        {"ascii", no_argument, 0, 'a'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:R:r:i:y:l:ft:V:o:uh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -91,6 +96,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
             case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
             case 'r': reference_prefix = optarg; break;
+            case 'a': ascii = true; break;
             case 'i':
                 children_threshold = std::stoi(optarg);
                 if (children_threshold < 2) {
@@ -146,7 +152,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         print_help_vcf();
         return EXIT_FAILURE;
     }
-    
+
     // Enforce valid argument combinations
     // Either we just want to prepare the snarls (from pangenome index files) or genotype those snarls from a VCF (or both)
     if (!graph_path.empty() && !dist_path.empty() && vcf_path.empty() && snarl_path.empty()) {
@@ -173,7 +179,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::Logger::instance().setLogFile(output_dir + "/stoat.vcf.log");
     }
 
-    // add command launch in log file
+    // add command launch in log file + print banner
+    if (ascii) {
+        print_ascii_banner(std::string(STOAT_VERSION));
+    } else {
+        print_banner(std::string(STOAT_VERSION));
+    }
+
     std::stringstream ss;
     ss << "stoat ";
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
@@ -183,15 +195,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // if not, we will use reference haplotypes in the pangenome
     std::unordered_set<std::string> ref_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
 
-
-
     // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
     stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
-    
+
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
     CALLGRIND_START_INSTRUMENTATION;
@@ -231,13 +241,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
         // Get the reference sample names from the prefix
         graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
             std::string path_name = graph->get_path_name(path);
-        
+
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
                 ref_path_names.emplace(graph->get_path_name(path));
             }
-        
+
             return true;
         });
 
@@ -270,13 +280,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
         } else {
             snarl_writer.reset(new StdWriter(snarls_filename));
         }
-        
+
         // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
         snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
             true, //find_alleles_first, doesn't matter in this case
             true, // walks_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
-                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's version and write the skipped snarls somewhere
+                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
             },
             false, //alleles_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles
@@ -326,7 +336,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
         auto end_gt_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Retrieving snarl genotypes took " + std::to_string(std::chrono::duration<double>(end_gt_timer - start_gt_timer).count()) + " s");
-              
+
         // write the genotypes
         std::string genotype_path = output_dir + "/snarl_genotypes.tsv";
         if (bgzip_output) {
@@ -347,10 +357,10 @@ int main_stoat_vcf(int argc, char* argv[]) {
         auto end_writegt_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Writing genotypes took " + std::to_string(std::chrono::duration<double>(end_writegt_timer - start_writegt_timer).count()) + " s");
     }
-
+    
     auto end_total_timer = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Total time: " + std::to_string(std::chrono::duration<double>(end_total_timer - start_total_timer).count()) + " s");
     return EXIT_SUCCESS;
 }
 
-} // end stoat
+} // end stoat_command
