@@ -498,39 +498,31 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& 
 // multithreaded version
 void SnarlDataCollection::for_each_snarl_in_file(
     stoat::Reader& in_reader,
-    const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+    const std::function<void(snarl_info_t&)>& iteratee) {
 
     load_snarl_data_collection_header(in_reader);
-    constexpr size_t chunk_size = 10000;
+
+    const size_t CHUNK_SIZE = 8192;
+    std::vector<std::string> lines;
+    lines.reserve(CHUNK_SIZE);
     std::string line;
-    std::vector<snarl_info_internal_t> snarls;
-    snarls.reserve(chunk_size);
 
     while (true) {
+        lines.clear();
 
-        snarls.clear();
-
-        // ---- Phase 1: sequential read of a chunk ----
-        while (snarls.size() < chunk_size && in_reader.getline(line)) {
-            snarls.emplace_back(load_snarl_data_line(line));
+        // ---- read chunk (single thread I/O) ----
+        for (size_t i = 0; i < CHUNK_SIZE && in_reader.getline(line); ++i) {
+            lines.push_back(line);
         }
 
-        // stop if nothing was read
-        if (snarls.empty()) {
+        if (lines.empty())
             break;
-        }
 
-        const size_t n = snarls.size();
-
-        // ---- Phase 2: parallel processing ----
-        #pragma omp parallel for schedule(dynamic)
-        for (size_t i = 0; i < n; ++i) {
-            run_iteratee_on_one_snarl(snarls[i], iteratee);
-        }
-
-        // if last chunk
-        if (n < chunk_size) {
-            break;
+        // ---- parallel parsing ----
+        #pragma omp parallel for schedule(dynamic, 64)
+        for (size_t i = 0; i < lines.size(); ++i) {
+            snarl_info_internal_t snarl_info = load_snarl_data_line(lines[i]);
+            run_iteratee_on_one_snarl(snarl_info, iteratee);
         }
     }
 }
