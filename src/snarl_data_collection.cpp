@@ -480,25 +480,62 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 }
 
 // Call interatee for all snarls
-// TODO: Make this parallel
 void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
         run_iteratee_on_one_snarl(snarl_info, iteratee);
     }
 }
 
-void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
-    load_snarl_data_collection_header(in_reader);
-    std::string line;
-    while (in_reader.getline(line)) {
+// void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+//     load_snarl_data_collection_header(in_reader);
+//     std::string line;
+//     while (in_reader.getline(line)) {
+//         snarl_info_internal_t snarl_info = load_snarl_data_line(line);
+//         run_iteratee_on_one_snarl(snarl_info, iteratee);
+//     }
+// }
 
-        snarl_info_internal_t snarl_info = load_snarl_data_line(line);
-        run_iteratee_on_one_snarl(snarl_info, iteratee);
+// multithreaded version
+void SnarlDataCollection::for_each_snarl_in_file(
+    stoat::Reader& in_reader,
+    const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+
+    load_snarl_data_collection_header(in_reader);
+    constexpr size_t chunk_size = 10000;
+    std::string line;
+    std::vector<snarl_info_internal_t> snarls;
+    snarls.reserve(chunk_size);
+
+    while (true) {
+
+        snarls.clear();
+
+        // ---- Phase 1: sequential read of a chunk ----
+        while (snarls.size() < chunk_size && in_reader.getline(line)) {
+            snarls.emplace_back(load_snarl_data_line(line));
+        }
+
+        // stop if nothing was read
+        if (snarls.empty()) {
+            break;
+        }
+
+        const size_t n = snarls.size();
+
+        // ---- Phase 2: parallel processing ----
+        #pragma omp parallel for schedule(dynamic)
+        for (size_t i = 0; i < n; ++i) {
+            run_iteratee_on_one_snarl(snarls[i], iteratee);
+        }
+
+        // if last chunk
+        if (n < chunk_size) {
+            break;
+        }
     }
 }
- 
-void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
 
+void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
 
     // GenotypeTable constructor takes a map from sample to index, and the number of alleles
     GenotypeTable genotypes(sample_to_index,
@@ -1300,7 +1337,7 @@ std::unordered_map<std::string, size_t> SnarlDataCollection::get_sample_to_index
     return sample_to_index;
 }
 
-bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1, const SnarlDataCollection& collection2) {
+bool SnarlDataCollection::is_equivalent(const SnarlDataCollection& collection1, const SnarlDataCollection& collection2) {
 
     // Get a consistent snarl identifier from the bounds of a snarl
     // Put the lower node id first, keeping the orientations
