@@ -478,6 +478,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         }, chr);
 
         stoat::LOG_INFO("Total number of snarl found in chr " + chr + " : " + std::to_string(number_snarl_analyzed));
+        number_snarl_analyzed = 0; // reset for next chromosome
 
         auto timer_end_chr = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl genotypes retrieved in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_end_matrix).count()) + " s");
