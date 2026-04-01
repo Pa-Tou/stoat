@@ -926,7 +926,7 @@ std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const han
     return sequences;
 }
 
-bool SnarlDataCollection::snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const {
+bool SnarlDataCollection::snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) {
 
     // If we have distances in the index, make sure that the snarl's maximum length is big enough
     if (check_distances && (allele_size_limit > distance_index.maximum_length(snarl))) {

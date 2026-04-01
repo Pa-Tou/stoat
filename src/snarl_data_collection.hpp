@@ -221,7 +221,7 @@ class SnarlDataCollection {
                 const std::vector<stoat::PathTraversal>& paths) const; 
     
         // Do we want to analyze this snarl, based on the various limits we were given?
-        bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) const; 
+        bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances); 
 
         //////////////////// Helper functions for writing and loading stuff from files
 
@@ -234,7 +234,7 @@ class SnarlDataCollection {
                                     const std::vector<std::string>* snarl_sequences, const allele_by_sample_t* alleles_by_sample) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
-    void load_snarl_data_collection_header(stoat::Reader& in_reader);
+        void load_snarl_data_collection_header(stoat::Reader& in_reader);
 
         /// Given a string representing a line in the file, load one snarl_info_internal_t
         /// This assumes that load_snarl_collection_header() has already been called
