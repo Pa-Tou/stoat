@@ -349,7 +349,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
                                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                                 std::string chr){
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(static)
     for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
 
         // If we are limiting to a chromosome (by reference path), then skip anything not on this chromosome
@@ -519,7 +519,7 @@ void SnarlDataCollection::for_each_snarl_in_file(
             break;
 
         // ---- parallel parsing ----
-        #pragma omp parallel for schedule(dynamic, 64)
+        #pragma omp parallel for schedule(static)
         for (size_t i = 0; i < lines.size(); ++i) {
             snarl_info_internal_t snarl_info = load_snarl_data_line(lines[i]);
             run_iteratee_on_one_snarl(snarl_info, iteratee);
