@@ -132,7 +132,7 @@ int main_stoat_test(int argc, char* argv[]) {
                 print_help_test(); 
                 return EXIT_SUCCESS; 
             default:
-                stoat::LOG_ERROR("[stoat test] Unknown argument " + c);
+                stoat::LOG_ERROR("[stoat test] Unknown argument " + std::to_string(c));
                 print_help_test();
                 return EXIT_FAILURE;
         }

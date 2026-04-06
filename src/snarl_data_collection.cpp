@@ -486,6 +486,38 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& 
     }
 }
 
+// version without file I/O optimization (need it for unit test)
+void SnarlDataCollection::for_each_snarl_in_file(
+    stoat::Reader& in_reader,
+    const std::function<void(snarl_info_t&)>& iteratee) {
+
+    load_snarl_data_collection_header(in_reader);
+
+    const size_t CHUNK_SIZE = 10000;
+    std::vector<std::string> lines;
+    lines.reserve(CHUNK_SIZE);
+    std::string line;
+
+    while (true) {
+        lines.clear();
+
+        // ---- read chunk (single thread I/O) ----
+        for (size_t i = 0; i < CHUNK_SIZE && in_reader.getline(line); ++i) {
+            lines.push_back(line);
+        }
+
+        if (lines.empty())
+            break;
+
+        // ---- parallel parsing & testing ----
+        #pragma omp parallel for schedule(static)
+        for (size_t i = 0; i < lines.size(); ++i) {
+            snarl_info_internal_t snarl_info = load_snarl_data_line(lines[i]);
+            run_iteratee_on_one_snarl(snarl_info, iteratee);
+        }
+    }
+}
+
 void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
 
     // GenotypeTable constructor takes a map from sample to index, and the number of alleles
