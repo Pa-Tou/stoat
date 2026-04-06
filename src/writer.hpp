@@ -37,6 +37,17 @@ public:
     void write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
 
     void write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result);
+
+    // Format-only versions: return the output string without writing.
+    // Thread-safe: these methods don't modify Writer state.
+    // Used by test_and_format_snarl for batch processing.
+    std::string format_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+
+    std::string format_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+
+    std::string format_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+
+    std::string format_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result);
     
 protected:
     const std::string file_path;

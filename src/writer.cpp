@@ -48,12 +48,16 @@ BgzWriter::BgzWriter(const std::string output_file_path) : Writer(output_file_pa
 }
 
 bool BgzWriter::write(const std::string out_content) {
-    if (bgzf_write(file_p, out_content.c_str(), out_content.size()) < 0) {
-        stoat::LOG_ERROR("Error writing to BGZ output: " + file_path + "\n");
-        bgzf_close(file_p);
-        return 0;
+    bool success = true;
+    #pragma omp critical (writer)
+    {
+        if (bgzf_write(file_p, out_content.c_str(), out_content.size()) < 0) {
+            stoat::LOG_ERROR("Error writing to BGZ output: " + file_path + "\n");
+            bgzf_close(file_p);
+            success = false;
+        }
     }
-    return 1;
+    return success;
 }
 
 void BgzWriter::close() {
@@ -129,64 +133,64 @@ void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
     }
 }
 
-void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
-    // snarl information
+std::string Writer::format_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
     outl += "\t" + snarl_data.start_node.to_string() + "\t" + snarl_data.end_node.to_string();
-    // allele counts
     if (snarl_data.walks_by_allele.empty()) {
-        //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
         outl += "\tNA";
     } else {
         outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
-    // pvalues and contingency table
     outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + stoat::set_precision(test_result.second_pv) + "\t" + test_result.group_paths + "\t" +
         std::to_string(snarl_data.depth) + "\n";
-    // write
-    write(outl);
+    return outl;
+}
+
+void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    write(format_binary(snarl_data, test_result));
+}
+
+std::string Writer::format_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    std::string outl = snarl_data.ref_path;
+    outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
+    outl += "\t" + snarl_data.start_node.to_string() + "\t" + snarl_data.end_node.to_string();
+    if (snarl_data.walks_by_allele.empty()) {
+        outl += "\tNA";
+    } else {
+        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
+    }
+    outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
+    return outl;
 }
 
 void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
-    // snarl information
-    std::string outl = snarl_data.ref_path;
-    outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
-    outl += "\t" + snarl_data.start_node.to_string() + "\t" + snarl_data.end_node.to_string();
-    // allele counts
-    if (snarl_data.walks_by_allele.empty()) {
-        //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
-        outl += "\tNA";
-    } else {
-        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
-    }
-    // pvalues and contingency table
-    outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
-    // write
-    write(outl);
+    write(format_quantitative(snarl_data, test_result));
+}
+
+std::string Writer::format_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    return format_quantitative(snarl_data, test_result);
 }
 
 void Writer::write_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
-    // now it's the same output
     write_quantitative(snarl_data, test_result);
 }
 
-void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
-    // snarl information
+std::string Writer::format_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
     outl += "\t" + snarl_data.start_node.to_string() + "\t" + snarl_data.end_node.to_string();
-    // allele counts
     if (snarl_data.walks_by_allele.empty()) {
-        //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
         outl += "\tNA";
     } else {
         outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
-    // pvalues and contingency table
     outl += "\t" + gene_name + "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
-    // write
-    write(outl);
+    return outl;
+}
+
+void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
+    write(format_eqtl(snarl_data, gene_name, test_result));
 }
 
 }//end namespace
