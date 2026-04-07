@@ -149,13 +149,14 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
                 std::to_string(max_score) + ", max delta " + std::to_string(max_delta) +
                 ") but not too bad. Continuing.", count_number_not_convergence);
             count_number_not_convergence++;
-            // std::stringstream ss_X;
-            // ss_X << X;
-            // stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
-            
-            // std::stringstream ss_Y;
-            // ss_Y << Y;
-            // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
+#ifdef DEBUG_STATS_TEST
+    std::stringstream ss_X;
+    ss_X << X;
+    std::cerr << "X:\n" << ss_X.str() << "\n";
+    std::stringstream ss_Y;
+    ss_Y << Y;
+    std::cerr << "Y:\n" << ss_Y.str() << "\n";
+#endif
         } else {
             // too far from a good fit, return NAs.
             stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + 
@@ -293,13 +294,16 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
     if (loglik_ratio < 0) {
         stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.", count_number_negative_log_likelihood);
         count_number_negative_log_likelihood++;
-        // std::stringstream ss_X;
-        // ss_X << X;
-        // stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
-        
-        // std::stringstream ss_Y;
-        // ss_Y << Y;
-        // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
+
+#ifdef DEBUG_STATS_TEST
+    std::stringstream ss_X;
+    ss_X << X;
+    std::cerr << "X:\n" << ss_X.str() << "\n";
+    std::stringstream ss_Y;
+    ss_Y << Y;
+    std::cerr << "Y:\n" << ss_Y.str() << "\n";
+#endif
+
         return std::nan("");
     }
 
@@ -516,13 +520,16 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (df_denominator <= 0) {
         stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.", count_number_few_sample);
-        // std::stringstream ss_X;
-        // ss_X << X;
-        // stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
-        
-        // std::stringstream ss_Y;
-        // ss_Y << Y;
-        // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
+
+#ifdef DEBUG_STATS_TEST
+    std::stringstream ss_X;
+    ss_X << X;
+    std::cerr << "X:\n" << ss_X.str() << "\n";
+    std::stringstream ss_Y;
+    ss_Y << Y;
+    std::cerr << "Y:\n" << ss_Y.str() << "\n";
+#endif
+
         count_number_few_sample++;
         return std::nan("");
     }
@@ -572,14 +579,16 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
         if (SSE_reduced == 0) {
             stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.", count_number_sse_null);
             count_number_sse_null++;
-            // X: const Eigen::MatrixXd &X
-            // std::stringstream ss_X;
-            // ss_X << X;
-            // stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
-            
-            // std::stringstream ss_Y;
-            // ss_Y << Y;
-            // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
+
+#ifdef DEBUG_STATS_TEST
+    std::stringstream ss_X;
+    ss_X << X;
+    std::cerr << "X:\n" << ss_X.str() << "\n";
+    std::stringstream ss_Y;
+    ss_Y << Y;
+    std::cerr << "Y:\n" << ss_Y.str() << "\n";
+#endif
+
             return std::nan("");
         } else {
             // not sure what to do here. Adding 0.1% errors to the perfect predictions?
@@ -603,13 +612,16 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
 
     if (F_stat < 0 && F_stat > -0.00001){
         stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.", count_number_f_stat_close_to_0);
-        // std::stringstream ss_X;
-        // ss_X << X;
-        // stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
-        
-        // std::stringstream ss_Y;
-        // ss_Y << Y;
-        // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
+
+#ifdef DEBUG_STATS_TEST
+    std::stringstream ss_X;
+    ss_X << X;
+    std::cerr << "X:\n" << ss_X.str() << "\n";
+    std::stringstream ss_Y;
+    ss_Y << Y;
+    std::cerr << "Y:\n" << ss_Y.str() << "\n";
+#endif
+
         count_number_f_stat_close_to_0++;
         F_stat = 0;
     }
@@ -617,13 +629,16 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     if (F_stat < -0.00001){
         stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + " = " + std::to_string(numerator) + "/" + std::to_string(denominator) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.", count_number_f_stat_negative);
         stoat::LOG_DEBUG("SSE_reduced: " + std::to_string(SSE_reduced) + ",SSE_full: " + std::to_string(SSE_full));
-        // std::stringstream ss_X;
-        // ss_X << X;
-        // stoat::LOG_WARN("X:\n" + ss_X.str(), 0);
-        
-        // std::stringstream ss_Y;
-        // ss_Y << Y;
-        // stoat::LOG_WARN("Y:\n" + ss_Y.str(), 0);
+
+#ifdef DEBUG_STATS_TEST
+    std::stringstream ss_X;
+    ss_X << X;
+    std::cerr << "X:\n" << ss_X.str() << "\n";
+    std::stringstream ss_Y;
+    ss_Y << Y;
+    std::cerr << "Y:\n" << ss_Y.str() << "\n";
+#endif
+
         count_number_f_stat_negative++;
         return std::nan("");
     }
