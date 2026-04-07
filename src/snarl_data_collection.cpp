@@ -446,7 +446,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
             
         }
         // start analyzing this chromosome chr
-        stoat::LOG_INFO("Analysing chr : " + chr);
+        stoat::LOG_INFO("Analyzing chr : " + chr);
         auto timer_start_chr = std::chrono::high_resolution_clock::now();
 
         // prepare the edge matrix for this chromosome by reading the VCF
