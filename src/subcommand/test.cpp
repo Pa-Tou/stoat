@@ -84,7 +84,7 @@ int main_stoat_test(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:V:o:uh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:t:C:I:M:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'g': genotype_path = optarg; stoat_vcf::check_file(genotype_path); break;
             case 'a': ascii = true; break;
