@@ -328,7 +328,7 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
     double expected_d = row2 * col2 / total;
 
     // Check for zero, infinity, or NaN
-    // matis: I don't really know what we expect to output here, at least I add an warning for user/log
+    // matis: I don't really know what we expect to output here, at least I add a warning for user/log
     if (expected_a <= 0.0 || expected_b <= 0.0 || 
         expected_c <= 0.0 || expected_d <= 0.0 ||
         !std::isfinite(expected_a) || !std::isfinite(expected_b) || 
@@ -431,7 +431,7 @@ std::pair<double, double> FisherChi2::fisher_chi2(const std::vector<size_t>& g0,
     double chi2_p_value = std::nan("");
     double fastfisher_p_value = std::nan("");
     
-    // compute  Fisher's exact or Chi-squared test p-value
+    // compute Fisher's exact or Chi-squared test p-value
     if (g0.size() == 2) {
         size_t a = g0[0];
         size_t b = g0[1];
@@ -493,7 +493,7 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (df_denominator <= 0) {
-        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoiding those issues and get more robust associations in general.", count_number_few_sample);
+        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoid those issues and get more robust associations in general.", count_number_few_sample);
         count_number_few_sample++;
         return std::nan("");
     }
