@@ -158,20 +158,6 @@ int main(int argc, char* argv[]) {
 // plink --vcf ../data/simu/merged_output.vcf.gz --make-bed --allow-extra-chr --out ../output/genotype
 // plink --bfile ../output/genotype --pheno ../data/simu/phenotypes.txt --pheno-name PHENO --assoc --allow-no-sex --allow-extra-chr --out ../output/plink
 
-// DROSO
-// ./stoat vcf -g ../../lab/gwas/droso/data/fly.pg -d ../../lab/gwas/droso/data/fly.dist -R ../../lab/gwas/droso/data/chromosome_ref.tsv --output ../output_droso
-// sed -i 's/dm6#0#chr2L/1/g' ../output_droso/snarl_info.tsv
-// sed -i 's/dm6#0#chr2R/2/g' ../output_droso/snarl_info.tsv
-// sed -i 's/dm6#0#chr3L/3/g' ../output_droso/snarl_info.tsv
-// sed -i 's/dm6#0#chr3R/4/g' ../output_droso/snarl_info.tsv
-// sed -i 's/dm6#0#chr4/5/g' ../output_droso/snarl_info.tsv
-// sed -i 's/dm6#0#chrX/6/g' ../output_droso/snarl_info.tsv
-// sed -i 's/dm6#0#chrY/7/g' ../output_droso/snarl_info.tsv
-// sed -i 's/dm6#0#chrM/8/g' ../output_droso/snarl_info.tsv
-// ./stoat vcf -s ../output_droso/snarl_info.tsv -v ../../lab/gwas/droso/results/data/merging_dm6.vcf -u --output ../output_droso
-// ./stoat test -g ../output_droso/snarl_genotypes.tsv -p ../../lab/gwas/droso/results/data/stoat_phenotype.binary_mean.dm6.tsv \
- -c ../../lab/gwas/droso/results/data/stoat_covar.dm6.tsv -C Inversion2Lt,Inversion2RNS,Inversion3RP,Inversion3RK,Inversion3RMo,WolbachiaStatus -u --output ../output_droso > /dev/null 2>&1
-
 // -------------------------------------------------------------- DEBUG --------------------------------------------------------------
 
 // VALGRIND
