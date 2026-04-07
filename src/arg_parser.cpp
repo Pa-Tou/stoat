@@ -407,7 +407,7 @@ stoat::CovariateTable* parse_covariate_table(const std::string& file_path, std::
             line_vec.push_back(line_val);
         }
         
-        if (line_vec.size() <= samp_head_idx) continue; // JEAN isn't that a sign that the file is wrong and we should raise an error ?
+        if (line_vec.size() <= samp_head_idx) continue; // JEAN isn't that a sign that the file is wrong and we should raise an error?
 
         // extract the specified covariables
         std::string samp_name = line_vec[samp_head_idx];

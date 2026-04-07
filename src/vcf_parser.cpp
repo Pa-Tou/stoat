@@ -197,7 +197,7 @@ void VCFParser::skip_to_next_chromosome(const std::string& chr) {
     // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
     // At the end of this loop, we'll be looking at the first line that is not this chromosome
     do {
-        //TODO: I think this is unecessary
+        //TODO: I think this is unnecessary
         //bcf_unpack(rec, BCF_UN_STR);
 
         read_status = bcf_read(ptr_vcf, hdr, rec);

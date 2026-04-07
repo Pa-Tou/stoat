@@ -216,7 +216,7 @@ int main_stoat_test(int argc, char* argv[]) {
 
     // read the file
     if (!gene_position_path.empty()) {
-        stoat::LOG_TRACE("Parsing eqtl phenotype file");
+        stoat::LOG_TRACE("Parsing eQTL phenotype file");
         gene_expression_table = std::unique_ptr<stoat::GeneExpressionTable>(stoat_vcf::parse_gene_expression_table(phenotype_path, gene_position_path, sample_to_index, gene_to_index));
     } else if (method == "chi2" || method == "logreg" || method == "exact") {
         stoat::LOG_TRACE("Parsing binary phenotype file");
@@ -225,7 +225,7 @@ int main_stoat_test(int argc, char* argv[]) {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
         quantitative_phenotype_table = std::unique_ptr<stoat::QuantitativePhenotypeTable>(stoat_vcf::parse_quantitative_pheno_table(phenotype_path, sample_to_index));
     } else {
-        stoat::LOG_ERROR("Method : " + method + " not reconize");
+        stoat::LOG_ERROR("Method : " + method + " not recognized");
     }
 
     // eventually parse the covariate file
@@ -250,7 +250,7 @@ int main_stoat_test(int argc, char* argv[]) {
                                                                      *binary_phenotype_table, min_individuals));
     } else if (method == "chi2") {
         if (!covariate_path.empty()) {
-            stoat::LOG_WARN("Covariate will be disable using chi2 test, try -m logreg instead.", 0);
+            stoat::LOG_WARN("Covariate will not be used by the Chi2 test. To include them in the test use '-m logreg' instead.", 0);
         }
         // Binary using Chi2/Fisher (no covariate)
         snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, maf_threshold,
