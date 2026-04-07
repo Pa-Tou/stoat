@@ -33,7 +33,7 @@ void print_help_test() {
               << "  -C, --covar-name NAME           Covariate column name(s) used\n"
               << "  -I, --min-individuals INT       Minimum number of individuals per snarl [0]\n"
               << "  -M, --maf FLOAT                 Minimum allele frequency threshold [0.05]\n"
-              //<< "  -t, --threads INT               Number of threads to use [1]\n"
+              << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
@@ -75,7 +75,7 @@ int main_stoat_test(int argc, char* argv[]) {
         {"covar-name", required_argument, 0, 'C'},
         {"min-individuals", required_argument, 0, 'I'},
         {"maf", required_argument, 0, 'M'},
-        //{"thread", required_argument, 0, 't'},
+        {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
         {"ascii", no_argument, 0, 'a'},
@@ -90,6 +90,14 @@ int main_stoat_test(int argc, char* argv[]) {
             case 'a': ascii = true; break;
             case 'm': method = optarg; stoat_vcf::check_methods(method); break;
             case 'p': phenotype_path = optarg; stoat_vcf::check_file(phenotype_path); break;
+            case 't': {
+                int threads = std::stoi(optarg);
+                if (threads < 1) {
+                    throw std::runtime_error("Error: [stoat test] Number of threads must be > 0");
+                }
+                omp_set_num_threads(threads);
+                break;
+            }
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
             case 'C': {
                 std::stringstream ss(optarg);
