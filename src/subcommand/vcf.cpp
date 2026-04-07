@@ -332,7 +332,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
 
         // retrieve genotypes one chromosome at a time
-        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
+        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser, remove_prefix_str);
 
         // We are done reading through the vcf file so close it
         vcf_parser.close_vcf();
@@ -355,7 +355,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Writing genotypes in " + genotype_path);
         // JEAN would reduce memory to write the collection while genotyping the snarls, one chr at a time, appending to the output file (or in separate chr files).
         auto start_writegt_timer = std::chrono::high_resolution_clock::now();
-        snarl_collection.write_snarl_data_collection(*gt_writer, remove_prefix_str);
+        snarl_collection.write_snarl_data_collection(*gt_writer);
         gt_writer->close();
         auto end_writegt_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Writing genotypes took " + std::to_string(std::chrono::duration<double>(end_writegt_timer - start_writegt_timer).count()) + " s");

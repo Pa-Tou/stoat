@@ -396,7 +396,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
 
 }
 
-void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
+void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser, const std::string& remove_prefix_str) {
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
     stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
@@ -424,7 +424,11 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
     // read the VCF by chunk, build the edge matrix and genotype each snarl
     // We assume that the vcf parser has read the header and is now ready to go through the snarls
     std::string chr = vcf_parser.get_next_chromosome_name();
-    
+
+    if (remove_prefix_str != "") {
+        chr = stoat::remove_prefix(chr, remove_prefix_str);
+    }
+
     // Go through to the end of the VCF. Chunk by chromosome 
     while (chr != "") {
 
@@ -435,8 +439,13 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
             // Just skip to the next one without doing anything
             vcf_parser.skip_to_next_chromosome(chr);
-            
+
             chr = vcf_parser.get_next_chromosome_name();
+
+            if (remove_prefix_str != "") {
+                chr = stoat::remove_prefix(chr, remove_prefix_str);
+            }
+
             if (chr == "") {
                 // If we've reached the end of the file, return
                 return;
@@ -452,7 +461,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         // prepare the edge matrix for this chromosome by reading the VCF
         // this will read to the end of this chr
         edge_matrix.load_vcf_chunk(vcf_parser, chr);
-        
+
         auto timer_end_matrix = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Edge matrix construction for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_matrix - timer_start_chr).count()) + " s");
 
@@ -466,7 +475,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
                     allele_idx.at(samp_hap_idx) = al_idx;
                 }
             }
-            
+
             return allele_idx;
         }, chr);
 
