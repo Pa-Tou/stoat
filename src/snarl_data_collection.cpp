@@ -115,7 +115,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                             #endif
                             if (snarl_is_eligible(distance_index, snarl, check_distances, number_of_snarl_limit_distance, number_of_snarl_limit_children)) {
 
-                                // Make the snarl_info_internal_t to fill in. Since it's multithreaded its better to move() it instead of adding it here
+                                // Make the snarl_info_internal_t to fill in. Since it's multithreaded it's better to move() it instead of adding it here
                                 snarl_info_internal_t snarl_data;
 
                                 // Get the start and end nodes
@@ -1249,7 +1249,7 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     
     
     // The rest of the line will be the allele assignment of each sample
-    // "." means that that this sample didn't have an allele in this snarl. If all samples have "." then we just didn't store the samples
+    // "." means that this sample didn't have an allele in this snarl. If all samples have "." then we just didn't store the samples
     
     // Fill this in with the contents of the line
     bool has_samples = false;
@@ -1440,7 +1440,7 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
                                 throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": genotype is different for sample "+sample); 
                             }
                         } else {
-                            // TODO: If there are no walks for the allele, then I don't think there's a way of matching up the alleles beteween the two collections,
+                            // TODO: If there are no walks for the allele, then I don't think there's a way of matching up the alleles between the two collections,
                             // so this should check that the counts are the same even if they are in a different order. But I don't want to implement it because 
                             // I think this never happens
                             assert(false);

@@ -328,7 +328,7 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
     double expected_d = row2 * col2 / total;
 
     // Check for zero, infinity, or NaN
-    // matis: I don't really know what we expect to output here, at least I add an warning for user/log
+    // matis: I don't really know what we expect to output here, at least I add a warning for user/log
     if (expected_a <= 0.0 || expected_b <= 0.0 || 
         expected_c <= 0.0 || expected_d <= 0.0 ||
         !std::isfinite(expected_a) || !std::isfinite(expected_b) || 
@@ -431,7 +431,7 @@ std::pair<double, double> FisherChi2::fisher_chi2(const std::vector<size_t>& g0,
     double chi2_p_value = std::nan("");
     double fastfisher_p_value = std::nan("");
     
-    // compute  Fisher's exact or Chi-squared test p-value
+    // compute Fisher's exact or Chi-squared test p-value
     if (g0.size() == 2) {
         size_t a = g0[0];
         size_t b = g0[1];

@@ -126,7 +126,7 @@ void gaf_creation(const std::string& input_file,
     // The GAF needs the paths from the SnarlDataCollection, but the snarls may not be ordered the same between
     // the input_file and the snarl_collection. So go through the snarl_collection and make a map from snarl to 
     // path so that it can be written when going through the input_file
-    // Snarl is saved as the start node and end node concatinated
+    // Snarl is saved as the start node and end node concatenated
     std::unordered_map<std::string, std::vector<std::string>> snarl_to_paths; 
     snarl_collection.for_each_snarl([&](stoat::snarl_info_t& snarl_info) {
         std::vector<std::string> paths;

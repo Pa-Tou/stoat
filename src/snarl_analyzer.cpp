@@ -101,7 +101,7 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);
  
-    // count snarls filterd for the log
+    // count snarls filtered for the log
     size_t total_number_snarl_filtered = 0;
 
     // read each snarl and test it
@@ -144,7 +144,7 @@ std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
         }
 
     // we try flipping the path here to avoid most inconsistencies with vg call's ATs
-    // inconsistencies are still possiblt because this is potentially a very long path
+    // inconsistencies are still possibly because this is potentially a very long path
     // traversing the top-level snarl only while the ones used exploring the snarl tree
     // and preparing the snarl paths are the "simplified"/net versions
     nodes.check_path_flip();
