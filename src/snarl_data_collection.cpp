@@ -130,7 +130,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                 // Add the depth of the snarl
                                 snarl_data.depth = distance_index.get_depth(snarl);
-    
+
     
                                 // Get the offsets of the start and end nodes along the reference
                                 std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, distance_index, snarl, true, reference_samples, false);
@@ -142,7 +142,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     auto reference_range = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
                                     snarl_data.start_position = std::get<1>(reference_range);
                                     snarl_data.end_position = std::get<2>(reference_range);
-
 
                                     #pragma omp critical(snarl_collection)
                                     {
@@ -173,7 +172,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 //This might cause problems because it is a reference but it doesn't get used so I think its fine
                                 // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
                                 GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
-                                
 
                                 // Make the snarl_info_t passed to the sample set/walk finders. They don't need to have all the information yet
                                 // the snarl_info is const in the finders so it won't change the walks/alleles/sequences
@@ -343,8 +341,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
         // Remove the temporary file
         std::filesystem::remove(out_temp_filename);
     }
-
 }
+
 void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
                                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                                 std::string chr){
@@ -358,7 +356,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
         }
 
         std::vector<size_t> empty_alleles_by_sample;
-        
+
         //This might cause problems because it is a reference but it doesn't get used so I think its fine
         // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
         GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
@@ -393,7 +391,6 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
             snarl_to_alleles_by_sample.emplace(snarl_info.start_node, allele_by_sample_t(max_allele+1, std::move(new_alleles_by_sample)));
         }
     }
-
 }
 
 void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
@@ -424,7 +421,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
     // read the VCF by chunk, build the edge matrix and genotype each snarl
     // We assume that the vcf parser has read the header and is now ready to go through the snarls
     std::string chr = vcf_parser.get_next_chromosome_name();
-    
+
     // Go through to the end of the VCF. Chunk by chromosome 
     while (chr != "") {
 
@@ -435,7 +432,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
             // Just skip to the next one without doing anything
             vcf_parser.skip_to_next_chromosome(chr);
-            
+
             chr = vcf_parser.get_next_chromosome_name();
             if (chr == "") {
                 // If we've reached the end of the file, return
@@ -443,7 +440,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
             }
 
             // chr is now the next chromosome we want to look at
-            
+
         }
         // start analyzing this chromosome chr
         stoat::LOG_INFO("Analyzing chr : " + chr);
@@ -452,7 +449,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         // prepare the edge matrix for this chromosome by reading the VCF
         // this will read to the end of this chr
         edge_matrix.load_vcf_chunk(vcf_parser, chr);
-        
+
         auto timer_end_matrix = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Edge matrix construction for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_matrix - timer_start_chr).count()) + " s");
 
@@ -466,7 +463,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
                     allele_idx.at(samp_hap_idx) = al_idx;
                 }
             }
-            
+
             return allele_idx;
         }, chr);
 
@@ -605,6 +602,9 @@ SnarlDataCollection::snarl_line_data_t SnarlDataCollection::load_snarl_data_line
         if (last_empty_sequence) {
             data.sequences.emplace_back("");
         }
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(sequences.size() == walk_count);
+        #endif
     }
 
     bool has_samples = false;
@@ -624,6 +624,13 @@ SnarlDataCollection::snarl_line_data_t SnarlDataCollection::load_snarl_data_line
             has_samples = true;
         }
     };
+
+    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    if (has_allele) {
+        assert(max_allele+1 <= walk_count);
+    }
+    assert(allele_assignments.size() == all_sample_haplotypes.size()); 
+    #endif
 
     if (has_samples) {
         data.alleles = allele_by_sample_t(has_allele ? max_allele+1 : 0, allele_assignments);
