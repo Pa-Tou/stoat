@@ -27,7 +27,7 @@
 
 namespace stoat_command {
 
-// STOAT_VERSION are define in the CMAKELIST file
+// STOAT_VERSION is defined in the CMAKELIST file
 void print_help_vcf() {
     stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n"

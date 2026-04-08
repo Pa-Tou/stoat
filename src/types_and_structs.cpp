@@ -114,7 +114,7 @@ void PathTraversal::set_allele_length_from_string(std::string al_len_str){
 
     
 // TODO : change sum_path to definition using the length of the path including in the boundary nodes
-// Matis ans : i don t know how to do it
+// Matis ans : I don't know how to do it
 std::string PathTraversal::get_allele_length(size_t& count_path_lengths_warn) const {
     if (path.size() >= 3) {
         // If there is at least one node other than the boundaries
@@ -130,7 +130,7 @@ std::string PathTraversal::get_allele_length(size_t& count_path_lengths_warn) co
         // if only the boundary nodes, it's a deletion
         return "0";
     } else {
-        // This should probably never happen right ?
+        // This should probably never happen right?
         stoat::LOG_WARN("path_lengths is empty", count_path_lengths_warn);
         count_path_lengths_warn++;
         return "NA";
@@ -307,7 +307,7 @@ std::vector<stoat::PathTraversal> convert_path_traversals(
             // Trivial chain case
             else if (distance_index.is_trivial_chain(net)) {
                 path_trav.add_node_handle(net, distance_index);
-                // it's a trivial chain so there is just one node inside. get it's node ID and size
+                // it's a trivial chain so there is just one node inside. Get its node ID and size
                 handlegraph::nid_t triv_node_id = distance_index.node_id(distance_index.get_bound(net, false, true));
                 handlegraph::handle_t triv_node_h = graph.get_handle(triv_node_id);
                 size_node[i] = graph.get_length(triv_node_h);
