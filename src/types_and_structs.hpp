@@ -50,7 +50,7 @@ struct node_traversal_t { // 64 bits per node
 // Define a edge_t structure to represent an edge between two node_traversal_t nodes
 struct edge_t { // 128 bits per edge 
     private:
-    // JEAN why is that a pair? can't we just have two nodes in that struct?
+        // JEAN why is that a pair? can't we just have two nodes in that struct?
         std::pair<node_traversal_t, node_traversal_t> edge;
 
     public:

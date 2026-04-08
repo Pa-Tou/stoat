@@ -158,7 +158,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     // link to the phenotype
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
     // remove non-variable allele, e.g. absent in both groups
-    snarl_data.genotypes.remove_noncovered_samples();
+    snarl_data.genotypes.remove_noncovered_samples_binary();
     snarl_data.genotypes.remove_constant_predictors();
 
     // prepare an output objet and init to NA
@@ -242,7 +242,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     snarl_data.genotypes.link_to_covariates(covariate);
 
     // remove non-variable predictors, e.g. alleles absent in all samples
-    snarl_data.genotypes.remove_noncovered_samples();
+    snarl_data.genotypes.remove_noncovered_samples_binary();
     snarl_data.genotypes.remove_constant_predictors();    
 
     // prepare an output objet and init to NA
@@ -285,7 +285,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
     snarl_data.genotypes.link_to_quantitative_phenotype(phenotype);
     snarl_data.genotypes.link_to_covariates(covariate);
     // remove non-variable allele, e.g. absent in both groups
-    snarl_data.genotypes.remove_noncovered_samples();    
+    snarl_data.genotypes.remove_noncovered_samples_quantitative();    
     snarl_data.genotypes.remove_constant_predictors();
 
     // prepare an output objet and init to NA
@@ -342,8 +342,9 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
         // link the phenotype
         snarl_data.genotypes.link_to_quantitative_phenotype(gene_phenotype);
         snarl_data.genotypes.link_to_covariates(covariate);
+
         // remove non-variable allele, e.g. absent in both groups
-        snarl_data.genotypes.remove_noncovered_samples();    
+        snarl_data.genotypes.remove_noncovered_samples_quantitative();    
         snarl_data.genotypes.remove_constant_predictors();
 
         // prepare an output objet and init to NA

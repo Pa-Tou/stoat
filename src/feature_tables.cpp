@@ -185,9 +185,14 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
     GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
         FeatureBySampleTable<std::vector<double>>::FeatureBySampleTable(sample_to_index) {
         this->values_per_sample.reserve(this->sample_to_index.size());
-        for (size_t i = 0 ; i < this->sample_to_index.size() ; i++) {
+        this->vector_sample_name.reserve(this->sample_to_index.size());
+        size_t i = 0;
+        for (const auto sample_pair : sample_to_index) {
+            this->vector_sample_name[i] = sample_pair.first;
             this->values_per_sample[i] = std::vector<double>(allele_count, 0);
+            i++;
         }
+
         // init the variable to keep track of the matrix dimensions
         n_alleles = allele_count;
         n_covariates = 0;
@@ -221,7 +226,7 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
         this->values_per_sample[sample_idx][allele_num]++;
         total_allele_counts_per_sample[sample_idx]++;
     }
-    
+
     double GenotypeTable::get_value(size_t row, size_t col) const {
         // depending on the column index, get the value from the genotype or covariates
         // the virtual matrix starts with the alleles and then the covariates
@@ -285,12 +290,12 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
         b_phenotype = &phenotype;
         is_binary_pheno = true;
     }
-    
+
     void GenotypeTable::link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype) {
         q_phenotype = &phenotype;
         is_binary_pheno = false;
     }
-    
+
     void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
         covariates = &in_covariates;
         n_covariates = in_covariates.get_feature_number();
@@ -298,17 +303,34 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
         col_mask.resize(n_alleles + n_covariates, false);
     }
 
-    void GenotypeTable::remove_noncovered_samples() {
+    void GenotypeTable::remove_noncovered_samples_binary() {
         // check the total allele count (filled previously) to decide if a sample should be masked
         for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
-            if (total_allele_counts_per_sample[samp_i] == 0 && !row_mask[samp_i]) {
+            // no allele counts present in sample or sample not have phenotype 
+            if ((total_allele_counts_per_sample[samp_i] == 0 
+                 || !this->b_phenotype->has_sample(this->vector_sample_name[samp_i])) 
+                    && !row_mask[samp_i]) {
                 row_mask[samp_i] = true;
                 n_active_samples--;
             }
         }
         // JEAN TODO check that this is called before the test/regression
     }
-    
+
+    void GenotypeTable::remove_noncovered_samples_quantitative() {
+        // check the total allele count (filled previously) to decide if a sample should be masked
+        for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
+            // no allele counts present in sample or sample not have phenotype 
+            if ((total_allele_counts_per_sample[samp_i] == 0 
+                 || !this->q_phenotype->has_sample(this->vector_sample_name[samp_i])) 
+                    && !row_mask[samp_i]) {
+                row_mask[samp_i] = true;
+                n_active_samples--;
+            }
+        }
+        // JEAN TODO check that this is called before the test/regression
+    }
+
     void GenotypeTable::remove_constant_predictors() {
         // don't do anything if there are no samples or predictors, it will be filtered out later
         if (n_alleles + n_covariates == 0 || n_samples == 0) {

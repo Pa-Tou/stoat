@@ -62,7 +62,7 @@ class FeatureBySampleTable {
     FeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index);
 
     // Access the value saved for a sample
-    //TODO: I wanted this to be a reference in case the value is very big (eg, we want the whole vector) but it doesn't work with bools
+    // TODO: I wanted this to be a reference in case the value is very big (eg, we want the whole vector) but it doesn't work with bools
     ValueType get_value_for_sample(const std::string& sample) const;
     ValueType get_value_for_sample_id(size_t sample_idx) const;
 
@@ -84,6 +84,7 @@ class FeatureBySampleTable {
 
     // The values of the feature per sample in sample_to_index
     std::vector<ValueType> values_per_sample;
+    std::vector<std::string> vector_sample_name;
 };
 
 // template<class ValueType>
@@ -185,7 +186,7 @@ public:
 
     // clear any mask, covariate etc, for example when wanting to test a new phenotype (eQTL)
     void clear();
-    
+
     // accessor function to get value for a row and a column
     double get_value(size_t row, size_t col) const;
 
@@ -209,7 +210,8 @@ public:
     void link_to_covariates(const CovariateTable& covariates);
 
     // remove samples with no alleles supported
-    void remove_noncovered_samples();
+    void remove_noncovered_samples_binary();
+    void remove_noncovered_samples_quantitative();
 
     // look for predictors with the same values across all samples
     // (typically 0, i.e. alleles carried by no one)
@@ -246,7 +248,6 @@ public:
     size_t get_n_active_columns() const;
     size_t get_n_active_samples() const;
 
-    
 protected:
     // to keep track of the table dimensions, not taking into account the mask
     // number of alleles in the internal values_per_samples
@@ -274,7 +275,7 @@ protected:
     std::vector<double> total_allele_counts_per_sample;
     // should we include this column in the regression model?
     bool use_total_ac;
-    
+
 };
     
 // Utils function to summarize the table in the output (binary phenotype)
