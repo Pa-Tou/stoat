@@ -155,8 +155,10 @@ std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
 }
 
 bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
+
     // link to the phenotype
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
+    
     // remove non-variable allele, e.g. absent in both groups
     snarl_data.genotypes.remove_noncovered_samples_binary();
     snarl_data.genotypes.remove_constant_predictors();
@@ -237,6 +239,7 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
 }
     
 bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
+
     // link the phenotype
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
     snarl_data.genotypes.link_to_covariates(covariate);

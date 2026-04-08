@@ -54,7 +54,6 @@ Values are accessed by sample and feature names
 /// values_per_sample:      value 1  |  value 2 |  value 3 | 
 template<class ValueType>
 class FeatureBySampleTable {
-
     public:
 
     // Constructor
@@ -71,6 +70,7 @@ class FeatureBySampleTable {
 
     // is this sample in the table?
     bool has_sample(const std::string& sample) const;
+    bool has_sample_from_idx(const size_t& sample_idx) const;
 
     // return a vector with the names of all samples
     std::vector<std::string> get_sample_names() const;
@@ -84,6 +84,8 @@ class FeatureBySampleTable {
 
     // The values of the feature per sample in sample_to_index
     std::vector<ValueType> values_per_sample;
+
+    // Vector of sample use to remove sample not present in phenotype
     std::vector<std::string> vector_sample_name;
 };
 
@@ -200,9 +202,7 @@ public:
     std::string get_genotype_as_string(const std::string& sample) const;
 
     // How many alleles are there?
-    size_t get_allele_count() const {
-        return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
-    }
+    size_t get_allele_count() const;
 
     // link to a phenotype or covariate table 
     void link_to_binary_phenotype(const BinaryPhenotypeTable& phenotype);

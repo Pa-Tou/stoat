@@ -248,7 +248,7 @@ class SnarlDataCollection {
         // Return true if the two SnarlDataCollections contain the same information (but possibly in a different order)
         // Otherwise, throw an error
         // This is very inefficient and should only be used for testing small examples
-        static bool is_equivalent (const SnarlDataCollection& collection1, const SnarlDataCollection& collection2); 
+        static bool is_equivalent(const SnarlDataCollection& collection1, const SnarlDataCollection& collection2); 
 
 };
 }
