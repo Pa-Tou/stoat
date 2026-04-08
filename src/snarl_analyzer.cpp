@@ -172,7 +172,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
         std::vector<size_t> g0;
         std::vector<size_t> g1;
         snarl_data.genotypes.fill_contingency_table(g0, g1);
-        
+
         // performs the test
         auto fc_res = fchi.fisher_chi2(g0, g1);
         test_res.pv = fc_res.first;

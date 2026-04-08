@@ -33,13 +33,6 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
 // the covar_to_index map can't be empty (although it could be useful to allow this when we want all covariables)
 stoat::CovariateTable* parse_covariate_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index, std::unordered_map<std::string, size_t>& covar_to_index);
 
-// Parse a binary phenotype file, formatted SAMPLE, phenotype
-// If list_samples is given, then it is const and the samples in the phenotype file will be checked against it.
-// If list_samples is empty, then fill it in with the samples in the phenotype file 
-std::vector<bool> parse_binary_pheno(
-    const std::string& file_path,
-    std::vector<std::string>& list_samples);
-
 // Parse a binary phenotype file and return a BinaryPhenotypeTable
 // if the sample-to-index map provided is be empty, it will be filled with the samples in the file.
 // otherwise the Table will use that sample-to-index map

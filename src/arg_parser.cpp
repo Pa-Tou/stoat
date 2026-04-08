@@ -26,87 +26,12 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     }
     return reference;
 }
-
-std::vector<bool> parse_binary_pheno(
-    const std::string& file_path,
-    std::vector<std::string>& list_samples) {
-    bool fill_in_samples = false;
-    if (list_samples.size() == 0) {
-        fill_in_samples = true;
-    }
-    
-    std::unordered_map<std::string, bool> binary_pheno;
-    std::ifstream file(file_path);
-    std::string line;
-
-    // Header is assumed already read and validated externally
-    // JEAN but it's not, is it? we're doing this just below
-    std::getline(file, line);
-    std::istringstream header_stream(line);
-    std::string sample_name, phenoStr;
-    header_stream >> sample_name >> phenoStr;
-    if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
-        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
-    }
-    
-    // --- Read and process data ---
-    int count_controls = 0;
-    int count_cases = 0;
-
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        if (!(iss >> sample_name >> phenoStr)) {
-            throw std::invalid_argument("Malformed line: " + line);
-        }
-
-        int pheno;
-        try {
-            pheno = std::stoi(phenoStr);
-        } catch (...) {
-            throw std::invalid_argument("Bad phenotype type: " + phenoStr);
-        }
-
-        if (pheno == 0) {
-            ++count_controls;
-            binary_pheno[sample_name] = false;
-        } else if (pheno == 1) {
-            ++count_cases;
-            binary_pheno[sample_name] = true;
-        } else {
-            throw std::invalid_argument("Binary phenotype must be 0 or 1, got: " + std::to_string(pheno));
-        }
-        if (fill_in_samples) {
-            list_samples.emplace_back(sample_name);
-        }
-    }
-
-    stoat::LOG_INFO("Binary phenotypes found: " + std::to_string(count_controls + count_cases)
-        + " (Control: " + std::to_string(count_controls)
-        + ", Case: " + std::to_string(count_cases) + ")");
-
-    file.close();
-
-    if (!fill_in_samples) {
-        // If we were given samples, make sure that they check the phenotype file
-        check_match_samples(binary_pheno, list_samples);
-    }
-
-    std::vector<bool> vector_binary_pheno;
-    vector_binary_pheno.reserve(list_samples.size());
-
-    for (const auto& sample : list_samples) {
-        auto it = binary_pheno.find(sample);
-        if (it != binary_pheno.end()) {
-            vector_binary_pheno.push_back(it->second);
-        }
-    }
-
-    return vector_binary_pheno;
-}
     
 stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
+
     // fill this map first
     std::unordered_map<std::string, bool> binary_pheno;
+
     // should we update the sample to index map? yes if it's empty at the start
     bool update_sample_to_index = sample_to_index.empty();
 
@@ -119,66 +44,120 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
     std::istringstream header_stream(line);
     std::string sample_name, phenoStr;
     header_stream >> sample_name >> phenoStr;
+
     if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
-        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
+        throw std::invalid_argument("Invalid header. Expected: SAMPLE PHENO, got: " + line);
     }
-    
+
     // read each line and tally the number of cases and controls (for the log)
-    int count_controls = 0;
-    int count_cases = 0;
+    size_t count_controls = 0;
+    size_t count_cases = 0;
+
+    size_t line_number = 1;
     size_t sample_idx = 0;
+
+    // ---- Parse phenotype file ----
     while (std::getline(file, line)) {
+        ++line_number;
+
+        if (line.empty())
+            continue;
+
         std::istringstream iss(line);
+
         if (!(iss >> sample_name >> phenoStr)) {
-            throw std::invalid_argument("Malformed line: " + line);
+            throw std::invalid_argument("Malformed line " + std::to_string(line_number) + ": " + line);
         }
+
         int pheno;
         // make sure the phenotype is an integer
         try {
             pheno = std::stoi(phenoStr);
         } catch (...) {
-            throw std::invalid_argument("Bad phenotype type: " + phenoStr);
+            throw std::invalid_argument("Bad phenotype type at line " + std::to_string(line_number) + ": " + phenoStr);
         }
+
         // make sure phenotype is 0 or 1
-        if (pheno == 0) {
-            ++count_controls;
-        } else if (pheno == 1) {
-            ++count_cases;
-        } else {
-            throw std::invalid_argument("Binary phenotype must be 0 or 1, got: " + std::to_string(pheno));
+        if (pheno != 0 && pheno != 1) {
+            throw std::invalid_argument("Binary phenotype must be 0 or 1 at line " + std::to_string(line_number) + ", got: " + phenoStr);
         }
-        // add the sample and phenotype to the temporary map
-        binary_pheno[sample_name] = pheno == 1;
+
+        bool is_case = (pheno == 1);
+
+        // insert and detect duplicate
+        auto [it, inserted] = binary_pheno.emplace(sample_name, is_case);
+        if (!inserted) {
+            throw std::invalid_argument("Duplicate sample in phenotype file: " + sample_name);
+        }
+
+        if (is_case)
+            ++count_cases;
+        else
+            ++count_controls;
+
         if (update_sample_to_index) {
-            sample_to_index[sample_name] = sample_idx++;
+            sample_to_index.emplace(sample_name, sample_idx++);
         }
     }
-
-    stoat::LOG_INFO("Binary phenotypes found: " + std::to_string(count_controls + count_cases)
-        + " (Control: " + std::to_string(count_controls)
-        + ", Case: " + std::to_string(count_cases) + ")");
 
     file.close();
 
+    stoat::LOG_INFO("Binary phenotypes found in phenotype file: " + std::to_string(count_cases + count_controls) +
+        " (Control: " + std::to_string(count_controls) + ", Case: " + std::to_string(count_cases) + ")");
+
+    // ---- Build phenotype table ----
+    stoat::BinaryPhenotypeTable* output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
+
+    size_t phenotypes_not_in_genotype = 0;
+    size_t genotypes_missing_pheno = 0;
+
+    size_t used_cases = 0;
+    size_t used_controls = 0;
+
+    // phenotype -> genotype match
     // Prepare the Table object to fill and output
     // ideally we could fill it when reading each line
-    stoat::BinaryPhenotypeTable* output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
-    for (const auto samp_pheno: binary_pheno){
-        // add the sample and phenotype to the Table
-        if (output_table->has_sample(samp_pheno.first)) {
-            output_table->set_value_for_sample(samp_pheno.first, samp_pheno.second);
+    for (const auto& [sample, pheno] : binary_pheno) {
+
+        if (output_table->has_sample(sample)) {
+            output_table->set_value_for_sample(sample, pheno);
+
+            if (pheno)
+                ++used_cases;
+            else
+                ++used_controls;
+
+        } else {
+            ++phenotypes_not_in_genotype;
         }
     }
 
-    return (output_table);
+    // genotype samples missing phenotype
+    for (const auto& [sample, idx] : sample_to_index) {
+        if (binary_pheno.find(sample) == binary_pheno.end()) {
+            ++genotypes_missing_pheno;
+        }
+    }
+
+    // ---- Warnings ----
+    if (phenotypes_not_in_genotype > 0) {
+        stoat::LOG_WARN(std::to_string(phenotypes_not_in_genotype) + " phenotype samples were not found in the genotype file", 0);
+    }
+
+    if (genotypes_missing_pheno > 0) {
+        stoat::LOG_WARN(std::to_string(genotypes_missing_pheno) + " genotype samples have no phenotype", 0);
+    }
+
+    // ---- Final Pheno GWAS counts ----
+    stoat::LOG_INFO("Binary phenotypes used for GWAS: " + std::to_string(used_cases + used_controls) + 
+        " (Control: " + std::to_string(used_controls) + ", Case: " + std::to_string(used_cases) + ")");
+
+    return output_table;
 }
 
 std::string methods_stats_prediction(const std::string& file_path, const bool& covariate, const bool& eqtl) {
-    std::ifstream file(file_path);
-    if (!file.is_open()) {
-        throw std::runtime_error("Cannot open file: " + file_path);
-    }
 
+    std::ifstream file(file_path);
     std::string line, sample_name, phenoStr;
     std::getline(file, line); // header
 
@@ -223,8 +202,10 @@ std::string methods_stats_prediction(const std::string& file_path, const bool& c
 }
 
 stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
+
     // fill this map first
     std::unordered_map<std::string, double> quantitative_pheno;
+
     // should we update the sample to index map? yes if it's empty at the start
     bool update_sample_to_index = sample_to_index.empty();
 
@@ -237,42 +218,88 @@ stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::str
     std::istringstream header_stream(line);
     std::string sample_name, phenoStr;
     header_stream >> sample_name >> phenoStr;
+
     if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
-        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got " + line);
+        throw std::invalid_argument("Invalid header. Expected: SAMPLE PHENO, got: " + line);
     }
     
     // read each line and tally the number of cases and controls (for the log)
-    int samp_with_pheno = 0;
+    size_t samp_with_pheno = 0;
+    size_t line_number = 1;
     size_t sample_idx = 0;
+
     while (std::getline(file, line)) {
+        ++line_number;
+
+        if (line.empty())
+            continue;
+
         std::istringstream iss(line);
+
         if (!(iss >> sample_name >> phenoStr)) {
-            throw std::invalid_argument("Malformed line: " + line);
+            throw std::invalid_argument("Malformed line " + std::to_string(line_number) + ": " + line);
         }
+
         // make sure the phenotype is a double
+        double pheno;
         try {
             // add the sample and phenotype to the temporary map
-            quantitative_pheno[sample_name] = std::stod(phenoStr);
+            pheno = std::stod(phenoStr);
         } catch (...) {
             throw std::invalid_argument("Bad phenotype type: " + phenoStr);
         }
+
+        // insert and detect duplicate
+        auto [it, inserted] = quantitative_pheno.emplace(sample_name, pheno);
+        if (!inserted) {
+            throw std::invalid_argument("Duplicate sample in phenotype file: " + sample_name);
+        }
+
         samp_with_pheno++;
         if (update_sample_to_index) {
-            sample_to_index[sample_name] = sample_idx++;
+            sample_to_index.emplace(sample_name, sample_idx++);
         }
     }
+
     file.close();
-    stoat::LOG_INFO("Quantitative phenotypes found for " + std::to_string(samp_with_pheno) + " samples");
+    stoat::LOG_INFO("Quantitative phenotypes found in phenotype file: " + 
+        std::to_string(samp_with_pheno) + " samples");
 
     // Prepare the Table object to fill and output
     // ideally we could fill it when reading each line
     stoat::QuantitativePhenotypeTable* output_table = new stoat::QuantitativePhenotypeTable(sample_to_index);
+    
+    size_t phenotypes_not_in_genotype = 0;
+    size_t genotypes_missing_pheno = 0;
+
     for (const auto samp_pheno: quantitative_pheno){
         // add the sample and phenotype to the Table
         if (output_table->has_sample(samp_pheno.first)) {
             output_table->set_value_for_sample(samp_pheno.first, samp_pheno.second);
+        } else {
+            ++phenotypes_not_in_genotype;
         }
     }
+
+    // genotype samples missing phenotype
+    for (const auto& [sample, idx] : sample_to_index) {
+        if (quantitative_pheno.find(sample) == quantitative_pheno.end()) {
+            ++genotypes_missing_pheno;
+        }
+    }
+
+    // ---- Warnings ----
+    if (phenotypes_not_in_genotype > 0) {
+        stoat::LOG_WARN(std::to_string(phenotypes_not_in_genotype) + " phenotype samples were not found in the genotype file", 0);
+    }
+
+    if (genotypes_missing_pheno > 0) {
+        stoat::LOG_WARN(std::to_string(genotypes_missing_pheno) + " genotype samples have no phenotype", 0);
+    }
+
+    // ---- Final Pheno GWAS counts ----
+    stoat::LOG_INFO("Quantitative phenotypes used for GWAS: " + 
+        std::to_string(samp_with_pheno) + " samples");
 
     return (output_table);
 }
