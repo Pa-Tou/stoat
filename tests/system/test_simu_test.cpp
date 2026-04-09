@@ -8,10 +8,9 @@ namespace fs = std::filesystem;
 using namespace std;
 // TODO: Add vcf tests. This just copies the stats part of the old graph test
 
-
 TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
-    // Just check that this runs and produces some output
 
+    // Just check that this runs and produces some output
     const std::string output_dir = "../output_binary";
     const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string graph_base = "pg.full";
@@ -53,8 +52,8 @@ TEST_CASE("Giant unverified binary association tests graph", "[graph]") {
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
         //REQUIRE(passed);
-
     }
+
     SECTION("Test tsv output saving snarls multithreaded") {
 
         clean_output_dir(output_dir);
@@ -104,7 +103,6 @@ TEST_CASE("Output simple nested chain", "[graph]") {
     const std::string graph_base = "../tests/test_data/test_graphs/simple_nested_chain";
     const std::string samples_file = "./samples.tsv";
     
-
     std::vector<std::string> samples_of_interest = {"path1", "path3"};
     std::vector<std::string> other_samples = {"path0", "path2"};
     
@@ -114,11 +112,11 @@ TEST_CASE("Output simple nested chain", "[graph]") {
         write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
+
     for (auto sample : other_samples) {
         write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
         ignore = std::system(write_cmd.c_str());
     }
-
 
     SECTION("Test chi2 tsv output") {
 
@@ -924,6 +922,7 @@ TEST_CASE("Multiple connected components", "[graph]") {
         //REQUIRE(passed);
 
     }
+
     SECTION("Test snarls output multithreaded") {
 
         clean_output_dir(output_dir);
@@ -942,7 +941,6 @@ TEST_CASE("Multiple connected components", "[graph]") {
             std::cerr << "Command failed: " << cmd << "\n";
             REQUIRE(false);
         }
-
 
         REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
         std::ifstream snarlsfile;
@@ -965,7 +963,6 @@ TEST_CASE("Multiple connected components", "[graph]") {
         //REQUIRE(passed);
 
     }
-
 
     clean_output_dir(output_dir);
 }
