@@ -251,7 +251,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
     }
 
     SECTION("Remove noncovered samples") {
-        table.remove_noncovered_samples_binary();
+        table.remove_noncovered_samples();
         REQUIRE(table.get_n_active_samples() == 5);
     }
 
@@ -298,7 +298,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
     }
 
     SECTION("Make the correct feature matrix, after filtering") {
-        table.remove_noncovered_samples_binary();
+        table.remove_noncovered_samples();
         table.remove_constant_predictors();
         table.remove_duplicated_predictors();
         table.remove_one_allele();
@@ -321,7 +321,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
     SECTION("Samples were masked also in the phenotype") {
         Eigen::VectorXd Y = table.make_vectorxd_phenotype();
         REQUIRE(Y.rows() == 6);
-        table.remove_noncovered_samples_binary();
+        table.remove_noncovered_samples();
         Y = table.make_vectorxd_phenotype();
         REQUIRE(Y.rows() == 5);
         REQUIRE(Y(0) == 1);
@@ -386,7 +386,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         geno.link_to_quantitative_phenotype(pheno);
 
         // remove non-variable allele, e.g. absent in both groups
-        geno.remove_noncovered_samples_quantitative();    
+        geno.remove_noncovered_samples();    
         geno.remove_constant_predictors();
         
         REQUIRE(geno.passes_filters(0, 0));

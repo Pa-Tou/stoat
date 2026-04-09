@@ -297,7 +297,7 @@ std::string GenotypeTable::get_genotype_as_string(const std::string& sample) con
     return genotype;
 }
 
-size_t get_allele_count() const {
+size_t GenotypeTable::get_allele_count() const {
     return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
 }
 
@@ -318,27 +318,11 @@ void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
     col_mask.resize(n_alleles + n_covariates, false);
 }
 
-void GenotypeTable::remove_noncovered_samples_binary() {
+void GenotypeTable::remove_noncovered_samples() {
     // check the total allele count (filled previously) to decide if a sample should be masked
     for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
         // no allele counts present in sample or sample not have phenotype 
-        if ((total_allele_counts_per_sample[samp_i] == 0 
-                || !this->b_phenotype->has_sample_from_idx(samp_i))
-                    && !row_mask[samp_i]) {
-            row_mask[samp_i] = true;
-            n_active_samples--;
-        }
-    }
-    // JEAN TODO check that this is called before the test/regression
-}
-
-void GenotypeTable::remove_noncovered_samples_quantitative() {
-    // check the total allele count (filled previously) to decide if a sample should be masked
-    for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
-        // no allele counts present in sample or sample not have phenotype 
-        if ((total_allele_counts_per_sample[samp_i] == 0 
-                || !this->q_phenotype->has_sample_from_idx(samp_i)) 
-                    && !row_mask[samp_i]) {
+        if (total_allele_counts_per_sample[samp_i] == 0 && !row_mask[samp_i]) {
             row_mask[samp_i] = true;
             n_active_samples--;
         }

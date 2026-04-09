@@ -30,9 +30,9 @@ namespace stoat {
 
 class SnarlDataCollection {
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////// Public functions for building and interrogating snarl info
     public:
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////// Public functions for building and interrogating snarl info
 
         /// Make a SnarlDataCollection with limits on which snarls to include
         /// Ignore snarls whose maximum length is less than allele_size_limit
@@ -133,7 +133,6 @@ class SnarlDataCollection {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
-
     private:
 
         /// This stores the basic information from the snarl_info_t
@@ -244,6 +243,8 @@ class SnarlDataCollection {
         // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
         void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////// Public functions
     public:
         // Return true if the two SnarlDataCollections contain the same information (but possibly in a different order)
         // Otherwise, throw an error

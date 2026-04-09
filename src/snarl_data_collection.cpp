@@ -402,12 +402,15 @@ void SnarlDataCollection::add_alleles_by_sample(
 }
 
 void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
+
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
     stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
+
     // use the corresponding sample-haplotypes for this collection
     // remove any existing sample in the collection first
     all_sample_haplotypes.clear();
+
     // add two haplotypes per sample
     for (std::string sample_name: sample_names) {
         for (std::string hap_name: {"0", "1"}) {
@@ -417,6 +420,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
             all_sample_haplotypes.emplace_back(samp_hap);
         }
     }
+
     // Fill in sample_to_index
     size_t sample_index = 0;
     for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
@@ -429,7 +433,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
     // read the VCF by chunk, build the edge matrix and genotype each snarl
     // We assume that the vcf parser has read the header and is now ready to go through the snarls
     std::string chr = vcf_parser.get_next_chromosome_name();
-    
+
     // Go through to the end of the VCF. Chunk by chromosome 
     while(chr != "") {
 
@@ -1161,10 +1165,12 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     {
         std::stringstream linestream(line);
         std::string sample_name;
+
         // First go through the first 9 things and ignore them
         for (size_t i = 0 ; i < 9 ; i++) {
             std::getline(linestream, sample_name, '\t');
         }
+
         while (std::getline(linestream, sample_name, '\t')) {
             // The sample_hap_t constructor will take care of finding the proper sample name and haplotype 
             all_sample_haplotypes.emplace_back(sample_name);
@@ -1183,9 +1189,9 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
 SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_line(std::string& line) {
 
     snarl_info_internal_t snarl_info;
-
     std::stringstream linestream(line);
     std::string part;
+
     //Snarl start node traversal
     std::getline(linestream, part, '\t');
     snarl_info.start_node = stoat::node_traversal_t(part);

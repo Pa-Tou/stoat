@@ -210,8 +210,7 @@ public:
     void link_to_covariates(const CovariateTable& covariates);
 
     // remove samples with no alleles supported
-    void remove_noncovered_samples_binary();
-    void remove_noncovered_samples_quantitative();
+    void remove_noncovered_samples();
 
     // look for predictors with the same values across all samples
     // (typically 0, i.e. alleles carried by no one)
@@ -244,6 +243,7 @@ public:
     // how many alleles are not masked
     // JEAN maybe more efficient to keep track of this instead of recomputing from the mask each time?
     size_t get_n_active_alleles() const;
+
     /// this will include alleles, covariates, and the total allele count if it was added by add_total_allele_count_covariable
     size_t get_n_active_columns() const;
     size_t get_n_active_samples() const;
@@ -253,12 +253,15 @@ protected:
     // number of alleles in the internal values_per_samples
     size_t n_alleles;
     size_t n_active_alleles;
+
     // number of covariates in the Table pointed to by covariates
     size_t n_covariates;
     size_t n_active_columns;
+
     // total number of samples (rows in the matrix)
     size_t n_samples;
     size_t n_active_samples;
+
     // remember if the phenotype values are bool or double (maybe a better way?)
     bool is_binary_pheno;
     
@@ -273,6 +276,7 @@ protected:
 
     // a vector with an additional column for the total allele count for each sample
     std::vector<double> total_allele_counts_per_sample;
+
     // should we include this column in the regression model?
     bool use_total_ac;
 
