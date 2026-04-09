@@ -20,12 +20,8 @@ CategoricalFeatureBySampleTable<ValueType>::CategoricalFeatureBySampleTable(cons
     feature_to_index(feature_to_index) {
 
     this->values_per_sample.reserve(this->sample_to_index.size());
-    this->vector_sample_name.reserve(this->sample_to_index.size());
-    size_t i = 0;
-    for (const auto sample_pair : sample_to_index) {
+    for (size_t i = 0; i < sample_to_index.size(); i++) {
         this->values_per_sample[i] = std::vector<ValueType>(feature_to_index.size());
-        this->vector_sample_name[i] = sample_pair.first;
-        i++;
     }
 }
 
@@ -37,12 +33,8 @@ CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const s
     feature_to_index(feature_to_index) {
 
     this->values_per_sample.reserve(this->sample_to_index.size());
-    this->vector_sample_name.reserve(this->sample_to_index.size());
-    size_t i = 0;
-    for (const auto sample_pair : sample_to_index) {
+    for (size_t i = 0; i < sample_to_index.size(); i++) {
         this->values_per_sample[i] = std::vector<double>(feature_to_index.size(), std::numeric_limits<double>::max());
-        this->vector_sample_name[i] = sample_pair.first;
-        i++;
     }
 }
 
@@ -196,12 +188,8 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
 GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
     FeatureBySampleTable<std::vector<double>>::FeatureBySampleTable(sample_to_index) {
     this->values_per_sample.reserve(this->sample_to_index.size());
-    this->vector_sample_name.reserve(this->sample_to_index.size());
-    size_t i = 0;
-    for (const auto sample_pair : sample_to_index) {
+    for (size_t i = 0; i < sample_to_index.size(); i++) {
         this->values_per_sample[i] = std::vector<double>(allele_count, 0);
-        this->vector_sample_name[i] = sample_pair.first;
-        i++;
     }
 
     // init the variable to keep track of the matrix dimensions
@@ -436,12 +424,13 @@ void GenotypeTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<
         if (col_mask[al_i]) {continue;}
         for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
             if (row_mask[samp_i]) {continue;}
-            if (get_value(samp_i, al_i) > 0){
+            double value_sample = get_value(samp_i, al_i);
+            if (value_sample > 0){
                 // tally the allele counts in each group
                 if (b_phenotype->get_value_for_sample_id(samp_i)){
-                    g1[active_al_i] += get_value(samp_i, al_i);
+                    g1[active_al_i] += value_sample;
                 } else {
-                    g0[active_al_i] += get_value(samp_i, al_i);
+                    g0[active_al_i] += value_sample;
                 }
             }
         }

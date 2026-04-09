@@ -84,9 +84,6 @@ class FeatureBySampleTable {
 
     // The values of the feature per sample in sample_to_index
     std::vector<ValueType> values_per_sample;
-
-    // Vector of sample use to remove sample not present in phenotype
-    std::vector<std::string> vector_sample_name;
 };
 
 // template<class ValueType>
