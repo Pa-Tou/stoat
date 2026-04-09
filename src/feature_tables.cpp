@@ -61,11 +61,6 @@ bool FeatureBySampleTable<ValueType>::has_sample(const std::string& sample) cons
 }
 
 template<class ValueType>
-bool FeatureBySampleTable<ValueType>::has_sample_from_idx(const size_t& sample_idx) const {
-    return(sample_to_index.find(vector_sample_name[sample_idx]) != sample_to_index.end());
-}
-
-template<class ValueType>
 std::vector<std::string> FeatureBySampleTable<ValueType>::get_sample_names() const {
     std::vector<std::string> output;
     // JEAN would that help?
@@ -165,6 +160,7 @@ void GeneExpressionTable::read_gene_positions_from_file(const std::string filena
 }
 
 std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::string chrom, const size_t start_pos, const size_t end_pos, const size_t max_distance) const {
+
     // we'll save the nearby genes here
     std::vector<std::string> near_genes;
     
@@ -174,6 +170,7 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
 
     // loop over all genes and save the ones that are close enough
     for (const gene_position_t gene_pos: gene_positions_by_chr.at(chrom)) {
+
         // for (size_t gene_i = 0; gene_i < gene_positions_by_chr[chrom].size(); gene_i++) {
         //     gene_position_t gene_pos = gene_positions_by_chr[chrom][gene_i];
         if (!(gene_pos.end < min_start_pos || gene_pos.start > max_end_pos)) {
@@ -187,7 +184,9 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
 // Constructor for a genotype table fills everything in with a default value of 0 for the counts
 GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
     FeatureBySampleTable<std::vector<double>>::FeatureBySampleTable(sample_to_index) {
+
     this->values_per_sample.reserve(this->sample_to_index.size());
+
     for (size_t i = 0; i < sample_to_index.size(); i++) {
         this->values_per_sample[i] = std::vector<double>(allele_count, 0);
     }
@@ -196,26 +195,31 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     n_alleles = allele_count;
     n_covariates = 0;
     n_samples = sample_to_index.size();
+
     // init the masks and the variables to keep track of active rows/columns
     col_mask = std::vector<bool>(n_alleles, false);
     row_mask = std::vector<bool>(n_samples, false);
     n_active_samples = n_samples;
     n_active_alleles = n_alleles;
     n_active_columns = n_alleles;
+
     // init the column with the total allele counts
     total_allele_counts_per_sample = std::vector<double>(n_samples, 0);
     use_total_ac = false;
 }
     
 void GenotypeTable::clear() {
+
     // we don't touch the alleles but reinit the covariates (for now)
     n_covariates = 0;
     n_active_samples = n_samples;
     n_active_alleles = n_alleles;
     n_active_columns = n_alleles;
+
     // reinit the masks
     col_mask = std::vector<bool>(n_alleles, false);
     row_mask = std::vector<bool>(n_samples, false);
+
     // reinit the total allele count column too
     use_total_ac = false;
 }
@@ -307,6 +311,7 @@ void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
 }
 
 void GenotypeTable::remove_noncovered_samples() {
+
     // check the total allele count (filled previously) to decide if a sample should be masked
     for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
         // no allele counts present in sample or sample not have phenotype 
@@ -319,38 +324,47 @@ void GenotypeTable::remove_noncovered_samples() {
 }
 
 void GenotypeTable::remove_constant_predictors() {
+
     // don't do anything if there are no samples or predictors, it will be filtered out later
     if (n_alleles + n_covariates == 0 || n_samples == 0) {
         return;
     }
+
     // check each predictor
     for (size_t col_ii = 0; col_ii < n_alleles + n_covariates; col_ii++) {
+
         // skip if already masked
         if (col_mask[col_ii]) {
             continue;
         }
+
         // compare each value with the first value
         double first_value;
         bool constant = false;
         for (size_t row_ii = 0; row_ii < n_samples; row_ii++) {
+
             // skip if already masked
             if (row_mask[row_ii]) {
                 continue;
             }
+
             // if first value to consider, save it
             if (!constant) {
                 first_value = get_value(row_ii, col_ii);
                 constant = true;
             }
+
             if (get_value(row_ii, col_ii) != first_value) {
                 // not constant, we can stop already
                 constant = false;
                 break;
             }
         }
+
         // mask if constant
         if (constant){
             col_mask[col_ii] = true;
+
             // update the number of active columns
             n_active_columns--;
             if (col_ii < n_alleles) {

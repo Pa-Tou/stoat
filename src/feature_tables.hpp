@@ -70,7 +70,6 @@ class FeatureBySampleTable {
 
     // is this sample in the table?
     bool has_sample(const std::string& sample) const;
-    bool has_sample_from_idx(const size_t& sample_idx) const;
 
     // return a vector with the names of all samples
     std::vector<std::string> get_sample_names() const;
