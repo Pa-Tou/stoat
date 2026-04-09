@@ -26,7 +26,53 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     }
     return reference;
 }
-    
+
+std::string methods_stats_prediction(const std::string& file_path, const bool& covariate, const bool& eqtl) {
+
+    std::ifstream file(file_path);
+    std::string line, sample_name, phenoStr;
+    std::getline(file, line); // header
+
+    std::istringstream header_stream(line);
+    std::string col1, col2;
+    header_stream >> col1 >> col2;
+
+    // If not SAMPLE PHENO format, assume gene expression matrix
+    if (col1 != "SAMPLE" || col2 != "PHENO") {
+        return "linreg"; // assuming eqtl format
+    }
+
+    std::set<double> unique_values;
+    bool has_non_integer = false;
+
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        if (!(iss >> sample_name >> phenoStr)) {
+            throw std::invalid_argument("Malformed line: " + line);
+        }
+        double value;
+        try {
+            value = std::stod(phenoStr);
+        } catch (...) {
+            throw std::invalid_argument("Phenotype is not numeric: " + phenoStr);
+        }
+        unique_values.insert(value);
+        if (value != static_cast<int>(value)) {
+            has_non_integer = true;
+        }
+    }
+
+    file.close();
+
+    if (eqtl || has_non_integer) {
+        return "linreg"; // quantitative
+    } else if (unique_values.size() == 2 && covariate) {
+        return "logreg"; // binary + covar
+    } else {
+        return "chi2"; // binary no covar
+    }
+}
+
 stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
 
     // fill this map first
@@ -153,52 +199,6 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
         " (Control: " + std::to_string(used_controls) + ", Case: " + std::to_string(used_cases) + ")");
 
     return (output_table);
-}
-
-std::string methods_stats_prediction(const std::string& file_path, const bool& covariate, const bool& eqtl) {
-
-    std::ifstream file(file_path);
-    std::string line, sample_name, phenoStr;
-    std::getline(file, line); // header
-
-    std::istringstream header_stream(line);
-    std::string col1, col2;
-    header_stream >> col1 >> col2;
-
-    // If not SAMPLE PHENO format, assume gene expression matrix
-    if (col1 != "SAMPLE" || col2 != "PHENO") {
-        return "linreg"; // assuming eqtl format
-    }
-
-    std::set<double> unique_values;
-    bool has_non_integer = false;
-
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        if (!(iss >> sample_name >> phenoStr)) {
-            throw std::invalid_argument("Malformed line: " + line);
-        }
-        double value;
-        try {
-            value = std::stod(phenoStr);
-        } catch (...) {
-            throw std::invalid_argument("Phenotype is not numeric: " + phenoStr);
-        }
-        unique_values.insert(value);
-        if (value != static_cast<int>(value)) {
-            has_non_integer = true;
-        }
-    }
-
-    file.close();
-
-    if (eqtl || has_non_integer) {
-        return "linreg"; // quantitative
-    } else if (unique_values.size() == 2 && covariate) {
-        return "logreg"; // binary + covar
-    } else {
-        return "chi2"; // binary no covar
-    }
 }
 
 stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
