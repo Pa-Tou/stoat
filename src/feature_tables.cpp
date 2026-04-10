@@ -61,11 +61,6 @@ bool FeatureBySampleTable<ValueType>::has_sample(const std::string& sample) cons
 }
 
 template<class ValueType>
-bool FeatureBySampleTable<ValueType>::has_sample_from_idx(const size_t& sample_idx) const {
-    return(sample_to_index.find(vector_sample_name[sample_idx]) != sample_to_index.end());
-}
-
-template<class ValueType>
 std::vector<std::string> FeatureBySampleTable<ValueType>::get_sample_names() const {
     std::vector<std::string> output;
     // JEAN would that help?
@@ -119,8 +114,10 @@ GeneExpressionTable::GeneExpressionTable(const std::unordered_map<std::string, s
     CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(sample_to_index, gene_to_index) {}
 
 void GeneExpressionTable::read_gene_positions_from_file(const std::string filename) {
+
     // empty gene positions, just in case
     gene_positions_by_chr.clear();
+
     // start reading the file
     std::ifstream file(filename);
     std::string line;
@@ -196,12 +193,14 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     n_alleles = allele_count;
     n_covariates = 0;
     n_samples = sample_to_index.size();
+
     // init the masks and the variables to keep track of active rows/columns
     col_mask = std::vector<bool>(n_alleles, false);
     row_mask = std::vector<bool>(n_samples, false);
     n_active_samples = n_samples;
     n_active_alleles = n_alleles;
     n_active_columns = n_alleles;
+
     // init the column with the total allele counts
     total_allele_counts_per_sample = std::vector<double>(n_samples, 0);
     use_total_ac = false;
@@ -213,9 +212,11 @@ void GenotypeTable::clear() {
     n_active_samples = n_samples;
     n_active_alleles = n_alleles;
     n_active_columns = n_alleles;
+
     // reinit the masks
     col_mask = std::vector<bool>(n_alleles, false);
     row_mask = std::vector<bool>(n_samples, false);
+
     // reinit the total allele count column too
     use_total_ac = false;
 }
@@ -307,8 +308,10 @@ void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
 }
 
 void GenotypeTable::remove_noncovered_samples() {
+
     // check the total allele count (filled previously) to decide if a sample should be masked
     for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
+
         // no allele counts present in sample or sample not have phenotype 
         if (total_allele_counts_per_sample[samp_i] == 0 && !row_mask[samp_i]) {
             row_mask[samp_i] = true;
@@ -323,6 +326,7 @@ void GenotypeTable::remove_constant_predictors() {
     if (n_alleles + n_covariates == 0 || n_samples == 0) {
         return;
     }
+
     // check each predictor
     for (size_t col_ii = 0; col_ii < n_alleles + n_covariates; col_ii++) {
         // skip if already masked
@@ -417,15 +421,22 @@ void GenotypeTable::remove_duplicated_predictors() {
 }
 
 void GenotypeTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<size_t>& g1) const {
+
     g0.resize(n_active_alleles, 0);
     g1.resize(n_active_alleles, 0);
     size_t active_al_i = 0;
+    std::cout << "n_alleles: " << n_alleles << std::endl;
+    std::cout << "n_samples: " << n_samples << std::endl;
+
     for (size_t al_i = 0; al_i < n_alleles; al_i++) {
         if (col_mask[al_i]) {continue;}
+
         for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
             if (row_mask[samp_i]) {continue;}
+
             double value_sample = get_value(samp_i, al_i);
             if (value_sample > 0){
+
                 // tally the allele counts in each group
                 if (b_phenotype->get_value_for_sample_id(samp_i)){
                     g1[active_al_i] += value_sample;
@@ -606,7 +617,6 @@ Eigen::VectorXd GenotypeTable::make_vectorxd_phenotype() {
     return y;
 }
 
-    
 // Utils function to summarize the table in the output (binary phenotype)
 // Write a std::string of: g0[0]:g1[1],g0[1]:g1[1],g0[2]:g1[2]...
 std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
@@ -621,7 +631,6 @@ std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<
     return result;
 }
 
-    
 } //end stoat namespace
 
 // Apparently these definitions are supposed to be done here, after all the members are defined

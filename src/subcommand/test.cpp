@@ -192,6 +192,7 @@ int main_stoat_test(int argc, char* argv[]) {
     } else {
         snarl_reader.reset(new StdReader(genotype_path));
     }
+
     snarl_collection.load_snarl_data_collection(*snarl_reader, true);
     snarl_reader->close();
 
@@ -204,7 +205,7 @@ int main_stoat_test(int argc, char* argv[]) {
     std::unique_ptr<stoat::GeneExpressionTable> gene_expression_table;
 
     // prepare the vector mapping samples to index here because other objects (phenotype or genotypes) will use it
-    std::unordered_map<std::string, size_t> sample_to_index = snarl_collection.get_sample_to_index_copy();
+    std::unordered_map<std::string, size_t>& sample_to_index = snarl_collection.get_sample_to_index_reference();
 
     // prepare the vector mapping genes to index
     std::unordered_map<std::string, size_t> gene_to_index;

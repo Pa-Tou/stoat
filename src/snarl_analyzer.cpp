@@ -97,7 +97,7 @@ namespace stoat_vcf {
 void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) {
 
     // prepare snarl collection that will stream the snarls and open connection to the file
-    stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0);
+    stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0, snarl_collection.get_sample_to_index_copy());
 
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);
@@ -233,7 +233,7 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     out_writer.write_binary(snarl_data, test_res);
     return false;
 }
-    
+
 bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
 
     // link the phenotype

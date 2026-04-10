@@ -14,6 +14,12 @@ SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_
                     snarl_child_limit(snarl_child_limit),
                     walk_steps_limit(walk_steps_limit) {}
 
+SnarlDataCollection::SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit, std::unordered_map<std::string, size_t> sample_to_index) :
+                    allele_size_limit(allele_size_limit),
+                    snarl_child_limit(snarl_child_limit),
+                    walk_steps_limit(walk_steps_limit),
+                    sample_to_index(sample_to_index) {}
+
 // This goes through all the snarls and fills in the data
 void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                              const std::vector<stoat::sample_hap_t>& sample_haplotypes,
@@ -174,7 +180,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 // This might cause problems because it is a reference but it doesn't get used so I think its fine
                                 // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
                                 GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
-                                
 
                                 // Make the snarl_info_t passed to the sample set/walk finders. They don't need to have all the information yet
                                 // the snarl_info is const in the finders so it won't change the walks/alleles/sequences
@@ -499,7 +504,9 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& 
 }
 
 void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+
     load_snarl_data_collection_header(in_reader);
+
     std::string line;
     while (in_reader.getline(line)) {
         snarl_info_internal_t snarl_info = load_snarl_data_line(line);
@@ -519,12 +526,16 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
         std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
     }
 #endif
-    
+
+    std::cout << "sample_to_index.size(): " << this->sample_to_index.size() << std::endl;
+    std::cout << "all_sample_haplotypes.size(): " << all_sample_haplotypes.size() << std::endl;
+
     // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
     // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
     if (snarl_to_alleles_by_sample.count(internal_snarl_info.start_node)) {
         const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(internal_snarl_info.start_node);
-        for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
+        std::cout << "alleles_by_sample.alleles.size(): " << alleles_by_sample.alleles.size() << std::endl;
+        for (size_t sample_hap_i = 0; sample_hap_i < alleles_by_sample.alleles.size(); sample_hap_i++) {
             if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
                 // JEAN ideally we would access the count in the collection by index but I'm not sure why so I'm using the map sample_to_index for now. Maybe Xian knows
                 size_t sample_idx = this->sample_to_index.at(all_sample_haplotypes.at(sample_hap_i).sample);
@@ -532,6 +543,8 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
             }
         }
     }
+
+    std::cout << "pass after big loop" << std::endl;
 
     allele_by_sample_t empty_alleles;
     std::vector<PathTraversal> empty_walks (0); 
@@ -1090,8 +1103,8 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     snarl_to_alleles_by_sample.clear();
     snarl_to_sequences.clear();
     reference_names.clear();
-    all_sample_haplotypes.clear(); 
-    sample_to_index.clear();
+    all_sample_haplotypes.clear();
+    // sample_to_index.clear();
 
     // Read the first line, which must match the header
     std::string line;
@@ -1160,6 +1173,11 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         in_reader.getline(line);
     }
 
+    std::set<size_t> index_sample;
+    for (auto idx_sample: sample_to_index) {
+        index_sample.insert(idx_sample.second);
+    }
+
     // The next header is  "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES", plus all of the sample/haplotypes
     in_reader.getline(line);
     {
@@ -1171,13 +1189,25 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
             std::getline(linestream, sample_name, '\t');
         }
 
+        size_t sample_idx = 0;
         while (std::getline(linestream, sample_name, '\t')) {
-            // The sample_hap_t constructor will take care of finding the proper sample name and haplotype 
+
+            // The sample_hap_t constructor will take care of finding the proper sample name and haplotype
+            if (sample_to_index.size() != 0) {
+                if (index_sample.find(sample_idx) == index_sample.end()) { //have to use index_sample instead of sample name because sample from index_sample have been change (# has been remove)
+                    std::cout << "sample remove: " << sample_name << std::endl;
+                    sample_idx++;
+                    continue;
+                }
+            } // case where we want to remove sample that haven't phenotype
+
             all_sample_haplotypes.emplace_back(sample_name);
+            sample_idx++;
         }
     }
 
-    // Fill in sample_to_index
+    // Fill in sample_to_index OR correct it if idx sample has been removed
+    sample_to_index.clear();
     size_t sample_index = 0;
     for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
         if (!sample_to_index.count(sample_hap.sample)) {
@@ -1276,6 +1306,7 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     }
     assert(allele_assignments.size() == all_sample_haplotypes.size()); 
     #endif
+
     if (has_samples) {
         snarl_to_alleles_by_sample[snarl_info.start_node] = allele_by_sample_t(has_allele ? max_allele+1 : 0, allele_assignments);
     }
@@ -1296,11 +1327,15 @@ void SnarlDataCollection::load_snarl_data_collection(stoat::Reader& in_reader, c
     }
 }
 
+std::unordered_map<std::string, size_t>& SnarlDataCollection::get_sample_to_index_reference() {
+    return sample_to_index;
+}
+
 std::unordered_map<std::string, size_t> SnarlDataCollection::get_sample_to_index_copy() const {
     return sample_to_index;
 }
 
-bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1, const SnarlDataCollection& collection2) {
+bool SnarlDataCollection::is_equivalent(const SnarlDataCollection& collection1, const SnarlDataCollection& collection2) {
 
     // Get a consistent snarl identifier from the bounds of a snarl
     // Put the lower node id first, keeping the orientations

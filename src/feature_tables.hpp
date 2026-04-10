@@ -12,7 +12,6 @@
 namespace stoat {
 
 /***
-
 This file defines tables to represent per-sample values such as phenotypes, genotypes, gene expression, etc.
 
 The base class is a FeatureBySampleTable, which is a class template to store a different type of value per sample.
@@ -22,7 +21,6 @@ The classes of FeatureBySampleTable are:
 -  BinaryPhenotypeTable: stores one bool per sample
 -  QuantitativePhenotypeTable: stores one double per sample
 
-
 The CategoricalFeatureBySampleTable inherits from the FeatureBySampleTable and provides a vector of values per sample.
 This can be thought of as a 2D matrix. Each sample now has multiple values from a category of features. For example,
 the category may be gene expression, and for each feature (gene), each sample has a gene expression value.
@@ -31,21 +29,16 @@ CategoricalFeatureBySampleTable is also a class template and its classes are:
 - GeneExpressionTable: stores a vector of double's per sample
 - CovariateTable: stores a vector of double's per sample
 
-
 The GenotypeTable also extends FeatureBySampleTable, using a vector of size_t's like a CategoricalFeatureBySampleTable,
 but unlike the Categorical table, it accesses alleles by index, rather than by a string name
 
 - GenotypeTable: stores a vector of size_t's per sample, used as a count of alleles
 
-
-
 Each of these tables has a const reference to an unordered map sample_to_index that maps the sample name to a unique index
 used to place the sample in the vector.
 CategoricalFeatureBySampleTable also has a const reference to feature_to_index that maps the feature name to a unique index.
 Values are accessed by sample and feature names
-
 ***/
-
 
 /// A generic table to store the value of a "feature" per sample. 
 /// The feature could be a phenotype
@@ -70,7 +63,6 @@ class FeatureBySampleTable {
 
     // is this sample in the table?
     bool has_sample(const std::string& sample) const;
-    bool has_sample_from_idx(const size_t& sample_idx) const;
 
     // return a vector with the names of all samples
     std::vector<std::string> get_sample_names() const;

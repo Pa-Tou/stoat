@@ -32,9 +32,6 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
     // fill this map first
     std::unordered_map<std::string, bool> binary_pheno;
 
-    // should we update the sample to index map? yes if it's empty at the start
-    bool update_sample_to_index = sample_to_index.empty();
-
     // prepare to read the file
     std::ifstream file(file_path);
     std::string line;
@@ -90,13 +87,10 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
             throw std::invalid_argument("Duplicate sample in phenotype file: " + sample_name);
         }
 
-        if (is_case)
+        if (is_case) {
             ++count_cases;
-        else
+        } else {
             ++count_controls;
-
-        if (update_sample_to_index) {
-            sample_to_index.emplace(sample_name, sample_idx++);
         }
     }
 
@@ -105,14 +99,23 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
     stoat::LOG_INFO("Binary phenotypes found in phenotype file: " + std::to_string(count_cases + count_controls) +
         " (Control: " + std::to_string(count_controls) + ", Case: " + std::to_string(count_cases) + ")");
 
-    // ---- Build phenotype table ----
-    stoat::BinaryPhenotypeTable* output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
-
     size_t phenotypes_not_in_genotype = 0;
     size_t genotypes_missing_pheno = 0;
-
     size_t used_cases = 0;
     size_t used_controls = 0;
+
+    // genotype samples missing phenotype
+    for (auto it = sample_to_index.begin(); it != sample_to_index.end(); ) {
+        if (binary_pheno.find(it->first) == binary_pheno.end()) {
+            it = sample_to_index.erase(it);
+            ++genotypes_missing_pheno;
+        } else {
+            ++it;
+        }
+    }
+
+    // ---- Build phenotype table ----
+    stoat::BinaryPhenotypeTable* output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
 
     // phenotype -> genotype match
     // Prepare the Table object to fill and output

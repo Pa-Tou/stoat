@@ -40,6 +40,9 @@ class SnarlDataCollection {
         /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
         SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
 
+        /// Construct using already computed snarl_data_collection (used for removed sample case / phenotype not present)
+        SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit, std::unordered_map<std::string, size_t> sample_to_index);
+
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fills in sample_to_index based on sample_haplotypes 
         /// If alleles_requested is true, then call find_alleles_by_sample to assign each sample/haplotype in all_sample_haplotypes to an allele
@@ -91,17 +94,17 @@ class SnarlDataCollection {
         void for_each_snarl_in_file(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
-
         /// Write the collection of snarls to the given file
         void write_snarl_data_collection(Writer& out_writer) const;
         
         /// Load the collection of snarls from the given file
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
         /// also a mode to load just the header used to reuse the same sample_to_index for other objects and then run snarl file line by line (although it means loading the sample_to_index map twice technically)
-       void load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only = false); 
+        void load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only = false); 
 
         std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
-    
+        std::unordered_map<std::string, size_t>& get_sample_to_index_reference();
+
         size_t size() const {return all_snarl_data.size();}
 
         // Get a reference to the reference path names that are stored in the collection
