@@ -24,6 +24,18 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
                           const std::vector<stoat::sample_hap_t>& all_sample_haplotypes);
 
 
+/// The same as partition_embedded_paths_in_snarl, except using a GBWT. 
+/// Fills in allele assignments, paths_per_allele, and, optionally, sequences_per_allele
+/// TODO: This finds all steps along the path including those going through nested snarls. Could do all nested snarls at the same time
+void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                          const net_handle_t& snarl,
+                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
+                          std::vector<size_t>& allele_assignments,
+                          std::vector<PathTraversal>& paths_per_allele,
+                          bool get_sequences,
+                          std::vector<std::string>& sequences_per_allele);
+
+
 }
 
 #endif

@@ -308,4 +308,144 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
     return old_sets;
 }
 
+
+void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+                          const net_handle_t& snarl,
+                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
+                          std::vector<size_t>& allele_assignments,
+                          std::vector<PathTraversal>& paths_per_allele,
+                          bool get_sequences,
+                          std::vector<std::string>& sequences_per_allele) {
+
+    // Get the bounds of the snarl
+    handlegraph::handle_t start_in = distance_index.get_handle(distance_index.get_bound(snarl, false, true), &graph);
+    handlegraph::handle_t end_in = distance_index.get_handle(distance_index.get_bound(snarl, true, true), &graph);
+
+    // Get the traversals through the snarl from the gbwt
+    // This is heavily based on vg/haplotype_extracter.cpp
+
+    // The final boundary-to-boundary paths
+    std::vector<std::pair<std::vector<handlegraph::net_handle_t>, gbwt::SearchState>> finished_paths;
+    // The list of intermediate paths and the gbwt::SearchState they end on
+    // The search state encompasses the haplotypes that followed the path
+    std::vector<std::pair<std::vector<handlegraph::net_handle_t>, gbwt::SearchState>> intermediate_paths;
+
+
+    // Look up the start node in GBWT and start a path
+    gbwt::node_type start_node = handle_to_gbwt(graph, start_in);
+    vector<gbwt::node_type> first_path = {start_node};
+    gbwt::SearchState first_state = gbwt.find(start_node);
+
+#ifdef debug
+    cerr << "Start with state " << first_state << " for node " << gbwt::Node::id(start_node)  << ":"
+         << gbwt::Node::is_reverse(start_node) << endl;
+#endif
+
+     if (!first_path.empty()) {
+         intermediate_paths.emplace_back(first_path, first_state);
+     }
+
+     while (!intermediate_paths.empty()) {
+         // For one intermediate path, add the next step
+
+         std::pair<std::vector<handlegraph::net_handle_t>, gbwt::SearchState> current_path = std::move(intermediate_paths.back()); 
+         intermediate_paths.pop_back();
+
+
+        // The next steps out from the current path, as a handle, a node in the gbwt, and a search state
+        vector<tuple<handle_t, gbwt::node_type, gbwt::SearchState>> next_steps;
+        graph.follow_edges(graph.get_handle(gbwt::Node::id(current_path.first.back()), gbwt::Node::is_reverse(current_path.first.back())), false, [&](const handle_t& next) {
+                // extend the last node of the thread using gbwt
+                auto gbwt_next = gbwt::Node::encode(graph.get_id(next), graph.get_is_reverse(next));
+                auto new_state = gbwt.extend(current_path.second, gbwt_next);
+#ifdef debug
+                cerr << "Extend state " << current_path.second << " to " << new_state << " with " << gbwt::Node::id(gbwt_next) << endl;
+#endif
+                if (!new_state.empty()) {
+                    next_steps.push_back(make_tuple(next, gbwt_next, new_state));
+                }
+            });
+
+    
+        for (auto& next_step : next_steps) {
+            // For each of the next steps, extend the search state and path and add it to the intermediate paths
+
+            const handlegraph::handle_t& next = get<0>(next_step);
+            gbwt::node_type& gbwt_next = get<1>(next_step);
+            gbwt::SearchState& new_state = get<2>(next_step);
+
+            vector<handlegraph::net_handle_t> updated_path;
+            if (&nhs == &next_handle_states.back()) {
+                // avoid a copy by re-using the vector for the last thread. this way simple cases
+                // like scanning along one path don't blow up to n^2
+                updated_path = std::move(current_path.first);
+            } else {
+                // TODO: idk why we don't move in both cases 
+                updated_path = current_path.first;
+            }
+
+            // Add this node to the path, keeping track of if it is a node or a nested chain
+
+            handlegraph::net_handle_t next_net = distance_index.get_net(next, &graph);
+            // The parent is always going to be a chain, trivial or not
+            handlegraph::net_handle_t next_net_parent = distance_index.get_parent(next_net);
+            // if this is a node we're interested in, then the grandparent is the current snarl
+            handlegraph::net_handle_t next_net_grandparent = distance_index.get_parent(next_net_parent);
+
+
+            if (distance_index.start_end_traversal_of(next_net_grandparent) == distance_index.start_end_traversal_of(snarl)) {
+                // If the grandparent is the snarl we're traversing
+                if (distance_index.is_trivial_chain(next_net_parent)) {
+                    // If this is a trivial chain whose parent is the snarl, add it as the node
+                    updated_path.push_back(net_next);
+                } else {
+                    // If this is a real chain, then only add chain if it is going into the chain
+                    handlegraph::net_handle_t chain_start = distance_index.get_bound(next_net_parent, false, true);
+                    handlegraph::net_handle_t chain_end = distance_index.get_bound(next_net_parent, true, true);
+                    if (next_net == chain_start || next_net == chain_end) {
+                        update_path.push_back(next_net_parent);
+                    }
+
+                }
+            }
+
+            // If this handle is leaving the snarl, then add the completed path to the list of completed paths
+            // If this handle isn't leaving the snarl, then add the path back to the list of intermediate paths to continue it
+            handlegraph::net_handle_t snarl_start = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false));
+            handlegraph::net_handle_t snarl_end = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false));
+            if (next_net == snarl_start || next_net == snarl_end) {
+                // If this is leaving the snarl
+                finished_paths.push_back(std::move(updated_path), new_state);
+            } else {
+                intermediate_paths.emplace_back(std::move(updated_path, new_state));
+            }
+        }
+    } // End while loop going through intermediate paths
+
+    //TODO: Do the same thing looking for paths that go end->end
+
+
+    // At this point, finished_paths holds a path for each distinct, haplotype-supported path going through the snarl
+    // Now, we need to assign haplotypes to each of these paths
+
+    for (size_t i = 0 ; i < finished_paths.size() ; i++) {
+        const std::pair<std::vector<handlegraph::net_handle_t>, gbwt::SearchState>& path_and_state = finished_paths.at(i);
+
+        //locate() finds the path identifiers for the search state
+        std::vector<gbwt::size_type> path_ids = gbwt.locate(path_and_state.second);
+        for (const gbwt::size_type path_id : path_ids) {
+
+            // Get the path name (from vg deconstructor)
+            PathSense sense = gbwtgraph::get_path_sense(gbwt, path_id, gbwt_reference_samples);
+            string path_name = PathMetadata::create_path_name(
+                sense,
+                gbwtgraph::get_path_sample_name(gbwt, path_id, sense),
+                gbwtgraph::get_path_locus_name(gbwt, path_id, sense),
+                gbwtgraph::get_path_haplotype(gbwt, path_id, sense),
+                gbwtgraph::get_path_phase_block(gbwt, path_id, sense),
+                gbwtgraph::get_path_subrange(gbwt, path_id, sense));
+        }
+    }
+}
+
 }
