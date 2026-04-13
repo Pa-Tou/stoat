@@ -24,6 +24,7 @@
 #include <omp.h>
 
 #include "subcommand/vcf.hpp"
+#include "subcommand/node.hpp"
 #include "subcommand/graph.hpp"
 #include "subcommand/test.hpp"
 #include "subcommand/bh_correct.hpp"
@@ -40,10 +41,11 @@ void print_help() {
                 << "\n"
                 << "snarl genotyping:\n"
                 << "  -- vcf           genotypes snarls using a VCF from a pangenome genotyping\n"
+                << "  -- node          genotypes nodes using a VCF from a pangenome genotyping\n"
                 << "  -- graph         genotypes snarls from the haplotypes in a pangenome graph\n"
                 << "\n"
                 << "association testing:\n"
-                << "  -- test          performs the test between snarl genotypes and a phenotype\n"
+                << "  -- test          performs the test between snarl or nodes genotypes and a phenotype\n"
                 << "\n"
                 << "post-processing:\n"
                 << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file (DEPRECATED?)\n"
@@ -69,6 +71,9 @@ int main(int argc, char* argv[]) {
 
     if (subcommand == "vcf") {
         stoat_command::main_stoat_vcf(argc, argv);
+
+    } else if (subcommand == "node") {
+        stoat_command::main_stoat_node(argc, argv);
 
     } else if (subcommand == "graph") {
         stoat_command::main_stoat_graph(argc, argv);

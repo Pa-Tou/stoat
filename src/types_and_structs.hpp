@@ -250,6 +250,44 @@ struct snarl_info_t {
 
 };
 
+struct node_info_t {
+    public:
+
+        // Constructor from elements
+        node_info_t(stoat::node_traversal_t node, std::string ref_path, 
+                     size_t position, size_t depth,
+                     GenotypeTable& genotypes, 
+                     const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
+                     const allele_by_sample_t& alleles_by_sample) :
+
+                     node(node), position(position), ref_path(ref_path), 
+                     depth(depth), genotypes(genotypes), all_sample_haplotypes(all_sample_haplotypes), 
+                     alleles_by_sample(alleles_by_sample) {};
+
+        // Start and end nodes, both pointing into the node
+        stoat::node_traversal_t node;
+
+        // The reference chromosome/path
+        std::string ref_path; 
+
+        // Start and end offset along the reference path
+        size_t position;
+
+        // The depth of the node in the node tree
+        size_t depth;
+
+        // A genotype table of the counts of each allele for each sample (see feature_table.hpp).
+        // Alleles have the same numbering as walks_by_allele and sequences_by_allele
+        GenotypeTable& genotypes;
+
+        // This stores all the sample/haplotypes 
+        const std::vector<stoat::sample_hap_t>& all_sample_haplotypes;
+
+        // For each haplotype in all_sample_haplotypes, an assignment to an allele number
+        const allele_by_sample_t& alleles_by_sample;
+
+};
+
 enum phenotype_type_t { BINARY = 1, BINARY_COVAR, QUANTITATIVE, EQTL };
 
 } // end namespace stoat

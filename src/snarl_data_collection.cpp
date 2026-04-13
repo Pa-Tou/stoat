@@ -410,7 +410,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
-    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
+    stoat_vcf::AlleleBySampleMatrix<stoat::edge_t> edge_matrix(sample_names, 0);
 
     // use the corresponding sample-haplotypes for this collection
     // remove any existing sample in the collection first
