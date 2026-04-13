@@ -1,0 +1,5 @@
+build
+build-static
+build-static-docker
+bin
+.git
