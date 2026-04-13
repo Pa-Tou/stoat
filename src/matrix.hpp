@@ -16,7 +16,8 @@ namespace stoat_vcf {
 // A class to store a 2d bit-matrix
 // Rows represent edges and the index of each edge can be found from the row_header
 // Columns represent samples/haplotypes
-class EdgeBySampleMatrix {
+template<class ValueType> 
+class AlleleBySampleMatrix {
 public:
     EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges);
     ~EdgeBySampleMatrix()=default;
@@ -57,8 +58,6 @@ protected:
     std::vector<std::string> sample_names;
 
 };
-
-
 
 } // end namespace stoat
 

@@ -194,6 +194,8 @@ class SnarlDataCollection {
         // This gets made based on all_sample_halpotypes
         std::unordered_map<std::string, size_t> sample_to_index;
 
+        std::set<size_t> removed_sample_idx;
+
         //////////////////////////// Extra housekeeping stuff
 
         /// This goes at the beginning of the file to ensure that it is the right file type and version

@@ -536,7 +536,8 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
         const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(internal_snarl_info.start_node);
         std::cout << "alleles_by_sample.alleles.size(): " << alleles_by_sample.alleles.size() << std::endl;
         for (size_t sample_hap_i = 0; sample_hap_i < alleles_by_sample.alleles.size(); sample_hap_i++) {
-            if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
+            if ((alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max())
+                || removed_sample_idx.find(sample_hap_i) != removed_sample_idx.end()) {
                 // JEAN ideally we would access the count in the collection by index but I'm not sure why so I'm using the map sample_to_index for now. Maybe Xian knows
                 size_t sample_idx = this->sample_to_index.at(all_sample_haplotypes.at(sample_hap_i).sample);
                 genotypes.increment_count(sample_idx, alleles_by_sample.alleles[sample_hap_i]);
@@ -1196,6 +1197,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
             if (sample_to_index.size() != 0) {
                 if (index_sample.find(sample_idx) == index_sample.end()) { //have to use index_sample instead of sample name because sample from index_sample have been change (# has been remove)
                     std::cout << "sample remove: " << sample_name << std::endl;
+                    removed_sample_idx.insert(sample_idx);
                     sample_idx++;
                     continue;
                 }
