@@ -154,7 +154,8 @@ public:
     void read_gene_positions_from_file(const std::string filename);
 
     std::vector<std::string> get_genes_around_pos(const std::string chrom, const size_t start_pos, const size_t end_pos, const size_t max_distance) const;
-    
+    std::vector<std::string> get_genes_around_pos(const std::string chrom, const size_t pos, const size_t max_distance) const;
+
 protected:
     
     // gene position by chromosome

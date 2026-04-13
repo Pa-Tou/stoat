@@ -97,7 +97,7 @@ namespace stoat_vcf {
 void NodeAnalyzer::test_nodes_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) {
 
     // prepare node collection that will stream the nodes and open connection to the file
-    stoat::NodeDataCollection node_collection_stream(0, 0, 0, node_collection.get_sample_to_index_copy());
+    stoat::NodeDataCollection node_collection_stream(node_collection.get_sample_to_index_copy());
 
     // Write the header of the output file
     out_writer.write_node_stoat_output_header(phenotype_type);
@@ -105,7 +105,7 @@ void NodeAnalyzer::test_nodes_from_file(stoat::Reader& gt_reader, stoat::Writer&
     // read each node and test it
     // JEAN parallelize here?
     size_t number_node_filtered = 0;
-    node_collection_stream.for_each_node_in_file(gt_reader, [&](node_traversal_t& node_info) {
+    node_collection_stream.for_each_node_in_file(gt_reader, [&](node_info_t& node_info) {
         bool filtered = test_and_write_node(node_info, out_writer);
         number_node_filtered += (filtered ? 1 : 0);
     });
@@ -113,7 +113,7 @@ void NodeAnalyzer::test_nodes_from_file(stoat::Reader& gt_reader, stoat::Writer&
     stoat::LOG_INFO("Total number of node filtered : " + std::to_string(number_node_filtered));
 }
 
-bool BinaryNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data, stoat::Writer& out_writer) {
+bool BinaryNodeAnalyzer::test_and_write_node(stoat::node_info_t &node_data, stoat::Writer& out_writer) {
 
     // link to the phenotype
     node_data.genotypes.link_to_binary_phenotype(phenotype);
@@ -147,7 +147,7 @@ bool BinaryNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data,
     
     // test this node using Fisher exact test and chi-squared test
     if (std::isnan(test_res.pv) && std::isnan(test_res.second_pv)) {
-        stoat::LOG_DEBUG("filtered: " + node_data.start_node.to_string() + node_data.end_node.to_string());
+        stoat::LOG_DEBUG("filtered: " + node_data.node.to_string());
         return true;
     }
     
@@ -155,7 +155,7 @@ bool BinaryNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data,
     return false;
 }
 
-bool ExactBinaryNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data, stoat::Writer& out_writer) {
+bool ExactBinaryNodeAnalyzer::test_and_write_node(stoat::node_info_t &node_data, stoat::Writer& out_writer) {
     // This test checks if all members of one of the phenotype groups has the same allele that no other sample has.
 
     // prepare an output objet and init to NA
@@ -200,7 +200,7 @@ bool ExactBinaryNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_
     return false;
 }
 
-bool BinaryCovarNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data, stoat::Writer& out_writer) {
+bool BinaryCovarNodeAnalyzer::test_and_write_node(stoat::node_info_t &node_data, stoat::Writer& out_writer) {
 
     // link the phenotype
     node_data.genotypes.link_to_binary_phenotype(phenotype);
@@ -233,7 +233,7 @@ bool BinaryCovarNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_
     }
     
     if (std::isnan(test_res.pv)) {
-        stoat::LOG_DEBUG("filtered: " + node_data.start_node.to_string() + node_data.end_node.to_string());
+        stoat::LOG_DEBUG("filtered: " + node_data.node.to_string());
         return true;
     }
  
@@ -242,7 +242,7 @@ bool BinaryCovarNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_
 }
 
 // Quantitative Table Generation
-bool QuantitativeNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data, stoat::Writer& out_writer) {
+bool QuantitativeNodeAnalyzer::test_and_write_node(stoat::node_info_t &node_data, stoat::Writer& out_writer) {
 
     // link the phenotype
     node_data.genotypes.link_to_quantitative_phenotype(phenotype);
@@ -276,18 +276,18 @@ bool QuantitativeNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node
     }
 
     if (std::isnan(test_res.pv)) {
-        stoat::LOG_DEBUG("filtered: " + node_data.start_node.to_string() + node_data.end_node.to_string());
+        stoat::LOG_DEBUG("filtered: " + node_data.node.to_string());
         return true;
     }
  
-    out_writer.write_quantitative(node_data, test_res);
+    out_writer.write_node_quantitative(node_data, test_res);
     return false;
 }
 
-bool EQTLNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data, stoat::Writer& out_writer) {
+bool EQTLNodeAnalyzer::test_and_write_node(stoat::node_info_t &node_data, stoat::Writer& out_writer) {
 
     // get genes near node
-    std::vector<std::string> genes_near = gene_expression.get_genes_around_pos(node_data.ref_path, node_data.start_position, node_data.end_position, max_gene_dist);
+    std::vector<std::string> genes_near = gene_expression.get_genes_around_pos(node_data.ref_path, node_data.position, max_gene_dist);
     bool filtered = true;
 
     // test against the expression of each nearby gene
@@ -335,11 +335,11 @@ bool EQTLNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data, s
         }
 
         if (std::isnan(test_res.pv)) {
-            stoat::LOG_DEBUG("filtered: gene " + gene_name + ", " + node_data.start_node.to_string() + node_data.end_node.to_string());
+            stoat::LOG_DEBUG("filtered: gene " + gene_name + ", " + node_data.node.to_string());
             continue;
         }
   
-        out_writer.write_eqtl(node_data, gene_name, test_res);
+        out_writer.write_node_eqtl(node_data, gene_name, test_res);
 
         // at least this test was not filtered
         filtered = false;

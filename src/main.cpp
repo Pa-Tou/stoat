@@ -108,6 +108,9 @@ int main(int argc, char* argv[]) {
 // BINARY GENOTYPE
 // ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
 
+// BINARY NODE GENOTYPE
+// ./stoat node -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
+
 // BINARY TEST + Fisher/Chi-Squared
 // ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../tests/test_data/input_data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test
 

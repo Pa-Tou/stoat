@@ -181,6 +181,25 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
     return near_genes;
 }
 
+std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::string chrom, const size_t pos, const size_t max_distance) const {
+
+    // we'll save the nearby genes here
+    std::vector<std::string> near_genes;
+
+    // we look for genes in the specified range +- the maximum distance
+    size_t min_pos = (pos > max_distance) ? pos - max_distance : 0;
+    size_t max_pos = pos + max_distance;
+
+    // loop over all genes and save the ones that are close enough
+    for (const gene_position_t gene_pos: gene_positions_by_chr.at(chrom)) {
+        if (!(gene_pos.end < min_pos || gene_pos.start > max_pos)) {
+            near_genes.push_back(gene_pos.gene);
+        }
+    }
+
+    return near_genes;
+}
+
 // Constructor for a genotype table fills everything in with a default value of 0 for the counts
 GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& sample_to_index, size_t allele_count) :
     FeatureBySampleTable<std::vector<double>>::FeatureBySampleTable(sample_to_index) {

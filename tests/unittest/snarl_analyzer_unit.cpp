@@ -60,7 +60,7 @@ TEST_CASE("decompose_path_str_to_edge handles basic and complex strings") {
     }
 }
 
-TEST_CASE("identify_path with EdgeBySampleMatrix") {
+TEST_CASE("identify_path with AlleleBySampleMatrix") {
     stoat::node_traversal_t a(1, false), b(2, false), c(3, false);
     stoat::edge_t edge1(a, b);
     stoat::edge_t edge2(b, c);
@@ -71,13 +71,13 @@ TEST_CASE("identify_path with EdgeBySampleMatrix") {
     path.add_node_traversal_t(c);
     
     std::vector<std::string> samples = {"sample1", "sample2", "sample3"};
-    EdgeBySampleMatrix matrix(samples, 2);
+    AlleleBySampleMatrix<stoat::edge_t> matrix(samples, 2);
 
-    matrix.add_sample_edge(edge1, 0); // Set true at [row for edge1][0]
-    matrix.add_sample_edge(edge2, 0); // Set true at [row for edge2][0]
+    matrix.add_sample_key(edge1, 0); // Set true at [row for edge1][0]
+    matrix.add_sample_key(edge2, 0); // Set true at [row for edge2][0]
 
-    matrix.add_sample_edge(edge1, 2); // Also at [][2]
-    matrix.add_sample_edge(edge2, 2);
+    matrix.add_sample_key(edge1, 2); // Also at [][2]
+    matrix.add_sample_key(edge2, 2);
 
     auto result = matrix.get_samples_on_path(path);
     REQUIRE(result == std::vector<size_t>({0, 2}));

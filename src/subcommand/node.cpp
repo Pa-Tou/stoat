@@ -31,8 +31,8 @@ namespace stoat_command {
 void print_help_node() {
     stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat node [options]\n\n"
-              << "  -v, --node FILE                  Path to the node file\n"
-              << "  -f, --resolve-node               Resolve conflicting calls in the node that may arise in nested nodes. This may be slow\n"
+              << "  -v, --vcf FILE                  Path to the vcf file\n"
+              << "  -f, --resolve-node              Resolve conflicting calls in the node that may arise in nested nodes. This may be slow\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
@@ -45,7 +45,6 @@ int main_stoat_node(int argc, char* argv[]) {
 
     // Declare variables to hold argument values
     std::string vcf_path;
-
     std::string output_dir = "stoat_output";
     bool resolve_vcf = false;
     bool bgzip_output = true;
@@ -110,7 +109,7 @@ int main_stoat_node(int argc, char* argv[]) {
 
     // Enforce valid argument combinations
     // Either we just want to prepare the nodes (from pangenome index files) or genotype those nodes from a node (or both)
-    if (!vcf_path.empty()) {
+    if (vcf_path.empty()) {
         stoat::LOG_ERROR("[stoat node] " +
             std::string("Invalid argument : vcf_path must be specify"));
         print_help_node();
@@ -145,15 +144,15 @@ int main_stoat_node(int argc, char* argv[]) {
     auto start_gt_timer = std::chrono::high_resolution_clock::now();
 
     // start reading the node to get the sample list
-    stoat_vcf::vcfParser vcf_parser(resolve_vcf);
+    stoat_vcf::VCFParser vcf_parser(resolve_vcf);
     std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
 
     // retrieve genotypes one chromosome at a time
-    stoat::NodeDataCollection node_collection();
-    node_collection.genotype_node_by_chr_from_vcf(list_samples, vcf_parser);
+    stoat::NodeDataCollection node_collection;
+    node_collection.genotype_nodes_by_chr_from_vcf(list_samples, vcf_parser);
 
     // We are done reading through the node file so close it
-    vcf_parser.close_node();
+    vcf_parser.close_vcf();
 
     auto end_gt_timer = std::chrono::high_resolution_clock::now();
     stoat::LOG_INFO("Retrieving node genotypes took " + std::to_string(std::chrono::duration<double>(end_gt_timer - start_gt_timer).count()) + " s");

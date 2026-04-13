@@ -18,6 +18,7 @@ class NodeDataCollection {
         /// Ignore nodes with more children than node_child_limit
         /// Ignore nodes if traversing the paths takes more than walk_steps_limit steps
         NodeDataCollection();
+        NodeDataCollection(std::unordered_map<std::string, size_t> sample_to_index);
 
         /// Use if the node allele_by_sample (which assigns sample/haplotypes to each node_walk) were not found during construction. Go through
         /// all nodes and call find_alleles_by_sample, which returns a vector of allele assignments for each sample_hap_t in all_sample_haplotypes.
@@ -115,7 +116,7 @@ class NodeDataCollection {
 
         /// This goes at the beginning of the file to ensure that it is the right file type and version
         inline const static std::string file_header = "#NODE_DATA_v1.0";
-        size_t number_node_analyzed;
+        size_t number_node_analyzed = 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////// Private functions
@@ -128,8 +129,7 @@ class NodeDataCollection {
 
         /// Write just one node from the collection
         void write_node_data_line(Writer& out_writer, const node_info_internal_t& node_info) const;
-        void write_node_data_line(Writer& out_writer, const node_info_internal_t& node_info, const std::vector<stoat::PathTraversal>* walks_by_allele, 
-                                    const std::vector<std::string>* node_sequences, const allele_by_sample_t* alleles_by_sample) const;
+        void write_node_data_line_file(Writer& out_writer, const node_info_internal_t& node_info) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the node records
         void load_node_data_collection_header(stoat::Reader& in_reader);

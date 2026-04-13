@@ -11,6 +11,8 @@ namespace stoat {
 
 // Constructor
 NodeDataCollection::NodeDataCollection() {}
+NodeDataCollection::NodeDataCollection(std::unordered_map<std::string, size_t> sample_to_index) :
+                    sample_to_index(sample_to_index) {}
 
 void NodeDataCollection::add_alleles_by_sample(
                 const std::function<std::vector<size_t>(const node_info_t& node_data, 
@@ -65,7 +67,7 @@ void NodeDataCollection::genotype_nodes_by_chr_from_vcf(std::vector<std::string>
 
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
-    stoat_vcf::AlleleBySampleMatrix<stoat::edge_t> edge_matrix(sample_names, 0);
+    stoat_vcf::AlleleBySampleMatrix<stoat::node_traversal_t> edge_matrix(sample_names, 0);
 
     // use the corresponding sample-haplotypes for this collection
     // remove any existing sample in the collection first
@@ -231,10 +233,11 @@ void NodeDataCollection::write_node_data_collection_header(stoat::Writer& out_wr
 }
 
 void NodeDataCollection::write_node_data_line(stoat::Writer& out_writer, const node_info_internal_t& node_data) const {
-    write_node_data_line(out_writer, node_data); 
+    write_node_data_line_file(out_writer, node_data); 
 }
 
-void NodeDataCollection::write_node_data_line(stoat::Writer& out_writer, const node_info_internal_t& node_data) const {
+void NodeDataCollection::write_node_data_line_file(stoat::Writer& out_writer, const node_info_internal_t& node_data) const {
+
     std::stringstream outstream;
     
     // Start with just the contents of the node_info_internal_t

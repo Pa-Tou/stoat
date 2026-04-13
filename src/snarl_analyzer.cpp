@@ -318,7 +318,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
         return true;
     }
  
-    out_writer.write_quantitative(snarl_data, test_res);
+    out_writer.write_snarl_quantitative(snarl_data, test_res);
     return false;
 }
 
@@ -380,7 +380,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
             continue;
         }
   
-        out_writer.write_eqtl(snarl_data, gene_name, test_res);
+        out_writer.write_snarl_eqtl(snarl_data, gene_name, test_res);
 
         // at least this test was not filtered
         filtered = false;

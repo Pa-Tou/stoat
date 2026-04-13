@@ -34,7 +34,7 @@ public:
     stoat::phenotype_type_t get_phenotype_type() const;
     
     /// For the given node, get the genotypes and test the node, then write results to outf
-    virtual bool test_and_write_node(stoat::node_traversal_t& node_data, stoat::Writer& out_writer) = 0;
+    virtual bool test_and_write_node(stoat::node_info_t& node_data, stoat::Writer& out_writer) = 0;
     
 //////////////// Private data members
 protected:
@@ -63,7 +63,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_node(stoat::node_traversal_t& node_data, stoat::Writer& out_writer);
+    bool test_and_write_node(stoat::node_info_t& node_data, stoat::Writer& out_writer);
 
 protected:
 
@@ -81,7 +81,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_node(stoat::node_traversal_t& node_data, stoat::Writer& out_writer);
+    bool test_and_write_node(stoat::node_info_t& node_data, stoat::Writer& out_writer);
 
 protected:
     std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
@@ -99,7 +99,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_node(stoat::node_traversal_t& node_data, stoat::Writer& out_writer);
+    bool test_and_write_node(stoat::node_info_t& node_data, stoat::Writer& out_writer);
 
 /////////////////// Private data members
 protected:
@@ -119,7 +119,7 @@ public:
         const stoat::QuantitativePhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_node(stoat::node_traversal_t& node_data, stoat::Writer& out_writer) ;
+    bool test_and_write_node(stoat::node_info_t& node_data, stoat::Writer& out_writer) ;
 
 /////////////////// Private data members
 protected:
@@ -139,7 +139,7 @@ public:
                       const size_t max_gene_dist,
                       const size_t min_individuals);
     
-    bool test_and_write_node(stoat::node_traversal_t& node_data, stoat::Writer& out_writer);
+    bool test_and_write_node(stoat::node_info_t& node_data, stoat::Writer& out_writer);
     
 protected:
 

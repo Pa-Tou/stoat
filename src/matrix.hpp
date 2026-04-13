@@ -46,7 +46,7 @@ public:
     // query the matrix: find sample-haplotypes that have all keys along the queried path
     std::vector<size_t> get_samples_on_path(const stoat::PathTraversal &path_trav) const;
 
-    std::vector<size_t> get_samples_on_node(const stoat::node_traversal_t &node_trav) const;
+    std::vector<size_t> get_samples_on_node(const stoat::node_traversal_t &node_trav);
 
     // clear the matrix and load keys in a VCF for a chunk (corresponding to a chromosome)
     // the returned pointers are the VCF file stream after reading that chunk
