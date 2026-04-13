@@ -149,8 +149,10 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/fast_fishers_exact_test.cpp
     src/writer.cpp
     src/snarl_analyzer.cpp
+    src/node_analyzer.cpp
     src/path_partitioner.cpp
     src/snarl_data_collection.cpp
+    src/node_data_collection.cpp
     src/feature_tables.cpp
     src/vcf_parser.cpp
     src/banner.cpp
@@ -163,6 +165,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
 
     src/subcommand/vcf.cpp
     src/subcommand/graph.cpp
+    src/subcommand/node.cpp
     src/subcommand/test.cpp
     src/subcommand/bh_correct.cpp
     src/subcommand/change_reference.cpp

@@ -27,17 +27,21 @@ public:
     virtual void close() = 0;
 
     // header writer
-    void write_stoat_output_header(phenotype_type_t phenotype_type);
+    void write_node_stoat_output_header(phenotype_type_t phenotype_type);
+    void write_snarl_stoat_output_header(phenotype_type_t phenotype_type);
 
-    // stoat output writers
-    void write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+    // stoat snarl output writers
+    void write_snarl_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+    void write_snarl_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+    void write_snarl_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
+    void write_snarl_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result);
 
-    void write_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
-
-    void write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result);
-
-    void write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result);
-    
+    // stoat node output writers
+    void write_node_binary(const stoat::node_info_t& node_data, const stoat::test_result_t& test_result);
+    void write_node_binary_covar(const node_info_t& node_data, const stoat::test_result_t& test_result);
+    void write_node_quantitative(const node_info_t& node_data, const stoat::test_result_t& test_result);
+    void write_node_eqtl(const node_info_t& node_data, const std::string& gene_name, const stoat::test_result_t& test_result);
+        
 protected:
     const std::string file_path;
     

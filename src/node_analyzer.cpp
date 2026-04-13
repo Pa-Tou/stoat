@@ -100,7 +100,7 @@ void NodeAnalyzer::test_nodes_from_file(stoat::Reader& gt_reader, stoat::Writer&
     stoat::NodeDataCollection node_collection_stream(0, 0, 0, node_collection.get_sample_to_index_copy());
 
     // Write the header of the output file
-    out_writer.write_stoat_output_header(phenotype_type);
+    out_writer.write_node_stoat_output_header(phenotype_type);
  
     // read each node and test it
     // JEAN parallelize here?
@@ -151,7 +151,7 @@ bool BinaryNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_data,
         return true;
     }
     
-    out_writer.write_binary(node_data, test_res);
+    out_writer.write_node_binary(node_data, test_res);
     return false;
 }
 
@@ -196,7 +196,7 @@ bool ExactBinaryNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_
         return true;
     }
     
-    out_writer.write_binary(node_data, test_res);
+    out_writer.write_node_binary(node_data, test_res);
     return false;
 }
 
@@ -237,7 +237,7 @@ bool BinaryCovarNodeAnalyzer::test_and_write_node(stoat::node_traversal_t &node_
         return true;
     }
  
-    out_writer.write_binary_covar(node_data, test_res);
+    out_writer.write_node_binary_covar(node_data, test_res);
     return false;
 }
 

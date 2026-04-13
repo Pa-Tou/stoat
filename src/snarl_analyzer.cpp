@@ -100,7 +100,7 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0, snarl_collection.get_sample_to_index_copy());
 
     // Write the header of the output file
-    out_writer.write_stoat_output_header(phenotype_type);
+    out_writer.write_snarl_stoat_output_header(phenotype_type);
  
     // read each snarl and test it
     // JEAN parallelize here?
@@ -185,7 +185,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
         return true;
     }
     
-    out_writer.write_binary(snarl_data, test_res);
+    out_writer.write_snarl_binary(snarl_data, test_res);
     return false;
 }
 
@@ -230,7 +230,7 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         return true;
     }
     
-    out_writer.write_binary(snarl_data, test_res);
+    out_writer.write_snarl_binary(snarl_data, test_res);
     return false;
 }
 
@@ -273,7 +273,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         return true;
     }
  
-    out_writer.write_binary_covar(snarl_data, test_res);
+    out_writer.write_snarl_binary_covar(snarl_data, test_res);
     return false;
 }
 

@@ -41,7 +41,7 @@ void print_help_node() {
               << "  -h, --help                      Print this help message\n";
 }
 
-int main_stoat_vcf(int argc, char* argv[]) {
+int main_stoat_node(int argc, char* argv[]) {
 
     // Declare variables to hold argument values
     std::string vcf_path;

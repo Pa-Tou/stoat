@@ -116,7 +116,20 @@ void BgzReader::close() {
     bgzf_close(file_p);
 }
 
-void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
+void Writer::write_node_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
+
+    if (phenotype_type == stoat::BINARY) {
+        write("#CHR\tPOSITION_OFFSET\tNODE\tP_FISHER\tP_CHI2\tDEPTH\n");
+    } else if (phenotype_type == stoat::BINARY_COVAR) {
+        write("#CHR\tPOSITION_OFFSET\tNODE\tP\tDEPTH\n");
+    } else if (phenotype_type == stoat::QUANTITATIVE) {
+        write("#CHR\tPOSITION_OFFSET\tNODE\tP\tDEPTH\n");
+    } else if (phenotype_type == stoat::EQTL) {
+        write("#CHR\tPOSITION_OFFSET\tNODE\tGENE\tP\tDEPTH\n");
+    }
+}
+
+void Writer::write_snarl_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
 
     if (phenotype_type == stoat::BINARY) {
         write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH\n");
@@ -129,7 +142,7 @@ void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
     }
 }
 
-void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+void Writer::write_snarl_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
@@ -148,7 +161,21 @@ void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::te
     write(outl);
 }
 
-void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+void Writer::write_node_binary(const stoat::node_info_t& node_data, const stoat::test_result_t& test_result) {
+
+    // snarl information
+    std::string outl = node_data.ref_path;
+    outl += "\t" + std::to_string(node_data.position);
+    outl += "\t" + node_data.node.to_string();
+
+    // pvalues and contingency table
+    outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + stoat::set_precision(test_result.second_pv) +
+        std::to_string(node_data.depth) + "\n";
+    // write
+    write(outl);
+}
+
+void Writer::write_snarl_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
@@ -166,12 +193,31 @@ void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::tes
     write(outl);
 }
 
-void Writer::write_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
-    // now it's the same output
-    write_quantitative(snarl_data, test_result);
+void Writer::write_node_quantitative(const node_info_t& node_data, const stoat::test_result_t& test_result) {
+
+    // snarl information
+    std::string outl = node_data.ref_path;
+    outl += "\t" + std::to_string(node_data.position);
+    outl += "\t" + node_data.node.to_string();
+
+    // pvalues
+    outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + std::to_string(node_data.depth) + "\n";
+    // write
+    write(outl);
 }
 
-void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
+
+void Writer::write_snarl_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+    // now it's the same output
+    write_snarl_quantitative(snarl_data, test_result);
+}
+
+void Writer::write_node_binary_covar(const node_info_t& node_data, const stoat::test_result_t& test_result) {
+    // now it's the same output
+    write_node_quantitative(node_data, test_result);
+}
+
+void Writer::write_snarl_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
@@ -183,8 +229,24 @@ void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_
     } else {
         outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
     }
+
     // pvalues and contingency table
     outl += "\t" + gene_name + "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
+
+    // write
+    write(outl);
+}
+
+void Writer::write_node_eqtl(const node_info_t& node_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
+
+    // snarl information
+    std::string outl = node_data.ref_path;
+    outl += "\t" + std::to_string(node_data.position);
+    outl += "\t" + node_data.node.to_string();
+
+    // pvalues and contingency table
+    outl += "\t" + gene_name + "\t" + stoat::set_precision(test_result.pv) + "\t" + std::to_string(node_data.depth) + "\n";
+
     // write
     write(outl);
 }
