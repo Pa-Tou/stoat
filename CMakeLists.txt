@@ -165,7 +165,6 @@ add_library(${PROJECT_NAME}_objs OBJECT
 
     src/subcommand/vcf.cpp
     src/subcommand/graph.cpp
-    src/subcommand/node.cpp
     src/subcommand/test.cpp
     src/subcommand/bh_correct.cpp
     src/subcommand/change_reference.cpp

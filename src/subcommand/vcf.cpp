@@ -236,10 +236,11 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
         auto start_load_timer = std::chrono::high_resolution_clock::now();
+
         if (node_mod) {
-            snarl_collection.load_snarl_data_collection(*snarl_reader);
-        } else {
             node_collection.load_node_data_collection(*snarl_reader);
+        } else {
+            snarl_collection.load_snarl_data_collection(*snarl_reader);
         }
 
         auto end_load_timer = std::chrono::high_resolution_clock::now();
@@ -247,87 +248,183 @@ int main_stoat_vcf(int argc, char* argv[]) {
         snarl_reader->close();
 
     } else { // otherwise, find them from the pangenome graph and snarl tree
-        stoat::LOG_INFO("Starting snarl decomposition... ");
-        auto start_dec_timer = std::chrono::high_resolution_clock::now();
+        if (node_mod) { // node section
+            stoat::LOG_INFO("Starting node decomposition... ");
+            auto start_dec_timer = std::chrono::high_resolution_clock::now();
 
-        // Load the snarl tree and graph
-        // Tell the IO library about libvg types.
-        if (!stoat::io::register_libvg_io()) {
-            throw std::runtime_error("error[stoat vgio]: Could not register libvg types with libvgio");
-        }
-
-        // Load the graph and make it a PathPositionHandleGraph
-        std::unique_ptr<handlegraph::PathHandleGraph> graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
-        bdsg::PathPositionOverlayHelper overlay_helper;
-        bdsg::PathPositionHandleGraph* path_position_graph;
-        path_position_graph =  overlay_helper.apply(graph.get());
-
-        // Get the reference sample names from the prefix
-        graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-            std::string path_name = graph->get_path_name(path);
-
-            if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
-                              reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
-                // If these paths match
-                ref_path_names.emplace(graph->get_path_name(path));
+            // Load the snarl tree and graph
+            // Tell the IO library about libvg types.
+            if (!stoat::io::register_libvg_io()) {
+                throw std::runtime_error("error[stoat vgio]: Could not register libvg types with libvgio");
             }
 
-            return true;
-        });
+            // Load the graph and make it a PathPositionHandleGraph
+            std::unique_ptr<handlegraph::PathHandleGraph> graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
+            bdsg::PathPositionOverlayHelper overlay_helper;
+            bdsg::PathPositionHandleGraph* path_position_graph;
+            path_position_graph = overlay_helper.apply(graph.get());
 
-        // Load the distance index
-        std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
-        distance_index->deserialize(dist_path);
+            // Get the reference sample names from the prefix
+            graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+                std::string path_name = graph->get_path_name(path);
 
-        // Check if chromosomes specified in the --chr file are present in the graph
-        for (const auto& chr : ref_path_names) {
-            stoat::LOG_TRACE("Sequence name not found in -r/--chr file: " + chr);
-            if (!graph->has_path(chr)) {
-                throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
+                if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
+                                reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
+                    // If these paths match
+                    ref_path_names.emplace(graph->get_path_name(path));
+                }
+
+                return true;
+            });
+
+            // Load the distance index
+            std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
+            distance_index->deserialize(dist_path);
+
+            // Check if chromosomes specified in the --chr file are present in the graph
+            for (const auto& chr : ref_path_names) {
+                stoat::LOG_TRACE("Sequence name not found in -r/--chr file: " + chr);
+                if (!graph->has_path(chr)) {
+                    throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
+                }
             }
+    
+            // The snarl collection requires a sample_haplotypes but we don't want to work on the pangenome's haplotypes here,
+            // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
+            std::vector<stoat::sample_hap_t> sample_haplotypes;
+
+            // prepare a Writer for the collection
+            std::string nodes_filename = output_dir + "/node_info.tsv";
+            if (bgzip_output) {
+                nodes_filename += ".gz";
+            }
+
+            std::shared_ptr<stoat::Writer> node_writer;
+            if ((nodes_filename.compare(nodes_filename.length()-3, 3, ".gz") == 0) ||
+                (nodes_filename.compare(nodes_filename.length()-4, 4, ".bgz") == 0)) {
+                node_writer.reset(new BgzWriter(nodes_filename));
+            } else {
+                node_writer.reset(new StdWriter(nodes_filename));
+            }
+
+            // equivalent to what was done before in stoat vcf: enumerate all walks through a node
+            node_collection.fill_in_node_info(
+                *path_position_graph, 
+                *distance_index, 
+                sample_haplotypes,
+                true, //find_alleles_first, doesn't matter in this case
+                true, // walks_requested
+                [&] (const net_handle_t& node, const node_info_t& node_data, std::vector<PathTraversal>& walks) { // function to fill in walks
+                    NodeDataCollection::get_all_walks_through_node(*path_position_graph, 
+                        *distance_index, 
+                        node, 
+                        node_data, 
+                        walks, 
+                        cycle_threshold);
+                },
+                false, //alleles_requested
+                [&] (const net_handle_t& node, const node_info_t& node_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles
+                    return std::vector<size_t>();
+                }, 
+                false, // sequence_requested 
+                ref_path_names, // reference 
+                false, //check distances
+                *node_writer, // Writer object for the snarls
+                !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
+                ); 
+
+            // done saving the snarls, close the writer
+            node_writer->close();
+
+            auto end_dec_timer = std::chrono::high_resolution_clock::now();
+            stoat::LOG_INFO("Node decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
+
+        } else { // snarl section
+
+            stoat::LOG_INFO("Starting snarl decomposition... ");
+            auto start_dec_timer = std::chrono::high_resolution_clock::now();
+
+            // Load the snarl tree and graph
+            // Tell the IO library about libvg types.
+            if (!stoat::io::register_libvg_io()) {
+                throw std::runtime_error("error[stoat vgio]: Could not register libvg types with libvgio");
+            }
+
+            // Load the graph and make it a PathPositionHandleGraph
+            std::unique_ptr<handlegraph::PathHandleGraph> graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
+            bdsg::PathPositionOverlayHelper overlay_helper;
+            bdsg::PathPositionHandleGraph* path_position_graph;
+            path_position_graph =  overlay_helper.apply(graph.get());
+
+            // Get the reference sample names from the prefix
+            graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+                std::string path_name = graph->get_path_name(path);
+
+                if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
+                                reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
+                    // If these paths match
+                    ref_path_names.emplace(graph->get_path_name(path));
+                }
+
+                return true;
+            });
+
+            // Load the distance index
+            std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
+            distance_index->deserialize(dist_path);
+
+            // Check if chromosomes specified in the --chr file are present in the graph
+            for (const auto& chr : ref_path_names) {
+                stoat::LOG_TRACE("Sequence name not found in -r/--chr file: " + chr);
+                if (!graph->has_path(chr)) {
+                    throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
+                }
+            }
+            // JEAN if ref_path_names was empty, maybe here add helpful message on how to find the reference paths from the graph
+
+            // The snarl collection requires a sample_haplotypes but we don't want to work on the pangenome's haplotypes here,
+            // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
+            std::vector<stoat::sample_hap_t> sample_haplotypes;
+
+            // prepare a Writer for the collection
+            std::string snarls_filename = output_dir + "/snarl_info.tsv";
+            if (bgzip_output) {
+                snarls_filename += ".gz";
+            }
+
+            std::shared_ptr<stoat::Writer> snarl_writer;
+            if ((snarls_filename.compare(snarls_filename.length()-3, 3, ".gz") == 0) ||
+                (snarls_filename.compare(snarls_filename.length()-4, 4, ".bgz") == 0)) {
+                snarl_writer.reset(new BgzWriter(snarls_filename));
+            } else {
+                snarl_writer.reset(new StdWriter(snarls_filename));
+            }
+
+            // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
+            snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
+                true, //find_alleles_first, doesn't matter in this case
+                true, // walks_requested
+                [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
+                    SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
+                },
+                false, //alleles_requested
+                [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles
+                    return std::vector<size_t>();
+                }, 
+                false, // sequence_requested 
+                ref_path_names, // reference 
+                false, //check distances
+                *snarl_writer, // Writer object for the snarls
+                !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
+                ); 
+
+            // done saving the snarls, close the writer
+            snarl_writer->close();
+
+            auto end_dec_timer = std::chrono::high_resolution_clock::now();
+            stoat::LOG_INFO("Snarl decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
+        
         }
-        // JEAN if ref_path_names was empty, maybe here add helpful message on how to find the reference paths from the graph
-
-        // The snarl collection requires a sample_haplotypes but we don't want to work on the pangenome's haplotypes here,
-        // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
-        std::vector<stoat::sample_hap_t> sample_haplotypes;
-
-        // prepare a Writer for the collection
-        std::string snarls_filename = output_dir + "/snarl_info.tsv";
-        if (bgzip_output) {
-            snarls_filename += ".gz";
-        }
-        std::shared_ptr<stoat::Writer> snarl_writer;
-        if ((snarls_filename.compare(snarls_filename.length()-3, 3, ".gz") == 0) ||
-            (snarls_filename.compare(snarls_filename.length()-4, 4, ".bgz") == 0)) {
-            snarl_writer.reset(new BgzWriter(snarls_filename));
-        } else {
-            snarl_writer.reset(new StdWriter(snarls_filename));
-        }
-
-        // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
-        snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
-            true, //find_alleles_first, doesn't matter in this case
-            true, // walks_requested
-            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
-                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
-            },
-            false, //alleles_requested
-            [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles
-                return std::vector<size_t>();
-            }, 
-            false, // sequence_requested 
-            ref_path_names, // reference 
-            false, //check distances
-            *snarl_writer, // Writer object for the snarls
-            !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
-            ); 
-
-        // done saving the snarls, close the writer
-        snarl_writer->close();
-
-        auto end_dec_timer = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Snarl decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
 
         if (only_prepare_snarls) {
             // we're done
@@ -339,13 +436,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
     //TODO: I don't think this is used
     if (node_mod) {
         if (ref_path_names.empty()) {
-            for (const std::string& ref : snarl_collection.get_reference_names()) {
+            for (const std::string& ref : node_collection.get_reference_names()) {
                 ref_path_names.insert(ref);
             }
         }
     } else {
         if (ref_path_names.empty()) {
-            for (const std::string& ref : node_collection.get_reference_names()) {
+            for (const std::string& ref : snarl_collection.get_reference_names()) {
                 ref_path_names.insert(ref);
             }
         }
@@ -366,6 +463,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         } else {
             snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
         }
+
         // We are done reading through the vcf file so close it
         vcf_parser.close_vcf();
 
@@ -389,11 +487,13 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Writing genotypes in " + genotype_path);
         // JEAN would reduce memory to write the collection while genotyping the snarls, one chr at a time, appending to the output file (or in separate chr files).
         auto start_writegt_timer = std::chrono::high_resolution_clock::now();
+
         if (node_mod) {
             node_collection.write_node_data_collection(*gt_writer);
         } else {
             snarl_collection.write_snarl_data_collection(*gt_writer);
         }
+
         gt_writer->close();
         auto end_writegt_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Writing genotypes took " + std::to_string(std::chrono::duration<double>(end_writegt_timer - start_writegt_timer).count()) + " s");

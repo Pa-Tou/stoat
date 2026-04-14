@@ -16,7 +16,8 @@ NodeDataCollection::NodeDataCollection(std::unordered_map<std::string, size_t> s
                     sample_to_index(sample_to_index) {}
 
 // This goes through all the nodes and fills in the data
-void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandleGraph& graph, 
+                                             const bdsg::SnarlDistanceIndex& distance_index,
                                              const std::vector<stoat::sample_hap_t>& sample_haplotypes,
                                              bool find_alleles_first,
                                              bool walks_requested,
@@ -26,8 +27,10 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
                                              const std::function<std::vector<size_t>(const net_handle_t& node, const node_info_t& node_data,
                                                                                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                              bool sequence_requested,
-                                             const std::unordered_set<std::string>& reference_samples, bool check_distances,
-                                             stoat::Writer& out_writer, bool keep_nodes) {
+                                             const std::unordered_set<std::string>& reference_samples, 
+                                             bool check_distances,
+                                             stoat::Writer& out_writer, 
+                                             bool keep_nodes) {
 
     // If we are going to write the nodes, then we are going to write all the nodes to a temporary file, then write the header (which isn't done until we find
     // all the nodes since there could be new references added), then copy the temporary file after the header
@@ -62,6 +65,7 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
     // Get a list of all chains in root
     std::vector<handlegraph::net_handle_t> chains;
     chains.reserve(50);
+
     handlegraph::net_handle_t root = distance_index.get_root();
     distance_index.for_each_child(root, [&] (handlegraph::net_handle_t chain) {
         chains.emplace_back(chain);
@@ -71,7 +75,6 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
     // Count the number of chains that we added and the number of chains that we actually process,
     // as a way of debugging the parallelization. Not in ifdef because it needs to go in the omp parallel shared
     size_t chains_added = chains.size();
-    size_t chains_processed = 0;
     bool keep_going = !chains.empty();
 
     // Keep track of which references we've seen and their index in reference_names
@@ -82,10 +85,10 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
         reference_name_to_index[ref_name] = reference_names.size();
         reference_names.emplace_back(ref_name);
     }
-    
+
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(chains, keep_going, chains_added, chains_processed, all_node_data, node_to_walks, node_to_alleles_by_sample, node_to_sequences, reference_names, all_sample_haplotypes)
+    #pragma omp parallel shared(chains, keep_going, chains_added, all_node_data, node_to_alleles_by_sample, node_to_sequences, reference_names, all_sample_haplotypes)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
@@ -97,7 +100,6 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
                 chain = chains.back();
                 chains.pop_back();
                 #ifdef DEBUG_NODE_DATA_COLLECTION
-                chains_processed++;
                 #endif
                 }
 
@@ -692,35 +694,37 @@ std::unordered_map<std::string, size_t> NodeDataCollection::get_sample_to_index_
 }
 
 void NodeDataCollection::get_all_walks_through_node(
-        const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-        const net_handle_t& node, const node_info_t& node_data, std::vector<stoat::PathTraversal>& walks, 
-        size_t walk_cycle_limit ) {
+        const handlegraph::PathPositionHandleGraph& graph, 
+        const bdsg::SnarlDistanceIndex& distance_index,
+        const net_handle_t& node, 
+        const node_info_t& node_data, 
+        std::vector<stoat::PathTraversal>& walks, 
+        size_t walk_cycle_limit) {
 
-#ifdef DEBUG_NODE_DATA_COLLECTION
-    std::cerr << "Get all possible walks through node " << distance_index.net_handle_as_string(node) << std::endl;
-#endif
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+        std::cerr << "Get all possible walks through node " << distance_index.net_handle_as_string(node) << std::endl;
+    #endif
 
     // Path exploration
     std::vector<std::vector<handlegraph::net_handle_t>> paths = {
         {distance_index.get_bound(node, false, true)}
     };
-    
+
     std::vector<std::vector<handlegraph::net_handle_t>> walks_as_net_handles;
-    
+
     // How many steps have we taken trying to enumerate paths? Includes all all paths
     size_t steps_taken = 0;
-
     bool break_node = false;
-    
+
     // For each incomplete path in paths, walk out from the end and add a copy of the path plus each next step to paths
     // Do this until the path reaches the end
     while (!paths.empty()) {
         std::vector<handlegraph::net_handle_t> path = std::move(paths.back());
         paths.pop_back();
-    
+
         std::unordered_map<handlegraph::net_handle_t, size_t> dict_path_occ;
         bool cycle = false;
-    
+
         // TODO: Put this back
         for (const auto& net : path) {
             if (++dict_path_occ[net] > walk_cycle_limit + 1) {
@@ -728,16 +732,6 @@ void NodeDataCollection::get_all_walks_through_node(
                 break;
             }
         }
-    
-        // TODO: Add out_fail
-        // TODO: Get the child count properly
-        //if (steps_taken++ > walk_steps_limit) {
-        //    #pragma omp critical(out_fail)
-        //    out_fail << distance_index.node_id(distance_index.get_bound(node, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(node, true, true)) 
-        //             << "\titeration_calculation_out = " << std::endl;// << children << " children\n";
-        //    break_node = true;
-        //    break;
-        //}
 
         // Follow edges from the last element in path
         if (!path.empty()) {
@@ -753,10 +747,10 @@ void NodeDataCollection::get_all_walks_through_node(
                         walks_as_net_handles.emplace_back(path);
                         walks_as_net_handles.back().push_back(next_child);
                     }
-            
+
                 } else {
                     //TODO: Look for the cycle sooner
-            
+
                     if (cycle) { // Case where we find a loop
                         return false;
                     }
@@ -767,281 +761,37 @@ void NodeDataCollection::get_all_walks_through_node(
             });
         }
     }
-    
+
     if (break_node) {
         walks_as_net_handles.clear();
     }
 
-#ifdef DEBUG_NODE_DATA_COLLECTION
-    // Validate paths
-    std::set<std::vector<handlegraph::net_handle_t>> found_walks;
-    for (const auto& walk : walks_as_net_handles) {
-        for (size_t i = 0 ; i < walk.size() - 1 ; i++) {
-            assert(distance_index.distance_in_parent(node, walk[i], distance_index.flip(walk[i+1])) == 0);
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+        // Validate paths
+        std::set<std::vector<handlegraph::net_handle_t>> found_walks;
+        for (const auto& walk : walks_as_net_handles) {
+            for (size_t i = 0 ; i < walk.size() - 1 ; i++) {
+                assert(distance_index.distance_in_parent(node, walk[i], distance_index.flip(walk[i+1])) == 0);
+            }
+            assert(found_walks.count(walk) == 0);
+            assert(walk.front() == distance_index.get_bound(node, false, true));
+            assert(walk.back() == distance_index.get_bound(node, true, false));
+            found_walks.insert(walk);
         }
-        assert(found_walks.count(walk) == 0);
-        assert(walk.front() == distance_index.get_bound(node, false, true));
-        assert(walk.back() == distance_index.get_bound(node, true, false));
-        found_walks.insert(walk);
-    }
-#endif
+    #endif
 
     walks = stoat::convert_path_traversals(distance_index, graph, walks_as_net_handles);  
- 
-#ifdef DEBUG_NODE_DATA_COLLECTION
-    // Validate paths
-    std::cerr << "Found " << walks.size() << " paths through the node" << std::endl;
-    for (const auto& walk : walks) {
-        
-        std::cerr << "\t" << walk.to_string() << std::endl;
-    }
-#endif
+    
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+        // Validate paths
+        std::cerr << "Found " << walks.size() << " paths through the node" << std::endl;
+        for (const auto& walk : walks) {
+            
+            std::cerr << "\t" << walk.to_string() << std::endl;
+        }
+    #endif
 
     return;
 }
 
-// void NodeDataCollection::get_walks_from_alleles(
-//         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-//         const net_handle_t& node, const node_info_t& node_data, std::vector<stoat::PathTraversal>& walks) {
-
-//     #ifdef DEBUG_NODE_DATA_COLLECTION
-//         std::cerr << "Get walks from " << node_data.alleles_by_sample.allele_count << " alleles" << std::endl;
-//         std::cerr << "   for " << node_data.alleles_by_sample.alleles.size() << " samples " << std::endl;
-//     #endif
-
-//     // Get the walks by tracing the haplotype paths through the node
-//     ///////////////////////////////////////////// Get one step_handle_t for the each allele
-
-//     handlegraph::handle_t start_in = distance_index.get_handle(distance_index.get_bound(node, false, true), &graph);
-//     handlegraph::handle_t end_in = distance_index.get_handle(distance_index.get_bound(node, true, true), &graph);
-
-//     std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC,
-//                                                   handlegraph::PathSense::REFERENCE,
-//                                                   handlegraph::PathSense::HAPLOTYPE};
-
-//     // For each allele, did we find a step for it yet?
-//     std::vector<bool> got_step(node_data.alleles_by_sample.allele_count, false);
-
-//     // One step per allele
-//     std::vector<handlegraph::step_handle_t> first_steps(node_data.alleles_by_sample.allele_count);
-
-//     for (size_t sample_i = 0 ; sample_i < node_data.alleles_by_sample.alleles.size() ; sample_i++) {
-//         size_t allele_num = node_data.alleles_by_sample.alleles[sample_i];
-//         if (allele_num == std::numeric_limits<size_t>::max() || got_step.at(allele_num)) {
-//             // If we already found a step for this allele, skip it
-//             continue;
-//         }
-
-//         // Look for a step on this sample haplotype
-//         const sample_hap_t& target_sample = node_data.all_sample_haplotypes[sample_i];
-//         bool found_step = false;
-//         for (const auto& sense : senses) {
-//             graph.for_each_step_of_sense(start_in, sense, [&](const handlegraph::step_handle_t& step) {
-
-//                 if (target_sample == stoat::sample_hap_t(graph, graph.get_path_handle_of_step(step))) {
-//                     // If this step is on the haplotype we want, then remember it and remember that we got it
-//                     first_steps[allele_num] = step;
-//                     got_step[allele_num] = true;
-//                     found_step = true;
-//                     // Return false to stop looping through steps
-//                     return false;
-//                 } else {
-//                     // Continue to other haplotypes
-//                     return true;
-//                 }
-//             });
-//             if (found_step) {
-//                 // Break out of the inner loop and continue to the next sample and allele
-//                 break;
-//             }
-//         }
-//         #ifdef DEBUG_NODE_DATA_COLLECTION
-//         // Right now, the path partitioner only assigns a path to a partition if it traverses both bounds of the node.
-//         assert(found_step);
-//         #endif
-//     }
-//     #ifdef DEBUG_NODE_DATA_COLLECTION
-//     // Check that we got a step for each allele
-//     for (bool check : got_step) {
-//         assert(check);
-//     }
-//     #endif
-
-
-//     //////////////////////////////////// Follow each of the paths through the node and create a walk
-
-//     for (const handlegraph::step_handle_t& first_step : first_steps) {
-
-//         //Accumulate the min and max lengths of this walk, based on the lengths of nodes
-//         size_t min_length = 0;
-//         size_t max_length = 0;
-
-//         // Get the step of this path on both the start and end nodes.
-//         std::vector<handlegraph::step_handle_t> boundary_steps;
-//         for (const auto& sense : senses) {
-//             graph.for_each_step_of_sense(start_in, sense, [&](const handlegraph::step_handle_t& this_step) {
-//                 if (graph.get_path_handle_of_step(first_step) == graph.get_path_handle_of_step(this_step)) {
-//                     boundary_steps.emplace_back(this_step);
-//                  }
-//                 return true;
-//             }); 
-//             graph.for_each_step_of_sense(end_in, sense, [&](const handlegraph::step_handle_t& this_step) {
-//                 if (graph.get_path_handle_of_step(first_step) == graph.get_path_handle_of_step(this_step)) {
-//                     boundary_steps.emplace_back(this_step);
-//                  }
-//                 return true;
-//             });
-//         }
-//         if (boundary_steps.size() > 1) {
-//             // Start a new walk
-//             walks.emplace_back();
-//             stoat::PathTraversal& current_walk = walks.back();
-
-//             // Now sort the list of steps on the two boundary nodes
-//             sort(boundary_steps.begin(), boundary_steps.end(), [&](const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
-//                 return graph.get_position_of_step(a) < graph.get_position_of_step(b);
-//             });
-
-//             // Go through the boundary nodes up to the next-to-last one and find the walk to the next one
-//             //TODO: This assumes that the path goes into the node then exits, it will fail if the path started 
-//             // inside the node and the first traversal of a boundary node is leaving it
-
-//             for (size_t boundary_i = 0 ; boundary_i < boundary_steps.size()-1 ; boundary_i+= 2) {
-//                 //TODO: It would be more efficient to calculate the PathTraversal and length counts directly here but I don't want to copy code too much
-
-//                 // For the path, add an empty node for each time we leave and re-enter the node
-//                 if (boundary_i != 0) {
-//                     stoat::node_traversal_t traversal (0, true);
-//                     current_walk.add_node_traversal_t(traversal);
-//                 }
-
-//                 // Add the step of the boundary node going into the node for each time it re-enters the node
-//                 // TODO: Make the PathTraversal add from a handle_t or net_handle_t
-//                 //current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
-//                 handlegraph::handle_t start_handle = graph.get_handle_of_step(boundary_steps[boundary_i]);
-//                 stoat::node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
-//                 current_walk.add_node_traversal_t(start_traversal);
-//                 handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
-
-//                 while (step != boundary_steps[boundary_i+1]) {
-//                     // Step is a node inside the node, and it may be nested inside children of the node
-//                     // If the node is a child of the node, then its parent is a trivial chain and its grandparent is the node
-//                     // If it is the first node in a chain that is the child of the node, then it is one of its parent's boundary nodes pointing
-//                     //   into the chain and its grandparent is the node.
-//                     // In any other case we want to ignore it
-//                     // TODO: I think this will be faster than skipping to the end of the chain and looking for the right path
-//                     handlegraph::handle_t node = graph.get_handle_of_step(step);
-//                     handlegraph::net_handle_t node_net = distance_index.get_net(node, &graph);
-//                     handlegraph::net_handle_t parent = distance_index.get_parent(node_net);
-
-//                     // Add to the path, depending on if this is a node or chain
-//                     if (distance_index.get_parent(parent) == node) {
-//                         if (distance_index.is_trivial_chain(parent)) {
-//                             // This node is really a node in the node, then add it to the path 
-
-//                             handlegraph::handle_t node_handle = distance_index.get_handle(parent, &graph);
-//                             stoat::node_traversal_t node_traversal (graph.get_id(node_handle), graph.get_is_reverse(node_handle));
-//                             current_walk.add_node_traversal_t(node_traversal);
-
-//                             min_length += distance_index.minimum_length(parent);
-//                             max_length += distance_index.maximum_length(parent);
-
-//                         } else if (node_net == distance_index.get_bound(parent, false, true)) {
-//                             // This node is going into the child chain going forward
-
-//                             // Add the start bound going in
-//                             handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, false, true), &graph);
-//                             stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
-//                             current_walk.add_node_traversal_t(chain_start_traversal);
-
-//                             // Add the interior of the chain as a fake node
-//                             stoat::node_traversal_t chain_traversal (0, false);
-//                             current_walk.add_node_traversal_t(chain_traversal);
-
-//                             // Add the end bound going out
-//                             handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, true, false), &graph);
-//                             stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
-//                             current_walk.add_node_traversal_t(chain_end_traversal);
-
-//                             min_length += distance_index.minimum_length(parent);
-//                             max_length += distance_index.maximum_length(parent);
-
-//                         } else if (node_net == distance_index.get_bound(parent, true, true)) {
-//                             // This node is going into the child chain going backward
-
-//                             // Add the end bound going in
-//                             handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, true, true), &graph);
-//                             stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
-//                             current_walk.add_node_traversal_t(chain_start_traversal);
-
-//                             // Add the interior of the chain as a fake node
-//                             stoat::node_traversal_t chain_traversal (0, false);
-//                             current_walk.add_node_traversal_t(chain_traversal);
-
-//                             // Add the start bound going out
-//                             handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, false, false), &graph);
-//                             stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
-//                             current_walk.add_node_traversal_t(chain_end_traversal);
-
-//                             min_length += distance_index.minimum_length(parent);
-//                             max_length += distance_index.maximum_length(parent);
-//                         }
-//                     }
-
-//                     step = graph.get_next_step(step);
-
-//                 }//end while loop going through a traversal of the node
-
-//                 // Add the bound
-//                 handlegraph::handle_t end_handle = graph.get_handle_of_step(step);
-//                 stoat::node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
-//                 current_walk.add_node_traversal_t(end_traversal);
-
-//             }// end for loop for a pair of boundary nodes for one traversal of the node
-//             assert(current_walk.get_path().size() >= 2);
-//             current_walk.add_min_allele_len(min_length);
-//             current_walk.add_max_allele_len(max_length);
-
-//         }// end if there are enough boundary nodes
-//     }// end for each first step (per allele)
-
-//     #ifdef DEBUG_NODE_DATA_COLLECTION
-//     std::cerr << "Found walks from sets" << std::endl;
-//     for (const stoat::PathTraversal& walk : walks) {
-//         std::cerr << walk.to_string();
-//         std::cerr << std::endl;
-//     }
-//     #endif
-
-//     return;
-// }
-
-// std::vector<std::string> NodeDataCollection::get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-//              const std::vector<stoat::PathTraversal>& paths) const {
-
-//     std::vector<std::string> sequences;
-//     for (const stoat::PathTraversal& path : paths) {
-//         sequences.emplace_back();
-//         const std::vector<stoat::node_traversal_t>& nodes = path.get_path(); 
-//         if (nodes.size() > 0) {
-//             handlegraph::nid_t start_id = nodes.front().get_node_id();
-//             handlegraph::nid_t end_id = nodes.back().get_node_id(); 
-//             for (size_t i = 0 ; i < nodes.size() ; i++) {
-//                 const stoat::node_traversal_t& node = nodes[i];
-//                 if (node.get_node_id() != start_id && node.get_node_id() != end_id) {
-//                     if (node.get_node_id() == 0) {
-//                         sequences.back() += "N";
-//                     } else {
-//                         //TODO: Does this take into account the reverse complement?
-//                         sequences.back() += graph.get_sequence(graph.get_handle(node.get_node_id(), node.get_is_reverse()));
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     return sequences;
-// }
-
 }
-
-

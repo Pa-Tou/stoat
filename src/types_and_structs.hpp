@@ -293,7 +293,7 @@ struct node_info_t {
         // For each haplotype in all_sample_haplotypes, an assignment to an allele number
         const allele_by_sample_t& alleles_by_sample;
 
-        const std::string& sequences_by_allele
+        const std::string& sequences_by_allele;
 
 };
 
