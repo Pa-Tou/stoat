@@ -191,35 +191,39 @@ std::string methods_stats_prediction(const std::string& file_path, const bool& c
         return "linreg"; // assuming eqtl format
     }
 
-    std::set<double> unique_values;
-    bool has_non_integer = false;
+    bool only_0_1 = true;
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
+
         if (!(iss >> sample_name >> phenoStr)) {
             throw std::invalid_argument("Malformed line: " + line);
         }
+
         double value;
         try {
             value = std::stod(phenoStr);
         } catch (...) {
             throw std::invalid_argument("Phenotype is not numeric: " + phenoStr);
         }
-        unique_values.insert(value);
-        if (value != static_cast<int>(value)) {
-            has_non_integer = true;
+
+        if (!(value == 0.0 || value == 1.0)) {
+            only_0_1 = false;
         }
     }
 
     file.close();
 
-    if (eqtl || has_non_integer) {
+    if (only_0_1 && covariate) {
+        return "logreg"; // binary + covariate
+    } 
+    else if (only_0_1) {
+        return "chi2"; // binary
+    } 
+    else {
         return "linreg"; // quantitative
-    } else if (unique_values.size() == 2 && covariate) {
-        return "logreg"; // binary + covar
-    } else {
-        return "chi2"; // binary no covar
     }
+
 }
 
 stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
