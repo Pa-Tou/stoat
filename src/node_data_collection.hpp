@@ -20,6 +20,20 @@ class NodeDataCollection {
         NodeDataCollection();
         NodeDataCollection(std::unordered_map<std::string, size_t> sample_to_index);
 
+        void fill_in_node_info(const handlegraph::PathPositionHandleGraph& graph, 
+                        const bdsg::SnarlDistanceIndex& distance_index,
+                        const std::vector<stoat::sample_hap_t>& sample_haplotypes,
+                        bool find_alleles_first,
+                        bool walks_requested,
+                        const std::function<void(const net_handle_t& node, const node_info_t& node_data, 
+                                                    std::vector<PathTraversal>& walks)>& find_walks,
+                        bool alleles_requested,
+                        const std::function<std::vector<size_t>(const net_handle_t& node, const node_info_t& node_data, 
+                                                                const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
+                        bool sequence_requested, 
+                        const std::unordered_set<std::string>& reference_samples, bool check_distances,
+                        Writer& out_writer, bool keep_nodes);
+
         /// Use if the node allele_by_sample (which assigns sample/haplotypes to each node_walk) were not found during construction. Go through
         /// all nodes and call find_alleles_by_sample, which returns a vector of allele assignments for each sample_hap_t in all_sample_haplotypes.
         ///  find_alleles_by_sample() should return the allele_by_sample field of the node_info_t, but since the node_info_t
@@ -58,8 +72,17 @@ class NodeDataCollection {
             return reference_names;
         };
 
-        ///////////////////////////// Helper functions for use in add_alleles_by_sample
+    ///////////////////////////// Helper functions for use in add_alleles_by_sample
 
+    static void get_all_walks_through_node(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+                        const net_handle_t& node, const node_info_t& node_data, std::vector<stoat::PathTraversal>& walks,
+                        size_t walk_cycle_limit = 1);
+
+    /// Helper function for finding walks through the node. Fills in walks
+    /// the collection is assumed to have the allele_by_sample filled in and walks must be filled in to match the allele_by_sample
+    /// This requires a PathPositionHandleGraph to make sure that multiple traversals of the node are properly ordered
+    // static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
+    //                     const net_handle_t& node,  const node_info_t& node_data, std::vector<stoat::PathTraversal>& walks);
 
     // fill in the genotypes of the nodes based on the edge matrix built on a VCF stream
     // the VCF is read and parsed by chromosome
@@ -96,6 +119,8 @@ class NodeDataCollection {
         /// corresponds to the index of an allele in node_to_walks vectors, and node_to_sequences vectors
         std::unordered_map<stoat::node_traversal_t, allele_by_sample_t> node_to_alleles_by_sample;
 
+        std::unordered_map<stoat::node_traversal_t, std::string> node_to_sequences;
+
         ///////////////// Lists of strings and stuff that are stored as indexes in the real data structures instead of duplicating them a bunch
 
         /// The string representations of reference paths
@@ -129,6 +154,10 @@ class NodeDataCollection {
 
         /// Write just one node from the collection
         void write_node_data_line(Writer& out_writer, const node_info_internal_t& node_info) const;
+        void write_node_data_line(stoat::Writer& out_writer, 
+                                                const node_info_internal_t& node_data,
+                                                const std::string* sequences, 
+                                                const allele_by_sample_t* alleles_by_sample) const;
         void write_node_data_line_file(Writer& out_writer, const node_info_internal_t& node_info) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the node records

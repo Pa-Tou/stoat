@@ -31,7 +31,12 @@ namespace stoat_command {
 void print_help_node() {
     stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat node [options]\n\n"
+              << "  -g, --graph FILE                Path to the graph file (only Packed Graph works for now)\n"
+              << "  -d, --dist FILE                 Path to the distance index file\n"
               << "  -v, --vcf FILE                  Path to the vcf file\n"
+              << "  -s, --node FILE                 Path to the node file\n"
+              << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
+              << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
               << "  -f, --resolve-node              Resolve conflicting calls in the node that may arise in nested nodes. This may be slow\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
