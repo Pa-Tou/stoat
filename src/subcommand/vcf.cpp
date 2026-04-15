@@ -11,8 +11,8 @@
 #include <bdsg/overlays/overlay_helper.hpp>
 #include <vg/io/vpkg.hpp>
 
-#include "../banner.hpp"
 #include "../log.hpp"
+#include "../banner.hpp"
 #include "../arg_parser.hpp"
 #include "../io/register_io.hpp"
 #include "../snarl_data_collection.hpp"
