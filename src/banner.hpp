@@ -2,6 +2,7 @@
 #define BANNER_HPP
 
 #include <iostream>
+#include "log.hpp"
 
 namespace stoat {
     void print_ascii_banner(const std::string &version);
