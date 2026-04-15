@@ -4,8 +4,8 @@
 #include <getopt.h>
 #include <filesystem>
 
-#include "../banner.hpp"
 #include "../log.hpp"
+#include "../banner.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
 #include "../writer.hpp"
