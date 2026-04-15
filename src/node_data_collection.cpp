@@ -42,6 +42,7 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
     number_node_analyzed = 0;
 
     if (out_filename != "") {
+
         // Make sure that the temporary file we write doesn't already exist 
         // Since the actual file name is given by the user (probably) it can be overwritten (probably)
         while (std::filesystem::exists(out_temp_filename)) {
@@ -62,20 +63,7 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
         }
     }
     
-    // Get a list of all chains in root
-    std::vector<handlegraph::net_handle_t> chains;
-    chains.reserve(50);
-
-    handlegraph::net_handle_t root = distance_index.get_root();
-    distance_index.for_each_child(root, [&] (handlegraph::net_handle_t chain) {
-        chains.emplace_back(chain);
-        return true;
-    });
-
-    // Count the number of chains that we added and the number of chains that we actually process,
-    // as a way of debugging the parallelization. Not in ifdef because it needs to go in the omp parallel shared
-    size_t chains_added = chains.size();
-    bool keep_going = !chains.empty();
+    bool keep_going = true;
 
     // Keep track of which references we've seen and their index in reference_names
     std::unordered_map<std::string, size_t> reference_name_to_index;
@@ -88,179 +76,39 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
 
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(chains, keep_going, chains_added, all_node_data, node_to_alleles_by_sample, node_to_sequences, reference_names, all_sample_haplotypes)
+    #pragma omp parallel shared(keep_going, reference_names, all_sample_haplotypes)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
         {
             while (keep_going) {
-                handlegraph::net_handle_t chain;
-                #pragma omp critical(node_collection)
-                {
-                chain = chains.back();
-                chains.pop_back();
-                #ifdef DEBUG_NODE_DATA_COLLECTION
-                #endif
-                }
-
                 // Everything in here is parallelized
                 #pragma omp task
                 {
+                    graph.for_each_handle([&](const handlegraph::handle_t& net) {
 
-                    distance_index.for_each_child(chain, [&] (handlegraph::net_handle_t node) {
-                        if (distance_index.is_node(node)) { // TODO: change this because could be everything else like chain, node, ...
-    
-                            #ifdef DEBUG_NODE_DATA_COLLECTION
-                            std::cerr << "At node " << distance_index.net_handle_as_string(node) << std::endl;
-                            #endif
+                        size_t node_id = graph.get_id(net);
+                        bool is_reverse = graph.get_is_reverse(net);
+                        node_traversal_t node(node_id, is_reverse);
+                        size_t reference_index = graph.get_path_name(graph.get_path_handle_of_step(net));
+                        size_t position = graph.node_vector_offset(net);
+                        size_t depth = distance_index.get_depth(net);
+                        allele_by_sample_t alleles_by_sample;
+                        std::string node_sequence = graph.get_sequence(net);
+                        GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+                        node_info_t new_node_info(node, 
+                                                        reference_index == std::numeric_limits<size_t>::max() ? "NA" 
+                                                                                : reference_names.at(reference_index),
+                                                        position,
+                                                        depth,
+                                                        empty_genotypes,
+                                                        all_sample_haplotypes,
+                                                        alleles_by_sample,
+                                                        node_sequence);
 
-                            // Make the node_info_internal_t to fill in. Since it's multithreaded it's better to move() it instead of adding it here
-                            node_info_internal_t node_data;
-                            number_node_analyzed++;
-
-                            // Get the start and end nodes
-                            // Do it through the graph because it's a pain to get the orientation from the distance index
-                            handlegraph::handle_t start_in = distance_index.get_handle(distance_index.get_bound(node, false, true), &graph);
-                            node_data.node = stoat::node_traversal_t(graph.get_id(start_in), graph.get_is_reverse(start_in));
-
-                            // Add the depth of the node
-                            node_data.depth = distance_index.get_depth(node);
-
-                            // Get the offsets of the start and end nodes along the reference
-                            std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, distance_index, node, true, reference_samples, false);
-                            if (ranges.size() != 0) {
-                                // Check if we have already seen the reference path and if not add it
-                                size_t ref_index;
-
-                                //TODO: This just picks the first of possibly many reference ranges
-                                auto reference_range = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
-                                node_data.position = std::get<1>(reference_range);
-
-                                #pragma omp critical(node_collection)
-                                {
-                                    if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
-                                        ref_index = reference_names.size();
-                                        reference_name_to_index[std::get<0>(reference_range)] = ref_index;
-                                        reference_names.emplace_back(std::move(std::get<0>(reference_range)));
-                                    } else {
-                                        ref_index = reference_name_to_index[std::get<0>(reference_range)];
-                                    }
-                                }
-                                node_data.reference_index = ref_index;
-
-                            } else {
-                                node_data.position = 0;
-                                node_data.reference_index = std::numeric_limits<size_t>::max();
-                            }
-
-                            // Optionally fill in the walks, alleles, and sequences.
-                            // walks_by_allele and node_sequences must have the same number of entries because they correspond to the same alleles
-                            // The entries in alleles_by_sample correspond to these alleles so its max value (that is not inf) must be the length of the others
-                            std::vector<size_t> alleles_by_sample_vector; 
-                            allele_by_sample_t alleles_by_sample;
-                            std::string node_sequence;
-
-                            // This might cause problems because it is a reference but it doesn't get used so I think its fine
-                            // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
-                            GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
-
-                            // Make the node_info_t passed to the sample set/walk finders. They don't need to have all the information yet
-                            // the node_info is const in the finders so it won't change the walks/alleles/sequences
-                            // except when references to them are passed as the thing we're filling in
-                            node_info_t new_node_info(node_data.node, 
-                                                            node_data.reference_index == std::numeric_limits<size_t>::max() ? "NA" 
-                                                                                    : reference_names.at(node_data.reference_index),
-                                                            node_data.position,
-                                                            node_data.depth,
-                                                            empty_genotypes,
-                                                            all_sample_haplotypes,
-                                                            alleles_by_sample,
-                                                            node_sequence);
-
-                            if (find_alleles_first) {
-                                // Find alleles_by_sample_vector then walks
-                                if (alleles_requested) {
-                                    alleles_by_sample_vector = find_alleles_by_sample(node, new_node_info, all_sample_haplotypes); 
-
-                                    // Make the struct here so that it exists for finding the walks
-                                    // TODO: This could be done earlier but I don't think it's a big deal
-                                    size_t max_allele = 0;
-                                    bool has_allele = false;
-                                    for (size_t x : alleles_by_sample_vector) {
-                                        if (x != std::numeric_limits<size_t>::max()) {
-                                            max_allele = std::max(max_allele, x);
-                                            has_allele = true;
-                                        }
-                                    }
-                                    alleles_by_sample = allele_by_sample_t(has_allele ? max_allele+1 : 0, std::move(alleles_by_sample_vector));
-                                }
-                            } else {
-                                if (alleles_requested) {
-                                    alleles_by_sample_vector = find_alleles_by_sample(node, new_node_info, all_sample_haplotypes); 
-
-                                    //Make the struct here because it was done in the other case
-                                    // TODO: This could be done earlier but I don't think it's a big deal
-                                    size_t max_allele = 0;
-                                    for (size_t x : alleles_by_sample_vector) {
-                                        if (x != std::numeric_limits<size_t>::max()) {
-                                            max_allele = std::max(max_allele, x);
-                                        }
-                                    }
-                                    alleles_by_sample = allele_by_sample_t(max_allele+1, std::move(alleles_by_sample_vector));
-                                }
-                            }
-                            if (sequence_requested && !walks_requested) {
-                                throw std::runtime_error("stoat: Snarl data collection requested sequences without walks");
-                            }
-
-                            if (out_filename != "") {
-                                write_node_data_line(*temp_writer, node_data, &node_sequence, &alleles_by_sample);
-                            }
-
-                            if (keep_nodes) {
-                                // Add the node to the collection
-                                #pragma omp critical(node_collection)
-                                {
-                                    if (alleles_requested) {
-                                        node_to_alleles_by_sample.emplace(node_data.node, std::move(alleles_by_sample));
-                                    }
-                                    all_node_data.emplace_back(std::move(node_data));
-                                }
-                            }
-
-                            #pragma omp critical(node_collection)
-                            {
-   
-                                // Add the child chains to the stack
-                                distance_index.for_each_child(node, [&] (handlegraph::net_handle_t child) {
-    
-                                    chains.emplace_back(child);
-                                    #ifdef DEBUG_NODE_DATA_COLLECTION
-                                    chains_added++;
-                                    #endif
-                                    return true;
-                                });
-                            }
-    
-                        }
                         return true;
                     }); //end for each child
                 }// end omp task
-                #pragma omp critical(node_collection)
-                {
-                    keep_going = !chains.empty();
-                }
-
-                if (!keep_going) {
-                    // Wait for tasks to complete
-                    #pragma omp taskwait
-    
-                    #pragma omp critical(node_collection)
-                    {
-                        // Check again if we're done or not
-                        keep_going = !chains.empty();
-                    }
-                }
             }// end while loop
         }// End omp single
     }//end omp shared
