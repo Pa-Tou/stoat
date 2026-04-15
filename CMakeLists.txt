@@ -23,6 +23,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 # To change to OPTIMIZE=OFF use : cmake -DOPTIMIZE=OFF ..
 option(OPTIMIZE "Build with optimization [default: on]" ON)
 message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
+option(STOAT_STATIC "Build stoat as a fully static executable when dependencies allow it" OFF)
+message(STATUS "STOAT_STATIC is set to: ${STOAT_STATIC}")
 
 # This is the same flag used by libbdsg and libvgio to specify which version of libhandlegraph should be used
 OPTION(USE_INSTALLED_LIBHANDLEGRAPH "Use the version of libhandlegraph installed on the system, if it exists, instead of the bundled version [default: off]" OFF)
@@ -79,6 +81,38 @@ endif()
 
 find_package(OpenMP REQUIRED)
 
+set(STOAT_HANDLEGRAPH_TARGET handlegraph_shared)
+set(STOAT_VGIO_TARGET VGio::vgio)
+set(STOAT_BDSG_TARGET libbdsg)
+set(STOAT_OPENMP_TARGET OpenMP::OpenMP_CXX)
+
+if (STOAT_STATIC)
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        message(FATAL_ERROR "STOAT_STATIC is not supported on Darwin")
+    endif()
+
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+    set(STOAT_HANDLEGRAPH_TARGET handlegraph_static)
+    set(STOAT_VGIO_TARGET vgio_static)
+    set(STOAT_BDSG_TARGET libbdsg_static)
+
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        find_package(Threads REQUIRED)
+        execute_process(
+            COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libgomp.a
+            OUTPUT_VARIABLE STOAT_GOMP_STATIC
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if(NOT EXISTS "${STOAT_GOMP_STATIC}")
+            message(FATAL_ERROR "Unable to locate libgomp.a for STOAT_STATIC")
+        endif()
+        add_library(stoat_openmp_static INTERFACE)
+        target_compile_options(stoat_openmp_static INTERFACE -fopenmp)
+        target_link_libraries(stoat_openmp_static INTERFACE "${STOAT_GOMP_STATIC}" Threads::Threads)
+        set(STOAT_OPENMP_TARGET stoat_openmp_static)
+    endif()
+endif()
+
 # Produces handlegraph_shared and handlegraph_static targets (as well as handlegraph_objs)
 if (USE_INSTALLED_LIBHANDLEGRAPH)
     find_package(libhandlegraph)
@@ -99,6 +133,7 @@ add_subdirectory(${deps_DIR}/libvgio)
 # Make sure to never build its Python bindings.
 set(BUILD_PYTHON_BINDINGS OFF CACHE BOOL "Build Python bindings for libbdsg" FORCE)
 set(RUN_DOXYGEN OFF CACHE BOOL "Run libbdsg Doxygen" FORCE)
+set(BUILD_STATIC ${STOAT_STATIC} CACHE BOOL "Build libbdsg static targets" FORCE)
 add_subdirectory(${deps_DIR}/libbdsg)
 
 # Copied from https://github.com/vgteam/vg/wiki/Programming-with-the-vg-API
@@ -113,9 +148,13 @@ if(MSVC)
 file(GLOB gbwt_headerFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}  "${deps_DIR}/gbwt/include/gbwt/*.h")
 endif()
 set( gbwt_SRCS ${gbwt_libFiles} ${gbwt_headerFiles})
+if (STOAT_STATIC)
+add_library( gbwt STATIC ${gbwt_SRCS} )
+else()
 add_library( gbwt ${gbwt_SRCS} )
+endif()
 target_include_directories( gbwt PUBLIC "${deps_DIR}/gbwt/include")
-target_link_libraries( gbwt PUBLIC sdsl OpenMP::OpenMP_CXX )
+target_link_libraries( gbwt PUBLIC sdsl ${STOAT_OPENMP_TARGET} )
 install(TARGETS gbwt
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -129,9 +168,13 @@ if(MSVC)
 file(GLOB gbwtgraph_headerFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}  "${deps_DIR}/gbwtgraph/include/gbwt/*.h")
 endif()
 set( gbwtgraph_SRCS ${gbwtgraph_libFiles} ${gbwtgraph_headerFiles})
+if (STOAT_STATIC)
+add_library( gbwtgraph STATIC ${gbwtgraph_SRCS} )
+else()
 add_library( gbwtgraph ${gbwtgraph_SRCS} )
+endif()
 target_include_directories( gbwtgraph PUBLIC "${deps_DIR}/gbwtgraph/include")
-target_link_libraries( gbwtgraph PUBLIC gbwt handlegraph_shared )
+target_link_libraries( gbwtgraph PUBLIC gbwt ${STOAT_HANDLEGRAPH_TARGET} )
 install(TARGETS gbwtgraph
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -178,9 +221,9 @@ ${HTSLIB_INCLUDE_DIRS}
 target_link_libraries(${PROJECT_NAME}_objs
     Boost::boost
     ${HTSLIB_LIBRARIES}
-    libbdsg
+    ${STOAT_BDSG_TARGET}
     gbwtgraph
-    VGio::vgio
+    ${STOAT_VGIO_TARGET}
 )
 
 # Add Executable

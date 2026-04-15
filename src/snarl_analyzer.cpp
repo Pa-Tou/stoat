@@ -2,6 +2,8 @@
 #include "omp.h"
 #include "log.hpp"
 
+#include <atomic>
+
 using namespace stoat;
 namespace stoat_vcf {
 
@@ -100,19 +102,20 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
 
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);
- 
-    // count snarls filtered for the log
-    size_t total_number_snarl_filtered = 0;
 
-    // read each snarl and test it
-    // JEAN parallelize here?
-    size_t number_snarl_filtered = 0;
-    snarl_collection_stream.for_each_snarl_in_file(gt_reader, [&](snarl_info_t& snarl_info) {
-        bool filtered = test_and_write_snarl(snarl_info, out_writer);
-        number_snarl_filtered += (filtered ? 1 : 0);
-    });
-    
-    stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(number_snarl_filtered));
+    // count snarls filtered for the log
+    std::atomic<size_t> number_snarl_filtered(0);
+
+    // parallel parse+test, sequential batch write
+    snarl_collection_stream.for_each_snarl_in_file(gt_reader, [&](snarl_info_t& snarl_info) -> std::string {
+        std::string result = test_and_format_snarl(snarl_info, out_writer);
+        if (result.empty()) {
+            number_snarl_filtered++;
+        }
+        return result;
+    }, out_writer);
+
+    stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(number_snarl_filtered.load()));
 }
 
 // Decompose path std::string to vectorstoat::edge_t
@@ -157,10 +160,8 @@ std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
     return edges;
 }
 
-bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
-    // link to the phenotype
+std::string BinarySnarlAnalyzer::test_and_format_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& formatter) {
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
-    // remove non-variable allele, e.g. absent in both groups
     snarl_data.genotypes.remove_noncovered_samples();
     snarl_data.genotypes.remove_constant_predictors();
 
@@ -189,17 +190,13 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     // test this snarl using Fisher exact test and chi-squared test
     if (std::isnan(test_res.pv) && std::isnan(test_res.second_pv)) {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
-        return true;
+        return "";
     }
-    
-    out_writer.write_binary(snarl_data, test_res);
-    return false;
+
+    return formatter.format_binary(snarl_data, test_res);
 }
 
-bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
-    // This test checks if all members of one of the phenotype groups has the same allele that no other sample has.
-
-    // prepare an output objet and init to NA
+std::string ExactBinarySnarlAnalyzer::test_and_format_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& formatter) {
     test_result_t test_res;
     test_res.pv = std::nan("");
     test_res.second_pv = std::nan("");
@@ -232,21 +229,19 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
 
     // skip if we don't want to write that one
     if (!write_output) {
-        return true;
+        return "";
     }
-    
-    out_writer.write_binary(snarl_data, test_res);
-    return false;
+
+    return formatter.format_binary(snarl_data, test_res);
 }
-    
-bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
-    // link the phenotype
+
+std::string BinaryCovarSnarlAnalyzer::test_and_format_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& formatter) {
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
     snarl_data.genotypes.link_to_covariates(covariate);
 
     // remove non-variable predictors, e.g. alleles absent in all samples
     snarl_data.genotypes.remove_noncovered_samples();
-    snarl_data.genotypes.remove_constant_predictors();    
+    snarl_data.genotypes.remove_constant_predictors();
 
     // prepare an output objet and init to NA
     test_result_t test_res;
@@ -261,7 +256,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         snarl_data.genotypes.add_total_allele_count_covariable();
     
         // before performing the regression, try to reduce potential colinearity
-        snarl_data.genotypes.remove_duplicated_predictors();    
+        snarl_data.genotypes.remove_duplicated_predictors();
         snarl_data.genotypes.remove_one_allele();
     
         // prepare the matrices, fit the logistic model and test effect of alleles
@@ -271,24 +266,20 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     } else {
         stoat::LOG_DEBUG("Filtered: didn't pass the filters");
     }
-    
+
     if (std::isnan(test_res.pv)) {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
-        return true;
+        return "";
     }
- 
-    out_writer.write_binary_covar(snarl_data, test_res);
-    return false;
+
+    return formatter.format_binary_covar(snarl_data, test_res);
 }
 
-// Quantitative Table Generation
-bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
-
-    // link the phenotype
+std::string QuantitativeSnarlAnalyzer::test_and_format_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& formatter) {
     snarl_data.genotypes.link_to_quantitative_phenotype(phenotype);
     snarl_data.genotypes.link_to_covariates(covariate);
     // remove non-variable allele, e.g. absent in both groups
-    snarl_data.genotypes.remove_noncovered_samples();    
+    snarl_data.genotypes.remove_noncovered_samples();
     snarl_data.genotypes.remove_constant_predictors();
 
     // prepare an output objet and init to NA
@@ -296,6 +287,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
     test_res.pv = std::nan("");
 
     // should we test this snarl?
+        // add the allele path info to include in the output
     if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
         // add the allele path info to include in the output
         test_res.allele_paths = snarl_data.genotypes.allele_paths_as_str();
@@ -309,7 +301,6 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
 
         Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
         Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
-
         test_res.pv = lr.linear_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
     } else {
         // JEAN what should we do here? returning NA for now
@@ -318,18 +309,16 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
 
     if (std::isnan(test_res.pv)) {
         stoat::LOG_DEBUG("filtered: " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
-        return true;
+        return "";
     }
- 
-    out_writer.write_quantitative(snarl_data, test_res);
-    return false;
+
+    return formatter.format_quantitative(snarl_data, test_res);
 }
 
-bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
-    // get genes near snarl
+std::string EQTLSnarlAnalyzer::test_and_format_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& formatter) {
     std::vector<std::string> genes_near = gene_expression.get_genes_around_pos(snarl_data.ref_path, snarl_data.start_position, snarl_data.end_position, max_gene_dist);
 
-    bool filtered = true;
+    std::string combined_output;
 
     // test against the expression of each nearby gene
     for (std::string gene_name: genes_near) {
@@ -346,7 +335,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
         snarl_data.genotypes.link_to_quantitative_phenotype(gene_phenotype);
         snarl_data.genotypes.link_to_covariates(covariate);
         // remove non-variable allele, e.g. absent in both groups
-        snarl_data.genotypes.remove_noncovered_samples();    
+        snarl_data.genotypes.remove_noncovered_samples();
         snarl_data.genotypes.remove_constant_predictors();
 
         // prepare an output objet and init to NA
@@ -356,18 +345,17 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
         // should we test this snarl?
         if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
             // add the allele path info to include in the output
-            test_res.allele_paths = snarl_data.genotypes.allele_paths_as_str();
 
             // add covariate with the number of alleles (if necessary) to correct for the parent snarl effect (or normalize)
+            test_res.allele_paths = snarl_data.genotypes.allele_paths_as_str();
             snarl_data.genotypes.add_total_allele_count_covariable();
 
             // before performing the regression, try to reduce potential colinearity
             snarl_data.genotypes.remove_duplicated_predictors();
             snarl_data.genotypes.remove_one_allele();
-    
+
             Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
             Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
-
             test_res.pv = lr.linear_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
         } else {
             // JEAN what should we do here? returning NA for now
@@ -378,14 +366,11 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
             stoat::LOG_DEBUG("filtered: gene " + gene_name + ", " + snarl_data.start_node.to_string() + snarl_data.end_node.to_string());
             continue;
         }
-  
-        out_writer.write_eqtl(snarl_data, gene_name, test_res);
-        // at least this test was not filtered
-        filtered = false;
+
+        combined_output += formatter.format_eqtl(snarl_data, gene_name, test_res);
     }
 
-    // return if the snarl was filtered in all considered genes
-    return filtered;
+    return combined_output;
 }
 
 } // end namespace stoat

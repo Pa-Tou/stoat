@@ -1,0 +1,74 @@
+FROM ubuntu:22.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig
+ENV CMAKE_PREFIX_PATH=/usr/local
+
+RUN apt-get update && apt-get install -y \
+    autoconf \
+    automake \
+    build-essential \
+    cmake \
+    curl \
+    git \
+    libboost-all-dev \
+    libbz2-dev \
+    libdeflate-dev \
+    liblzma-dev \
+    libtool \
+    pkg-config \
+    wget \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+
+RUN curl -L --retry 5 --retry-delay 2 -o jansson.tar.gz https://codeload.github.com/akheron/jansson/tar.gz/refs/tags/v2.14 \
+    && tar -xzf jansson.tar.gz \
+    && cd jansson-2.14 \
+    && autoreconf -fi \
+    && ./configure --prefix=/usr/local --enable-static --disable-shared \
+    && make -j"$(nproc)" \
+    && make install \
+    && rm -rf /tmp/jansson-2.14 /tmp/jansson.tar.gz
+
+RUN curl -L --retry 5 --retry-delay 2 -o zlib.tar.gz https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz \
+    && tar -xzf zlib.tar.gz \
+    && cmake -S /tmp/zlib-1.3.1 -B /tmp/zlib-build \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build /tmp/zlib-build --target install -j"$(nproc)" \
+    && rm -f /usr/local/lib/libz.so /usr/local/lib/libz.so.* \
+    && rm -rf /tmp/zlib-1.3.1 /tmp/zlib-build /tmp/zlib.tar.gz
+
+RUN curl -L --retry 5 --retry-delay 2 -o htslib.tar.bz2 https://github.com/samtools/htslib/releases/download/1.23.1/htslib-1.23.1.tar.bz2 \
+    && tar -xjf htslib.tar.bz2 \
+    && cd /tmp/htslib-1.23.1 \
+    && ./configure --prefix=/usr/local --disable-shared --disable-libcurl --without-libdeflate \
+    && make -j"$(nproc)" \
+    && make install \
+    && rm -rf /tmp/htslib-1.23.1 /tmp/htslib.tar.bz2
+
+RUN curl -L --retry 5 --retry-delay 2 -o protobuf.tar.gz https://codeload.github.com/protocolbuffers/protobuf/tar.gz/refs/tags/v21.12 \
+    && tar -xzf protobuf.tar.gz \
+    && cmake -S /tmp/protobuf-21.12/cmake -B /tmp/protobuf-build \
+        -Dprotobuf_BUILD_TESTS=OFF \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DZLIB_USE_STATIC_LIBS=ON \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build /tmp/protobuf-build --target install -j"$(nproc)" \
+    && rm -rf /tmp/protobuf-21.12 /tmp/protobuf-build /tmp/protobuf.tar.gz
+
+WORKDIR /src
+COPY . /src
+
+RUN cmake -S /src -B /src/build-static -DSTOAT_STATIC=ON -DProtobuf_USE_STATIC_LIBS=ON -DZLIB_USE_STATIC_LIBS=ON -DCMAKE_FIND_LIBRARY_SUFFIXES='.a' \
+    && cmake --build /src/build-static --target stoat -j"$(nproc)"
+
+FROM ubuntu:22.04
+
+COPY --from=builder /src/bin/stoat /usr/local/bin/stoat
+
+ENTRYPOINT ["/usr/local/bin/stoat"]

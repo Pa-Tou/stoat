@@ -33,8 +33,8 @@ public:
     // get the type of phenotype, in case we do specific things outside of this class (although we should try to avoid it)
     stoat::phenotype_type_t get_phenotype_type() const;
     
-    /// For the given snarl, get the genotypes and test the snarl, then write results to outf
-    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) = 0;
+    /// For the given snarl, test and return formatted output string (empty if filtered)
+    virtual std::string test_and_format_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& formatter) = 0;
     
 //////////////// Private data members
 protected:
@@ -63,7 +63,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    std::string test_and_format_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& formatter);
 
 protected:
 
@@ -81,7 +81,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    std::string test_and_format_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& formatter);
 
 protected:
     std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
@@ -95,11 +95,11 @@ public:
     BinaryCovarSnarlAnalyzer(
         const stoat::SnarlDataCollection& snarl_collection,
         const stoat::CovariateTable& covariate,
-        const double maf_threshold, 
+        const double maf_threshold,
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    std::string test_and_format_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& formatter);
 
 /////////////////// Private data members
 protected:
@@ -113,13 +113,13 @@ class QuantitativeSnarlAnalyzer : public SnarlAnalyzer {
 public:
     
     QuantitativeSnarlAnalyzer(
-        const stoat::SnarlDataCollection& snarl_collection, 
+        const stoat::SnarlDataCollection& snarl_collection,
         const stoat::CovariateTable& covariate,
-        const double maf_threshold, 
+        const double maf_threshold,
         const stoat::QuantitativePhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) ;
+    std::string test_and_format_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& formatter);
 
 /////////////////// Private data members
 protected:
@@ -132,14 +132,14 @@ class EQTLSnarlAnalyzer : public SnarlAnalyzer {
 
 public:
     
-    EQTLSnarlAnalyzer(const stoat::SnarlDataCollection& snarl_collection, 
+    EQTLSnarlAnalyzer(const stoat::SnarlDataCollection& snarl_collection,
                       const stoat::CovariateTable& covariate,
-                      const double maf_threshold, 
+                      const double maf_threshold,
                       const stoat::GeneExpressionTable& gene_expression,
                       const size_t max_gene_dist,
                       const size_t min_individuals);
-    
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+
+    std::string test_and_format_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& formatter);
     
 protected:
 
