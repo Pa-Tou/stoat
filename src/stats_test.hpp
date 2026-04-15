@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <atomic>
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
@@ -58,9 +57,8 @@ private:
     static constexpr double kExactTestEpsilon2 = 9.094947017729282e-13;
     static constexpr double kExactTestBias = 1.0339757656912846e-25;
 
-    // Atomic: these counters are incremented from parallel OMP threads
-    std::atomic<size_t> chi2_zero{0};
-    std::atomic<size_t> chi2_inf{0};
+    size_t chi2_zero = 0;
+    size_t chi2_inf = 0;
 };
 
 class LinearRegression {
@@ -71,11 +69,10 @@ class LinearRegression {
         double linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
 
     private:
-        // Atomic: these counters are incremented from parallel OMP threads
-        std::atomic<size_t> count_number_sse_null{0};
-        std::atomic<size_t> count_number_few_sample{0};
-        std::atomic<size_t> count_number_f_stat_close_to_0{0};
-        std::atomic<size_t> count_number_f_stat_negative{0};
+        size_t count_number_sse_null = 0;
+        size_t count_number_few_sample = 0;
+        size_t count_number_f_stat_close_to_0 = 0;
+        size_t count_number_f_stat_negative = 0;
 };
 
 class LogisticRegression {
@@ -100,9 +97,8 @@ private:
     // tolerance to decide if the score and delta are small enough to consider the iteration to have converged
     const double conv_tol = 0.001;
 
-    // Atomic: these counters are incremented from parallel OMP threads
-    std::atomic<size_t> count_number_not_convergence{0};
-    std::atomic<size_t> count_number_negative_log_likelihood{0};
+    size_t count_number_not_convergence = 0;
+    size_t count_number_negative_log_likelihood = 0;
 
 };
 

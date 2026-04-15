@@ -90,10 +90,6 @@ class SnarlDataCollection {
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
         void for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
-        /// Optimized version: run iteratee in parallel, batch write results after each chunk.
-        /// The iteratee returns a formatted output string instead of writing directly.
-        void for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<std::string(snarl_info_t&)>& iteratee, stoat::Writer& writer);
-
 
         /// Write the collection of snarls to the given file
         void write_snarl_data_collection(Writer& out_writer) const;
@@ -158,28 +154,7 @@ class SnarlDataCollection {
 
         };
 
-        /// Holds all data parsed from a single snarl line (thread-safe: no shared maps needed)
-        struct snarl_line_data_t {
-            snarl_info_internal_t info;
-            std::vector<PathTraversal> walks;
-            std::vector<std::string> sequences;
-            allele_by_sample_t alleles;
-            bool has_alleles = false;
-        };
-
-        /// Parse a line into snarl_line_data_t without writing to shared maps (thread-safe)
-        snarl_line_data_t load_snarl_data_line_full(std::string& line);
-
-        /// Build snarl_info_t from line data and call iteratee while locals are still alive
-        /// (snarl_info_t stores references — must not outlive the locals created here)
-        void run_iteratee_on_one_snarl(const snarl_line_data_t& data,
-                                       const std::function<void(snarl_info_t&)>& iteratee) const;
-
-        /// String-returning variant for batch processing
-        std::string run_iteratee_on_one_snarl(const snarl_line_data_t& data,
-                                              const std::function<std::string(snarl_info_t&)>& iteratee) const;
-
-        //////////////////////////// The stuff holding the data
+        //////////////////////////// The stuff holding the data 
 
 
         /// This holds the snarl data as a map from the chromosome name to the data
@@ -205,9 +180,6 @@ class SnarlDataCollection {
 
 
         ///////////////// Lists of strings and stuff that are stored as indexes in the real data structures instead of duplicating them a bunch
-        // NOTE: reference_names, all_sample_haplotypes, and sample_to_index are populated
-        // during header loading and never modified after, so concurrent reads from
-        // parallel threads (e.g. in for_each_snarl_in_file) are safe.
 
         /// The string representations of reference paths
         /// Used by the snarl_info_internal_t's reference_index

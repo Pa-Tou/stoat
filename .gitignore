@@ -5,6 +5,8 @@ build/*
 ~output*
 bin/*
 *~
-output*/*
+output/*
+output_binary/*
+output_quantitative/*
 data/binary
 data/quantitative

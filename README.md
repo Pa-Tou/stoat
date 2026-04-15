@@ -36,17 +36,7 @@ In general, the latest versions of all of these tools should work.
 ## Docker
 
 - [`Dockerfile`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile)
-- [`Dockerfile_static`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile_static)
 - Docker container on [Quay.io](https://quay.io/repository/patou/stoat?tab=tags): `quay.io/patou/stoat`
-
-Command to build docker:
-```
-# Dynamic compilation
-sudo docker build -f Dockerfile -t stoat .
-
-# Static compilation
-sudo docker build -f Dockerfile_static -t stoat .
-```
 
 ## Build
 
