@@ -173,7 +173,7 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
     return (output_table);
 }
 
-std::string methods_stats_prediction(const std::string& file_path, const bool& covariate, const bool& eqtl) {
+std::string methods_stats_prediction(const std::string& file_path, const bool& covariate) {
     std::ifstream file(file_path);
     if (!file.is_open()) {
         throw std::runtime_error("Cannot open file: " + file_path);

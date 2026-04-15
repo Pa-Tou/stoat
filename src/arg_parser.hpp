@@ -18,7 +18,7 @@ namespace stoat_vcf {
 // binary without covariate -> chi2
 // binary with covariate -> logistic
 // other -> linear
-std::string methods_stats_prediction(const std::string& file_path, const bool& covariate, const bool& eqtl);
+std::string methods_stats_prediction(const std::string& file_path, const bool& covariate);
  
 // Parse a pair of gene expression and position files covariate file and return a GeneExpressionTable
 // if the sample-to-index map provided is empty, it will be filled with the samples in the file.
