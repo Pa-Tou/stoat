@@ -253,7 +253,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                 if (out_filename != "") {
                                     write_snarl_data_line(*temp_writer, snarl_data, &walks_by_allele, &snarl_sequences, &alleles_by_sample);
-                                    number_paths_analyzed += walks_by_allele.size();
+                                    number_paths_analyzed += alleles_by_sample.allele_count;
                                 }
    
 
@@ -1014,7 +1014,7 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
     #pragma omp critical(snarl_collection)
     {
     // Next, optionally include the walks as a single comma-separated string
-    if (walks_by_allele == nullptr) {
+    if (walks_by_allele == nullptr || walks_by_allele->size() == 0) {
         outstream << ".\t.\t";
     } else {
         outstream << stoat::vectorPathToString(*walks_by_allele, true) << "\t";
@@ -1022,13 +1022,13 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
     }
     
     // Add the sequences, if any, as comma separated strings
-    if (sequences == nullptr) {
+    if (sequences == nullptr || sequences->size() == 0) {
     
         outstream << ".";
     } else {
     
         #ifdef DEBUG_SNARL_DATA_COLLECTION
-        assert(walks_by_allele.size() == sequences->size());
+        assert(walks_by_allele->size() == sequences->size());
         #endif
         for (size_t i = 0 ; i < sequences->size() ; i++){
             const std::string& seq = sequences->at(i);
@@ -1049,7 +1049,7 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
     } else {
     
         #ifdef DEBUG_SNARL_DATA_COLLECTION
-        assert(snarl_to_walks.at(snarl_data.start_node).size() == alleles_by_sample->allele_count);
+        assert(snarl_to_walks.size() == 0 || snarl_to_walks.at(snarl_data.start_node).size() == alleles_by_sample->allele_count);
         std::cerr << alleles_by_sample->alleles.size() << " " << all_sample_haplotypes.size() << std::endl;
         assert(alleles_by_sample->alleles.size() == all_sample_haplotypes.size());
         #endif
@@ -1063,8 +1063,8 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
         }
     }
     }
-    
     outstream << std::endl;
+    
     #pragma omp critical(write_snarl_collection) 
     {
     out_writer.write(outstream.str());
