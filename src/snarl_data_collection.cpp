@@ -345,6 +345,22 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     }
 
 }
+
+void SnarlDataCollection::remove_prefix_reference_names(const std::string& remove_prefix_str) {
+    
+    if (!remove_prefix_str.empty()) {
+
+        std::vector<std::string> new_reference_names;
+        new_reference_names.reserve(reference_names.size());
+
+        for (const auto& ref : reference_names) {
+            new_reference_names.push_back(remove_prefix(ref, remove_prefix_str));
+        }
+
+        reference_names = new_reference_names;
+    }
+}
+
 void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
                                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                                 std::string chr){
@@ -396,7 +412,7 @@ void SnarlDataCollection::add_alleles_by_sample(const std::function<std::vector<
 
 }
 
-void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser, const std::string& remove_prefix_str) {
+void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
     stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
@@ -425,10 +441,6 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
     // We assume that the vcf parser has read the header and is now ready to go through the snarls
     std::string chr = vcf_parser.get_next_chromosome_name();
 
-    if (remove_prefix_str != "") {
-        chr = stoat::remove_prefix(chr, remove_prefix_str);
-    }
-
     // Go through to the end of the VCF. Chunk by chromosome 
     while (chr != "") {
 
@@ -441,10 +453,6 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
             vcf_parser.skip_to_next_chromosome(chr);
 
             chr = vcf_parser.get_next_chromosome_name();
-
-            if (remove_prefix_str != "") {
-                chr = stoat::remove_prefix(chr, remove_prefix_str);
-            }
 
             if (chr == "") {
                 // If we've reached the end of the file, return

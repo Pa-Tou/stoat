@@ -128,7 +128,10 @@ class SnarlDataCollection {
     // fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
     // the VCF is read and parsed by chromosome
     // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
-    void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser, const std::string& remove_prefix_str);
+    void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
+
+    // remove from reference_names a const prefix name 
+    void remove_prefix_reference_names(const std::string& remove_prefix_str);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members

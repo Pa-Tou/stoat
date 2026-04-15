@@ -302,6 +302,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
             !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
             ); 
 
+        snarl_collection.remove_prefix_reference_names(remove_prefix_str);
+
         // done saving the snarls, close the writer
         snarl_writer->close();
 
@@ -332,7 +334,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
 
         // retrieve genotypes one chromosome at a time
-        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser, remove_prefix_str);
+        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
 
         // We are done reading through the vcf file so close it
         vcf_parser.close_vcf();
