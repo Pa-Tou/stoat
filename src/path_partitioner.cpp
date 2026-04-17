@@ -312,6 +312,9 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
                          const net_handle_t& snarl, std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths,
                          std::vector<gbwt::SearchState>& finished_search_states, handlegraph::net_handle_t start_net, bool only_loops) {
+    #ifdef DEBUG_PATH_PARTITIONER
+    std::cerr << "Get threads through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
+    #endif
 
     // Get the traversals through the snarl from the gbwt
     // This is heavily based on vg/haplotype_extracter.cpp
@@ -356,7 +359,10 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
                                            : (distance_index.ends_at(current_path.first.back()) == handlegraph::SnarlDecomposition::END 
                                                 ? distance_index.get_bound(current_path.first.back(), true, false)
                                                 : distance_index.get_bound(current_path.first.back(), false, false));
-        graph.follow_edges(distance_index.get_handle(current_path.first.back(), &graph), false, [&](const handle_t& next) {
+
+        std::cerr << "From last net " << distance_index.net_handle_as_string(last_net) << std::endl;
+
+        graph.follow_edges(distance_index.get_handle(last_net, &graph), false, [&](const handle_t& next) {
                 // extend the last node of the thread using gbwt
                 auto gbwt_next = gbwt::Node::encode(graph.get_id(next), graph.get_is_reverse(next));
                 auto new_state = gbwt.extend(current_path.second, gbwt_next);
@@ -443,11 +449,10 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
 
 }
 
-void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, 
+std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, 
                           const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
                           const net_handle_t& snarl,
                           const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
-                          std::vector<size_t>& allele_assignments,
                           std::vector<PathTraversal>& paths_per_allele) {
 
     // Get the bounds of the snarl
@@ -477,27 +482,38 @@ void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPosition
 
         //locate() finds the path identifiers for the search state
         std::vector<gbwt::size_type> path_ids = gbwt.locate(state);
-        for (const gbwt::size_type path_id : path_ids) {
+        for (const gbwt::size_type id : path_ids) {
+            gbwt::size_type path_id = gbwt::Path::id(id);
 
             handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, path_id, gbwt_reference_samples);
 
-            // map the sample/haplotype to the allele number
-            std::cerr << "Make sample from " << gbwtgraph::get_path_sample_name(gbwt, path_id, sense) << "," << 
-                                                  gbwtgraph::get_path_haplotype(gbwt, path_id, sense) << std::endl;
-            size_t hap_num = gbwtgraph::get_path_haplotype(gbwt, path_id, sense);
-            sample_to_allele.emplace(sample_hap_t(gbwtgraph::get_path_sample_name(gbwt, path_id, sense), 
-                                                  hap_num == std::numeric_limits<size_t>::max() ? "" : std::to_string(gbwtgraph::get_path_haplotype(gbwt, path_id, sense))), 
+            std::string path_name = handlegraph::PathMetadata::create_path_name(sense,
+                                        gbwtgraph::get_path_sample_name(gbwt, path_id, sense),
+                                        gbwtgraph::get_path_locus_name(gbwt, path_id, sense),
+                                        gbwtgraph::get_path_haplotype(gbwt, path_id, sense),
+                                        gbwtgraph::get_path_phase_block(gbwt, path_id, sense),
+                                        gbwtgraph::get_path_subrange(gbwt, path_id, sense)); 
+
+            std::cerr << "Make sample from " << path_name << std::endl;
+            sample_to_allele.emplace(sample_hap_t(path_name), 
                                      i);
         }
     }
-    assert(allele_assignments.size() == 0);
+    std::vector<size_t> allele_assignments;
+    allele_assignments.reserve(all_sample_haplotypes.size());
     for (const stoat::sample_hap_t& samp : all_sample_haplotypes) {
-        allele_assignments.emplace_back(sample_to_allele.at(samp));
+        std::cerr << "Get samle " << samp << std::endl;
+        if (sample_to_allele.count(samp) == 0) {
+            allele_assignments.emplace_back(std::numeric_limits<size_t>::max());
+
+        } else {
+            allele_assignments.emplace_back(sample_to_allele.at(samp));
+        }
     }
 
     // Get the paths in the right format
     paths_per_allele = stoat::convert_path_traversals(distance_index, graph, finished_paths);
-    return;
+    return allele_assignments;
 }
 
 }
