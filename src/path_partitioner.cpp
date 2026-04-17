@@ -313,6 +313,9 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
                          const net_handle_t& snarl, std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths,
                          std::vector<gbwt::SearchState>& finished_search_states, handlegraph::net_handle_t start_net, bool only_loops) {
 
+    // Get the traversals through the snarl from the gbwt
+    // This is heavily based on vg/haplotype_extracter.cpp
+
     handlegraph::net_handle_t end_net = distance_index.flip(start_net);
     handlegraph::handle_t start_in = distance_index.get_handle(start_net, &graph);
 
@@ -325,7 +328,7 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
     // The search state encompasses the haplotypes that followed the path
     std::vector<std::pair<std::vector<handlegraph::net_handle_t>, gbwt::SearchState>> intermediate_paths;
 
-#ifdef debug
+#ifdef DEBUG_PATH_PARTITIONER
     cerr << "Start with state " << first_state << " for node " << gbwt::Node::id(start_node)  << ":"
          << gbwt::Node::is_reverse(start_node) << endl;
 #endif
@@ -354,7 +357,7 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
                 // extend the last node of the thread using gbwt
                 auto gbwt_next = gbwt::Node::encode(graph.get_id(next), graph.get_is_reverse(next));
                 auto new_state = gbwt.extend(current_path.second, gbwt_next);
-#ifdef debug
+#ifdef DEBUG_PATH_PARTITIONER
                 cerr << "Extend state " << current_path.second << " to " << new_state << " with " << gbwt::Node::id(gbwt_next) << endl;
 #endif
                 if (!new_state.empty()) {
@@ -422,6 +425,7 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
         }
     } // End while loop going through intermediate paths
     assert(finished_paths.size() == finished_search_states.size());
+    return;
 
 }
 
@@ -436,8 +440,6 @@ void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPosition
     handlegraph::net_handle_t start_in = distance_index.get_bound(snarl, false, true);
     handlegraph::net_handle_t end_in = distance_index.get_bound(snarl, true, true);
 
-    // Get the traversals through the snarl from the gbwt
-    // This is heavily based on vg/haplotype_extracter.cpp
 
     // The final boundary-to-boundary paths
     // finished_paths and finished_search_states hold the same paths, I just separated them so I could use the paths later
@@ -445,7 +447,7 @@ void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPosition
     std::vector<gbwt::SearchState> finished_search_states;
 
 
-    // Get all traversals
+    // Get all traversals and put them in finished_paths and finished_search_states 
     get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, finished_search_states, start_in, false);
 
     get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, finished_search_states, end_in, true);
@@ -474,6 +476,7 @@ void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPosition
 
     // Get the paths in the right format
     paths_per_allele = stoat::convert_path_traversals(distance_index, graph, finished_paths);
+    return;
 }
 
 }
