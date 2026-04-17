@@ -309,12 +309,14 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 }
 
 
-void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
+bool get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
                          const net_handle_t& snarl, std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths,
                          std::vector<gbwt::SearchState>& finished_search_states, handlegraph::net_handle_t start_net, bool only_loops) {
     #ifdef DEBUG_PATH_PARTITIONER
     std::cerr << "Get threads through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
     #endif
+
+    bool has_nested_chain = false;
 
     // Get the traversals through the snarl from the gbwt
     // This is heavily based on vg/haplotype_extracter.cpp
@@ -393,6 +395,9 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
             }
 
             // Add this node to the path, keeping track of if it is a node or a nested chain
+            // For nested chains, we will add the chain itself to the path, then the node in the traversal.
+            // As the path is traversed, the last thing in the path is popped and replaced with the current node
+            // until the end of the chain is reached, in which case the path will end with the chain
 
             handlegraph::net_handle_t next_net = distance_index.get_net(next, &graph);
             // The parent is always going to be a chain, trivial or not
@@ -408,14 +413,28 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
                     updated_path.push_back(next_net);
                     // TODO: Could also get the sequence here
                 } else {
-                    // If this is a real chain, then only add chain if it is going into the chain
+                    // Otherwise, this is a node in a child of the chain
+                    // If this is the start, then add the chain then the node
+                    // If this is the end, then take out the last thing in the path so that the last thing becomes the chain
+                    // Otherwise, do as for other nested nodes and replace the last thing with the node
                     handlegraph::net_handle_t chain_start = distance_index.get_bound(next_net_parent, false, true);
                     handlegraph::net_handle_t chain_end = distance_index.get_bound(next_net_parent, true, true);
                     if (next_net == chain_start || next_net == chain_end) {
                         updated_path.push_back(next_net_parent);
+                        updated_path.push_back(next_net);
+                        has_nested_chain = true;
+                    } else if (next_net == distance_index.flip(chain_start) || next_net == distance_index.flip(chain_end)) {
+                        updated_path.pop_back();
+                    } else {
+                        updated_path.pop_back();
+                        updated_path.push_back(next_net);
                     }
 
                 }
+            } else {
+                // Otherwise, this is nested and we need to replace the last thing in the path with this node
+                updated_path.pop_back();
+                updated_path.push_back(next_net);
             }
 
             // If this handle is leaving the snarl, then add the completed path to the list of completed paths
@@ -445,7 +464,7 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
     #ifdef DEBUG_PATH_PARTITIONER
     std::cerr << "Found " << finished_paths.size() << " threads through " << distance_index.net_handle_as_string(snarl) << std::endl;
     #endif
-    return;
+    return has_nested_chain;
 
 }
 
@@ -467,9 +486,11 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
 
     // Get all traversals and put them in finished_paths and finished_search_states 
-    get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, finished_search_states, start_in, false);
+    bool has_nested_chain = get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, finished_search_states, start_in, false);
 
-    get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, finished_search_states, end_in, true);
+    has_nested_chain |= get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, finished_search_states, end_in, true);
+
+
 
     // At this point, finished_paths/search_states holds a path for each distinct, haplotype-supported path going through the snarl
     // Now, we need to assign haplotypes to each of these paths
@@ -477,32 +498,75 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
     auto gbwt_reference_samples = gbwtgraph::parse_reference_samples_tag(gbwt);
 
-    for (size_t i = 0 ; i < finished_search_states.size() ; i++) {
-        const gbwt::SearchState& state = finished_search_states.at(i);
+    if (has_nested_chain) {
+        // If the snarl contained nested chains, then some of the paths in finished_paths will be repetitive.
+        // Consolidate these and point the alleles to the right paths
+        std::vector<std::vector<handlegraph::net_handle_t>> consolidated_finished_paths;
+        // Map path to allele num
+        std::unordered_map<std::vector<handlegraph::net_handle_t>, size_t> path_to_i;
 
-        //locate() finds the path identifiers for the search state
-        std::vector<gbwt::size_type> path_ids = gbwt.locate(state);
-        for (const gbwt::size_type id : path_ids) {
-            gbwt::size_type path_id = gbwt::Path::id(id);
+        for (size_t i = 0 ; i < finished_search_states.size() ; i++) {
+            const gbwt::SearchState& state = finished_search_states.at(i);
 
-            handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, path_id, gbwt_reference_samples);
+            //locate() finds the path identifiers for the search state
+            std::vector<gbwt::size_type> path_ids = gbwt.locate(state);
+            for (const gbwt::size_type id : path_ids) {
+                gbwt::size_type path_id = gbwt::Path::id(id);
 
-            std::string path_name = handlegraph::PathMetadata::create_path_name(sense,
-                                        gbwtgraph::get_path_sample_name(gbwt, path_id, sense),
-                                        gbwtgraph::get_path_locus_name(gbwt, path_id, sense),
-                                        gbwtgraph::get_path_haplotype(gbwt, path_id, sense),
-                                        gbwtgraph::get_path_phase_block(gbwt, path_id, sense),
-                                        gbwtgraph::get_path_subrange(gbwt, path_id, sense)); 
+                handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, path_id, gbwt_reference_samples);
 
-            std::cerr << "Make sample from " << path_name << std::endl;
-            sample_to_allele.emplace(sample_hap_t(path_name), 
-                                     i);
+                std::string path_name = handlegraph::PathMetadata::create_path_name(sense,
+                                            gbwtgraph::get_path_sample_name(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_locus_name(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_haplotype(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_phase_block(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_subrange(gbwt, path_id, sense)); 
+                if (path_to_i.count(finished_paths.at(i))) { 
+
+                    sample_to_allele.emplace(sample_hap_t(path_name), 
+                                             path_to_i.at(finished_paths.at(i)));
+                } else {
+                    sample_to_allele.emplace(sample_hap_t(path_name), 
+                                             consolidated_finished_paths.size());
+                    path_to_i.emplace(finished_paths.at(i), 
+                                             consolidated_finished_paths.size());
+                    consolidated_finished_paths.emplace_back(std::move(finished_paths.at(i)));
+                }
+            }
+        }
+
+        // Replace the vector of paths to be converted and returned
+        finished_paths = std::move(consolidated_finished_paths);
+    } else {
+        // If the snarl contained no nested chains, then just assign the allele to the path number
+
+        for (size_t i = 0 ; i < finished_search_states.size() ; i++) {
+            const gbwt::SearchState& state = finished_search_states.at(i);
+
+            //locate() finds the path identifiers for the search state
+            std::vector<gbwt::size_type> path_ids = gbwt.locate(state);
+            for (const gbwt::size_type id : path_ids) {
+                gbwt::size_type path_id = gbwt::Path::id(id);
+
+                handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, path_id, gbwt_reference_samples);
+
+                std::string path_name = handlegraph::PathMetadata::create_path_name(sense,
+                                            gbwtgraph::get_path_sample_name(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_locus_name(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_haplotype(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_phase_block(gbwt, path_id, sense),
+                                            gbwtgraph::get_path_subrange(gbwt, path_id, sense)); 
+
+                sample_to_allele.emplace(sample_hap_t(path_name), 
+                                         i);
+            }
         }
     }
+
+    // Now get the allele assignments to return
     std::vector<size_t> allele_assignments;
     allele_assignments.reserve(all_sample_haplotypes.size());
     for (const stoat::sample_hap_t& samp : all_sample_haplotypes) {
-        std::cerr << "Get samle " << samp << std::endl;
         if (sample_to_allele.count(samp) == 0) {
             allele_assignments.emplace_back(std::numeric_limits<size_t>::max());
 

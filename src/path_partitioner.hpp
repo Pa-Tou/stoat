@@ -37,7 +37,9 @@ std::vector<size_t>  partition_embedded_paths_in_snarl_with_gbwt(const handlegra
 /// Helper function for partition_embedded_paths_in_snarl_with_gbwt
 /// Starting from first_path and first_state, find all paths traversing the snarl and add them to finished_paths and finished_search_states
 /// If only_loops is true, then only look for paths that loop back to the start node (start_net, which points into the snarl)
-void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
+/// The paths returned will contain chains instead of the full paths through them, so they may be identical chains in finished_paths
+/// Returns true if the snarl has nested chains
+bool get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
                          const net_handle_t& snarl, std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths,
                          std::vector<gbwt::SearchState>& finished_search_states, handlegraph::net_handle_t start_net, bool only_loops);
 }
