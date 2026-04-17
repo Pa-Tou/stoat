@@ -2,7 +2,7 @@
 #include "log.hpp"
 #include <fstream>
 
-//#define DEBUG_PATH_PARTITIONER
+#define DEBUG_PATH_PARTITIONER
 
 using namespace stoat;
 namespace stoat_graph {
@@ -321,7 +321,7 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
 
     // Look up the start node in GBWT and start a path
     gbwt::node_type start_node = gbwt::Node::encode(graph.get_id(start_in), graph.get_is_reverse(start_in));
-    std::vector<handlegraph::net_handle_t> first_path = {start_net};
+    std::vector<handlegraph::net_handle_t> first_path = {distance_index.get_node_from_sentinel(start_net)};
     gbwt::SearchState first_state = gbwt.find(start_node);
 
     // The list of intermediate paths and the gbwt::SearchState they end on
@@ -329,8 +329,8 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
     std::vector<std::pair<std::vector<handlegraph::net_handle_t>, gbwt::SearchState>> intermediate_paths;
 
 #ifdef DEBUG_PATH_PARTITIONER
-    cerr << "Start with state " << first_state << " for node " << gbwt::Node::id(start_node)  << ":"
-         << gbwt::Node::is_reverse(start_node) << endl;
+    std::cerr << "Start with state " << first_state << " for node " << gbwt::Node::id(start_node)  << ":"
+         << gbwt::Node::is_reverse(start_node) << std::endl;
 #endif
 
      if (!first_path.empty()) {
@@ -342,6 +342,9 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
 
          std::pair<std::vector<handlegraph::net_handle_t>, gbwt::SearchState> current_path = std::move(intermediate_paths.back()); 
          intermediate_paths.pop_back();
+         #ifdef DEBUG_PATH_PARTITIONER
+         std::cerr << "\tContinue with net handle " << distance_index.net_handle_as_string(current_path.first.back()) << std::endl;
+         #endif
 
 
         // The next steps out from the current path, as a handle, a node in the gbwt, and a search state
@@ -358,7 +361,7 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
                 auto gbwt_next = gbwt::Node::encode(graph.get_id(next), graph.get_is_reverse(next));
                 auto new_state = gbwt.extend(current_path.second, gbwt_next);
 #ifdef DEBUG_PATH_PARTITIONER
-                cerr << "Extend state " << current_path.second << " to " << new_state << " with " << gbwt::Node::id(gbwt_next) << endl;
+                std::cerr << "Extend state " << current_path.second << " to " << new_state << " with " << gbwt::Node::id(gbwt_next) << std::endl;
 #endif
                 if (!new_state.empty()) {
                     next_steps.push_back(std::make_tuple(next, gbwt_next, new_state));
@@ -416,8 +419,16 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
             if (next_net == snarl_start || next_net == snarl_end) {
                 // If this is leaving the snarl
                 if (!only_loops || next_net == end_net) {
+                    updated_path.push_back(next_net);
                     finished_paths.push_back(std::move(updated_path));
                     finished_search_states.push_back(new_state);
+                    #ifdef DEBUG_PATH_PARTITIONER
+                    std::cerr << "Finished_path:\t";
+                    for (const auto& net : finished_paths.back()) {
+                        std::cerr << distance_index.net_handle_as_string(net) << " ";
+                    }
+                    std::cerr << std::endl;
+                    #endif
                 }
             } else {
                 intermediate_paths.emplace_back(std::move(updated_path), new_state);
@@ -425,6 +436,9 @@ void get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, cons
         }
     } // End while loop going through intermediate paths
     assert(finished_paths.size() == finished_search_states.size());
+    #ifdef DEBUG_PATH_PARTITIONER
+    std::cerr << "Found " << finished_paths.size() << " threads through " << distance_index.net_handle_as_string(snarl) << std::endl;
+    #endif
     return;
 
 }
@@ -468,10 +482,17 @@ void partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPosition
             handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, path_id, gbwt_reference_samples);
 
             // map the sample/haplotype to the allele number
+            std::cerr << "Make sample from " << gbwtgraph::get_path_sample_name(gbwt, path_id, sense) << "," << 
+                                                  gbwtgraph::get_path_haplotype(gbwt, path_id, sense) << std::endl;
+            size_t hap_num = gbwtgraph::get_path_haplotype(gbwt, path_id, sense);
             sample_to_allele.emplace(sample_hap_t(gbwtgraph::get_path_sample_name(gbwt, path_id, sense), 
-                                                  std::to_string(gbwtgraph::get_path_haplotype(gbwt, path_id, sense))), 
+                                                  hap_num == std::numeric_limits<size_t>::max() ? "" : std::to_string(gbwtgraph::get_path_haplotype(gbwt, path_id, sense))), 
                                      i);
         }
+    }
+    assert(allele_assignments.size() == 0);
+    for (const stoat::sample_hap_t& samp : all_sample_haplotypes) {
+        allele_assignments.emplace_back(sample_to_allele.at(samp));
     }
 
     // Get the paths in the right format
