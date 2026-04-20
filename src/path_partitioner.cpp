@@ -2,7 +2,7 @@
 #include "log.hpp"
 #include <fstream>
 
-#define DEBUG_PATH_PARTITIONER
+//#define DEBUG_PATH_PARTITIONER
 
 using namespace stoat;
 namespace stoat_graph {
@@ -426,11 +426,11 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     updated_path.push_back(next_net);
                     finished_paths.emplace_back(std::move(updated_path), new_state, first_branch ? std::get<2>(current_path) : path_count++);
                     #ifdef DEBUG_PATH_PARTITIONER
-                    std::cerr << "Finished_path num " << std::get<2>(current_path) << ":\t";
-                    for (const auto& net : std::get<0>(finished_paths.back())) {
-                        std::cerr << distance_index.net_handle_as_string(net) << ",";
-                    }
-                    std::cerr << std::endl;
+                        std::cerr << "Finished_path num " << std::get<2>(current_path) << ":\t";
+                        for (const auto& net : std::get<0>(finished_paths.back())) {
+                            std::cerr << distance_index.net_handle_as_string(net) << ",";
+                        }
+                        std::cerr << std::endl;
                     #endif
                 }
                 branched = true;
@@ -441,7 +441,9 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     // If the grandparent is the snarl we're traversing
                     if (distance_index.is_trivial_chain(next_net_parent)) {
                         // If this is a trivial chain whose parent is the snarl, add it as the node
-                        std::cerr << "\t\tnew path with node child " << distance_index.net_handle_as_string(next_net) << std::endl;
+                        #ifdef DEBUG_PATH_PARTITIONER
+                            std::cerr << "\t\tnew path with node child " << distance_index.net_handle_as_string(next_net) << std::endl;
+                        #endif
                         updated_path.push_back(next_net);
                         branched = true;
                         // TODO: Could also get the sequence here
@@ -453,15 +455,21 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                         handlegraph::net_handle_t chain_start = distance_index.get_bound(next_net_parent, false, true);
                         handlegraph::net_handle_t chain_end = distance_index.get_bound(next_net_parent, true, true);
                         if (next_net == chain_start || next_net == chain_end) {
-                        std::cerr << "\t\tnew path with chain child" << std::endl;
+                            #ifdef DEBUG_PATH_PARTITIONER
+                                std::cerr << "\t\tnew path with chain child" << std::endl;
+                            #endif
                             updated_path.push_back(next_net_parent);
                             updated_path.push_back(next_net);
                             branched = true;
                         } else if (next_net == distance_index.flip(chain_start) || next_net == distance_index.flip(chain_end)) {
-                        std::cerr << "\t\t finish chain child" << std::endl;
+                            #ifdef DEBUG_PATH_PARTITIONER
+                                std::cerr << "\t\t finish chain child" << std::endl;
+                            #endif
                             updated_path.pop_back();
                         } else {
-                        std::cerr << "\t\t continue chain child" << std::endl;
+                            #ifdef DEBUG_PATH_PARTITIONER
+                                std::cerr << "\t\t continue chain child" << std::endl;
+                            #endif
                             updated_path.pop_back();
                             updated_path.push_back(next_net);
                         }
@@ -469,7 +477,9 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     }
                 } else {
                     // Otherwise, this is nested and we need to replace the last thing in the path with this node
-                    std::cerr << "\t\tnested node, replace last node in path" << std::endl;
+                    #ifdef DEBUG_PATH_PARTITIONER
+                        std::cerr << "\t\tnested node, replace last node in path" << std::endl;
+                    #endif
                     updated_path.pop_back();
                     updated_path.push_back(next_net);
                 }
@@ -542,17 +552,21 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     // For each distinct path, have we found it yet?
     // When we find it, move into unique_paths
     std::vector<bool> found_path (path_count, false);
-    std::cerr << "Found " << path_count << " unique paths with " << finished_paths.size() << " total paths" << std::endl;
+    #ifdef DEBUG_PATH_PARTITIONER
+        std::cerr << "Found " << path_count << " unique paths with " << finished_paths.size() << " total paths" << std::endl;
+    #endif
     std::vector<std::vector<handlegraph::net_handle_t>> unique_paths(path_count);
 
     for (const std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>& state : finished_paths) {
 
         size_t path_id = std::get<2>(state);
-        std::cerr << "At path id " << path_id << ":\t";
-        for (const auto& net : std::get<0>(state)) {
-            std::cerr << distance_index.net_handle_as_string(net) << ",";
-        }
-        std::cerr << std::endl;
+        #ifdef DEBUG_PATH_PARTITIONER
+            std::cerr << "At path id " << path_id << ":\t";
+            for (const auto& net : std::get<0>(state)) {
+                std::cerr << distance_index.net_handle_as_string(net) << ",";
+            }
+            std::cerr << std::endl;
+        #endif
 
         //locate() finds the path identifiers for the search state
         std::vector<gbwt::size_type> path_ids = gbwt.locate(std::get<1>(state));
@@ -567,7 +581,9 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                                         gbwtgraph::get_path_haplotype(gbwt, gbwt_path_id, sense),
                                         gbwtgraph::get_path_phase_block(gbwt, gbwt_path_id, sense),
                                         gbwtgraph::get_path_subrange(gbwt, gbwt_path_id, sense)); 
-            std::cerr << "\tpath " << path_name << " takes this path" << std::endl;
+            #ifdef DEBUG_PATH_PARTITIONER
+                std::cerr << "\tpath " << path_name << " takes this path" << std::endl;
+            #endif
 
             sample_to_allele.emplace(sample_hap_t(path_name), 
                                      path_id);
