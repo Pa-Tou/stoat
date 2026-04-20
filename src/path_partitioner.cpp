@@ -550,12 +550,12 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     auto gbwt_reference_samples = gbwtgraph::parse_reference_samples_tag(gbwt);
 
     // For each distinct path, have we found it yet?
-    // When we find it, move into unique_paths
+    // When we find it, move into paths_per_allele
     std::vector<bool> found_path (path_count, false);
     #ifdef DEBUG_PATH_PARTITIONER
         std::cerr << "Found " << path_count << " unique paths with " << finished_paths.size() << " total paths" << std::endl;
     #endif
-    std::vector<std::vector<handlegraph::net_handle_t>> unique_paths(path_count);
+    paths_per_allele.resize(path_count);
 
     for (const std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>& state : finished_paths) {
 
@@ -589,11 +589,10 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                                      path_id);
         }
 
-        //TODO: MOving these paths around isn't very efficient. Would probably be better to make found_path be a vector of indices into finished_paths,
-        // then build the vector PathTraversals one at a time in order
+        // Now for each unique path, turn it into a PathTraversal to be returned
         if (!found_path.at(path_id)) {
             found_path.at(path_id) = true;
-            unique_paths.at(path_id) = std::get<0>(state);
+            paths_per_allele.at(path_id) = stoat::convert_path_traversal(distance_index, graph, std::get<0>(state));
         }
     }
     
@@ -609,8 +608,6 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
         }
     }
 
-    // Get the paths in the right format
-    paths_per_allele = stoat::convert_path_traversals(distance_index, graph, unique_paths);
     return allele_assignments;
 }
 
