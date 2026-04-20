@@ -123,6 +123,13 @@ std::vector<stoat::node_traversal_t> string_to_path_node_traversal(const std::st
 // Get a string representing a path of node_traversal_t's
 std::string path_node_traversal_to_string(const std::vector<stoat::node_traversal_t>& path);
 
+
+// Convert one vector of net_handle_t's to a PathTraversal
+PathTraversal convert_path_traversal(
+                            const bdsg::SnarlDistanceIndex& distance_index, 
+                            const handlegraph::PathHandleGraph& graph, 
+                            const std::vector<handlegraph::net_handle_t>& path_as_net_handles);
+
 // convert paths from the simple vector of net handles to the PathTraversal object
 std::vector<PathTraversal> convert_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 
