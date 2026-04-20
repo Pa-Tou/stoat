@@ -103,7 +103,7 @@ TEST_CASE( "Path partitioner nested bubbles",
 
 
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
@@ -136,7 +136,7 @@ TEST_CASE( "Path partitioner nested bubbles",
 }
 
 TEST_CASE( "Path partitioner nested bubbles gbz",
-          "[path_partitioner][bug]" ) {
+          "[path_partitioner]" ) {
 
     /*
                        5
@@ -194,14 +194,14 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
 
 
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
-        std::vector<size_t> alleles_per_sample1;
+        
         std::vector<PathTraversal> paths_per_allele1;
-        partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
-                                                         all_samples, alleles_per_sample1, paths_per_allele1);
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+                                                         all_samples, paths_per_allele1);
 
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
         REQUIRE(alleles_per_sample1[0] == alleles_per_sample1[1]);
@@ -211,10 +211,10 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
         REQUIRE(alleles_per_sample1[2] != std::numeric_limits<size_t>::max());
 
         // Should be {0,1,3} and {2}
-        std::vector<size_t> alleles_per_sample2;
+        
         std::vector<PathTraversal> paths_per_allele2;
-        partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
-                                                         all_samples, alleles_per_sample2, paths_per_allele2);
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
+                                                         all_samples, paths_per_allele2);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[3]);
@@ -223,10 +223,9 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
         REQUIRE(alleles_per_sample2[3] != std::numeric_limits<size_t>::max());
 
         // Should be {0}, {1,3}. 2 didn't go through this snarl
-        std::vector<size_t> alleles_per_sample3;
         std::vector<PathTraversal> paths_per_allele3;
-        partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl3,
-                                                         all_samples, alleles_per_sample3, paths_per_allele3);
+        std::vector<size_t> alleles_per_sample3 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl3,
+                                                         all_samples, paths_per_allele3);
         REQUIRE(alleles_per_sample3.size() == all_samples.size());
         REQUIRE(alleles_per_sample3[0] != alleles_per_sample3[1]);
         REQUIRE(alleles_per_sample3[1] == alleles_per_sample3[3]);
@@ -387,6 +386,7 @@ TEST_CASE( "Path partitioner multiple nested bubbles",
     //auto path_graph = overlay_helper.apply(&graph);
 
 }
+
 TEST_CASE( "Path partitioner nested bubbles distanceless index",
           "[path_partitioner]" ) {
 
@@ -431,7 +431,7 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
                                          stoat::sample_hap_t(*path_graph, paths[2]),
                                          stoat::sample_hap_t(*path_graph, paths[3])});
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
@@ -533,7 +533,7 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
                                          stoat::sample_hap_t(*path_graph, paths[1]),
                                          stoat::sample_hap_t(*path_graph, paths[2])});
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0} and {1,2}
@@ -547,6 +547,80 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
         // Should be {0}, {1} and {2}
 
         std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample2.size() == all_samples.size());
+        REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[1]);
+        REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[2]);
+        REQUIRE(alleles_per_sample2[1] != alleles_per_sample2[2]);
+        REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample2[1] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample2[2] != std::numeric_limits<size_t>::max());
+    }
+
+
+}
+
+TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner]" ) {
+
+    /*
+
+             --------
+            |   2    |
+            \ / \    /
+        0 ---1---3--4----5
+
+    */
+
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/test_data/test_graphs/loop_with_indel.dist");
+
+    GBZGraph gbz;
+    std::ifstream instream;
+    instream.open("../tests/test_data/test_graphs/loop_with_indel.gbz");
+    gbz.gbz.simple_sds_load(instream);
+    instream.close();
+
+    gbwt::GBWT* gbwt = &gbz.gbz.index;
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&gbz);
+
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < 3 ; path_i++) {
+        paths.emplace_back(gbz.get_path_handle("path"+std::to_string(path_i)));
+    }
+
+    // Nested snarl
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(3)));
+    // Duplication snarl
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(snarl2));
+    handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
+
+
+    std::vector<stoat::sample_hap_t> all_samples ({stoat::sample_hap_t(*path_graph, paths[0]),
+                                         stoat::sample_hap_t(*path_graph, paths[1]),
+                                         stoat::sample_hap_t(*path_graph, paths[2])});
+
+    SECTION("partition_embedded_paths_in_snarl") {
+        // This isn't really a good test because all the snarls are regular
+
+        // Should be {0} and {1,2}
+
+        std::vector<PathTraversal> paths_per_allele1;
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+                                                         all_samples, paths_per_allele1);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[1] == alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[1] != std::numeric_limits<size_t>::max());
+
+        // Should be {0}, {1} and {2}
+
+        std::vector<PathTraversal> paths_per_allele2;
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
+                                                         all_samples, paths_per_allele2);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
         REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[1]);
         REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[2]);
@@ -636,7 +710,7 @@ TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partit
     }
 
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
 
         std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
@@ -718,7 +792,7 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
                                          stoat::sample_hap_t(*path_graph, paths[3])});
 
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
         // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} {2} {3}
@@ -804,7 +878,7 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
                                                 stoat::sample_hap_t(*path_graph, paths[1])});
 
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
         // This isn't really a good test because all the snarls are regular
 
         // Outer snarl, hould be {0, 1}
@@ -888,7 +962,7 @@ TEST_CASE( "Path partitioner bubble with three nodes",
                                          stoat::sample_hap_t(*path_graph, paths[3])});
 
 
-    SECTION("get_walk_set") {
+    SECTION("partition_embedded_paths_in_snarl") {
 
         // Should be {0,1} {2} {3}
         std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl, all_samples);
@@ -1108,3 +1182,107 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
         REQUIRE(alleles_per_sample1[3] == std::numeric_limits<size_t>::max());
     }
 }
+TEST_CASE( "Path partitioner rejoining paths",
+          "[path_partitioner][bug]" ) {
+
+    /*
+                 
+                 
+                      4    
+                    /   \
+        -----------3      6-----------
+       /         /  \   /   \          \
+      1         /     5      \          8
+       \       /              \        /
+        ------2 ----------------7------
+
+   */
+
+    //bdsg::HashGraph graph;
+
+    //std::vector<std::string> sequences = { "CCCCCCCCCCCC", "C", "T", "C", "A", "G", "T", "AAAAAAAAAAAAAAAAAAAAA"};
+
+    //std::vector<handlegraph::handle_t> nodes;
+    //for (auto& seq : sequences) {
+    //    nodes.emplace_back(graph.create_handle(seq));
+    //}
+
+    //// Add the -1 to make them 1-offset because it's easier
+    //graph.create_edge(nodes[1-1], nodes[2-1]);
+    //graph.create_edge(nodes[1-1], nodes[3-1]);
+    //graph.create_edge(nodes[2-1], nodes[3-1]);
+    //graph.create_edge(nodes[2-1], nodes[7-1]);
+    //graph.create_edge(nodes[3-1], nodes[4-1]);
+    //graph.create_edge(nodes[3-1], nodes[5-1]);
+    //graph.create_edge(nodes[4-1], nodes[6-1]);
+    //graph.create_edge(nodes[5-1], nodes[6-1]);
+    //graph.create_edge(nodes[6-1], nodes[7-1]);
+    //graph.create_edge(nodes[6-1], nodes[8-1]);
+    //graph.create_edge(nodes[7-1], nodes[8-1]);
+
+    //// These paths are the same going into the snarl, then the split in the snarl, and must be rejoined after the snarl but split right after
+    //std::vector<std::vector<std::size_t>> paths_seqs = {{0, 1, 2, 4, 5, 6, 7}, {0, 1, 2, 3, 5, 7}};
+    //std::vector<handlegraph::path_handle_t> paths;
+
+    //for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path"+std::to_string(path_i)));
+    //    for (size_t node_i : paths_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+
+    //// vg isn't included so the distance index can only be built from the command line
+    //graph.serialize("../tests/test_data/test_graphs/split_paths.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/split_paths.dist ../tests/test_data/test_graphs/split_paths.hg"); 
+    //built = system("vg gbwt -x ../tests/test_data/test_graphs/split_paths.hg -E --gbz-format -g ../tests/test_data/test_graphs/split_paths.gbz "); 
+
+
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/test_data/test_graphs/split_paths.dist");
+
+    GBZGraph gbz;
+    std::ifstream instream;
+    instream.open("../tests/test_data/test_graphs/split_paths.gbz");
+    gbz.gbz.simple_sds_load(instream);
+    instream.close();
+
+    gbwt::GBWT* gbwt = &gbz.gbz.index;
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&gbz);
+
+    std::vector<handlegraph::path_handle_t> paths;
+    //paths.clear();
+
+    paths.emplace_back(gbz.get_path_handle("path0"));
+    paths.emplace_back(gbz.get_path_handle("path1"));
+    paths.emplace_back(gbz.get_path_handle("path2"));
+    paths.emplace_back(gbz.get_path_handle("path3"));
+
+
+
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(2)));
+
+    std::vector<stoat::sample_hap_t> all_samples({stoat::sample_hap_t(*path_graph, paths[0]),
+                                                  stoat::sample_hap_t(*path_graph, paths[1])});
+
+    SECTION("partition_embedded_paths_in_snarl") {
+
+        // Should be {0,1} and {2,3}
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+    }
+
+    SECTION("partition_embedded_paths_in_snarl_with_gbwt") {
+
+        // Should be {0,1} and {2,3}
+        std::vector<PathTraversal> paths_per_allele1;
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+                                                         all_samples, paths_per_allele1);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+    }
+}
+
