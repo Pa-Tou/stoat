@@ -4,8 +4,8 @@
 #include <getopt.h>
 #include <filesystem>
 
-#include "../banner.hpp"
 #include "../log.hpp"
+#include "../banner.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
 #include "../writer.hpp"
@@ -15,7 +15,6 @@
 #ifdef USE_CALLGRIND
     #include <valgrind/callgrind.h>
 #endif
-
 
 namespace stoat_command {
 
@@ -203,8 +202,10 @@ int main_stoat_test(int argc, char* argv[]) {
     std::unique_ptr<stoat::BinaryPhenotypeTable> binary_phenotype_table;
     std::unique_ptr<stoat::QuantitativePhenotypeTable> quantitative_phenotype_table;
     std::unique_ptr<stoat::GeneExpressionTable> gene_expression_table;
+
     // prepare the vector mapping samples to index here because other objects (phenotype or genotypes) will use it
     std::unordered_map<std::string, size_t> sample_to_index = snarl_collection.get_sample_to_index_copy();
+
     // prepare the vector mapping genes to index
     std::unordered_map<std::string, size_t> gene_to_index;
 
@@ -214,9 +215,9 @@ int main_stoat_test(int argc, char* argv[]) {
         stoat::LOG_INFO("No statistical method provided; using " + method + " test.");
     }
 
-    // read the file
+    // read phenotype file
     if (!gene_position_path.empty()) {
-        stoat::LOG_TRACE("Parsing eqtl phenotype file");
+        stoat::LOG_TRACE("Parsing eQTL phenotype file");
         gene_expression_table = std::unique_ptr<stoat::GeneExpressionTable>(stoat_vcf::parse_gene_expression_table(phenotype_path, gene_position_path, sample_to_index, gene_to_index));
     } else if (method == "chi2" || method == "logreg" || method == "exact") {
         stoat::LOG_TRACE("Parsing binary phenotype file");
@@ -225,17 +226,19 @@ int main_stoat_test(int argc, char* argv[]) {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
         quantitative_phenotype_table = std::unique_ptr<stoat::QuantitativePhenotypeTable>(stoat_vcf::parse_quantitative_pheno_table(phenotype_path, sample_to_index));
     } else {
-        stoat::LOG_ERROR("Method : " + method + " not reconize");
+        stoat::LOG_ERROR("Method : " + method + " not recognized");
     }
 
     // eventually parse the covariate file
     std::unique_ptr<stoat::CovariateTable> covariate_table = std::unique_ptr<stoat::CovariateTable>(new CovariateTable({}, {}));
+
     // prepare the vector mapping covariates to index
     // needs to be defined here to stay in memory because the CovariateTable don't store it
     std::unordered_map<std::string, size_t> covar_to_index;
     for (std::string covar: covar_names) {
         covar_to_index[covar] = covar_to_index.size();
     }
+
     if (!covariate_path.empty()) {
         stoat::LOG_TRACE("Parsing covariate file");
         covariate_table = std::unique_ptr<stoat::CovariateTable>(stoat_vcf::parse_covariate_table(covariate_path, sample_to_index, covar_to_index));
@@ -250,7 +253,7 @@ int main_stoat_test(int argc, char* argv[]) {
                                                                      *binary_phenotype_table, min_individuals));
     } else if (method == "chi2") {
         if (!covariate_path.empty()) {
-            stoat::LOG_WARN("Covariate will be disable using chi2 test, try -m logreg instead.", 0);
+            stoat::LOG_WARN("Covariate will not be used by the Chi2 test. To include them in the test use '-m logreg' instead.", 0);
         }
         // Binary using Chi2/Fisher (no covariate)
         snarl_analyzer.reset(new stoat_vcf::BinarySnarlAnalyzer(snarl_collection, maf_threshold,

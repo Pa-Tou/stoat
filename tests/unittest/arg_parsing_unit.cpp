@@ -34,7 +34,7 @@ std::string create_test_covar_file(const std::string& content, const std::string
     return filename;
 }
 
-TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno]") {
+TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno_table]") {
     SECTION("Valid phenotype file with mixed cases and controls") {
         
         std::string file_content =

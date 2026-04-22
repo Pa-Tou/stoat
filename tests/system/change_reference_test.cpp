@@ -113,7 +113,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
             + " -r " + refs_file 
             + " > " + output_dir+"/stoat.assoc.pvalues.path1.tsv"; 
 
-        std::cout << "Command run : \n" << cmd << std::endl;
+        std::cout << "Command run : \n" << rewrite_cmd << std::endl;
         int command_output = std::system(rewrite_cmd.c_str());
         if (command_output != 0) {
             std::cerr << "Command failed: " << rewrite_cmd << "\n";

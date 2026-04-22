@@ -43,6 +43,7 @@ namespace stoat_vcf {
         const size_t min_individuals) :
         SnarlAnalyzer(snarl_collection, maf_threshold, min_individuals) {
         phenotype_type = stoat::BINARY;
+
         // fill the sample sets
         for (std::string sample: phenotype.get_sample_names()) {
             if (phenotype.get_value_for_sample(sample)) {
@@ -101,9 +102,6 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);
  
-    // count snarls filterd for the log
-    size_t total_number_snarl_filtered = 0;
-
     // read each snarl and test it
     // JEAN parallelize here?
     size_t number_snarl_filtered = 0;
@@ -111,7 +109,7 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
         bool filtered = test_and_write_snarl(snarl_info, out_writer);
         number_snarl_filtered += (filtered ? 1 : 0);
     });
-    
+
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(number_snarl_filtered));
 }
 
@@ -121,45 +119,40 @@ std::vector<stoat::edge_t> decompose_path_str_to_edge(const std::string s) {
     stoat::PathTraversal nodes;
 
     size_t i = 0;
-    while (i < s.size())
-        {
-            if (s[i] == '>' || s[i] == '<')
-                {
-                    bool is_rev = (s[i] == '<');
-                    ++i;
-
-                    size_t node_id = 0;
-                    while (i < s.size() && isdigit(s[i]))
-                        {
-                            node_id = node_id * 10 + (s[i] - '0');
-                            ++i;
-                        }
-                    nodes.add_node_traversal_t({node_id, is_rev});
-                }
-            else
-                {
-                    // JEAN should we throw an error here? What are invalid characters?
-                    ++i; // Skip invalid characters
-                }
+    while (i < s.size()) {
+        if (s[i] == '>' || s[i] == '<') {
+            bool is_rev = (s[i] == '<');
+            ++i;
+            size_t node_id = 0;
+            while (i < s.size() && isdigit(s[i])) {
+                node_id = node_id * 10 + (s[i] - '0');
+                ++i;
+            }
+            nodes.add_node_traversal_t({node_id, is_rev});
+        } else {
+            // JEAN should we throw an error here? What are invalid characters?
+            ++i; // Skip invalid characters
         }
+    }
 
     // we try flipping the path here to avoid most inconsistencies with vg call's ATs
-    // inconsistencies are still possiblt because this is potentially a very long path
+    // inconsistencies are still possibly because this is potentially a very long path
     // traversing the top-level snarl only while the ones used exploring the snarl tree
     // and preparing the snarl paths are the "simplified"/net versions
     nodes.check_path_flip();
 
-    for (size_t j = 0; j + 1 < nodes.get_path().size(); ++j)
-        {
-            stoat::edge_t edge(nodes.get_path()[j], nodes.get_path()[j + 1]);
-            edges.emplace_back(edge);
-        }
+    for (size_t j = 0; j + 1 < nodes.get_path().size(); ++j) {
+        stoat::edge_t edge(nodes.get_path()[j], nodes.get_path()[j + 1]);
+        edges.emplace_back(edge);
+    }
     return edges;
 }
 
 bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
+
     // link to the phenotype
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
+    
     // remove non-variable allele, e.g. absent in both groups
     snarl_data.genotypes.remove_noncovered_samples();
     snarl_data.genotypes.remove_constant_predictors();
@@ -175,7 +168,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
         std::vector<size_t> g0;
         std::vector<size_t> g1;
         snarl_data.genotypes.fill_contingency_table(g0, g1);
-        
+
         // performs the test
         auto fc_res = fchi.fisher_chi2(g0, g1);
         test_res.pv = fc_res.first;
@@ -209,9 +202,11 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     std::unordered_map<std::string, std::set<std::string>> genotype_to_sample_set;
     for (const sample_hap_t& sample_hap : snarl_data.all_sample_haplotypes) {
         std::string genotype_str = snarl_data.genotypes.get_genotype_as_string(sample_hap.sample);
+
         if (genotype_to_sample_set.count(genotype_str) == 0) {
             genotype_to_sample_set.emplace(genotype_str, std::set<std::string>());
         }
+
         genotype_to_sample_set.at(genotype_str).emplace(sample_hap.sample);
     }
 
@@ -240,6 +235,7 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
 }
     
 bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
+
     // link the phenotype
     snarl_data.genotypes.link_to_binary_phenotype(phenotype);
     snarl_data.genotypes.link_to_covariates(covariate);
@@ -287,6 +283,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
     // link the phenotype
     snarl_data.genotypes.link_to_quantitative_phenotype(phenotype);
     snarl_data.genotypes.link_to_covariates(covariate);
+
     // remove non-variable allele, e.g. absent in both groups
     snarl_data.genotypes.remove_noncovered_samples();    
     snarl_data.genotypes.remove_constant_predictors();
@@ -326,18 +323,20 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
 }
 
 bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, stoat::Writer& out_writer) {
+
     // get genes near snarl
     std::vector<std::string> genes_near = gene_expression.get_genes_around_pos(snarl_data.ref_path, snarl_data.start_position, snarl_data.end_position, max_gene_dist);
-
     bool filtered = true;
 
     // test against the expression of each nearby gene
     for (std::string gene_name: genes_near) {
+
         // make a QuantitativePhenotypeTable for this gene
         QuantitativePhenotypeTable gene_phenotype(gene_expression.get_sample_to_index());
         for (std::string sample_name: gene_expression.get_sample_names()) {
             gene_phenotype.set_value_for_sample(sample_name, gene_expression.get_value_for_sample_and_feature(sample_name, gene_name));
         }
+
         // test the gene
         // reinitialize the genotype object (remove masks etc set when testing other genes)
         snarl_data.genotypes.clear();
@@ -345,6 +344,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
         // link the phenotype
         snarl_data.genotypes.link_to_quantitative_phenotype(gene_phenotype);
         snarl_data.genotypes.link_to_covariates(covariate);
+
         // remove non-variable allele, e.g. absent in both groups
         snarl_data.genotypes.remove_noncovered_samples();    
         snarl_data.genotypes.remove_constant_predictors();
@@ -355,6 +355,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
 
         // should we test this snarl?
         if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
+
             // add the allele path info to include in the output
             test_res.allele_paths = snarl_data.genotypes.allele_paths_as_str();
 
@@ -380,6 +381,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
         }
   
         out_writer.write_eqtl(snarl_data, gene_name, test_res);
+
         // at least this test was not filtered
         filtered = false;
     }
