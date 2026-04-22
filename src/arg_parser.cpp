@@ -27,9 +27,12 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     return reference;
 }
 
-std::string methods_stats_prediction(const std::string& file_path, const bool& covariate, const bool& eqtl) {
-
+std::string methods_stats_prediction(const std::string& file_path, const bool& covariate) {
     std::ifstream file(file_path);
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot open file: " + file_path);
+    }
+
     std::string line, sample_name, phenoStr;
     std::getline(file, line); // header
 
@@ -42,42 +45,45 @@ std::string methods_stats_prediction(const std::string& file_path, const bool& c
         return "linreg"; // assuming eqtl format
     }
 
-    std::set<double> unique_values;
-    bool has_non_integer = false;
+    bool only_0_1 = true;
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
+
         if (!(iss >> sample_name >> phenoStr)) {
             throw std::invalid_argument("Malformed line: " + line);
         }
+
         double value;
         try {
             value = std::stod(phenoStr);
         } catch (...) {
             throw std::invalid_argument("Phenotype is not numeric: " + phenoStr);
         }
-        unique_values.insert(value);
-        if (value != static_cast<int>(value)) {
-            has_non_integer = true;
+
+        if (!(value == 0.0 || value == 1.0)) {
+            only_0_1 = false;
         }
     }
 
     file.close();
 
-    if (eqtl || has_non_integer) {
+    if (only_0_1 && covariate) {
+        return "logreg"; // binary + covariate
+    } 
+    else if (only_0_1) {
+        return "chi2"; // binary
+    } 
+    else {
         return "linreg"; // quantitative
-    } else if (unique_values.size() == 2 && covariate) {
-        return "logreg"; // binary + covar
-    } else {
-        return "chi2"; // binary no covar
     }
+
 }
 
 stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
 
     // fill this map first
     std::unordered_map<std::string, bool> binary_pheno;
-
     // should we update the sample to index map? yes if it's empty at the start
     bool update_sample_to_index = sample_to_index.empty();
 
@@ -90,33 +96,25 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
     std::istringstream header_stream(line);
     std::string sample_name, phenoStr;
     header_stream >> sample_name >> phenoStr;
-
+    
     if (sample_name != "SAMPLE" || phenoStr != "PHENO") {
-        throw std::invalid_argument("Invalid header. Expected: SAMPLE PHENO, got: " + line);
+        throw std::invalid_argument("Invalid header. Must be SAMPLE then PHENO, got: " + line);
     }
-
+    
     // read each line and tally the number of cases and controls (for the log)
-    size_t count_controls = 0;
-    size_t count_cases = 0;
-
+    int count_controls = 0;
+    int count_cases = 0;
     size_t line_number = 1;
     size_t sample_idx = 0;
-
-    // ---- Parse phenotype file ----
     while (std::getline(file, line)) {
         ++line_number;
-
-        if (line.empty())
-            continue;
-
         std::istringstream iss(line);
-
         if (!(iss >> sample_name >> phenoStr)) {
             throw std::invalid_argument("Malformed line " + std::to_string(line_number) + ": " + line);
         }
 
-        int pheno;
         // make sure the phenotype is an integer
+        int pheno;
         try {
             pheno = std::stoi(phenoStr);
         } catch (...) {
@@ -124,38 +122,37 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
         }
 
         // make sure phenotype is 0 or 1
-        if (pheno != 0 && pheno != 1) {
+        if (pheno == 0) {
+            ++count_controls;
+        } else if (pheno == 1) {
+            ++count_cases;
+        } else {
             throw std::invalid_argument("Binary phenotype must be 0 or 1 at line " + std::to_string(line_number) + ", got: " + phenoStr);
         }
 
-        bool is_case = (pheno == 1);
-
         // insert and detect duplicate
-        auto [it, inserted] = binary_pheno.emplace(sample_name, is_case);
+        auto [it, inserted] = binary_pheno.emplace(sample_name, pheno == 1);
         if (!inserted) {
             throw std::invalid_argument("Duplicate sample in phenotype file: " + sample_name);
         }
 
-        if (is_case)
-            ++count_cases;
-        else
-            ++count_controls;
-
         if (update_sample_to_index) {
-            sample_to_index.emplace(sample_name, sample_idx++);
+            sample_to_index[sample_name] = sample_idx++;
         }
     }
 
     file.close();
 
-    stoat::LOG_INFO("Binary phenotypes found in phenotype file: " + std::to_string(count_cases + count_controls) +
-        " (Control: " + std::to_string(count_controls) + ", Case: " + std::to_string(count_cases) + ")");
+    stoat::LOG_INFO("Binary phenotypes found: " + std::to_string(count_controls + count_cases)
+        + " (Control: " + std::to_string(count_controls)
+        + ", Case: " + std::to_string(count_cases) + ")");
 
-    // ---- Build phenotype table ----
+    // Prepare the Table object to fill and output
+    // ideally we could fill it when reading each line
     stoat::BinaryPhenotypeTable* output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
 
-    size_t phenotypes_not_in_genotype = 0;
-    size_t genotypes_missing_pheno = 0;
+    size_t unique_to_pheno = 0;
+    size_t missing_in_pheno = 0;
 
     size_t used_cases = 0;
     size_t used_controls = 0;
@@ -164,37 +161,35 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
     // Prepare the Table object to fill and output
     // ideally we could fill it when reading each line
     for (const auto& [sample, pheno] : binary_pheno) {
-
         if (output_table->has_sample(sample)) {
             output_table->set_value_for_sample(sample, pheno);
-
-            if (pheno)
+            if (pheno) {
                 ++used_cases;
-            else
+            } else {
                 ++used_controls;
-
+            }
         } else {
-            ++phenotypes_not_in_genotype;
+            ++unique_to_pheno;
         }
     }
 
-    // genotype samples missing phenotype
+    // samples in the index but without a phenotype
     for (const auto& [sample, idx] : sample_to_index) {
         if (binary_pheno.find(sample) == binary_pheno.end()) {
-            ++genotypes_missing_pheno;
+            ++missing_in_pheno;
         }
     }
 
-    // ---- Warnings ----
-    if (phenotypes_not_in_genotype > 0) {
-        stoat::LOG_WARN(std::to_string(phenotypes_not_in_genotype) + " phenotype samples were not found in the genotype file", 0);
+    // print the warnings
+    if (unique_to_pheno > 0) {
+        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", 0);
     }
 
-    if (genotypes_missing_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(genotypes_missing_pheno) + " genotype samples have no phenotype", 0);
+    if (missing_in_pheno > 0) {
+        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", 0);
     }
 
-    // ---- Final Pheno GWAS counts ----
+    // print how many samples will be used
     stoat::LOG_INFO("Binary phenotypes used for GWAS: " + std::to_string(used_cases + used_controls) + 
         " (Control: " + std::to_string(used_controls) + ", Case: " + std::to_string(used_cases) + ")");
 
@@ -231,9 +226,6 @@ stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::str
     while (std::getline(file, line)) {
         ++line_number;
 
-        if (line.empty())
-            continue;
-
         std::istringstream iss(line);
 
         if (!(iss >> sample_name >> phenoStr)) {
@@ -269,35 +261,35 @@ stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::str
     // ideally we could fill it when reading each line
     stoat::QuantitativePhenotypeTable* output_table = new stoat::QuantitativePhenotypeTable(sample_to_index);
     
-    size_t phenotypes_not_in_genotype = 0;
-    size_t genotypes_missing_pheno = 0;
+    size_t unique_to_pheno = 0;
+    size_t missing_in_pheno = 0;
 
     for (const auto samp_pheno: quantitative_pheno){
         // add the sample and phenotype to the Table
         if (output_table->has_sample(samp_pheno.first)) {
             output_table->set_value_for_sample(samp_pheno.first, samp_pheno.second);
         } else {
-            ++phenotypes_not_in_genotype;
+            ++unique_to_pheno;
         }
     }
 
     // genotype samples missing phenotype
     for (const auto& [sample, idx] : sample_to_index) {
         if (quantitative_pheno.find(sample) == quantitative_pheno.end()) {
-            ++genotypes_missing_pheno;
+            ++missing_in_pheno;
         }
     }
 
-    // ---- Warnings ----
-    if (phenotypes_not_in_genotype > 0) {
-        stoat::LOG_WARN(std::to_string(phenotypes_not_in_genotype) + " phenotype samples were not found in the genotype file", 0);
+    // Warnings
+    if (unique_to_pheno > 0) {
+        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", 0);
     }
 
-    if (genotypes_missing_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(genotypes_missing_pheno) + " genotype samples have no phenotype", 0);
+    if (missing_in_pheno > 0) {
+        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", 0);
     }
 
-    // ---- Final Pheno GWAS counts ----
+    // Final Pheno GWAS counts
     stoat::LOG_INFO("Quantitative phenotypes used for GWAS: " + 
         std::to_string(samp_with_pheno) + " samples");
 
@@ -351,13 +343,11 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
     std::unordered_map<std::string, std::vector<double>> ge_map;
     size_t gene_idx = 0;
     size_t n_samples = sample_names.size();
+    size_t line_number = 1;
 
     // read gene expressions for each gene
     while (std::getline(file, line)) {
-
-        if (line.empty())
-            continue;
-
+        ++line_number;
         std::stringstream ss(line);
 
         // parse the gene name
@@ -365,16 +355,14 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
         std::getline(ss, gene_name, '\t');
 
         if (gene_name.empty()) {
-            throw std::invalid_argument("Missing gene name in expression file");
+            throw std::invalid_argument("Missing gene name in expression file at line " + std::to_string(line_number));
         }
 
         size_t col = 0;
-
         while (std::getline(ss, line_value, '\t')) {
-
             if (col >= n_samples) {
                 throw std::invalid_argument(
-                    "Too many columns for gene " + gene_name);
+                    "Too many columns for gene " + gene_name + " at line " + std::to_string(line_number));
             }
 
             try {
@@ -382,74 +370,69 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
             } catch (...) {
                 throw std::invalid_argument(
                     "Invalid expression value for gene " + gene_name +
-                    ": " + line_value);
+                    " at line " + std::to_string(line_number) + ": " + line_value);
             }
 
             ++col;
         }
 
         if (col != n_samples) {
-            throw std::invalid_argument("Incorrect number of columns for gene " + gene_name);
+            throw std::invalid_argument("Incorrect number of columns for gene " +
+                                        gene_name + "at line " +
+                                        std::to_string(line_number));
         }
 
         auto [it, inserted] = gene_to_index.emplace(gene_name, gene_idx++);
         if (!inserted) {
-            throw std::invalid_argument("Duplicate gene name in expression file: " + gene_name);
+            throw std::invalid_argument("Duplicate gene name in expression file: " +
+                                        gene_name + "at line " +
+                                        std::to_string(line_number));
         }
     }
 
     file.close();
 
-    stoat::LOG_INFO(
-        "Gene number found in expression file: " +
-        std::to_string(gene_idx));
+    stoat::LOG_INFO("Gene number found in expression file: " + std::to_string(gene_idx));
 
-    // ---- Build output table ----
+    // Build output table
     stoat::GeneExpressionTable* output_table = new stoat::GeneExpressionTable(sample_to_index, gene_to_index);
 
-    size_t samples_not_in_genotype = 0;
-    size_t genotype_missing_expression = 0;
+    size_t unique_to_expression = 0;
+    size_t missing_in_expression = 0;
     size_t used_samples = 0;
 
     for (const auto& [sample, expr_vec] : ge_map) {
-
         if (output_table->has_sample(sample)) {
             ++used_samples;
-
             for (const auto& [gene, idx] : gene_to_index) {
-                output_table->set_value_for_sample_and_feature(
-                    sample,
-                    gene,
-                    expr_vec[idx]
-                );
+                output_table->set_value_for_sample_and_feature(sample, gene, expr_vec[idx]);
             }
-
         } else {
-            ++samples_not_in_genotype;
+            ++unique_to_expression;
         }
     }
 
     for (const auto& [sample, idx] : sample_to_index) {
         if (ge_map.find(sample) == ge_map.end()) {
-            ++genotype_missing_expression;
+            ++missing_in_expression;
         }
     }
 
-    // ---- Warnings ----
-    if (samples_not_in_genotype > 0) {
-        stoat::LOG_WARN(std::to_string(samples_not_in_genotype) +
-            " expression samples not found in genotype data", 0);
+    // Warnings
+    if (unique_to_expression > 0) {
+        stoat::LOG_WARN(std::to_string(unique_to_expression) +
+            " samples with expression not found in current sample set", 0);
     }
 
-    if (genotype_missing_expression > 0) {
-        stoat::LOG_WARN(std::to_string(genotype_missing_expression) +
-            " genotype samples missing expression values", 0);
+    if (missing_in_expression > 0) {
+        stoat::LOG_WARN(std::to_string(missing_in_expression) +
+            " samples missing expression values", 0);
     }
 
     stoat::LOG_INFO("Samples with expression used in analysis: " +
         std::to_string(used_samples));
 
-    // ---- Load gene positions ----
+    // Load gene positions
     output_table->read_gene_positions_from_file(gene_position_path);
     return (output_table);
 }
@@ -470,7 +453,7 @@ stoat::CovariateTable* parse_covariate_table(
 
     std::string line;
 
-    // ---- Parse header ----
+    // Parse header
     if (!std::getline(file, line)) {
         throw std::invalid_argument("Empty covariate file: " + file_path);
     }
@@ -508,14 +491,12 @@ stoat::CovariateTable* parse_covariate_table(
         max_covar_idx = std::max(max_covar_idx, covar_idx);
     }
 
-    // ---- Parse rows ----
+    // parse rows
     std::unordered_set<std::string> seen_samples;
     size_t sample_idx = 0;
+    size_t line_number = 1;
     while (std::getline(file, line)) {
-
-        if (line.empty())
-            continue;
-
+        ++line_number;
         std::istringstream line_stream(line);
         std::vector<std::string> line_vec;
         std::string line_val;
@@ -524,14 +505,16 @@ stoat::CovariateTable* parse_covariate_table(
         }
 
         if (line_vec.size() <= samp_head_idx) {
-            throw std::invalid_argument("Malformed line in covariate file: " + line);
+            throw std::invalid_argument("Malformed line in covariate file at line " +
+                                        std::to_string(line_number) + ": " + line);
         }
 
         // extract the specified covariables
         std::string samp_name = line_vec[samp_head_idx];
 
         if (!seen_samples.insert(samp_name).second) {
-            throw std::invalid_argument("Duplicate sample in covariate file: " + samp_name);
+            throw std::invalid_argument("Duplicate sample in covariate file at line " +
+                                        std::to_string(line_number) + ": " + samp_name);
         }
 
         // prepare a vector with enough elements to fill the value using covar_to_index
@@ -542,13 +525,14 @@ stoat::CovariateTable* parse_covariate_table(
                 if (col >= line_vec.size()) {
                     throw std::invalid_argument(
                         "Missing value for covariate '" + covar_name +
-                        "' in sample " + samp_name);
+                        "' in sample " + samp_name + "at line " +
+                        std::to_string(line_number));
                 }
                 samp_covars[covar_idx] = std::stod(line_vec[col]);
             }
         } catch (...) {
             throw std::invalid_argument(
-                "Sample " + samp_name + " has a non-numeric covariate value");
+                "Sample " + samp_name + " has a non-numeric covariate value at line " + std::to_string(line_number));
         }
 
         covariate_map.emplace(samp_name, std::move(samp_covars));
@@ -560,9 +544,9 @@ stoat::CovariateTable* parse_covariate_table(
     // close the file connection
     file.close();
 
-    // ---- Build output table ----
+    // Build output table
     stoat::CovariateTable* output_table = new stoat::CovariateTable(sample_to_index, covar_to_index);
-    size_t samples_not_in_genotype = 0;
+    size_t unique_to_covar = 0;
     size_t genotype_missing_covars = 0;
     size_t used_samples = 0;
 
@@ -577,7 +561,7 @@ stoat::CovariateTable* parse_covariate_table(
                 );
             }
         } else {
-            ++samples_not_in_genotype;
+            ++unique_to_covar;
         }
     }
 
@@ -587,15 +571,15 @@ stoat::CovariateTable* parse_covariate_table(
         }
     }
 
-    // ---- Warnings ----
-    if (samples_not_in_genotype > 0) {
-        stoat::LOG_WARN(std::to_string(samples_not_in_genotype) +
-            " covariate samples not found in genotype data", 0);
+    // Warnings
+    if (unique_to_covar > 0) {
+        stoat::LOG_WARN(std::to_string(unique_to_covar) +
+            " samples with covariates not found in sample set", 0);
     }
 
     if (genotype_missing_covars > 0) {
         stoat::LOG_WARN(std::to_string(genotype_missing_covars) +
-            " genotype samples missing covariates", 0);
+            " samples missing covariates", 0);
     }
 
     stoat::LOG_INFO("Samples with covariates used in analysis: " +

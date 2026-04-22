@@ -211,7 +211,7 @@ int main_stoat_test(int argc, char* argv[]) {
 
     // predict methods
     if (method.empty()) {
-        method = stoat_vcf::methods_stats_prediction(phenotype_path, !covariate_path.empty(), !gene_position_path.empty());
+        method = stoat_vcf::methods_stats_prediction(phenotype_path, !covariate_path.empty());
         stoat::LOG_INFO("No statistical method provided; using " + method + " test.");
     }
 
