@@ -10,7 +10,7 @@ mat = matrix(c(0, 1,
                1, 0,
                1, 0,
                1, 0,
-               0, 1, 
+               0, 1,
                0, 1,
                1, 0,
                1, 0,
@@ -67,7 +67,6 @@ mod.f = logistf(y~A1+A2, data=df)
 mod.n = logistf(y~1, data=df)
 lr.chi2 = -2*(mod.n$loglik[1]-mod.f$loglik[1])
 pchisq(lr.chi2, 2, lower.tail=FALSE)
-
 
 ## Linear Regression 2 paths - good linear relationship
 mat = matrix(c(1, 0,

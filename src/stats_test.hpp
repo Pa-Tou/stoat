@@ -59,6 +59,8 @@ private:
 
     size_t chi2_zero = 0;
     size_t chi2_inf = 0;
+    size_t count_number_total_zero = 0;
+    size_t count_number_row_zero = 0;
 };
 
 class LinearRegression {
@@ -99,7 +101,7 @@ private:
 
     size_t count_number_not_convergence = 0;
     size_t count_number_negative_log_likelihood = 0;
-
+    size_t count_number_not_convergence_skipping = 0;
 };
 
 // Compute the inverse or Moore-Penrose pseudoinverse of a matrix
