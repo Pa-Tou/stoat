@@ -76,6 +76,25 @@ const std::unordered_map<std::string, size_t>& FeatureBySampleTable<ValueType>::
     return sample_to_index;
 }
 
+template<class ValueType>
+void FeatureBySampleTable<ValueType>::add_missing_sample_index(size_t sample_idx) {
+    missing_sample_index.insert(sample_idx);
+}
+    
+template<class ValueType>
+size_t FeatureBySampleTable<ValueType>::mask_sample_index(std::vector<bool>& row_mask) const {
+    size_t n_masked = 0;
+    for (size_t samp_idx : missing_sample_index) {
+        // if that sample was not already masked, we'll mask it so tally it
+        if (!row_mask.at(samp_idx)) {
+            n_masked++;
+        }
+        // mask that sample
+        row_mask.at(samp_idx) = true;
+    }
+    return n_masked;
+}
+    
 // Getter for CategoricalFeatureBySampleTable
 template<class ValueType>
 ValueType CategoricalFeatureBySampleTable<ValueType>::get_value_for_sample_and_feature(const std::string& sample, const std::string& feature) const {
@@ -206,6 +225,9 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     // init the column with the total allele counts
     total_allele_counts_per_sample = std::vector<double>(n_samples, 0);
     use_total_ac = false;
+
+    // init info about the phenotype being linked already
+    linked_phenotype = false;
 }
     
 void GenotypeTable::clear() {
@@ -296,11 +318,13 @@ size_t GenotypeTable::get_allele_count() const {
 void GenotypeTable::link_to_binary_phenotype(const BinaryPhenotypeTable& phenotype) {
     b_phenotype = &phenotype;
     is_binary_pheno = true;
+    linked_phenotype = true;
 }
 
 void GenotypeTable::link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype) {
     q_phenotype = &phenotype;
     is_binary_pheno = false;
+    linked_phenotype = true;
 }
 
 void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
@@ -320,7 +344,23 @@ void GenotypeTable::remove_noncovered_samples() {
             n_active_samples--;
         }
     }
-    // JEAN TODO check that this is called before the test/regression
+
+    // mask samples that don't have a phenotype
+    size_t masked_samples = 0;
+    if (linked_phenotype) {
+        if (is_binary_pheno) {
+            masked_samples = b_phenotype->mask_sample_index(row_mask);
+        } else {
+            masked_samples = q_phenotype->mask_sample_index(row_mask);
+        }
+        n_active_samples -= masked_samples;
+    }
+    
+    // mask samples that don't have a covariate information
+    if (n_covariates > 0) {
+        masked_samples = covariates->mask_sample_index(row_mask);
+        n_active_samples -= masked_samples;
+    }
 }
 
 void GenotypeTable::remove_constant_predictors() {
