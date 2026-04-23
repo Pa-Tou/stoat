@@ -173,10 +173,11 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
         }
     }
 
-    // samples in the index but without a phenotype
+    // samples in the index but not in the phenotype file are marked as missing
     for (const auto& [sample, idx] : sample_to_index) {
         if (binary_pheno.find(sample) == binary_pheno.end()) {
             ++missing_in_pheno;
+            output_table->add_missing_sample_index(idx);
         }
     }
 
@@ -273,10 +274,11 @@ stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::str
         }
     }
 
-    // genotype samples missing phenotype
+    // samples in the index but not in the phenotype file are marked as missing
     for (const auto& [sample, idx] : sample_to_index) {
         if (quantitative_pheno.find(sample) == quantitative_pheno.end()) {
             ++missing_in_pheno;
+            output_table->add_missing_sample_index(idx);
         }
     }
 
@@ -412,9 +414,11 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
         }
     }
 
+    // samples in the index but not in the expression file are marked as missing
     for (const auto& [sample, idx] : sample_to_index) {
         if (ge_map.find(sample) == ge_map.end()) {
             ++missing_in_expression;
+            output_table->add_missing_sample_index(idx);
         }
     }
 
@@ -565,9 +569,11 @@ stoat::CovariateTable* parse_covariate_table(
         }
     }
 
+    // samples in the index but not in the covariable file are marked as missing
     for (const auto& [sample, idx] : sample_to_index) {
         if (covariate_map.find(sample) == covariate_map.end()) {
             ++genotype_missing_covars;
+            output_table->add_missing_sample_index(idx);
         }
     }
 

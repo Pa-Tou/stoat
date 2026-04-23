@@ -386,7 +386,7 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         geno.link_to_quantitative_phenotype(pheno);
 
         // remove non-variable allele, e.g. absent in both groups
-        geno.remove_noncovered_samples();    
+        geno.remove_noncovered_samples();
         geno.remove_constant_predictors();
         
         REQUIRE(geno.passes_filters(0, 0));
@@ -395,5 +395,73 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         REQUIRE(!geno.passes_filters(0, 6));
     }
 
+}
+
+TEST_CASE( "Combined GenotypeTable with missing samples", "[table]" ) {
+
+
+    //     A0 A1 A2 A3
+    // S1 {1, 0, 1, 1}
+    // S2 {1, 0, 1, 1}
+    // S3 {1, 0, 0, 0}
+    // S4 {1, 0, 0, 0}
+    // S5 {0, 0, 1, 1}
+
+    std::unordered_map<std::string, size_t> sample_to_index = {{"S1", 0}, {"S2", 1}, {"S3", 2},
+                                                               {"S4", 3}, {"S5", 4}};
+    stoat::GenotypeTable table(sample_to_index, 4);
+    table.increment_count(0, 0);
+    table.increment_count(0, 2);
+    table.increment_count(0, 3);
+    table.increment_count(1, 0);
+    table.increment_count(1, 2);
+    table.increment_count(1, 3);
+    table.increment_count(2, 0);
+    table.increment_count(3, 0);
+    table.increment_count(4, 2);
+    table.increment_count(4, 3);
+
+
+    SECTION("Table is the right size") {
+        REQUIRE(table.get_n_active_alleles() == 4);
+        REQUIRE(table.get_n_active_samples() == 5);
+    }
+
+    // add phenotype but without a sample S2
+    stoat::BinaryPhenotypeTable pheno(sample_to_index);
+    pheno.set_value_for_sample("S1", 1);
+    pheno.set_value_for_sample("S3", 0);
+    pheno.set_value_for_sample("S4", 0);
+    pheno.set_value_for_sample("S5", 1);
+    pheno.add_missing_sample_index(1);
+    
+    // link to them in the GenotypeTable
+    table.link_to_binary_phenotype(pheno);
+
+    SECTION("Table is the right size before removing non-covered samples") {
+        REQUIRE(table.get_n_active_samples() == 5);
+    }
+
+    SECTION("Table is the right size after removing non-covered samples") {
+        table.remove_noncovered_samples();
+        REQUIRE(table.get_n_active_samples() == 4);
+    }
+
+    SECTION("Table is the right size when covariates are missing") {
+        // S3 is also missing now
+        std::unordered_map<std::string, size_t> covar_to_index = {{"covar1", 0}};
+        stoat::CovariateTable covar(sample_to_index, covar_to_index);
+        covar.set_value_for_sample_and_feature("S1", "covar1", 0.2);
+        covar.set_value_for_sample_and_feature("S4", "covar1", 5);
+        covar.set_value_for_sample_and_feature("S5", "covar1", 11);
+        covar.add_missing_sample_index(1);
+        covar.add_missing_sample_index(2);
+
+        // link to them in the GenotypeTable
+        table.link_to_covariates(covar);
+        table.remove_noncovered_samples();
+        REQUIRE(table.get_n_active_samples() == 3);
+    }
+    
 }
 

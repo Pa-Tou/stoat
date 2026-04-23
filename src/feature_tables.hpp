@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
@@ -70,12 +71,22 @@ class FeatureBySampleTable {
     // return a pointer to the sample->index map
     const std::unordered_map<std::string, size_t>& get_sample_to_index() const;
 
+    // add a sample index that has no value
+    void add_missing_sample_index(size_t sample_idx);
+    
+    // mask samples with no value in the input mask vector
+    // returns the number of samples that were masked
+    size_t mask_sample_index(std::vector<bool>& row_mask) const;
+    
     protected:
     // Map from the samples that we have features for to their index in values_per_sample
     const std::unordered_map<std::string, size_t>& sample_to_index;
 
     // The values of the feature per sample in sample_to_index
     std::vector<ValueType> values_per_sample;
+
+    // to remember the sample indexes that are absent
+    std::unordered_set<size_t> missing_sample_index;
 };
 
 // template<class ValueType>
@@ -253,6 +264,7 @@ protected:
 
     // remember if the phenotype values are bool or double (maybe a better way?)
     bool is_binary_pheno;
+    bool linked_phenotype;
     
     // a mask for the columns/rows (which ones to exclude)
     std::vector<bool> col_mask;
