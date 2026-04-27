@@ -594,6 +594,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     std::vector<size_t> intermediate_sets (all_sample_haplotypes.size(), 0);
 
     std::vector<size_t> new_sets (all_sample_haplotypes.size(), 0);
+    size_t new_set_count = 1;
 
     // Sort the finished paths so by path id so that identical paths are consecutive in the vector.
     // Since actually sorting the vector would be slow, make a vector of indices and sort that
@@ -603,9 +604,20 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     }
     std::sort(sort_order.begin(), sort_order.end(), [&](size_t a, size_t b) { return std::get<2>(finished_paths.at(a)) < std::get<2>(finished_paths.at(b)); });
 
+    auto gbwt_reference_samples = gbwtgraph::parse_reference_samples_tag(gbwt);
+
+
     // Go through all finished paths by path id
     for (size_t sorted_i = 0 ; sorted_i < sort_order.size() ; sorted_i++) {
         const std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>& current_state = finished_paths.at(sort_order.at(sorted_i));
+        #ifdef DEBUG_PATH_PARTITIONER
+            std::cerr << "At path id " << std::get<2>(current_state) << ":\t";
+            for (const auto& net : std::get<0>(current_state)) {
+                std::cerr << distance_index.net_handle_as_string(net) << ",";
+            }
+            std::cerr << std::endl;
+        #endif
+
 
         //locate() finds the path identifiers for the search state
         std::vector<gbwt::size_type> path_ids = gbwt.locate(std::get<1>(current_state));
@@ -629,21 +641,21 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
         if (sorted_i == sort_order.size()-1 || std::get<2>(current_state) != std::get<2>(finished_paths.at(sort_order.at(sorted_i+1)))) {
             // If we finished going through the last set of paths for this path id
-            std::map<std::pair<size_t, size_t>> old_to_new_set;
+            std::map<std::pair<size_t, size_t>, size_t> old_to_new_set;
             old_to_new_set[std::make_pair(0,0)] = 0;
-            new_set_count = 1;
 
             for (size_t sample_i = 0 ; sample_i < old_sets.size() ; sample_i++) {
-                if (old_to_new_sets.count(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))) == 0) {
+                if (old_to_new_set.count(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))) == 0) {
                     new_sets[sample_i] = new_set_count;
-                    old_to_new_sets[std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))] = new_set_count++; 
+                    old_to_new_set[std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))] = new_set_count++; 
                 } else {
-                    intermediate_sets.at(sample_i) = old_to_new_sets.at(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))); 
+                    new_sets.at(sample_i) = old_to_new_set.at(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))); 
                 }
             }
             old_sets = std::move(new_sets);
-            new_sets.clear();
-            intermediate_sets.clear();
+            new_sets.assign(all_sample_haplotypes.size(), 0);
+            intermediate_sets.assign(all_sample_haplotypes.size(), 0);
+            new_set_count = 1;
         }
     }
 
@@ -657,11 +669,11 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     }
     return old_sets;
 
-        // Now for each unique path, turn it into a PathTraversal to be returned
-        if (!found_path.at(path_id)) {
-            found_path.at(path_id) = true;
-            paths_per_allele.at(path_id) = stoat::convert_path_traversal(distance_index, graph, std::get<0>(state));
-        }
+        //// Now for each unique path, turn it into a PathTraversal to be returned
+        //if (!found_path.at(path_id)) {
+        //    found_path.at(path_id) = true;
+        //    paths_per_allele.at(path_id) = stoat::convert_path_traversal(distance_index, graph, std::get<0>(state));
+        //}
 }
 
 }
