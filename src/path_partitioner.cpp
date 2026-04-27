@@ -337,6 +337,42 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     // The size_t is an identifier for the path, since some paths may be identical
     std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>> intermediate_paths;
 
+    // The GBWT traversals may split up in nested chains, meaning that we'd get a separate SearchState for the same
+    // path through the netgraph. Since these separate threads might then take different paths, we need to make sure that
+    // the distinct walks get the same id.
+    // Keep track of the path id and the walk that it takes
+
+    // For a path id and its length, has a next step been found?
+    // This is used to determine if any new next step should be given a new path id
+    // One path can keep the same id as the current path but each  other branching path needs a new one. 
+    // The length is the number of net_handle_t's in the path before taking the next step
+    std::unordered_set<std::pair<size_t, size_t>> path_step_was_continued; 
+
+    // For a path as its id, length not including the next step, and the next step, what is the path id of 
+    // the path plus next step?
+    std::unordered_map<std::tuple<size_t, size_t, handlegraph::net_handle_t>, size_t> path_next_step_to_id; 
+
+    //TODO: These two could be combined into an unordered_map<std::pair<size_t, size_t>, unordered_map<net_handle_t, size_t>> but I think that's a bad idea
+
+    // Helper function to get the path id of the next step out from an intermediate path
+    auto get_next_path_id = [&] (size_t current_path_id, size_t current_path_length, const handlegraph::net_handle_t& next_net)  {
+
+        // Check if we've already branched from this point. If yes, then get the correct path id. Otherwise, record the new branch
+        size_t path_id = current_path_id;
+        bool already_branched = path_step_was_continued.count(std::make_pair(path_id, current_path_length));
+        if (already_branched && path_next_step_to_id.count(std::make_tuple(path_id, current_path_length, next_net))) {
+            path_id = path_next_step_to_id.at(std::make_tuple(path_id, current_path_length, next_net));
+        } else {
+            size_t new_path_id = already_branched ? path_count++ : path_id;
+            path_next_step_to_id[std::make_tuple(path_id, current_path_length, next_net)] = new_path_id;
+            path_id = new_path_id;
+            path_step_was_continued.emplace(path_id, current_path_length);
+        }
+        return path_id;
+    };
+
+
+
 #ifdef DEBUG_PATH_PARTITIONER
     std::cerr << "Start with state " << first_state << " for node " << gbwt::Node::id(start_node)  << ":"
          << gbwt::Node::is_reverse(start_node) << std::endl;
@@ -348,6 +384,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 
     while (!intermediate_paths.empty()) {
         // For one intermediate path, add the next step
+
 
         std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t> current_path = std::move(intermediate_paths.back()); 
         intermediate_paths.pop_back();
@@ -384,18 +421,19 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
         });
 
     
-        // We need to assign an id to each new path. One path can keep the same id as the current path but each
-        // other branching path needs a new one. When the path continues in a nested chain, it doesn't count as 
-        // a branch so it can keep the same id. So only use a new id when there is a new node or child chain
-        // and this isn't the first new node or child chain.
-        bool first_branch = true;
         for (auto& next_step : next_steps) {
             // For each of the next steps, extend the search state and path and add it to the intermediate paths
-            bool branched = false;
+
+            // Does this next step count as a branch? 
+            // When the path continues in a nested chain, it doesn't count as a branch, only when there is a new node or 
+            // child chain and this isn't the first new node or child chain.
+            bool branch = false;
 
             const handlegraph::handle_t& next = std::get<0>(next_step);
             gbwt::node_type& gbwt_next = std::get<1>(next_step);
             gbwt::SearchState& new_state = std::get<2>(next_step);
+
+            size_t current_path_length = std::get<0>(current_path).size();
 
             std::vector<handlegraph::net_handle_t> updated_path;
             if (&next_step == &next_steps.back()) {
@@ -429,29 +467,29 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                 // If this handle isn't leaving the snarl, then add the path back to the list of intermediate paths to continue it
                 // If this is leaving the snarl
                 if (!only_loops || next_net == end_net) {
-                    updated_path.push_back(next_net);
-                    finished_paths.emplace_back(std::move(updated_path), new_state, first_branch ? std::get<2>(current_path) : path_count++);
+
+                    updated_path.push_back(next_net); 
+                    finished_paths.emplace_back(std::move(updated_path), new_state, get_next_path_id(std::get<2>(current_path), current_path_length, next_net));
                     #ifdef DEBUG_PATH_PARTITIONER
-                        std::cerr << "\tFinished_path num " << (first_branch ? std::get<2>(current_path) : path_count++) << ":\t";
+                        std::cerr << "\tFinished_path num " << std::get<2>(finished_paths.back()) << ":\t";
                         for (const auto& net : std::get<0>(finished_paths.back())) {
                             std::cerr << distance_index.net_handle_as_string(net) << ",";
                         }
                         std::cerr << std::endl;
                     #endif
                 }
-                branched = true;
-                first_branch = false;
+                branch = true;
 
             } else {
                 if (distance_index.start_end_traversal_of(next_net_grandparent) == distance_index.start_end_traversal_of(snarl)) {
                     // If the grandparent is the snarl we're traversing
                     if (distance_index.is_trivial_chain(next_net_parent)) {
                         // If this is a trivial chain whose parent is the snarl, add it as the node
+                        branch = true;
                         #ifdef DEBUG_PATH_PARTITIONER
                             std::cerr << "\t\tnew path with node child " << distance_index.net_handle_as_string(next_net) << std::endl;
                         #endif
                         updated_path.push_back(next_net);
-                        branched = true;
                         // TODO: Could also get the sequence here
                     } else {
                         // Otherwise, this is a node in a child of the chain
@@ -461,12 +499,12 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                         handlegraph::net_handle_t chain_start = distance_index.get_bound(next_net_parent, false, true);
                         handlegraph::net_handle_t chain_end = distance_index.get_bound(next_net_parent, true, true);
                         if (next_net == chain_start || next_net == chain_end) {
+                            branch = true;
                             #ifdef DEBUG_PATH_PARTITIONER
                                 std::cerr << "\t\tnew path with chain child" << std::endl;
                             #endif
                             updated_path.push_back(next_net_parent);
                             updated_path.push_back(next_net);
-                            branched = true;
                         } else if (next_net == distance_index.flip(chain_start) || next_net == distance_index.flip(chain_end)) {
                             #ifdef DEBUG_PATH_PARTITIONER
                                 std::cerr << "\t\t finish chain child" << std::endl;
@@ -489,19 +527,8 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     updated_path.pop_back();
                     updated_path.push_back(next_net);
                 }
-                if (!first_branch && branched) {
-                    // If this is a new branch and not the first branch, then we use a new id for the path
-                    intermediate_paths.emplace_back(std::move(updated_path), new_state, path_count++);
-                    #ifdef DEBUG_PATH_PARTITIONER
-                        std::cerr << "\t\t\tNew path num" << (path_count-1) << std::endl;
-                    #endif
-                } else {
-                    // Otherwise, use the same id
-                    intermediate_paths.emplace_back(std::move(updated_path), new_state, std::get<2>(current_path));
-                }
-                if (branched) {
-                    first_branch = false;
-                }
+                intermediate_paths.emplace_back(std::move(updated_path), new_state, 
+                                                branch ? get_next_path_id(std::get<2>(current_path), current_path_length, next_net) : std::get<2>(current_path));
             }
         }
     } // End while loop going through intermediate paths
