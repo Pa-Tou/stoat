@@ -575,34 +575,40 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     }
 
 
-    // At this point, finished_paths holds a path for each distinct, haplotype-supported path going through the snarl
-    // Now, we need to assign haplotypes to each of these paths and combine the paths with the same path id, which 
-    // correspond to paths taking the same walk through the netgraph
-    std::unordered_map<stoat::sample_hap_t, size_t> sample_to_allele;
 
-    auto gbwt_reference_samples = gbwtgraph::parse_reference_samples_tag(gbwt);
+    // At this point, finished paths holds a path for each distinct, haplotype-supported walk through th esnarl netgraph
+    // Since a sample may go through the snarl multiple times, we now want to partition the samples based on how many
+    // of each walk they take.
 
-    // For each distinct path, have we found it yet?
-    // When we find it, move into paths_per_allele
-    std::vector<bool> found_path (path_count, false);
-    #ifdef DEBUG_PATH_PARTITIONER
-        std::cerr << "Found " << path_count << " unique paths with " << finished_paths.size() << " total paths" << std::endl;
-    #endif
-    paths_per_allele.resize(path_count);
+    // Map each sample(plus haplotype) to its index in all_sample_haplotypes
+    std::map<stoat::sample_hap_t, std::size_t> sample_to_index;
+    for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
+        sample_to_index[all_sample_haplotypes[i]] = i;
+    }
 
-    for (const std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>& state : finished_paths) {
+    // For each path (along all_sample_haplotypes), the index of the set it is currently in
+    // Everything starts out in the same set, 0, which represents not being in the snarl
+    std::vector<size_t> old_sets (all_sample_haplotypes.size(), 0);
 
-        size_t path_id = std::get<2>(state);
-        #ifdef DEBUG_PATH_PARTITIONER
-            std::cerr << "At path id " << path_id << ":\t";
-            for (const auto& net : std::get<0>(state)) {
-                std::cerr << distance_index.net_handle_as_string(net) << ",";
-            }
-            std::cerr << std::endl;
-        #endif
+    // This will be the count of the current allele for each haplotype
+    std::vector<size_t> intermediate_sets (all_sample_haplotypes.size(), 0);
+
+    std::vector<size_t> new_sets (all_sample_haplotypes.size(), 0);
+
+    // Sort the finished paths so by path id so that identical paths are consecutive in the vector.
+    // Since actually sorting the vector would be slow, make a vector of indices and sort that
+    std::vector<size_t> sort_order(finished_paths.size(), 0);
+    for (size_t i = 0 ; i < sort_order.size() ; i++) {
+        sort_order[i] = i;
+    }
+    std::sort(sort_order.begin(), sort_order.end(), [&](size_t a, size_t b) { return std::get<2>(finished_paths.at(a)) < std::get<2>(finished_paths.at(b)); });
+
+    // Go through all finished paths by path id
+    for (size_t sorted_i = 0 ; sorted_i < sort_order.size() ; sorted_i++) {
+        const std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>& current_state = finished_paths.at(sort_order.at(sorted_i));
 
         //locate() finds the path identifiers for the search state
-        std::vector<gbwt::size_type> path_ids = gbwt.locate(std::get<1>(state));
+        std::vector<gbwt::size_type> path_ids = gbwt.locate(std::get<1>(current_state));
         for (const gbwt::size_type id : path_ids) {
             gbwt::size_type gbwt_path_id = gbwt::Path::id(id);
 
@@ -618,30 +624,44 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                 std::cerr << "\tpath " << path_name << " takes this path" << std::endl;
             #endif
 
-            sample_to_allele.emplace(sample_hap_t(path_name), 
-                                     path_id);
+            intermediate_sets.at(sample_to_index.at(sample_hap_t(path_name)))++;
         }
+
+        if (sorted_i == sort_order.size()-1 || std::get<2>(current_state) != std::get<2>(finished_paths.at(sort_order.at(sorted_i+1)))) {
+            // If we finished going through the last set of paths for this path id
+            std::map<std::pair<size_t, size_t>> old_to_new_set;
+            old_to_new_set[std::make_pair(0,0)] = 0;
+            new_set_count = 1;
+
+            for (size_t sample_i = 0 ; sample_i < old_sets.size() ; sample_i++) {
+                if (old_to_new_sets.count(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))) == 0) {
+                    new_sets[sample_i] = new_set_count;
+                    old_to_new_sets[std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))] = new_set_count++; 
+                } else {
+                    intermediate_sets.at(sample_i) = old_to_new_sets.at(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))); 
+                }
+            }
+            old_sets = std::move(new_sets);
+            new_sets.clear();
+            intermediate_sets.clear();
+        }
+    }
+
+    // Now go through the sets and change 0 to inf, and decrement all others
+    for (size_t i = 0 ; i < old_sets.size() ; i++) {
+        if (old_sets[i] == 0) {
+            old_sets[i] = std::numeric_limits<size_t>::max();
+        } else {
+            --old_sets[i];
+        }
+    }
+    return old_sets;
 
         // Now for each unique path, turn it into a PathTraversal to be returned
         if (!found_path.at(path_id)) {
             found_path.at(path_id) = true;
             paths_per_allele.at(path_id) = stoat::convert_path_traversal(distance_index, graph, std::get<0>(state));
         }
-    }
-    
-
-    // Now get the allele assignments to return
-    std::vector<size_t> allele_assignments;
-    allele_assignments.reserve(all_sample_haplotypes.size());
-    for (const stoat::sample_hap_t& samp : all_sample_haplotypes) {
-        if (sample_to_allele.count(samp) == 0) {
-            allele_assignments.emplace_back(std::numeric_limits<size_t>::max());
-        } else {
-            allele_assignments.emplace_back(sample_to_allele.at(samp));
-        }
-    }
-
-    return allele_assignments;
 }
 
 }
