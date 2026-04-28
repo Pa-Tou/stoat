@@ -772,16 +772,11 @@ void SnarlDataCollection::get_walks_from_alleles(
 
                 // For the path, add an empty node for each time we leave and re-enter the snarl
                 if (boundary_i != 0) {
-                    stoat::node_traversal_t traversal (0, true);
-                    current_walk.add_node_traversal_t(traversal);
+                    current_walk.add_out_of_snarl_walk();
                 }
 
                 // Add the step of the boundary node going into the snarl for each time it re-enters the snarl
-                // TODO: Make the PathTraversal add from a handle_t or net_handle_t
-                //current_walk.emplace_back(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph));
-                handlegraph::handle_t start_handle = graph.get_handle_of_step(boundary_steps[boundary_i]);
-                stoat::node_traversal_t start_traversal (graph.get_id(start_handle), graph.get_is_reverse(start_handle));
-                current_walk.add_node_traversal_t(start_traversal);
+                current_walk.add_net_handle(distance_index.get_net(graph.get_handle_of_step(boundary_steps[boundary_i]), &graph), distance_index, true);
                 handlegraph::step_handle_t step = graph.get_next_step(boundary_steps[boundary_i]);
 
                 while (step != boundary_steps[boundary_i+1]) {
@@ -791,61 +786,16 @@ void SnarlDataCollection::get_walks_from_alleles(
                     //   into the chain and its grandparent is the snarl.
                     // In any other case we want to ignore it
                     // TODO: I think this will be faster than skipping to the end of the chain and looking for the right path
-                    handlegraph::handle_t node = graph.get_handle_of_step(step);
-                    handlegraph::net_handle_t node_net = distance_index.get_net(node, &graph);
+                    handlegraph::net_handle_t node_net = distance_index.get_net(graph.get_handle_of_step(step), &graph);
                     handlegraph::net_handle_t parent = distance_index.get_parent(node_net);
 
                     // Add to the path, depending on if this is a node or chain
                     if (distance_index.get_parent(parent) == snarl) {
-                        if (distance_index.is_trivial_chain(parent)) {
-                            // This node is really a node in the snarl, then add it to the path 
-
-                            handlegraph::handle_t node_handle = distance_index.get_handle(parent, &graph);
-                            stoat::node_traversal_t node_traversal (graph.get_id(node_handle), graph.get_is_reverse(node_handle));
-                            current_walk.add_node_traversal_t(node_traversal);
-
-                            min_length += distance_index.minimum_length(parent);
-                            max_length += distance_index.maximum_length(parent);
-
-                        } else if (node_net == distance_index.get_bound(parent, false, true)) {
-                            // This node is going into the child chain going forward
-
-                            // Add the start bound going in
-                            handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, false, true), &graph);
-                            stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
-                            current_walk.add_node_traversal_t(chain_start_traversal);
-
-                            // Add the interior of the chain as a fake node
-                            stoat::node_traversal_t chain_traversal (0, false);
-                            current_walk.add_node_traversal_t(chain_traversal);
-
-                            // Add the end bound going out
-                            handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, true, false), &graph);
-                            stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
-                            current_walk.add_node_traversal_t(chain_end_traversal);
-
-                            min_length += distance_index.minimum_length(parent);
-                            max_length += distance_index.maximum_length(parent);
-
-                        } else if (node_net == distance_index.get_bound(parent, true, true)) {
-                            // This node is going into the child chain going backward
-
-                            // Add the end bound going in
-                            handlegraph::handle_t chain_start_handle = distance_index.get_handle(distance_index.get_bound(parent, true, true), &graph);
-                            stoat::node_traversal_t chain_start_traversal (graph.get_id(chain_start_handle), graph.get_is_reverse(chain_start_handle));
-                            current_walk.add_node_traversal_t(chain_start_traversal);
-
-                            // Add the interior of the chain as a fake node
-                            stoat::node_traversal_t chain_traversal (0, false);
-                            current_walk.add_node_traversal_t(chain_traversal);
-
-                            // Add the start bound going out
-                            handlegraph::handle_t chain_end_handle = distance_index.get_handle(distance_index.get_bound(parent, false, false), &graph);
-                            stoat::node_traversal_t chain_end_traversal (graph.get_id(chain_end_handle), graph.get_is_reverse(chain_end_handle));
-                            current_walk.add_node_traversal_t(chain_end_traversal);
-
-                            min_length += distance_index.minimum_length(parent);
-                            max_length += distance_index.maximum_length(parent);
+                        if (distance_index.is_trivial_chain(parent) || 
+                            node_net == distance_index.get_bound(parent, false, true) || 
+                            node_net == distance_index.get_bound(parent, true, true)) {
+                            // If this is a node or going into the chain
+                            current_walk.add_net_handle(parent, distance_index);
                         }
                     }
 
@@ -854,14 +804,10 @@ void SnarlDataCollection::get_walks_from_alleles(
                 }//end while loop going through a traversal of the snarl
 
                 // Add the bound
-                handlegraph::handle_t end_handle = graph.get_handle_of_step(step);
-                stoat::node_traversal_t end_traversal (graph.get_id(end_handle), graph.get_is_reverse(end_handle));
-                current_walk.add_node_traversal_t(end_traversal);
+                current_walk.add_net_handle(distance_index.get_net(graph.get_handle_of_step(step), &graph), distance_index, true);
 
             }// end for loop for a pair of boundary nodes for one traversal of the snarl
             assert(current_walk.get_path().size() >= 2);
-            current_walk.add_min_allele_len(min_length);
-            current_walk.add_max_allele_len(max_length);
 
         }// end if there are enough boundary nodes
     }// end for each first step (per allele)

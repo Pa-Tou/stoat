@@ -71,6 +71,7 @@ struct edge_t { // 128 bits per edge
 };
 
 // Define a PathTraversal structure to represent a path through the graph
+// a node id of 0 is used to represent leaving a snarl or traversing a chain child of a netgraph
 class PathTraversal {
 private:
     std::vector<node_traversal_t> path; // Nodes in the path
@@ -78,11 +79,21 @@ private:
     size_t max_allele_len;
     
 public:
-    // add a node traversal to the path
     PathTraversal() : min_allele_len(0), max_allele_len(0) {}
-    void add_node(const size_t& node, bool is_rev);
-    void add_node_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index);
+
+    /// add a node traversal
     void add_node_traversal_t(const node_traversal_t &node_trav);
+
+    /// add a node to the path and update the min and max lengths
+    void add_node(const size_t& node, bool is_rev, size_t length);
+
+    /// add a net handle to the path and update the min and max lengths
+    /// If the net handle represents a node, trivial chain, or sentinel, add it as a node
+    /// If it represents a chain, add it as the two boundary nodes and >0 between them.
+    /// is_bound should be true if this is the bound of the snarl, in which case the lengths aren't added
+    void add_net_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index, bool is_bound = false);
+
+    void add_out_of_snarl_walk() { add_node(0, true, 0); }
     
     // Check and flip the Path if necessary to ensure consistent orientation
     void check_path_flip();
@@ -104,6 +115,7 @@ public:
     // convert to std::string representation
     std::string to_string() const;
     size_t size() const;
+
 };
 
 // Convert a pair of size_t, for example defining a snarl ID to a string of them separated by an underscore
