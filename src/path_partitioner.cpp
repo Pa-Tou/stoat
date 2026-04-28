@@ -2,7 +2,7 @@
 #include "log.hpp"
 #include <fstream>
 
-#define DEBUG_PATH_PARTITIONER
+//#define DEBUG_PATH_PARTITIONER
 
 using namespace stoat;
 namespace stoat_graph {
@@ -597,8 +597,8 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
         size_t path_id;           // The path
         size_t additional_edge;  // Index into a list of additional edges
 
-        path_edge_t() : path_id(std::numeric_limits<size_t>::max()), additional_edge(std::numeric_limits<size_t>::max()){};
-        path_edge_t(size_t path_id) : 
+        path_link_t() : path_id(std::numeric_limits<size_t>::max()), additional_edge(std::numeric_limits<size_t>::max()){};
+        path_link_t(size_t path_id) : 
             path_id(path_id), additional_edge(std::numeric_limits<size_t>::max()){};
     };
     std::vector<path_link_t> path_by_sample (all_sample_haplotypes.size());
@@ -615,9 +615,9 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                 additional_edges.emplace_back(path_id);
             } else {
                 while (additional_edges.at(next_index).additional_edge != std::numeric_limits<size_t>::max()) {
-                    next_edge = additional_edges.at(next_index).additional_edge
+                    next_index = additional_edges.at(next_index).additional_edge;
                 }
-                additional_edges.at(next_edge).additional_edge = additional_edges.size();
+                additional_edges.at(next_index).additional_edge = additional_edges.size();
                 additional_edges.emplace_back(path_id);
             }
         }
@@ -629,6 +629,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     // For each path (along all_sample_haplotypes), the index of the set it is currently in
     // Everything starts out in the same set, 0, which represents not being in the snarl
     std::vector<size_t> old_sets (all_sample_haplotypes.size(), 0);
+    size_t old_set_count = 1;
 
     // This will be the count of the current allele for each haplotype
     std::vector<size_t> intermediate_sets (all_sample_haplotypes.size(), 0);
@@ -695,6 +696,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                 }
             }
             old_sets = std::move(new_sets);
+            old_set_count = new_set_count;
             new_sets.assign(all_sample_haplotypes.size(), 0);
             intermediate_sets.assign(all_sample_haplotypes.size(), 0);
             new_set_count = 1;
@@ -704,9 +706,12 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
         }
     }
 
+    // The old_set_count originally counted the set with nothing, so decrement it
+    old_set_count--;
+
     // For each allele, get one sample with this allele. Used to get the paths
-    std::vector<size_t> sample_per_allele (new_set_count, std::numeric_limits<size_t>::max());
-    paths_per_allele.clear()
+    std::vector<size_t> sample_per_allele (old_set_count, std::numeric_limits<size_t>::max());
+    paths_per_allele.clear();
 
     // Now go through the sets and change 0 to inf, and decrement all others
     for (size_t i = 0 ; i < old_sets.size() ; i++) {
@@ -714,12 +719,13 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             old_sets[i] = std::numeric_limits<size_t>::max();
         } else {
             --old_sets[i];
-        }
-        if (sample_per_allele.at(old_sets[i]) == std::numeric_limits<size_t>::max()) {
-            sample_per_allele.at(old_sets[i]) = i;
+            if (sample_per_allele.at(old_sets[i]) == std::numeric_limits<size_t>::max()) {
+                sample_per_allele.at(old_sets[i]) = i;
+            }
         }
     }
-    for (size_t allele_num = 0 ; allele_num < new_set_count ; allele_num++) {
+
+    for (size_t allele_num = 0 ; allele_num < old_set_count ; allele_num++) {
 
         paths_per_allele.emplace_back();
 
@@ -727,15 +733,26 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
         size_t path_id = path_by_sample.at(sample_num).path_id;
         size_t next_edge = path_by_sample.at(sample_num).additional_edge;
         assert (path_id != std::numeric_limits<size_t>::max());
+
+        const std::vector<handlegraph::net_handle_t>& path_as_net_handles = paths_per_path_id.at(path_id);
         
-        for (const handlegraph::net_handle_t& net : paths_per_path_id.at(path_id)) {
-            paths_per_allele.back().add_node_handle(net, distance_index);
+        // Add the first path through the snarl
+        for (size_t i = 0 ; i < path_as_net_handles.size() ; i++) {
+            const handlegraph::net_handle_t& net = path_as_net_handles.at(i);
+            paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == path_as_net_handles.size());
         }
+
+        // If there are additional paths through the snarl, add them too
         while (next_edge != std::numeric_limits<size_t>::max()) {
+            paths_per_allele.back().add_out_of_snarl_walk();
+
             path_id = additional_edges.at(next_edge).path_id;
             next_edge = additional_edges.at(next_edge).additional_edge;
-            for (const handlegraph::net_handle_t& net : paths_per_path_id.at(path_id)) {
-                paths_per_allele.back().add_node_handle(net, distance_index);
+
+            const std::vector<handlegraph::net_handle_t>& next_path_as_net_handles = paths_per_path_id.at(path_id);
+            for (size_t i = 0 ; i < next_path_as_net_handles.size() ; i++) {
+                const handlegraph::net_handle_t& net = next_path_as_net_handles.at(i);
+                paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == next_path_as_net_handles.size());
             }
         }
     }
