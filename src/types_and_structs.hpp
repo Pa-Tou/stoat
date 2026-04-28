@@ -81,6 +81,9 @@ private:
 public:
     PathTraversal() : min_allele_len(0), max_allele_len(0) {}
 
+
+    //////////////////////// Functions for adding steps in the path traversal
+
     /// add a node traversal
     void add_node_traversal_t(const node_traversal_t &node_trav);
 
@@ -93,27 +96,35 @@ public:
     /// is_bound should be true if this is the bound of the snarl, in which case the lengths aren't added
     void add_net_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index, bool is_bound = false);
 
+    /// For a traversal through a snarl, this is used to add a step in the walk representing a traversal that leaves a snarl and comes back in
     void add_out_of_snarl_walk() { add_node(0, true, 0); }
+
+    /// For a traversal through a snarl, this is used to add a step in the walk representing a traversal through a chain child in the netgraph
+    void add_interior_chain_walk() { add_node(0, false, 0); }
+
+    ////////////////////////// Functions for checking and flipping the orientation
+    // TODO: Do we really need to do this?
     
     // Check and flip the Path if necessary to ensure consistent orientation
     void check_path_flip();
     void path_flip();
 
-    void add_min_allele_len(size_t len);
-    void add_max_allele_len(size_t len);
+
+    ///////////////////////// Functions for getting and setting the allele lengths from strings
+
     void set_allele_length_from_string(std::string al_len_str);
 
-    // TODO : change sum_path to definition using the length of the path including in the boundary nodes
-    // Matis ans : i don t know how to do it
-    std::string get_allele_length(size_t& count_path_lengths_warn) const;
+    std::string allele_lengths_as_string(size_t& count_path_lengths_warn) const;
         
-    // Getters
+    ////////////////////////////// Getters
     const std::vector<node_traversal_t>& get_path() const;
     size_t get_max_allele_length() const { return max_allele_len; }
     size_t get_min_allele_length() const { return min_allele_len; }
     
     // convert to std::string representation
     std::string to_string() const;
+
+    // How many steps in the path?
     size_t size() const;
 
 };
@@ -137,13 +148,13 @@ std::string path_node_traversal_to_string(const std::vector<stoat::node_traversa
 
 
 // Convert one vector of net_handle_t's to a PathTraversal
-PathTraversal convert_path_traversal(
+PathTraversal net_handles_to_path_traversal(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             const handlegraph::PathHandleGraph& graph, 
                             const std::vector<handlegraph::net_handle_t>& path_as_net_handles);
 
 // convert paths from the simple vector of net handles to the PathTraversal object
-std::vector<PathTraversal> convert_path_traversals(
+std::vector<PathTraversal> net_handles_to_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             const handlegraph::PathHandleGraph& graph, 
                             std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths);

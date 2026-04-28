@@ -234,7 +234,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 }
                                 if (walks_requested) {
                                     //
-                                    //walks_by_allele_as_paths = stoat::convert_path_traversals(distance_index, graph, walks_by_allele);
                                     #ifdef DEBUG_SNARL_DATA_COLLECTION
                                     std::cerr << "got path from walk" << std::endl;
                                     for (const auto& path : walks_by_allele) {
@@ -645,7 +644,7 @@ void SnarlDataCollection::get_all_walks_through_snarl(
     }
 #endif
 
-    walks = stoat::convert_path_traversals(distance_index, graph, walks_as_net_handles);  
+    walks = stoat::net_handles_to_path_traversals(distance_index, graph, walks_as_net_handles);  
  
 #ifdef DEBUG_SNARL_DATA_COLLECTION
     // Validate paths
