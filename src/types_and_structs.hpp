@@ -50,7 +50,7 @@ struct node_traversal_t { // 64 bits per node
 // Define a edge_t structure to represent an edge between two node_traversal_t nodes
 struct edge_t { // 128 bits per edge 
     private:
-        // JEAN why is that a pair? can't we just have two nodes in that struct?
+    // JEAN why is that a pair? can't we just have two nodes in that struct?
         std::pair<node_traversal_t, node_traversal_t> edge;
 
     public:
@@ -122,6 +122,13 @@ std::vector<stoat::node_traversal_t> string_to_path_node_traversal(const std::st
 
 // Get a string representing a path of node_traversal_t's
 std::string path_node_traversal_to_string(const std::vector<stoat::node_traversal_t>& path);
+
+
+// Convert one vector of net_handle_t's to a PathTraversal
+PathTraversal convert_path_traversal(
+                            const bdsg::SnarlDistanceIndex& distance_index, 
+                            const handlegraph::PathHandleGraph& graph, 
+                            const std::vector<handlegraph::net_handle_t>& path_as_net_handles);
 
 // convert paths from the simple vector of net handles to the PathTraversal object
 std::vector<PathTraversal> convert_path_traversals(
