@@ -24,8 +24,11 @@ void Logger::log(LogLevel level, const std::string& message) {
         std::lock_guard<std::mutex> lock(mutex);
         const std::string formatted = levelToString(level) + message;
 
-        std::ostream& out = (level == LogLevel::Error) ? std::cerr : std::cout;
-        out << formatted << std::endl;
+        // output all messages to standard error to avoid the risk of
+        // log messages ending up in the rea loutput files. Stoat also
+        // writes a log files by default so it's ok if it's not as
+        // easy to catch.
+        std::cerr << formatted << std::endl;
 
         if (fileLoggingEnabled && logFile.is_open()) {
             logFile << formatted << std::endl;

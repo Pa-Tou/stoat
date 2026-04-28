@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
@@ -12,7 +13,6 @@
 namespace stoat {
 
 /***
-
 This file defines tables to represent per-sample values such as phenotypes, genotypes, gene expression, etc.
 
 The base class is a FeatureBySampleTable, which is a class template to store a different type of value per sample.
@@ -22,7 +22,6 @@ The classes of FeatureBySampleTable are:
 -  BinaryPhenotypeTable: stores one bool per sample
 -  QuantitativePhenotypeTable: stores one double per sample
 
-
 The CategoricalFeatureBySampleTable inherits from the FeatureBySampleTable and provides a vector of values per sample.
 This can be thought of as a 2D matrix. Each sample now has multiple values from a category of features. For example,
 the category may be gene expression, and for each feature (gene), each sample has a gene expression value.
@@ -31,21 +30,16 @@ CategoricalFeatureBySampleTable is also a class template and its classes are:
 - GeneExpressionTable: stores a vector of double's per sample
 - CovariateTable: stores a vector of double's per sample
 
-
 The GenotypeTable also extends FeatureBySampleTable, using a vector of size_t's like a CategoricalFeatureBySampleTable,
 but unlike the Categorical table, it accesses alleles by index, rather than by a string name
 
 - GenotypeTable: stores a vector of size_t's per sample, used as a count of alleles
 
-
-
 Each of these tables has a const reference to an unordered map sample_to_index that maps the sample name to a unique index
 used to place the sample in the vector.
 CategoricalFeatureBySampleTable also has a const reference to feature_to_index that maps the feature name to a unique index.
 Values are accessed by sample and feature names
-
 ***/
-
 
 /// A generic table to store the value of a "feature" per sample. 
 /// The feature could be a phenotype
@@ -54,7 +48,6 @@ Values are accessed by sample and feature names
 /// values_per_sample:      value 1  |  value 2 |  value 3 | 
 template<class ValueType>
 class FeatureBySampleTable {
-
     public:
 
     // Constructor
@@ -62,7 +55,7 @@ class FeatureBySampleTable {
     FeatureBySampleTable(const std::unordered_map<std::string, size_t>& sample_to_index);
 
     // Access the value saved for a sample
-    //TODO: I wanted this to be a reference in case the value is very big (eg, we want the whole vector) but it doesn't work with bools
+    // TODO: I wanted this to be a reference in case the value is very big (eg, we want the whole vector) but it doesn't work with bools
     ValueType get_value_for_sample(const std::string& sample) const;
     ValueType get_value_for_sample_id(size_t sample_idx) const;
 
@@ -78,12 +71,22 @@ class FeatureBySampleTable {
     // return a pointer to the sample->index map
     const std::unordered_map<std::string, size_t>& get_sample_to_index() const;
 
+    // add a sample index that has no value
+    void add_missing_sample_index(size_t sample_idx);
+    
+    // mask samples with no value in the input mask vector
+    // returns the number of samples that were masked
+    size_t mask_sample_index(std::vector<bool>& row_mask) const;
+    
     protected:
     // Map from the samples that we have features for to their index in values_per_sample
     const std::unordered_map<std::string, size_t>& sample_to_index;
 
     // The values of the feature per sample in sample_to_index
     std::vector<ValueType> values_per_sample;
+
+    // to remember the sample indexes that are absent
+    std::unordered_set<size_t> missing_sample_index;
 };
 
 // template<class ValueType>
@@ -185,7 +188,7 @@ public:
 
     // clear any mask, covariate etc, for example when wanting to test a new phenotype (eQTL)
     void clear();
-    
+
     // accessor function to get value for a row and a column
     double get_value(size_t row, size_t col) const;
 
@@ -199,9 +202,7 @@ public:
     std::string get_genotype_as_string(const std::string& sample) const;
 
     // How many alleles are there?
-    size_t get_allele_count() const {
-        return this->values_per_sample.size() == 0 ? 0 : this->values_per_sample.front().size(); 
-    }
+    size_t get_allele_count() const;
 
     // link to a phenotype or covariate table 
     void link_to_binary_phenotype(const BinaryPhenotypeTable& phenotype);
@@ -242,24 +243,28 @@ public:
     // how many alleles are not masked
     // JEAN maybe more efficient to keep track of this instead of recomputing from the mask each time?
     size_t get_n_active_alleles() const;
+
     /// this will include alleles, covariates, and the total allele count if it was added by add_total_allele_count_covariable
     size_t get_n_active_columns() const;
     size_t get_n_active_samples() const;
 
-    
 protected:
     // to keep track of the table dimensions, not taking into account the mask
     // number of alleles in the internal values_per_samples
     size_t n_alleles;
     size_t n_active_alleles;
+
     // number of covariates in the Table pointed to by covariates
     size_t n_covariates;
     size_t n_active_columns;
+
     // total number of samples (rows in the matrix)
     size_t n_samples;
     size_t n_active_samples;
+
     // remember if the phenotype values are bool or double (maybe a better way?)
     bool is_binary_pheno;
+    bool linked_phenotype;
     
     // a mask for the columns/rows (which ones to exclude)
     std::vector<bool> col_mask;
@@ -272,9 +277,10 @@ protected:
 
     // a vector with an additional column for the total allele count for each sample
     std::vector<double> total_allele_counts_per_sample;
+
     // should we include this column in the regression model?
     bool use_total_ac;
-    
+
 };
     
 // Utils function to summarize the table in the output (binary phenotype)

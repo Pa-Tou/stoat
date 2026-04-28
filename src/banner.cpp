@@ -7,23 +7,22 @@
 namespace stoat {
 
 void print_ascii_banner(const std::string& version) {
-        std::cerr << R"(-------------------------------------------------
+    std::cout << R"(-------------------------------------------------
                          (\ /)
  ___|‾|_ ___   __ _|‾|_  (. .)
-/ __| __/ _ \ / _\ | __|  >o<\
+/ __| __/ _ \ / _\ | __|  >o<                   \
 \__ \ || (_) | (_| | |_    \  `--------.,=-.,
 |___/\__\___/ \__ _|\__|    `,,________,,)  `--.
                             ,,        ,,
-Stoat )" << version << R"( - Pangenome GWAS toolkit
-Run 'stoat --help' for full documentation.
 -------------------------------------------------
 )";
+    stoat::LOG_INFO("Stoat " + version);
 }
 
 // Modern minimal banner :
 // Stoat v0.0.4
 void print_banner(const std::string& version) {
-    std::cerr << "\nStoat v" << version << "\n";
+    stoat::LOG_INFO("Stoat " + version);
 }
 
 } // namespace stoat

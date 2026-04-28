@@ -66,20 +66,72 @@ bool edge_t::operator==(const edge_t &other) const {
 }
 
 // Add a node with known orientation
-void PathTraversal::add_node(const size_t& node, bool is_rev) {
-    node_traversal_t node_traversal(node, is_rev); 
+void PathTraversal::add_node(const size_t& node, bool is_rev, size_t length) {
     // Add node to path
-    this->path.push_back(node_traversal);
+    add_node_traversal_t(node_traversal_t(node, is_rev));
+    min_allele_len += length;
+    max_allele_len += length;
 }
 
     
-// Add a node handle and extract information using the std::string representation
-void PathTraversal::add_node_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index) {
-    // find the node orientation
-    bool is_rev = distance_index.ends_at(node_h) != bdsg::SnarlDistanceIndex::END;
-    node_traversal_t node_traversal(distance_index.node_id(node_h), is_rev); 
-    // Add node to path
-    this->path.push_back(node_traversal);
+void PathTraversal::add_net_handle(const handlegraph::net_handle_t& net, const bdsg::SnarlDistanceIndex& distance_index, bool is_bound) {
+    if (distance_index.is_node(net) || distance_index.is_trivial_chain(net)) {
+        // If this is a node, just add it in the correct orientation
+        add_node_traversal_t(node_traversal_t(distance_index.node_id(net), distance_index.ends_at_start(net))); 
+        if (!is_bound) {
+            // Only add the lengths of interior nodes
+            min_allele_len += distance_index.minimum_length(net);
+            max_allele_len += distance_index.maximum_length(net);
+        }
+    } else if (distance_index.is_chain(net)) {
+        // For a chain, add the bound facing into this net_handle_t, a fake empty node to indicate the interior, and the bound facing out 
+        handlegraph::net_handle_t start_net, end_net;
+        if (distance_index.starts_at_start(net)) {
+            start_net = distance_index.get_bound(net, false, true);
+            end_net = distance_index.get_bound(net, true, false);
+        } else {
+            start_net = distance_index.get_bound(net, true, true);
+            end_net = distance_index.get_bound(net, false, false);
+        }
+        
+        add_node_traversal_t(node_traversal_t(distance_index.node_id(start_net), distance_index.ends_at_start(start_net))); 
+        
+        // does the chain contain only two nodes
+        bool chain_2node = true;
+        int child_count = 0;
+        
+        distance_index.for_each_child(net, [&](const handlegraph::net_handle_t& child) {
+            ++child_count;
+            if (!distance_index.is_node(child)) {
+                chain_2node = false;
+                return false; // stop early
+            }
+            if (child_count > 2) {
+                // stop early if there are more children
+                return false;
+            }
+            return true;
+        });
+        
+        if (!(chain_2node && child_count == 2)) {
+            add_interior_chain_walk();
+        }
+        
+        add_node_traversal_t(node_traversal_t(distance_index.node_id(end_net), distance_index.ends_at_start(end_net))); 
+        
+        // Fail case 
+        #ifdef DEBUG_SNARL_DATA_T
+        // stoat::LOG_DEBUG();
+        assert(distance_index.maximum_length(net) != static_cast<size_t>(INT_MAX) && "Overflow max distance");
+        assert(distance_index.minimum_length(net) != static_cast<size_t>(INT_MAX) && "Overflow min distance");
+        #endif
+        
+        // Add the minimum/maximum lengths of the chain
+        min_allele_len += distance_index.minimum_length(net);
+        max_allele_len += distance_index.maximum_length(net);
+    } else {
+        throw std::runtime_error("stoat PathTraversal: Trying to add a net_handle_t of the wrong type");
+    }
 }
     
 // add a node traversal to the path
@@ -87,16 +139,8 @@ void PathTraversal::add_node_traversal_t(const node_traversal_t &node_trav) {
     this->path.push_back(node_trav);
 }
 
-void PathTraversal::add_min_allele_len(size_t len){
-    min_allele_len += len;
-}
-
-void PathTraversal::add_max_allele_len(size_t len){
-    max_allele_len += len;
-}
-
 void PathTraversal::set_allele_length_from_string(std::string al_len_str){
-    // parse the string, could be either one size or MIN/MAX (see get_allele_length below)
+    // parse the string, could be either one size or MIN/MAX (see allele_lengths_as_string below)
     std::istringstream al_len_stream(al_len_str);
     std::string al_len;
     std::vector<size_t> min_max_al_lens;
@@ -112,10 +156,7 @@ void PathTraversal::set_allele_length_from_string(std::string al_len_str){
     }
 }
 
-    
-// TODO : change sum_path to definition using the length of the path including in the boundary nodes
-// Matis ans : I don't know how to do it
-std::string PathTraversal::get_allele_length(size_t& count_path_lengths_warn) const {
+std::string PathTraversal::allele_lengths_as_string(size_t& count_path_lengths_warn) const {
     if (path.size() >= 3) {
         // If there is at least one node other than the boundaries
         if (min_allele_len != max_allele_len) {
@@ -193,7 +234,7 @@ std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_path
             if (wrote_anything) oss << ",";
             wrote_anything=true;
             if (allele_lengths) {
-                oss << vec_paths[i].get_allele_length(count_path_lengths_warn);
+                oss << vec_paths[i].allele_lengths_as_string(count_path_lengths_warn);
             } else {
                 oss << vec_paths[i].to_string();
             }
@@ -275,14 +316,11 @@ std::string path_node_traversal_to_string(const std::vector<stoat::node_traversa
     return path_string;
 }
 
-stoat::PathTraversal convert_path_traversal(
+stoat::PathTraversal net_handles_to_path_traversal(
     const bdsg::SnarlDistanceIndex& distance_index, 
     const handlegraph::PathHandleGraph& graph, 
     const std::vector<handlegraph::net_handle_t>& path_as_net_handles) {
     PathTraversal path_trav;
-    // saves the size of each node/element in the path
-    std::vector<size_t> size_node;
-    size_node.resize(path_as_net_handles.size(), 0);
     
     for (int i=0; i<path_as_net_handles.size(); i++) {
         handlegraph::net_handle_t net = path_as_net_handles[i];
@@ -290,74 +328,7 @@ stoat::PathTraversal convert_path_traversal(
         if (distance_index.is_sentinel(net)) {
             net = distance_index.get_node_from_sentinel(net);
         }
-    
-        // Node case
-        if (distance_index.is_node(net)) {
-            path_trav.add_node_handle(net, distance_index);
-            handlegraph::nid_t node_start_id = distance_index.node_id(net);
-            handlegraph::handle_t node_handle = graph.get_handle(node_start_id);
-            size_node[i] = graph.get_length(node_handle);
-        }
-    
-        // Trivial chain case
-        else if (distance_index.is_trivial_chain(net)) {
-            path_trav.add_node_handle(net, distance_index);
-            // it's a trivial chain so there is just one node inside. Get its node ID and size
-            handlegraph::nid_t triv_node_id = distance_index.node_id(distance_index.get_bound(net, false, true));
-            handlegraph::handle_t triv_node_h = graph.get_handle(triv_node_id);
-            size_node[i] = graph.get_length(triv_node_h);
-        }
-    
-        // Chain case (can be nested snarl or just chain nodes)
-        else if (distance_index.is_chain(net)) {
-            handlegraph::net_handle_t nodl, nodr;
-            if (distance_index.starts_at_start(net)) {
-                nodl = distance_index.get_bound(net, false, true);
-                nodr = distance_index.get_bound(net, true, false);
-            } else {
-                nodl = distance_index.get_bound(net, true, true);
-                nodr = distance_index.get_bound(net, false, false);
-            }
-    
-            path_trav.add_node_handle(nodl, distance_index);
-    
-            // does the chain contain only two nodes
-            bool chain_2node = true;
-            int child_count = 0;
-    
-            distance_index.for_each_child(net, [&](const handlegraph::net_handle_t& child) {
-                ++child_count;
-                if (!distance_index.is_node(child)) {
-                    chain_2node = false;
-                    return false; // stop early
-                }
-                return true;
-            });
-            
-            if (!(chain_2node && child_count == 2)) {
-                path_trav.add_node(0, false);
-            }
-    
-            path_trav.add_node_handle(nodr, distance_index);
-    
-            // Fail case 
-            #ifdef DEBUG_SNARL_DATA_T
-            // stoat::LOG_DEBUG();
-            assert(distance_index.maximum_length(net) != static_cast<size_t>(INT_MAX) && "Overflow max distance");
-            assert(distance_index.minimum_length(net) != static_cast<size_t>(INT_MAX) && "Overflow min distance");
-            #endif
-    
-            // Add the minimum/maximum lengths of the chain
-            path_trav.add_min_allele_len(distance_index.minimum_length(net));
-            path_trav.add_max_allele_len(distance_index.maximum_length(net));
-        }
-    }
-    
-    // add to min/max distance the size of the nodes and trivial chains saved above
-    // but without including the boundary nodes
-    for (size_t i = 1; i < size_node.size()-1; ++i) {
-        path_trav.add_min_allele_len(size_node[i]);
-        path_trav.add_max_allele_len(size_node[i]);
+        path_trav.add_net_handle(net, distance_index, i==0 || i == path_as_net_handles.size()-1);
     }
     
     // here we flip the path in an attempt to make it consistent with the other path/allele traversal
@@ -366,7 +337,7 @@ stoat::PathTraversal convert_path_traversal(
      
     return path_trav;
 }
-std::vector<stoat::PathTraversal> convert_path_traversals(
+std::vector<stoat::PathTraversal> net_handles_to_path_traversals(
     const bdsg::SnarlDistanceIndex& distance_index, 
     const handlegraph::PathHandleGraph& graph, 
     std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths) {
@@ -376,7 +347,7 @@ std::vector<stoat::PathTraversal> convert_path_traversals(
 
     for (const auto& path : finished_paths) {
    
-        path_travs.push_back(convert_path_traversal(distance_index, graph, path));
+        path_travs.push_back(net_handles_to_path_traversal(distance_index, graph, path));
     }
 
     return path_travs;
