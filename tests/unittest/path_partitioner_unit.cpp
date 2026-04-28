@@ -632,6 +632,7 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner]" ) {
 
 
 }
+
 TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partitioner]" ) {
     // Different fragments with the same sample and haplotype count as separate paths
 
@@ -713,6 +714,128 @@ TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partit
     SECTION("partition_embedded_paths_in_snarl") {
 
         std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl2, all_samples);
+        REQUIRE(alleles_per_sample2.size() == all_samples.size());
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[2]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[3]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[4]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[5]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[6]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[7]);
+        REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[8]);
+        REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
+
+    }
+
+}
+TEST_CASE( "Path partitioner finder looping snarl with fragments gbz", "[path_partitioner][bug]" ) {
+    // Different fragments with the same sample and haplotype count as separate paths
+
+    /*
+
+             --------
+            |   2    |
+            \ / \    /
+        0 ---1---3--4----5
+
+    */
+
+    //bdsg::HashGraph graph;
+
+    //std::vector<std::string> sequences = {"AAAAAAAAAA", "A", "G", "C", "T",  "AAAAAAAAA"};
+
+    //std::vector<handlegraph::handle_t> nodes;
+    //for (auto& seq : sequences) {
+    //    nodes.emplace_back(graph.create_handle(seq));
+    //}
+
+    //graph.create_edge(nodes[0], nodes[1]);
+    //graph.create_edge(nodes[1], nodes[2]);
+    //graph.create_edge(nodes[1], nodes[3]);
+    //graph.create_edge(nodes[2], nodes[3]);
+    //graph.create_edge(nodes[3], nodes[4]);
+    //graph.create_edge(nodes[4], nodes[1]);
+    //graph.create_edge(nodes[4], nodes[5]);
+
+    //// Add path 0 that goes through the loop twice
+    //// The paths are given the same name and haplotype but different loci (I think)
+    //std::vector<std::vector<std::size_t>> path_seqs = { {0, 1, 2, 3}, {4, 1, 2, 3, 4}};
+    //std::vector<handlegraph::path_handle_t> paths;
+
+    //for (int path_i = 0 ; path_i < path_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path0#0#"+std::to_string(path_i)+"#0"));
+    //    for (size_t node_i : path_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+
+    //// Add path 1 that goes through three times
+    //path_seqs = {{0, 1, 2, 3}, {4, 1, 2, 3, 4}, {4, 1, 2, 3, 4, 5}};
+
+    //for (int path_i = 0 ; path_i < path_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path1#0#"+std::to_string(path_i)+"#0"));
+    //    for (size_t node_i : path_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+    //// Add path 2 that goes through four times
+    //path_seqs = { {0, 1, 2, 3}, {4, 1, 2, 3, 4}, {3,4, 1, 2, 3, 4}, {4, 1, 2, 3, 4, 5}};
+
+    //for (int path_i = 0 ; path_i < path_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path2#0#"+std::to_string(path_i)+"#0"));
+    //    for (size_t node_i : path_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+    //graph.serialize("../tests/test_data/test_graphs/loop_with_indel_fragmented.hg");
+    //int built = system("vg gbwt -x ../tests/test_data/test_graphs/split_paths.hg -E --gbz-format -g ../tests/test_data/test_graphs/loop_with_indel_fragmented.gbz "); 
+
+    GBZGraph gbz;
+    std::ifstream instream;
+    instream.open("../tests/test_data/test_graphs/loop_with_indel_fragmented.gbz");
+    gbz.gbz.simple_sds_load(instream);
+    instream.close();
+
+    gbwt::GBWT* gbwt = &gbz.gbz.index;
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&gbz);
+
+    std::vector<handlegraph::path_handle_t> paths;
+
+
+    for (int path_i = 0 ; path_i < 2 ; path_i++) {
+        paths.emplace_back(gbz.get_path_handle("path0#0#"+std::to_string(path_i)+"#0"));
+    }
+    for (int path_i = 0 ; path_i < 3 ; path_i++) {
+        paths.emplace_back(gbz.get_path_handle("path1#0#"+std::to_string(path_i)+"#0"));
+    }
+
+    for (int path_i = 0 ; path_i < 4 ; path_i++) {
+        paths.emplace_back(gbz.get_path_handle("path2#0#"+std::to_string(path_i)+"#0"));
+    }
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/test_data/test_graphs/loop_with_indel.dist");
+
+
+    // Nested snarl
+    handlegraph::net_handle_t snarl2 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(3)));
+    // Duplication snarl
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(snarl2));
+    handlegraph::net_handle_t root_chain = distance_index.get_parent(snarl1);
+
+    std::vector<stoat::sample_hap_t> all_samples;
+    for (const auto& path : paths) {
+        all_samples.emplace_back(*path_graph, path);
+    }
+
+
+    SECTION("partition_embedded_paths_in_snarl") {
+
+        std::vector<PathTraversal> paths_per_allele2;
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
+                                                         all_samples, paths_per_allele2);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[2]);
@@ -1183,7 +1306,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
     }
 }
 TEST_CASE( "Path partitioner rejoining paths",
-          "[path_partitioner][bug]" ) {
+          "[path_partitioner]" ) {
 
     /*
                  
