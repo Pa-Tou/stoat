@@ -1308,7 +1308,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
 }
 
 TEST_CASE( "Path partitioner doesn't go through snarl bounds gbz",
-          "[path_partitioner][bug]" ) {
+          "[path_partitioner]" ) {
 
     /*
                        5
@@ -1385,21 +1385,12 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds gbz",
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&gbz);
 
-    //std::vector<handlegraph::path_handle_t> paths;
+    std::vector<handlegraph::path_handle_t> paths;
 
-
-    //for (int path_i = 0 ; path_i < 2 ; path_i++) {
-    //    paths.emplace_back(gbz.get_path_handle("path0#0#"+std::to_string(path_i)+"#0"));
-    //}
-    //for (int path_i = 0 ; path_i < 3 ; path_i++) {
-    //    paths.emplace_back(gbz.get_path_handle("path1#0#"+std::to_string(path_i)+"#0"));
-    //}
-
-    //for (int path_i = 0 ; path_i < 4 ; path_i++) {
-    //    paths.emplace_back(gbz.get_path_handle("path2#0#"+std::to_string(path_i)+"#0"));
-    //}
-
-
+    paths.emplace_back(gbz.get_path_handle("path0#0#path0"));
+    paths.emplace_back(gbz.get_path_handle("path1#0#0#0"));
+    paths.emplace_back(gbz.get_path_handle("path2#0#0#0"));
+    paths.emplace_back(gbz.get_path_handle("path3#0#0#0"));
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.dist");
 
@@ -1425,7 +1416,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds gbz",
         // Should be {0}
 
         std::vector<PathTraversal> paths_per_allele1;
-        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
                                                          all_samples, paths_per_allele1);
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
         REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
@@ -1535,6 +1526,165 @@ TEST_CASE( "Path partitioner rejoining paths",
                                                          all_samples, paths_per_allele1);
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
         REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+    }
+}
+TEST_CASE( "Path partitioner self loops",
+          "[path_partitioner]" ) {
+
+    /*
+                 
+                 
+                      4    
+                    /   \
+        -----------3      6-----------
+       /         /  \   /   \          \
+      1<>       /     5      \        <>8
+       \       /              \        /
+        ------2 ----------------7------
+
+   */
+
+    bdsg::HashGraph graph;
+
+    std::vector<std::string> sequences = { "CCCCCCCCCCCC", "C", "T", "C", "A", "G", "T", "AAAAAAAAAAAAAAAAAAAAA"};
+
+    std::vector<handlegraph::handle_t> nodes;
+    for (auto& seq : sequences) {
+        nodes.emplace_back(graph.create_handle(seq));
+    }
+
+    // Add the -1 to make them 1-offset because it's easier
+    graph.create_edge(nodes[1-1], nodes[2-1]);
+    graph.create_edge(nodes[1-1], nodes[3-1]);
+    graph.create_edge(nodes[2-1], nodes[3-1]);
+    graph.create_edge(nodes[2-1], nodes[7-1]);
+    graph.create_edge(nodes[3-1], nodes[4-1]);
+    graph.create_edge(nodes[3-1], nodes[5-1]);
+    graph.create_edge(nodes[4-1], nodes[6-1]);
+    graph.create_edge(nodes[5-1], nodes[6-1]);
+    graph.create_edge(nodes[6-1], nodes[7-1]);
+    graph.create_edge(nodes[6-1], nodes[8-1]);
+    graph.create_edge(nodes[7-1], nodes[8-1]);
+    graph.create_edge(nodes[1-1], graph.flip(nodes[1-1]));
+    graph.create_edge(nodes[8-1], graph.flip(nodes[8-1]));
+
+    // These paths are the same going into the snarl, then the split in the snarl, and must be rejoined after the snarl but split right after
+    // {0}, {1,2} {3} {4}
+    std::vector<std::vector<std::size_t>> paths_seqs = {{0, 1, 2, 4, 5, 6, 7}, {0, 1, 2, 3, 5, 7}, {0, 1, 2, 4, 5, 7}, {0, 2, 4, 5, 6, 7}, {0, 1, 6, 7}};
+    std::vector<handlegraph::path_handle_t> paths;
+
+    for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+        paths.emplace_back(graph.create_path_handle("path"+std::to_string(path_i)));
+        for (size_t node_i : paths_seqs[path_i]) {
+            graph.append_step(paths.back(), nodes[node_i]);
+        }
+        std::cerr << "Add path " << graph.get_path_name(paths.back());
+    }
+    // Add two self-loop paths
+    paths.emplace_back(graph.create_path_handle("path5"));
+    graph.append_step(paths.back(), nodes[0]);
+    graph.append_step(paths.back(), graph.flip(nodes[0]));
+
+    paths.emplace_back(graph.create_path_handle("path6"));
+    graph.append_step(paths.back(), graph.flip(nodes[7]));
+    graph.append_step(paths.back(), nodes[7]);
+
+    // vg isn't included so the distance index can only be built from the command line
+    graph.serialize("../tests/test_data/test_graphs/split_paths_loops.hg");
+    int built = system("vg index -j ../tests/test_data/test_graphs/split_paths_loops.dist ../tests/test_data/test_graphs/split_paths_loops.hg"); 
+    built = system("vg gbwt -x ../tests/test_data/test_graphs/split_paths_loops.hg -E --gbz-format -g ../tests/test_data/test_graphs/split_paths_loops.gbz "); 
+
+
+
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/test_data/test_graphs/split_paths_loops.dist");
+
+    GBZGraph gbz;
+    std::ifstream instream;
+    instream.open("../tests/test_data/test_graphs/split_paths_loops.gbz");
+    gbz.gbz.simple_sds_load(instream);
+    instream.close();
+
+    gbwt::GBWT* gbwt = &gbz.gbz.index;
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&gbz);
+
+    //std::vector<handlegraph::path_handle_t> paths;
+
+    //paths.emplace_back(gbz.get_path_handle("path0"));
+    //paths.emplace_back(gbz.get_path_handle("path1"));
+    //paths.emplace_back(gbz.get_path_handle("path2"));
+    //paths.emplace_back(gbz.get_path_handle("path3"));
+    //paths.emplace_back(gbz.get_path_handle("path4"));
+    //paths.emplace_back(gbz.get_path_handle("path5"));
+    //paths.emplace_back(gbz.get_path_handle("path6"));
+
+
+
+    handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(2)));
+    for (size_t i = 0 ; i < paths.size() ; i++) {
+        std::cerr << graph.get_path_name(paths[i]) << std::endl; 
+    }
+
+    std::vector<stoat::sample_hap_t> all_samples({stoat::sample_hap_t(graph, paths[0]),
+                                                  stoat::sample_hap_t(graph, paths[1]),
+                                                  stoat::sample_hap_t(graph, paths[2]),
+                                                  stoat::sample_hap_t(graph, paths[3]),
+                                                  stoat::sample_hap_t(graph, paths[4]),
+                                                  stoat::sample_hap_t(graph, paths[5]),
+                                                  stoat::sample_hap_t(graph, paths[6])});
+
+    SECTION("partition_embedded_paths_in_snarl") {
+
+        // {0}, {1,2} {3} {4}
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[4]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[1] == alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[4]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[3] != alleles_per_sample1[4]);
+        REQUIRE(alleles_per_sample1[3] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[3] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[4] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[4] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[5] == std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[6] == std::numeric_limits<size_t>::max());
+    }
+
+    SECTION("partition_embedded_paths_in_snarl_with_gbwt") {
+
+        // {0}, {1,2} {3} {4}
+        std::vector<PathTraversal> paths_per_allele1;
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+                                                         all_samples, paths_per_allele1);
+        REQUIRE(alleles_per_sample1.size() == all_samples.size());
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[4]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[1] == alleles_per_sample1[2]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[3]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[4]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[1] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[3] != alleles_per_sample1[4]);
+        REQUIRE(alleles_per_sample1[3] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[3] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[4] != alleles_per_sample1[5]);
+        REQUIRE(alleles_per_sample1[4] != alleles_per_sample1[6]);
+        REQUIRE(alleles_per_sample1[5] == std::numeric_limits<size_t>::max());
+        REQUIRE(alleles_per_sample1[6] == std::numeric_limits<size_t>::max());
     }
 }
 
