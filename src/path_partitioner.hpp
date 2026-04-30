@@ -28,6 +28,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 
 /// The same as partition_embedded_paths_in_snarl, except using a GBWT. 
 /// Fills in allele assignments, paths_per_allele, and, optionally, sequences_per_allele
+/// This only finds start-end/end-start paths
 /// TODO: This finds all steps along the path including those going through nested snarls. Could do all nested snarls at the same time
 std::vector<size_t>  partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
                           const net_handle_t& snarl,
@@ -36,15 +37,14 @@ std::vector<size_t>  partition_embedded_paths_in_snarl_with_gbwt(const handlegra
 
 /// Helper function for partition_embedded_paths_in_snarl_with_gbwt
 /// Starting from first_path and first_state, find all paths traversing the snarl and add them to finished_paths and finished_search_states
-/// If only_loops is true, then only look for paths that loop back to the start node (start_net, which points into the snarl)
 /// The paths returned will contain chains instead of the full paths through them, so they may be identical chains in finished_paths
 /// The size_t in finished_search_states is an identifier for the path. 
 /// Return the number of distinct paths through the netgraph that were found.
-/// Note that if only_loops is true, then not all paths found may be returned so the return value is only useful as the maximum path identifier plus one.
+/// Note that not all paths found may be returned (if there are fragmented paths that don't traverse both bounds), then so the return 
+/// value is only useful as the maximum path identifier plus one.
 size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
                          const net_handle_t& snarl,
-                         std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>>& finished_paths, handlegraph::net_handle_t start_net, 
-                         bool only_loops);
+                         std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>>& finished_paths);
 }
 
 #endif

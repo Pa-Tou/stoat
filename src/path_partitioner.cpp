@@ -310,10 +310,12 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 }
 
 
+
+// Get the traversals through the snarl from the gbwt
+// This is heavily based on vg/haplotype_extracter.cpp
 size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,     
                            const handlegraph::net_handle_t& snarl,
-                           std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>>& finished_paths, handlegraph::net_handle_t start_net, 
-                           bool only_loops) {
+                           std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>>& finished_paths) {
     #ifdef DEBUG_PATH_PARTITIONER
     std::cerr << "Get threads through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
     #endif
@@ -321,15 +323,20 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     size_t path_count = 0;
 
 
-    // Get the traversals through the snarl from the gbwt
-    // This is heavily based on vg/haplotype_extracter.cpp
+    // Get the bounds of the snarl: start facing in and end facing out. It doesn't matter which one is which since we get all start-end traversals
+    handlegraph::net_handle_t start_net = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true));
+    handlegraph::net_handle_t end_net = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false));
 
-    handlegraph::net_handle_t end_net = distance_index.flip(start_net);
     handlegraph::handle_t start_in = distance_index.get_handle(start_net, &graph);
+
+
+    // The bounds leaving the snarl
+    handlegraph::net_handle_t snarl_start = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false));
+    handlegraph::net_handle_t snarl_end = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false));
 
     // Look up the start node in GBWT and start a path
     gbwt::node_type start_node = gbwt::Node::encode(graph.get_id(start_in), graph.get_is_reverse(start_in));
-    std::vector<handlegraph::net_handle_t> first_path = {distance_index.get_node_from_sentinel(start_net)};
+    std::vector<handlegraph::net_handle_t> first_path = {start_net};
     gbwt::SearchState first_state = gbwt.find(start_node);
 
     // The list of intermediate paths and the gbwt::SearchState they end on
@@ -459,14 +466,9 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
             #endif
 
 
-            // The bounds leaving the snarl
-            handlegraph::net_handle_t snarl_start = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false));
-            handlegraph::net_handle_t snarl_end = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false));
-             if (next_net == snarl_start || next_net == snarl_end) {
+            if (next_net == snarl_start || next_net == snarl_end) {
                 // If this handle is leaving the snarl, then add the completed path to the list of completed paths
-                // If this handle isn't leaving the snarl, then add the path back to the list of intermediate paths to continue it
-                // If this is leaving the snarl
-                if (!only_loops || next_net == end_net) {
+                if (next_net == end_net) {
 
                     updated_path.push_back(next_net); 
                     finished_paths.emplace_back(std::move(updated_path), new_state, get_next_path_id(std::get<2>(current_path), current_path_length, next_net));
@@ -481,6 +483,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                 branch = true;
 
             } else {
+                // If this handle isn't leaving the snarl, then add the path back to the list of intermediate paths to continue it
                 if (distance_index.start_end_traversal_of(next_net_grandparent) == distance_index.start_end_traversal_of(snarl)) {
                     // If the grandparent is the snarl we're traversing
                     if (distance_index.is_trivial_chain(next_net_parent)) {
@@ -534,6 +537,14 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     } // End while loop going through intermediate paths
     #ifdef DEBUG_PATH_PARTITIONER
     std::cerr << "Found " << finished_paths.size() << " threads through " << distance_index.net_handle_as_string(snarl) << std::endl;
+    std::cerr << "\tthere are " << path_count << " distinct walks" << std::endl;
+    for (const auto& current_path : finished_paths) {
+        std::cerr << "\t" << std::get<2>(current_path) << ":";
+        for (const auto& net : std::get<0>(current_path)) {
+            std::cerr << distance_index.net_handle_as_string(net) << ",";
+        }
+        std::cerr << std::endl;
+    }
     #endif
 
     return path_count;
@@ -545,9 +556,6 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                           const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
                           std::vector<PathTraversal>& paths_per_allele) {
 
-    // Get the bounds of the snarl
-    handlegraph::net_handle_t start_in = distance_index.get_bound(snarl, false, true);
-    handlegraph::net_handle_t end_in = distance_index.get_bound(snarl, true, true);
 
 
     // The final boundary-to-boundary paths
@@ -555,26 +563,8 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>> finished_paths;
 
     // Get all start-end or start-start traversals and put them in  finished_paths 
-    // Path count will be the number of distinct paths
-    size_t path_count = get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, start_in, false);
-
-    // Now get the end-end paths. The path ids may not be contiguous or start at 0, so we need to give them a new
-    // id before adding them to finished_paths
-    std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>> reverse_finished_paths;
-    size_t reverse_path_count = get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths, end_in, true);
-    std::unordered_map<size_t, size_t> old_to_new_path_id;
-
-    for (auto& rev_path : reverse_finished_paths) {
-        // If we haven't seen this path id before, give it a new path id in finished paths
-        if (old_to_new_path_id.count(std::get<2>(rev_path) == 0)) {
-            old_to_new_path_id[std::get<2>(rev_path)] = path_count++;
-        }
-        finished_paths.emplace_back(std::move(std::get<0>(rev_path)), 
-                                    std::move(std::get<1>(rev_path)), 
-                                    old_to_new_path_id[std::get<2>(rev_path)]);
-    }
-
-
+    // Path count will be an upper bound of the number of distinct paths
+    size_t path_count = get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths);
 
     // At this point, finished paths holds a path for each distinct, haplotype-supported walk through th esnarl netgraph
     // Since a sample may go through the snarl multiple times, we now want to partition the samples based on how many
