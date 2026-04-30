@@ -1308,7 +1308,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds",
 }
 
 TEST_CASE( "Path partitioner doesn't go through snarl bounds gbz",
-          "[path_partitioner]" ) {
+          "[path_partitioner][bug]" ) {
 
     /*
                        5
@@ -1323,56 +1323,56 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds gbz",
 
    //This uses the simple_nested_chain distance index but reubilds the graph with different paths 
 
-    bdsg::HashGraph graph;
+    //bdsg::HashGraph graph;
 
-    std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A", "C", "A", "A"};
+    //std::vector<std::string> sequences = { "C", "C", "C", "A", "T", "C", "A", "C", "A", "A"};
 
-    std::vector<handlegraph::handle_t> nodes;
-    for (auto& seq : sequences) {
-        nodes.emplace_back(graph.create_handle(seq));
-    }
+    //std::vector<handlegraph::handle_t> nodes;
+    //for (auto& seq : sequences) {
+    //    nodes.emplace_back(graph.create_handle(seq));
+    //}
 
-    graph.create_edge(nodes[0], nodes[1]);
-    graph.create_edge(nodes[0], nodes[2]);
-    graph.create_edge(nodes[1], nodes[3]);
-    graph.create_edge(nodes[2], nodes[3]);
-    graph.create_edge(nodes[3], nodes[4]);
-    graph.create_edge(nodes[3], nodes[7]);
-    graph.create_edge(nodes[4], nodes[5]);
-    graph.create_edge(nodes[4], nodes[6]);
-    graph.create_edge(nodes[5], nodes[6]);
-    graph.create_edge(nodes[6], nodes[7]);
-    graph.create_edge(nodes[7], nodes[8]);
-    graph.create_edge(nodes[7], nodes[9]);
-    graph.create_edge(nodes[8], nodes[9]);
+    //graph.create_edge(nodes[0], nodes[1]);
+    //graph.create_edge(nodes[0], nodes[2]);
+    //graph.create_edge(nodes[1], nodes[3]);
+    //graph.create_edge(nodes[2], nodes[3]);
+    //graph.create_edge(nodes[3], nodes[4]);
+    //graph.create_edge(nodes[3], nodes[7]);
+    //graph.create_edge(nodes[4], nodes[5]);
+    //graph.create_edge(nodes[4], nodes[6]);
+    //graph.create_edge(nodes[5], nodes[6]);
+    //graph.create_edge(nodes[6], nodes[7]);
+    //graph.create_edge(nodes[7], nodes[8]);
+    //graph.create_edge(nodes[7], nodes[9]);
+    //graph.create_edge(nodes[8], nodes[9]);
 
-    std::vector<std::vector<std::size_t>> paths_seqs = { {0, 1, 3, 7, 8, 9},  {4, 6},  {3, 4, 6},  {4, 6, 7}};
-    std::vector<handlegraph::path_handle_t> paths;
+    //std::vector<std::vector<std::size_t>> paths_seqs = { {0, 1, 3, 7, 8, 9},  {4, 6},  {3, 4, 6},  {4, 6, 7}};
+    //std::vector<handlegraph::path_handle_t> paths;
 
-    // Reference taking insertion
-    paths.emplace_back(graph.create_path_handle("path0#0#path0"));
-    for (size_t node_i : paths_seqs[0]) {
-        graph.append_step(paths.back(), nodes[node_i]);
-    }
+    //// Reference taking insertion
+    //paths.emplace_back(graph.create_path_handle("path0#0#path0"));
+    //for (size_t node_i : paths_seqs[0]) {
+    //    graph.append_step(paths.back(), nodes[node_i]);
+    //}
 
-    // Path 1, hap0, two fragments (loci?) going through the deletion 
-    paths.emplace_back(graph.create_path_handle("path1#0#0#0"));
-    for (size_t node_i : paths_seqs[1]) {
-        graph.append_step(paths.back(), nodes[node_i]);
-    }
-    paths.emplace_back(graph.create_path_handle("path2#0#0#0"));
-    for (size_t node_i : paths_seqs[2]) {
-        graph.append_step(paths.back(), nodes[node_i]);
-    }
+    //// Path 1, hap0, two fragments (loci?) going through the deletion 
+    //paths.emplace_back(graph.create_path_handle("path1#0#0#0"));
+    //for (size_t node_i : paths_seqs[1]) {
+    //    graph.append_step(paths.back(), nodes[node_i]);
+    //}
+    //paths.emplace_back(graph.create_path_handle("path2#0#0#0"));
+    //for (size_t node_i : paths_seqs[2]) {
+    //    graph.append_step(paths.back(), nodes[node_i]);
+    //}
 
-    // Path 2, hap0, two fragments (loci?) going through the deletion 
-    paths.emplace_back(graph.create_path_handle("path3#0#0#0"));
-    for (size_t node_i : paths_seqs[3]) {
-        graph.append_step(paths.back(), nodes[node_i]);
-    }
+    //// Path 2, hap0, two fragments (loci?) going through the deletion 
+    //paths.emplace_back(graph.create_path_handle("path3#0#0#0"));
+    //for (size_t node_i : paths_seqs[3]) {
+    //    graph.append_step(paths.back(), nodes[node_i]);
+    //}
 
-    graph.serialize("../tests/test_data/test_graphs/simple_nested_chain_fragmented.hg");
-    int built = system("vg gbwt -x ../tests/test_data/test_graphs/simple_nested_chain_fragmented.hg -E --gbz-format -g ../tests/test_data/test_graphs/simple_nested_chain_fragmented.gbz "); 
+    //graph.serialize("../tests/test_data/test_graphs/simple_nested_chain_fragmented.hg");
+    //int built = system("vg gbwt -x ../tests/test_data/test_graphs/simple_nested_chain_fragmented.hg -E --gbz-format -g ../tests/test_data/test_graphs/simple_nested_chain_fragmented.gbz "); 
 
     GBZGraph gbz;
     std::ifstream instream;

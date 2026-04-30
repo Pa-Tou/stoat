@@ -166,7 +166,6 @@ struct sample_hap_t {
     std::string haplotype;
 
     sample_hap_t() {};
-    sample_hap_t(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path);
 
     sample_hap_t(std::string path_name){
         // Get the sample name up to #
@@ -178,6 +177,9 @@ struct sample_hap_t {
         }
 
     };
+
+    sample_hap_t(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path) : sample_hap_t(graph.get_path_name(path)) {};
+
     std::string to_string() const {
         return sample + "#" + haplotype;
     }
