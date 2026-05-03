@@ -198,8 +198,12 @@ struct snarl_info_t {
     public:
 
         // Constructor from elements
-        snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node, std::string ref_path, 
-                     size_t start_position, size_t end_position, size_t depth,
+        snarl_info_t(stoat::node_traversal_t start_node, 
+                     stoat::node_traversal_t end_node, 
+                     std::string ref_path, 
+                     size_t start_position, 
+                     size_t end_position, 
+                     size_t depth,
                      GenotypeTable& genotypes, 
                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
                      const allele_by_sample_t& alleles_by_sample,
@@ -254,15 +258,18 @@ struct node_info_t {
     public:
 
         // Constructor from elements
-        node_info_t(stoat::node_traversal_t node, std::string ref_path, 
-                     size_t position, size_t depth,
+        node_info_t(stoat::node_traversal_t node, 
+                     std::string ref_path, 
+                     size_t position, 
+                     size_t depth,
                      GenotypeTable& genotypes, 
                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
-                     const allele_by_sample_t& alleles_by_sample) :
+                     const allele_by_sample_t& alleles_by_sample,
+                     const std::string& sequences_by_allele) :
 
                      node(node), position(position), ref_path(ref_path), 
                      depth(depth), genotypes(genotypes), all_sample_haplotypes(all_sample_haplotypes), 
-                     alleles_by_sample(alleles_by_sample) {};
+                     alleles_by_sample(alleles_by_sample), sequences_by_allele(sequences_by_allele) {};
 
         // Start and end nodes, both pointing into the node
         stoat::node_traversal_t node;
@@ -285,6 +292,8 @@ struct node_info_t {
 
         // For each haplotype in all_sample_haplotypes, an assignment to an allele number
         const allele_by_sample_t& alleles_by_sample;
+
+        const std::string& sequences_by_allele;
 
 };
 

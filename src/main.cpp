@@ -24,7 +24,6 @@
 #include <omp.h>
 
 #include "subcommand/vcf.hpp"
-#include "subcommand/node.hpp"
 #include "subcommand/graph.hpp"
 #include "subcommand/test.hpp"
 #include "subcommand/bh_correct.hpp"
@@ -72,9 +71,6 @@ int main(int argc, char* argv[]) {
     if (subcommand == "vcf") {
         stoat_command::main_stoat_vcf(argc, argv);
 
-    } else if (subcommand == "node") {
-        stoat_command::main_stoat_node(argc, argv);
-
     } else if (subcommand == "graph") {
         stoat_command::main_stoat_graph(argc, argv);
 
@@ -108,8 +104,11 @@ int main(int argc, char* argv[]) {
 // BINARY GENOTYPE
 // ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
 
+// BINARY NODE SNARL
+// ./stoat vcf --mod node -g ../tests/test_data/input_data/binary/pg.full.pg -d ../tests/test_data/input_data/binary/pg.full.dist -R ../tests/test_data/input_data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
+
 // BINARY NODE GENOTYPE
-// ./stoat node -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
+// ./stoat vcf --mod node -s ../output_binary_snarl/snarl_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
 
 // BINARY TEST + Fisher/Chi-Squared
 // ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../tests/test_data/input_data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test

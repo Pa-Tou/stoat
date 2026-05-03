@@ -209,7 +209,7 @@ std::vector<path_range_t> get_coordinates_between_nodes(const handlegraph::PathP
     // Get the step_handles, filtering for the paths we are interested in
     // Steps don't care about the orientation of the handle, they will always (I think) be going forwards in the path
     std::vector<handlegraph::PathSense> senses = {handlegraph::PathSense::GENERIC};
-    
+
     graph.for_each_step_on_handle(start_handle, [&] (const handlegraph::step_handle_t& step) {
         handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
         if ((get_reference && (graph.get_sense(path) == handlegraph::PathSense::REFERENCE)) ||

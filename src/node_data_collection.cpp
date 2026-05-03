@@ -5,14 +5,144 @@
 #include "matrix.hpp"
 #include "utils.hpp"
 
-//#define DEBUG_SNARL_DATA_COLLECTION
+//#define DEBUG_NODE_DATA_COLLECTION
 
 namespace stoat {
 
 // Constructor
 NodeDataCollection::NodeDataCollection() {}
+
 NodeDataCollection::NodeDataCollection(std::unordered_map<std::string, size_t> sample_to_index) :
                     sample_to_index(sample_to_index) {}
+
+// This goes through all the nodes and fills in the data
+void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandleGraph& graph, 
+                                             const bdsg::SnarlDistanceIndex& distance_index,
+                                             const std::vector<stoat::sample_hap_t>& sample_haplotypes,
+                                             bool find_alleles_first,
+                                             bool walks_requested,
+                                             const std::function<void(const net_handle_t& node, const node_info_t& node_data,
+                                                                      std::vector<stoat::PathTraversal>& walks)>& find_walks,
+                                             bool alleles_requested,
+                                             const std::function<std::vector<size_t>(const net_handle_t& node, const node_info_t& node_data,
+                                                                                     const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
+                                             bool sequence_requested,
+                                             const std::unordered_set<std::string>& reference_samples, 
+                                             bool check_distances,
+                                             stoat::Writer& out_writer, 
+                                             bool keep_nodes) {
+
+    // If we are going to write the nodes, then we are going to write all the nodes to a temporary file, then write the header (which isn't done until we find
+    // all the nodes since there could be new references added), then copy the temporary file after the header
+    std::string out_filename = out_writer.get_file_path();
+    std::string out_temp_filename = out_filename + ".temp";
+    std::shared_ptr<BgzWriter> temp_writer;
+
+    // log info initialization
+    number_node_analyzed = 0;
+
+    if (out_filename != "") {
+
+        // Make sure that the temporary file we write doesn't already exist 
+        // Since the actual file name is given by the user (probably) it can be overwritten (probably)
+        while (std::filesystem::exists(out_temp_filename)) {
+            out_temp_filename += "1";
+        }
+        out_temp_filename += ".gz";
+        temp_writer.reset(new BgzWriter(out_temp_filename));
+    }
+
+    // Make a copy of the samples. Not a reference since it has to be able to be loaded from a file and stored
+    all_sample_haplotypes = sample_haplotypes;
+    size_t sample_index = 0;
+
+    // Fill in sample_to_index
+    for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
+        if (!sample_to_index.count(sample_hap.sample)) {
+            sample_to_index.emplace(sample_hap.sample, sample_index++);
+        }
+    }
+    
+    bool keep_going = true;
+
+    // Keep track of which references we've seen and their index in reference_names
+    std::unordered_map<std::string, size_t> reference_name_to_index;
+
+    // Get all the references in reference_samples first
+    for (const std::string& ref_name : reference_samples) {
+        reference_name_to_index[ref_name] = reference_names.size();
+        reference_names.emplace_back(ref_name);
+    }
+
+    // Go through the contents of chains in parallel
+    // Everything touching chains needs to be in an omp critical block so they don't collide. 
+    #pragma omp parallel shared(keep_going, reference_names, all_sample_haplotypes)
+    {
+        // The actual while loop is run on a single thread
+        #pragma omp single
+        {
+            while (keep_going) {
+                // Everything in here is parallelized
+                #pragma omp task
+                {
+                    graph.for_each_handle([&](const handlegraph::handle_t& net) {
+
+                        size_t node_id = graph.get_id(net);
+                        bool is_reverse = graph.get_is_reverse(net);
+                        node_traversal_t node(node_id, is_reverse);
+                        size_t reference_index = graph.get_path_name(graph.get_path_handle_of_step(net));
+                        size_t position = graph.node_vector_offset(net);
+                        size_t depth = distance_index.get_depth(net);
+                        allele_by_sample_t alleles_by_sample;
+                        std::string node_sequence = graph.get_sequence(net);
+                        GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+                        node_info_t new_node_info(node, 
+                                                        reference_index == std::numeric_limits<size_t>::max() ? "NA" 
+                                                                                : reference_names.at(reference_index),
+                                                        position,
+                                                        depth,
+                                                        empty_genotypes,
+                                                        all_sample_haplotypes,
+                                                        alleles_by_sample,
+                                                        node_sequence);
+
+                        return true;
+                    }); //end for each child
+                }// end omp task
+            }// end while loop
+        }// End omp single
+    }//end omp shared
+
+    stoat::LOG_INFO("Total number of node analyse: " + std::to_string(number_node_analyzed));
+
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+    std::cerr << "Added " << chains_added << " chains and processed " << chains_processed << std::endl;
+    assert(chains_added == chains_processed);
+    #endif
+
+    // If we want to write the nodes
+    if (out_filename != "") {
+
+        // We need to write the header to the final file then copy the nodes into the same file
+        temp_writer->close();
+
+        //Write the final header
+        write_node_data_collection_header(out_writer);
+
+        // Go through the temporary node file and copy it into the new file
+        BgzReader in_temp(out_temp_filename);
+
+        std::string line;
+        while (in_temp.getline(line)) {
+            out_writer.write(line + "\n");
+        }
+
+        in_temp.close();
+
+        // Remove the temporary file
+        std::filesystem::remove(out_temp_filename);
+    }
+}
 
 void NodeDataCollection::add_alleles_by_sample(
                 const std::function<std::vector<size_t>(const node_info_t& node_data, 
@@ -32,6 +162,7 @@ void NodeDataCollection::add_alleles_by_sample(
         // This might cause problems because it is a reference but it doesn't get used so I think its fine
         // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
         GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+        std::string node_sequence;
 
         // Make the node_info_t from the information we have
         std::vector<PathTraversal> empty_walks (0); 
@@ -42,8 +173,8 @@ void NodeDataCollection::add_alleles_by_sample(
                                 node_info.depth,
                                 empty_genotypes,
                                 all_sample_haplotypes,
-                                allele_by_sample_t()
-                                );
+                                allele_by_sample_t(),
+                                node_sequence);
 
         // Get the alleles from the node_info_t
         std::vector<size_t> new_alleles_by_sample = find_alleles_by_sample(new_node_info, all_sample_haplotypes);
@@ -174,12 +305,12 @@ void NodeDataCollection::run_iteratee_on_one_node(const node_info_internal_t& in
     GenotypeTable genotypes(sample_to_index,
                         node_to_alleles_by_sample.count(internal_node_info.node) ? node_to_alleles_by_sample.at(internal_node_info.node).allele_count : 0);
 
-#ifdef DEBUG_SNARL_DATA_COLLECTION
-    std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << (node_to_alleles_by_sample.count(internal_node_info.node) ? node_to_alleles_by_sample.at(internal_node_info.node).allele_count : 0) << " alleles" << std::endl; 
-    for (const auto& pair : sample_to_index) {
-        std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
-    }
-#endif
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+        std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << (node_to_alleles_by_sample.count(internal_node_info.node) ? node_to_alleles_by_sample.at(internal_node_info.node).allele_count : 0) << " alleles" << std::endl; 
+        for (const auto& pair : sample_to_index) {
+            std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
+        }
+    #endif
 
     // Go through the alleles_by_sample vector for this node and add the counts to the genotype table
     // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
@@ -195,15 +326,16 @@ void NodeDataCollection::run_iteratee_on_one_node(const node_info_internal_t& in
     }
 
     allele_by_sample_t empty_alleles;
-    std::vector<PathTraversal> empty_walks (0); 
-    std::vector<std::string> empty_sequences (0);
+    std::vector<PathTraversal> empty_walks(0); 
+    std::string empty_sequences;
     node_info_t new_node_info(internal_node_info.node, 
                           internal_node_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(internal_node_info.reference_index),
                           internal_node_info.position,
                           internal_node_info.depth,
                           genotypes,
                           all_sample_haplotypes,
-                          node_to_alleles_by_sample.count(internal_node_info.node) ? node_to_alleles_by_sample.at(internal_node_info.node) : empty_alleles);
+                          node_to_alleles_by_sample.count(internal_node_info.node) ? node_to_alleles_by_sample.at(internal_node_info.node) : empty_alleles,
+                          node_to_sequences.count(internal_node_info.node) ? node_to_sequences.at(internal_node_info.node) : empty_sequences);
     iteratee(new_node_info);
 }
 
@@ -233,6 +365,14 @@ void NodeDataCollection::write_node_data_collection_header(stoat::Writer& out_wr
 }
 
 void NodeDataCollection::write_node_data_line(stoat::Writer& out_writer, const node_info_internal_t& node_data) const {
+    write_node_data_line_file(out_writer, node_data); 
+}
+
+void NodeDataCollection::write_node_data_line(stoat::Writer& out_writer,
+                                                const node_info_internal_t& node_data,
+                                                const std::string* sequences,
+                                                const allele_by_sample_t* alleles_by_sample) const {
+
     write_node_data_line_file(out_writer, node_data); 
 }
 
@@ -366,7 +506,7 @@ NodeDataCollection::node_info_internal_t NodeDataCollection::load_node_data_line
         }
     };
     
-    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    #ifdef DEBUG_NODE_DATA_COLLECTION
     if (has_allele) {
         assert(max_allele+1 <= walk_count);
     }
@@ -401,5 +541,105 @@ std::unordered_map<std::string, size_t> NodeDataCollection::get_sample_to_index_
     return sample_to_index;
 }
 
+void NodeDataCollection::get_all_walks_through_node(
+        const handlegraph::PathPositionHandleGraph& graph, 
+        const bdsg::SnarlDistanceIndex& distance_index,
+        const net_handle_t& node, 
+        const node_info_t& node_data, 
+        std::vector<stoat::PathTraversal>& walks, 
+        size_t walk_cycle_limit) {
+
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+        std::cerr << "Get all possible walks through node " << distance_index.net_handle_as_string(node) << std::endl;
+    #endif
+
+    // Path exploration
+    std::vector<std::vector<handlegraph::net_handle_t>> paths = {
+        {distance_index.get_bound(node, false, true)}
+    };
+
+    std::vector<std::vector<handlegraph::net_handle_t>> walks_as_net_handles;
+
+    // How many steps have we taken trying to enumerate paths? Includes all all paths
+    size_t steps_taken = 0;
+    bool break_node = false;
+
+    // For each incomplete path in paths, walk out from the end and add a copy of the path plus each next step to paths
+    // Do this until the path reaches the end
+    while (!paths.empty()) {
+        std::vector<handlegraph::net_handle_t> path = std::move(paths.back());
+        paths.pop_back();
+
+        std::unordered_map<handlegraph::net_handle_t, size_t> dict_path_occ;
+        bool cycle = false;
+
+        // TODO: Put this back
+        for (const auto& net : path) {
+            if (++dict_path_occ[net] > walk_cycle_limit + 1) {
+                cycle = true;
+                break;
+            }
+        }
+
+        // Follow edges from the last element in path
+        if (!path.empty()) {
+            distance_index.follow_net_edges(path.back(), &graph, false, [&](const handlegraph::net_handle_t& next_child) {
+                // If this is the bound of the node then we're done
+                if (distance_index.is_sentinel(next_child)) {
+
+                    size_t next_child_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(next_child));
+                    size_t first_element_path_node_id = distance_index.node_id(distance_index.get_node_from_sentinel(path[0]));
+
+                    // Only keep the walk if it entered and exited the node at opposite sides
+                    if (next_child_node_id != first_element_path_node_id) {
+                        walks_as_net_handles.emplace_back(path);
+                        walks_as_net_handles.back().push_back(next_child);
+                    }
+
+                } else {
+                    //TODO: Look for the cycle sooner
+
+                    if (cycle) { // Case where we find a loop
+                        return false;
+                    }
+                    paths.emplace_back(path);
+                    paths.back().push_back(next_child);
+                }
+                return true;
+            });
+        }
+    }
+
+    if (break_node) {
+        walks_as_net_handles.clear();
+    }
+
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+        // Validate paths
+        std::set<std::vector<handlegraph::net_handle_t>> found_walks;
+        for (const auto& walk : walks_as_net_handles) {
+            for (size_t i = 0 ; i < walk.size() - 1 ; i++) {
+                assert(distance_index.distance_in_parent(node, walk[i], distance_index.flip(walk[i+1])) == 0);
+            }
+            assert(found_walks.count(walk) == 0);
+            assert(walk.front() == distance_index.get_bound(node, false, true));
+            assert(walk.back() == distance_index.get_bound(node, true, false));
+            found_walks.insert(walk);
+        }
+    #endif
+
+    walks = stoat::convert_path_traversals(distance_index, graph, walks_as_net_handles);  
+    
+    #ifdef DEBUG_NODE_DATA_COLLECTION
+        // Validate paths
+        std::cerr << "Found " << walks.size() << " paths through the node" << std::endl;
+        for (const auto& walk : walks) {
+            
+            std::cerr << "\t" << walk.to_string() << std::endl;
+        }
+    #endif
+
+    return;
 }
 
+}

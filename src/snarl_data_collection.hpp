@@ -223,7 +223,7 @@ class SnarlDataCollection {
         // Given the walks through the snarl, find the sequence. The sequence will just be a concatination of sequences of nodes, ignoring anything else
         std::vector<std::string> get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                 const std::vector<stoat::PathTraversal>& paths) const; 
-    
+
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances); 
 
