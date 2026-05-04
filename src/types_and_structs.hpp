@@ -15,6 +15,7 @@
 using handlegraph::step_handle_t;
 using handlegraph::handle_t;
 using handlegraph::net_handle_t;
+using handlegraph::path_handle_t;
 
 namespace stoat {
 
@@ -38,7 +39,6 @@ struct node_traversal_t { // 64 bits per node
 
         // Convert to std::string representation
         std::string to_string() const;
-
 
         // Get the same node but flipped
         node_traversal_t get_flipped() { return node_traversal_t(node_id, !is_reverse); }

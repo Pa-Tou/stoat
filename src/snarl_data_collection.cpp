@@ -1,6 +1,7 @@
-#include "snarl_data_collection.hpp"
 #include <fstream>
 #include <filesystem>
+
+#include "snarl_data_collection.hpp"
 #include "matrix.hpp"
 #include "utils.hpp"
 

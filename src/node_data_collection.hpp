@@ -1,6 +1,7 @@
 #ifndef NODE_DATA_COLLECTION_HPP
 #define NODE_DATA_COLLECTION_HPP
 
+#include "snarl_data_collection.hpp"
 #include "types_and_structs.hpp"
 #include "writer.hpp"
 #include "vcf_parser.hpp"

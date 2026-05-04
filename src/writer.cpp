@@ -119,13 +119,13 @@ void BgzReader::close() {
 void Writer::write_node_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
 
     if (phenotype_type == stoat::BINARY) {
-        write("#CHR\tPOSITION_OFFSET\tNODE\tP_FISHER\tP_CHI2\tDEPTH\n");
+        write("#CHR\tPOSITION\tNODE\tP_FISHER\tP_CHI2\tDEPTH\n");
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        write("#CHR\tPOSITION_OFFSET\tNODE\tP\tDEPTH\n");
+        write("#CHR\tPOSITION\tNODE\tP\tDEPTH\n");
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        write("#CHR\tPOSITION_OFFSET\tNODE\tP\tDEPTH\n");
+        write("#CHR\tPOSITION\tNODE\tP\tDEPTH\n");
     } else if (phenotype_type == stoat::EQTL) {
-        write("#CHR\tPOSITION_OFFSET\tNODE\tGENE\tP\tDEPTH\n");
+        write("#CHR\tPOSITION\tNODE\tGENE\tP\tDEPTH\n");
     }
 }
 
