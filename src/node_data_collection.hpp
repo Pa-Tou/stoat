@@ -35,6 +35,9 @@ class NodeDataCollection {
                         const std::unordered_set<std::string>& reference_samples, bool check_distances,
                         Writer& out_writer, bool keep_nodes);
 
+        /// Write the collection of nodes to the given file
+        void write_node_data_collection(stoat::Writer& out_writer) const;
+
         /// Use if the node allele_by_sample (which assigns sample/haplotypes to each node_walk) were not found during construction. Go through
         /// all nodes and call find_alleles_by_sample, which returns a vector of allele assignments for each sample_hap_t in all_sample_haplotypes.
         ///  find_alleles_by_sample() should return the allele_by_sample field of the node_info_t, but since the node_info_t
@@ -151,10 +154,14 @@ class NodeDataCollection {
         void write_node_data_collection_header(Writer& out_writer) const;
 
         /// Write one line for one node to the given file. This assumes that write_node_data_collection_header() has already been called
-        void write_node_data_collection_line(Writer& out_writer, const node_info_internal_t& node_info) const;
+        void write_node_data_collection_line(Writer& out_writer, const node_info_t& node_info) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the node records
         void load_node_data_collection_header(stoat::Reader& in_reader);
+
+        void write_node_data_line(stoat::Writer& out_writer, const node_info_internal_t& node_data) const;
+        void write_node_data_line(stoat::Writer& out_writer, const node_info_internal_t& node_data, 
+            const std::string* sequences, const allele_by_sample_t* alleles_by_sample) const;
 
         /// Given a string representing a line in the file, load one node_info_internal_t
         /// This assumes that load_node_collection_header() has already been called

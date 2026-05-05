@@ -140,7 +140,7 @@ class SnarlDataCollection {
 
         /// This stores the basic information from the snarl_info_t
         struct snarl_info_internal_t {
-    
+
             // Start and end nodes, both pointing into the snarl
             stoat::node_traversal_t start_node = stoat::node_traversal_t(0, false);
             stoat::node_traversal_t end_node = stoat::node_traversal_t(0, false);

@@ -1,7 +1,7 @@
 #include <fstream>
 #include <filesystem>
 
-#include "snarl_data_collection.hpp"
+#include "node_data_collection.hpp"
 #include "node_data_collection.hpp"
 #include "matrix.hpp"
 #include "utils.hpp"
@@ -75,94 +75,68 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
 
     // Go through the contents of chains in parallel
     // Everything touching chains needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(reference_names, all_sample_haplotypes, number_node_analyzed, out_writer)
+    #pragma omp parallel shared(reference_names, all_sample_haplotypes, number_node_analyzed, all_node_data, out_writer)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
         {
-
+            // write header to file
             write_node_data_collection_header(out_writer);
+            #pragma omp task
+            {
+                // Iterate over handle_t
+                graph.for_each_handle([&](const handle_t& handle) {
 
-            // Iterate over steps in the path
-            graph.for_each_handle([&](const handle_t& handle) {
+                    size_t node_id = graph.get_id(handle);
+                    bool is_reverse = graph.get_is_reverse(handle);
+                    node_traversal_t node(node_id, is_reverse);
+                    number_node_analyzed++;
 
-                size_t node_id = graph.get_id(handle);
-                bool is_reverse = graph.get_is_reverse(handle);
-                node_traversal_t node(node_id, is_reverse);
-                number_node_analyzed++;
+                    // node sequence
+                    std::string node_sequence = graph.get_sequence(handle);
 
-                // node sequence
-                std::string node_sequence = graph.get_sequence(handle);
+                    // Compute depth
+                    net_handle_t net = distance_index.get_net(handle, &graph);
+                    size_t depth = distance_index.get_depth(net) - 1;
+                    path_handle_t path;
+                    std::string ref_name;
+                    size_t position;
 
-                // Compute depth
-                net_handle_t net = distance_index.get_net(handle, &graph);
-                size_t depth = distance_index.get_depth(net) - 1;
-                path_handle_t path;
-                std::string ref_name;
-                size_t position;
+                    // Iterate over each step handle
+                    graph.for_each_step_on_handle(handle, [&](const step_handle_t& step) {
+            
+                        path = graph.get_path_handle_of_step(step);
+                        ref_name = graph.get_path_name(path);
+                        ref_name = reference_name_to_index.find(ref_name) == reference_name_to_index.end() ? "NA" : ref_name;
+                        position = graph.get_position_of_step(step);
 
-                // Iterate over each occurrence of the node
-                graph.for_each_step_on_handle(handle, [&](const step_handle_t& step) {
-        
-                    path = graph.get_path_handle_of_step(step);
-                    ref_name = graph.get_path_name(path);
-                    position = graph.get_position_of_step(step);
+                        return ref_name == "NA"; // if this is not a reference path
+                    });
 
-                    return false;
-                });
-
-                allele_by_sample_t alleles_by_sample;
-                GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
-                node_info_t new_node_info(node, 
-                                            reference_name_to_index.find(ref_name) == reference_name_to_index.end() ? std::numeric_limits<size_t>::max() : reference_name_to_index.at(ref_name),
-                                            position,
-                                            depth,
-                                            empty_genotypes,
-                                            all_sample_haplotypes,
-                                            alleles_by_sample,
-                                            node_sequence);
-
-                // write node_info_t to file
-                if (out_filename != "") {
-                    #pragma omp critical(node_collection)
-                    {
-                        write_node_data_collection_line(temp_writer, new_node_info);
+                    allele_by_sample_t alleles_by_sample;
+                    GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+                    node_info_t new_node_info(node, 
+                                                ref_name,
+                                                position,
+                                                depth,
+                                                empty_genotypes,
+                                                all_sample_haplotypes,
+                                                alleles_by_sample,
+                                                node_sequence);
+                    
+                    // write node_info_t to file
+                    if (out_filename != "") {
+                        #pragma omp critical(node_collection)
+                        {
+                            write_node_data_collection_line(*temp_writer, new_node_info);
+                        }
                     }
-                }
-
-            });// end for each handle
+                });// end for each handle
+            }// end omp task
         }// end omp single
     }// end omp shared
 
     stoat::LOG_INFO("Total number of node analyse: " + std::to_string(number_node_analyzed));
-
-    #ifdef DEBUG_NODE_DATA_COLLECTION
-    std::cerr << "Added " << chains_added << " chains and processed " << chains_processed << std::endl;
-    assert(chains_added == chains_processed);
-    #endif
-
-    // If we want to write the nodes
-    if (out_filename != "") {
-
-        // We need to write the header to the final file then copy the nodes into the same file
-        temp_writer->close();
-
-        //Write the final header
-        write_node_data_collection_header(out_writer);
-
-        // Go through the temporary node file and copy it into the new file
-        BgzReader in_temp(out_temp_filename);
-
-        std::string line;
-        while (in_temp.getline(line)) {
-            out_writer.write(line + "\n");
-        }
-
-        in_temp.close();
-
-        // Remove the temporary file
-        std::filesystem::remove(out_temp_filename);
-    }
 }
 
 void NodeDataCollection::add_alleles_by_sample(
@@ -188,7 +162,7 @@ void NodeDataCollection::add_alleles_by_sample(
         // Make the node_info_t from the information we have
         std::vector<PathTraversal> empty_walks (0); 
         std::vector<std::string> empty_sequences (0);
-        node_info_t new_node_info(node_info.node, 
+        node_info_t new_node_info(node_info.node,
                                 node_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(node_info.reference_index),
                                 node_info.position,
                                 node_info.depth,
@@ -206,12 +180,8 @@ void NodeDataCollection::add_alleles_by_sample(
             }
         }
 
-        // Save it
-        #pragma omp critical(node_collection)
-        {
-            node_to_alleles_by_sample.emplace(node_info.node, allele_by_sample_t(max_allele+1, std::move(new_alleles_by_sample)));
-            number_node_analyzed++;
-        }
+        node_to_alleles_by_sample.emplace(node_info.node, allele_by_sample_t(max_allele+1, std::move(new_alleles_by_sample)));
+        number_node_analyzed++;
     }
 }
 
@@ -385,8 +355,44 @@ void NodeDataCollection::write_node_data_collection_header(stoat::Writer& out_wr
     out_writer.write(outstream.str());
 }
 
-void NodeDataCollection::write_node_data_collection_line(stoat::Writer& out_writer, const node_info_internal_t& node_data) const {
+void NodeDataCollection::write_node_data_collection_line(stoat::Writer& out_writer, const node_info_t& node_data) const {
 
+    std::stringstream outstream;
+    
+    // Start with just the contents of the node_info_internal_t
+    outstream << node_data.node.to_string() << "\t"
+              << node_data.ref_path << "\t"
+              << node_data.position << "\t"
+              << node_data.depth << "\t";
+    
+    outstream << std::endl;
+    #pragma omp critical(write_node_collection) 
+    {
+        out_writer.write(outstream.str());
+    }
+}
+
+void NodeDataCollection::write_node_data_collection(stoat::Writer& out_writer) const {
+    write_node_data_collection_header(out_writer);
+
+    // Now write the nodes, one per line
+    for (const node_info_internal_t& node_data : all_node_data) {
+        write_node_data_line(out_writer, node_data);
+    }
+
+    return;
+}
+
+void NodeDataCollection::write_node_data_line(stoat::Writer& out_writer, const node_info_internal_t& node_data) const {
+    write_node_data_line(out_writer, node_data, node_to_sequences.empty() || node_to_sequences.count(node_data.node) == 0 ? nullptr : &node_to_sequences.at(node_data.node),
+                          (node_to_alleles_by_sample.empty() || node_to_alleles_by_sample.count(node_data.node) == 0 || node_to_alleles_by_sample.at(node_data.node).alleles.size() == 0) ? nullptr : &node_to_alleles_by_sample.at(node_data.node)); 
+}
+
+// aucune instance de fonction surchargée "stoat::NodeDataCollection::write_node_data_line" ne correspond à la liste d'argumentsC/C++(304)
+// node_data_collection.cpp(387, 5): les types d'arguments sont : (stoat::Writer, const stoat::NodeDataCollection::node_info_internal_t, const std::__1::string *, const stoat::allele_by_sample_t *)
+
+void NodeDataCollection::write_node_data_line(stoat::Writer& out_writer, const node_info_internal_t& node_data, 
+                                                const std::string* sequence, const allele_by_sample_t* alleles_by_sample) const {
     std::stringstream outstream;
     
     // Start with just the contents of the node_info_internal_t
@@ -395,10 +401,40 @@ void NodeDataCollection::write_node_data_collection_line(stoat::Writer& out_writ
               << node_data.position << "\t"
               << node_data.depth << "\t";
     
+    // Since writing can occur while building the collection, all the big maps could change so we need guards
+    #pragma omp critical(node_collection)
+    {
+
+        // Add the sequences, if any, as comma separated strings
+        if (sequence == nullptr) {
+            outstream << ".";
+        } else {
+            outstream << sequence->c_str(); ;
+        }
+    
+        // Next add the allele assignments, if there are any
+        if (alleles_by_sample == nullptr) {
+            // If we don't have alleles or we don't have alleles for this node or the alleles for this node are empty
+            for (size_t i = 0 ; i <  all_sample_haplotypes.size() ; i++ ) {
+                // . for a haplotype that doesn't traverse the node
+                outstream << "\t.";
+            }
+        } else {
+            for (size_t allele_num : alleles_by_sample->alleles) {
+                if (allele_num == std::numeric_limits<size_t>::max()) {
+                    // . for a haplotype that doesn't traverse the node
+                    outstream << "\t.";
+                } else {
+                    outstream << "\t" << allele_num;
+                }
+            }
+        }
+    } // end critical
+    
     outstream << std::endl;
     #pragma omp critical(write_node_collection) 
     {
-    out_writer.write(outstream.str());
+        out_writer.write(outstream.str());
     }
 }
 

@@ -262,7 +262,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     number_paths_analyzed += walks_by_allele.size();
                                 }
    
-
                                 if (keep_snarls) {
                                     // Add the snarl to the collection
                                     #pragma omp critical(snarl_collection)
@@ -1082,7 +1081,7 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
     outstream << std::endl;
     #pragma omp critical(write_snarl_collection) 
     {
-    out_writer.write(outstream.str());
+        out_writer.write(outstream.str());
     }
 }
 

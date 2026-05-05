@@ -6,6 +6,7 @@
 
 #include "../banner.hpp"
 #include "../log.hpp"
+#include "../node_analyzer.hpp"
 #include "../snarl_analyzer.hpp"
 #include "../arg_parser.hpp"
 #include "../writer.hpp"
@@ -177,13 +178,11 @@ int main_stoat_test(int argc, char* argv[]) {
 
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
-// Start tracking with callgrind
-#ifdef USE_CALLGRIND
-    CALLGRIND_START_INSTRUMENTATION;
-#endif
+    // Start tracking with callgrind
+    #ifdef USE_CALLGRIND
+        CALLGRIND_START_INSTRUMENTATION;
+    #endif
 
-    // Load the SnarlDataCollection
-    stoat::SnarlDataCollection snarl_collection(0, 0, 0);
     // load the header from the snarl collection file. We'll use those sample indices
     std::shared_ptr<stoat::Reader> snarl_reader;
     if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
@@ -193,8 +192,21 @@ int main_stoat_test(int argc, char* argv[]) {
         snarl_reader.reset(new StdReader(genotype_path));
     }
 
-    snarl_collection.load_snarl_data_collection(*snarl_reader, true);
-    snarl_reader->close();
+    // predict mod [snarl or node]
+    // std::string mod = stoat_vcf::mode_prediction(*snarl_reader);
+    // stoat::LOG_INFO("Mode " + mod + " detected.");
+
+    // Load the DataCollection
+    stoat::SnarlDataCollection snarl_collection(0, 0, 0);
+    stoat::NodeDataCollection node_collection;
+
+    // if (mod == "node") {
+    //     node_collection.load_node_data_collection(*snarl_reader, true);
+    //     snarl_reader->close();
+    // } else {
+    //     snarl_collection.load_snarl_data_collection(*snarl_reader, true);
+    //     snarl_reader->close();
+    // }
 
     //////////////////////////////////////// Go through the genotypes and test against the phenotype    
     stoat::LOG_INFO("Starting GWAS analysis...");
