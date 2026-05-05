@@ -363,8 +363,8 @@ void NodeDataCollection::write_node_data_collection_line(stoat::Writer& out_writ
     outstream << node_data.node.to_string() << "\t"
               << node_data.ref_path << "\t"
               << node_data.position << "\t"
-              << node_data.depth << "\t";
-    
+              << node_data.depth;
+
     outstream << std::endl;
     #pragma omp critical(write_node_collection) 
     {

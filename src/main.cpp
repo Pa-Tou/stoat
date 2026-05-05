@@ -101,14 +101,14 @@ int main(int argc, char* argv[]) {
 // BINARY SNARL
 // ./stoat vcf -g ../tests/test_data/input_data/binary/pg.full.pg -d ../tests/test_data/input_data/binary/pg.full.dist -R ../tests/test_data/input_data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
 
-// BINARY GENOTYPE
+// BINARY SNARL GENOTYPE
 // ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
 
-// BINARY NODE SNARL
-// ./stoat vcf --mod node -g ../tests/test_data/input_data/binary/pg.full.pg -d ../tests/test_data/input_data/binary/pg.full.dist -R ../tests/test_data/input_data/binary/pg.chromosome --no-bgzip --output ../output_binary_snarl
+// BINARY NODE
+// ./stoat vcf --mod node -g ../tests/test_data/input_data/binary/pg.full.pg -d ../tests/test_data/input_data/binary/pg.full.dist -R ../tests/test_data/input_data/binary/pg.chromosome --no-bgzip --output ../output_binary_node
 
 // BINARY NODE GENOTYPE
-// ./stoat vcf --mod node -s ../output_binary_snarl/snarl_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
+// ./stoat vcf --mod node -s ../output_binary_node/node_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_node_genotype
 
 // BINARY TEST + Fisher/Chi-Squared
 // ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../tests/test_data/input_data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test
