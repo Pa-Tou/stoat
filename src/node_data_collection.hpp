@@ -55,9 +55,6 @@ class NodeDataCollection {
         void for_each_node_in_file(stoat::Reader& in_reader, 
             const std::function<void(node_info_t& node_info)>& iteratee);
 
-        /// Write the collection of nodes to the given file
-        void write_node_data_collection(Writer& out_writer) const;
-        
         /// Load the collection of nodes from the given file
         /// Warn if the allele_size_limit or node_child_limit of the file are less permissive than this NodeDataCollection
         /// also a mode to load just the header used to reuse the same sample_to_index for other objects and then run node file line by line (although it means loading the sample_to_index map twice technically)
@@ -153,13 +150,8 @@ class NodeDataCollection {
         /// Write just the header of the collection of nodes to the given file
         void write_node_data_collection_header(Writer& out_writer) const;
 
-        /// Write just one node from the collection
-        void write_node_data_line(Writer& out_writer, const node_info_internal_t& node_info) const;
-        void write_node_data_line(stoat::Writer& out_writer, 
-                                                const node_info_internal_t& node_data,
-                                                const std::string* sequences, 
-                                                const allele_by_sample_t* alleles_by_sample) const;
-        void write_node_data_line_file(Writer& out_writer, const node_info_internal_t& node_info) const;
+        /// Write one line for one node to the given file. This assumes that write_node_data_collection_header() has already been called
+        void write_node_data_collection_line(Writer& out_writer, const node_info_internal_t& node_info) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the node records
         void load_node_data_collection_header(stoat::Reader& in_reader);

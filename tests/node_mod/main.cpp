@@ -44,7 +44,7 @@ int main() {
         string reverse = is_reverse ? "<" : ">";
         string node_str = reverse + to_string(node_id);
         std::string node_sequence = graph->get_sequence(h);
-        size_t depth = sdi->get_depth(h);
+        // size_t depth = sdi->get_depth(h);
         size_t pos;
         string reference_name;
 
@@ -65,7 +65,7 @@ int main() {
     });
 }
 
-// g++ -std=c++17 -O2 main.cpp -o graph_analyse     -lbdsg -lhandlegraph -lsdsl -lz -lpthread
+// g++ -std=c++17 -O2 main.cpp -o graph_analyse -lbdsg -lhandlegraph -lsdsl -lz -lpthread
 
 
 
