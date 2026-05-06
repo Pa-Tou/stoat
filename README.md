@@ -6,16 +6,21 @@
     <a href="https://quay.io/repository/patou/stoat"><img src="https://quay.io/repository/patou/stoat/status"></a>
 </p>
 
-<img src="pictures/logo.png" width="150">
+## Overview
 
-## Project Overview
+![](docs/stoat.overview.svg)
 
-<img src="pictures/STOAT_schema.png">
+STOAT extracts the genotypes (~allele counts) of each snarl (~bubble) for a set of samples, and tests the association with a phenotype.
+The samples can be either the haplotypes in the pangenome (`stoat graph`) or new samples genotyped using the pangenome beforehand (`stoat vcf`).
+
+In the cartoon above, three paths/alleles are genotyped and tested for the *yellow* snarl. 
+The *red* snarl is tested separately, even if not on the reference genome.
+It would be the case if the *blue* path was the reference path and that *red* snarl represented a variant within an insertion (relative to the reference).
 
 The two take-home messages are that:
 
-1. Snarls (bubbles) are tested independently without taking into account the nested snarls. Each snarl is tested in its "simplified" form. 
-2. All snarls are tested, even if they are not on the reference path and deeply embedded in the graph.
+1. Snarls (bubbles) are tested independently in their "simplified" form, i.e. without taking into account nested snarls. 
+2. All snarls are tested, even if they are not on the reference path and deeply nested in the graph.
 
 ## Dependency
 
