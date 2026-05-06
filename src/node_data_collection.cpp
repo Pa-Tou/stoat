@@ -83,6 +83,8 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
             #pragma omp task
             {
                 // Iterate over handle_t
+                std::string ref_name = "NA";
+                size_t position = 0;
                 graph.for_each_handle([&](const handle_t& handle) {
 
                     node_info_internal_t node_data;
@@ -99,19 +101,19 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
                     // Compute depth
                     net_handle_t net = distance_index.get_net(handle, &graph);
                     node_data.depth = distance_index.get_depth(net) - 1;
-                    std::string ref_name = "NA";
                     bool ref_found = false;
 
                     // Iterate over each step handle
                     graph.for_each_step_on_handle(handle, [&](const step_handle_t& step) {
 
                         path_handle_t path = graph.get_path_handle_of_step(step);
-                        node_data.position = graph.get_position_of_step(step);
+                        position = graph.get_position_of_step(step);
                         ref_name = graph.get_path_name(path);
 
                         auto it = reference_name_to_index.find(ref_name);
                         if (it != reference_name_to_index.end()) {
                             node_data.reference_index = it->second;
+                            node_data.position = position;
                             ref_found = true;
                             return false; // break
                         }
@@ -119,12 +121,18 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
                     });
 
                     if (!ref_found) { // ref not fond update reference_name_to_index
-                        #pragma omp critical(node_collection)
-                        {
-                            size_t idx = reference_names.size();
-                            reference_names.push_back(ref_name);
-                            reference_name_to_index[ref_name] = idx;
-                            node_data.reference_index = idx;
+                        if (reference_name_to_index.find(ref_name) != reference_name_to_index.end()) {
+                            node_data.reference_index = reference_name_to_index.at(ref_name);
+                            node_data.position = position;
+                        } else {
+                            #pragma omp critical(node_collection)
+                            {
+                                size_t idx = reference_names.size();
+                                reference_names.push_back(ref_name);
+                                reference_name_to_index[ref_name] = idx;
+                                node_data.reference_index = idx;
+                                node_data.position = position;
+                            }
                         }
                     }
 
