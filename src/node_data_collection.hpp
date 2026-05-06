@@ -90,6 +90,9 @@ class NodeDataCollection {
     // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
     void genotype_nodes_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
 
+    /// This goes at the beginning of the file to ensure that it is the right file type and version
+    inline const static std::string file_header = "#NODE_DATA_v1.0";
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
     private:
@@ -139,9 +142,6 @@ class NodeDataCollection {
         std::unordered_map<std::string, size_t> sample_to_index;
 
         //////////////////////////// Extra housekeeping stuff
-
-        /// This goes at the beginning of the file to ensure that it is the right file type and version
-        inline const static std::string file_header = "#NODE_DATA_v1.0";
         size_t number_node_analyzed = 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ class NodeDataCollection {
         void write_node_data_collection_header(Writer& out_writer) const;
 
         /// Write one line for one node to the given file. This assumes that write_node_data_collection_header() has already been called
-        void write_node_data_collection_line(Writer& out_writer, const node_info_t& node_info) const;
+        void write_node_data_collection_line(Writer& out_writer, const node_info_internal_t& node_info) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the node records
         void load_node_data_collection_header(stoat::Reader& in_reader);

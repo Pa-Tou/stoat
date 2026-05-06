@@ -61,6 +61,8 @@ std::tuple<std::string, size_t, size_t> get_name_and_offsets_of_snarl_path_range
 /// Useful for debugging with `vg find -N`
 void print_nodes_in_snarl(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl);
 
+// Given the header of the collection file, predict if it's a snarl or node collection
+std::string mode_prediction(const std::string& collection_reader, const std::string& snarl_header, const std::string& node_header);
 
 // equality within a given epsilon
 template<typename T>

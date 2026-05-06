@@ -80,55 +80,61 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
         // The actual while loop is run on a single thread
         #pragma omp single
         {
-            // write header to file
-            write_node_data_collection_header(out_writer);
             #pragma omp task
             {
                 // Iterate over handle_t
                 graph.for_each_handle([&](const handle_t& handle) {
 
+                    node_info_internal_t node_data;
+
                     size_t node_id = graph.get_id(handle);
                     bool is_reverse = graph.get_is_reverse(handle);
-                    node_traversal_t node(node_id, is_reverse);
+                    stoat::node_traversal_t node(node_id, is_reverse);
+                    node_data.node = node;
                     number_node_analyzed++;
 
                     // node sequence
-                    std::string node_sequence = graph.get_sequence(handle);
+                    // std::string node_sequence = graph.get_sequence(handle);
 
                     // Compute depth
                     net_handle_t net = distance_index.get_net(handle, &graph);
-                    size_t depth = distance_index.get_depth(net) - 1;
-                    path_handle_t path;
+                    node_data.depth = distance_index.get_depth(net) - 1;
                     std::string ref_name;
-                    size_t position;
+                    bool ref_found = false;
 
                     // Iterate over each step handle
                     graph.for_each_step_on_handle(handle, [&](const step_handle_t& step) {
             
-                        path = graph.get_path_handle_of_step(step);
+                        path_handle_t path = graph.get_path_handle_of_step(step);
+                        node_data.position = graph.get_position_of_step(step);
                         ref_name = graph.get_path_name(path);
-                        ref_name = reference_name_to_index.find(ref_name) == reference_name_to_index.end() ? "NA" : ref_name;
-                        position = graph.get_position_of_step(step);
 
-                        return ref_name == "NA"; // if this is not a reference path
+                        auto it = reference_name_to_index.find(ref_name);
+                        if (it != reference_name_to_index.end()) {
+                            node_data.reference_index = it->second;
+                            ref_found = true;
+                            return false; // break
+                        }
+                        return true; // continue
                     });
 
-                    allele_by_sample_t alleles_by_sample;
-                    GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
-                    node_info_t new_node_info(node, 
-                                                ref_name,
-                                                position,
-                                                depth,
-                                                empty_genotypes,
-                                                all_sample_haplotypes,
-                                                alleles_by_sample,
-                                                node_sequence);
-                    
+                    if (!ref_found) { // ref not fond update reference_name_to_index
+                        #pragma omp critical(node_collection)
+                        {
+                            size_t idx = reference_names.size();
+                            reference_names.emplace_back(ref_name);
+                            reference_name_to_index[ref_name] = idx;
+                            node_data.reference_index = idx;
+                        }
+                    }
+
+                    all_node_data.emplace_back(std::move(node_data));
+
                     // write node_info_t to file
                     if (out_filename != "") {
                         #pragma omp critical(node_collection)
                         {
-                            write_node_data_collection_line(*temp_writer, new_node_info);
+                            write_node_data_collection_line(*temp_writer, node_data);
                         }
                     }
                 });// end for each handle
@@ -137,6 +143,29 @@ void NodeDataCollection::fill_in_node_info(const handlegraph::PathPositionHandle
     }// end omp shared
 
     stoat::LOG_INFO("Total number of node analyse: " + std::to_string(number_node_analyzed));
+
+    // If we want to write the snarls
+    if (out_filename != "") {
+
+        // We need to write the header to the final file then copy the snarls into the same file
+        temp_writer->close();
+
+        //Write the final header
+        write_node_data_collection_header(out_writer);
+
+        // Go through the temporary snarl file and copy it into the new file
+        BgzReader in_temp(out_temp_filename);
+
+        std::string line;
+        while (in_temp.getline(line)) {
+            out_writer.write(line + "\n");
+        }
+
+        in_temp.close();
+
+        // Remove the temporary file
+        std::filesystem::remove(out_temp_filename);
+    }
 }
 
 void NodeDataCollection::add_alleles_by_sample(
@@ -355,13 +384,13 @@ void NodeDataCollection::write_node_data_collection_header(stoat::Writer& out_wr
     out_writer.write(outstream.str());
 }
 
-void NodeDataCollection::write_node_data_collection_line(stoat::Writer& out_writer, const node_info_t& node_data) const {
+void NodeDataCollection::write_node_data_collection_line(stoat::Writer& out_writer, const node_info_internal_t& node_data) const {
 
     std::stringstream outstream;
     
     // Start with just the contents of the node_info_internal_t
     outstream << node_data.node.to_string() << "\t"
-              << node_data.ref_path << "\t"
+              << node_data.reference_index << "\t"
               << node_data.position << "\t"
               << node_data.depth;
 

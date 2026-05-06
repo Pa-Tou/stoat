@@ -184,29 +184,29 @@ int main_stoat_test(int argc, char* argv[]) {
     #endif
 
     // load the header from the snarl collection file. We'll use those sample indices
-    std::shared_ptr<stoat::Reader> snarl_reader;
+    std::shared_ptr<stoat::Reader> collection_reader;
     if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
         (genotype_path.compare(genotype_path.length()-4, 4, ".bgz") == 0)) {
-        snarl_reader.reset(new BgzReader(genotype_path));
+        collection_reader.reset(new BgzReader(genotype_path));
     } else {
-        snarl_reader.reset(new StdReader(genotype_path));
+        collection_reader.reset(new StdReader(genotype_path));
     }
 
-    // predict mod [snarl or node]
-    // std::string mod = stoat_vcf::mode_prediction(*snarl_reader);
-    // stoat::LOG_INFO("Mode " + mod + " detected.");
-
-    // Load the DataCollection
+    // Load DataCollection
     stoat::SnarlDataCollection snarl_collection(0, 0, 0);
     stoat::NodeDataCollection node_collection;
 
-    // if (mod == "node") {
-    //     node_collection.load_node_data_collection(*snarl_reader, true);
-    //     snarl_reader->close();
-    // } else {
-    //     snarl_collection.load_snarl_data_collection(*snarl_reader, true);
-    //     snarl_reader->close();
-    // }
+    // predict mode [snarl or node]
+    std::string mode = stoat::mode_prediction(genotype_path, snarl_collection.file_header, node_collection.file_header);
+    stoat::LOG_INFO("Mode " + mode + " detected.");
+
+    if (mode == "node") {
+        node_collection.load_node_data_collection(*collection_reader, true);
+        collection_reader->close();
+    } else {
+        snarl_collection.load_snarl_data_collection(*collection_reader, true);
+        collection_reader->close();
+    }
 
     //////////////////////////////////////// Go through the genotypes and test against the phenotype    
     stoat::LOG_INFO("Starting GWAS analysis...");

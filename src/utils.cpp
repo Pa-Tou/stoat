@@ -109,6 +109,26 @@ std::string get_sample_name_from_path(const handlegraph::PathHandleGraph& graph,
 
 }
 
+std::string mode_prediction(const std::string& genotype_path, const std::string& snarl_header, const std::string& node_header) {
+
+    std::string mode = "snarl";
+    std::string line;
+    std::ifstream infile(genotype_path);
+
+    if (std::getline(infile, line)) {
+        if (line == node_header) {
+            mode = "node";
+        } else if (line == snarl_header) {
+            mode = "snarl";
+        } else {
+            stoat::LOG_ERROR("Unrecognized header in collection file: " + line);
+        }
+    } else {
+        stoat::LOG_ERROR("Collection file is empty");
+    }
+
+    return mode;
+}
 
 std::vector<path_range_t> get_coordinates_of_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                                    const handlegraph::net_handle_t& snarl, bool get_reference, const std::unordered_set<std::string>& sample_names, bool get_all_paths) {

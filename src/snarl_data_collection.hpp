@@ -134,6 +134,9 @@ class SnarlDataCollection {
     // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
     void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
 
+    /// This goes at the beginning of the file to ensure that it is the right file type and version
+    inline const static std::string file_header = "#SNARL_DATA_v1.0";
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
     private:
@@ -197,10 +200,6 @@ class SnarlDataCollection {
         std::set<size_t> removed_sample_idx;
 
         //////////////////////////// Extra housekeeping stuff
-
-        /// This goes at the beginning of the file to ensure that it is the right file type and version
-        inline const static std::string file_header = "#SNARL_DATA_v1.0";
-
         /// Skip snarls if their maximum length is smaller than this
         size_t allele_size_limit;
 
