@@ -2,7 +2,7 @@
 #include "log.hpp"
 #include <fstream>
 
-//#define DEBUG_PATH_PARTITIONER
+#define DEBUG_PATH_PARTITIONER
 
 using namespace stoat;
 namespace stoat_graph {
@@ -595,7 +595,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     std::vector<path_link_t> additional_edges;
 
     auto add_path_to_sample = [&](size_t sample_id, size_t path_id) {
-        if (path_by_sample.at(sample_id).path_id = std::numeric_limits<size_t>::max()) {
+        if (path_by_sample.at(sample_id).path_id == std::numeric_limits<size_t>::max()) {
             path_by_sample.at(sample_id).path_id = path_id;
         } else {
             // Follow the linked list to the end and then add this
@@ -652,6 +652,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
         //locate() finds the path identifiers for the search state
         std::vector<gbwt::size_type> path_ids = gbwt.locate(std::get<1>(current_state));
+        std::cerr << "Found " << path_ids.size() << " path ids for this path " << std::endl;
         for (const gbwt::size_type id : path_ids) {
             gbwt::size_type gbwt_path_id = gbwt::Path::id(id);
 

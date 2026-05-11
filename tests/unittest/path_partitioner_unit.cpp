@@ -195,7 +195,6 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
 
 
     SECTION("partition_embedded_paths_in_snarl") {
-        // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
         
@@ -210,6 +209,11 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
         REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
         REQUIRE(alleles_per_sample1[2] != std::numeric_limits<size_t>::max());
 
+        REQUIRE(paths_per_allele1[alleles_per_sample1[0]].to_string() == ">1>2>4");
+        REQUIRE(paths_per_allele1[alleles_per_sample1[1]].to_string() == ">1>2>4");
+        REQUIRE(paths_per_allele1[alleles_per_sample1[2]].to_string() == ">1>3>4");
+        REQUIRE(paths_per_allele1[alleles_per_sample1[3]].to_string() == ">1>3>4");
+
         // Should be {0,1,3} and {2}
         
         std::vector<PathTraversal> paths_per_allele2;
@@ -221,6 +225,10 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
         REQUIRE(alleles_per_sample2[2] != alleles_per_sample2[3]);
         REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
         REQUIRE(alleles_per_sample2[3] != std::numeric_limits<size_t>::max());
+        REQUIRE(paths_per_allele2[alleles_per_sample2[0]].to_string() == ">4>5>0>7>8");
+        REQUIRE(paths_per_allele2[alleles_per_sample2[1]].to_string() == ">4>5>0>7>8");
+        REQUIRE(paths_per_allele2[alleles_per_sample2[2]].to_string() == ">4>8");
+        REQUIRE(paths_per_allele2[alleles_per_sample2[3]].to_string() == ">4>5>0>7>8");
 
         // Should be {0}, {1,3}. 2 didn't go through this snarl
         std::vector<PathTraversal> paths_per_allele3;
@@ -232,6 +240,9 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
         REQUIRE(alleles_per_sample3[2] == std::numeric_limits<size_t>::max());
         REQUIRE(alleles_per_sample3[0] != std::numeric_limits<size_t>::max());
         REQUIRE(alleles_per_sample3[1] != std::numeric_limits<size_t>::max());
+        REQUIRE(paths_per_allele3[alleles_per_sample3[0]].to_string() == ">5>6>7");
+        REQUIRE(paths_per_allele3[alleles_per_sample3[1]].to_string() == ">5>7");
+        REQUIRE(paths_per_allele3[alleles_per_sample3[3]].to_string() == ">5>7");
     }
 }
 
@@ -432,7 +443,6 @@ TEST_CASE( "Path partitioner nested bubbles distanceless index",
                                          stoat::sample_hap_t(*path_graph, paths[3])});
 
     SECTION("partition_embedded_paths_in_snarl") {
-        // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} and {2,3}
         std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
@@ -534,7 +544,6 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
                                          stoat::sample_hap_t(*path_graph, paths[2])});
 
     SECTION("partition_embedded_paths_in_snarl") {
-        // This isn't really a good test because all the snarls are regular
 
         // Should be {0} and {1,2}
         std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl(*path_graph, distance_index, snarl1, all_samples);
@@ -559,7 +568,7 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
 
 }
 
-TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner]" ) {
+TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner][bug]" ) {
 
     /*
 
@@ -603,8 +612,8 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner]" ) {
                                          stoat::sample_hap_t(*path_graph, paths[2])});
 
     SECTION("partition_embedded_paths_in_snarl") {
-        // This isn't really a good test because all the snarls are regular
 
+        //outer snarl
         // Should be {0} and {1,2}
 
         std::vector<PathTraversal> paths_per_allele1;
@@ -615,6 +624,16 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner]" ) {
         REQUIRE(alleles_per_sample1[1] == alleles_per_sample1[2]);
         REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
         REQUIRE(alleles_per_sample1[1] != std::numeric_limits<size_t>::max());
+
+        if (paths_per_allele1[alleles_per_sample1[0]].to_string().at(0) == '>') {
+            REQUIRE(paths_per_allele1[alleles_per_sample1[0]].to_string() == ">1>2>0>5>6");
+            REQUIRE(paths_per_allele1[alleles_per_sample1[1]].to_string() == ">1>2>0>5>2>0>5>6");
+            REQUIRE(paths_per_allele1[alleles_per_sample1[2]].to_string() == ">1>2>0>5>2>0>5>6");
+        } else {
+            REQUIRE(paths_per_allele1[alleles_per_sample1[0]].to_string() == "<6<5>0<2<1");
+            REQUIRE(paths_per_allele1[alleles_per_sample1[1]].to_string() == "<6<5>0<2<5>0<2<1");
+            REQUIRE(paths_per_allele1[alleles_per_sample1[2]].to_string() == "<6<5>0<2<5>0<2<1");
+        }
 
         // Should be {0}, {1} and {2}
 
@@ -628,6 +647,18 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner]" ) {
         REQUIRE(alleles_per_sample2[0] != std::numeric_limits<size_t>::max());
         REQUIRE(alleles_per_sample2[1] != std::numeric_limits<size_t>::max());
         REQUIRE(alleles_per_sample2[2] != std::numeric_limits<size_t>::max());
+
+        if (paths_per_allele2[alleles_per_sample2[0]].to_string().at(0) == '>') {
+            REQUIRE(paths_per_allele2[alleles_per_sample2[0]].to_string() == ">2>3>4");
+            REQUIRE(paths_per_allele2[alleles_per_sample2[1]].to_string() == ">2>4<0>2>4");
+            REQUIRE((paths_per_allele2[alleles_per_sample2[2]].to_string() == ">2>3>4<0>2>4" ||
+                     paths_per_allele2[alleles_per_sample2[2]].to_string() == ">2>4<0>2>3>4"));
+        } else {
+            REQUIRE(paths_per_allele2[alleles_per_sample2[0]].to_string() == "<4<3<2");
+            REQUIRE(paths_per_allele2[alleles_per_sample2[1]].to_string() == "<4<2>0<4<2");
+            REQUIRE((paths_per_allele2[alleles_per_sample2[2]].to_string() == "<4<2>0<4<3<2" ||
+                     paths_per_allele2[alleles_per_sample2[2]].to_string() == "<4<3<2>0<4<2"));
+        }
     }
 
 
@@ -916,7 +947,6 @@ TEST_CASE( "Path partitioner finder bubble with three nodes",
 
 
     SECTION("partition_embedded_paths_in_snarl") {
-        // This isn't really a good test because all the snarls are regular
 
         // Should be {0,1} {2} {3}
 
@@ -1002,7 +1032,6 @@ TEST_CASE( "Path partitioner finder looping snarl same edges different order ", 
 
 
     SECTION("partition_embedded_paths_in_snarl") {
-        // This isn't really a good test because all the snarls are regular
 
         // Outer snarl, hould be {0, 1}
 
@@ -1578,7 +1607,6 @@ TEST_CASE( "Path partitioner self loops",
         for (size_t node_i : paths_seqs[path_i]) {
             graph.append_step(paths.back(), nodes[node_i]);
         }
-        std::cerr << "Add path " << graph.get_path_name(paths.back());
     }
     // Add two self-loop paths
     paths.emplace_back(graph.create_path_handle("path5"));
@@ -1623,9 +1651,6 @@ TEST_CASE( "Path partitioner self loops",
 
 
     handlegraph::net_handle_t snarl1 = distance_index.get_parent(distance_index.get_parent(distance_index.get_node_net_handle(2)));
-    for (size_t i = 0 ; i < paths.size() ; i++) {
-        std::cerr << graph.get_path_name(paths[i]) << std::endl; 
-    }
 
     std::vector<stoat::sample_hap_t> all_samples({stoat::sample_hap_t(graph, paths[0]),
                                                   stoat::sample_hap_t(graph, paths[1]),
