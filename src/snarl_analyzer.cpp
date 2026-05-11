@@ -157,6 +157,9 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
     snarl_data.genotypes.remove_noncovered_samples();
     snarl_data.genotypes.remove_constant_predictors();
 
+    // Which alleles are actually used? Used for making sure that we only write the alleles we used
+    std::vector<bool> active_alleles = snarl_data.genotypes.get_active_alleles();
+
     // prepare an output objet and init to NA
     test_result_t test_res;
     test_res.pv = std::nan("");
@@ -185,7 +188,7 @@ bool BinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, 
         return true;
     }
     
-    out_writer.write_binary(snarl_data, test_res);
+    out_writer.write_binary(snarl_data, test_res, active_alleles);
     return false;
 }
 
@@ -230,7 +233,7 @@ bool ExactBinarySnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         return true;
     }
     
-    out_writer.write_binary(snarl_data, test_res);
+    out_writer.write_binary(snarl_data, test_res, snarl_data.genotypes.get_active_alleles());
     return false;
 }
     
@@ -247,6 +250,9 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     // prepare an output objet and init to NA
     test_result_t test_res;
     test_res.pv = std::nan("");
+
+    // Which alleles are actually used? Used for making sure that we only write the alleles we used
+    std::vector<bool> active_alleles;
     
     // should we test this snarl?
     if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
@@ -258,6 +264,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     
         // before performing the regression, try to reduce potential colinearity
         snarl_data.genotypes.remove_duplicated_predictors();    
+        active_alleles = snarl_data.genotypes.get_active_alleles();
         snarl_data.genotypes.remove_one_allele();
     
         // prepare the matrices, fit the logistic model and test effect of alleles
@@ -273,7 +280,7 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
         return true;
     }
  
-    out_writer.write_binary_covar(snarl_data, test_res);
+    out_writer.write_binary_covar(snarl_data, test_res, active_alleles);
     return false;
 }
 
@@ -292,6 +299,9 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
     test_result_t test_res;
     test_res.pv = std::nan("");
 
+    // Which alleles are actually used? Used for making sure that we only write the alleles we used
+    std::vector<bool> active_alleles;
+
     // should we test this snarl?
     if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
         // add the allele path info to include in the output
@@ -302,6 +312,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
 
         // before performing the regression, try to reduce potential colinearity
         snarl_data.genotypes.remove_duplicated_predictors();
+        active_alleles = snarl_data.genotypes.get_active_alleles();
         snarl_data.genotypes.remove_one_allele();
 
         Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
@@ -318,7 +329,7 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
         return true;
     }
  
-    out_writer.write_quantitative(snarl_data, test_res);
+    out_writer.write_quantitative(snarl_data, test_res, active_alleles);
     return false;
 }
 
@@ -353,6 +364,9 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
         test_result_t test_res;
         test_res.pv = std::nan("");
 
+    // Which alleles are actually used? Used for making sure that we only write the alleles we used
+        std::vector<bool> active_alleles;
+
         // should we test this snarl?
         if (snarl_data.genotypes.passes_filters(maf_threshold, min_individuals)){
 
@@ -364,6 +378,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
 
             // before performing the regression, try to reduce potential colinearity
             snarl_data.genotypes.remove_duplicated_predictors();
+            active_alleles = snarl_data.genotypes.get_active_alleles();
             snarl_data.genotypes.remove_one_allele();
     
             Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
@@ -380,7 +395,7 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
             continue;
         }
   
-        out_writer.write_eqtl(snarl_data, gene_name, test_res);
+        out_writer.write_eqtl(snarl_data, gene_name, test_res, active_alleles);
 
         // at least this test was not filtered
         filtered = false;

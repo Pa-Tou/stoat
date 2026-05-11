@@ -244,6 +244,9 @@ public:
     // JEAN maybe more efficient to keep track of this instead of recomputing from the mask each time?
     size_t get_n_active_alleles() const;
 
+    // Which alleles are used (true) or not used (false)?
+    std::vector<bool> get_active_alleles() const;
+
     /// this will include alleles, covariates, and the total allele count if it was added by add_total_allele_count_covariable
     size_t get_n_active_columns() const;
     size_t get_n_active_samples() const;

@@ -492,6 +492,26 @@ void GenotypeTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<
     }
 }
 
+std::vector<bool> GenotypeTable::get_active_alleles() const {
+    std::vector<bool> alleles(n_alleles, false);
+
+    // Go through all alleles and samples, skipping anything masked
+    for (size_t al_i = 0; al_i < n_alleles; al_i++) {
+        if (col_mask[al_i]) {continue;}
+        for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
+            if (row_mask[samp_i]) {continue;}
+
+            double value_sample = get_value(samp_i, al_i);
+            if (value_sample > 0){
+                alleles[al_i] = true;
+                //break out of the inner per-sample loop 
+                break;
+            }
+        }
+    }
+    return alleles;
+}
+
 // JEAN maybe these won't be used in the end. Remove at the end if not
 size_t GenotypeTable::get_n_active_alleles() const {
     return n_active_alleles;
