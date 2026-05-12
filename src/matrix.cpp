@@ -183,11 +183,11 @@ std::vector<size_t> AlleleBySampleMatrix<stoat::edge_t>::get_samples_on_path(con
 template<>
 std::vector<size_t> AlleleBySampleMatrix<stoat::node_traversal_t>::get_samples_on_node(const stoat::node_traversal_t &node_trav) {
 
-    size_t node_row = 0;
     auto itr = row_header.find(node_trav);
     if (itr == row_header.end()) {
         stoat::LOG_WARN("node traversal : " + node_trav.to_string() + "not found", number_node_not_found++);
     };
+    size_t node_row = itr->second;
 
     // now let's check the presence of the keys in each sample-hap
     std::vector<size_t> idx_samp_hap;
