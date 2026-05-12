@@ -50,7 +50,7 @@ struct node_traversal_t { // 64 bits per node
 // Define a edge_t structure to represent an edge between two node_traversal_t nodes
 struct edge_t { // 128 bits per edge 
     private:
-        // JEAN why is that a pair? can't we just have two nodes in that struct?
+    // JEAN why is that a pair? can't we just have two nodes in that struct?
         std::pair<node_traversal_t, node_traversal_t> edge;
 
     public:
@@ -71,6 +71,7 @@ struct edge_t { // 128 bits per edge
 };
 
 // Define a PathTraversal structure to represent a path through the graph
+// a node id of 0 is used to represent leaving a snarl or traversing a chain child of a netgraph
 class PathTraversal {
 private:
     std::vector<node_traversal_t> path; // Nodes in the path
@@ -78,32 +79,54 @@ private:
     size_t max_allele_len;
     
 public:
-    // add a node traversal to the path
     PathTraversal() : min_allele_len(0), max_allele_len(0) {}
-    void add_node(const size_t& node, bool is_rev);
-    void add_node_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index);
+
+
+    //////////////////////// Functions for adding steps in the path traversal
+
+    /// add a node traversal
     void add_node_traversal_t(const node_traversal_t &node_trav);
+
+    /// add a node to the path and update the min and max lengths
+    void add_node(const size_t& node, bool is_rev, size_t length);
+
+    /// add a net handle to the path and update the min and max lengths
+    /// If the net handle represents a node, trivial chain, or sentinel, add it as a node
+    /// If it represents a chain, add it as the two boundary nodes and >0 between them.
+    /// is_bound should be true if this is the bound of the snarl, in which case the lengths aren't added
+    void add_net_handle(const handlegraph::net_handle_t& node_h, const bdsg::SnarlDistanceIndex& distance_index, bool is_bound = false);
+
+    /// For a traversal through a snarl, this is used to add a step in the walk representing a traversal that leaves a snarl and comes back in
+    void add_out_of_snarl_walk() { add_node(0, true, 0); }
+
+    /// For a traversal through a snarl, this is used to add a step in the walk representing a traversal through a chain child in the netgraph
+    void add_interior_chain_walk() { add_node(0, false, 0); }
+
+    ////////////////////////// Functions for checking and flipping the orientation
+    // TODO: Do we really need to do this?
     
     // Check and flip the Path if necessary to ensure consistent orientation
     void check_path_flip();
     void path_flip();
 
-    void add_min_allele_len(size_t len);
-    void add_max_allele_len(size_t len);
+
+    ///////////////////////// Functions for getting and setting the allele lengths from strings
+
     void set_allele_length_from_string(std::string al_len_str);
 
-    // TODO : change sum_path to definition using the length of the path including in the boundary nodes
-    // Matis ans : i don t know how to do it
-    std::string get_allele_length(size_t& count_path_lengths_warn) const;
+    std::string allele_lengths_as_string(size_t& count_path_lengths_warn) const;
         
-    // Getters
+    ////////////////////////////// Getters
     const std::vector<node_traversal_t>& get_path() const;
     size_t get_max_allele_length() const { return max_allele_len; }
     size_t get_min_allele_length() const { return min_allele_len; }
     
     // convert to std::string representation
     std::string to_string() const;
+
+    // How many steps in the path?
     size_t size() const;
+
 };
 
 // Convert a pair of size_t, for example defining a snarl ID to a string of them separated by an underscore
@@ -123,8 +146,15 @@ std::vector<stoat::node_traversal_t> string_to_path_node_traversal(const std::st
 // Get a string representing a path of node_traversal_t's
 std::string path_node_traversal_to_string(const std::vector<stoat::node_traversal_t>& path);
 
+
+// Convert one vector of net_handle_t's to a PathTraversal
+PathTraversal net_handles_to_path_traversal(
+                            const bdsg::SnarlDistanceIndex& distance_index, 
+                            const handlegraph::PathHandleGraph& graph, 
+                            const std::vector<handlegraph::net_handle_t>& path_as_net_handles);
+
 // convert paths from the simple vector of net handles to the PathTraversal object
-std::vector<PathTraversal> convert_path_traversals(
+std::vector<PathTraversal> net_handles_to_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             const handlegraph::PathHandleGraph& graph, 
                             std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths);
