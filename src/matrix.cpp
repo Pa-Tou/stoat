@@ -196,16 +196,8 @@ std::vector<size_t> AlleleBySampleMatrix<stoat::node_traversal_t>::get_samples_o
     // loop by columns first (better cache locality in the matrix)
     bool all_ones;
     for (size_t col = 0; col < n_samp_haps; ++col) {
-        all_ones = true;
-
-        if (!get_key(node_row, col)) {
-            all_ones = false;
-            break;
-        }
-
-        if (all_ones) {
+        if (get_key(node_row, col)) {
             idx_samp_hap.push_back(static_cast<int>(col));
-            continue;
         }
     }
 
