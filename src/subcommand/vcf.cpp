@@ -54,7 +54,7 @@ void print_help_vcf() {
 int main_stoat_vcf(int argc, char* argv[]) {
 
     // Declare variables to hold argument values
-    std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix;
+    std::string vcf_path, snarl_path, graph_path, dist_path, reference_file, reference_prefix;
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
     size_t min_individuals = 0;
@@ -107,7 +107,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 }
                 break;
             }
-            case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
+            case 'R': reference_file = optarg; stoat_vcf::check_file(reference_file); break;
             case 'r': reference_prefix = optarg; break;
             case 'a': ascii = true; break;
             case 'i':
@@ -206,7 +206,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     // read reference chromosome, if provided
     // if not, we will use reference haplotypes in the pangenome
-    std::unordered_set<std::string> ref_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
+    std::unordered_set<std::string> ref_path_names = (!reference_file.empty()) ? stoat_vcf::parse_chromosome_reference(reference_file) : std::unordered_set<std::string>{};
 
     // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
@@ -264,26 +264,46 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
             // Load the graph and make it a PathPositionHandleGraph
             std::unique_ptr<handlegraph::PathHandleGraph> graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
-            bdsg::PathPositionOverlayHelper overlay_helper;
-            bdsg::PathPositionHandleGraph* path_position_graph;
-            path_position_graph = overlay_helper.apply(graph.get());
+            
+            // Get a list of paths to include in the path position overlay
+            std::unordered_set<std::string> paths_set;
 
-            // Get the reference sample names from the prefix
+            // A set of the samples+haplotypes in the graph
+            std::vector<stoat::sample_hap_t> all_sample_haplotypes;
+
+            // go through all paths in the pangenome and save them
             graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-                std::string path_name = graph->get_path_name(path);
-
-                if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
-                                reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
-                    // If these paths match
-                    ref_path_names.emplace(graph->get_path_name(path));
-                }
-
+                std::string sample_name = stoat::get_sample_name_from_path(*graph, path);
+                // Get the sample haplotypes that we want
+                // TODO: For now, if we are saving the snarls to be used again, force all samples to be included. This may change when this is a separate subcommand
+                // JEAN right, maybe we do want to be able to say which ones to include (new input file or prefix selection?)
+                paths_set.emplace(graph->get_path_name(path));
+                all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*graph, path));
                 return true;
             });
+
+            bdsg::PathPositionOverlayHelper overlay_helper;
+            bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(graph.get(), paths_set);
 
             // Load the distance index
             std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
             distance_index->deserialize(dist_path);
+
+            // Get the reference sample names from the file
+            std::unordered_set<std::string> reference_file_names = (!reference_file.empty()) ? stoat_vcf::parse_chromosome_reference(reference_file) : std::unordered_set<std::string>{};
+
+            // Get the reference sample names from the prefix
+            graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+                std::string path_name = graph->get_path_name(path);
+                
+                if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
+                                reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
+                    // If these paths match
+                    reference_file_names.emplace(graph->get_path_name(path));
+                }
+
+                return true;
+            });
 
             // Check if chromosomes specified in the --chr file are present in the graph
             for (const auto& chr : ref_path_names) {

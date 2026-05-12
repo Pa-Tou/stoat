@@ -1,0 +1,13 @@
+stoat vcf --mode node -s ../output_binary_node/node_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_node_genotype 
+Loading snarls from ../output_binary_node/node_info.tsv
+Loading snarl information took 0.003269 s
+Retrieving genotypes for all snarls...
+Analyzing chr : ref
+Edge matrix construction for chr ref : 0.505517 s
+Total number of node found in chr ref : 7
+Node genotypes retrieved in chr ref : 0.015695 s
+Total time for chr ref : 0.521212 s
+Retrieving snarl genotypes took 0.529327 s
+Writing genotypes in ../output_binary_node_genotype/snarl_genotypes.tsv
+Writing genotypes took 0.085264 s
+Total time: 0.618501 s

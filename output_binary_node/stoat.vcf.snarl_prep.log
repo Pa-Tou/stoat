@@ -1,4 +1,4 @@
 stoat vcf --mode node -g ../tests/test_data/input_data/binary/pg.full.pg -d ../tests/test_data/input_data/binary/pg.full.dist -R ../tests/test_data/input_data/binary/pg.chromosome --no-bgzip --output ../output_binary_node 
 Starting node decomposition... 
 Total number of node analyse: 4272
-Node decomposition took 1.991518 s
+Node decomposition took 4.487625 s
