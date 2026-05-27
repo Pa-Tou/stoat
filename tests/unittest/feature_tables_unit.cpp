@@ -243,6 +243,11 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         REQUIRE(table.get_n_active_alleles() == 4);
         REQUIRE(table.get_n_active_columns() == 5);
         REQUIRE(table.get_n_active_samples() == 6);
+        std::vector<bool> active_alleles = table.get_active_alleles();
+        REQUIRE(active_alleles[0]);
+        REQUIRE(active_alleles[1]);
+        REQUIRE(active_alleles[2]);
+        REQUIRE(active_alleles[3]);
     }
 
     SECTION("Accessor works on alleles and covariates") {
@@ -259,18 +264,33 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         table.remove_constant_predictors();
         REQUIRE(table.get_n_active_alleles() == 3);
         REQUIRE(table.get_n_active_columns() == 4);
+        std::vector<bool> active_alleles = table.get_active_alleles();
+        REQUIRE(active_alleles[0]);
+        REQUIRE(!active_alleles[1]);
+        REQUIRE(active_alleles[2]);
+        REQUIRE(active_alleles[3]);
     }
 
     SECTION("Remove first allele") {
         table.remove_one_allele();
         REQUIRE(table.get_n_active_alleles() == 3);
         REQUIRE(table.get_n_active_columns() == 4);
+        std::vector<bool> active_alleles = table.get_active_alleles();
+        REQUIRE(!active_alleles[0]);
+        REQUIRE(active_alleles[1]);
+        REQUIRE(active_alleles[2]);
+        REQUIRE(active_alleles[3]);
     }
 
     SECTION("Remove duplicated predictor") {
         table.remove_duplicated_predictors();
         REQUIRE(table.get_n_active_alleles() == 3);
         REQUIRE(table.get_n_active_columns() == 4);
+        std::vector<bool> active_alleles = table.get_active_alleles();
+        REQUIRE(active_alleles[0]);
+        REQUIRE(active_alleles[1]);
+        REQUIRE((active_alleles[2] || active_alleles[3]));
+        REQUIRE(((!active_alleles[2]) || (!active_alleles[3])));
     }
 
     SECTION("Add new total allele count column") {

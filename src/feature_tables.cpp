@@ -492,6 +492,16 @@ void GenotypeTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<
     }
 }
 
+std::vector<bool> GenotypeTable::get_active_alleles() const {
+    std::vector<bool> alleles(n_alleles, false);
+
+    // This is the reverse of the mask
+    for (size_t al_i = 0; al_i < n_alleles; al_i++) {
+        alleles[al_i] = !col_mask[al_i];
+    }
+    return alleles;
+}
+
 // JEAN maybe these won't be used in the end. Remove at the end if not
 size_t GenotypeTable::get_n_active_alleles() const {
     return n_active_alleles;
