@@ -269,7 +269,16 @@ bool BinaryCovarSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_d
     
         // prepare the matrices, fit the logistic model and test effect of alleles
         Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
+        if (X.size() == 0) {
+            stoat::LOG_DEBUG("Filtered: Genotype matrix is empty");
+            return true;
+        }
+
         Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
+        if (Y.size() == 0) {
+            stoat::LOG_DEBUG("Filtered: Phenotype matrix is empty");
+            return true;
+        }
         test_res.pv = lr.logistic_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
     } else {
         stoat::LOG_DEBUG("Filtered: didn't pass the filters");
