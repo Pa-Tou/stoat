@@ -325,7 +325,15 @@ bool QuantitativeSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_
         snarl_data.genotypes.remove_one_allele();
 
         Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
+        if (X.size() == 0) {
+            stoat::LOG_DEBUG("Filtered: Genotype matrix is empty");
+            return true;
+        }
         Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
+        if (Y.size() == 0) {
+            stoat::LOG_DEBUG("Filtered: Phenotype matrix is empty");
+            return true;
+        }
 
         test_res.pv = lr.linear_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
     } else {
@@ -391,7 +399,15 @@ bool EQTLSnarlAnalyzer::test_and_write_snarl(stoat::snarl_info_t &snarl_data, st
             snarl_data.genotypes.remove_one_allele();
     
             Eigen::MatrixXd X = snarl_data.genotypes.make_matrixXd_features();
+            if (X.size() == 0) {
+                stoat::LOG_DEBUG("Filtered: Genotype matrix is empty");
+                continue;
+            }
             Eigen::VectorXd Y = snarl_data.genotypes.make_vectorxd_phenotype();
+            if (Y.size() == 0) {
+                stoat::LOG_DEBUG("Filtered: Phenotype matrix is empty");
+                continue;
+            }
 
             test_res.pv = lr.linear_regression(X, Y, snarl_data.genotypes.get_n_active_alleles());
         } else {
