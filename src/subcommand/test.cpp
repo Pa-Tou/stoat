@@ -30,7 +30,7 @@ void print_help_test() {
               << "  -w, --max-gene-distance INT     Include snarls up to this distance from the gene when looking for eQTLs [1000000]\n"
               << "  -c, --covariate FILE            Path to the covariate file\n"
               << "  -C, --covar-name NAME           Covariate column name(s) used\n"
-              << "  -I, --min-individuals INT       Minimum number of individuals per snarl [0]\n"
+              << "  -I, --min-individuals INT       Minimum number of individuals per snarl [2]\n"
               << "  -M, --maf FLOAT                 Minimum allele frequency threshold [0.05]\n"
               //<< "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
@@ -49,7 +49,7 @@ int main_stoat_test(int argc, char* argv[]) {
 
     // default value for the filter thresholds
     double maf_threshold = 0.05;
-    size_t min_individuals = 0;
+    size_t min_individuals = 2;
     size_t max_gene_dist = 1000000;
 
     // which method to use

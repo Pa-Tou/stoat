@@ -381,12 +381,14 @@ void GenotypeTable::remove_constant_predictors() {
         // compare each value with the first value
         double first_value;
         bool constant = false;
+        bool has_any_allele = false;
         for (size_t row_ii = 0; row_ii < n_samples; row_ii++) {
 
             // skip if already masked
             if (row_mask[row_ii]) {
                 continue;
             }
+            has_any_allele = true;
 
             // if first value to consider, save it
             if (!constant) {
@@ -399,6 +401,9 @@ void GenotypeTable::remove_constant_predictors() {
                 constant = false;
                 break;
             }
+        }
+        if (!has_any_allele) {
+            constant = true;
         }
 
         // mask if constant
