@@ -468,10 +468,12 @@ stoat::CovariateTable* parse_covariate_table(
     while (header_stream >> head_val) {
         headers.push_back(head_val);
     }
-    for (size_t i = 1 ; i < headers.size() ; i++) {
-        if (covar_to_index.count(headers.at(i)) == 0) {
-            size_t new_i = covar_to_index.size();
-            covar_to_index[headers.at(i)] = new_i;
+    if (covar_to_index.empty()) {
+        for (size_t i = 1 ; i < headers.size() ; i++) {
+            if (covar_to_index.count(headers.at(i)) == 0) {
+                size_t new_i = covar_to_index.size();
+                covar_to_index[headers.at(i)] = new_i;
+            }
         }
     }
     //TODO: Check that everything in covar_to_index is in headers
