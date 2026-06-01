@@ -29,7 +29,7 @@ void print_help_test() {
               << "  -P, --gene-position FILE        Path to the gene position file (activates the eQTL testing mode)\n"
               << "  -w, --max-gene-distance INT     Include snarls up to this distance from the gene when looking for eQTLs [1000000]\n"
               << "  -c, --covariate FILE            Path to the covariate file\n"
-              << "  -C, --covar-name NAME           Covariate column name(s) used\n"
+              << "  -C, --covar-name NAME           Covariate column name(s) used (default: use all covariates in file)\n"
               << "  -I, --min-individuals INT       Minimum number of individuals per snarl [2]\n"
               << "  -M, --maf FLOAT                 Minimum allele frequency threshold [0.05]\n"
               //<< "  -t, --threads INT               Number of threads to use [1]\n"
@@ -154,11 +154,6 @@ int main_stoat_test(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    if (!covariate_path.empty() && covar_names.empty()) {
-        stoat::LOG_ERROR("[stoat test] If --covariate path is provided you must specify column name(s), using --covar-name");
-        print_help_test();
-        return EXIT_FAILURE;
-    }
 
     std::filesystem::create_directory(output_dir);
     stoat::Logger::instance().setLogFile(output_dir + "/stoat.test.log");
