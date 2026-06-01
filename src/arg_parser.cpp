@@ -448,7 +448,6 @@ stoat::CovariateTable* parse_covariate_table(
 
     std::unordered_map<std::string, std::vector<double>> covariate_map;
     bool update_sample_to_index = sample_to_index.empty();
-    assert(!covar_to_index.empty());
 
     std::ifstream file(file_path);
     if (!file.is_open()) {
@@ -469,6 +468,13 @@ stoat::CovariateTable* parse_covariate_table(
     while (header_stream >> head_val) {
         headers.push_back(head_val);
     }
+    for (size_t i = 1 ; i < headers.size() ; i++) {
+        if (covar_to_index.count(headers.at(i)) == 0) {
+            size_t new_i = covar_to_index.size();
+            covar_to_index[headers.at(i)] = new_i;
+        }
+    }
+    //TODO: Check that everything in covar_to_index is in headers
 
     // check for a SAMPLE column
     auto samp_head_it = std::find(headers.begin(), headers.end(), "SAMPLE");
