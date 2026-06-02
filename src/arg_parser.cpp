@@ -475,6 +475,8 @@ stoat::CovariateTable* parse_covariate_table(
     if (samp_head_it == headers.end()) {
         throw std::invalid_argument("Header must include 'SAMPLE' column");
     }
+
+    // If we didn't already specify which covariates, use all of them
     size_t samp_head_i =  samp_head_it - headers.begin();
     if (covar_to_index.empty()) {
         for (size_t i = 0 ; i < headers.size() ; i++) {
