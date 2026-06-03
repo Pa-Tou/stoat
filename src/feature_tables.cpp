@@ -21,7 +21,7 @@ CategoricalFeatureBySampleTable<ValueType>::CategoricalFeatureBySampleTable(cons
 
     this->values_per_sample.reserve(this->sample_to_index.size());
     for (size_t i = 0; i < sample_to_index.size(); i++) {
-        this->values_per_sample[i] = std::vector<ValueType>(feature_to_index.size());
+        this->values_per_sample.at(i) = std::vector<ValueType>(feature_to_index.size());
     }
 }
 
@@ -34,7 +34,7 @@ CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const s
 
     this->values_per_sample.reserve(this->sample_to_index.size());
     for (size_t i = 0; i < sample_to_index.size(); i++) {
-        this->values_per_sample[i] = std::vector<double>(feature_to_index.size(), std::numeric_limits<double>::max());
+        this->values_per_sample.at(i) = std::vector<double>(feature_to_index.size(), std::numeric_limits<double>::max());
     }
 }
 
@@ -52,7 +52,7 @@ ValueType FeatureBySampleTable<ValueType>::get_value_for_sample_id(size_t sample
 // Setter for FeatureBySampleTable
 template<class ValueType>
 void FeatureBySampleTable<ValueType>::set_value_for_sample(const std::string& sample, ValueType value) {
-    values_per_sample[sample_to_index.at(sample)] = value;
+    values_per_sample.at(sample_to_index.at(sample)) = value;
 }
 
 template<class ValueType>
@@ -109,7 +109,7 @@ ValueType CategoricalFeatureBySampleTable<ValueType>::get_value_for_sample_and_f
 // Setter for CategoricalFeatureBySampleTable
 template<class ValueType>
 void CategoricalFeatureBySampleTable<ValueType>::set_value_for_sample_and_feature(const std::string& sample, const std::string& feature, ValueType value) {
-    this->values_per_sample[this->sample_to_index.at(sample)][this->feature_to_index.at(feature)] = value;
+    this->values_per_sample.at(this->sample_to_index.at(sample)).at(this->feature_to_index.at(feature)) = value;
 }
 
 template<class ValueType>
@@ -207,7 +207,7 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     this->values_per_sample.reserve(this->sample_to_index.size());
 
     for (size_t i = 0; i < sample_to_index.size(); i++) {
-        this->values_per_sample[i] = std::vector<double>(allele_count, 0);
+        this->values_per_sample.at(i) = std::vector<double>(allele_count, 0);
     }
 
     // init the variable to keep track of the matrix dimensions
@@ -248,7 +248,7 @@ void GenotypeTable::clear() {
 
 void GenotypeTable::increment_count(size_t sample_idx, size_t allele_num) {
     // increment the appropriate allele column and total count
-    this->values_per_sample[sample_idx][allele_num]++;
+    this->values_per_sample.at(sample_idx).at(allele_num)++;
     total_allele_counts_per_sample[sample_idx]++;
 }
 

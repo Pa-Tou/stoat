@@ -46,7 +46,7 @@ TEST_CASE("Binary phenotype parsing", "[stoat_vcf::parse_binary_pheno_table]") {
         std::string file_path = create_test_pheno_file(file_content);
 
         std::unordered_map<std::string, size_t> sample_to_index;
-        stoat::BinaryPhenotypeTable* result = stoat_vcf::parse_binary_pheno_table(file_path, sample_to_index);
+        std::unique_ptr<stoat::BinaryPhenotypeTable> result = stoat_vcf::parse_binary_pheno_table(file_path, sample_to_index);
 
         REQUIRE(result->get_sample_names().size() == 4);
         REQUIRE(result->get_value_for_sample("I1") == false);
@@ -108,7 +108,7 @@ TEST_CASE("Quantitative phenotype parsing", "[stoat_vcf::parse_quantitative_phen
         std::string file_path = create_test_pheno_file(file_content);
 
         std::unordered_map<std::string, size_t> sample_to_index;
-        stoat::QuantitativePhenotypeTable* result = stoat_vcf::parse_quantitative_pheno_table(file_path, sample_to_index);
+        std::unique_ptr<stoat::QuantitativePhenotypeTable> result = stoat_vcf::parse_quantitative_pheno_table(file_path, sample_to_index);
 
         REQUIRE(result->get_sample_names().size() == 4);
         REQUIRE(result->get_value_for_sample("I1") == 1.5);
@@ -238,7 +238,7 @@ TEST_CASE("Parse covariates from file", "[stoat_vcf::parse_covariates]") {
 
         std::unordered_map<std::string, size_t> sample_to_index;
         std::unordered_map<std::string, size_t> covar_to_index = {{"age", 0}, {"sex", 1}};
-        stoat::CovariateTable* result = stoat_vcf::parse_covariate_table(path, sample_to_index, covar_to_index);
+        std::unique_ptr<stoat::CovariateTable> result = stoat_vcf::parse_covariate_table(path, sample_to_index, covar_to_index);
 
         REQUIRE(result->get_sample_names().size() == 3);
         REQUIRE(result->get_value_for_sample_and_feature("samp0", "age") == 25);
