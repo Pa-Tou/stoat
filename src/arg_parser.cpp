@@ -478,10 +478,11 @@ stoat::CovariateTable* parse_covariate_table(
 
     // If we didn't already specify which covariates, use all of them
     size_t samp_head_i =  samp_head_it - headers.begin();
+    size_t covar_count = 0;
     if (covar_to_index.empty()) {
         for (size_t i = 0 ; i < headers.size() ; i++) {
             if (i != samp_head_i) {
-                covar_to_index[headers.at(i)] = i;
+                covar_to_index[headers.at(i)] = covar_count++;
             }
         }
     }
