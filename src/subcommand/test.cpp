@@ -213,13 +213,13 @@ int main_stoat_test(int argc, char* argv[]) {
     // read phenotype file
     if (!gene_position_path.empty()) {
         stoat::LOG_TRACE("Parsing eQTL phenotype file");
-        gene_expression_table = std::unique_ptr<stoat::GeneExpressionTable>(stoat_vcf::parse_gene_expression_table(phenotype_path, gene_position_path, sample_to_index, gene_to_index));
+        gene_expression_table = stoat_vcf::parse_gene_expression_table(phenotype_path, gene_position_path, sample_to_index, gene_to_index);
     } else if (method == "chi2" || method == "logreg" || method == "exact") {
         stoat::LOG_TRACE("Parsing binary phenotype file");
-        binary_phenotype_table = std::unique_ptr<stoat::BinaryPhenotypeTable>(stoat_vcf::parse_binary_pheno_table(phenotype_path, sample_to_index));
+        binary_phenotype_table = stoat_vcf::parse_binary_pheno_table(phenotype_path, sample_to_index);
     } else if (method == "linreg") {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
-        quantitative_phenotype_table = std::unique_ptr<stoat::QuantitativePhenotypeTable>(stoat_vcf::parse_quantitative_pheno_table(phenotype_path, sample_to_index));
+        quantitative_phenotype_table = stoat_vcf::parse_quantitative_pheno_table(phenotype_path, sample_to_index);
     } else {
         stoat::LOG_ERROR("Method : " + method + " not recognized");
     }
@@ -236,7 +236,7 @@ int main_stoat_test(int argc, char* argv[]) {
 
     if (!covariate_path.empty()) {
         stoat::LOG_TRACE("Parsing covariate file");
-        covariate_table = std::unique_ptr<stoat::CovariateTable>(stoat_vcf::parse_covariate_table(covariate_path, sample_to_index, covar_to_index));
+        covariate_table = stoat_vcf::parse_covariate_table(covariate_path, sample_to_index, covar_to_index);
     }
     
     // the object to orchestrate the testing of the snarls
