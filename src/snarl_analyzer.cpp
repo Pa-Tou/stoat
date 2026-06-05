@@ -94,7 +94,7 @@ namespace stoat_vcf {
         return (phenotype_type);
     }
 
-void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) {
+void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) const{
 
     // prepare snarl collection that will stream the snarls and open connection to the file
     stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0);
