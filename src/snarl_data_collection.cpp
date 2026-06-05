@@ -438,7 +438,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
         // Skip chromosomes not in ref_chrs
         while (std::find(reference_names.begin(), reference_names.end(), chr) == reference_names.end()) {
-            stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.", 0);
+            stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.", "");
             bool found_new_chr = false;
 
             // Just skip to the next one without doing anything
@@ -868,7 +868,7 @@ bool SnarlDataCollection::snarl_is_eligible(const bdsg::SnarlDistanceIndex& dist
 
     // If we have distances in the index, make sure that the snarl's maximum length is big enough
     if (check_distances && (allele_size_limit > distance_index.maximum_length(snarl))) {
-        stoat::LOG_WARN("Snarl allele_size_limit > distance_index.maximum_length(snarl)", number_snarl_limit_distance);
+        stoat::LOG_WARN("Snarl allele_size_limit > distance_index.maximum_length(snarl)", "snarl_limit_distance");
         number_snarl_limit_distance++;
         return false;
     }
@@ -883,7 +883,7 @@ bool SnarlDataCollection::snarl_is_eligible(const bdsg::SnarlDistanceIndex& dist
         return true;
     });
     if (snarl_child_limit < children) {
-        stoat::LOG_WARN("Snarl had too many children", number_snarl_limit_children);
+        stoat::LOG_WARN("Snarl had too many children", "snarl_limit_children");
         number_snarl_limit_children++;
         return false;
     }
@@ -1072,7 +1072,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         #endif
         std::getline(linestream, limit_str, ':');
         if (allele_size_limit < std::stoull(limit_str)) {
-            stoat::LOG_WARN("The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed", 0);
+            stoat::LOG_WARN("The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed", "");
         }
     }
 
@@ -1087,7 +1087,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         #endif
         std::getline(linestream, limit_str, ':');
         if (snarl_child_limit < std::stoull(limit_str)) {
-            stoat::LOG_WARN("The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed", 0);
+            stoat::LOG_WARN("The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed", "");
         }
     }
 
@@ -1102,7 +1102,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         #endif
         std::getline(linestream, limit_str, ':');
         if (walk_steps_limit > std::stoull(limit_str)) {
-            stoat::LOG_WARN("The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed", 0);
+            stoat::LOG_WARN("The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed", "");
         }
     }
 

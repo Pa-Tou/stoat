@@ -37,7 +37,7 @@ namespace stoat {
 // Fisher's exact test for a 2x2 contingency table
 // m11, m12, m21, m22 are the counts in the table
 double FisherChi2::fastFishersExactTest(size_t m11, size_t m12,
-                                 size_t m21, size_t m22) {
+                                 size_t m21, size_t m22) const {
     
     // Check for any full-zero row or column
     if ((m11 | m12) == 0 || (m21 | m22) == 0 || (m11 | m21) == 0 || (m12 | m22) == 0) {
