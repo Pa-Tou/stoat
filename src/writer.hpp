@@ -19,7 +19,7 @@ namespace stoat {
 // Generic Writer class with the specialized output writer functions
 class Writer {
 public:
-    Writer(const std::string output_file_path, size_t max_buffer_length = 10000);
+    Writer(const std::string output_file_path, size_t max_buffer_length = 1000000);
 
     std::string get_file_path() const;
 
@@ -65,7 +65,7 @@ protected:
 // Standart Writer: uncompressed using a standard output file stream
 class StdWriter: public Writer {
 public:
-    StdWriter(const std::string output_file_path, size_t max_buffer_length = 10000);
+    StdWriter(const std::string output_file_path, size_t max_buffer_length = 1000000);
 
 protected:
     bool write_buffer_to_file();
@@ -79,7 +79,7 @@ protected:
 // Bgzipped writer using a HTSlib
 class BgzWriter: public Writer {
 public:
-    BgzWriter(const std::string output_file_path, size_t max_buffer_length = 10000);
+    BgzWriter(const std::string output_file_path, size_t max_buffer_length = 1000000);
 
 protected:
     bool write_buffer_to_file();
