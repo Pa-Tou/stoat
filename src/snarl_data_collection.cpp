@@ -509,17 +509,17 @@ void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const
 void SnarlDataCollection::for_each_snarl_in_file_parallel(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
     load_snarl_data_collection_header(in_reader);
 
-            std::string line; 
-            // Reading is done by the main thread
-            while (in_reader.getline(line)) {
-                #pragma omp task firstprivate(line), shared(iteratee)
-                {
-                    // A parallelized thread makes the snarl_info_t and calls iteratee
-                    snarl_info_internal_t snarl_info = load_snarl_data_line(line);
-                    run_iteratee_on_one_snarl(snarl_info, iteratee);
-                }
-            }
-            #pragma omp taskwait
+    std::string line; 
+    // Reading is done by the main thread
+    while (in_reader.getline(line)) {
+        #pragma omp task firstprivate(line), shared(iteratee)
+        {
+            // A parallelized thread makes the snarl_info_t and calls iteratee
+            snarl_info_internal_t snarl_info = load_snarl_data_line(line);
+            run_iteratee_on_one_snarl(snarl_info, iteratee);
+        }
+    }
+    #pragma omp taskwait
 }
 
 void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
@@ -1183,7 +1183,10 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     std::getline(linestream, path_lengths, '\t');
     std::getline(linestream, paths, '\t');
     
+    #pragma omp critical(snarl_to_walks)
+    {
     snarl_to_walks[snarl_info.start_node] = stoat::string_to_path_traversals(paths, path_lengths);
+    }
     
     size_t walk_count = snarl_to_walks[snarl_info.start_node].size();
     
@@ -1205,7 +1208,10 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
         assert(sequences.size() == walk_count);
         #endif
     
+        #pragma omp critical(snarl_to_sequences) 
+        {
         snarl_to_sequences[snarl_info.start_node] = std::move(sequences);
+        }
     }
     
     
@@ -1238,7 +1244,10 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     assert(allele_assignments.size() == all_sample_haplotypes.size()); 
     #endif
     if (has_samples) {
+        #pragma omp critical(snarl_to_alleles)
+        {
         snarl_to_alleles_by_sample[snarl_info.start_node] = allele_by_sample_t(has_allele ? max_allele+1 : 0, allele_assignments);
+        }
     }
 
     return snarl_info;

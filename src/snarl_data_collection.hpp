@@ -90,7 +90,7 @@ class SnarlDataCollection {
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
         void for_each_snarl_in_file(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
-        /// The same as above, but parallelized. iteratee is responsible for ensuring that there are no conflicts
+        /// The same as above, but parallelized. iteratee must be thread safe
         void for_each_snarl_in_file_parallel(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
@@ -240,6 +240,7 @@ class SnarlDataCollection {
 
         /// Given a string representing a line in the file, load one snarl_info_internal_t
         /// This assumes that load_snarl_collection_header() has already been called
+        /// This is thread safe
         snarl_info_internal_t load_snarl_data_line(std::string& line);
 
         // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
