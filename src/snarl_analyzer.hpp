@@ -34,7 +34,7 @@ public:
     stoat::phenotype_type_t get_phenotype_type() const;
     
     /// For the given snarl, get the genotypes and test the snarl, then write results to outf
-    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) = 0;
+    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const = 0;
     
 //////////////// Private data members
 protected:
@@ -63,7 +63,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
 
 protected:
 
@@ -81,7 +81,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
 
 protected:
     std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
@@ -99,7 +99,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
 
 /////////////////// Private data members
 protected:
@@ -119,7 +119,7 @@ public:
         const stoat::QuantitativePhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) ;
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer)  const;
 
 /////////////////// Private data members
 protected:
@@ -139,7 +139,7 @@ public:
                       const size_t max_gene_dist,
                       const size_t min_individuals);
     
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
     
 protected:
 
