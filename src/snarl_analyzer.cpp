@@ -103,11 +103,15 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     out_writer.write_stoat_output_header(phenotype_type);
  
     // read each snarl and test it
-    // JEAN parallelize here?
+    // for_each_snarl_in_file is parallelized. The test is independent of anything else, and the writer takes care of its own guards
+    // Just make sure that number_snarl_filtered doesn't get overwritten 
     size_t number_snarl_filtered = 0;
-    snarl_collection_stream.for_each_snarl_in_file(gt_reader, [&](snarl_info_t& snarl_info) {
+    snarl_collection_stream.for_each_snarl_in_file_parallel(gt_reader, [&](snarl_info_t& snarl_info) {
         bool filtered = test_and_write_snarl(snarl_info, out_writer);
-        number_snarl_filtered += (filtered ? 1 : 0);
+        #pragma omp critical(number_snarl_filtered)
+        {
+            number_snarl_filtered += (filtered ? 1 : 0);
+        }
     });
 
     stoat::LOG_INFO("Total number of snarl filtered : " + std::to_string(number_snarl_filtered));

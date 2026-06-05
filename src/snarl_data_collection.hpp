@@ -90,6 +90,9 @@ class SnarlDataCollection {
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
         void for_each_snarl_in_file(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
+        /// The same as above, but parallelized. iteratee is responsible for ensuring that there are no conflicts
+        void for_each_snarl_in_file_parallel(stoat::Reader& in_reader, 
+            const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
 
         /// Write the collection of snarls to the given file

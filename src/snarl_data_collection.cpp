@@ -499,10 +499,43 @@ void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& 
 
 void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
     load_snarl_data_collection_header(in_reader);
-    std::string line;
+    std::string line; 
     while (in_reader.getline(line)) {
         snarl_info_internal_t snarl_info = load_snarl_data_line(line);
         run_iteratee_on_one_snarl(snarl_info, iteratee);
+    }
+}
+
+void SnarlDataCollection::for_each_snarl_in_file_parallel(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+    load_snarl_data_collection_header(in_reader);
+    std::string line; 
+    bool keep_going  = in_reader.getline(line);
+
+    #pragma omp parallel shared(line, keep_going)
+    {
+        // The actual while loop is run on a single thread
+        #pragma omp single
+        {
+            // Reading is done by the main thread
+            while (keep_going) {
+                //TODO: I'm not sure why I need to make a new string here, but if I don't it tries to start a new task with an empty line after the loop should be done
+                std::string newline = std::move(line);
+                #pragma omp task
+                {
+                    // A parallelized thread makes the snarl_info_t and calls iteratee
+                    snarl_info_internal_t snarl_info = load_snarl_data_line(newline);
+                    run_iteratee_on_one_snarl(snarl_info, iteratee);
+                }
+                #pragma omp critical (read_snarl)
+                {
+                    keep_going  = in_reader.getline(line);
+                }
+                if (!keep_going) {
+                    // Wait for tasks to complete
+                    #pragma omp taskwait
+                }
+            }
+        }
     }
 }
 
@@ -1132,6 +1165,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
 }
 
 SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_line(std::string& line) {
+    std::cerr << "Load data: " << line << std::endl;
 
     snarl_info_internal_t snarl_info;
     std::stringstream linestream(line);
