@@ -5,14 +5,43 @@
 
 namespace stoat {
 
-Writer::Writer(const std::string output_file_path) : file_path(output_file_path) {};
+Writer::Writer(const std::string output_file_path, size_t max_buffer_length) : 
+    file_path(output_file_path),
+    max_buffer_length(max_buffer_length) {};
 
 std::string Writer::get_file_path() const {
     return file_path;
 }
 
+bool Writer::write(const std::string out_content) {
+    bool success = true;
+    #pragma omp critical (writer)
+    {
+        buffer.append(out_content);
+        if (buffer.size() >= max_buffer_length) {
+            success = flush();
+        }
+    }
+    return success;
+}
+
+bool Writer::flush() {
+    // Call the virtual function to write the buffer
+    bool written = write_buffer_to_file();
+    // clear the buffer 
+    buffer.clear();
+    return written;
+}
+
+void Writer::close() {
+    // Flush the buffer
+    flush();
+    // Call the virtual function to close the file
+    close_file();
+}
+
 // Uncompressed writer using a standard output file stream
-StdWriter::StdWriter(const std::string output_file_path) : Writer(output_file_path) {
+StdWriter::StdWriter(const std::string output_file_path, size_t max_buffer_length) : Writer(output_file_path, max_buffer_length) {
     // do nothing if the file path is null
     if (output_file_path == "") {
         return;
@@ -21,21 +50,21 @@ StdWriter::StdWriter(const std::string output_file_path) : Writer(output_file_pa
     file_stream.open(file_path);
 }
 
-bool StdWriter::write(const std::string out_content) {
-    #pragma omp critical (writer)
-    {
-        file_stream << out_content;
-    }
+bool StdWriter::write_buffer_to_file() {
+    // Write to the output file. Since this is always called within the omp guards from write(), this doesn't need its own guards (I think)
+    file_stream << buffer;
     return true;
 }
 
-void StdWriter::close() {
+
+
+void StdWriter::close_file() {
     // close steam
     file_stream.close();
 }
 
 // Bgzipped writer using a HTSlib
-BgzWriter::BgzWriter(const std::string output_file_path) : Writer(output_file_path) {
+BgzWriter::BgzWriter(const std::string output_file_path, size_t max_buffer_length) : Writer(output_file_path, max_buffer_length) {
     // do nothing if the file path is null
     if (output_file_path == "") {
         return;
@@ -47,16 +76,19 @@ BgzWriter::BgzWriter(const std::string output_file_path) : Writer(output_file_pa
     }
 }
 
-bool BgzWriter::write(const std::string out_content) {
-    if (bgzf_write(file_p, out_content.c_str(), out_content.size()) < 0) {
+bool BgzWriter::write_buffer_to_file() {
+    // Write to the output file. Since this is always called within the omp guards from write(), this doesn't need its own guards
+    if (bgzf_write(file_p, buffer.c_str(), buffer.size()) < 0) {
         stoat::LOG_ERROR("Error writing to BGZ output: " + file_path + "\n");
         bgzf_close(file_p);
-        return 0;
+        return false;
     }
-    return 1;
+    return true;
 }
 
-void BgzWriter::close() {
+void BgzWriter::close_file() {
+    // Flush the rest of the buffer
+    flush();
     // close steam
     bgzf_close(file_p);
 }

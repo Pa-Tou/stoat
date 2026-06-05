@@ -10,21 +10,25 @@
 // Classes to abstract the writing (and reading) of files in stoat. Standard write/read can be done with StdWriter/StdReader,
 // while bgzipped content can be written/read using BgzWriter/BgzReader. For Writers, some specialized methods are implemented
 // to write specific output. Or the generic *write* function can be used. For Readers, it implements the basic getline function.
+// To facilitate parallelization, the actual writing to a file happens in batches. When write() is called, it writes to a buffer,
+// which is written to the file (flush()) when it becomes big enough. The buffer is also flushed when the writer is closed.
+// Note that if the writer is never closed, then whatever is in the buffer will be lost.
 
 namespace stoat {
 
 // Generic Writer class with the specialized output writer functions
 class Writer {
 public:
-    Writer(const std::string output_file_path);
+    Writer(const std::string output_file_path, size_t max_buffer_length = 10000);
 
     std::string get_file_path() const;
 
-    // write the given string
-    virtual bool write(const std::string out_content) = 0;
+    // write the given string to the buffer. If this causes the buffer to exceed the maximum length, then flush it
+    bool write(const std::string out_content);
 
-    // cleanly close the writer
-    virtual void close() = 0;
+
+    // cleanly close the writer and flush the output
+    void close();
 
     // header writer
     void write_stoat_output_header(phenotype_type_t phenotype_type);
@@ -39,19 +43,35 @@ public:
     void write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result, const std::vector<bool>& active_alleles);
     
 protected:
+
+    //////////////////////// Helper functions
+    // write the buffer to the output file and clear the buffer
+    bool flush();
+
+    // The virtual function to write the buffer to a file
+    virtual bool write_buffer_to_file() = 0;
+    // The virtual function to close the file
+    virtual void close_file() = 0;
+
+
+
     const std::string file_path;
+    std::string buffer;
+    // Once the buffer exceeds this length, flush it
+    size_t max_buffer_length;
     
 };
 
 // Standart Writer: uncompressed using a standard output file stream
 class StdWriter: public Writer {
 public:
-    StdWriter(const std::string output_file_path);
+    StdWriter(const std::string output_file_path, size_t max_buffer_length = 10000);
 
-    bool write(const std::string out_content);
-
-    void close();
 protected:
+    bool write_buffer_to_file();
+
+    void close_file();
+
     std::ofstream file_stream;
     
 };
@@ -59,12 +79,13 @@ protected:
 // Bgzipped writer using a HTSlib
 class BgzWriter: public Writer {
 public:
-    BgzWriter(const std::string output_file_path);
+    BgzWriter(const std::string output_file_path, size_t max_buffer_length = 10000);
 
-    bool write(const std::string out_content);
-
-    void close();
 protected:
+    bool write_buffer_to_file();
+
+    void close_file();
+
     BGZF *file_p;    
 };
 
