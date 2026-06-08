@@ -248,6 +248,9 @@ class SnarlDataCollection {
         // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
         void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
+        // As above, but make the snarl_info_t directly from the line in the serialized file without saving anything 
+        void run_iteratee_on_snarl_data_line(const std::string& line, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////// Public functions
     public:

@@ -521,8 +521,7 @@ void SnarlDataCollection::for_each_snarl_in_file_parallel(stoat::Reader& in_read
             {
                 for (std::string& l : line_buffer) {
                     // A parallelized thread makes the snarl_info_t and calls iteratee
-                    snarl_info_internal_t snarl_info = load_snarl_data_line(l);
-                    run_iteratee_on_one_snarl(snarl_info, iteratee);
+                    run_iteratee_on_snarl_data_line(l, iteratee);
                 }
             }
             line_buffer.clear();
@@ -552,7 +551,7 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
     // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
     // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
     if (snarl_to_alleles_by_sample.count(internal_snarl_info.start_node)) {
-        const allele_by_sample_t alleles_by_sample = snarl_to_alleles_by_sample.at(internal_snarl_info.start_node);
+        const allele_by_sample_t& alleles_by_sample = snarl_to_alleles_by_sample.at(internal_snarl_info.start_node);
         for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
             if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
                 // JEAN ideally we would access the count in the collection by index but I'm not sure why so I'm using the map sample_to_index for now. Maybe Xian knows
@@ -1265,6 +1264,136 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     }
 
     return snarl_info;
+}
+
+//TODO: This copies a lot from load_snarl_data_line and run_iteratee_on_one_snarl
+void SnarlDataCollection::run_iteratee_on_snarl_data_line(const std::string& line, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
+
+    snarl_info_internal_t snarl_info;
+    std::stringstream linestream(line);
+    std::string part;
+
+    //Snarl start node traversal
+    std::getline(linestream, part, '\t');
+    snarl_info.start_node = stoat::node_traversal_t(part);
+    
+    //Snarl start node traversal
+    std::getline(linestream, part, '\t');
+    snarl_info.end_node = stoat::node_traversal_t(part);
+    
+    // Index of reference
+    std::getline(linestream, part, '\t');
+    snarl_info.reference_index = std::stoull(part);
+    
+    // Start offset along reference
+    std::getline(linestream, part, '\t');
+    snarl_info.start_position = std::stoull(part);
+    
+    // End offset along reference
+    std::getline(linestream, part, '\t');
+    snarl_info.end_position = std::stoull(part);
+    
+    // Snarl depth
+    std::getline(linestream, part, '\t');
+    snarl_info.depth = std::stoull(part);
+    
+    // Next are the paths, first the lengths then the paths themselves
+    std::string path_lengths;
+    std::string paths;
+    std::getline(linestream, path_lengths, '\t');
+    std::getline(linestream, paths, '\t');
+    
+    std::vector<PathTraversal> walks = stoat::string_to_path_traversals(paths, path_lengths);
+    
+    size_t walk_count = walks.size();
+
+    std::vector<std::string> sequences;
+    
+    // Next are the sequences, or "." if there are no sequences
+    std::getline(linestream, part, '\t');
+    if (part != ".") {
+        std::vector<std::string> sequences;
+        std::stringstream seqstream(part);
+        std::string seq;
+        bool last_empty_sequence = part.size() > 0 && part.at(part.size()-1) == ',';
+        while (std::getline(seqstream, seq, ',')) {
+            sequences.emplace_back(seq);
+        }
+    
+        if (last_empty_sequence) {
+            sequences.emplace_back("");
+        }
+        #ifdef DEBUG_SNARL_DATA_COLLECTION
+        assert(sequences.size() == walk_count);
+        #endif
+    
+        sequences = std::move(sequences);
+    }
+    
+    
+    // The rest of the line will be the allele assignment of each sample
+    // "." means that this sample didn't have an allele in this snarl. If all samples have "." then we just didn't store the samples
+    
+    // Fill this in with the contents of the line
+    bool has_samples = false;
+    std::vector<size_t> allele_assignments;
+    allele_assignments.reserve(all_sample_haplotypes.size());
+    size_t max_allele = 0;
+    bool has_allele = false;
+    while (std::getline(linestream, part, '\t')) {
+        if (part == ".") {
+            allele_assignments.emplace_back(std::numeric_limits<size_t>::max());
+        } else {
+            allele_assignments.emplace_back(std::stoull(part));
+            if (allele_assignments.back() != std::numeric_limits<size_t>::max()) {
+                has_allele = true;
+                max_allele = std::max(max_allele, allele_assignments.back());
+            }
+            has_samples = true;
+        }
+    };
+    
+    #ifdef DEBUG_SNARL_DATA_COLLECTION
+    if (has_allele) {
+        assert(max_allele+1 <= walk_count);
+    }
+    assert(allele_assignments.size() == all_sample_haplotypes.size()); 
+    #endif
+
+    allele_by_sample_t alleles_by_sample (has_allele ? max_allele+1 : 0, allele_assignments);
+
+    // GenotypeTable constructor takes a map from sample to index, and the number of alleles
+    GenotypeTable genotypes(sample_to_index, alleles_by_sample.allele_count);
+
+#ifdef DEBUG_SNARL_DATA_COLLECTION
+    std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << alleles_by_sample.allele_count  << " alleles" << std::endl; 
+    for (const auto& pair : sample_to_index) {
+        std::cerr << "\t" <<  pair.first << ": " << pair.second << std::endl;
+    }
+#endif
+    
+    // Go through the alleles_by_sample vector for this snarl and add the counts to the genotype table
+    // alleles_by_sample is a vector with the allele for each sample in all_sample_haplotypes
+    for (size_t sample_hap_i = 0 ; sample_hap_i < alleles_by_sample.alleles.size() ; sample_hap_i++) {
+        if (alleles_by_sample.alleles[sample_hap_i] != std::numeric_limits<size_t>::max()) {
+            // JEAN ideally we would access the count in the collection by index but I'm not sure why so I'm using the map sample_to_index for now. Maybe Xian knows
+            size_t sample_idx = this->sample_to_index.at(all_sample_haplotypes.at(sample_hap_i).sample);
+            genotypes.increment_count(sample_idx, alleles_by_sample.alleles[sample_hap_i]);
+        }
+    }
+
+    snarl_info_t new_snarl_info (snarl_info.start_node, 
+                          snarl_info.end_node, 
+                          snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
+                          snarl_info.start_position,
+                          snarl_info.end_position,
+                          snarl_info.depth,
+                          genotypes,
+                          all_sample_haplotypes,
+                          alleles_by_sample,
+                          walks,
+                          sequences);
+    iteratee(new_snarl_info);
 }
 
 void SnarlDataCollection::load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only) {
