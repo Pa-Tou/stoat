@@ -19,15 +19,17 @@ namespace stoat {
 // Generic Writer class with the specialized output writer functions
 class Writer {
 public:
-    Writer(const std::string output_file_path, size_t max_buffer_length = 1000000);
+    Writer(const std::string output_file_path, size_t thread_count, size_t max_buffer_length = 1000000);
 
     std::string get_file_path() const;
 
-    // write the given string to the buffer. If this causes the buffer to exceed the maximum length, then flush it
+    /// Write the given thread to the output file.
+    /// Under the hood, this will write the given string to the buffer of the thread it is called on. 
+    /// If this causes the buffer to exceed the maximum length, then flush it and write the whole buffer to the output file.
     bool write(const std::string out_content);
 
 
-    // cleanly close the writer and flush the output
+    // flush the output and cleanly close the writer
     void close();
 
     // header writer
@@ -45,19 +47,20 @@ public:
 protected:
 
     //////////////////////// Helper functions
-    // write the buffer to the output file and clear the buffer
-    bool flush();
+    // For whichever thread this is called on, write the buffer to the output file and clear the buffer
+    // If thread_num is max(), then flush all buffers
+    bool flush(size_t thread_num = std::numeric_limits<size_t>::max());
 
     // The virtual function to write the buffer to a file
-    virtual bool write_buffer_to_file() = 0;
+    virtual bool write_string_to_file(const std::string& out_content) = 0;
     // The virtual function to close the file
     virtual void close_file() = 0;
 
 
 
     const std::string file_path;
-    std::string buffer;
-    // Once the buffer exceeds this length, flush it
+    std::vector<std::string> buffers;
+    // Once a buffer exceeds this length, flush it
     size_t max_buffer_length;
     
 };
@@ -68,7 +71,7 @@ public:
     StdWriter(const std::string output_file_path, size_t max_buffer_length = 1000000);
 
 protected:
-    bool write_buffer_to_file();
+    bool write_string_to_file(const std::string& out_content);
 
     void close_file();
 
@@ -82,7 +85,7 @@ public:
     BgzWriter(const std::string output_file_path, size_t max_buffer_length = 1000000);
 
 protected:
-    bool write_buffer_to_file();
+    bool write_string_to_file(const std::string& out_content);
 
     void close_file();
 

@@ -61,6 +61,8 @@ int main_stoat_test(int argc, char* argv[]) {
     // will store the names of the covariates to use
     std::vector<std::string> covar_names;
 
+    size_t thread_count = 1;
+
     // Parse arguments
     int c;
 
@@ -120,7 +122,8 @@ int main_stoat_test(int argc, char* argv[]) {
                     stoat::LOG_ERROR("[stoat graph] Number of threads must be > 0");
                     return EXIT_FAILURE;
                 }
-                omp_set_num_threads(std::stoi(optarg));
+                thread_count = std::stoi(optarg);
+                omp_set_num_threads(thread_count);
 
                 break;
             case 'V': 
@@ -279,9 +282,9 @@ int main_stoat_test(int argc, char* argv[]) {
     // JEAN if we want to keep track of what was run, we might as well include a header in the file with the full info (all parameters, input files, etc)
     std::shared_ptr<stoat::Writer> out_writer;
     if (bgzip_output) {
-        out_writer.reset(new BgzWriter(output_dir + "/stoat.assoc.pvalues.tsv.gz"));
+        out_writer.reset(new BgzWriter(output_dir + "/stoat.assoc.pvalues.tsv.gz", thread_count));
     } else {
-        out_writer.reset(new StdWriter(output_dir + "/stoat.assoc.pvalues.tsv"));
+        out_writer.reset(new StdWriter(output_dir + "/stoat.assoc.pvalues.tsv", thread_count));
     }
 
     // guess if the input genotype file is bgzipped based on the suffix
