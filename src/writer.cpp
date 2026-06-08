@@ -11,7 +11,6 @@ Writer::Writer(const std::string output_file_path, size_t thread_count, size_t m
 
         // Initialize the buffer with empty strings and allocate memory for them
         buffers.resize(thread_count+1);
-        std::cerr << "Using " << thread_count << std::endl;
         for (size_t i = 0 ; i < buffers.size(); i++) {
             buffers.at(i).reserve(max_buffer_length);
         }
@@ -23,7 +22,6 @@ std::string Writer::get_file_path() const {
 
 bool Writer::write(const std::string out_content) {
     bool success = true;
-    std::cerr << "Write to thread " << omp_get_thread_num() << " of " << omp_get_num_threads() << std::endl;
     buffers.at(omp_get_thread_num()).append(out_content);
     if (buffers.at(omp_get_thread_num()).size() >= max_buffer_length) {
         success = flush();
