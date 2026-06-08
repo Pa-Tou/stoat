@@ -501,8 +501,7 @@ void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const
     load_snarl_data_collection_header(in_reader);
     std::string line; 
     while (in_reader.getline(line)) {
-        snarl_info_internal_t snarl_info = load_snarl_data_line(line);
-        run_iteratee_on_one_snarl(snarl_info, iteratee);
+        run_iteratee_on_snarl_data_line(l, iteratee);
     }
 }
 
