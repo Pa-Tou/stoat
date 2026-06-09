@@ -104,7 +104,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                 }
     
                 // Everything in here is parallelized
-                #pragma omp task
+                #pragma omp task firstprivate(chain)
                 {
                     
                     distance_index.for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
@@ -507,30 +507,34 @@ void SnarlDataCollection::for_each_snarl_in_file(stoat::Reader& in_reader, const
 
 void SnarlDataCollection::for_each_snarl_in_file_parallel(stoat::Reader& in_reader, const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
     load_snarl_data_collection_header(in_reader);
+    #pragma omp parallel
+    {
+        #pragma omp single nowait 
+        {
 
-    std::string line; 
-    std::vector<std::string> line_buffer;
-    size_t buffer_size = 1000;
-    line_buffer.reserve(buffer_size);
-    // Reading is done by the main thread
-    while (in_reader.getline(line)) {
-        line_buffer.emplace_back(std::move(line));
-        if (line_buffer.size() == buffer_size) {
-            #pragma omp task firstprivate(line_buffer), shared(iteratee)
-            {
-                for (std::string& l : line_buffer) {
-                    // A parallelized thread makes the snarl_info_t and calls iteratee
-                    run_iteratee_on_snarl_data_line(l, iteratee);
+            std::string line; 
+            std::vector<std::string> line_buffer;
+            size_t buffer_size = 1000;
+            line_buffer.reserve(buffer_size);
+            while (in_reader.getline(line)) {
+                line_buffer.emplace_back(std::move(line));
+                if (line_buffer.size() == buffer_size) {
+                    #pragma omp task firstprivate(line_buffer), shared(iteratee)
+                    {
+                        for (std::string& l : line_buffer) {
+                            run_iteratee_on_snarl_data_line(l, iteratee);
+                        }
+                    }
+                    line_buffer.clear();
                 }
             }
-            line_buffer.clear();
-        }
-    }
-    for (std::string& l : line_buffer) {
-        // A parallelized thread makes the snarl_info_t and calls iteratee
-        snarl_info_internal_t snarl_info = load_snarl_data_line(l);
-        run_iteratee_on_one_snarl(snarl_info, iteratee);
-    }
+            // Finish off the buffer
+            for (std::string& l : line_buffer) {
+                snarl_info_internal_t snarl_info = load_snarl_data_line(l);
+                run_iteratee_on_one_snarl(snarl_info, iteratee);
+            }
+        } //end omp single
+    } //End omp parallel
     #pragma omp taskwait
 }
 
