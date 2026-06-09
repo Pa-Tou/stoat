@@ -101,8 +101,6 @@ bool BgzWriter::write_string_to_file(const std::string& out_content) {
 }
 
 void BgzWriter::close_file() {
-    // Flush the rest of the buffer
-    flush();
     // close steam
     bgzf_close(file_p);
 }

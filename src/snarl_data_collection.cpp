@@ -509,14 +509,16 @@ void SnarlDataCollection::for_each_snarl_in_file_parallel(stoat::Reader& in_read
     load_snarl_data_collection_header(in_reader);
     #pragma omp parallel
     {
-        #pragma omp single nowait 
+        #pragma omp single
         {
-
             std::string line; 
             std::vector<std::string> line_buffer;
+            // Read this many lines at a time and pass them off to a thread. This number is totally arbitrary
             size_t buffer_size = 1000;
             line_buffer.reserve(buffer_size);
+
             while (in_reader.getline(line)) {
+                // Go through the file, read the lines into line_buffer, and when line_buffer is full, pass it off to a thread to be processed
                 line_buffer.emplace_back(std::move(line));
                 if (line_buffer.size() == buffer_size) {
                     #pragma omp task firstprivate(line_buffer), shared(iteratee)
@@ -535,7 +537,6 @@ void SnarlDataCollection::for_each_snarl_in_file_parallel(stoat::Reader& in_read
             }
         } //end omp single
     } //End omp parallel
-    #pragma omp taskwait
 }
 
 void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
