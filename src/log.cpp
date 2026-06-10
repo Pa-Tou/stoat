@@ -21,17 +21,20 @@ void Logger::setLevel(LogLevel level) {
 
 void Logger::log(LogLevel level, const std::string& message) {
     if (level <= logLevel) {
-        std::lock_guard<std::mutex> lock(mutex);
         const std::string formatted = levelToString(level) + message;
 
-        // output all messages to standard error to avoid the risk of
-        // log messages ending up in the rea loutput files. Stoat also
-        // writes a log files by default so it's ok if it's not as
-        // easy to catch.
-        std::cerr << formatted << std::endl;
+        #pragma omp critical(log)
+        {
 
-        if (fileLoggingEnabled && logFile.is_open()) {
-            logFile << formatted << std::endl;
+            // output all messages to standard error to avoid the risk of
+            // log messages ending up in the rea loutput files. Stoat also
+            // writes a log files by default so it's ok if it's not as
+            // easy to catch.
+            std::cerr << formatted << std::endl;
+
+            if (fileLoggingEnabled && logFile.is_open()) {
+                logFile << formatted << std::endl;
+            }
         }
     }
 }
@@ -40,18 +43,17 @@ void Logger::log_warning(LogLevel level, const std::string& message, const std::
     if (level > logLevel) return;  // early exit if log level is too low
 
     const std::string formatted = levelToString(level) + message;
-    {
-        std::lock_guard<std::mutex> lock(mutex);
-
-        // Console output
-        size_t count = 0;
-        if (!message_code.empty()) {
-            if ( warning_to_count.count(message_code)) {
-                count = warning_to_count.at(message_code);
-            }
-            warning_to_count[message_code] = ++count;
+    // Console output
+    size_t count = 0;
+    if (!message_code.empty()) {
+        if ( warning_to_count.count(message_code)) {
+            count = warning_to_count.at(message_code);
         }
-        if (count <= warning_count_threshold) {
+        warning_to_count[message_code] = ++count;
+    }
+    if (count <= warning_count_threshold) {
+        #pragma omp critical(log)
+        {
             std::cout << formatted << '\n';
 
             // File logging
@@ -65,15 +67,17 @@ void Logger::log_warning(LogLevel level, const std::string& message, const std::
                     logFile << "No more warning for this type will be printed in the terminal" << '\n';
                 }
             }
-        }
+        } //End omp critical
     }
 }
 
 // Inside the Logger class (public section)
 void Logger::silente_log(const std::string& message) {
-    std::lock_guard<std::mutex> lock(mutex);
-    if (fileLoggingEnabled && logFile.is_open()) {
-        logFile << message << std::endl;  // INFO level by default
+    #pragma omp critical(log)
+    {
+        if (fileLoggingEnabled && logFile.is_open()) {
+            logFile << message << std::endl;  // INFO level by default
+        }
     }
 }
 
@@ -93,15 +97,20 @@ void Logger::log_assert(LogLevel level, bool assertion, const std::string& messa
 }
 
 void Logger::setLogFile(const std::string& filename) {
-    std::lock_guard<std::mutex> lock(mutex);
+    bool success = true;
+    #pragma omp critical(log)
+    {
 
-    logFile.open(filename, std::ios::out | std::ios::trunc);
-    if (!logFile.is_open()) {
-        std::cerr << "Logger Error: Failed to open log file: " << filename << std::endl;
-        return;
+        logFile.open(filename, std::ios::out | std::ios::trunc);
+        if (!logFile.is_open()) {
+            std::cerr << "Logger Error: Failed to open log file: " << filename << std::endl;
+            success = false;
+        }
     }
 
-    fileLoggingEnabled = true;
+    if (success) {
+        fileLoggingEnabled = true;
+    }
 }
 
 void Logger::debug(const std::string& msg) { log(LogLevel::Debug, msg); }
