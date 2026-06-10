@@ -65,6 +65,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
     bool bgzip_output = true;
     bool ascii = false;
 
+    size_t thread_count = 1;
+
     // Parse arguments
     int c;
 
@@ -122,7 +124,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 if (std::stoi(optarg) < 1) {
                     throw std::runtime_error("Error: [stoat vcf] Number of threads must be > 0");
                 }
-                omp_set_num_threads(std::stoi(optarg));
+                thread_count = std::stoi(optarg);
+                omp_set_num_threads(thread_count);
                 break;
             case 'V': 
                 {
@@ -276,9 +279,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
         std::shared_ptr<stoat::Writer> snarl_writer;
         if ((snarls_filename.compare(snarls_filename.length()-3, 3, ".gz") == 0) ||
             (snarls_filename.compare(snarls_filename.length()-4, 4, ".bgz") == 0)) {
-            snarl_writer.reset(new BgzWriter(snarls_filename));
+            snarl_writer.reset(new BgzWriter(snarls_filename, thread_count));
         } else {
-            snarl_writer.reset(new StdWriter(snarls_filename));
+            snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
         }
 
         // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
@@ -345,9 +348,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
         std::shared_ptr<stoat::Writer> gt_writer;
         if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
             (genotype_path.compare(genotype_path.length()-4, 4, ".bgz") == 0)) {
-            gt_writer.reset(new BgzWriter(genotype_path));
+            gt_writer.reset(new BgzWriter(genotype_path, thread_count));
         } else {
-            gt_writer.reset(new StdWriter(genotype_path));
+            gt_writer.reset(new StdWriter(genotype_path, thread_count));
         }
         stoat::LOG_INFO("Writing genotypes in " + genotype_path);
         // JEAN would reduce memory to write the collection while genotyping the snarls, one chr at a time, appending to the output file (or in separate chr files).

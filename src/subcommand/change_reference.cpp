@@ -42,6 +42,8 @@ int main_stoat_change_reference(int argc, char *argv[]) {
     std::string dist_name;
     std::string reference_file;
 
+    omp_set_num_threads(1);
+
     int c = 0;
     optind = 1;
     while (true) {

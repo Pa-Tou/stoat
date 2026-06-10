@@ -36,7 +36,7 @@ void Logger::log(LogLevel level, const std::string& message) {
     }
 }
 
-void Logger::log_warning(LogLevel level, const std::string& message, const size_t& count_type_warning) {
+void Logger::log_warning(LogLevel level, const std::string& message, const std::string& message_code) {
     if (level > logLevel) return;  // early exit if log level is too low
 
     const std::string formatted = levelToString(level) + message;
@@ -44,19 +44,28 @@ void Logger::log_warning(LogLevel level, const std::string& message, const size_
         std::lock_guard<std::mutex> lock(mutex);
 
         // Console output
-        if (count_type_warning <= warning_count_threshold) {
+        size_t count = 0;
+        if (!message_code.empty()) {
+            if ( warning_to_count.count(message_code)) {
+                count = warning_to_count.at(message_code);
+            }
+            warning_to_count[message_code] = ++count;
+        }
+        if (count <= warning_count_threshold) {
             std::cout << formatted << '\n';
 
             // File logging
             if (fileLoggingEnabled && logFile.is_open()) {
                 logFile << formatted << '\n';
             }
+
             if (count_type_warning == warning_count_threshold) {
                 std::cout << "No more warning for this type will be printed in the terminal" << '\n';
-                logFile << "No more warning for this type will be printed in the terminal" << '\n';
+                if (fileLoggingEnabled && logFile.is_open()) {
+                    logFile << "No more warning for this type will be printed in the terminal" << '\n';
+                }
             }
         }
-
     }
 }
 
@@ -97,7 +106,7 @@ void Logger::setLogFile(const std::string& filename) {
 
 void Logger::debug(const std::string& msg) { log(LogLevel::Debug, msg); }
 void Logger::info(const std::string& msg)  { log(LogLevel::Info, msg); }
-void Logger::warn(const std::string& msg, const size_t& count_warn_type)  { log_warning(LogLevel::Warning, msg, count_warn_type); }
+void Logger::warn(const std::string& msg, const std::string& warn_code)  { log_warning(LogLevel::Warning, msg, warn_code); }
 void Logger::error(const std::string& msg) { log(LogLevel::Error, msg); }
 void Logger::trace(const std::string& msg) { log(LogLevel::Trace, msg); }
 void Logger::silente(const std::string& msg) { silente_log(msg); }
@@ -106,7 +115,7 @@ void Logger::silente(const std::string& msg) { silente_log(msg); }
 void Logger::log(LogLevel level, const std::stringstream& message) { log(level, message.str()); }
 void Logger::debug(const std::stringstream& msg) { debug(msg.str()); }
 void Logger::info(const std::stringstream& msg)  { info(msg.str()); }
-void Logger::warn(const std::stringstream& msg, const size_t& count_warn_type)  { warn(msg.str(), count_warn_type); }
+void Logger::warn(const std::stringstream& msg, const std::string& warn_code)  { warn(msg.str(), warn_code); }
 void Logger::error(const std::stringstream& msg) { error(msg.str()); }
 void Logger::trace(const std::stringstream& msg) { trace(msg.str()); }
 void Logger::silente(const std::stringstream& msg) { silente(msg.str()); }

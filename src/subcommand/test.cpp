@@ -32,7 +32,7 @@ void print_help_test() {
               << "  -C, --covar-name NAME           Covariate column name(s) used (default: use all covariates in file)\n"
               << "  -I, --min-individuals INT       Minimum number of individuals per snarl [2]\n"
               << "  -M, --maf FLOAT                 Minimum allele frequency threshold [0.05]\n"
-              //<< "  -t, --threads INT               Number of threads to use [1]\n"
+              << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
@@ -61,6 +61,8 @@ int main_stoat_test(int argc, char* argv[]) {
     // will store the names of the covariates to use
     std::vector<std::string> covar_names;
 
+    size_t thread_count = 1;
+
     // Parse arguments
     int c;
 
@@ -74,7 +76,7 @@ int main_stoat_test(int argc, char* argv[]) {
         {"covar-name", required_argument, 0, 'C'},
         {"min-individuals", required_argument, 0, 'I'},
         {"maf", required_argument, 0, 'M'},
-        //{"thread", required_argument, 0, 't'},
+        {"threads", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
         {"ascii", no_argument, 0, 'a'},
@@ -83,7 +85,7 @@ int main_stoat_test(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:V:o:uh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:t:V:o:uh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'g': genotype_path = optarg; stoat_vcf::check_file(genotype_path); break;
             case 'a': ascii = true; break;
@@ -114,6 +116,15 @@ int main_stoat_test(int argc, char* argv[]) {
                 if (maf_threshold < 0 || maf_threshold > 1) {
                     throw std::runtime_error("Error: [stoat test] MAF must be in [0,1]");
                 }
+                break;
+            case 't':
+                if (std::stoi(optarg) < 1) {
+                    stoat::LOG_ERROR("[stoat graph] Number of threads must be > 0");
+                    return EXIT_FAILURE;
+                }
+                thread_count = std::stoi(optarg);
+                omp_set_num_threads(thread_count);
+
                 break;
             case 'V': 
                 {
@@ -271,9 +282,9 @@ int main_stoat_test(int argc, char* argv[]) {
     // JEAN if we want to keep track of what was run, we might as well include a header in the file with the full info (all parameters, input files, etc)
     std::shared_ptr<stoat::Writer> out_writer;
     if (bgzip_output) {
-        out_writer.reset(new BgzWriter(output_dir + "/stoat.assoc.pvalues.tsv.gz"));
+        out_writer.reset(new BgzWriter(output_dir + "/stoat.assoc.pvalues.tsv.gz", thread_count));
     } else {
-        out_writer.reset(new StdWriter(output_dir + "/stoat.assoc.pvalues.tsv"));
+        out_writer.reset(new StdWriter(output_dir + "/stoat.assoc.pvalues.tsv", thread_count));
     }
 
     // guess if the input genotype file is bgzipped based on the suffix
