@@ -59,7 +59,7 @@ void Logger::log_warning(LogLevel level, const std::string& message, const std::
                 logFile << formatted << '\n';
             }
 
-            if (count_type_warning == warning_count_threshold) {
+            if (count == warning_count_threshold) {
                 std::cout << "No more warning for this type will be printed in the terminal" << '\n';
                 if (fileLoggingEnabled && logFile.is_open()) {
                     logFile << "No more warning for this type will be printed in the terminal" << '\n';
