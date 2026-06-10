@@ -26,7 +26,8 @@ public:
     /// Write the given thread to the output file.
     /// Under the hood, this will write the given string to the buffer of the thread it is called on. 
     /// If this causes the buffer to exceed the maximum length, then flush it and write the whole buffer to the output file.
-    bool write(const std::string out_content);
+    /// If write_immediately is true, then don't wait for the buffer to fill before writing to the file
+    bool write(const std::string out_content, bool write_immediately=false);
 
 
     // flush the output and cleanly close the writer

@@ -20,10 +20,10 @@ std::string Writer::get_file_path() const {
     return file_path;
 }
 
-bool Writer::write(const std::string out_content) {
+bool Writer::write(const std::string out_content, bool write_immediately) {
     bool success = true;
     buffers.at(omp_get_thread_num()).append(out_content);
-    if (buffers.at(omp_get_thread_num()).size() >= max_buffer_length) {
+    if (write_immediately || buffers.at(omp_get_thread_num()).size() >= max_buffer_length) {
         success = flush();
     }
     return success;
@@ -163,13 +163,13 @@ void BgzReader::close() {
 void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
 
     if (phenotype_type == stoat::BINARY) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH\n", true);
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n", true);
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n", true);
     } else if (phenotype_type == stoat::EQTL) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tGENE\tP\tALLEL_COUNT\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tGENE\tP\tALLEL_COUNT\tDEPTH\n", true);
     }
 }
 
