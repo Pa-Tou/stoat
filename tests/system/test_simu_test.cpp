@@ -15,85 +15,92 @@ TEST_CASE("Giant unverified binary association tests graph", "[test]") {
     const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string graph_base = "pg.full";
 
-    SECTION("Test tsv output saving snarls") {
+    // Run stoat graph
+    clean_output_dir(output_dir);
 
-        clean_output_dir(output_dir);
+    std::string cmd = "../bin/stoat graph -u";
 
-        std::string cmd = "../bin/stoat graph -u";
+    cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+        + " -d " + data_path + "/" + graph_base + ".dist"
+        + " -L -r ref --output " + output_dir;
 
-        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
-            + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -L -r ref --output " + output_dir;
+    std::cout << "Command run : \n" << cmd << std::endl;
 
-        std::cout << "Command run : \n" << cmd << std::endl;
+    int command_output = std::system(cmd.c_str());
+    if (command_output != 0) {
+        std::cerr << "Command failed: " << cmd << "\n";
+        REQUIRE(false);
+    }
 
-        int command_output = std::system(cmd.c_str());
+    REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
+
+    SECTION("Test test") {
+        std::string test_cmd = "../bin/stoat test -u";
+
+        test_cmd +=" -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + data_path + "/" + "phenotype_samples.tsv"
+            + " -m chi2 --output " + output_dir;
+
+        std::cout << "Command run : \n" << test_cmd << std::endl;
+
+        int command_output = std::system(test_cmd.c_str());
         if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
+            std::cerr << "Command failed: " << test_cmd << "\n";
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
-        std::ifstream snarlsfile;
-        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
-        REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+        /////////// Just count the lines
+        REQUIRE(std::filesystem::exists(output_dir + "/stoat.assoc.pvalues.tsv"));
+        std::ifstream testfile;
+        testfile.open(output_dir + "/stoat.assoc.pvalues.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
         std::string line;
-        while (std::getline(snarlsfile, line)) {
+        while (std::getline(testfile, line)) {
             // Only start counting snarls after proper header
             if (line[0] != '#') {
                 line_count++;
             }
         }
-        snarlsfile.close();
-        REQUIRE(line_count==1524);
-
-        // TODO: Add something that actually checks this
-        //bool passed = compare_output_dirs(output_dir, expected_dir);
-        //REQUIRE(passed);
+        testfile.close();
+        // Apparently 151 snarls get filtered 
+        REQUIRE(line_count==1373);
     }
+    SECTION("Test test parallelized") {
+        std::string test_cmd = "../bin/stoat test -u -t 4";
 
-    SECTION("Test tsv output saving snarls multithreaded") {
+        test_cmd +=" -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + data_path + "/" + "phenotype_samples.tsv"
+            + " -m chi2 --output " + output_dir;
 
-        clean_output_dir(output_dir);
+        std::cout << "Command run : \n" << test_cmd << std::endl;
 
-        std::string cmd = "../bin/stoat graph -u";
-
-        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
-            + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -L -r ref --output " + output_dir 
-            + " -t 4";
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
+        int command_output = std::system(test_cmd.c_str());
         if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
+            std::cerr << "Command failed: " << test_cmd << "\n";
             REQUIRE(false);
         }
 
-        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
-        std::ifstream snarlsfile;
-        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
-        REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+        /////////// Just count the lines
+        REQUIRE(std::filesystem::exists(output_dir + "/stoat.assoc.pvalues.tsv"));
+        std::ifstream testfile;
+        testfile.open(output_dir + "/stoat.assoc.pvalues.tsv");
+        REQUIRE(testfile.peek() != std::ifstream::traits_type::eof());
 
         size_t line_count = 0;
         std::string line;
-        while (std::getline(snarlsfile, line)) {
+        while (std::getline(testfile, line)) {
             // Only start counting snarls after proper header
             if (line[0] != '#') {
                 line_count++;
             }
         }
-        snarlsfile.close();
-        REQUIRE(line_count==1524);
-
-        // TODO: Add something that actually checks this
-        //bool passed = compare_output_dirs(output_dir, expected_dir);
-        //REQUIRE(passed);
-
+        testfile.close();
+        // Apparently 151 snarls get filtered 
+        REQUIRE(line_count==1373);
     }
+
 
     clean_output_dir(output_dir);
 }

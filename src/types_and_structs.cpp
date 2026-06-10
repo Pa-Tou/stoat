@@ -156,7 +156,7 @@ void PathTraversal::set_allele_length_from_string(std::string al_len_str){
     }
 }
 
-std::string PathTraversal::allele_lengths_as_string(size_t& count_path_lengths_warn) const {
+std::string PathTraversal::allele_lengths_as_string() const {
     if (path.size() >= 3) {
         // If there is at least one node other than the boundaries
         if (min_allele_len != max_allele_len) {
@@ -172,8 +172,7 @@ std::string PathTraversal::allele_lengths_as_string(size_t& count_path_lengths_w
         return "0";
     } else {
         // This should probably never happen right?
-        stoat::LOG_WARN("path_lengths is empty", count_path_lengths_warn);
-        count_path_lengths_warn++;
+        stoat::LOG_WARN("path_lengths is empty", "path_lengths_warn");
         return "NA";
     }
 }
@@ -228,13 +227,12 @@ std::string pairToString(const std::pair<size_t, size_t>& name) {
 std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_paths, bool allele_lengths, const std::vector<bool>& is_allele_included) {
     std::ostringstream oss;
     bool wrote_anything = false;
-    size_t count_path_lengths_warn = 0;
     for (size_t i = 0; i < vec_paths.size(); ++i) {
         if (is_allele_included.size() == 0 || is_allele_included[i]) {
             if (wrote_anything) oss << ",";
             wrote_anything=true;
             if (allele_lengths) {
-                oss << vec_paths[i].allele_lengths_as_string(count_path_lengths_warn);
+                oss << vec_paths[i].allele_lengths_as_string();
             } else {
                 oss << vec_paths[i].to_string();
             }

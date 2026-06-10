@@ -86,9 +86,13 @@ class SnarlDataCollection {
         /// Run iteratee for all snarls
         void for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
+        //TODO: This still stores all the snarl_to_whatevers since the snarl_info_t needs to reference it
         /// Starting from an empty SnarlDataCollection, run iteratee for all snarls, but one line at a time from a file instead of loading the whole thing into memory
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
         void for_each_snarl_in_file(stoat::Reader& in_reader, 
+            const std::function<void(snarl_info_t& snarl_info)>& iteratee);
+        /// The same as above, but parallelized. iteratee must be thread safe
+        void for_each_snarl_in_file_parallel(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
 
@@ -126,10 +130,10 @@ class SnarlDataCollection {
         static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl,  const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
     
-    // fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
-    // the VCF is read and parsed by chromosome
-    // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
-    void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
+        // fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
+        // the VCF is read and parsed by chromosome
+        // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
+        void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
@@ -237,11 +241,15 @@ class SnarlDataCollection {
 
         /// Given a string representing a line in the file, load one snarl_info_internal_t
         /// This assumes that load_snarl_collection_header() has already been called
+        /// This is thread safe
         snarl_info_internal_t load_snarl_data_line(std::string& line);
 
         // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
         // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
         void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
+
+        // As above, but make the snarl_info_t directly from the line in the serialized file without saving anything 
+        void run_iteratee_on_snarl_data_line(const std::string& line, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////// Public functions

@@ -9,7 +9,7 @@ namespace stoat_vcf {
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;
     if (!std::filesystem::exists(file_path)) {
-        stoat::LOG_WARN("given reference file " + file_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", 0);
+        stoat::LOG_WARN("given reference file " + file_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
         return reference;
     }
     std::ifstream file(file_path);
@@ -22,7 +22,7 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     file.close();
 
     if (reference.size() == 0) {
-        stoat::LOG_WARN("given reference file " + file_path + " is empty. Defaulting to using any reference- or generic-sense paths as references", 0);
+        stoat::LOG_WARN("given reference file " + file_path + " is empty. Defaulting to using any reference- or generic-sense paths as references", "");
     }
     return reference;
 }
@@ -183,11 +183,11 @@ std::unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std:
 
     // print the warnings
     if (unique_to_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", 0);
+        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", "");
     }
 
     if (missing_in_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", 0);
+        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", "");
     }
 
     // print how many samples will be used
@@ -284,11 +284,11 @@ std::unique_ptr<stoat::QuantitativePhenotypeTable> parse_quantitative_pheno_tabl
 
     // Warnings
     if (unique_to_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", 0);
+        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", "");
     }
 
     if (missing_in_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", 0);
+        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", "");
     }
 
     // Final Pheno GWAS counts
@@ -425,12 +425,12 @@ std::unique_ptr<stoat::GeneExpressionTable> parse_gene_expression_table(const st
     // Warnings
     if (unique_to_expression > 0) {
         stoat::LOG_WARN(std::to_string(unique_to_expression) +
-            " samples with expression not found in current sample set", 0);
+            " samples with expression not found in current sample set", "");
     }
 
     if (missing_in_expression > 0) {
         stoat::LOG_WARN(std::to_string(missing_in_expression) +
-            " samples missing expression values", 0);
+            " samples missing expression values", "");
     }
 
     stoat::LOG_INFO("Samples with expression used in analysis: " +
@@ -591,12 +591,12 @@ std::unique_ptr<stoat::CovariateTable> parse_covariate_table(
     // Warnings
     if (unique_to_covar > 0) {
         stoat::LOG_WARN(std::to_string(unique_to_covar) +
-            " samples with covariates not found in sample set", 0);
+            " samples with covariates not found in sample set", "");
     }
 
     if (genotype_missing_covars > 0) {
         stoat::LOG_WARN(std::to_string(genotype_missing_covars) +
-            " samples missing covariates", 0);
+            " samples missing covariates", "");
     }
 
     stoat::LOG_INFO("Samples with covariates used in analysis: " +
@@ -655,7 +655,7 @@ void check_match_samples(const std::unordered_map<std::string, T>& map, const st
         }
     }
     if (map.size() != keys.size()) {
-        stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").", 0);
+        stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").", "");
     }
 }
 

@@ -22,7 +22,7 @@ Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd& t) const {
 }
     
 // logistic regression using the Maximum Likelihood Estimate with Newton-Raphson method
-double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) {
+double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
 
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
@@ -147,8 +147,7 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
             // not that bad, continue with a warning?
             stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + 
                 std::to_string(max_score) + ", max delta " + std::to_string(max_delta) +
-                ") but not too bad. Continuing.", count_number_not_convergence);
-            count_number_not_convergence++;
+                ") but not too bad. Continuing.", "count_number_not_convergence");
 #ifdef DEBUG_STATS_TEST
     std::stringstream ss_X;
     ss_X << X;
@@ -161,8 +160,7 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
             // too far from a good fit, return NAs.
             stoat::LOG_WARN("Logistic regression didn't converge to a great fit (max score coeff " + 
                 std::to_string(max_score) + ", max delta " + std::to_string(max_delta) +
-                ") too far from a good fit. Skipping.", count_number_not_convergence_skipping);
-            count_number_not_convergence_skipping++;
+                ") too far from a good fit. Skipping.", "count_number_not_convergence_skipping");
             return std::nan("");
         }
     }
@@ -292,8 +290,7 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
 #endif
 
     if (loglik_ratio < 0) {
-        stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.", count_number_negative_log_likelihood);
-        count_number_negative_log_likelihood++;
+        stoat::LOG_WARN("Negative log_likelihood ratio, likely due to issues fitting the full/reduced models. Skipping.", "count_number_negative_log_likelihood");
 
 #ifdef DEBUG_STATS_TEST
     std::stringstream ss_X;
@@ -325,7 +322,7 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
 
 // ------------------------ Chi2 test ------------------------
 
-double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, const size_t& d) {
+double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, const size_t& d) const {
 
     // Row and column sums
     double row1 = static_cast<double>(a + b);
@@ -336,8 +333,7 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
 
     // Early check: zero row or column
     if (row1 == 0 || row2 == 0 || col1 == 0 || col2 == 0) {
-        stoat::LOG_WARN("Chi2 2x2: row or column sum is zero, returning NaN", chi2_zero);
-        chi2_zero++;
+        stoat::LOG_WARN("Chi2 2x2: row or column sum is zero, returning NaN", "chi2_zero");
         return std::nan("");
     }
 
@@ -353,8 +349,7 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
         expected_c <= 0.0 || expected_d <= 0.0 ||
         !std::isfinite(expected_a) || !std::isfinite(expected_b) || 
         !std::isfinite(expected_c) || !std::isfinite(expected_d)) {
-        stoat::LOG_WARN("Chi2 2x2: expected counts out of valid range (zero or overflow), returning NaN", chi2_inf);
-        chi2_inf++;
+        stoat::LOG_WARN("Chi2 2x2: expected counts out of valid range (zero or overflow), returning NaN", "chi2_inf");
         return std::nan("");
     }
 
@@ -386,7 +381,7 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
 }
 
 // Check if the observed matrix is valid (no zero rows/columns)
-double FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
+double FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1) const {
 
     size_t cols = g0.size();
     std::vector<size_t> col_totals(cols);
@@ -402,14 +397,12 @@ double FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<siz
     }
 
     if (total == 0) {
-        stoat::LOG_WARN("Total equal to 0. Skipping.", count_number_total_zero);
-        count_number_total_zero++;
+        stoat::LOG_WARN("Total equal to 0. Skipping.", "count_number_total_zero");
         return std::nan("");
     }
 
     if (row_total_0 == 0 || row_total_1 == 0) {
-        stoat::LOG_WARN("One of the rows has a total of 0. Skipping.", count_number_row_zero);
-        count_number_row_zero++;
+        stoat::LOG_WARN("One of the rows has a total of 0. Skipping.", "count_number_row_zero");
         return std::nan("");
     }
 
@@ -452,7 +445,7 @@ double FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<siz
 // ------------------------ Fisher exact test ------------------------
 
 
-std::pair<double, double> FisherChi2::fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1) {
+std::pair<double, double> FisherChi2::fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1) const {
     
     double chi2_p_value = std::nan("");
     double fastfisher_p_value = std::nan("");
@@ -504,7 +497,7 @@ Eigen::MatrixXd inverse(const Eigen::MatrixXd &A) {
 }
 
 // Performs linear regression and F-test for predictors only
-double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) {
+double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const {
 #ifdef DEBUG_STATS_TEST
     std::cerr << "X:\n" << X << "\n";
     std::cerr << "Y:\n" << Y << "\n";
@@ -519,7 +512,7 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     // JEAN problem can arise if we have less samples than variables
     // maybe we should skip those tests when they happen? For now, warning the user and recommending increasing -I
     if (df_denominator <= 0) {
-        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoid those issues and get more robust associations in general.", count_number_few_sample);
+        stoat::LOG_WARN("Too few samples (" + std::to_string(num_samples) + ") compared to alleles+covariates (" + std::to_string(num_params_full) + ") in this snarl. Skipping. Note: increasing the minimum number of individuals with -I could help avoid those issues and get more robust associations in general.", "count_number_few_sample");
 
 #ifdef DEBUG_STATS_TEST
     std::stringstream ss_X;
@@ -530,7 +523,6 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     std::cerr << "Y:\n" << ss_Y.str() << "\n";
 #endif
 
-        count_number_few_sample++;
         return std::nan("");
     }
 
@@ -577,8 +569,7 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     if (SSE_full == 0) {
         // rare but can happen. What should we do?
         if (SSE_reduced == 0) {
-            stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.", count_number_sse_null);
-            count_number_sse_null++;
+            stoat::LOG_WARN("SSE is null for both the full and reduced model. Skipping.", "count_number_sse_null");
 
 #ifdef DEBUG_STATS_TEST
     std::stringstream ss_X;
@@ -611,7 +602,7 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     double F_stat = numerator / denominator;
 
     if (F_stat < 0 && F_stat > -0.00001){
-        stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.", count_number_f_stat_close_to_0);
+        stoat::LOG_WARN("F statistic is negative but very close to 0 (" + std::to_string(F_stat) + "). Assuming it's 0.", "count_number_f_stat_close_to_0");
 
 #ifdef DEBUG_STATS_TEST
     std::stringstream ss_X;
@@ -622,12 +613,11 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     std::cerr << "Y:\n" << ss_Y.str() << "\n";
 #endif
 
-        count_number_f_stat_close_to_0++;
         F_stat = 0;
     }
 
     if (F_stat < -0.00001){
-        stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + " = " + std::to_string(numerator) + "/" + std::to_string(denominator) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.", count_number_f_stat_negative);
+        stoat::LOG_WARN("F statistic is negative: " + std::to_string(F_stat) + " = " + std::to_string(numerator) + "/" + std::to_string(denominator) + ". This is concerning, skipping. Recommendation: increase the minimum number of individuals with -I to get more robust associations and avoid issues.", "count_number_f_stat_negative");
         stoat::LOG_DEBUG("SSE_reduced: " + std::to_string(SSE_reduced) + ",SSE_full: " + std::to_string(SSE_full));
 
 #ifdef DEBUG_STATS_TEST
@@ -639,7 +629,6 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
     std::cerr << "Y:\n" << ss_Y.str() << "\n";
 #endif
 
-        count_number_f_stat_negative++;
         return std::nan("");
     }
 

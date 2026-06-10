@@ -35,22 +35,22 @@ public:
     // Function to perform the Chi-square test on row size > 2 
     // If one of the genotypes has no counts, return "NA"
     // If one of the columns (alleles) has no counts, ignore it
-    double chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    double chi2_2xN(const std::vector<size_t>& g0, const std::vector<size_t>& g1) const;
 
     // Function to perform the Chi-square test on row size == 2 
     double chi2_2x2(const size_t& m11, const size_t& m12,
-                         const size_t& m21, const size_t& m22);
+                         const size_t& m21, const size_t& m22) const;
 
     // Function to perform Fisher's exact test
     // not const& because we change the value
     // This is implemented in fast_fishers_exact_test.cpp because it was not us who wrote it
     double fastFishersExactTest(size_t m11, size_t m12,
-                                     size_t m21, size_t m22);
+                                     size_t m21, size_t m22) const;
 
     // depending on the number of alleles, uses Chi2 (>2 alleles) or the fast
     // Fisher exact test (2 alleles).
     // returns two pvalues: fastfisher_p_value (which can be NA if >2 alleles), and chi2_p_value
-    std::pair<double, double> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+    std::pair<double, double> fisher_chi2(const std::vector<size_t>& g0, const std::vector<size_t>& g1) const;
 
 private:
     // Constants with maximum usable precision for 'double'
@@ -59,8 +59,6 @@ private:
 
     size_t chi2_zero = 0;
     size_t chi2_inf = 0;
-    size_t count_number_total_zero = 0;
-    size_t count_number_row_zero = 0;
 };
 
 class LinearRegression {
@@ -68,13 +66,8 @@ class LinearRegression {
         LinearRegression() = default;
         ~LinearRegression() = default;
 
-        double linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
+        double linear_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
 
-    private:
-        size_t count_number_sse_null = 0;
-        size_t count_number_few_sample = 0;
-        size_t count_number_f_stat_close_to_0 = 0;
-        size_t count_number_f_stat_negative = 0;
 };
 
 class LogisticRegression {
@@ -89,7 +82,7 @@ public:
     // if the betas get too high, it will switch to Firth penalized regression
     // p-value is computed from the likelihood ratio of the full vs reduced model
     // returns the pvalue as a string, ready to be written to the output
-    double logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors);
+    double logistic_regression(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y, const size_t num_predictors) const;
     
 private:
     // maximum number of iterations to perform
@@ -99,9 +92,6 @@ private:
     // tolerance to decide if the score and delta are small enough to consider the iteration to have converged
     const double conv_tol = 0.001;
 
-    size_t count_number_not_convergence = 0;
-    size_t count_number_negative_log_likelihood = 0;
-    size_t count_number_not_convergence_skipping = 0;
 };
 
 // Compute the inverse or Moore-Penrose pseudoinverse of a matrix

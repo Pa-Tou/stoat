@@ -114,7 +114,7 @@ public:
 
     void set_allele_length_from_string(std::string al_len_str);
 
-    std::string allele_lengths_as_string(size_t& count_path_lengths_warn) const;
+    std::string allele_lengths_as_string() const;
         
     ////////////////////////////// Getters
     const std::vector<node_traversal_t>& get_path() const;
