@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <mutex>
 #include <sstream>
 #include <unordered_map>
 
@@ -63,7 +62,6 @@ public:
 
 private:
     LogLevel logLevel = LogLevel::Info;
-    std::mutex mutex;
     const size_t warning_count_threshold = 4; // 5 warning will be printed
 
     Logger() = default;
