@@ -24,10 +24,9 @@ public:
     std::string get_file_path() const;
 
     /// Write the given thread to the output file.
-    /// Under the hood, this will write the given string to the buffer of the thread it is called on. 
+    /// Under the hood, this will write the given string to the buffer. 
     /// If this causes the buffer to exceed the maximum length, then flush it and write the whole buffer to the output file.
-    /// If write_immediately is true, then don't wait for the buffer to fill before writing to the file
-    bool write(const std::string out_content, bool write_immediately=false);
+    bool write(const std::string out_content);
 
 
     // flush the output and cleanly close the writer
@@ -48,9 +47,8 @@ public:
 protected:
 
     //////////////////////// Helper functions
-    // For whichever thread this is called on, write the buffer to the output file and clear the buffer
-    // If thread_num is max(), then flush all buffers
-    bool flush(size_t thread_num = std::numeric_limits<size_t>::max());
+    // Write the buffer to the output file and clear the buffer
+    bool flush();
 
     // The virtual function to write the buffer to a file
     virtual bool write_string_to_file(const std::string& out_content) = 0;
@@ -60,7 +58,7 @@ protected:
 
 
     const std::string file_path;
-    std::vector<std::string> buffers;
+    std::string buffer;
     // Once a buffer exceeds this length, flush it
     size_t max_buffer_length;
     
