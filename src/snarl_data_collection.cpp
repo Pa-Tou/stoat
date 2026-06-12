@@ -1043,10 +1043,7 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
     }
     outstream << std::endl;
     
-    #pragma omp critical(write_snarl_collection) 
-    {
     out_writer.write(outstream.str());
-    }
 }
 
 void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer) const {
