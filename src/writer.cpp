@@ -24,6 +24,9 @@ bool Writer::write(const std::string out_content) {
     {
         buffer.append(out_content);
     }
+    if (buffer.size() > max_buffer_length) {
+        flush();
+    }
     return success;
 }
 
