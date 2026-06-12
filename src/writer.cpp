@@ -19,15 +19,16 @@ std::string Writer::get_file_path() const {
 }
 
 bool Writer::write(const std::string out_content) {
-    bool success = true;
+    bool filled_buffer = false;
     #pragma omp critical (writer)
     {
         buffer.append(out_content);
+        filled_buffer = buffer.size() > max_buffer_length;
     }
-    if (buffer.size() > max_buffer_length) {
-        flush();
+    if (filled_buffer) {
+        return flush();
     }
-    return success;
+    return true;
 }
 
 bool Writer::flush() {
