@@ -8,9 +8,7 @@ namespace stoat {
 Writer::Writer(const std::string output_file_path, size_t thread_count, size_t max_buffer_length) : 
     file_path(output_file_path),
     max_buffer_length(max_buffer_length) {
-
         // Allocate memory for the buffer
-        
         buffer.reserve(max_buffer_length);
     };
 
@@ -19,27 +17,22 @@ std::string Writer::get_file_path() const {
 }
 
 bool Writer::write(const std::string out_content) {
-    bool filled_buffer = false;
+    bool success = true;
     #pragma omp critical (writer)
     {
         buffer.append(out_content);
-        filled_buffer = buffer.size() > max_buffer_length;
+        if (buffer.size() > max_buffer_length) {
+            success = flush();
+        }
     }
-    if (filled_buffer) {
-        return flush();
-    }
-    return true;
+    return success;
 }
 
 bool Writer::flush() {
     // Call the virtual function to write the buffer then clear it
 
-    bool written;
-    #pragma omp critical (writer)
-    {
-        written = write_string_to_file(buffer);
-        buffer.clear();
-    }
+    bool written = write_string_to_file(buffer);
+    buffer.clear();
     return written;
 }
 

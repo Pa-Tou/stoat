@@ -19,7 +19,7 @@ namespace stoat {
 // Generic Writer class with the specialized output writer functions
 class Writer {
 public:
-    Writer(const std::string output_file_path, size_t thread_count, size_t max_buffer_length = 1000000);
+    Writer(const std::string output_file_path, size_t thread_count, size_t max_buffer_length = 400000);
 
     std::string get_file_path() const;
 
@@ -48,6 +48,7 @@ protected:
 
     //////////////////////// Helper functions
     // Write the buffer to the output file and clear the buffer
+    // This is not thread safe, must be called in a critical region
     bool flush();
 
     // The virtual function to write the buffer to a file
