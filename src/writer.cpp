@@ -20,7 +20,10 @@ std::string Writer::get_file_path() const {
 
 bool Writer::write(const std::string out_content) {
     bool success = true;
-    buffer.append(out_content);
+    #pragma omp critical (writer)
+    {
+        buffer.append(out_content);
+    }
     return success;
 }
 
