@@ -1361,10 +1361,10 @@ void SnarlDataCollection::run_iteratee_on_snarl_data_line(const std::string& lin
     assert(allele_assignments.size() == all_sample_haplotypes.size()); 
     #endif
 
-    allele_by_sample_t alleles_by_sample (has_allele ? max_allele+1 : 0, allele_assignments);
+    allele_by_sample_t alleles_by_sample (has_allele ? walk_count : 0, allele_assignments);
 
     // GenotypeTable constructor takes a map from sample to index, and the number of alleles
-    GenotypeTable genotypes(sample_to_index, alleles_by_sample.allele_count);
+    GenotypeTable genotypes(sample_to_index, walk_count);
 
 #ifdef DEBUG_SNARL_DATA_COLLECTION
     std::cerr << " Make genotype table for " << sample_to_index.size() << " samples and " << alleles_by_sample.allele_count  << " alleles" << std::endl; 
