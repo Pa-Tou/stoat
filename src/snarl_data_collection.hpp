@@ -120,9 +120,10 @@ class SnarlDataCollection {
         /// Helper function for finding all possible walks through the snarl. Fills in walks
         /// snarl_data will not have the allele_by_sample filled in
         /// If a path cycles more than walk_cycle_limit times, stop looking for more cycles
+        /// TODO remove walk_steps_limit from the object
         static void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks,
-                           size_t walk_cycle_limit = 1);
+						size_t walk_cycle_limit = 1, size_t walk_steps_limit = 50);
 
         /// Helper function for finding walks through the snarl. Fills in walks
         /// the collection is assumed to have the allele_by_sample filled in and walks must be filled in to match the allele_by_sample

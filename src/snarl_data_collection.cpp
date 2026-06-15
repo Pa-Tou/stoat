@@ -585,7 +585,7 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
 void SnarlDataCollection::get_all_walks_through_snarl(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
         const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks, 
-        size_t walk_cycle_limit ) {
+        size_t walk_cycle_limit, size_t walk_steps_limit) {
 
 #ifdef DEBUG_SNARL_DATA_COLLECTION
     std::cerr << "Get all possible walks through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
@@ -622,14 +622,14 @@ void SnarlDataCollection::get_all_walks_through_snarl(
     
         // TODO: Add out_fail
         // TODO: Get the child count properly
-        //if (steps_taken++ > walk_steps_limit) {
-        //    #pragma omp critical(out_fail)
-        //    out_fail << distance_index.node_id(distance_index.get_bound(snarl, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(snarl, true, true)) 
-        //             << "\titeration_calculation_out = " << std::endl;// << children << " children\n";
-        //    break_snarl = true;
-        //    break;
-        //}
-
+        if (steps_taken++ > walk_steps_limit) {
+           // #pragma omp critical(out_fail)
+           // out_fail << distance_index.node_id(distance_index.get_bound(snarl, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(snarl, true, true)) 
+           //          << "\titeration_calculation_out = " << std::endl;// << children << " children\n";
+           break_snarl = true;
+           break;
+        }
+	
         // Follow edges from the last element in path
         if (!path.empty()) {
             distance_index.follow_net_edges(path.back(), &graph, false, [&](const handlegraph::net_handle_t& next_child) {
