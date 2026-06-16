@@ -598,9 +598,6 @@ void SnarlDataCollection::get_all_walks_through_snarl(
     
     std::vector<std::vector<handlegraph::net_handle_t>> walks_as_net_handles;
     
-    // How many steps have we taken trying to enumerate paths? Includes all all paths
-    size_t steps_taken = 0;
-
     bool break_snarl = false;
     
     // For each incomplete path in paths, walk out from the end and add a copy of the path plus each next step to paths
@@ -622,7 +619,7 @@ void SnarlDataCollection::get_all_walks_through_snarl(
     
         // TODO: Add out_fail
         // TODO: Get the child count properly
-        if (steps_taken++ > walk_steps_limit) {
+        if (path.size() > walk_steps_limit) {
            // #pragma omp critical(out_fail)
            // out_fail << distance_index.node_id(distance_index.get_bound(snarl, false, true)) << "_" << distance_index.node_id(distance_index.get_bound(snarl, true, true)) 
            //          << "\titeration_calculation_out = " << std::endl;// << children << " children\n";
