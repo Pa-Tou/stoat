@@ -86,9 +86,36 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
     // print banner
     stoat::print_banner(std::string(STOAT_VERSION));
 
+    std::string temp_file_name = "temp_stoat_bhcorrect.tsv";
+
+    std::shared_ptr<stoat::Reader> reader;
+    std::shared_ptr<stoat::Reader> reader_copy;
+    std::shared_ptr<stoat::Writer> writer;
+
+    if ((tsv_name.compare(tsv_name.length()-3, 3, ".gz") == 0) ||
+        (tsv_name.compare(tsv_name.length()-4, 4, ".bgz") == 0)) {
+        reader.reset(new stoat::BgzReader(tsv_name));
+        reader_copy.reset(new stoat::BgzReader(tsv_name));
+        writer.reset(new stoat::BgzWriter(temp_file_name));
+    } else {
+        reader.reset(new stoat::StdReader(tsv_name));
+        reader_copy.reset(new stoat::StdReader(tsv_name));
+        writer.reset(new stoat::StdWriter(temp_file_name));
+    }
+
+
     // Add the BH adjusted column
     // Indices are 1-indexed by the subcommand, 0-indexed by the actual function
-    stoat::add_BH_adjusted_column(tsv_name, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);
+    stoat::add_BH_adjusted_column(reader, reader_copy, writer, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);
+
+    reader->close();
+    reader_copy->close();
+    writer->close();
+
+    // Move the temporary file
+    std::remove(tsv_name.c_str());
+    std::rename(temp_file_name.c_str(), tsv_name.c_str());
+
 
     return EXIT_SUCCESS;
 }

@@ -5,6 +5,7 @@
 #include <tuple>
 #include <string>
 #include "types_and_structs.hpp"
+#include "writer.hpp"
 
 #include <handlegraph/path_position_handle_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
@@ -18,8 +19,11 @@ void adjust_pvalues_with_BH(std::vector<std::tuple<double, double, size_t>>& dat
 
 // Read a tsv from input_file, collect the p-values from the correct column (depending on phenotype_type), 
 // and write the same file.
+// reader and reader_copy both point to the same file, but only one will be used at a time
 void add_BH_adjusted_column(
-    const std::string& input_file,
+    std::shared_ptr<stoat::Reader> reader,
+    std::shared_ptr<stoat::Reader> reader_copy,
+    std::shared_ptr<stoat::Writer> writer,
     const stoat::phenotype_type_t& phenotype_type);
 
 // The same, but specify the column number (0-indexed) of the p-value
@@ -27,7 +31,9 @@ void add_BH_adjusted_column(
 // If p_col is given, then still check the header to make sure that the column label is some sort of P-value
 // Add the adjusted p-value column after the p-value column
 void add_BH_adjusted_column(
-    const std::string& input_file,
+    std::shared_ptr<stoat::Reader> reader,
+    std::shared_ptr<stoat::Reader> reader_copy,
+    std::shared_ptr<stoat::Writer> writer,
     size_t p_col);
 
 
