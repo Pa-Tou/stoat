@@ -223,13 +223,9 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                                         //Make the struct here because it was done in the other case
                                         // TODO: This could be done earlier but I don't think it's a big deal
-                                        size_t max_allele = 0;
-                                        for (size_t x : alleles_by_sample_vector) {
-                                            if (x != std::numeric_limits<size_t>::max()) {
-                                                max_allele = std::max(max_allele, x);
-                                            }
-                                        }
-                                        alleles_by_sample = allele_by_sample_t(max_allele+1, std::move(alleles_by_sample_vector));
+                                        
+                                        // Keep each walk in walks_by_allele as a potential allele, even if not all of them are used
+                                        alleles_by_sample = allele_by_sample_t(walks_by_allele.size(), std::move(alleles_by_sample_vector));
                                     }
                                 }
                                 if (walks_requested) {
@@ -391,10 +387,16 @@ void SnarlDataCollection::add_alleles_by_sample(
             }
         }
 
+        // The allele count is either the maximum allele that we see, or the number of alleles in walks_by_allele
+        size_t allele_count = max_allele+1;
+        if (snarl_to_walks.count(snarl_info.start_node)) {
+            allele_count = std::max(allele_count, snarl_to_walks.at(snarl_info.start_node).size());
+        }
+
         // Save it
         #pragma omp critical(snarl_collection)
         {
-            snarl_to_alleles_by_sample.emplace(snarl_info.start_node, allele_by_sample_t(max_allele+1, std::move(new_alleles_by_sample)));
+            snarl_to_alleles_by_sample.emplace(snarl_info.start_node, allele_by_sample_t(allele_count, std::move(new_alleles_by_sample)));
             number_snarl_analyzed++;
         }
     }
@@ -1260,7 +1262,7 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     if (has_samples) {
         #pragma omp critical(snarl_to_alleles)
         {
-        snarl_to_alleles_by_sample[snarl_info.start_node] = allele_by_sample_t(has_allele ? max_allele+1 : 0, allele_assignments);
+        snarl_to_alleles_by_sample[snarl_info.start_node] = allele_by_sample_t(has_allele ? std::max(max_allele+1, walk_count) : 0, allele_assignments);
         }
     }
 
