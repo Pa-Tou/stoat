@@ -38,10 +38,9 @@ void add_BH_adjusted_column(
 
 
 /// Copy the input file (which is the output of stoat) and re-write it with reference coordinates on any path starting with reference_prefix
-/// write result to stdout
-/// This deals with its own file handling
+/// write result to writer
 void change_reference(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                      const std::string& input_file, const std::unordered_set<std::string>& reference_names);
+                      std::shared_ptr<stoat::Reader> reader, std::shared_ptr<stoat::Writer> writer, const std::unordered_set<std::string>& reference_names);
 
 } // namespace stoat_vcf
 

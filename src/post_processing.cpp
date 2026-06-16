@@ -176,13 +176,13 @@ void add_BH_adjusted_column(
 }
 
 void change_reference(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                      const std::string& input_file, const std::unordered_set<std::string>& reference_names) {
-    std::ifstream instream;
-    instream.open(input_file);
+    std::shared_ptr<stoat::Reader> reader, std::shared_ptr<stoat::Writer> writer, const std::unordered_set<std::string>& reference_names) {
+
 
     // Read the header line
     std::string header_line;
-    std::getline(instream, header_line);
+    reader->getline(header_line);
+
     std::stringstream header_ss(header_line);
     std::vector<std::string> headers;
     std::string col;
@@ -195,10 +195,10 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
     }
 
     // Write the header line
-    std::cout << header_line << std::endl;
+    writer->write(header_line + "\n");
 
     std::string line;
-    while (std::getline(instream, line)) {
+    while (reader->getline(line)) {
 
         // Parse the line into a vector of strings
         std::stringstream ss(line);
@@ -244,22 +244,23 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
             new_reference_end = 0;
             new_reference_name = "NA";
         }
+        std::stringstream sstream;
 
         // Now write the new reference coordinates and the rest of the line
         // If we didn't find reference coordinates, write the old coordinates
         if (new_reference_name == "NA" && new_reference_start == 0 && new_reference_end == 0) { 
-            std::cout << columns[0] << "\t" << columns[1] << "\t" << columns[2]; 
+            sstream << columns[0] << "\t" << columns[1] << "\t" << columns[2]; 
         } else {
-            std::cout << new_reference_name << "\t" << new_reference_start << "\t" << new_reference_end; 
+            sstream << new_reference_name << "\t" << new_reference_start << "\t" << new_reference_end; 
         }
 
         for (size_t i = 3 ; i < columns.size() ; i++ ) {
-            std::cout << "\t" << columns[i];
+            sstream <<"\t" << columns[i];
         }
-        std::cout << std::endl;
+        sstream << std::endl;
+        writer->write(sstream.str());
     }
 
-    instream.close();
 }
 
 } // namespace stoat_vcf

@@ -72,7 +72,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
             + " -d " + graph_base + ".dist"
             + " -T " + output_dir+"/stoat.assoc.pvalues.tsv"
             + " -r " + refs_file 
-            + " > " + output_dir+"/stoat.assoc.pvalues.path0.tsv"; 
+            + " -o " + output_dir+"/stoat.assoc.pvalues.path0.tsv"; 
 
         std::cout << "Command run : \n" << cmd << std::endl;
         int command_output = std::system(rewrite_cmd.c_str());
@@ -111,7 +111,7 @@ TEST_CASE("Output loop with snarl", "[graph]") {
             + " -d " + graph_base + ".dist"
             + " -T " + output_dir+"/stoat.assoc.pvalues.tsv"
             + " -r " + refs_file 
-            + " > " + output_dir+"/stoat.assoc.pvalues.path1.tsv"; 
+            + " -o " + output_dir+"/stoat.assoc.pvalues.path1.tsv"; 
 
         std::cout << "Command run : \n" << rewrite_cmd << std::endl;
         int command_output = std::system(rewrite_cmd.c_str());
