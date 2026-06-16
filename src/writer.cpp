@@ -8,48 +8,37 @@ namespace stoat {
 Writer::Writer(const std::string output_file_path, size_t thread_count, size_t max_buffer_length) : 
     file_path(output_file_path),
     max_buffer_length(max_buffer_length) {
-
-        // Initialize the buffer with empty strings and allocate memory for them
-        buffers.resize(thread_count+1);
-        for (size_t i = 0 ; i < buffers.size(); i++) {
-            buffers.at(i).reserve(max_buffer_length);
-        }
+        // Allocate memory for the buffer
+        buffer.reserve(max_buffer_length);
     };
 
 std::string Writer::get_file_path() const {
     return file_path;
 }
 
-bool Writer::write(const std::string out_content, bool write_immediately) {
+bool Writer::write(const std::string out_content) {
     bool success = true;
-    buffers.at(omp_get_thread_num()).append(out_content);
-    if (write_immediately || buffers.at(omp_get_thread_num()).size() >= max_buffer_length) {
-        success = flush();
+    #pragma omp critical (writer)
+    {
+        buffer.append(out_content);
+        if (buffer.size() > max_buffer_length) {
+            success = flush();
+        }
     }
     return success;
 }
 
-bool Writer::flush(size_t thread_num) {
-    // Call the virtual function to write the buffer
-    if (thread_num == std::numeric_limits<size_t>::max()) {
-        thread_num = omp_get_thread_num();
-    }
+bool Writer::flush() {
+    // Call the virtual function to write the buffer then clear it
 
-    bool written;
-    #pragma omp critical (writer)
-    {
-        written = write_string_to_file(buffers.at(thread_num));
-    }
-    // clear the buffer 
-    buffers.at(omp_get_thread_num()).clear();
+    bool written = write_string_to_file(buffer);
+    buffer.clear();
     return written;
 }
 
 void Writer::close() {
     // Flush the buffer
-    for (size_t i = 0 ; i < buffers.size() ; i++) {
-        flush(i);
-    }
+    flush();
     // Call the virtual function to close the file
     close_file();
 }
@@ -163,13 +152,13 @@ void BgzReader::close() {
 void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
 
     if (phenotype_type == stoat::BINARY) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH\n", true);
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH\n");
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n", true);
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLELE_COUNT\tDEPTH\n");
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n", true);
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLELE_COUNT\tDEPTH\n");
     } else if (phenotype_type == stoat::EQTL) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tGENE\tP\tALLEL_COUNT\tDEPTH\n", true);
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tGENE\tP\tALLELE_COUNT\tDEPTH\n");
     }
 }
 

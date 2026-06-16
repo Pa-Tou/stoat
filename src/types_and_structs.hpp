@@ -209,7 +209,7 @@ struct path_range_t {
 // This struct only makes sense when it is paired with a vector of samples or sample_hap_t's (as a member of a snarl_info_t). 
 // Each entry in alleles is the identifier of an allele
 // The allele identifiers are also used as indices into other per-allele vectors, so they should start from 0 and go up to the number of alleles-1.
-// allele_count is the number of non-inf alleles, or 1 + max value in alleles_by_sample. This is not enforced though
+// allele_count is the number of non-inf alleles, which is generally 1 + max value in alleles_by_sample. This is not enforced though
 struct allele_by_sample_t{
     size_t allele_count;
     std::vector<size_t> alleles;
