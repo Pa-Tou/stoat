@@ -20,7 +20,6 @@ void adjust_pvalues_with_BH(std::vector<std::tuple<double, double, size_t>>& dat
 // and write the same file.
 void add_BH_adjusted_column(
     const std::string& input_file,
-    const std::string& output_dir,
     const stoat::phenotype_type_t& phenotype_type);
 
 // The same, but specify the column number (0-indexed) of the p-value
@@ -29,7 +28,6 @@ void add_BH_adjusted_column(
 // Add the adjusted p-value column after the p-value column
 void add_BH_adjusted_column(
     const std::string& input_file,
-    const std::string& output_dir,
     size_t p_col);
 
 

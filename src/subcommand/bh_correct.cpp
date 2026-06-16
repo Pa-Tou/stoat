@@ -19,8 +19,7 @@ void print_help_bh_correct() {
               << "  -t, --tsv FILE                  The TSV file to be processed" << endl
               << "  -p, --p-index N                 The column of the p-value in the tsv (1-indexed)" << endl
               << "                                  If a header is present then this will be the column with the appropriate label by default" << endl
-              << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl
-              << "  -o, --output-directory DIR      Put the output in this directory" << endl;
+              << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl;
 }
 
 int main_stoat_bh_correct(int argc, char *argv[]) {
@@ -32,7 +31,6 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
 
     std::string tsv_name;
     size_t p_index = std::numeric_limits<size_t>::max();
-    std::string output_dir;
 
     int c = 0;
     optind = 1;
@@ -42,13 +40,12 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
                 {"tsv", required_argument, 0, 't'},
                 {"p-index", required_argument, 0, 'p'},
                 {"verbose", required_argument, 0, 'V'},
-                {"output-directory", required_argument, 0, 'o'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "t:p:V:o:h",
+        c = getopt_long(argc, argv, "t:p:V:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -70,9 +67,6 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
                 stoat::Logger::instance().setLevel(logLevel);                
                 break;
                 }
-            case 'o':
-                output_dir = optarg;
-                break;
             case 'h':
                 print_help_bh_correct();
                 return EXIT_FAILURE;
@@ -88,18 +82,13 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
         print_help_bh_correct();
         return EXIT_FAILURE;
     }
-    if (output_dir.empty()) {
-        stoat::LOG_ERROR("[stoat BHcorrect] stoat BHcorrect requires an output directory");
-        print_help_bh_correct();
-        return EXIT_FAILURE;
-    }
 
     // print banner
     stoat::print_banner(std::string(STOAT_VERSION));
 
     // Add the BH adjusted column
     // Indices are 1-indexed by the subcommand, 0-indexed by the actual function
-    stoat::add_BH_adjusted_column(tsv_name, output_dir, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);
+    stoat::add_BH_adjusted_column(tsv_name, p_index == std::numeric_limits<size_t>::max() ? p_index : p_index-1);
 
     return EXIT_SUCCESS;
 }

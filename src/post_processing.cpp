@@ -40,7 +40,6 @@ void adjust_pvalues_with_BH(std::vector<std::tuple<double, double, size_t>>& dat
 // Main Function
 void add_BH_adjusted_column(
     const std::string& input_file,
-    const std::string& output_dir,
     const stoat::phenotype_type_t& phenotype_type) {
 
     size_t adjusted_col_index;
@@ -51,13 +50,12 @@ void add_BH_adjusted_column(
         adjusted_col_index = 6;
     }
 
-    add_BH_adjusted_column(input_file, output_dir, adjusted_col_index-1);
+    add_BH_adjusted_column(input_file,  adjusted_col_index-1);
 }
 
 // Main Function
 void add_BH_adjusted_column(
     const std::string& input_file,
-    const std::string& output_dir,
     size_t p_col_index) {
 
     std::ifstream infile(input_file);
@@ -129,7 +127,7 @@ void add_BH_adjusted_column(
 
     // Second pass: rewrite with BH-adjusted values
     infile.open(input_file);
-    const std::string output_temp_file = output_dir + "/temp_output.tsv";
+    const std::string output_temp_file = "temp_output.tsv";
     std::ofstream outfile(output_temp_file);
 
     // Write headers
