@@ -1294,7 +1294,7 @@ TEST_CASE("Output simple nested chain with unused paths", "[detangle]") {
     vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
     vcf_out << "##contig=<ID=path0,length=100>" << std::endl;
     vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2" << std::endl;
-    vcf_out << "path0\t0\t>1>5\tA\tG,C\t60\t.\tLV=0;AT=>1>2>5,>1>3>5,>1>4>5\tGT\t0/0\t0/2" << std::endl;
+    vcf_out << "path0\t0\t>1>5\tA\tG,C\t60\t.\tLV=0;AT=>1>2>5,>1>3>5,>1>4>5\tGT\t1/1\t1/2" << std::endl;
     vcf_out.close();
 
 
@@ -1428,10 +1428,10 @@ TEST_CASE("Output simple nested chain with unused paths", "[detangle]") {
                 }
                 REQUIRE(walk_index[0] != walk_index[1]);
 
-                // Get the genotypes. Should be 0/0 0/1, assuming the same order
-                REQUIRE(genotypes[sample_index[0]] == walk_index[0]);
-                REQUIRE(genotypes[sample_index[1]] == walk_index[0]);
-                REQUIRE(genotypes[sample_index[2]] == walk_index[0]);
+                // Get the genotypes. Should be 1/1 1/2, assuming the same order
+                REQUIRE(genotypes[sample_index[0]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[1]] == walk_index[1]);
+                REQUIRE(genotypes[sample_index[2]] == walk_index[1]);
                 REQUIRE(genotypes[sample_index[3]] == walk_index[2]);
             } else {
                 // Snarl that shouldn't exist
