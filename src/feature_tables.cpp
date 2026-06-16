@@ -153,6 +153,8 @@ void GeneExpressionTable::read_gene_positions_from_file(const std::string filena
     }
 
     // read the gene positions and fill our map
+    std::unordered_set<std::string> genes_without_exp;
+    std::unordered_set<std::string> genes_with_both;
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string gene_val, chrom_val, start_val, end_val;
@@ -169,12 +171,31 @@ void GeneExpressionTable::read_gene_positions_from_file(const std::string filena
             size_t start = std::stoull(start_val);
             size_t end = std::stoull(end_val);
             gene_position_t gpos(gene_val, start, end);
-            gene_positions_by_chr[chrom_val].emplace_back(gpos);
+            // only store genes with some expression information
+            if(feature_to_index.find(gene_val) != feature_to_index.end()) {
+                gene_positions_by_chr[chrom_val].emplace_back(gpos);
+                genes_with_both.insert(gene_val);
+            } else {
+                genes_without_exp.insert(gene_val);
+            }
         } catch (...) {
             throw std::invalid_argument("In parsing gene position file, invalid numeric value in line: " + line);
         }
     }
 
+    // warning if some genes are  missing expression
+    if (genes_without_exp.size() > 0) {
+        stoat::LOG_WARN(std::to_string(genes_without_exp.size()) +
+                        " genes with position information but no expression", "");
+    }
+    
+    // error if any gene doesn't have a position
+    for(auto& gene_index: feature_to_index) {
+        if(genes_with_both.find(gene_index.first) == genes_with_both.end()) {
+            throw std::invalid_argument("Missing gene position for " + gene_index.first);
+        }
+    }
+    
     file.close();
 }
 
