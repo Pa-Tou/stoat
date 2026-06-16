@@ -203,6 +203,11 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
 
     // we'll save the nearby genes here
     std::vector<std::string> near_genes;
+
+    // make sure that chromosome is part of the ones we've stored positions for
+    if(gene_positions_by_chr.find(chrom) == gene_positions_by_chr.end()) {
+        return near_genes;
+    }
     
     // we look for genes in the specified range +- the maximum distance
     size_t min_start_pos = (start_pos > max_distance) ? start_pos - max_distance : 0;
