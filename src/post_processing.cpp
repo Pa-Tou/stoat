@@ -41,7 +41,6 @@ void adjust_pvalues_with_BH(std::vector<std::tuple<double, double, size_t>>& dat
 void add_BH_adjusted_column(
     const std::string& input_file,
     const std::string& output_dir,
-    const std::string& output_file_significant,
     const stoat::phenotype_type_t& phenotype_type) {
 
     size_t adjusted_col_index;
@@ -52,14 +51,13 @@ void add_BH_adjusted_column(
         adjusted_col_index = 6;
     }
 
-    add_BH_adjusted_column(input_file, output_dir, output_file_significant, adjusted_col_index-1);
+    add_BH_adjusted_column(input_file, output_dir, adjusted_col_index-1);
 }
 
 // Main Function
 void add_BH_adjusted_column(
     const std::string& input_file,
     const std::string& output_dir,
-    const std::string& output_file_significant,
     size_t p_col_index) {
 
     std::ifstream infile(input_file);
@@ -133,22 +131,18 @@ void add_BH_adjusted_column(
     infile.open(input_file);
     const std::string output_temp_file = output_dir + "/temp_output.tsv";
     std::ofstream outfile(output_temp_file);
-    std::ofstream outfile_significant(output_file_significant);
 
     // Write headers
     for (size_t i = 0 ; i < headers.size() ; i++ ) {
         outfile << headers[i];
         if (i == p_col_index) {
             outfile << "\t" << "P_ADJUSTED";
-            outfile_significant << "\t" << "P_ADJUSTED";
         } 
 
         if (i == headers.size()-1) {
             outfile << std::endl;
-            outfile_significant << std::endl;
         } else {
             outfile << "\t";
-            outfile_significant << "\t";
         }
     }
 
@@ -178,19 +172,11 @@ void add_BH_adjusted_column(
 
         outfile << '\n';
 
-        if (adjusted_p < 1e-5) {
-            for (size_t i = 0; i < columns.size(); ++i) {
-                outfile_significant << columns[i];
-                if (i != columns.size() - 1) outfile_significant << '\t';
-            }
-            outfile_significant << '\n';
-        }
         ++line_index;
     }
 
     infile.close();
     outfile.close();
-    outfile_significant.close();
 
     // Replace original file
     std::remove(input_file.c_str());

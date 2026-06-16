@@ -17,11 +17,10 @@ namespace stoat{
 void adjust_pvalues_with_BH(std::vector<std::tuple<double, double, size_t>>& data);
 
 // Read a tsv from input_file, collect the p-values from the correct column (depending on phenotype_type), 
-// and write the same file plus a BH-adjusted p-value to outupt_file_significant.
+// and write the same file.
 void add_BH_adjusted_column(
     const std::string& input_file,
     const std::string& output_dir,
-    const std::string& output_file_significant,
     const stoat::phenotype_type_t& phenotype_type);
 
 // The same, but specify the column number (0-indexed) of the p-value
@@ -31,7 +30,6 @@ void add_BH_adjusted_column(
 void add_BH_adjusted_column(
     const std::string& input_file,
     const std::string& output_dir,
-    const std::string& output_file_significant,
     size_t p_col);
 
 
