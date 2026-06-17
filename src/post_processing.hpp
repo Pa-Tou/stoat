@@ -5,6 +5,7 @@
 #include <tuple>
 #include <string>
 #include "types_and_structs.hpp"
+#include "writer.hpp"
 
 #include <handlegraph/path_position_handle_graph.hpp>
 #include <bdsg/snarl_distance_index.hpp>
@@ -17,11 +18,12 @@ namespace stoat{
 void adjust_pvalues_with_BH(std::vector<std::tuple<double, double, size_t>>& data);
 
 // Read a tsv from input_file, collect the p-values from the correct column (depending on phenotype_type), 
-// and write the same file plus a BH-adjusted p-value to outupt_file_significant.
+// and write the same file.
+// reader and reader_copy both point to the same file, but only one will be used at a time
 void add_BH_adjusted_column(
-    const std::string& input_file,
-    const std::string& output_dir,
-    const std::string& output_file_significant,
+    std::shared_ptr<stoat::Reader> reader,
+    std::shared_ptr<stoat::Reader> reader_copy,
+    std::shared_ptr<stoat::Writer> writer,
     const stoat::phenotype_type_t& phenotype_type);
 
 // The same, but specify the column number (0-indexed) of the p-value
@@ -29,17 +31,16 @@ void add_BH_adjusted_column(
 // If p_col is given, then still check the header to make sure that the column label is some sort of P-value
 // Add the adjusted p-value column after the p-value column
 void add_BH_adjusted_column(
-    const std::string& input_file,
-    const std::string& output_dir,
-    const std::string& output_file_significant,
+    std::shared_ptr<stoat::Reader> reader,
+    std::shared_ptr<stoat::Reader> reader_copy,
+    std::shared_ptr<stoat::Writer> writer,
     size_t p_col);
 
 
 /// Copy the input file (which is the output of stoat) and re-write it with reference coordinates on any path starting with reference_prefix
-/// write result to stdout
-/// This deals with its own file handling
+/// write result to writer
 void change_reference(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                      const std::string& input_file, const std::unordered_set<std::string>& reference_names);
+                      std::shared_ptr<stoat::Reader> reader, std::shared_ptr<stoat::Writer> writer, const std::unordered_set<std::string>& reference_names);
 
 } // namespace stoat_vcf
 
