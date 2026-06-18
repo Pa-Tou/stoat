@@ -107,7 +107,9 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     // Just make sure that number_snarl_filtered doesn't get overwritten 
     size_t number_snarl_filtered = 0;
     snarl_collection_stream.for_each_snarl_in_file_parallel(gt_reader, [&](snarl_info_t& snarl_info) {
-        snarl_info.genotypes.shuffle_values();
+        if (randomize_geno) {
+            snarl_info.genotypes.shuffle_values();
+        }
         bool filtered = test_and_write_snarl(snarl_info, out_writer);
         #pragma omp critical(number_snarl_filtered)
         {
