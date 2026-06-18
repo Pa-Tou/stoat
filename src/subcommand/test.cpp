@@ -37,8 +37,8 @@ void print_help_test() {
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
               << "  -a, --ascii                     Print the STOAT ascii art banner\n"
-              << "  -r, --randomize-pheno           Randomize the phenotypes\n"
-              << "  -R, --randomize-geno            Randomize the genotypes\n"
+              //<< "  -r, --randomize-pheno           Randomize the phenotypes\n"
+              //<< "  -R, --randomize-geno            Randomize the genotypes\n"
               << "  -h, --help                      Print this help message\n";
 }
 
