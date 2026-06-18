@@ -37,6 +37,8 @@ void print_help_test() {
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
               << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
               << "  -a, --ascii                     Print the STOAT ascii art banner\n"
+              << "  -r, --randomize-pheno           Randomize the phenotypes\n"
+              << "  -R, --randomize-geno            Randomize the genotypes\n"
               << "  -h, --help                      Print this help message\n";
 }
 
@@ -63,6 +65,9 @@ int main_stoat_test(int argc, char* argv[]) {
 
     size_t thread_count = 1;
 
+    bool randomize_pheno = false;
+    bool randomize_geno = false;
+
     // Parse arguments
     int c;
 
@@ -80,15 +85,19 @@ int main_stoat_test(int argc, char* argv[]) {
         {"verbose", required_argument, 0, 'V'},
         {"output", required_argument, 0, 'o'},
         {"ascii", no_argument, 0, 'a'},
+        {"randomize-pheno", no_argument, 0, 'r'},
+        {"randomize-geno", no_argument, 0, 'R'},
         {"no-bgzip", no_argument, 0, 'u'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:t:V:o:uh", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "g:m:p:P:w:c:C:I:M:t:V:o:urRh", long_options, nullptr)) != -1) {
         switch (c) {
             case 'g': genotype_path = optarg; stoat_vcf::check_file(genotype_path); break;
             case 'a': ascii = true; break;
+            case 'r': randomize_pheno = true; break;
+            case 'R': randomize_geno = true; break;
             case 'm': method = optarg; stoat_vcf::check_methods(method); break;
             case 'p': phenotype_path = optarg; stoat_vcf::check_file(phenotype_path); break;
             case 'c': covariate_path = optarg; stoat_vcf::check_file(covariate_path); break;
@@ -225,12 +234,21 @@ int main_stoat_test(int argc, char* argv[]) {
     if (!gene_position_path.empty()) {
         stoat::LOG_TRACE("Parsing eQTL phenotype file");
         gene_expression_table = stoat_vcf::parse_gene_expression_table(phenotype_path, gene_position_path, sample_to_index, gene_to_index);
+        if (randomize_pheno) {
+            gene_expression_table->shuffle_values();
+        }
     } else if (method == "chi2" || method == "logreg" || method == "exact") {
         stoat::LOG_TRACE("Parsing binary phenotype file");
         binary_phenotype_table = stoat_vcf::parse_binary_pheno_table(phenotype_path, sample_to_index);
+        if (randomize_pheno) {
+            binary_phenotype_table->shuffle_values();
+        }
     } else if (method == "linreg") {
         stoat::LOG_TRACE("Parsing quantitative phenotype file");
         quantitative_phenotype_table = stoat_vcf::parse_quantitative_pheno_table(phenotype_path, sample_to_index);
+        if (randomize_pheno) {
+            quantitative_phenotype_table->shuffle_values();
+        }
     } else {
         stoat::LOG_ERROR("Method : " + method + " not recognized");
     }
@@ -297,7 +315,7 @@ int main_stoat_test(int argc, char* argv[]) {
     }
 
     // Test each snarl, line by line
-    snarl_analyzer->test_snarls_from_file(*gt_reader, *out_writer);
+    snarl_analyzer->test_snarls_from_file(*gt_reader, *out_writer, randomize_geno);
 
     // close the file connections
     gt_reader->close();

@@ -28,7 +28,8 @@ public:
 
     // Go throught the snarls in a file and test the association with the phenotype.
     // Avoids loading the entire snarl collection with all the genotypes at once.
-    void test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) const;
+    // if randomize_geno is true, then shuffle the genotypes among the samples
+    void test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer, bool randomize_geno = false) const;
     
     // get the type of phenotype, in case we do specific things outside of this class (although we should try to avoid it)
     stoat::phenotype_type_t get_phenotype_type() const;
