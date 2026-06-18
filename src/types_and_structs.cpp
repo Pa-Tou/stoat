@@ -228,13 +228,13 @@ std::string vectorPathToString(const std::vector<stoat::PathTraversal>& vec_path
     std::ostringstream oss;
     bool wrote_anything = false;
     for (size_t i = 0; i < vec_paths.size(); ++i) {
-        if (is_allele_included.size() == 0 || is_allele_included[i]) {
+        if (is_allele_included.size() == 0 || is_allele_included.at(i)) {
             if (wrote_anything) oss << ",";
             wrote_anything=true;
             if (allele_lengths) {
-                oss << vec_paths[i].allele_lengths_as_string();
+                oss << vec_paths.at(i).allele_lengths_as_string();
             } else {
-                oss << vec_paths[i].to_string();
+                oss << vec_paths.at(i).to_string();
             }
         }
     }

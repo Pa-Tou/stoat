@@ -23,6 +23,7 @@ void print_help_change_reference() {
     std::cerr << "Usage: stoat change-ref -T [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -r [reference name] > [renamed_tsv]" << endl << endl
               << "options:" << endl
               << "  -T, --tsv FILE                  The TSV file to be processed, the output file of stoat" << endl
+              << "  -o, --out-tsv FILE              The output file to be written" << endl
               << "  -g, --graph FILE                The graph used to find coordinates" << endl
               << "  -d, --distance-index FILE       The distance index" << endl
               << "  -r, --reference-names FILE      Rewrite the reference coordinates to be relative to the paths listed in FILE (one per line)" << endl
@@ -37,7 +38,8 @@ int main_stoat_change_reference(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    std::string tsv_name;
+    std::string in_tsv_name;
+    std::string out_tsv_name;
     std::string graph_name;
     std::string dist_name;
     std::string reference_file;
@@ -50,6 +52,7 @@ int main_stoat_change_reference(int argc, char *argv[]) {
         static struct option long_options[] =
             {
                 {"tsv", required_argument, 0, 'T'},
+                {"out-tsv", required_argument, 0, 'o'},
                 {"graph", required_argument, 0, 'g'},
                 {"dist_name", required_argument, 0, 'd'},
                 {"reference-prefix", required_argument, 0, 'r'},
@@ -59,14 +62,17 @@ int main_stoat_change_reference(int argc, char *argv[]) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "T:g:d:r:t:h",
+        c = getopt_long(argc, argv, "T:o:g:d:r:t:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
         }
         switch (c) {
             case 'T':
-                tsv_name = optarg;
+                in_tsv_name = optarg;
+                break;
+            case 'o':
+                out_tsv_name = optarg;
                 break;
             case 'g':
                 graph_name = optarg;
@@ -95,8 +101,14 @@ int main_stoat_change_reference(int argc, char *argv[]) {
         }
     }
 
-    if (tsv_name.empty()) {
+    if (in_tsv_name.empty()) {
         stoat::LOG_ERROR("[stoat change-ref] stoat change-ref requires an input tsv");
+        print_help_change_reference();
+        return EXIT_FAILURE;
+    }
+
+    if (out_tsv_name.empty()) {
+        stoat::LOG_ERROR("[stoat change-ref] stoat change-ref requires an output tsv");
         print_help_change_reference();
         return EXIT_FAILURE;
     }
@@ -145,9 +157,23 @@ int main_stoat_change_reference(int argc, char *argv[]) {
     }
     ref_stream.close();
 
+    std::shared_ptr<stoat::Reader> reader;
+    std::shared_ptr<stoat::Writer> writer;
+
+    if ((in_tsv_name.compare(in_tsv_name.length()-3, 3, ".gz") == 0) ||
+        (in_tsv_name.compare(in_tsv_name.length()-4, 4, ".bgz") == 0)) {
+        reader.reset(new stoat::BgzReader(in_tsv_name));
+        writer.reset(new stoat::BgzWriter(out_tsv_name));
+    } else {
+        reader.reset(new stoat::StdReader(in_tsv_name));
+        writer.reset(new stoat::StdWriter(out_tsv_name));
+    }
 
     // Write the new file to stdout
-    stoat::change_reference(*path_position_graph, distance_index, tsv_name, reference_names);
+    stoat::change_reference(*path_position_graph, distance_index, reader, writer, reference_names);
+
+    reader->close();
+    writer->close();
 
     return EXIT_SUCCESS;
 }

@@ -1177,3 +1177,123 @@ TEST_CASE("Don't do anything when there are no samples", "[test]") {
     fs::remove(reference_filename);
     fs::remove(vcf_filename);
 }
+
+TEST_CASE("Output simple nested chain with unused paths", "[test]") {
+    /*
+           1    
+         /   \
+        0--2--4
+         \   /
+           3
+
+    */
+
+
+
+    const std::string output_dir = "../output_binary";
+    const std::string graph_base = "../tests/test_data/test_graphs/simple_bubble";
+    const std::string samples_file = "./samples.tsv";
+    const std::string reference_filename = "./references.tsv";
+    std::string vcf_filename = "./test.vcf";
+
+    std::ofstream vcf_out;
+    vcf_out.open(vcf_filename);
+    vcf_out << "##fileformat=VCFv4.2" << std::endl;
+    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
+    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
+    vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
+    vcf_out << "##contig=<ID=path0,length=100>" << std::endl;
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2" << std::endl;
+    vcf_out << "path0\t0\t>1>5\tA\tG,C\t60\t.\tLV=0;AT=>1>2>5,>1>3>5,>1>4>5\tGT\t1/1\t1/2" << std::endl;
+    vcf_out.close();
+
+
+    std::vector<std::string> samples_of_interest = {"S1"};
+    std::vector<std::string> other_samples = {"S2"};
+
+    std::string write_cmd = "echo \"SAMPLE\tPHENO\" > " + samples_file;
+    int ignore = std::system(write_cmd.c_str());
+    for (auto sample : samples_of_interest) {
+        write_cmd = "echo \"" + sample + "\t1\" >> " + samples_file;
+        ignore = std::system(write_cmd.c_str());
+    }
+    for (auto sample : other_samples) {
+        write_cmd = "echo \"" + sample + "\t0\" >> " + samples_file;
+        ignore = std::system(write_cmd.c_str());
+    }
+
+    // Write the reference file
+    write_cmd = "echo path0 > " + reference_filename;
+    ignore = std::system(write_cmd.c_str());
+
+
+    SECTION("Test chi2 tsv output") {
+
+        clean_output_dir(output_dir);
+
+
+        std::string cmd = (std::string)"../bin/stoat vcf -u"
+            + " -g " + graph_base + ".hg"
+            + " -d " + graph_base + ".dist"
+            + " -R " + reference_filename
+            + " -v " + vcf_filename
+            + " -o " + output_dir;
+        std::cerr << "Run command " << cmd << std::endl;
+        int command_output = std::system(cmd.c_str());
+
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+        
+        std::string cmd_test = "../bin/stoat test -u";
+        cmd_test += " -g " + output_dir + "/snarl_genotypes.tsv"
+            + " -p " + samples_file
+            + " -m chi2"
+            + " --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd_test << std::endl;
+
+        command_output = std::system(cmd_test.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd_test << "\n";
+            REQUIRE( false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir+"/stoat.assoc.pvalues.tsv"));
+
+        binary_table_values_t truth1 ({(std::string)"path0", 
+                                  (size_t)10, 
+                                  (size_t)11, 
+                                  std::make_pair<std::string, std::string>(">1","<5"), 
+                                  std::vector<std::string>({"1","1"}),
+                                  (std::string) "1",
+                                  (std::string) "0.2482", 
+                                  std::vector<std::string>({"1:0","1:2"}), 
+                                  (size_t)1});
+
+        ifstream in_table;
+        in_table.open(output_dir+"/stoat.assoc.pvalues.tsv");
+        std::string line; 
+        std::getline(in_table, line); // Header
+        std::vector<bool> found_snarls (1, false);
+        while (std::getline(in_table, line)) {
+            binary_table_values_t test = load_binary_snarl_line(line);
+            cerr << "LINE: " << line << endl;
+            if (test == truth1) {
+                found_snarls[0] = true;
+            }
+        }
+        in_table.close();
+        REQUIRE(found_snarls[0]);
+
+    }
+
+
+
+    clean_output_dir(output_dir);
+    fs::remove(samples_file);
+    fs::remove(reference_filename);
+    fs::remove(vcf_filename);
+}
