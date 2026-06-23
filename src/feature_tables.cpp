@@ -249,7 +249,7 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     n_active_columns = n_alleles;
 
     // init the column with the total allele counts
-    total_allele_counts_per_sample = std::vector<double>(n_samples, 0);
+    this->total_allele_counts_per_sample = std::vector<double>(n_samples, 0);
     use_total_ac = false;
 
     // init info about the phenotype being linked already
@@ -274,8 +274,9 @@ void GenotypeTable::clear() {
 
 void GenotypeTable::increment_count(size_t sample_idx, size_t allele_num) {
     // increment the appropriate allele column and total count
+
     this->values_per_sample.at(sample_idx).at(allele_num)++;
-    total_allele_counts_per_sample[sample_idx]++;
+    this->total_allele_counts_per_sample.at(sample_idx)++;
 }
 
 double GenotypeTable::get_value(size_t row, size_t col) const {
@@ -365,7 +366,7 @@ void GenotypeTable::remove_noncovered_samples() {
     // check the total allele count (filled previously) to decide if a sample should be masked
     for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
         // no allele counts present in sample or sample not have phenotype 
-        if (total_allele_counts_per_sample[samp_i] == 0 && !row_mask[samp_i]) {
+        if (this->total_allele_counts_per_sample.at(samp_i) == 0 && !row_mask[samp_i]) {
             row_mask[samp_i] = true;
             n_active_samples--;
         }
@@ -486,7 +487,7 @@ void GenotypeTable::remove_duplicated_predictors() {
             }
             // compare each (not masked) rows
             size_t samp_i = 0;
-            while (samp_i < n_samples && (row_mask[samp_i] || total_allele_counts_per_sample[samp_i] == get_value(samp_i, col_jj))) {
+            while (samp_i < n_samples && (row_mask[samp_i] || this->total_allele_counts_per_sample.at(samp_i) == get_value(samp_i, col_jj))) {
                 samp_i++;
             }
             // if one value is different, we will stop before reaching the end
@@ -578,12 +579,12 @@ void GenotypeTable::add_total_allele_count_covariable() {
         }
         if (use_total_ac) {
             // first active sample, save the first value
-            first_tot_ac = total_allele_counts_per_sample[samp_i];
+            first_tot_ac = this->total_allele_counts_per_sample.at(samp_i);
             // and start checking for any differences
             use_total_ac = false;
         } else {
             // check if different from the first one
-            if (total_allele_counts_per_sample[samp_i] != first_tot_ac) {
+            if (this->total_allele_counts_per_sample.at(samp_i) != first_tot_ac) {
                 // "add" the new column
                 use_total_ac = true;
                 n_active_columns++;
@@ -670,7 +671,7 @@ Eigen::MatrixXd GenotypeTable::make_matrixXd_features() {
                 continue;
             }
             cur_row++;
-            X(cur_row, X.cols() - 1) = total_allele_counts_per_sample[samp_i];
+            X(cur_row, X.cols() - 1) = this->total_allele_counts_per_sample.at(samp_i);
         }           
     }
     return X;
