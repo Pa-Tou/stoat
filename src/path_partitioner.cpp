@@ -21,7 +21,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
     #endif
 
     // Map each sample(plus haplotype) to its index in all_sample_haplotypes
-    std::map<stoat::sample_hap_t, std::size_t> sample_to_index;
+    std::unordered_map<stoat::sample_hap_t, std::size_t> sample_to_index;
     for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
         sample_to_index[all_sample_haplotypes[i]] = i;
     }
