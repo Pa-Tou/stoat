@@ -145,15 +145,21 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     snarl_data.start_position = std::get<1>(reference_range);
                                     snarl_data.end_position = std::get<2>(reference_range);
 
-                                    #pragma omp critical(snarl_collection_ref)
-                                    {
-                                        if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
-                                            ref_index = reference_names.size();
-                                            reference_name_to_index[std::get<0>(reference_range)] = ref_index;
-                                            reference_names.emplace_back(std::move(std::get<0>(reference_range)));
-                                        } else {
-                                            ref_index = reference_name_to_index[std::get<0>(reference_range)];
+                                    // If the reference is already in the dictionary, then we can just look it up
+                                    // Otherwise, in a critical block, double check that it's still not there and potentially add it
+                                    if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
+                                        #pragma omp critical(snarl_collection_ref)
+                                        {
+                                            if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
+                                                ref_index = reference_names.size();
+                                                reference_name_to_index[std::get<0>(reference_range)] = ref_index;
+                                                reference_names.emplace_back(std::move(std::get<0>(reference_range)));
+                                            } else {
+                                                ref_index = reference_name_to_index[std::get<0>(reference_range)];
+                                            }
                                         }
+                                    } else {
+                                        ref_index = reference_name_to_index[std::get<0>(reference_range)];
                                     }
                                     snarl_data.reference_index = ref_index;
 
