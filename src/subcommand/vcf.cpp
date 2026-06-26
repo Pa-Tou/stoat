@@ -242,6 +242,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         path_position_graph =  overlay_helper.apply(graph.get());
 
         // Get the reference sample names from the prefix
+        size_t n_ref_paths_before = ref_path_names.size();
         graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
             std::string path_name = graph->get_path_name(path);
 
@@ -253,14 +254,17 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
             return true;
         });
+        // warning if no reference path matched the provided prefix
+        if (!reference_prefix.empty() && ref_path_names.size() == n_ref_paths_before) {
+            stoat::LOG_WARN("No reference path matched the provided prefix: " + reference_prefix, "");
+        }
 
         // Load the distance index
         std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
         distance_index->deserialize(dist_path);
 
-        // Check if chromosomes specified in the --chr file are present in the graph
+        // Check if chromosomes specified in the --R file are present in the graph
         for (const auto& chr : ref_path_names) {
-            stoat::LOG_TRACE("Sequence name not found in -r/--chr file: " + chr);
             if (!graph->has_path(chr)) {
                 throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
             }
