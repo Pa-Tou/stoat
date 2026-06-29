@@ -993,9 +993,6 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
               << snarl_data.end_position << "\t"
               << snarl_data.depth << "\t";
     
-    // Since writing can occur while building the collection, all the big maps could change so we need guards
-    #pragma omp critical(snarl_collection)
-    {
     // Next, optionally include the walks as a single comma-separated string
     if (walks_by_allele == nullptr || walks_by_allele->size() == 0) {
         outstream << ".\t.\t";
@@ -1044,7 +1041,6 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
                 outstream << "\t" << allele_num;
             }
         }
-    }
     }
     outstream << std::endl;
     
