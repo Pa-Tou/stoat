@@ -3,7 +3,6 @@
 #include <boost/math/distributions/fisher_f.hpp>
 #include <boost/math/distributions/chi_squared.hpp>
 
-using boost::multiprecision::cpp_dec_float_50;
 using boost::math::chi_squared_distribution;
 
 // #define DEBUG_STATS_TEST
@@ -306,18 +305,9 @@ double LogisticRegression::logistic_regression(const Eigen::MatrixXd& X, const E
 
     // compute p-value (double first)
     boost::math::chi_squared_distribution<double> dist(df);
-    double p_value = 1.0 - boost::math::cdf(dist, loglik_ratio);
+    double p_value = boost::math::cdf(boost::math::complement(dist, loglik_ratio));
 
-    // try again with more resolution if the pvalue is 0 or infinite (underflow?)
-    if (p_value == 0.0 || !std::isfinite(p_value)) {
-        boost::multiprecision::cpp_dec_float_50 chi2_hp = loglik_ratio;
-        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
-        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
-        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
-        return static_cast<double>(p_hp);
-    } else {
-        return p_value;
-    }
+    return p_value;
 }
 
 // ------------------------ Chi2 test ------------------------
@@ -364,18 +354,7 @@ double FisherChi2::chi2_2x2(const size_t& a, const size_t& b, const size_t& c, c
 
     // --- Compute p-value (double first) ---
     boost::math::chi_squared_distribution<double> dist(df);
-    double p_value = 1.0 - boost::math::cdf(dist, chi2_stat);
-
-    if (p_value == 0.0 || !std::isfinite(p_value)) {
-
-        // Recompute in high precision if underflow occurs
-        boost::multiprecision::cpp_dec_float_50 chi2_hp = chi2_stat;
-        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
-
-        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
-        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
-        return static_cast<double>(p_hp);
-    }
+    double p_value = boost::math::cdf(boost::math::complement(dist, chi2_stat));
 
     return p_value;
 }
@@ -427,17 +406,7 @@ double FisherChi2::chi2_2xN(const std::vector<size_t>& g0, const std::vector<siz
 
     // --- Fast path: double precision ---
     boost::math::chi_squared_distribution<double> dist(df);
-    double p_value = 1.0 - boost::math::cdf(dist, chi2);
-
-    // If underflow or invalid, recompute in high precision
-    if (p_value == 0.0 || !std::isfinite(p_value)) {
-
-        boost::multiprecision::cpp_dec_float_50 chi2_hp = chi2;
-        boost::multiprecision::cpp_dec_float_50 df_hp   = df;
-        boost::math::chi_squared_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_hp);
-        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, chi2_hp);
-        return static_cast<double>(p_hp);
-    }
+    double p_value = boost::math::cdf(boost::math::complement(dist, chi2));
 
     return p_value;
 }
@@ -634,21 +603,9 @@ double LinearRegression::linear_regression(const Eigen::MatrixXd& X, const Eigen
 
     // compute a P-value
     boost::math::fisher_f_distribution<double> dist(df_numerator, df_denominator);
-    double p_value = 1.0 - boost::math::cdf(dist, F_stat);
+    double p_value = boost::math::cdf(boost::math::complement(dist, F_stat));
 
-    // recompute P-value with higher precision if underflow or invalid result
-    if (p_value == 0.0 || !std::isfinite(p_value)) {
-        const boost::multiprecision::cpp_dec_float_50 F_hp = F_stat;
-        const boost::multiprecision::cpp_dec_float_50 df_n_hp = df_numerator;
-        const boost::multiprecision::cpp_dec_float_50 df_d_hp = df_denominator;
-        boost::math::fisher_f_distribution<boost::multiprecision::cpp_dec_float_50> dist_hp(df_n_hp, df_d_hp);
-        boost::multiprecision::cpp_dec_float_50 p_hp = boost::multiprecision::cpp_dec_float_50(1) - boost::math::cdf(dist_hp, F_hp);
-        return static_cast<double>(p_hp);
-    } else {
-        return p_value;
-    }
-    
-    return std::nan("");
+    return p_value;
 }
 
 } // namespace stoat

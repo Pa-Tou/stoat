@@ -25,9 +25,6 @@ and can be found at https://github.com/chrchang/plink-ng/blob/master/1.9/plink_s
 #include "stats_test.hpp"
 #include "utils.hpp"
 
-// using boost::multiprecision::cpp_dec_float_50;
-// using boost::math::chi_squared_distribution;
-
 // Fisher's Exact Test for 2x2 contingency table
 #define DBL_MAX 1.7976931348623157e308
 

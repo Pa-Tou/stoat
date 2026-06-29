@@ -7,8 +7,6 @@
 
 using namespace stoat; 
 
-using boost::multiprecision::cpp_dec_float_50;
-
 TEST_CASE("set_precision handles small and normal values") {
     REQUIRE(set_precision(0.00001234) == "1.2340e-05");
     REQUIRE(set_precision(0.123456) == "0.1235");
