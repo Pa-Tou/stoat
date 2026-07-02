@@ -19,7 +19,6 @@ void print_help_bh_correct() {
               << "  -t, --tsv FILE                  The TSV file to be processed" << endl
               << "  -p, --p-index N                 The column of the p-value in the tsv (1-indexed)" << endl
               << "                                  If a header is present then this will be the column with the appropriate label by default" << endl
-              << "  -o, --outdir DIR                Where to put the temp file (default stoat_output)" << endl
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << endl;
 }
 
@@ -31,7 +30,6 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
     }
 
     std::string tsv_name;
-    std::string out_dir = "stoat_output";
     size_t p_index = std::numeric_limits<size_t>::max();
 
     int c = 0;
@@ -41,14 +39,13 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
             {
                 {"tsv", required_argument, 0, 't'},
                 {"p-index", required_argument, 0, 'p'},
-                {"outdir", required_argument, 0, 'o'},
                 {"verbose", required_argument, 0, 'V'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "t:p:o:V:h",
+        c = getopt_long(argc, argv, "t:p:V:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -70,9 +67,6 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
                 stoat::Logger::instance().setLevel(logLevel);                
                 break;
                 }
-            case 'o':
-                out_dir = optarg;
-                break;
             case 'h':
                 print_help_bh_correct();
                 return EXIT_FAILURE;
@@ -92,7 +86,7 @@ int main_stoat_bh_correct(int argc, char *argv[]) {
     // print banner
     stoat::print_banner(std::string(STOAT_VERSION));
 
-    std::string temp_file_name = out_dir + "/temp_stoat_bhcorrect.tsv";
+    std::string temp_file_name = tsv_name + ".tmp";
 
     std::shared_ptr<stoat::Reader> reader;
     std::shared_ptr<stoat::Reader> reader_copy;
