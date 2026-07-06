@@ -116,64 +116,88 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
             }
         }
         free(gt);
+
+        // Get the paths of the alleles. This is either from the AT field (vg call) or the ID field (pangenie)
+        std::vector<std::vector<stoat::node_traversal_t>> paths;
         
         // extract AT field from INFO
         char *at = nullptr;
         int nat = 0;
         nat = bcf_get_info_string(hdr, rec, "AT", &at, &nat);
-        if (nat <= 0 || !at)
-        {
-            // AT field is mandatory, throw an error
-            throw std::invalid_argument("AT field is missing in VCF at position " + std::to_string(rec->pos + 1));
-        }
-        std::string at_str(at); // convert to C++ std::string
-        free(at);
 
-        // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
-        // from: ">123>213<234", ">123<234", ">123<234<345"
-        // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
-        std::vector<std::vector<stoat::node_traversal_t>> paths;
-        std::stringstream at_ss(at_str);
-        std::string item;
-        while (std::getline(at_ss, item, ','))
-        {
-            // If we are untangling snarls, then skip any nested snarls
-            std::vector<stoat::node_traversal_t> path_as_nodes = string_to_path_node_traversal(item);
-            if (resolve_nested_calls) {
-                // If we want to resolve snarls, remove any nested snarls by copying everything except nested snarls into new path
-                // Add a <0 node to represent the snarl
-                std::vector<stoat::node_traversal_t> filtered_path;
-                filtered_path.reserve(path_as_nodes.size());
-                size_t path_i = 0;
-                while (path_i < path_as_nodes.size()) {
+        char *id_field = nullptr;
+        int nid = 0;
+        nid = bcf_get_info_string(hdr, rec, "ID", &id_field, &nid);
+        if ((nat > 0 && at) || (nid > 0 && id_field)) {
+            std::string info_str;
+            if (nat>0 && at) {
+                std::string at_str(at); // convert to C++ std::string
+                free(at);
+                info_str= std::move(at_str);
+            } else {
+                std::string id_str(id_field); // convert to C++ std::string
+                free(id_field);
+                info_str= std::move(id_str);
+            }
 
-                    // Add the current node
-                    filtered_path.emplace_back(path_as_nodes[path_i]);
+            // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
+            // from: ">123>213<234", ">123<234", ">123<234<345"
+            // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
+            std::stringstream info_ss(info_str);
+            std::string item;
+            while (std::getline(info_ss, item, ','))
+            {
+                // If we are untangling snarls, then skip any nested snarls
+                std::vector<stoat::node_traversal_t> path_as_nodes;
+                if (nat > 0 && at) {
+                    path_as_nodes  = string_to_path_node_traversal(item);
+                } else {
+                    path_as_nodes = parse_pangenie_id(item);
+                }
 
-                    // Check if the current node is the start of a snarl
-                    if (path_i != 0 && path_i != path_as_nodes.size()-1) {
-                        stoat::node_traversal_t skip_to_node = get_opposite_snarl_bound(filtered_path.back());
-                        if (skip_to_node != filtered_path.back()) {
-                            // If this is the start of a snarl, a fake snarl node and skip to the end of the snarl
-                            // The loop should continue on the end node of the nested snarl
-                            // TODO: This will include the boundary nodes between snarls which is wasteful but simpler
-                            filtered_path.emplace_back(0, false);
-                            while (path_as_nodes[path_i] != skip_to_node) {
+
+                if (resolve_nested_calls) {
+                    // If we want to resolve snarls, remove any nested snarls by copying everything except nested snarls into new path
+                    // Add a <0 node to represent the snarl
+                    std::vector<stoat::node_traversal_t> filtered_path;
+                    filtered_path.reserve(path_as_nodes.size());
+                    size_t path_i = 0;
+                    while (path_i < path_as_nodes.size()) {
+
+                        // Add the current node
+                        filtered_path.emplace_back(path_as_nodes[path_i]);
+
+                        // Check if the current node is the start of a snarl
+                        if (path_i != 0 && path_i != path_as_nodes.size()-1) {
+                            stoat::node_traversal_t skip_to_node = get_opposite_snarl_bound(filtered_path.back());
+                            if (skip_to_node != filtered_path.back()) {
+                                // If this is the start of a snarl, a fake snarl node and skip to the end of the snarl
+                                // The loop should continue on the end node of the nested snarl
+                                // TODO: This will include the boundary nodes between snarls which is wasteful but simpler
+                                filtered_path.emplace_back(0, false);
+                                while (path_as_nodes[path_i] != skip_to_node) {
+                                    path_i++;
+                                }
+                            } else {
                                 path_i++;
                             }
                         } else {
                             path_i++;
                         }
-                    } else {
-                        path_i++;
                     }
+                    paths.push_back(std::move(filtered_path));
+                } else {
+                    paths.push_back(std::move(path_as_nodes));
                 }
-                paths.push_back(std::move(filtered_path));
-            } else {
-                paths.push_back(std::move(path_as_nodes));
+                
             }
-            
+
+        // End if ID field
+        } else { 
+            // AT or ID field is mandatory, throw an error
+            throw std::invalid_argument("AT and ID field is missing in VCF at position " + std::to_string(rec->pos + 1) + "\n\tstoat vcf requires the AT or ID fields containing graph walks from each allele. This can be obtained using vg call or pangenie");
         }
+
 
         iteratee(vcf_info_t({level, genotypes, paths}));
 
@@ -187,6 +211,42 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 #ifdef DEBUG_VCF_PARSER
     std::cerr << " broke out of loop with " << read_status << " At chr " << bcf_hdr_id2name(hdr, rec->rid) << std::endl;
 #endif
+}
+
+std::vector<stoat::node_traversal_t> VCFParser::parse_pangenie_id(std::string& allele_id_str) {
+    // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
+    // The id field is a comma separated list of alleles, and each allele is a :-separated list of ids, and each id is a --separated list of fields
+    // Each id is formatted: [ref_path]-[offset]-[variant_type]-[path]-[size]:
+    // from: ">123>213<234", ">123<234", ">123<234<345"
+    // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
+    std::stringstream id_str_ss(allele_id_str);
+    std::string id_str;
+    
+    // Make a path for this allele. Since the allele may have multiple parts, separate each part by a fake >0 node
+    std::vector<stoat::node_traversal_t> allele_path;
+    bool first_part = true;
+    while (std::getline(id_str_ss, id_str, ':'))
+    {
+        if (first_part) {
+            first_part=false;
+        } else {
+            // If we've already seen an id for this allele, add a fake 
+            allele_path.emplace_back(0, false);
+        }
+        // The path should be the fourth field in the id string
+        std::stringstream id_field_str_ss(id_str);
+        std::string path_str;
+        std::getline(id_field_str_ss, path_str, '-');
+        std::getline(id_field_str_ss, path_str, '-');
+        std::getline(id_field_str_ss, path_str, '-');
+        std::getline(id_field_str_ss, path_str, '-');
+    
+        // Get this part's traversal and add it to allele_path
+        std::vector<stoat::node_traversal_t> path_as_nodes = string_to_path_node_traversal(path_str);
+        allele_path.insert(allele_path.end(), std::make_move_iterator(path_as_nodes.begin()), std::make_move_iterator(path_as_nodes.end()));
+        
+    } //end looping through ids for one allele
+    return allele_path;
 }
 
 void VCFParser::skip_to_next_chromosome(const std::string& chr) {
@@ -285,27 +345,45 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         if (ngt <= 0 || gt == nullptr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
         }
+        std::vector<std::vector<stoat::node_traversal_t>> allele_paths;
 
-        // extract AT field from INFO
+        // extract AT or ID field from INFO
         char *at = nullptr;
         int nat = 0;
         nat = bcf_get_info_string(hdr_genotypes, rec_genotypes, "AT", &at, &nat);
-        if (nat <= 0 || !at) {
+
+        char *id_field = nullptr;
+        int nid = 0;
+        nid = bcf_get_info_string(hdr, rec, "ID", &id_field, &nid);
+        if (nat > 0 && at) {
+            std::string at_str(at); // convert to C++ std::string
+            free(at);
+            
+            // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
+            // from: ">123>213<234", ">123<234", ">123<234<345"
+            // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
+            std::stringstream at_ss(at_str);
+            std::string item;
+            while (std::getline(at_ss, item, ',')) {
+                std::vector<stoat::node_traversal_t> path_as_node_traversal = string_to_path_node_traversal(item);
+                allele_paths.push_back(std::move(path_as_node_traversal));
+            }
+        } else if (nid > 0 && id_field) {
+
+            std::string id_str(id_field); // convert to C++ std::string
+            free(id_field);
+
+            std::stringstream allele_str_ss(id_str);
+            std::string allele_str;
+            while (std::getline(allele_str_ss, allele_str, ','))
+            {
+                std::vector<stoat::node_traversal_t> path_as_node_traversal = parse_pangenie_id(allele_str);
+                allele_paths.push_back(std::move(path_as_node_traversal));
+            }
+
+        } else {
             // AT field is mandatory, throw an error
-            throw std::invalid_argument("AT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
-        }
-        std::string at_str(at); // convert to C++ std::string
-        free(at);
-        
-        // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
-        // from: ">123>213<234", ">123<234", ">123<234<345"
-        // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
-        std::vector<std::vector<stoat::node_traversal_t>> allele_paths;
-        std::stringstream at_ss(at_str);
-        std::string item;
-        while (std::getline(at_ss, item, ',')) {
-            std::vector<stoat::node_traversal_t> path_as_node_traversal = string_to_path_node_traversal(item);
-            allele_paths.push_back(std::move(path_as_node_traversal));
+            throw std::invalid_argument("AT and INFO fields are missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
         }
 
         // Now go through the paths and for each snarl in the path, remember how many copies of the snarl we see

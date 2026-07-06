@@ -146,6 +146,8 @@ class VCFParser {
     // Get the index into the genotypes vector
     size_t genotype_index(size_t sample_hap_index, const stoat::node_traversal_t& snarl_bound);
 
+    // Given one allele from the ID field of a pangenie VCF, return the concatinated paths. Adds >0 in between parts of an allele
+    std::vector<stoat::node_traversal_t> parse_pangenie_id(std::string& allele_id_str);
 
     ///////////////////////////// Functions to fill in the snarls
 
