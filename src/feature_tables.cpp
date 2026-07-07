@@ -593,7 +593,14 @@ bool GenotypeTable::passes_filters(const double maf, const size_t min_individual
     }
 
     // make sure there are enough individuals
-    if(n_active_samples < min_individuals) {
+    // count how many individuals have at least one allele supported
+    size_t supp_samples = 0;
+    for (double ac: this->total_allele_counts_per_sample){
+        if (ac > 0) {
+            supp_samples++;
+        }
+    }
+    if(supp_samples < min_individuals) {
         stoat::LOG_DEBUG("Filtered: not enough individuals: " + std::to_string(n_active_samples));
         return false;
     }
