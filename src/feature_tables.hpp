@@ -209,7 +209,7 @@ public:
     void link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype);
     void link_to_covariates(const CovariateTable& covariates);
 
-    // remove samples with missing information (no phenotype or covariables)
+    // remove samples with no alleles supported
     void remove_noncovered_samples();
 
     // look for predictors with the same values across all samples

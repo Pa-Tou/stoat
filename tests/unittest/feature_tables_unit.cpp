@@ -255,6 +255,11 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         REQUIRE(table.get_value(1, 4) == 10);
     }
 
+    SECTION("Remove noncovered samples") {
+        table.remove_noncovered_samples();
+        REQUIRE(table.get_n_active_samples() == 5);
+    }
+
     SECTION("Remove constant allele") {
         table.remove_constant_predictors();
         REQUIRE(table.get_n_active_alleles() == 3);
@@ -315,7 +320,6 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
     SECTION("Make the correct feature matrix, after filtering") {
         table.remove_noncovered_samples();
         table.remove_constant_predictors();
-        table.add_total_allele_count_covariable();
         table.remove_duplicated_predictors();
         table.remove_one_allele();
         Eigen::MatrixXd mat = table.make_matrixXd_features();
@@ -332,11 +336,16 @@ TEST_CASE( "Combined GenotypeTable", "[table]" ) {
         // alleles
         REQUIRE(mat(2,1) == 0);
         REQUIRE(mat(4,1) == 1);
-        REQUIRE(mat(5,1) == 0);
-        // total alleles
-        REQUIRE(mat(0,3) == 3);
-        // covariable
-        REQUIRE(mat(2,2) == 2);
+    }
+
+    SECTION("Samples were masked also in the phenotype") {
+        Eigen::VectorXd Y = table.make_vectorxd_phenotype();
+        REQUIRE(Y.rows() == 6);
+        table.remove_noncovered_samples();
+        Y = table.make_vectorxd_phenotype();
+        REQUIRE(Y.rows() == 5);
+        REQUIRE(Y(0) == 1);
+        REQUIRE(Y(1) == 0);
     }
 
     SECTION("Check that the phenotype is correctly matched") {
