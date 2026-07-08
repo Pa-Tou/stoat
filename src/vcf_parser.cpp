@@ -117,7 +117,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         }
         free(gt);
 
-        // Get the paths of the alleles. This is either from the AT field (vg call) or the ID field (pangenie)
+        // Get the paths of the alleles. This is either from the AT and RT fields (vg call) or the ID field (pangenie)
         std::vector<std::vector<stoat::node_traversal_t>> paths;
         
         // extract AT field from INFO
@@ -131,13 +131,30 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         if ((nat > 0 && at) || (nid > 0 && id_field)) {
             std::string info_str;
             if (nat>0 && at) {
+                // If there is an AT field, then this is a vg call vcf with the paths directly in the AT field{
                 std::string at_str(at); // convert to C++ std::string
                 free(at);
+                free(id_field);
                 info_str= std::move(at_str);
             } else {
                 std::string id_str(id_field); // convert to C++ std::string
                 free(id_field);
-                info_str= std::move(id_str);
+                free(at);
+
+                // If there is an ID field, then this is a pangenie vcf with the paths as part of the in the ID
+                // Also add the RD field and put them together
+                char *rd_field = nullptr;
+                int nrd = 0;
+                nrd = bcf_get_info_string(hdr, rec, "RD", &rd_field, &nrd);
+                if (nrd <= 0 || !rd_field) {
+                    throw std::invalid_argument("VCF contains ID field but not RD field " + std::to_string(rec->pos + 1) + "\n\tThis pangenie VCF contains the alt paths in the ID field but not the reference path in the RD field");
+                }
+                std::string rd_str(rd_field);
+                free(rd_field);
+                rd_str+=",";
+                rd_str.insert(rd_str.end(), std::make_move_iterator(id_str.begin()), std::make_move_iterator(id_str.end()));
+
+                info_str= std::move(rd_str);
             }
 
             // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
@@ -149,7 +166,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
             {
                 // If we are untangling snarls, then skip any nested snarls
                 std::vector<stoat::node_traversal_t> path_as_nodes;
-                if (nat > 0 && at) {
+                if (nat > 0 && at) { 
                     path_as_nodes  = string_to_path_node_traversal(item);
                 } else {
                     path_as_nodes = parse_pangenie_id(item);
