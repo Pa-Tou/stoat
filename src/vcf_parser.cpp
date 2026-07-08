@@ -375,6 +375,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         if (nat > 0 && at) {
             std::string at_str(at); // convert to C++ std::string
             free(at);
+            free(id_field);
             
             // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
             // from: ">123>213<234", ">123<234", ">123<234<345"
@@ -389,8 +390,23 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
 
             std::string id_str(id_field); // convert to C++ std::string
             free(id_field);
+            free(at);
 
-            std::stringstream allele_str_ss(id_str);
+            // If there is an ID field, then this is a pangenie vcf with the paths as part of the in the ID
+            // Also add the RD field and put them together
+            char *rd_field = nullptr;
+            int nrd = 0;
+            nrd = bcf_get_info_string(hdr_genotypes, rec_genotypes, "RD", &rd_field, &nrd);
+            if (nrd <= 0 || !rd_field) {
+                throw std::invalid_argument("VCF contains ID field but not RD field " + std::to_string(rec->pos + 1) + "\n\tThis pangenie VCF contains the alt paths in the ID field but not the reference path in the RD field");
+            }
+            std::string rd_str(rd_field);
+            free(rd_field);
+            rd_str+=",";
+            rd_str.insert(rd_str.end(), std::make_move_iterator(id_str.begin()), std::make_move_iterator(id_str.end()));
+
+
+            std::stringstream allele_str_ss(rd_str);
             std::string allele_str;
             while (std::getline(allele_str_ss, allele_str, ','))
             {
