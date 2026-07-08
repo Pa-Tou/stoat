@@ -144,9 +144,10 @@ TEST_CASE("Output loop with snarl with bgzipped output", "[bh]") {
 
         std::string rewrite_cmd = "../bin/stoat BHcorrect";
         rewrite_cmd +=
-            + " -t " + output_dir+"/stoat.assoc.pvalues.tsv.gz"; 
+            + " -t " + output_dir+"/stoat.assoc.pvalues.tsv.gz"
+            + " --outdir " + output_dir;
 
-        std::cout << "Command run : \n" << cmd << std::endl;
+        std::cout << "Command run : \n" << rewrite_cmd << std::endl;
         int command_output = std::system(rewrite_cmd.c_str());
         if (command_output != 0) {
             std::cerr << "Command failed: " << rewrite_cmd << "\n";

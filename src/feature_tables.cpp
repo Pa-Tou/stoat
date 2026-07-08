@@ -363,15 +363,6 @@ void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
 
 void GenotypeTable::remove_noncovered_samples() {
 
-    // check the total allele count (filled previously) to decide if a sample should be masked
-    for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
-        // no allele counts present in sample or sample not have phenotype 
-        if (this->total_allele_counts_per_sample.at(samp_i) == 0 && !row_mask[samp_i]) {
-            row_mask[samp_i] = true;
-            n_active_samples--;
-        }
-    }
-
     // mask samples that don't have a phenotype
     size_t masked_samples = 0;
     if (linked_phenotype) {
@@ -602,7 +593,14 @@ bool GenotypeTable::passes_filters(const double maf, const size_t min_individual
     }
 
     // make sure there are enough individuals
-    if(n_active_samples < min_individuals) {
+    // count how many individuals have at least one allele supported
+    size_t supp_samples = 0;
+    for (double ac: this->total_allele_counts_per_sample){
+        if (ac > 0) {
+            supp_samples++;
+        }
+    }
+    if(supp_samples < min_individuals) {
         stoat::LOG_DEBUG("Filtered: not enough individuals: " + std::to_string(n_active_samples));
         return false;
     }
