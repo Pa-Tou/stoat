@@ -87,11 +87,8 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         }
         free(lv);
 
-        // Get the snarl bounds, which are saved in the VCF as the ID
-        std::string snarl_bounds_string (rec->d.id);
-
-        // This should be a vector of two node_traversal_t's of the snarl bounds, first one pointing in, second one pointing out
-        std::vector<stoat::node_traversal_t> snarl_bounds = string_to_path_node_traversal(snarl_bounds_string);
+        // For a vg call vcf, the snarl id is the snarl bounds
+        std::string snarl_id (rec->d.id);
         
         // extract genotypes GT
         int ngt = 0;
@@ -108,7 +105,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         std::vector<int> genotypes;
         genotypes.reserve(hap_count);
         for (size_t i = 0 ; i < hap_count ; i++) {
-            if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_bounds[0])) {
+            if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_id)) {
                 // Always keep the genotype if we don't untangle snarls, or if this is a top-level snarl 
                 genotypes.emplace_back(bcf_gt_allele(gt[i]));
             } else {
@@ -436,9 +433,17 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
     
 }
 
-bool VCFParser::does_sample_have_snarl(size_t sample_hap_index, stoat::node_traversal_t snarl_bound) {
-    if (snarl_in_to_out.count(snarl_bound)) {
-        return genotypes.at(genotype_index(sample_hap_index, snarl_bound));
+bool VCFParser::does_sample_have_snarl(size_t sample_hap_index, const std::string& snarl_id) {
+
+    if (snarl_id == ".") {
+        throw std::runtime_error("error: Trying to untangle a pangenie vcf");
+        return true;
+    }
+
+    // This should be a vector of two node_traversal_t's of the snarl bounds, first one pointing in, second one pointing out
+    std::vector<stoat::node_traversal_t> snarl_bounds = string_to_path_node_traversal(snarl_id);
+    if (snarl_in_to_out.count(snarl_bounds[0])) {
+        return genotypes.at(genotype_index(sample_hap_index, snarl_bounds[0]));
     } else {
         // If this snarl wasn't saved, then it must be a top-level snarl so it is always present
         return true;

@@ -99,9 +99,10 @@ class VCFParser {
 
 
 
-    /// Given the bound of a snarl and a sample (as the index of the sample and haplotype), return true if that sample goes through the snarl, according to the parent snarl.
+    /// Given the ID of a snarl and a sample (as the index of the sample and haplotype), return true if that sample goes through the snarl, according to the parent snarl.
+    /// If the snarl ID is "." (for a pangenie vcf), throw an error because we shouldn't be calling this
     /// TODO: This assumes that the samples are always in a consistent order, which is the order in the VCF. This is done to match the make_edge_matrix() in snarl_analyzer.cpp
-    bool does_sample_have_snarl(size_t sample_hap_index, stoat::node_traversal_t snarl_bound);
+    bool does_sample_have_snarl(size_t sample_hap_index, const std::string& snarl_id);
 
     /// Given a string representing a traversal of a node in a path through a snarl, check if the node is
     /// entering another snarl. If yes, return the string traversal of the end node of the snarl, to skip it in the parent. 
