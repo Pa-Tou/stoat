@@ -1437,7 +1437,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
     int rm = system(rm_cmd.c_str());
 
 }
-TEST_CASE( "Multiple records from a deletion", "[vcf_parser]" ) {
+TEST_CASE( "Multiple records from a deletion", "[vcf_parser][bug]" ) {
     /*
           -------------
         /   --------   \
@@ -1462,7 +1462,7 @@ TEST_CASE( "Multiple records from a deletion", "[vcf_parser]" ) {
     vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4\tS5" << std::endl;
     // For the outer snarl, the three alleles are ins, ins, del, so only genotypes 0 or 1 have the ins
     vcf_out << "ref\t1\t>1>8\tACGTA\tACCTA,A\t60\t.\tLV=0;AT=>1>2>3>4>6>7>8,>1>2>7>8\tGT\t./.\t1/1\t1/1\t0/.\t1/." << std::endl;
-    vcf_out << "ref\t1\t>1>8\tACGTA\tACCTA,A\t60\t.\tLV=0;AT=>1>2>3>4>6>7>8,>1>8\tGT\t1/0\t./.\t./.\t./1\t./0" << std::endl;
+    vcf_out << "ref\t1\t>1>8\tACGTA\tACCTA,A\t60\t.\tLV=0;AT=>1>2>3>4>6>7>8,>1>8\tGT\t1/0\t.\t./.\t./1\t./0" << std::endl;
     // For the middle snarl, the two alleles are ins and del, so the 0's have the insertion
     vcf_out << "ref\t2\t>2>7\tCGT\tCCT,A\t60\t.\tLV=1;AT=>2>3>4>6>7,>2>7\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
     vcf_out << "ref\t3\t>3>6\tCGT\tCCT,A\t60\t.\tLV=1;AT=>3>4>6,>3>5>6\tGT\t0/1\t1/0\t1/0\t0/1\t1/0" << std::endl;

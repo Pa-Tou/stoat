@@ -90,30 +90,6 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         // For a vg call vcf, the snarl id is the snarl bounds
         std::string snarl_id (rec->d.id);
         
-        // extract genotypes GT
-        int ngt = 0;
-        int32_t *gt = nullptr;
-        ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
-        
-        if (ngt <= 0 || gt == nullptr)
-        {
-            throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec->pos + 1));
-        }
-
-        // Make the actual vector of genotypes
-        // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
-        std::vector<int> genotypes;
-        genotypes.reserve(hap_count);
-        for (size_t i = 0 ; i < hap_count ; i++) {
-            if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_id)) {
-                // Always keep the genotype if we don't untangle snarls, or if this is a top-level snarl 
-                genotypes.emplace_back(bcf_gt_allele(gt[i]));
-            } else {
-                genotypes.emplace_back((int)-1);
-            }
-        }
-        free(gt);
-
         // Get the paths of the alleles. This is either from the AT and RT fields (vg call) or the ID field (pangenie)
         std::vector<std::vector<stoat::node_traversal_t>> paths;
         
@@ -211,6 +187,40 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
             // AT or ID field is mandatory, throw an error
             throw std::invalid_argument("AT and ID field is missing in VCF at position " + std::to_string(rec->pos + 1) + "\n\tstoat vcf requires the AT or ID fields containing graph walks from each allele. This can be obtained using vg call or pangenie");
         }
+
+        // extract genotypes GT
+        int ngt = 0;
+        int32_t *gt = nullptr;
+        ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
+        
+        if (ngt <= 0 || gt == nullptr)
+        {
+            throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec->pos + 1));
+        }
+
+        // Make the actual vector of genotypes
+        // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
+        std::vector<int> genotypes;
+        genotypes.reserve(hap_count);
+        for (size_t i = 0 ; i < hap_count ; i++) {
+            if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_id)) {
+                // Always keep the genotype if we don't untangle snarls, or if this is a top-level snarl 
+                int genotype = bcf_gt_allele(gt[i]);
+                if (genotype < (int)-1 || genotype > (int)paths.size()-1) {
+                    // Sometimes pangenie can have a genotype of '.' instead of './.', which seems to cause the genotype to be -1/undefined
+                    // If there is a value that looks weird and it doesn't seem to be this case, warn
+                    if (!(i%2 == 1 && genotypes.at(i-1) == (int)-1)) {
+                        stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype), "bad_vcf_gt");
+                    }
+                    genotypes.emplace_back((int)-1);
+                } else {
+                    genotypes.emplace_back(genotype);
+                }
+            } else {
+                genotypes.emplace_back((int)-1);
+            }
+        }
+        free(gt);
 
 
         iteratee(vcf_info_t({level, genotypes, paths}));
@@ -350,11 +360,13 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
     do {
         // Unpack the vcf up to ALT field
         bcf_unpack(rec_genotypes, BCF_UN_STR);
+        std::cerr << "Get genotypes " << std::endl;
 
         // extract genotypes GT
         int ngt = 0;
         int32_t *gt = nullptr;
         ngt = bcf_get_genotypes(hdr_genotypes, rec_genotypes, &gt, &ngt);
+        std::cerr << "Got genotypes " << std::endl;
         
         if (ngt <= 0 || gt == nullptr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
@@ -393,8 +405,9 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                 size_t sample_hap_index = sample_num*2 + hap_num;
 
                 int idx_path_allele = bcf_gt_allele(gt[sample_hap_index]);
+                std::cerr << "Got allele " << idx_path_allele << std::endl;
 
-                if (idx_path_allele != -1) { // If this has genotypes
+                if (idx_path_allele > (int)-1 && idx_path_allele < (int)allele_paths.size() ) { // If this has acceptable genotypes
                     #ifdef DEBUG_VCF_PARSER
                     std::cerr << "For sample number " << sample_hap_index << " Found path for allele number " << idx_path_allele << ": ";
                     for (const auto& x : allele_paths[idx_path_allele]) {
@@ -424,6 +437,8 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                             }
                         }
                     }
+                } else if (idx_path_allele != (int)-1 && sample_hap_index % 2 == 1 && bcf_gt_allele(gt[sample_hap_index-1])) {
+                    stoat::LOG_WARN("VCF variant has undefined genotype of " + std::to_string(idx_path_allele), "bad_vcf_gt");
                 }
             }
         }

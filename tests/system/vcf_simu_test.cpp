@@ -1096,7 +1096,7 @@ TEST_CASE("Output simple nested chain with missing calls pangenie", "[vcf]") {
     vcf_out << "path0#0#path0\t0\t.\tCGT\tCCT,A\t60\t.\tLV=0;ID=path0-3-SNP->1>3-3:path0-3-SNP->3>4-3;RD=path0-3-REF->1>2>4-2\tGT\t0/0\t0/1" << std::endl;
     // 0 and 1 both take the insertion but 0 takes the inner insertion too
     vcf_out << "path0#0#path0\t3\t.\tCGT\tCCT,A\t60\t.\tLV=0;ID=path0-3-SNP->4>5>7>8-3,path0-3-SNP->4>8-3;RD=path0-3-SNP->4>5>6-3:path0-3-SNP->6>7>8-0-3\tGT\t0/1\t2/0" << std::endl;
-    vcf_out << "path0#0#path0\t4\t.\tCGT\tCCT,A\t60\t.\tLV=1;ID=path0-3-SNP->5>7-3;RD=path0-3-SNP->5>6>7-3\tGT\t./.\t1/0" << std::endl;
+    vcf_out << "path0#0#path0\t4\t.\tCGT\tCCT,A\t60\t.\tLV=1;ID=path0-3-SNP->5>7-3;RD=path0-3-SNP->5>6>7-3\tGT\t.\t1/0" << std::endl;
     // This isn't actually on this reference so it will get skipped
     vcf_out << "path0#0#path0\t5\t.0\tCGT\tCCT,A\t60\t.\tLV=0;ID=path0-3-SNP->8>10-3;RD=path0-3-SNP->8>9>10-3\tGT\t0/1\t1/0" << std::endl;
     vcf_out.close();
