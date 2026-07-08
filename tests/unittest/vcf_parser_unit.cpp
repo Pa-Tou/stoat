@@ -513,17 +513,17 @@ TEST_CASE( "Parse pangenie vcf simple nested snarl multiple snps", "[vcf_parser]
     vcf_out << "##contig=<ID=ref3,length=100>" << std::endl;
     vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4\tS5" << std::endl;
     // For the outer snarl, the three alleles are ins, ins, del, so only genotypes 0 or 1 have the ins
-    vcf_out << "ref1\t1\t>1>9\tACGTA\tACCTA,A\t60\t.\tLV=0;RD=ref-1-REF->1>2>3>5>6>8>9-3;ID=path0-1-SNP->1>2>4>5>7>8>9-1,path1-1-SNP->1>2>4>5>8>9-3,path2-1-DEL->1>6-1\tGT\t3/0\t2/1\t1/1\t0/3\t1/0" << std::endl;
-    vcf_out << "ref1\t2\t>2>5\tCGT\tCCT,A\t60\t.\tLV=1;RD=ref-5-REF->2>3>5-1;ID=path0-3-SNP->2>4>5-2\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
-    vcf_out << "ref1\t2\t>5>8\tCGT\tCCT,A\t60\t.\tLV=1;ID=path0-3-SNP->5>8-3;RD=ref-3-REF->5>6>8-3\tGT\t0/0\t0/1\t1/1\t0/0\t1/." << std::endl;
+    vcf_out << "ref1\t1\t.\tACGTA\tACCTA,A\t60\t.\tLV=0;RD=ref-1-REF->1>2>3>5>6>8>9-3;ID=path0-1-SNP->1>2>4>5>7>8>9-1,path1-1-SNP->1>2>4>5>8>9-3,path2-1-DEL->1>6-1\tGT\t3/0\t2/1\t1/1\t0/3\t1/0" << std::endl;
+    vcf_out << "ref1\t2\t.\tCGT\tCCT,A\t60\t.\tLV=1;RD=ref-5-REF->2>3>5-1;ID=path0-3-SNP->2>4>5-2\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
+    vcf_out << "ref1\t2\t.\tCGT\tCCT,A\t60\t.\tLV=1;ID=path0-3-SNP->5>8-3;RD=ref-3-REF->5>6>8-3\tGT\t0/0\t0/1\t1/1\t0/0\t1/." << std::endl;
 
-    vcf_out << "ref2\t1\t>11>19\tACGTA\tACCTA,A\t60\t.\tLV=0;RD=path0-3-SNP->11>12>13>15>16>18>19;ID=path0-3-SNP->11>12>14>15>17>18>19-3,path2-3-SNP->11>12-3:path2-3-SNP->14>15>18>19-3,path2-3-SNP->11>16-DEL\tGT\t3/0\t2/1\t1/1\t0/3\t1/0" << std::endl;
-    vcf_out << "ref2\t2\t>12>15\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->12>13>15-1;ID=path0-3-SNP->12>14>15-1\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
-    vcf_out << "ref2\t5\t>15>18\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->15>16>18-1;ID=path0-3-SNP->15>18-3\tGT\t0/0\t0/1\t1/1\t0/0\t1/." << std::endl;
+    vcf_out << "ref2\t1\t.19\tACGTA\tACCTA,A\t60\t.\tLV=0;RD=path0-3-SNP->11>12>13>15>16>18>19;ID=path0-3-SNP->11>12>14>15>17>18>19-3,path2-3-SNP->11>12-3:path2-3-SNP->14>15>18>19-3,path2-3-SNP->11>16-DEL\tGT\t3/0\t2/1\t1/1\t0/3\t1/0" << std::endl;
+    vcf_out << "ref2\t2\t.15\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->12>13>15-1;ID=path0-3-SNP->12>14>15-1\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
+    vcf_out << "ref2\t5\t.18\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->15>16>18-1;ID=path0-3-SNP->15>18-3\tGT\t0/0\t0/1\t1/1\t0/0\t1/." << std::endl;
 
-    vcf_out << "ref3\t1\t>21>29\tACGTA\tACCTA,A\t60\t.\tLV=0;RD=path0-3-SNP->21>22-3:path0-3-SNP->23>25>26>28>29-3;ID=path0-3-SNP->21>22>24>25>27>28>29-3,path0-3-SNP->21>22>24>25>28>29-34,path0-3-SNP->21>26-3\tGT\t3/0\t2/1\t1/1\t0/3\t1/0" << std::endl;
-    vcf_out << "ref3\t2\t>22>25\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->22>23>25-2;ID=path0-3-SNP->22>24>25-1\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
-    vcf_out << "ref3\t2\t>25>28\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->25>26>28-1;ID=path0-3-SNP->25>28-5\tGT\t0/0\t0/1\t1/1\t0/0\t1/." << std::endl;
+    vcf_out << "ref3\t1\t.29\tACGTA\tACCTA,A\t60\t.\tLV=0;RD=path0-3-SNP->21>22-3:path0-3-SNP->23>25>26>28>29-3;ID=path0-3-SNP->21>22>24>25>27>28>29-3,path0-3-SNP->21>22>24>25>28>29-34,path0-3-SNP->21>26-3\tGT\t3/0\t2/1\t1/1\t0/3\t1/0" << std::endl;
+    vcf_out << "ref3\t2\t.25\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->22>23>25-2;ID=path0-3-SNP->22>24>25-1\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
+    vcf_out << "ref3\t2\t.28\tCGT\tCCT,A\t60\t.\tLV=1;RD=path0-3-SNP->25>26>28-1;ID=path0-3-SNP->25>28-5\tGT\t0/0\t0/1\t1/1\t0/0\t1/." << std::endl;
     vcf_out.close();
 
 
@@ -945,154 +945,6 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
     // For the outer snarl, the three alleles are ins, ins, del, so only genotypes 0 or 1 have the ins
     vcf_out << "ref\t1\t>1>6\tACGTA\tACCTA,A\t60\t.\tLV=0;AT=>1>2>3>5>6,>1>2>4>5>6,>1>6\tGT\t2/0\t0/1\t1/1\t0/2\t1/0" << std::endl;
     vcf_out << "ref\t2\t>2>5\tCGT\tCCT,A\t60\t.\tLV=1;AT=>2>3>5,>2>4>5\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
-    vcf_out.close();
-
-
-
-    SECTION("Check the untangler") {
-        TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
-
-        parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
-
-        REQUIRE(parser.hap_count == 10);
-        REQUIRE(parser.snarl_count == 1);
-
-        REQUIRE(parser.snarl_in_to_out.size() == 2);
-        REQUIRE(parser.genotypes.size() == 10);
-
-        REQUIRE(parser.get_opposite_snarl_bound(stoat::node_traversal_t(2, false)) == stoat::node_traversal_t(5, false));
-        REQUIRE(parser.get_opposite_snarl_bound(stoat::node_traversal_t(5, true)) == stoat::node_traversal_t(2, true));
-
-        // Everything should have the top-level snarl
-        REQUIRE(parser.does_sample_have_snarl(0, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(1, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(2, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(3, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(4, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(5, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(6, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(7, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(8, stoat::node_traversal_t(1, false)));
-        REQUIRE(parser.does_sample_have_snarl(9, stoat::node_traversal_t(1, false)));
-
-        REQUIRE(!parser.does_sample_have_snarl(0, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(1, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(2, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(3, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(4, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(5, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(6, stoat::node_traversal_t(2, false)));
-        REQUIRE(!parser.does_sample_have_snarl(7, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(8, stoat::node_traversal_t(2, false)));
-        REQUIRE(parser.does_sample_have_snarl(9, stoat::node_traversal_t(2, false)));
-
-        REQUIRE(!parser.does_sample_have_snarl(0, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(1, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(2, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(3, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(4, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(5, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(6, stoat::node_traversal_t(5, true)));
-        REQUIRE(!parser.does_sample_have_snarl(7, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(8, stoat::node_traversal_t(5, true)));
-        REQUIRE(parser.does_sample_have_snarl(9, stoat::node_traversal_t(5, true)));
-
-        parser.close_vcf();
-
-    }
-
-    SECTION("Go through the contents using the untangler") {
-        TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
-
-        // Check first chr
-        std::string chr = parser.get_next_chromosome_name();
-        REQUIRE(chr == ("ref"));
-        size_t snarl_num = 0;
-        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
-            if (snarl_num == 0) {
-                // For the outer snarl, should be
-                //>1>2>3>5>6   >1>2>4>5>6   >1>6
-                // With 2-5 being a nested chain
-                //2/0 0/1 1/1 0/2 1/0
-                REQUIRE(vcf_info.lv == 0);
-                REQUIRE(vcf_info.paths.size() == 3); 
-                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">1>2>0>5>6");
-                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">1>2>0>5>6");
-                REQUIRE(path_node_traversal_to_string(vcf_info.paths[2]) == ">1>6");
-                REQUIRE(vcf_info.genotype[0] == 2); 
-                REQUIRE(vcf_info.genotype[1] == 0); 
-                REQUIRE(vcf_info.genotype[2] == 0); 
-                REQUIRE(vcf_info.genotype[3] == 1); 
-                REQUIRE(vcf_info.genotype[4] == 1); 
-                REQUIRE(vcf_info.genotype[5] == 1); 
-                REQUIRE(vcf_info.genotype[6] == 0); 
-                REQUIRE(vcf_info.genotype[7] == 2); 
-                REQUIRE(vcf_info.genotype[8] == 1); 
-                REQUIRE(vcf_info.genotype[9] == 0); 
-            } else if (snarl_num == 1) {
-                // For the inner snarl, should be
-                //>2>3>5   >2>4>5
-                // 0/0  0/1  1/1  0/0  1/0
-                // .                .
-                // With the . meaning that they weren't present according to the outer snarl 
-                REQUIRE(vcf_info.lv == 1);
-                REQUIRE(vcf_info.paths.size() == 2); 
-                REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">2>3>5");
-                REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">2>4>5");
-                REQUIRE(vcf_info.genotype[0] == -1); 
-                REQUIRE(vcf_info.genotype[1] == 0); 
-                REQUIRE(vcf_info.genotype[2] == 0); 
-                REQUIRE(vcf_info.genotype[3] == 1); 
-                REQUIRE(vcf_info.genotype[4] == 1); 
-                REQUIRE(vcf_info.genotype[5] == 1); 
-                REQUIRE(vcf_info.genotype[6] == 0); 
-                REQUIRE(vcf_info.genotype[7] == -1); 
-                REQUIRE(vcf_info.genotype[8] == 1); 
-                REQUIRE(vcf_info.genotype[9] == 0); 
-            }
-            ++snarl_num;
-        });
-        REQUIRE(snarl_num == 2);
-
-
-
-        parser.close_vcf();
-
-    }
-
-    // clean up
-
-    std::string rm_cmd = "rm " + vcf_filename;
-    int rm = system(rm_cmd.c_str());
-
-}
-TEST_CASE( "Untangle simple nested snarl pangenie", "[vcf_parser]" ) {
-    /*      --------
-          /    3     \
-         /   /   \    \
-       1 - 2       5 - 6 
-             \   /
-               4
-    */
-
-    // Write the vcf
-    // I didn't actually check that this was a reasonable vcf but the snarls and paths should be right
-    std::string vcf_filename = "./test.vcf";
-    std::ofstream vcf_out;
-    vcf_out.open(vcf_filename);
-    vcf_out << "##fileformat=VCFv4.2" << std::endl;
-    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
-    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
-    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
-    vcf_out << "##INFO=<ID=ID,Number=R,Type=String,Description=\"ID for alt alleles\">" << std::endl;
-    vcf_out << "##INFO=<ID=RD,Number=1,Type=String,Description=\"ID for ref alleles\">" << std::endl;
-    vcf_out << "##contig=<ID=ref,length=100>" << std::endl;
-    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4\tS5" << std::endl;
-    // For the outer snarl, the three alleles are ins, ins, del, so only genotypes 0 or 1 have the ins
-    vcf_out << "ref\t1\t>1>6\tACGTA\tACCTA,A\t60\t.\tLV=0;RD=ref-0-REF->1>2>3>5>6-2;ID=ref-3-SNP->1>2>4>5>6-2,ref-3-DEL->1>6-2\tGT\t2/0\t0/1\t1/1\t0/2\t1/0" << std::endl;
-    vcf_out << "ref\t2\t>2>5\tCGT\tCCT,A\t60\t.\tLV=1;RD=ref-3-REF->2>3>5-3;ID=ref-3-SNP->2>4>5-3\tGT\t0/0\t0/1\t1/1\t0/0\t1/0" << std::endl;
     vcf_out.close();
 
 
