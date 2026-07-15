@@ -9,7 +9,7 @@ def print_non_outliers(infile_name):
         for line in infile:
             l = line.split()
             if l[0] == "SAMPLE":
-                continue
+                print(line.strip())
             values.append(float(l[1]))
 
     values.sort()
