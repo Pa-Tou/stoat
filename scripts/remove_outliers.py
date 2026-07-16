@@ -8,9 +8,8 @@ def print_non_outliers(infile_name):
     with open(infile_name, "r") as infile:
         for line in infile:
             l = line.split()
-            if l[0] == "SAMPLE":
-                print(line.strip())
-            values.append(float(l[1]))
+            if l[0] != "SAMPLE":
+                values.append(float(l[1]))
 
     values.sort()
 
@@ -26,9 +25,12 @@ def print_non_outliers(infile_name):
     with open(infile_name, "r") as infile:
         for line in infile:
             l = line.split()
-            val = float(l[1])
-            if val > lower_cutoff and val < upper_cutoff:
+            if l[0] == "SAMPLE":
                 print(line.strip())
+            else:
+                val = float(l[1])
+                if val > lower_cutoff and val < upper_cutoff:
+                    print(line.strip())
 
 def main():
     parser = argparse.ArgumentParser(description="filter outliers")
