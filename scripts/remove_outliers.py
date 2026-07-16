@@ -15,6 +15,9 @@ def print_non_outliers(infile_name):
 
     quartile_size = math.floor(len(values)/4)
     if quartile_size <=1 :
+        with open(infile_name, "r") as infile:
+            for line in infile:
+                print(line.strip())
         return
     q1 = values[quartile_size-1]
     q3 = values[quartile_size * 3 - 1]
