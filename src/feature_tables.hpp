@@ -77,6 +77,9 @@ class FeatureBySampleTable {
     // mask samples with no value in the input mask vector
     // returns the number of samples that were masked
     size_t mask_sample_index(std::vector<bool>& row_mask) const;
+
+    // Shuffle the values to randomize the assignment of value to sample
+    void shuffle_values();
     
     protected:
     // Map from the samples that we have features for to their index in values_per_sample

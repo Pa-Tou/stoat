@@ -94,7 +94,7 @@ namespace stoat_vcf {
         return (phenotype_type);
     }
 
-void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer) const{
+void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer, bool randomize_geno) const{
 
     // prepare snarl collection that will stream the snarls and open connection to the file
     stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0);
@@ -107,6 +107,9 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     // Just make sure that number_snarl_filtered doesn't get overwritten 
     size_t number_snarl_filtered = 0;
     snarl_collection_stream.for_each_snarl_in_file_parallel(gt_reader, [&](snarl_info_t& snarl_info) {
+        if (randomize_geno) {
+            snarl_info.genotypes.shuffle_values();
+        }
         bool filtered = test_and_write_snarl(snarl_info, out_writer);
         #pragma omp critical(number_snarl_filtered)
         {

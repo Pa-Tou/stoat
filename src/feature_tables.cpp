@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <random>
 
 // #define DEBUG_TABLES
 
@@ -93,6 +94,15 @@ size_t FeatureBySampleTable<ValueType>::mask_sample_index(std::vector<bool>& row
         row_mask.at(samp_idx) = true;
     }
     return n_masked;
+}
+
+template<class ValueType>
+void FeatureBySampleTable<ValueType>::shuffle_values() {
+    
+    std::random_device rd;
+    std::mt19937 g(rd());
+    
+    std::shuffle(values_per_sample.begin(), values_per_sample.end(), g);
 }
     
 // Getter for CategoricalFeatureBySampleTable
