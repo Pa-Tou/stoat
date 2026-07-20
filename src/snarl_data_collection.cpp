@@ -94,7 +94,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
         {
             while (keep_going) {
                 handlegraph::net_handle_t chain;
-                #pragma omp critical(snarl_collection)
+                #pragma omp critical(snarl_collection_chains)
                 {
                 chain = chains.back();
                 chains.pop_back();
@@ -104,7 +104,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                 }
     
                 // Everything in here is parallelized
-                #pragma omp task firstprivate(chain)
+                #pragma omp task
                 {
                     
                     distance_index.for_each_child(chain, [&] (handlegraph::net_handle_t snarl) {
@@ -145,15 +145,21 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     snarl_data.start_position = std::get<1>(reference_range);
                                     snarl_data.end_position = std::get<2>(reference_range);
 
-                                    #pragma omp critical(snarl_collection)
-                                    {
-                                        if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
-                                            ref_index = reference_names.size();
-                                            reference_name_to_index[std::get<0>(reference_range)] = ref_index;
-                                            reference_names.emplace_back(std::move(std::get<0>(reference_range)));
-                                        } else {
-                                            ref_index = reference_name_to_index[std::get<0>(reference_range)];
+                                    // If the reference is already in the dictionary, then we can just look it up
+                                    // Otherwise, in a critical block, double check that it's still not there and potentially add it
+                                    if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
+                                        #pragma omp critical(snarl_collection_ref)
+                                        {
+                                            if (reference_name_to_index.count(std::get<0>(reference_range)) == 0) {
+                                                ref_index = reference_names.size();
+                                                reference_name_to_index[std::get<0>(reference_range)] = ref_index;
+                                                reference_names.emplace_back(std::move(std::get<0>(reference_range)));
+                                            } else {
+                                                ref_index = reference_name_to_index[std::get<0>(reference_range)];
+                                            }
                                         }
+                                    } else {
+                                        ref_index = reference_name_to_index[std::get<0>(reference_range)];
                                     }
                                     snarl_data.reference_index = ref_index;
 
@@ -271,7 +277,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                             } // end if snarl_is_eligible
 
-                            #pragma omp critical(snarl_collection)
+                            #pragma omp critical(snarl_collection_chains)
                             {
    
                                 // Add the child chains to the stack
@@ -289,7 +295,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         return true;
                     }); //end for each child
                 }// end omp task
-                #pragma omp critical(snarl_collection)
+                #pragma omp critical(snarl_collection_chains)
                 {
                     keep_going = !chains.empty();
                 }
@@ -298,7 +304,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                     // Wait for tasks to complete
                     #pragma omp taskwait
     
-                    #pragma omp critical(snarl_collection)
+                    #pragma omp critical(snarl_collection_chains)
                     {
                         // Check again if we're done or not
                         keep_going = !chains.empty();
@@ -987,9 +993,6 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
               << snarl_data.end_position << "\t"
               << snarl_data.depth << "\t";
     
-    // Since writing can occur while building the collection, all the big maps could change so we need guards
-    #pragma omp critical(snarl_collection)
-    {
     // Next, optionally include the walks as a single comma-separated string
     if (walks_by_allele == nullptr || walks_by_allele->size() == 0) {
         outstream << ".\t.\t";
@@ -1038,7 +1041,6 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
                 outstream << "\t" << allele_num;
             }
         }
-    }
     }
     outstream << std::endl;
     
