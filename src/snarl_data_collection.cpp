@@ -108,10 +108,11 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                         // If this is a chain, then just add all the snarls to the list of net handles
                         #ifdef DEBUG_SNARL_DATA_COLLECTION
                         chains_processed++;
-                        #endif 
                     
                         #pragma omp critical (cerr)
                         std::cerr << "Thread: " << omp_get_thread_num() << "At chain " << distance_index.net_handle_as_string(net) << std::endl;
+                        #endif 
+
                         #pragma omp critical(snarl_collection_net_handles)
                         {
                             distance_index.for_each_child(net, [&] (handlegraph::net_handle_t snarl) {
@@ -127,6 +128,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                     } else {
                         // Otherwise this is a snarl 
                         #ifdef DEBUG_SNARL_DATA_COLLECTION
+                        #pragma omp critical (cerr)
                         std::cerr << "Thread: " << omp_get_thread_num() << "At snarl " << distance_index.net_handle_as_string(net) << std::endl;
                         #endif
                         if (snarl_is_eligible(distance_index, net, check_distances)) {
@@ -252,9 +254,12 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                             if (walks_requested) {
                                 //
                                 #ifdef DEBUG_SNARL_DATA_COLLECTION
+                                #pragma omp critical (cerr)
+                                {
                                 std::cerr << "got path from walk" << std::endl;
                                 for (const auto& path : walks_by_allele) {
                                     std::cerr << path.to_string() << std::endl;
+                                }
                                 }
                                 #endif
 
