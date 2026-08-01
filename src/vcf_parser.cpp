@@ -5,7 +5,7 @@
 using namespace stoat;
 namespace stoat_vcf{
 
-std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_path) {
+void VCFParser::initialize_parser(const std::string& vcf_path) {
 
     // Open the VCF file
     ptr_vcf = bcf_open(vcf_path.c_str(), "r");
@@ -16,6 +16,7 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
         bcf_close(ptr_vcf);
         throw std::invalid_argument("Could not read VCF header");
     }
+
     // Initialize a record
     rec = bcf_init();
     if (!rec) {
@@ -24,32 +25,45 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
         throw std::invalid_argument("Failed to allocate memory for VCF record");
     }
 
+    // Get the samples names
+    for (int i = 0; i < bcf_hdr_nsamples(hdr); i++) {
+        sample_names.push_back(bcf_hdr_int2id(hdr, BCF_DT_SAMPLE, i));
+    }
+
+    size_t sample_count = sample_names.size();
+    if (sample_count == 0) {
+        throw std::invalid_argument("No samples found in VCF file");
+    }
+
+    // Read the current line
+    read_status = bcf_read(ptr_vcf, hdr, rec);
+
     // If we want to untangle the snarls, then also open readers for the untangling steps
     if (resolve_nested_calls) {
         ptr_vcf_bounds = bcf_open(vcf_path.c_str(), "r");
         ptr_vcf_genotypes = bcf_open(vcf_path.c_str(), "r");
+
         hdr_bounds = bcf_hdr_read(ptr_vcf_bounds);
         hdr_genotypes = bcf_hdr_read(ptr_vcf_genotypes);
         rec_bounds = bcf_init();
         rec_genotypes = bcf_init();
-    }
 
-    std::vector<std::string> list_samples;
-    // Get the samples names
-    for (int i = 0; i < bcf_hdr_nsamples(hdr); i++) {
-        list_samples.push_back(bcf_hdr_int2id(hdr, BCF_DT_SAMPLE, i));
-    }
-    //TOD: This assumes that the ploidy is 2 but idk if that is always true in a vcf
-    hap_count = list_samples.size() * 2;
-
-    // Read the current line
-    read_status = bcf_read(ptr_vcf, hdr, rec);
-    if (resolve_nested_calls) {
         bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
         bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
     }
-        
-    return list_samples;
+
+    int32_t* gt = nullptr;
+    int ngt = 0; // number of genotype
+
+    // Read the first line of the VCF to get the ploidy from the genotypes field
+    ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
+
+    // ploidy = number_of_genotype_values_returned_by_bcf_get_genotypes / number_of_samples
+    ploidy = static_cast<size_t>(ngt / sample_count);
+
+    // haplotype count = number of samples * ploidy
+    hap_count = sample_count * ploidy;
+    free(gt);
 }
 
 std::string VCFParser::get_next_chromosome_name() {
@@ -209,8 +223,10 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
                 if (genotype < (int)-1 || genotype > (int)paths.size()-1) {
                     // Sometimes pangenie can have a genotype of '.' instead of './.', which seems to cause the genotype to be -1/undefined
                     // If there is a value that looks weird and it doesn't seem to be this case, warn
-                    if (!(i%2 == 1 && genotypes.at(i-1) == (int)-1)) {
+                    if (!(i%ploidy == 1 && genotypes.at(i-1) == (int)-1)) {
                         stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype), "bad_vcf_gt");
+                    } else { // Provide genotyping issue
+                        stoat::LOG_ERROR("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype));
                     }
                     genotypes.emplace_back((int)-1);
                 } else {
@@ -366,7 +382,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         int ngt = 0;
         int32_t *gt = nullptr;
         ngt = bcf_get_genotypes(hdr_genotypes, rec_genotypes, &gt, &ngt);
-        std::cerr << "Got genotypes " << std::endl;
+        // std::cerr << "Got genotypes " << std::endl;
         
         if (ngt <= 0 || gt == nullptr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
@@ -405,7 +421,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                 size_t sample_hap_index = sample_num*2 + hap_num;
 
                 int idx_path_allele = bcf_gt_allele(gt[sample_hap_index]);
-                std::cerr << "Got allele " << idx_path_allele << std::endl;
+                // std::cerr << "Got allele " << idx_path_allele << std::endl;
 
                 if (idx_path_allele > (int)-1 && idx_path_allele < (int)allele_paths.size() ) { // If this has acceptable genotypes
                     #ifdef DEBUG_VCF_PARSER

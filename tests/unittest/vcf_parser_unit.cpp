@@ -41,7 +41,7 @@ TEST_CASE( "Parse empty vcf", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
 
         std::string chr = parser.get_next_chromosome_name();
@@ -97,7 +97,7 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser without untangling snarls") {
         TestVCFParser parser(false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -277,7 +277,7 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Skip a chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -405,7 +405,7 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Skip last chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -530,7 +530,7 @@ TEST_CASE( "Parse pangenie vcf simple nested snarl multiple snps", "[vcf_parser]
 
     SECTION("Make a VCFParser without untangling snarls") {
         TestVCFParser parser(false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -710,7 +710,7 @@ TEST_CASE( "Parse pangenie vcf simple nested snarl multiple snps", "[vcf_parser]
     }
     SECTION("Skip a chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -838,7 +838,7 @@ TEST_CASE( "Parse pangenie vcf simple nested snarl multiple snps", "[vcf_parser]
     }
     SECTION("Skip last chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -951,7 +951,7 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
 
     SECTION("Check the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1004,7 +1004,7 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
 
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -1100,7 +1100,7 @@ TEST_CASE( "Untangle simple nested snarl multiple snps", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1167,7 +1167,7 @@ TEST_CASE( "Untangle simple nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -1286,7 +1286,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1353,7 +1353,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -1472,7 +1472,7 @@ TEST_CASE( "Multiple records from a deletion", "[vcf_parser][bug]" ) {
 
     SECTION("Check the contents of the utntangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1539,7 +1539,7 @@ TEST_CASE( "Multiple records from a deletion", "[vcf_parser][bug]" ) {
     }
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();

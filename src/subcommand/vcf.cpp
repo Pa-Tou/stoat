@@ -333,10 +333,10 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
         // start reading the VCF to get the sample list
         stoat_vcf::VCFParser vcf_parser(resolve_vcf);
-        std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
+        vcf_parser.initialize_parser(vcf_path);
 
         // retrieve genotypes one chromosome at a time
-        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
+        snarl_collection.genotype_snarls_by_chr_from_vcf(vcf_parser);
 
         // We are done reading through the vcf file so close it
         vcf_parser.close_vcf();

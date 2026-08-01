@@ -428,22 +428,26 @@ void SnarlDataCollection::add_alleles_by_sample(
     }
 }
 
-void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
+void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(stoat_vcf::VCFParser& vcf_parser) {
+
+    // Get the variables from the vcf parser
+    size_t ploidy = vcf_parser.ploidy;
+    std::vector<std::string> sample_names = vcf_parser.sample_names;
 
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
-    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
+    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0, ploidy);
 
     // use the corresponding sample-haplotypes for this collection
     // remove any existing sample in the collection first
     all_sample_haplotypes.clear();
 
-    // add two haplotypes per sample
+    // add n (ploidy) haplotypes per sample
     for (std::string sample_name: sample_names) {
-        for (std::string hap_name: {"0", "1"}) {
+        for (size_t i = 0; i < ploidy; i++) {
             sample_hap_t samp_hap;
             samp_hap.sample = sample_name;
-            samp_hap.haplotype = hap_name;
+            samp_hap.haplotype = std::to_string(i);
             all_sample_haplotypes.emplace_back(samp_hap);
         }
     }
