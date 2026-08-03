@@ -226,7 +226,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
                     if (!(i%ploidy == 1 && genotypes.at(i-1) == (int)-1)) {
                         stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype), "bad_vcf_gt");
                     } else { // Provide genotyping issue
-                        stoat::LOG_ERROR("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype));
+                        throw std::invalid_argument("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype));
                     }
                     genotypes.emplace_back((int)-1);
                 } else {
