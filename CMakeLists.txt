@@ -17,12 +17,20 @@ include_directories(BEFORE
 
 set(deps_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
+if(NOT EXISTS "${deps_DIR}/libbdsg/CMakeLists.txt")
+  message(FATAL_ERROR "Missing submodule content: ${deps_DIR}/libbdsg/CMakeLists.txt not found. Ensure git submodules are initialized or Dockerfile.static clones the dependency sources.")
+endif()
+
 # Put the executables in a bin directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 # To change to OPTIMIZE=OFF use : cmake -DOPTIMIZE=OFF ..
 option(OPTIMIZE "Build with optimization [default: on]" ON)
 message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
+
+# Option to produce a fully statically linked executable (Linux only)
+option(STATIC_BUILD "Build a statically linked executable and force static libs for subprojects (Linux only)" OFF)
+message(STATUS "STATIC_BUILD is set to: ${STATIC_BUILD}")
 
 # This is the same flag used by libbdsg and libvgio to specify which version of libhandlegraph should be used
 OPTION(USE_INSTALLED_LIBHANDLEGRAPH "Use the version of libhandlegraph installed on the system, if it exists, instead of the bundled version [default: off]" OFF)
@@ -43,6 +51,34 @@ else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
   set(CMAKE_BUILD_TYPE Debug)
   message(STATUS "Debug compilation mode activated: -g -O0 flags enabled")
+endif()
+
+# If STATIC_BUILD requested, configure global variables so subprojects build static libraries and the final link is static
+if(STATIC_BUILD)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    message(FATAL_ERROR "STATIC_BUILD is not supported on macOS in this configuration. Build without -DSTATIC_BUILD=ON on macOS.")
+  endif()
+
+  # Force subprojects to prefer static libraries
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries by default" FORCE)
+
+  # Add static linking flags for the final executable on Linux
+  # -static: static link all system libraries
+  # -s: strip symbols to reduce size
+  # -pthread: thread support
+  # -static-libgcc -static-libstdc++: link libgcc/libstdc++ statically
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -s -pthread -static-libgcc -static-libstdc++")
+
+  # Prefer static library files when searching for libraries
+  # This encourages find_library / link to use .a files when available
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".so" ${CMAKE_FIND_LIBRARY_SUFFIXES})
+
+  # Some dependencies may require PIC even for static linking of a final shared object; enable PIC globally
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  message(STATUS "Configured for static build: BUILD_SHARED_LIBS=OFF, static linker flags and .a preference added")
+
+  # Note: static linking against glibc on modern distros can be fragile.
+  # If you run into unresolved symbols at link time, consider building with a musl toolchain (e.g., use an Alpine-based image) or produce a statically-linked binary using a dedicated static toolchain.
 endif()
 
 find_package(PkgConfig REQUIRED)

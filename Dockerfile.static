@@ -1,0 +1,43 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    pkg-config \
+    wget \
+    libhts-dev \
+    libboost-all-dev \
+    libjansson-dev \
+    protobuf-compiler \
+    libprotoc-dev \
+    libprotobuf-dev \
+    valgrind \
+    bcftools \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /stoat
+COPY . /stoat
+
+RUN if [ ! -f /stoat/deps/libbdsg/CMakeLists.txt ]; then \
+      rm -rf /stoat/deps/Catch2 /stoat/deps/eigen /stoat/deps/gbwt /stoat/deps/gbwtgraph /stoat/deps/libbdsg /stoat/deps/libhandlegraph /stoat/deps/libvgio && \
+      git clone --depth 1 https://github.com/catchorg/Catch2.git /stoat/deps/Catch2 && \
+      git clone --depth 1 https://gitlab.com/libeigen/eigen.git /stoat/deps/eigen && \
+      git clone --depth 1 https://github.com/jltsiren/gbwt.git /stoat/deps/gbwt && \
+      git clone --depth 1 https://github.com/jltsiren/gbwtgraph.git /stoat/deps/gbwtgraph && \
+      git clone --depth 1 https://github.com/vgteam/libbdsg.git /stoat/deps/libbdsg && \
+      git clone --depth 1 https://github.com/vgteam/libhandlegraph.git /stoat/deps/libhandlegraph && \
+      git clone --depth 1 https://github.com/vgteam/libvgio.git /stoat/deps/libvgio ; \
+    fi
+
+RUN rm -rf build && mkdir build && cd build && cmake .. -DSTATIC_BUILD=ON -DOPTIMIZE=ON && make -j$(nproc)
+
+ENV PATH=$PATH:/stoat/bin/
+
+WORKDIR /stoat/deps/libbdsg
+RUN mkdir -p build && cd build && cmake .. -DRUN_DOXYGEN=OFF && make -j$(nproc)
+
+ENV PYTHONPATH=/stoat/deps/libbdsg/lib
+WORKDIR /home
