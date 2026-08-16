@@ -24,17 +24,12 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 option(OPTIMIZE "Build with optimization [default: on]" ON)
 message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
 
-if (OPTIMIZE)
-  message(STATUS "Optimization compilation mode activated")
-  # Use all standard-compliant optimizations
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+if(OPTIMIZE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+    message(STATUS "Optimization compilation mode activated: Release")
 else()
-  # Debug build: no optimization, include debug symbols
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
-  set(CMAKE_BUILD_TYPE Debug)
-  message(STATUS "Debug compilation mode activated: -g -O0 flags enabled")
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+    message(STATUS "Debug compilation mode activated: Debug")
 endif()
 
 # Option to produce a fully statically linked executable (Linux only)
