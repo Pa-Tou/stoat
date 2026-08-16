@@ -41,7 +41,8 @@ In general, the latest versions of all of these tools should work.
 ## Docker
 
 - [`Dockerfile`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile)
-- Docker container on [Quay.io](https://quay.io/repository/patou/stoat?tab=tags): `quay.io/patou/stoat`
+- [`Dockerfile.static`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile.static) (static Linux build)
+- All Dockers container are available on [Quay.io](https://quay.io/repository/patou/stoat?tab=tags): `quay.io/patou/stoat`
 
 ## Build
 

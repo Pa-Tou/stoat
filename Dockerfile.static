@@ -1,0 +1,85 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    pkg-config \
+    wget \
+    libboost-all-dev \
+    libjansson-dev \
+    protobuf-compiler \
+    libprotoc-dev \
+    libprotobuf-dev \
+    libomp-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libcurl4-openssl-dev \
+    autoconf \
+    automake \
+    libtool \
+    valgrind \
+    bcftools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Get vg binary
+WORKDIR /bin
+
+RUN wget https://github.com/vgteam/vg/releases/download/v1.67.0/vg \
+    && chmod +x vg
+
+ENV PATH=$PATH:/bin/
+
+# Get htslib
+RUN git clone --depth 1 --recurse-submodules \
+        https://github.com/samtools/htslib.git /opt/htslib \
+    && cd /opt/htslib \
+    && autoreconf -i \
+    && ./configure --prefix=/usr/local \
+        --disable-libcurl \
+        CFLAGS="-O3 -fPIC -fno-lto" \
+        CXXFLAGS="-O3 -fPIC -fno-lto" \
+    && make -j"$(nproc)" \
+    && make install
+
+ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+# ----------------------------------------------------------------------
+# Build stoat
+# ----------------------------------------------------------------------
+
+#Make stoat
+WORKDIR /stoat
+
+COPY . /stoat
+
+RUN git submodule update --init --recursive && \
+    rm -rf build \
+    && mkdir build \
+    && cd build \
+    && cmake .. -DSTATIC_BUILD=ON \
+    && make -j"$(nproc)"
+
+ENV PATH=$PATH:/stoat/bin/
+
+RUN echo "===== Static build verification =====" \
+    && cd bin \
+    && file stoat \
+    && echo "===== Dynamic dependency check =====" \
+    && ldd stoat 2>&1 || true \
+    && readelf -d stoat
+
+# Make libbdsg so that the python script will work
+WORKDIR /stoat/deps/libbdsg
+
+RUN mkdir build \
+    && cd build \
+    && cmake .. -DRUN_DOXYGEN=OFF \
+    && make -j$(nproc)
+
+ENV PYTHONPATH=/stoat/deps/libbdsg/lib
+
+WORKDIR /home
