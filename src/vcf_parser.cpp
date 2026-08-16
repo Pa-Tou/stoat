@@ -223,9 +223,9 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
                 if (genotype < (int)-1 || genotype > (int)paths.size()-1) {
                     // Sometimes pangenie can have a genotype of '.' instead of './.', which seems to cause the genotype to be -1/undefined
                     // If there is a value that looks weird and it doesn't seem to be this case, warn
-                    if (!(i%ploidy == 1 && genotypes.at(i-1) == (int)-1)) {
+                    if (i%ploidy > 0 && genotypes.at(i-1) == (int)-1) {
                         stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype), "bad_vcf_gt");
-                    } else { // Provide genotyping issue
+                    } else { // Provide genotyping issue missing at least one genotype AND genotype aren't '.'
                         throw std::invalid_argument("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype));
                     }
                     genotypes.emplace_back((int)-1);

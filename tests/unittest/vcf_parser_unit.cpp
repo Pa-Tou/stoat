@@ -1656,8 +1656,8 @@ TEST_CASE( "Parse vcf polyploid genotypes (ploidy 3)", "[vcf_parser][polyploid]"
     vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
     vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
     vcf_out << "##contig=<ID=ref1,length=100>" << std::endl;
-    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2" << std::endl;
-    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\t1/1/0\t.\t./." << std::endl; // here if . is missing in the genotype they must be interpreted like : ././.
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4" << std::endl;
+    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\t1/1/0\t.\t././." << std::endl; // here if . is missing in the genotype they must be interpreted like : ././.
     vcf_out.close();
 
     SECTION("Detect ploidy and hap_count from genotypes") {
@@ -1665,9 +1665,9 @@ TEST_CASE( "Parse vcf polyploid genotypes (ploidy 3)", "[vcf_parser][polyploid]"
         TestVCFParser parser(true);
         parser.initialize_parser(vcf_filename);
 
-        // Expect ploidy = 3 and 2 samples -> hap_count = 6
+        // Expect ploidy = 3 and 4 samples -> hap_count = 12
         REQUIRE(parser.ploidy == 3);
-        REQUIRE(parser.hap_count == 6);
+        REQUIRE(parser.hap_count == 12);
 
         std::string chr = parser.get_next_chromosome_name();
         REQUIRE(chr == ("ref1"));
@@ -1756,9 +1756,9 @@ TEST_CASE( "Triploid genotypes issue", "[vcf_parser][polyploid][bug]" ) {
             REQUIRE(vcf_info.genotype[7] == -1); 
             REQUIRE(vcf_info.genotype[8] == -1);
  
-            REQUIRE(vcf_info.genotype[9] == -1);
-            REQUIRE(vcf_info.genotype[10] == -1); 
-            REQUIRE(vcf_info.genotype[11] == -1); 
+            REQUIRE(vcf_info.genotype[9] == 0);
+            REQUIRE(vcf_info.genotype[10] == 0); 
+            REQUIRE(vcf_info.genotype[11] == 0); 
 
         });
 
