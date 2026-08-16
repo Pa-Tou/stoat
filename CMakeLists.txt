@@ -13,9 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "12.7") # MACOS fix
 
-include_directories(BEFORE
-    ${PROJECT_SOURCE_DIR}/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/include
-)
+include_directories(BEFORE ${PROJECT_SOURCE_DIR}/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/include)
 
 set(deps_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
@@ -25,6 +23,19 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 # To change to OPTIMIZE=OFF use: cmake -DOPTIMIZE=OFF ..
 option(OPTIMIZE "Build with optimization [default: on]" ON)
 message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
+
+if (OPTIMIZE)
+  message(STATUS "Optimization compilation mode activated")
+  # Use all standard-compliant optimizations
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+else()
+  # Debug build: no optimization, include debug symbols
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+  set(CMAKE_BUILD_TYPE Debug)
+  message(STATUS "Debug compilation mode activated: -g -O0 flags enabled")
+endif()
 
 # Option to produce a fully statically linked executable (Linux only)
 option(STATIC_BUILD "Build a statically linked executable and force static libs for subprojects (Linux only)" OFF)
@@ -179,7 +190,7 @@ if (STATIC_BUILD)
         "${deps_DIR}/gbwtgraph/include"
     )
 
-    set(COMMON_CXX_FLAGS "-fPIC -O3 -std=c++17 ${CMAKE_CXX_FLAGS}")
+    set(COMMON_CXX_FLAGS "-fPIC -std=c++17 ${CMAKE_CXX_FLAGS}")
 
     # 1. sdsl-lite
     ExternalProject_Add(sdsl_lite
