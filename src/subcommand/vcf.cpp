@@ -40,6 +40,7 @@ void print_help_vcf() {
               << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
               << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
+              << "  -m, --max-haplotype INT         Max number of haplotype that must be concidered in the vcf per sample\n"
               << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
@@ -59,6 +60,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     size_t min_individuals = 0;
     // JEAN this threshold is a bit redundant with children_threshold and cycle_threshold but I guess could be useful if we want to set it lower than (children_threshold * (cycle_threshold+1))
     size_t path_length_threshold = 50;
+    size_t max_haplotype = 0;
     std::string output_dir = "stoat_output";
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
@@ -80,6 +82,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"children", required_argument, 0, 'i'},
         {"cycle", required_argument, 0, 'y'},
         {"path-length", required_argument, 0, 'l'},
+        {"max-haplotype", required_argument, 0, 'm'},
         {"resolve-vcf", no_argument, 0, 'f'},
         {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
@@ -90,7 +93,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:R:i:y:l:m:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -115,6 +118,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 path_length_threshold = std::stoi(optarg);
                 if (path_length_threshold < 2) {
                     throw std::runtime_error("Error: [stoat vcf] Path length threshold must be > 1");
+                }
+                break;
+            case 'm':
+                max_haplotype = std::stoi(optarg);
+                if (max_haplotype <= 0) {
+                    throw std::runtime_error("Error: [stoat vcf] Max haplotype threshold must be > 0");
                 }
                 break;
             case 'f':
@@ -332,11 +341,11 @@ int main_stoat_vcf(int argc, char* argv[]) {
         auto start_gt_timer = std::chrono::high_resolution_clock::now();
 
         // start reading the VCF to get the sample list
-        stoat_vcf::VCFParser vcf_parser(resolve_vcf);
-        std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
+        stoat_vcf::VCFParser vcf_parser(resolve_vcf, max_haplotype);
+        vcf_parser.initialize_parser(vcf_path);
 
         // retrieve genotypes one chromosome at a time
-        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
+        snarl_collection.genotype_snarls_by_chr_from_vcf(vcf_parser);
 
         // We are done reading through the vcf file so close it
         vcf_parser.close_vcf();

@@ -38,10 +38,10 @@ class VCFParser {
     public:
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
-    VCFParser(bool resolve_nested_calls) : resolve_nested_calls(resolve_nested_calls) {};
+    VCFParser(bool resolve_nested_calls, size_t max_haplotype=0) : resolve_nested_calls(resolve_nested_calls), max_haplotype(max_haplotype) {};
 
-    /// Parse the header and return the sample names
-    std::vector<std::string> initialize_parser(const std::string& vcf_path); 
+    /// Parse the header
+    void initialize_parser(const std::string& vcf_path); 
 
     /// From wherever in the VCF file we currently are, what is the chromosome?
     /// This doesn't advance the VCF file so it can be called multiple times pointing to the same thing
@@ -60,7 +60,17 @@ class VCFParser {
     /// This should be called after running through the vcf to close the file
     void close_vcf();
 
-    // How many haplotypes ? Number of samples * ploidy
+    // The list of sample names in the VCF
+    std::vector<std::string> sample_names;
+
+    // Number of alleles per sample
+    size_t ploidy;
+
+    // Max haplotype per sample (if one sample containt more that this threshold it won't be considered for genotyping)
+    // If less that this count is present missing haplotype will be considered as missing genotype like '.'
+    size_t max_haplotype;
+
+    // haplotypes count : Number of samples * ploidy
     size_t hap_count;
 
     // If this is true, then fill in all the snarl untangling stuff and change the output of for_each_record_in_vcf to reflect untangled snarls
@@ -140,7 +150,6 @@ class VCFParser {
     /// The index for the snarl is in snarl_bounds, which must be filled in before trying to use this
     /// There are hap_count bools per snarl, and an unknown number of snarls
     std::vector<bool> genotypes;
-
 
     /////////////////// Helper functions
 
