@@ -38,7 +38,7 @@ class VCFParser {
     public:
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
-    VCFParser(bool resolve_nested_calls) : resolve_nested_calls(resolve_nested_calls) {};
+    VCFParser(bool resolve_nested_calls, size_t max_haplotype=0) : resolve_nested_calls(resolve_nested_calls), max_haplotype(max_haplotype) {};
 
     /// Parse the header
     void initialize_parser(const std::string& vcf_path); 
@@ -63,8 +63,12 @@ class VCFParser {
     // The list of sample names in the VCF
     std::vector<std::string> sample_names;
 
-    // Number of alleles per sample (1 for haploid, 2 for diploid, etc)
+    // Number of alleles per sample
     size_t ploidy;
+
+    // Max haplotype per sample (if one sample containt more that this threshold it won't be considered for genotyping)
+    // If less that this count is present missing haplotype will be considered as missing genotype like '.'
+    size_t max_haplotype;
 
     // haplotypes count : Number of samples * ploidy
     size_t hap_count;

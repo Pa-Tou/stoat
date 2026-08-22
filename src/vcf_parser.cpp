@@ -52,18 +52,32 @@ void VCFParser::initialize_parser(const std::string& vcf_path) {
         bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
     }
 
-    int32_t* gt = nullptr;
-    int ngt = 0; // number of genotype
+    // Case where user didn't provide max haplotype arg, we dermine it by
+    // Reading the first line of the VCF and get the maximum allele found across samples.
+    if (max_haplotype == 0) {
 
-    // Read the first line of the VCF to get the ploidy from the genotypes field
-    ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
+        int32_t* gt = nullptr;
+        int ngt = 0; // number of genotype
 
-    // ploidy = number_of_genotype_values_returned_by_bcf_get_genotypes / number_of_samples
-    ploidy = static_cast<size_t>(ngt / sample_count);
+        // Read the first line of the VCF to get the ploidy from the genotypes field
+        ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
 
-    // haplotype count = number of samples * ploidy
-    hap_count = sample_count * ploidy;
-    free(gt);
+        // ngt is the maximum GT vector length per sample for that record
+        // HTSlib uses a rectangular array:
+        // sample1:  0   1   END
+        // sample2:  0   1   2
+        // ngt = 6
+        ploidy = static_cast<size_t>(ngt / sample_count);
+
+        // haplotype count = number of samples * ploidy
+        hap_count = sample_count * ploidy;
+        free(gt);
+
+    // Case where user provide max_haplotype arg
+    } else {
+        ploidy = max_haplotype;
+        hap_count = sample_count * ploidy;
+    }
 }
 
 std::string VCFParser::get_next_chromosome_name() {
@@ -206,38 +220,62 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         int ngt = 0;
         int32_t *gt = nullptr;
         ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
-        
-        if (ngt <= 0 || gt == nullptr)
-        {
+
+        if (ngt <= 0 || gt == nullptr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec->pos + 1));
         }
+
+        const size_t sample_count = sample_names.size();
+
+        // Number of GT slots actually stored per sample in this record.
+        // This can be smaller than the expected maximum ploidy.
+        const size_t gt_ploidy = ngt / sample_count;
 
         // Make the actual vector of genotypes
         // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
         std::vector<int> genotypes;
         genotypes.reserve(hap_count);
-        for (size_t i = 0 ; i < hap_count ; i++) {
+
+        for (size_t i = 0; i < hap_count; ++i) {
+
+            const size_t sample = i / ploidy;
+            const size_t haplotype = i % ploidy;
+
+            // This haplotype does not exist in the GT field for this sample.
+            // Fill it with missing genotype.
+            if (haplotype >= gt_ploidy) {
+                genotypes.emplace_back(-1);
+                continue;
+            }
+
+            const size_t gt_index = sample * gt_ploidy + haplotype;
+            const int32_t encoded_gt = gt[gt_index];
+
+            // Missing values
+            if (encoded_gt == bcf_int32_vector_end || bcf_gt_is_missing(encoded_gt)) {
+                genotypes.emplace_back(-1);
+                continue;
+            }
+
+            int genotype = bcf_gt_allele(encoded_gt);
+
+            // Invalid allele index.
+            if (genotype < 0 || genotype >= static_cast<int>(paths.size())) {
+                stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" +
+                    std::to_string(rec->pos + 1) + " has invalid genotype of " +
+                    std::to_string(genotype), "bad_vcf_gt");
+
+                genotypes.emplace_back(-1);
+                continue;
+            }
+
             if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_id)) {
-                // Always keep the genotype if we don't untangle snarls, or if this is a top-level snarl 
-                int genotype = bcf_gt_allele(gt[i]);
-                if (genotype < (int)-1 || genotype > (int)paths.size()-1) {
-                    // Sometimes pangenie can have a genotype of '.' instead of './.', which seems to cause the genotype to be -1/undefined
-                    // If there is a value that looks weird and it doesn't seem to be this case, warn
-                    if (i%ploidy > 0 && genotypes.at(i-1) == (int)-1) {
-                        stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype), "bad_vcf_gt");
-                    } else { // Provide genotyping issue missing at least one genotype AND genotype aren't '.'
-                        throw std::invalid_argument("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(rec->pos+1) + " has undefined genotype of " + std::to_string(genotype));
-                    }
-                    genotypes.emplace_back((int)-1);
-                } else {
-                    genotypes.emplace_back(genotype);
-                }
+                genotypes.emplace_back(genotype);
             } else {
-                genotypes.emplace_back((int)-1);
+                genotypes.emplace_back(-1);
             }
         }
         free(gt);
-
 
         iteratee(vcf_info_t({level, genotypes, paths}));
 
