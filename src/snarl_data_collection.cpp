@@ -87,7 +87,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     
     // Go through the contents of net_handles in parallel
     // Everything touching net_handles needs to be in an omp critical block so they don't collide. 
-    #pragma omp parallel shared(net_handles, keep_going, chains_added, chains_processed, all_snarl_data, snarl_to_walks, snarl_to_alleles_by_sample, snarl_to_sequences, reference_names, all_sample_haplotypes)
+    #pragma omp parallel shared(net_handles, keep_going, chains_added, chains_processed, chr_idx_to_snarl_data, snarl_to_walks, snarl_to_alleles_by_sample, snarl_to_sequences, reference_names, all_sample_haplotypes)
     {
         // The actual while loop is run on a single thread
         #pragma omp single
@@ -135,6 +135,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                             // Make the snarl_info_internal_t to fill in. Since it's multithreaded it's better to move() it instead of adding it here
                             snarl_info_internal_t snarl_data;
+                            size_t reference_index;
                             number_snarl_analyzed++;
 
                             // Get the start and end nodes
@@ -178,12 +179,12 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 } else {
                                     ref_index = reference_name_to_index[std::get<0>(reference_range)];
                                 }
-                                snarl_data.reference_index = ref_index;
+                                reference_index = ref_index;
 
                             } else {
                                 snarl_data.start_position = 0;
                                 snarl_data.end_position = 0;
-                                snarl_data.reference_index = std::numeric_limits<size_t>::max();
+                                reference_index = std::numeric_limits<size_t>::max();
                             }
 
                             // Optionally fill in the walks, alleles, and sequences.
@@ -203,9 +204,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                             // the snarl_info is const in the finders so it won't change the walks/alleles/sequences
                             // except when references to them are passed as the thing we're filling in
                             snarl_info_t new_snarl_info (snarl_data.start_node, 
-                                                         snarl_data.end_node, 
-                                                         snarl_data.reference_index == std::numeric_limits<size_t>::max() ? "NA" 
-                                                                                    : reference_names.at(snarl_data.reference_index),
+                                                         snarl_data.end_node,
                                                          snarl_data.start_position,
                                                          snarl_data.end_position,
                                                          snarl_data.depth,
@@ -273,7 +272,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                             }
 
                             if (out_filename != "") {
-                                write_snarl_data_line(*temp_writer, snarl_data, &walks_by_allele, &snarl_sequences, &alleles_by_sample);
+                                write_snarl_data_line(*temp_writer, snarl_data, &walks_by_allele, &snarl_sequences, &alleles_by_sample, &reference_index);
                                 number_paths_analyzed += alleles_by_sample.allele_count;
                             }
    
@@ -291,7 +290,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     if (sequence_requested) {
                                         snarl_to_sequences.emplace(snarl_data.start_node, std::move(snarl_sequences));
                                     }
-                                    all_snarl_data.emplace_back(std::move(snarl_data));
+                                    chr_idx_to_snarl_data[reference_index].emplace_back(std::move(snarl_data));
                                 }
                             }
 
@@ -376,54 +375,58 @@ void SnarlDataCollection::add_alleles_by_sample(
                 std::string chr) {
 
     #pragma omp parallel for schedule(dynamic)
-    for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
+    for (const auto& pair : chr_idx_to_snarl_data) {
+        size_t reference_index = pair.first;
+        const std::vector<snarl_info_internal_t>& reference_snarl_data = pair.second;
 
         // If we are limiting to a chromosome (by reference path), then skip anything not on this chromosome
-        if (chr != "" && (snarl_info.reference_index == std::numeric_limits<size_t>::max() || chr != reference_names.at(snarl_info.reference_index))) {
+        if (chr != "" && (reference_index == std::numeric_limits<size_t>::max() || chr != reference_names.at(reference_index))) {
             continue;
         }
 
-        std::vector<size_t> empty_alleles_by_sample;
-        
-        // This might cause problems because it is a reference but it doesn't get used so I think its fine
-        // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
-        GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
+        for (const snarl_info_internal_t& snarl_info : reference_snarl_data) {
 
-        // Make the snarl_info_t from the information we have
-        std::vector<PathTraversal> empty_walks (0); 
-        std::vector<std::string> empty_sequences (0);
-        snarl_info_t new_snarl_info(snarl_info.start_node, 
-                                snarl_info.end_node, 
-                                snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
-                                snarl_info.start_position,
-                                snarl_info.end_position,
-                                snarl_info.depth,
-                                empty_genotypes,
-                                all_sample_haplotypes,
-                                allele_by_sample_t(),
-                                snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
-                                snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
+            std::vector<size_t> empty_alleles_by_sample;
+            
+            // This might cause problems because it is a reference but it doesn't get used so I think its fine
+            // I don't want to use the actual samples_to_index because then the empty genotype table with allocate memory for the vector
+            GenotypeTable empty_genotypes(std::unordered_map<std::string, size_t>(), 0);
 
-        // Get the alleles from the snarl_info_t
-        std::vector<size_t> new_alleles_by_sample = find_alleles_by_sample(new_snarl_info, all_sample_haplotypes);
-        size_t max_allele = 0;
-        for (size_t x : new_alleles_by_sample) {
-            if (x != std::numeric_limits<size_t>::max()) {
-                max_allele = std::max(x, max_allele);
+            // Make the snarl_info_t from the information we have
+            std::vector<PathTraversal> empty_walks (0); 
+            std::vector<std::string> empty_sequences (0);
+            snarl_info_t new_snarl_info(snarl_info.start_node, 
+                                    snarl_info.end_node, 
+                                    snarl_info.start_position,
+                                    snarl_info.end_position,
+                                    snarl_info.depth,
+                                    empty_genotypes,
+                                    all_sample_haplotypes,
+                                    allele_by_sample_t(),
+                                    snarl_to_walks.count(snarl_info.start_node) ? snarl_to_walks.at(snarl_info.start_node) : empty_walks,
+                                    snarl_to_sequences.count(snarl_info.start_node) ? snarl_to_sequences.at(snarl_info.start_node) : empty_sequences);
+
+            // Get the alleles from the snarl_info_t
+            std::vector<size_t> new_alleles_by_sample = find_alleles_by_sample(new_snarl_info, all_sample_haplotypes);
+            size_t max_allele = 0;
+            for (size_t x : new_alleles_by_sample) {
+                if (x != std::numeric_limits<size_t>::max()) {
+                    max_allele = std::max(x, max_allele);
+                }
             }
-        }
 
-        // The allele count is either the maximum allele that we see, or the number of alleles in walks_by_allele
-        size_t allele_count = max_allele+1;
-        if (snarl_to_walks.count(snarl_info.start_node)) {
-            allele_count = std::max(allele_count, snarl_to_walks.at(snarl_info.start_node).size());
-        }
+            // The allele count is either the maximum allele that we see, or the number of alleles in walks_by_allele
+            size_t allele_count = max_allele+1;
+            if (snarl_to_walks.count(snarl_info.start_node)) {
+                allele_count = std::max(allele_count, snarl_to_walks.at(snarl_info.start_node).size());
+            }
 
-        // Save it
-        #pragma omp critical(snarl_collection)
-        {
-            snarl_to_alleles_by_sample.emplace(snarl_info.start_node, allele_by_sample_t(allele_count, std::move(new_alleles_by_sample)));
-            number_snarl_analyzed++;
+            // Save it
+            #pragma omp critical(snarl_collection)
+            {
+                snarl_to_alleles_by_sample.emplace(snarl_info.start_node, allele_by_sample_t(allele_count, std::move(new_alleles_by_sample)));
+                number_snarl_analyzed++;
+            }
         }
     }
 }
@@ -520,7 +523,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
 // Call interatee for all snarls
 void SnarlDataCollection::for_each_snarl(const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
-    for (const snarl_info_internal_t& snarl_info : all_snarl_data) {
+    for (const snarl_info_internal_t& snarl_info : snarl_data) {
         run_iteratee_on_one_snarl(snarl_info, iteratee);
     }
 }
@@ -598,7 +601,6 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
     std::vector<std::string> empty_sequences (0);
     snarl_info_t new_snarl_info (internal_snarl_info.start_node, 
                           internal_snarl_info.end_node, 
-                          internal_snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(internal_snarl_info.reference_index),
                           internal_snarl_info.start_position,
                           internal_snarl_info.end_position,
                           internal_snarl_info.depth,
@@ -939,7 +941,6 @@ This needs to hold snarl_info_internal_t's which contain:
 
 - node_traversal_t start_node;
 - node_traversal_t end_node;
-- size_t reference_index (which points to a string representing the reference name);
 - size_t start_position;
 - size_t end_position;
 - size_t depth;
@@ -994,21 +995,21 @@ void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_
     out_writer.write(outstream.str());
 }
 
-void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const snarl_info_internal_t& snarl_data) const {
+void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const snarl_info_internal_t& snarl_data, const size_t& reference_index) const {
     write_snarl_data_line(out_writer, snarl_data, snarl_to_walks.count(snarl_data.start_node) == 0 ? nullptr : &snarl_to_walks.at(snarl_data.start_node), 
                           snarl_to_sequences.empty() || snarl_to_sequences.count(snarl_data.start_node) == 0 ? nullptr : &snarl_to_sequences.at(snarl_data.start_node),
                           (snarl_to_alleles_by_sample.empty() || snarl_to_alleles_by_sample.count(snarl_data.start_node) == 0 
-                                || snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) ? nullptr : &snarl_to_alleles_by_sample.at(snarl_data.start_node)); 
+                                || snarl_to_alleles_by_sample.at(snarl_data.start_node).alleles.size() == 0) ? nullptr : &snarl_to_alleles_by_sample.at(snarl_data.start_node), reference_index); 
 }
 
 void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const snarl_info_internal_t& snarl_data, const std::vector<stoat::PathTraversal>* walks_by_allele, 
-                                                const std::vector<std::string>* sequences, const allele_by_sample_t* alleles_by_sample) const {
+                                                const std::vector<std::string>* sequences, const allele_by_sample_t* alleles_by_sample, const size_t& reference_index) const {
     std::stringstream outstream;
     
     // Start with just the contents of the snarl_info_internal_t
     outstream << snarl_data.start_node.to_string() << "\t"
               << snarl_data.end_node.to_string() << "\t"
-              << snarl_data.reference_index << "\t"
+              << reference_index << "\t"
               << snarl_data.start_position << "\t"
               << snarl_data.end_position << "\t"
               << snarl_data.depth << "\t";
@@ -1070,9 +1071,11 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
 void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer) const {
     write_snarl_data_collection_header(out_writer);
 
-    // Now write the snarls, one per line
-    for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
-        write_snarl_data_line(out_writer, snarl_data);
+    // loop over map
+    for (const auto& pair : chr_idx_to_snarl_data) {
+        const size_t reference_index = pair.first;
+        const std::vector<snarl_info_internal_t>& snarl_data = pair.second;
+        write_snarl_data_line(out_writer, snarl_data, reference_index);
     }
 
     return;
@@ -1081,7 +1084,7 @@ void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer)
 void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_reader) {
 
     // Clear anything that has already been filled in, since we want it to match what was in the file
-    all_snarl_data.clear();
+    chr_idx_to_snarl_data.clear();
     snarl_to_walks.clear();
     snarl_to_alleles_by_sample.clear();
     snarl_to_sequences.clear();
@@ -1182,9 +1185,10 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     }
 }
 
-SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_line(std::string& line) {
+std::pair<size_t, SnarlDataCollection::snarl_info_internal_t> SnarlDataCollection::load_snarl_data_line(std::string& line) {
 
     snarl_info_internal_t snarl_info;
+    size_t reference_index;
     std::stringstream linestream(line);
     std::string part;
 
@@ -1198,7 +1202,7 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
     
     // Index of reference
     std::getline(linestream, part, '\t');
-    snarl_info.reference_index = std::stoull(part);
+    reference_index = std::stoull(part);
     
     // Start offset along reference
     std::getline(linestream, part, '\t');
@@ -1285,13 +1289,14 @@ SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_
         }
     }
 
-    return snarl_info;
+    return std::make_pair(reference_index, snarl_info);
 }
 
 //TODO: This copies a lot from load_snarl_data_line and run_iteratee_on_one_snarl
 void SnarlDataCollection::run_iteratee_on_snarl_data_line(const std::string& line, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
 
     snarl_info_internal_t snarl_info;
+    size_t reference_index;
     std::stringstream linestream(line);
     std::string part;
 
@@ -1305,7 +1310,7 @@ void SnarlDataCollection::run_iteratee_on_snarl_data_line(const std::string& lin
     
     // Index of reference
     std::getline(linestream, part, '\t');
-    snarl_info.reference_index = std::stoull(part);
+    reference_index = std::stoull(part);
     
     // Start offset along reference
     std::getline(linestream, part, '\t');
@@ -1407,7 +1412,7 @@ void SnarlDataCollection::run_iteratee_on_snarl_data_line(const std::string& lin
 
     snarl_info_t new_snarl_info (snarl_info.start_node, 
                           snarl_info.end_node, 
-                          snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
+                        //   snarl_info.reference_index == std::numeric_limits<size_t>::max() ? "NA" : reference_names.at(snarl_info.reference_index),
                           snarl_info.start_position,
                           snarl_info.end_position,
                           snarl_info.depth,
@@ -1427,7 +1432,8 @@ void SnarlDataCollection::load_snarl_data_collection(stoat::Reader& in_reader, c
 
         // Get the snarls
         while (in_reader.getline(line)) {
-            all_snarl_data.emplace_back(load_snarl_data_line(line));
+            const auto& [reference_index, snarl_data] = load_snarl_data_line(line);
+            chr_idx_to_snarl_data[reference_index].emplace_back(snarl_data);
         }
     }
 }
@@ -1474,7 +1480,6 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
         // Make a copy of the snarl_info_t original
         snarl_info_copy_t copy;
 
-        copy.ref_path = original.ref_path;
         copy.start_position = original.start_position;
         copy.end_position = original.end_position;
         copy.depth = original.depth;

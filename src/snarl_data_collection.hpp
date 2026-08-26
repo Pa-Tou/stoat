@@ -106,7 +106,7 @@ class SnarlDataCollection {
 
         std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
     
-        size_t size() const {return all_snarl_data.size();}
+        size_t size(const size_t& reference_index) const {return chr_idx_to_snarl_data[reference_index].size();}
 
         // Get a reference to the reference path names that are stored in the collection
         const std::vector<std::string>& get_reference_names() const {
@@ -147,9 +147,6 @@ class SnarlDataCollection {
             stoat::node_traversal_t start_node = stoat::node_traversal_t(0, false);
             stoat::node_traversal_t end_node = stoat::node_traversal_t(0, false);
 
-            // Index into reference_names to get the string representation of the reference path
-            size_t reference_index;
-    
             // Start and end offset along the reference path
             size_t start_position;
             size_t end_position;
@@ -161,11 +158,8 @@ class SnarlDataCollection {
 
         //////////////////////////// The stuff holding the data for each snarl, indexed by snarl start node (which uniquely identifies the snarl)
 
-        /// This holds the snarl data as a map from the chromosome name to the data
-        // TODO: Make sure that this gets the chr name the way Matis did it
-        // TODO: idk if I want it to be a map from chr to vector of snarl data or just a vector and then check the chromosome for the per-chromosome calls 
         //std::unordered_map<std::string, std::vector<snarl_info_internal_t>> chr_to_snarl_data;
-        std::vector<snarl_info_internal_t> all_snarl_data;
+        std::unordered_map<size_t, std::vector<snarl_info_internal_t>> chr_idx_to_snarl_data;
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the walks through the snarl.
         /// Each entry in the vector is considered to be one allele.
@@ -233,9 +227,9 @@ class SnarlDataCollection {
         void write_snarl_data_collection_header(Writer& out_writer) const;
 
         /// Write just one snarl from the collection
-        void write_snarl_data_line(Writer& out_writer, const snarl_info_internal_t& snarl_info) const;
+        void write_snarl_data_line(Writer& out_writer, const snarl_info_internal_t& snarl_info, const size_t& reference_index) const;
         void write_snarl_data_line(Writer& out_writer, const snarl_info_internal_t& snarl_info, const std::vector<stoat::PathTraversal>* walks_by_allele, 
-                                    const std::vector<std::string>* snarl_sequences, const allele_by_sample_t* alleles_by_sample) const;
+                                    const std::vector<std::string>* snarl_sequences, const allele_by_sample_t* alleles_by_sample, const size_t& reference_index) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
         void load_snarl_data_collection_header(stoat::Reader& in_reader);
@@ -243,7 +237,7 @@ class SnarlDataCollection {
         /// Given a string representing a line in the file, load one snarl_info_internal_t
         /// This assumes that load_snarl_collection_header() has already been called
         /// This is thread safe
-        snarl_info_internal_t load_snarl_data_line(std::string& line);
+        std::pair<size_t, snarl_info_internal_t> load_snarl_data_line(std::string& line);
 
         // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
         // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
