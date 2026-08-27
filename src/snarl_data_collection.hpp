@@ -105,8 +105,9 @@ class SnarlDataCollection {
        void load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only = false); 
 
         std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
-    
-        size_t size(const size_t& reference_index) const {return chr_idx_to_snarl_data[reference_index].size();}
+        
+        // unuse
+        // size_t size(const size_t& reference_index) const {return chr_idx_to_snarl_data.at(reference_index).size();}
 
         // Get a reference to the reference path names that are stored in the collection
         const std::vector<std::string>& get_reference_names() const {
@@ -158,7 +159,7 @@ class SnarlDataCollection {
 
         //////////////////////////// The stuff holding the data for each snarl, indexed by snarl start node (which uniquely identifies the snarl)
 
-        //std::unordered_map<std::string, std::vector<snarl_info_internal_t>> chr_to_snarl_data;
+        // Map reference path index to the vector of snarl_info_internal_t's on that reference path
         std::unordered_map<size_t, std::vector<snarl_info_internal_t>> chr_idx_to_snarl_data;
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the walks through the snarl.
@@ -241,7 +242,7 @@ class SnarlDataCollection {
 
         // Helper function for for_each_snarl() to go from internal snarl info to running iteratee on the snarl_info_t
         // Note that this can't be a function to return the snarl_info_t because it has references to tables and stuff that would go out of scope
-        void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
+        void run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const size_t& reference_index, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
 
         // As above, but make the snarl_info_t directly from the line in the serialized file without saving anything 
         void run_iteratee_on_snarl_data_line(const std::string& line, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const;
