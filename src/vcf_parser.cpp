@@ -405,7 +405,6 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                 size_t sample_hap_index = sample_num*2 + hap_num;
 
                 int idx_path_allele = bcf_gt_allele(gt[sample_hap_index]);
-                std::cerr << "Got allele " << idx_path_allele << std::endl;
 
                 if (idx_path_allele > (int)-1 && idx_path_allele < (int)allele_paths.size() ) { // If this has acceptable genotypes
                     #ifdef DEBUG_VCF_PARSER
