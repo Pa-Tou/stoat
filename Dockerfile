@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y \
     protobuf-compiler \
     libprotoc-dev \
     libprotobuf-dev \
+    libomp-dev \
+    libbz2-dev \
     valgrind \
     bcftools \
     && rm -rf /var/lib/apt/lists/*
