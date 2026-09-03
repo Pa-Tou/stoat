@@ -1,4 +1,5 @@
 #include "vcf_parser.hpp"
+#include <omp.h>
 
 //#define DEBUG_VCF_PARSER
 
@@ -71,6 +72,8 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         fill_in_nested_snarl_bounds(chr);
         fill_in_nested_genotypes(chr);
     }
+
+    std::vector<vcf_info_t> records;
 
     // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
     // At the end of this loop, we'll be looking at the first line that is not this chromosome
@@ -223,7 +226,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         free(gt);
 
 
-        iteratee(vcf_info_t({level, genotypes, paths}));
+        records.push_back({level, std::move(genotypes), std::move(paths)});
 
         read_status = bcf_read(ptr_vcf, hdr, rec);
 #ifdef DEBUG_VCF_PARSER
@@ -231,6 +234,11 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 #endif
 
     } while ((read_status >= 0) && (chr == bcf_hdr_id2name(hdr, rec->rid)));
+
+    #pragma omp parallel for schedule(dynamic)
+    for (size_t record_i = 0; record_i < records.size(); ++record_i) {
+        iteratee(records[record_i]);
+    }
 
 #ifdef DEBUG_VCF_PARSER
     std::cerr << " broke out of loop with " << read_status << " At chr " << bcf_hdr_id2name(hdr, rec->rid) << std::endl;

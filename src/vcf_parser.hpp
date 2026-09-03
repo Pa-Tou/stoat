@@ -15,14 +15,14 @@ using namespace stoat;
 namespace stoat_vcf {
 
 
-/// A struct for holding one line of the VCF
-/// Everything is a reference so it can only be used in the context of for_each_record_on_chromosome unless its contents are copied 
-/// Note: this currently only holds stuff that we need. To add more, it must be retrieved in for_each_record_on_chromosome()
+// A struct for holding one line of the VCF.
+// Attribut passing as copies to avoid concurrent access issues. 
+// The iteratee may be called in parallel and the order of calls is not guaranteed.
 struct vcf_info_t {
-    const size_t lv; //LV field of the VCF
-    //std::string snarl; // The string representation of the snarl, from the ID field
-    const std::vector<int>& genotype; // The GT field TODO: If the VCF parser contains a VCFUntangler, this removes a hom call if the parent was het for this snarl
-    const std::vector<std::vector<node_traversal_t>>& paths; // The paths through the snarl, from the AT field. TODO: If the VCF parser contains a VCFUntangler, this skips nested snarls 
+    size_t lv; // LV field of the VCF
+    std::vector<int> genotype; // The GT field TODO: If the VCF parser contains a VCFUntangler, this removes a hom call if the parent was het for this snarl
+    std::vector<std::vector<node_traversal_t>> paths; // Iteratee calls may run concurrently and are not ordered.
+
 };
 
 /// This is used to walk through a VCF file with a VCFUntangler and keep everything synchronized
@@ -48,9 +48,10 @@ class VCFParser {
     /// Return an empty string if we've finished the VCF
     std::string get_next_chromosome_name();
 
-    /// Given a chromosome name, run iteratee on every consecutive VCF record on this chromosome, starting with the record currently being pointed at.
+    /// Given a chromosome name, run iteratee in parallel on every consecutive VCF record on this chromosome, starting with the record currently being pointed at.
     /// This advances through the VCF until it is pointing at the first thing not on this chromosome (or the end of the file)
     /// If the VCFParser is not pointing to a record on this chromosome, do nothing.
+    /// Iteratee calls may run concurrently and are not ordered.
     void for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee);
 
     /// Read through the VCF file until we find a new chromosome that is not chr.
