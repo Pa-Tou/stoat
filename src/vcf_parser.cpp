@@ -235,8 +235,9 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
     } while ((read_status >= 0) && (chr == bcf_hdr_id2name(hdr, rec->rid)));
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) ordered
     for (size_t record_i = 0; record_i < records.size(); ++record_i) {
+        #pragma omp ordered
         iteratee(records[record_i]);
     }
 
@@ -501,5 +502,4 @@ void VCFParser::close_vcf(){
 
 
 }//end namespace
-
 
