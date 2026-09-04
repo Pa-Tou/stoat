@@ -51,9 +51,12 @@ class VCFParser {
     /// Given a chromosome name, run iteratee in parallel on every consecutive VCF record on this chromosome, starting with the record currently being pointed at.
     /// This advances through the VCF until it is pointing at the first thing not on this chromosome (or the end of the file)
     /// If the VCFParser is not pointing to a record on this chromosome, do nothing.
-    /// Iteratee calls may run concurrently and are not ordered.
+    /// Iteratee calls run concurrently and are not ordered; iteratee must be thread-safe.
     void for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee);
-
+    
+    /// Parse record that used to live inline in the serial loop.
+    vcf_info_t parse_record(bcf1_t* raw_record, const std::string& chr) const;
+    
     /// Read through the VCF file until we find a new chromosome that is not chr.
     /// This is equivalent to running for_each_record_on_chromosome and doing nothing in iteratee
     void skip_to_next_chromosome(const std::string& chr);
