@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include <omp.h>
 
 namespace stoat_vcf {
 
@@ -171,7 +172,10 @@ void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::s
     // init the edge matrix, allocating about 10 000 edges?
     clear_edges(10000);
 
+    std::vector<std::vector<pending_edge_t>> pending_edges(omp_get_max_threads());
+
     vcf_parser.for_each_record_on_chromosome(chr, [&](const stoat_vcf::vcf_info_t& vcf_info) {
+        std::vector<pending_edge_t>& thread_edges = pending_edges[omp_get_thread_num()];
         if (vcf_info.lv == 0 || vcf_parser.resolve_nested_calls ) {
             // If we resolve snarls, then keep edges in all snarls. If we aren't resolving snarls, then only keep lv=0 snarls
             for (size_t hap_num = 0 ; hap_num < vcf_parser.hap_count ; hap_num++) {
@@ -182,13 +186,19 @@ void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::s
                         // Go through each edge (as pair of nodes) and add it to the edge matrix
                         // ignoring any 0 nodes which indicate the inside of a snarl
                         if (path[node_i].get_node_id() != 0 && path[node_i+1].get_node_id() != 0) {
-                            add_sample_edge(stoat::edge_t(path[node_i], path[node_i+1]), hap_num);
+                            thread_edges.push_back({stoat::edge_t(path[node_i], path[node_i+1]), hap_num});
                         }
                     }
                 }
             }
         }
     });
+
+    for (const std::vector<pending_edge_t>& thread_edges : pending_edges) {
+        for (const pending_edge_t& pending_edge : thread_edges) {
+            add_sample_edge(pending_edge.edge, pending_edge.hap_num);
+        }
+    }
 
     // we're done, we can shrink the matrix to rows set
     shrink();
