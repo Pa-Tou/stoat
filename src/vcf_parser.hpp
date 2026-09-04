@@ -55,7 +55,7 @@ class VCFParser {
     void for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee);
     
     /// Parse record that used to live inline in the serial loop.
-    vcf_info_t parse_record(bcf1_t* raw_record, const std::string& chr) const;
+    vcf_info_t parse_record(bcf1_t* raw_record, const std::string& chr);
     
     /// Read through the VCF file until we find a new chromosome that is not chr.
     /// This is equivalent to running for_each_record_on_chromosome and doing nothing in iteratee

@@ -11,6 +11,7 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
     // Open the VCF file
     ptr_vcf = bcf_open(vcf_path.c_str(), "r");
 
+    // Set the number of threads for reading the VCF file. 
     hts_set_threads(ptr_vcf, omp_get_max_threads());
 
     // Read the VCF header
@@ -78,7 +79,8 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
-    constexpr size_t CHUNK_SIZE = 10000;
+    // The size of the record chunks vector read from the vcf     
+    const size_t CHUNK_SIZE = 50000;
 
     // Process the chromosome chunk by chunk.
     while (read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid)) {
@@ -94,14 +96,10 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
             read_status = bcf_read(ptr_vcf, hdr, rec);
 
 #ifdef DEBUG_VCF_PARSER
-    std::cerr << read_status
-                << " on chr " << chr
-                << std::endl;
+    std::cerr << read_status << " on chr " << chr << std::endl;
 #endif
 
-        } while (raw_records.size() < CHUNK_SIZE &&
-                 read_status >= 0 &&
-                 chr == bcf_hdr_id2name(hdr, rec->rid));
+        } while (raw_records.size() < CHUNK_SIZE && read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid));
 
         // ------------------------------------------------------------
         // Phase 2: parallel processing of this chunk
@@ -110,9 +108,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         std::atomic<bool> has_error{false};
 
         #pragma omp parallel for schedule(dynamic)
-        for (size_t record_i = 0;
-             record_i < raw_records.size();
-             ++record_i) {
+        for (size_t record_i = 0; record_i < raw_records.size(); ++record_i) {
 
             if (has_error.load(std::memory_order_relaxed)) {
                 continue;
@@ -163,7 +159,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
 }
 
-vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) const {
+vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
 
     int32_t *lv = nullptr;
     int n_lv = 0;
