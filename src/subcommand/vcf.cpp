@@ -37,6 +37,7 @@ void print_help_vcf() {
               << "  -s, --snarl FILE                Path to the snarl file\n"
               << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
               << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
+              << "  -p, --remove-prefix STR         Remove the given prefix from the reference names in the snarl decomposition file (optional)\n"
               << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
               << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
@@ -52,7 +53,7 @@ void print_help_vcf() {
 int main_stoat_vcf(int argc, char* argv[]) {
 
     // Declare variables to hold argument values
-    std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix;
+    std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix, remove_prefix_str;
 
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
@@ -77,6 +78,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"dist", required_argument, 0, 'd'},
         {"reference-file", required_argument, 0, 'R'},
         {"reference-prefix", required_argument, 0, 'r'},
+        {"remove-prefix", required_argument, 0, 'p'},
         {"children", required_argument, 0, 'i'},
         {"cycle", required_argument, 0, 'y'},
         {"path-length", required_argument, 0, 'l'},
@@ -90,7 +92,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:d:r:R:p:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -105,6 +107,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
                     throw std::runtime_error("Error: [stoat vcf] Children threshold must be > 1");
                 }
                 break;
+            case 'p': remove_prefix_str = optarg; break;
             case 'y':
                 cycle_threshold = std::stoi(optarg);
                 if (cycle_threshold < 1) {
@@ -203,7 +206,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
-    stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
+    stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold, remove_prefix_str);
 
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
