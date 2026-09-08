@@ -80,7 +80,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
     // The size of the record chunks vector read from the vcf     
-    const size_t CHUNK_SIZE = 50000;
+    const size_t CHUNK_SIZE = 10000;
 
     // Process the chromosome chunk by chunk.
     while (read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid)) {
