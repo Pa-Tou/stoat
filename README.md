@@ -107,6 +107,9 @@ STOAT can test the association between snarls genotypes across samples and
     - Single quantitative phenotype (GWAS study)
     - Gene expression (expression QTL study)
 
+      
+**NOTE**: STOAT does not support distance indexes built with versions of vg more recent than v1.69.0
+
 ### Usage
 
 STOAT has two steps:

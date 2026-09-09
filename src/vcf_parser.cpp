@@ -360,13 +360,11 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
     do {
         // Unpack the vcf up to ALT field
         bcf_unpack(rec_genotypes, BCF_UN_STR);
-        std::cerr << "Get genotypes " << std::endl;
 
         // extract genotypes GT
         int ngt = 0;
         int32_t *gt = nullptr;
         ngt = bcf_get_genotypes(hdr_genotypes, rec_genotypes, &gt, &ngt);
-        std::cerr << "Got genotypes " << std::endl;
         
         if (ngt <= 0 || gt == nullptr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
@@ -405,7 +403,6 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                 size_t sample_hap_index = sample_num*2 + hap_num;
 
                 int idx_path_allele = bcf_gt_allele(gt[sample_hap_index]);
-                std::cerr << "Got allele " << idx_path_allele << std::endl;
 
                 if (idx_path_allele > (int)-1 && idx_path_allele < (int)allele_paths.size() ) { // If this has acceptable genotypes
                     #ifdef DEBUG_VCF_PARSER
