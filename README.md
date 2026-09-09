@@ -22,7 +22,16 @@ The two take-home messages are that:
 1. Snarls (bubbles) are tested independently in their "simplified" form, i.e. without taking into account nested snarls. 
 2. All snarls are tested, even if they are not on the reference path and deeply nested in the graph.
 
-## Dependency
+STOAT uses pangenome graphs from the [vg](https://github.com/vgteam/vg) ecosystem.
+
+## Docker
+
+- [`Dockerfile`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile)
+- All Dockers container are available on [Quay.io](https://quay.io/repository/patou/stoat?tab=tags): `quay.io/patou/stoat`
+
+## Building from source
+
+### Dependency
 
 Manual installation : 
 
@@ -32,18 +41,11 @@ STOAT's dependencies (`jansson`, `Protobuf`, `Boost`, `htslib`, `valgrind`) can 
 sudo apt-get install build-essential cmake pkg-config libjansson-dev protobuf-compiler libprotoc-dev libprotobuf-dev libboost-all-dev libhts-dev valgrind
 ```
 
-- [vg](https://github.com/vgteam/vg) (optional)
-
 Note that STOAT uses [`libbdsg`](https://github.com/vgteam/libbdsg) and [`libvgio`](https://github.com/vgteam/libvgio), both of which depend on [`libhandlegraph`](https://github.com/vgteam/libhandlegraph).
 STOAT uses its own copies of each of these libraries but if any of them are already installed on your system, then problems may arise if the versions are incompatible.
 In general, the latest versions of all of these tools should work.
 
-## Docker
-
-- [`Dockerfile`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile)
-- Docker container on [Quay.io](https://quay.io/repository/patou/stoat?tab=tags): `quay.io/patou/stoat`
-
-## Build
+### Build
 
 ```bash
 git clone --recursive https://github.com/Pa-Tou/stoat.git
@@ -72,6 +74,23 @@ Then close your terminal and open it again, or run
 ```bash
 source ~/.bashrc
 ```
+
+### Build static binary for linux
+
+We use Docker with [`Dockerfile.static`](https://github.com/Pa-Tou/stoat/blob/main/Dockerfile.static):
+
+```bash
+docker build -f Dockerfile.static -t stoat_static .
+docker run -v `pwd`:/ext -u `id -u $USER` stoat_static cp /stoat/bin/stoat /ext/
+```
+
+Then, make the binary executable:
+
+```bash
+chmod +x stoat
+```
+
+> Eventually, save some space by removing the docker image with `docker rmi stoat_static` and `docker image prune`.
 
 ## Running STOAT
 
