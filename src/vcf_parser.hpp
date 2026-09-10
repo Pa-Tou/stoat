@@ -19,9 +19,9 @@ namespace stoat_vcf {
 // Attribut passing as copies to avoid concurrent access issues. 
 // The iteratee may be called in parallel and the order of calls is not guaranteed.
 struct vcf_info_t {
-    size_t lv; // LV field of the VCF
-    std::vector<int> genotype; // The GT field TODO: If the VCF parser contains a VCFUntangler, this removes a hom call if the parent was het for this snarl
-    std::vector<std::vector<node_traversal_t>> paths; // Iteratee calls may run concurrently and are not ordered.
+    const size_t lv; // LV field of the VCF
+    const std::vector<int> genotype; // The GT field TODO: If the VCF parser contains a VCFUntangler, this removes a hom call if the parent was het for this snarl
+    const std::vector<std::vector<node_traversal_t>> paths; // Iteratee calls may run concurrently and are not ordered.
 
 };
 
