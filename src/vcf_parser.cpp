@@ -80,7 +80,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
     // The size of the record chunks vector read from the vcf     
-    const size_t CHUNK_SIZE = 10000;
+    const size_t CHUNK_SIZE = 100000;
 
     // Process the chromosome chunk by chunk.
     while (read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid)) {
@@ -107,7 +107,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         std::exception_ptr parse_exception = nullptr;
         std::atomic<bool> has_error{false};
 
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(static)
         for (size_t record_i = 0; record_i < raw_records.size(); ++record_i) {
 
             if (has_error.load(std::memory_order_relaxed)) {
