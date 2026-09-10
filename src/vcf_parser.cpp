@@ -105,12 +105,13 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         // Phase 2: parallel processing of this chunk
         // ------------------------------------------------------------
         std::exception_ptr parse_exception = nullptr;
-        std::atomic<bool> has_error{false};
+        bool has_error = false;
 
         #pragma omp parallel for schedule(static)
         for (size_t record_i = 0; record_i < raw_records.size(); ++record_i) {
 
-            if (has_error.load(std::memory_order_relaxed)) {
+            // If anything has failed, skip the rest of the chunk and throw the error later
+            if (has_error) {
                 continue;
             }
 
@@ -123,15 +124,12 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
                 iteratee(vcf_info);
 
             } catch (...) {
-                bool expected = false;
-                if (has_error.compare_exchange_strong(
-                        expected, true,
-                        std::memory_order_relaxed)) {
 
-                    #pragma omp critical(vcf_parser_exception)
-                    {
-                        parse_exception = std::current_exception();
-                    }
+                #pragma omp atomic write
+                has_error = true;
+                #pragma omp critical(vcf_parser_exception)
+                {
+                    parse_exception = std::current_exception();
                 }
             }
         }
