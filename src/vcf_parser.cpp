@@ -304,6 +304,10 @@ vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
     }
     free(gt);
 
+#ifdef DEBUG_VCF_PARSER
+    std::cerr << " broke out of loop with " << read_status << " At chr " << bcf_hdr_id2name(hdr, rec->rid) << std::endl;Expand commentComment on line L236Resolved
+#endif
+
     return vcf_info_t{level, std::move(record_genotypes), std::move(paths)};
 }
 

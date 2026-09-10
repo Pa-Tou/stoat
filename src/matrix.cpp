@@ -173,11 +173,13 @@ void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::s
     const size_t EXPECTED_EDGE_COUNT=10000;
     clear_edges(EXPECTED_EDGE_COUNT);
 
-    std::vector<std::vector<pending_edge_t>> pending_edges(omp_get_max_threads());
+    const size_t thread_count = omp_get_max_threads();
+    std::vector<std::vector<pending_edge_t>> pending_edges(thread_count);
+    const size_t edges_per_thread = (EXPECTED_EDGE_COUNT + thread_count - 1) / thread_count;
 
     // Reserve memory for the edges in pending_edges
     for (std::vector<pending_edge_t>& v : pending_edges) {
-        v.reserve(EXPECTED_EDGE_COUNT/omp_get_max_threads());
+        v.reserve(edges_per_thread);
     }
 
     vcf_parser.for_each_record_on_chromosome(chr, [&](const stoat_vcf::vcf_info_t& vcf_info) {
