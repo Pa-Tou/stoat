@@ -228,16 +228,16 @@ struct snarl_info_t {
     public:
 
         // Constructor from elements
-        snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node, std::string ref_path, 
-                     size_t start_position, size_t end_position, size_t depth,
+        snarl_info_t(stoat::node_traversal_t start_node, stoat::node_traversal_t end_node,
+                     std::string ref_path, size_t start_position, size_t end_position, size_t depth,
                      GenotypeTable& genotypes, 
                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
                      const allele_by_sample_t& alleles_by_sample,
                      const std::vector<PathTraversal>& walks_by_allele, 
                      const std::vector<std::string>& sequences_by_allele) :
 
-                     start_node(start_node), end_node(end_node), 
-                     ref_path(ref_path), start_position(start_position), end_position(end_position), depth(depth),
+                     start_node(start_node), end_node(end_node), ref_path(ref_path),
+                     start_position(start_position), end_position(end_position), depth(depth),
                      genotypes(genotypes), all_sample_haplotypes(all_sample_haplotypes), alleles_by_sample(alleles_by_sample),
                      walks_by_allele(walks_by_allele), sequences_by_allele(sequences_by_allele)
                      {};
@@ -246,12 +246,12 @@ struct snarl_info_t {
         stoat::node_traversal_t start_node;
         stoat::node_traversal_t end_node;
 
-        // The reference chromosome/path
-        std::string ref_path; 
-
         // Start and end offset along the reference path
         size_t start_position;
         size_t end_position;
+
+        // reference index use to retrieve the chromosome name
+        std::string ref_path;
 
         // The depth of the snarl in the snarl tree
         size_t depth;
