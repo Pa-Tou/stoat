@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10)
 project(stoat VERSION 0.0.4 LANGUAGES CXX)
 
+# Needed for the STATIC_BUILD libbdsg workaround further down.
 include(ExternalProject)
 
 add_compile_definitions(STOAT_VERSION="v${PROJECT_VERSION}")
@@ -13,84 +14,108 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "12.7") # MACOS fix
 
-include_directories(BEFORE ${PROJECT_SOURCE_DIR}/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/include)
+include_directories(BEFORE
+    ${PROJECT_SOURCE_DIR}/deps/libbdsg/bdsg/deps/sdsl-lite/external/googletest/googletest/include
+)
 
 set(deps_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
 # Put the executables in a bin directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-# To change to OPTIMIZE=OFF use: cmake -DOPTIMIZE=OFF ..
+# To change to OPTIMIZE=OFF use : cmake -DOPTIMIZE=OFF ..
 option(OPTIMIZE "Build with optimization [default: on]" ON)
 message(STATUS "OPTIMIZE is set to: ${OPTIMIZE}")
 
-if(OPTIMIZE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
-    message(STATUS "Optimization compilation mode activated: Release")
-else()
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
-    message(STATUS "Debug compilation mode activated: Debug")
-endif()
-
-# Option to produce a fully statically linked executable (Linux only)
-option(STATIC_BUILD "Build a statically linked executable and force static libs for subprojects (Linux only)" OFF)
+# NOTE: renamed from STOAT_STATIC -> STATIC_BUILD. Dockerfile.static already
+# invokes `cmake .. -DSTATIC_BUILD=ON`; with the old name that flag was
+# silently ignored (unknown -D args don't error), so the "static" build was
+# actually a normal dynamic build that happened to succeed.
+option(STATIC_BUILD "Build stoat as a fully static executable [Linux only]" OFF)
 message(STATUS "STATIC_BUILD is set to: ${STATIC_BUILD}")
 
-# Static build configuration
-if(STATIC_BUILD)
+# This is the same flag used by libbdsg and libvgio to specify which version of libhandlegraph should be used
+OPTION(USE_INSTALLED_LIBHANDLEGRAPH "Use the version of libhandlegraph installed on the system, if it exists, instead of the bundled version [default: off]" OFF)
 
-    # Force CMake subprojects to build static libraries by default
-    set(BUILD_SHARED_LIBS OFF CACHE BOOL
-        "Build static libraries by default" FORCE)
+# DEBUG STEP : 
+# gdb --args ./stoat ... (command that you want to test)
+# (gdb) run
 
-    # Prefer static archives when resolving dependencies
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+# Optimize option
+if (OPTIMIZE)
+  message(STATUS "Optimization compilation mode activated")
+  # Use all standard-compliant optimizations
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+else()
+  # Debug build: no optimization, include debug symbols
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+  set(CMAKE_BUILD_TYPE Debug)
+  message(STATUS "Debug compilation mode activated: -g -O0 flags enabled")
+endif()
 
-    # Static libraries should be built with PIC where possible
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-    if(UNIX AND NOT APPLE)
-
-        # Fully static Linux executable
-        set(CMAKE_EXE_LINKER_FLAGS
-            "${CMAKE_EXE_LINKER_FLAGS} -static -s -pthread -static-libgcc -static-libstdc++"
-        )
-
-        message(STATUS "Configured for FULL STATIC Linux build")
-
-    elseif(APPLE)
-
-        # Build third-party dependencies as .a where possible.
-        message(STATUS "Configured for STATIC third-party libraries on macOS")
-
+# ---------------------------------------------------------------------------
+# Static-build scaffolding. Everything here is set BEFORE any add_subdirectory()
+# call, so every dependency configured below sees the same, consistent
+# settings from the moment it is first processed.
+# ---------------------------------------------------------------------------
+if (STATIC_BUILD)
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        message(FATAL_ERROR "STATIC_BUILD is not supported on Darwin")
     endif()
 
+    # Make any nested add_library() call that doesn't hardcode a type
+    # (STATIC/SHARED) default to static. CMake already defaults to static
+    # when this is unset, but some vendored projects set their own default
+    # to ON, so force it explicitly rather than relying on that.
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries by default" FORCE)
+
+    # Prefer .a over .so when find_package()/find_library() resolve system
+    # libraries (Boost, Threads, OpenMP, bz2, lzma, ...).
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+
+    # Keep every compiled object PIC-consistent across the static archives.
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+    # Fully static Linux executable.
+    set(CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++ -pthread"
+    )
+
+    # A "-static" link gets none of a dependency's *transitive* shared-lib
+    # requirements for free (there's no dynamic loader resolving them at
+    # runtime), so every system library htslib's static archive needs has to
+    # be listed explicitly. pkg-config's own "--static" output (queried
+    # automatically below via HTSLIB_STATIC_LIBRARIES) should cover most of
+    # this; these are kept as an explicit safety net.
+    find_library(BZ2_LIB  NAMES bz2  REQUIRED)
+    find_library(LZMA_LIB NAMES lzma REQUIRED)
+    set(STOAT_STATIC_SYSTEM_LIBS ${BZ2_LIB} ${LZMA_LIB} z dl m)
+
+    message(STATUS "Configured for FULL STATIC Linux build")
 endif()
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(HTSLIB REQUIRED htslib)
-pkg_check_modules(Jansson REQUIRED IMPORTED_TARGET jansson)
+# pkg_check_modules() always additionally computes HTSLIB_STATIC_LIBRARIES /
+# HTSLIB_STATIC_LDFLAGS / HTSLIB_STATIC_LIBRARY_DIRS from `pkg-config --static`
+# (this is a standard FindPkgConfig feature, no extra call needed) -- use
+# those instead of the plain ones when linking a static executable.
+if (STATIC_BUILD)
+    set(STOAT_HTSLIB_LIBRARIES ${HTSLIB_STATIC_LIBRARIES})
+    link_directories(${HTSLIB_STATIC_LIBRARY_DIRS})
+else()
+    set(STOAT_HTSLIB_LIBRARIES ${HTSLIB_LIBRARIES})
+    link_directories(${HTSLIB_LIBRARY_DIRS})
+endif()
 
 include_directories(${HTSLIB_INCLUDE_DIRS})
-link_directories(${HTSLIB_LIBRARY_DIRS})
 
 # Find Packages
 find_package(Boost REQUIRED)
-find_package(OpenMP REQUIRED)
 
-if(STATIC_BUILD)
-    find_library(BZ2_LIB NAMES bz2 REQUIRED)
-
-    set(STATIC_SYSTEM_LIBS
-        ${BZ2_LIB}
-        z
-        pthread
-        dl
-        m
-    )
-endif()
-
-# Get eigen3
+#Get eigen3
 include_directories(${deps_DIR}/eigen)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -104,28 +129,30 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     endif()
 
     # Set OpenMP manually (Apple Clang needs this)
-    # Try multiple possible locations for libomp
-    set(LIBOMP_PATHS "${HOMEBREW_PREFIX}/opt/libomp" "/usr/local/opt/libomp")
+    set(OpenMP_INCLUDES "${HOMEBREW_PREFIX}/opt/libomp/include")
+    set(OpenMP_LIBRARIES "${HOMEBREW_PREFIX}/opt/libomp/lib/libomp.dylib")
+    set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${OpenMP_INCLUDES}")
+    set(OpenMP_LINK_FLAGS "-L${HOMEBREW_PREFIX}/opt/libomp/lib -lomp")
 
-    set(LIBOMP_FOUND FALSE)
-    foreach(LIBOMP_PATH ${LIBOMP_PATHS})
-        if(EXISTS "${LIBOMP_PATH}/include/omp.h")
-            set(OpenMP_INCLUDES "${LIBOMP_PATH}/include")
-            set(OpenMP_LIBRARIES "${LIBOMP_PATH}/lib/libomp.dylib")
-            set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${OpenMP_INCLUDES}")
-            set(OpenMP_LINK_FLAGS "-L${LIBOMP_PATH}/lib -lomp")
-            set(LIBOMP_FOUND TRUE)
-            message(STATUS "Found libomp at: ${LIBOMP_PATH}")
-            break()
-        endif()
-    endforeach()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_LINK_FLAGS}")
+endif()
 
-    if(LIBOMP_FOUND)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_LINK_FLAGS}")
-    else()
-        message(STATUS "Warning: libomp not found in standard Homebrew locations. CMake will try to find OpenMP using standard search paths.")
-    endif()
+find_package(OpenMP REQUIRED)
+
+# handlegraph_shared / vgio (shared) / libbdsg are libhandlegraph's, libvgio's
+# and libbdsg's default (dynamic) targets. libhandlegraph and libvgio always
+# additionally produce handlegraph_static / vgio_static unconditionally (no
+# flag required), which is why only STOAT_BDSG_TARGET needs real work below.
+set(STOAT_HANDLEGRAPH_TARGET handlegraph_shared)
+set(STOAT_VGIO_TARGET VGio::vgio)
+set(STOAT_BDSG_TARGET libbdsg)
+
+if (STATIC_BUILD)
+    set(STOAT_HANDLEGRAPH_TARGET handlegraph_static)
+    set(STOAT_VGIO_TARGET vgio_static)
+    # STOAT_BDSG_TARGET is set to bdsg::static further down, once that
+    # target actually exists.
 endif()
 
 # Produces handlegraph_shared and handlegraph_static targets (as well as handlegraph_objs)
@@ -139,23 +166,40 @@ else ()
     add_subdirectory(${deps_DIR}/libhandlegraph)
 endif ()
 
+# Add libvgio using its cmake build. It always builds both its shared
+# (VGio::vgio) and static (vgio_static) targets, so no extra flag is needed
+# here regardless of STATIC_BUILD.
 add_subdirectory(${deps_DIR}/libvgio EXCLUDE_FROM_ALL)
 
-# Comes along with its own libhandlegraph, which it depends on.
+# libbdsg
 # Make sure to never build its Python bindings.
 set(BUILD_PYTHON_BINDINGS OFF CACHE BOOL "Build Python bindings for libbdsg" FORCE)
-
 set(RUN_DOXYGEN OFF CACHE BOOL "Run libbdsg Doxygen" FORCE)
 
 if (STATIC_BUILD)
+    # ---------------------------------------------------------------------
+    # libbdsg's own CMakeLists.txt exposes a BUILD_STATIC option, but it is
+    # not enough on its own: libbdsg vendors sdsl-lite, which is built by a
+    # foreign, non-CMake `install.sh` script wrapped by libbdsg's own build
+    # rules. That wrapping does not forward this project's CXXFLAGS / PIC /
+    # portability settings into the script, and that forwarding can only be
+    # added by editing libbdsg's (or sdsl-lite's) own CMakeLists.txt/build
+    # files -- which is out of scope here. So, for the static case only,
+    # libbdsg and its vendored dependencies are built directly as isolated
+    # ExternalProject_Add steps, driven by their own native build systems
+    # (install.sh / CMake / make) but with every flag they need supplied
+    # explicitly from this file, and the result is exposed as a normal
+    # IMPORTED CMake target (bdsg::static). This mirrors exactly how
+    # libbdsg is built upstream for a static `vg`, and touches nothing
+    # under deps/.
+    # ---------------------------------------------------------------------
 
-    set(DEPS           "${CMAKE_SOURCE_DIR}/deps")
-    set(LIBBDSG_SRC    "${DEPS}/libbdsg")
+    set(LIBBDSG_SRC    "${deps_DIR}/libbdsg")
     set(BDSG           "${LIBBDSG_SRC}/bdsg")
 
     set(DEPS_INCLUDE    "${BDSG}/include")
     set(DEPS_LIBBDSG    "${BDSG}/deps")
-    set(DEPS_LIB        "${DEPS}/lib")
+    set(DEPS_LIB        "${deps_DIR}/lib")
     set(HANDLEGRAPH_LIB "${DEPS_LIBBDSG}/lib")
     set(SDSL_LIB        "${DEPS_LIBBDSG}/lib")
 
@@ -171,7 +215,8 @@ if (STATIC_BUILD)
     set(MIO_SRC            "${DEPS_LIBBDSG}/mio")
     set(BBHASH_SRC         "${DEPS_LIBBDSG}/BBHash")
 
-    # Include directories for static dependencies
+    # Include directories needed to compile against libbdsg + everything it
+    # vendors (used by gbwt/gbwtgraph and stoat's own sources below).
     set(STATIC_DEPS_INCLUDE_DIRS
         "${DEPS_INCLUDE}"
         "${DEPS_LIBBDSG}/include"
@@ -187,7 +232,7 @@ if (STATIC_BUILD)
 
     set(COMMON_CXX_FLAGS "-fPIC -std=c++17 ${CMAKE_CXX_FLAGS}")
 
-    # 1. sdsl-lite
+    # 1. sdsl-lite (foreign, install.sh-driven build)
     ExternalProject_Add(sdsl_lite
         SOURCE_DIR ${SDSL_SRC}
         CONFIGURE_COMMAND ""
@@ -203,8 +248,8 @@ if (STATIC_BUILD)
             ${SDSL_LIB}/libdivsufsort64.a
     )
 
-    # 2. libhandlegraph
-    ExternalProject_Add(libhandlegraph
+    # 2. libbdsg's own vendored libhandlegraph copy
+    ExternalProject_Add(libhandlegraph_bdsg
         SOURCE_DIR ${LIBHANDLEGRAPH_SRC}
         CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX=${DEPS_LIBBDSG}
@@ -214,7 +259,7 @@ if (STATIC_BUILD)
         BUILD_BYPRODUCTS ${HANDLEGRAPH_LIB}/libhandlegraph.a
     )
 
-    # 3. sparsepp
+    # 3. sparsepp (header-only)
     ExternalProject_Add(sparsepp
         SOURCE_DIR ${SPARSEPP_SRC}
         DOWNLOAD_COMMAND ""
@@ -240,7 +285,7 @@ if (STATIC_BUILD)
                 ${DEPS_INCLUDE}/dynamic
     )
 
-    # 5. mio
+    # 5. mio (header-only)
     ExternalProject_Add(mio
         SOURCE_DIR ${MIO_SRC}
         DOWNLOAD_COMMAND ""
@@ -250,7 +295,7 @@ if (STATIC_BUILD)
             ${MIO_SRC}/include/mio ${DEPS_INCLUDE}/mio
     )
 
-    # 6. BBHash
+    # 6. BBHash (header-only)
     ExternalProject_Add(bbhash
         SOURCE_DIR ${BBHASH_SRC}
         DOWNLOAD_COMMAND ""
@@ -261,20 +306,20 @@ if (STATIC_BUILD)
             ${DEPS_INCLUDE}/BooPHF.h
     )
 
-    # 7. libbdsg
+    # 7. libbdsg itself, driven by its own Makefile (not its CMakeLists.txt),
+    # now that everything it vendors has been built with the right flags.
     ExternalProject_Add(libbdsg
         SOURCE_DIR ${LIBBDSG_SRC}
         DEPENDS
             sdsl_lite
-            libhandlegraph
+            libhandlegraph_bdsg
             sparsepp
             dynamic
             mio
             bbhash
         BUILD_IN_SOURCE 1
         CONFIGURE_COMMAND ""
-
-        BUILD_COMMAND     
+        BUILD_COMMAND
             ${CMAKE_COMMAND} -E env
                 CPLUS_INCLUDE_PATH=${DEPS_INCLUDE}:${LIBHANDLEGRAPH_SRC}/src/include:${SDSL_SRC}/include:${DEPS_INCLUDE}/dynamic
                 CXXFLAGS=-I${DEPS_INCLUDE}\ -I${LIBHANDLEGRAPH_SRC}/src/include\ -I${SDSL_SRC}/include\ -I${DEPS_INCLUDE}/dynamic\ -fPIC\ ${COMMON_CXX_FLAGS}
@@ -283,161 +328,54 @@ if (STATIC_BUILD)
                 CPLUS_INCLUDE_PATH=${DEPS_INCLUDE}:${LIBHANDLEGRAPH_SRC}/src/include:${SDSL_SRC}/include:${DEPS_INCLUDE}/dynamic
                 CXXFLAGS=-I${DEPS_INCLUDE}\ -I${LIBHANDLEGRAPH_SRC}/src/include\ -I${SDSL_SRC}/include\ -I${DEPS_INCLUDE}/dynamic\ -fPIC\ ${COMMON_CXX_FLAGS}
                 make
-
         INSTALL_COMMAND
             ${CMAKE_COMMAND} -E copy
                 ${LIBBDSG_SRC}/lib/libbdsg.a
                 ${DEPS_LIB}/libbdsg.a
-
             COMMAND ${CMAKE_COMMAND} -E copy_directory
                 ${LIBBDSG_SRC}/bdsg/include
                 ${DEPS_INCLUDE}
-
         BUILD_BYPRODUCTS ${DEPS_LIB}/libbdsg.a
     )
 
     add_library(bdsg_static STATIC IMPORTED GLOBAL)
-
     set_target_properties(bdsg_static PROPERTIES
         IMPORTED_LOCATION ${DEPS_LIB}/libbdsg.a
         INTERFACE_INCLUDE_DIRECTORIES ${DEPS_INCLUDE}
     )
-
     add_dependencies(bdsg_static libbdsg)
     add_library(bdsg::static ALIAS bdsg_static)
 
+    set(STOAT_BDSG_TARGET bdsg::static)
+
 else()
-
-    # Dynamic libbdsg and its dependencies
-    add_subdirectory(
-        ${deps_DIR}/libbdsg
-        EXCLUDE_FROM_ALL
-    )
-
-    set(DYNAMIC_DEPS_INCLUDE_DIRS
-        "${deps_DIR}/libbdsg/bdsg/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/libhandlegraph/src/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/sdsl-lite/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/sparsepp"
-        "${deps_DIR}/libbdsg/bdsg/deps/mio/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/BBHash"
-        "${deps_DIR}/libbdsg/bdsg/deps/DYNAMIC/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/DYNAMIC/deps/hopscotch_map/include"
-        "${deps_DIR}/libhandlegraph/src/include"
-        "${deps_DIR}/libvgio/include"
-        "${deps_DIR}/gbwt/include"
-        "${deps_DIR}/gbwtgraph/include"
-    )
-
-    set(DYNAMIC_DEPS_LIBRARIES
-        Boost::boost
-        libbdsg
-        gbwtgraph
-        gbwt
-        handlegraph_shared
-        vgio
-        sdsl
-        OpenMP::OpenMP_CXX
-        ${HTSLIB_LIBRARIES}
-    )
-
+    # Unchanged: full dynamic build using libbdsg's own cmake config.
+    # Produces libbdsg target (dynamic) and, as a side effect, the "sdsl"
+    # target used by gbwt/gbwtgraph below.
+    add_subdirectory(${deps_DIR}/libbdsg EXCLUDE_FROM_ALL)
 endif()
 
-if(STATIC_BUILD)
-    set(STOAT_STATIC_LINK_LIBS
-        bdsg::static
-        ${SDSL_LIB}/libsdsl.a
-        ${SDSL_LIB}/libdivsufsort.a
-        ${SDSL_LIB}/libdivsufsort64.a
-        ${HANDLEGRAPH_LIB}/libhandlegraph.a
-        gbwtgraph
-        gbwt
-        vgio_static
-        ${HTSLIB_LIBRARIES}
-        OpenMP::OpenMP_CXX
-        ${STATIC_SYSTEM_LIBS}
-    )
-endif()
-
-# Links target against the Stoat object library
-function(stoat_link_target target)
-    if(STATIC_BUILD)
-        target_link_options(${target} PRIVATE "-Wl,--start-group")
-
-        target_link_libraries(${target} PRIVATE
-            ${PROJECT_NAME}_objs
-            ${STOAT_STATIC_LINK_LIBS}
-            ${ARGN}
-        )
-
-        target_link_options(${target} PRIVATE "-Wl,--end-group")
-        add_dependencies(${target} sdsl_lite libhandlegraph libbdsg)
-        target_include_directories(${target} PRIVATE ${STATIC_DEPS_INCLUDE_DIRS})
-    
-    else()
-        target_link_libraries(${target} PRIVATE
-            ${PROJECT_NAME}_objs
-            ${DYNAMIC_DEPS_LIBRARIES}
-        )
-
-        target_include_directories(${target} PRIVATE ${DYNAMIC_DEPS_INCLUDE_DIRS})
-
-    endif()
-endfunction()
-
-# Declares a test executable from the given sources, links it via
-# stoat_link_target(), and registers it with CTest as `test_name`.
-function(stoat_add_test_executable target test_name)
-    add_executable(${target} ${ARGN})
-    stoat_link_target(${target})
-    add_test(NAME ${test_name} COMMAND ${target})
-endfunction()
-
-# Same as stoat_add_test_executable(), but also links Boost (needed by the
-# shared tests/system/*.cpp helpers) when STATIC_BUILD is on.
-function(stoat_add_system_test target test_name)
-    add_executable(${target} ${ARGN})
-    stoat_link_target(${target} Boost::boost)
-    add_test(NAME ${test_name} COMMAND ${target})
-endfunction()
+# Copied from https://github.com/vgteam/vg/wiki/Programming-with-the-vg-API
+# GBWT and GBWTgraph don't have CMake yet so we need to explain how to build it.
 
 # GBWT
 foreach (gbwt_source IN ITEMS algorithms.cpp bwtmerge.cpp cached_gbwt.cpp dynamic_gbwt.cpp fast_locate.cpp files.cpp gbwt.cpp internal.cpp metadata.cpp support.cpp test.cpp utils.cpp variants.cpp)
-    list(APPEND gbwt_libFiles "deps/gbwt/src/${gbwt_source}")
+list(APPEND gbwt_libFiles "deps/gbwt/src/${gbwt_source}")
 endforeach()
-
 if(MSVC)
-    file(GLOB gbwt_headerFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${deps_DIR}/gbwt/include/gbwt/*.h")
+file(GLOB gbwt_headerFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}  "${deps_DIR}/gbwt/include/gbwt/*.h")
 endif()
+set( gbwt_SRCS ${gbwt_libFiles} ${gbwt_headerFiles})
 
-set(gbwt_SRCS ${gbwt_libFiles} ${gbwt_headerFiles})
-add_library(gbwt ${gbwt_SRCS})
-
-if(STATIC_BUILD)
-    target_include_directories(gbwt PUBLIC
-        "${deps_DIR}/gbwt/include"
-        ${STATIC_DEPS_INCLUDE_DIRS}
-    )
-
-    target_link_libraries(gbwt PUBLIC
-        "${SDSL_LIB}/libsdsl.a"
-        OpenMP::OpenMP_CXX
-    )
-
-    add_dependencies(gbwt sdsl_lite)
-
+if (STATIC_BUILD)
+    add_library( gbwt STATIC ${gbwt_SRCS} )
+    target_include_directories( gbwt PUBLIC "${deps_DIR}/gbwt/include" ${STATIC_DEPS_INCLUDE_DIRS})
+    target_link_libraries( gbwt PUBLIC "${SDSL_LIB}/libsdsl.a" OpenMP::OpenMP_CXX )
+    add_dependencies( gbwt sdsl_lite )
 else()
-
-    target_include_directories(gbwt PUBLIC
-        "${deps_DIR}/gbwt/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/sdsl-lite/include"
-    )
-
-    target_link_libraries(gbwt PUBLIC
-        sdsl
-        OpenMP::OpenMP_CXX
-    )
-
+    add_library( gbwt ${gbwt_SRCS} )
+    target_include_directories( gbwt PUBLIC "${deps_DIR}/gbwt/include")
+    target_link_libraries( gbwt PUBLIC sdsl OpenMP::OpenMP_CXX )
 endif()
 
 install(TARGETS gbwt
@@ -447,36 +385,25 @@ install(TARGETS gbwt
 
 # GBWTGraph
 foreach (gbwtgraph_source IN ITEMS algorithms.cpp cached_gbwtgraph.cpp gbwtgraph.cpp gbz.cpp gfa.cpp internal.cpp minimizer.cpp path_cover.cpp utils.cpp)
-    list(APPEND gbwtgraph_libFiles "deps/gbwtgraph/src/${gbwtgraph_source}")
+list(APPEND gbwtgraph_libFiles "deps/gbwtgraph/src/${gbwtgraph_source}")
 endforeach()
-
 if(MSVC)
-    file(GLOB gbwtgraph_headerFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${deps_DIR}/gbwtgraph/include/gbwt/*.h")
+file(GLOB gbwtgraph_headerFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}  "${deps_DIR}/gbwtgraph/include/gbwt/*.h")
 endif()
+set( gbwtgraph_SRCS ${gbwtgraph_libFiles} ${gbwtgraph_headerFiles})
 
-set(gbwtgraph_SRCS ${gbwtgraph_libFiles} ${gbwtgraph_headerFiles})
-add_library(gbwtgraph ${gbwtgraph_SRCS})
-target_include_directories(gbwtgraph PUBLIC "${deps_DIR}/gbwtgraph/include")
-
-if(STATIC_BUILD)
-    target_include_directories(gbwtgraph PUBLIC
-        "${deps_DIR}/gbwtgraph/include"
-        "${deps_DIR}/gbwt/include"
-        ${STATIC_DEPS_INCLUDE_DIRS}
-    )
-
-    target_link_libraries(gbwtgraph PUBLIC
-        gbwt
-        "${HANDLEGRAPH_LIB}/libhandlegraph.a"
-    )
-
-    add_dependencies(gbwtgraph gbwt)
-
+if (STATIC_BUILD)
+    add_library( gbwtgraph STATIC ${gbwtgraph_SRCS} )
+    target_include_directories( gbwtgraph PUBLIC "${deps_DIR}/gbwtgraph/include" "${deps_DIR}/gbwt/include" ${STATIC_DEPS_INCLUDE_DIRS})
+    # Deliberately link libbdsg's own vendored libhandlegraph.a here (not
+    # the top-level handlegraph_static target) so that only one compiled
+    # copy of libhandlegraph ends up in the final static archive set.
+    target_link_libraries( gbwtgraph PUBLIC gbwt "${HANDLEGRAPH_LIB}/libhandlegraph.a")
+    add_dependencies( gbwtgraph gbwt libhandlegraph_bdsg )
 else()
-    target_link_libraries(gbwtgraph PUBLIC
-        gbwt
-        handlegraph_shared
-    )
+    add_library( gbwtgraph ${gbwtgraph_SRCS} )
+    target_include_directories( gbwtgraph PUBLIC "${deps_DIR}/gbwtgraph/include")
+    target_link_libraries( gbwtgraph PUBLIC gbwt ${STOAT_HANDLEGRAPH_TARGET} )
 endif()
 
 install(TARGETS gbwtgraph
@@ -515,44 +442,52 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/subcommand/change_reference.cpp
 )
 
-if(STATIC_BUILD)
-
-    target_include_directories(${PROJECT_NAME}_objs PRIVATE
-        ${STATIC_DEPS_INCLUDE_DIRS}
-    )
-
-else()
-
-    target_include_directories(${PROJECT_NAME}_objs PRIVATE
-        # libbdsg
-        "${deps_DIR}/libbdsg/bdsg/include"
-
-        # libhandlegraph used by libbdsg
-        "${deps_DIR}/libbdsg/bdsg/deps/libhandlegraph/src/include"
-
-        # SDSL
-        "${deps_DIR}/libbdsg/bdsg/deps/sdsl-lite/include"
-
-        # libbdsg header-only dependencies
-        "${deps_DIR}/libbdsg/bdsg/deps/sparsepp"
-        "${deps_DIR}/libbdsg/bdsg/deps/mio/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/BBHash"
-        "${deps_DIR}/libbdsg/bdsg/deps/DYNAMIC/include"
-        "${deps_DIR}/libbdsg/bdsg/deps/DYNAMIC/deps/hopscotch_map/include"
-
-        # Other Stoat dependencies
-        "${deps_DIR}/libhandlegraph/src/include"
-        "${deps_DIR}/libvgio/include"
-        "${deps_DIR}/libvgio/deps/libhandlegraph/src/include"
-        "${deps_DIR}/gbwt/include"
-        "${deps_DIR}/gbwtgraph/include"
-    )
-
+# Include Directories
+target_include_directories(${PROJECT_NAME}_objs PRIVATE
+${Boost_INCLUDE_DIRS}
+${HTSLIB_INCLUDE_DIRS}
+)
+if (STATIC_BUILD)
+    target_include_directories(${PROJECT_NAME}_objs PRIVATE ${STATIC_DEPS_INCLUDE_DIRS})
 endif()
 
-target_link_libraries(${PROJECT_NAME}_objs PRIVATE
-    OpenMP::OpenMP_CXX
-)
+# Links a target against the Stoat object library plus the right set of
+# bdsg/gbwt/gbwtgraph/vgio/htslib/OpenMP libraries for the current build mode.
+# Centralizing this avoids repeating the (long) static link-library list on
+# every one of the six executables below.
+function(stoat_link_target target)
+    if (STATIC_BUILD)
+        target_link_options(${target} PRIVATE "-Wl,--start-group")
+        target_link_libraries(${target} PRIVATE
+            ${PROJECT_NAME}_objs
+            ${STOAT_BDSG_TARGET}
+            "${SDSL_LIB}/libsdsl.a"
+            "${SDSL_LIB}/libdivsufsort.a"
+            "${SDSL_LIB}/libdivsufsort64.a"
+            "${HANDLEGRAPH_LIB}/libhandlegraph.a"
+            gbwtgraph
+            gbwt
+            ${STOAT_VGIO_TARGET}
+            Boost::boost
+            ${STOAT_HTSLIB_LIBRARIES}
+            OpenMP::OpenMP_CXX
+            ${STOAT_STATIC_SYSTEM_LIBS}
+            ${ARGN}
+        )
+        target_link_options(${target} PRIVATE "-Wl,--end-group")
+        add_dependencies(${target} sdsl_lite libhandlegraph_bdsg libbdsg)
+    else()
+        target_link_libraries(${target} PRIVATE
+            ${PROJECT_NAME}_objs
+            Boost::boost
+            ${STOAT_HTSLIB_LIBRARIES}
+            ${STOAT_BDSG_TARGET}
+            gbwtgraph
+            ${STOAT_VGIO_TARGET}
+            ${ARGN}
+        )
+    endif()
+endfunction()
 
 # Add Executable
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -563,7 +498,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE -w) # fix warning
 enable_testing()
 
 # Add test executable
-stoat_add_test_executable(unit_tests UnitTests
+add_executable(unit_tests
     tests/unittest/main_test.cpp
     tests/unittest/binary_test_unit.cpp
     tests/unittest/gaf_creator_unit.cpp
@@ -580,35 +515,28 @@ stoat_add_test_executable(unit_tests UnitTests
     tests/unittest/vcf_parser_unit.cpp
 )
 
-target_compile_options(unit_tests PRIVATE -w)
+target_compile_options(unit_tests PRIVATE -w) # fix warning
+stoat_link_target(unit_tests)
 
-include_directories(${deps_DIR}/Catch2/single_include/catch2)
+include_directories(${deps_DIR}/Catch2/single_include/catch2 )
+
+add_test(NAME UnitTests COMMAND unit_tests)
 
 # Add test executable system tests
-stoat_add_system_test(vcf_simu_test VcfSimuTest
-    tests/system/compare_files_utils.cpp
-    tests/system/vcf_simu_test.cpp
-)
+add_executable(vcf_simu_test tests/system/compare_files_utils.cpp tests/system/vcf_simu_test.cpp)
+stoat_link_target(vcf_simu_test)
+add_test(NAME VcfSimuTest COMMAND vcf_simu_test)
 
-stoat_add_system_test(graph_simu_test GraphSimuTest
-    tests/system/compare_files_utils.cpp
-    tests/system/load_tables.cpp
-    tests/system/graph_simu_test.cpp
-)
+add_executable(graph_simu_test tests/system/compare_files_utils.cpp tests/system/load_tables.cpp tests/system/graph_simu_test.cpp)
+stoat_link_target(graph_simu_test)
+add_test(NAME GraphSimuTest COMMAND graph_simu_test)
 
-stoat_add_system_test(test_simu_test TestSimuTest
-    tests/system/compare_files_utils.cpp
-    tests/system/load_tables.cpp
-    tests/system/test_simu_test.cpp
-)
+add_executable(test_simu_test tests/system/compare_files_utils.cpp tests/system/load_tables.cpp tests/system/test_simu_test.cpp)
+stoat_link_target(test_simu_test)
+add_test(NAME TestSimuTest COMMAND test_simu_test)
 
-stoat_add_system_test(bh_correct_test BHCorrectTest
-    tests/system/compare_files_utils.cpp
-    tests/system/load_tables.cpp
-    tests/system/bh_correct_test.cpp
-)
 
-stoat_add_system_test(change_ref_test ChangeRefTest
-    tests/system/compare_files_utils.cpp
-    tests/system/change_reference_test.cpp
-)
+##### Add changing reference system test
+add_executable(change_ref_test tests/system/compare_files_utils.cpp tests/system/change_reference_test.cpp)
+stoat_link_target(change_ref_test)
+add_test(NAME ChangeRefTest COMMAND change_ref_test)
