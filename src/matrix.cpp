@@ -170,9 +170,15 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTra
 
 void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::string &chr) {
     // init the edge matrix, allocating about 10 000 edges?
-    clear_edges(10000);
+    const size_t EXPECTED_EDGE_COUNT=10000;
+    clear_edges(EXPECTED_EDGE_COUNT);
 
     std::vector<std::vector<pending_edge_t>> pending_edges(omp_get_max_threads());
+
+    // Reserve memory for the edges in pending_edges
+    for (std::vector<pending_edge_t>& v : pending_edges) {
+        v.reserve(EXPECTED_EDGE_COUNT/omp_get_max_threads());
+    }
 
     vcf_parser.for_each_record_on_chromosome(chr, [&](const stoat_vcf::vcf_info_t& vcf_info) {
         std::vector<pending_edge_t>& thread_edges = pending_edges.at(omp_get_thread_num());
