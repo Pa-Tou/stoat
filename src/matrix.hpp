@@ -13,6 +13,11 @@ using namespace std;
 
 namespace stoat_vcf {
 
+struct pending_edge_t {
+    stoat::edge_t edge;
+    size_t hap_num;
+};
+
 // A class to store a 2d bit-matrix
 // Rows represent edges and the index of each edge can be found from the row_header
 // Columns represent samples/haplotypes

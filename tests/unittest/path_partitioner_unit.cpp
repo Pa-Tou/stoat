@@ -454,7 +454,7 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
 
 
 }
-TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partitioner][bug]" ) {
+TEST_CASE( "Path partitioner finder looping snarl with fragments", "[path_partitioner]" ) {
     // Different fragments with the same sample and haplotype count as separate paths
 
     /*
@@ -906,7 +906,7 @@ TEST_CASE( "Path partitioner nested bubbles with path fragments",
     }
 }
 TEST_CASE( "Path partitioner doesn't go through snarl bounds",
-          "[path_partitioner][bug]" ) {
+          "[path_partitioner]" ) {
 
     /*
                        5
