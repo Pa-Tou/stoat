@@ -1437,7 +1437,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
     int rm = system(rm_cmd.c_str());
 
 }
-TEST_CASE( "Multiple records from a deletion", "[vcf_parser][bug]" ) {
+TEST_CASE( "Multiple records from a deletion", "[vcf_parser]" ) {
     /*
           -------------
         /   --------   \
