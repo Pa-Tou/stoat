@@ -99,7 +99,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
     std::cerr << read_status << " on chr " << chr << std::endl;
 #endif
             //If there was a problem with the VCF, stop. The bcftools reader should have output its own more informative error message but doesn't seem to throw an error
-            if (read_status < 0) {
+            if (read_status < -1) {
                 throw std::runtime_error("Unable to read VCF file");
             }
 
