@@ -295,7 +295,7 @@ vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
                 if (!(i%2 == 1 && record_genotypes.at(i-1) == (int)-1)) {
                     #pragma omp critical(vcf_parser_log)
                     {
-                        stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(raw_record->pos+1) + " has undefined genotype of " + std::to_string(genotype), "bad_vcf_gt");
+                        throw std::runtime_error("VCF variant " + snarl_id + " at " + chr + ":" + std::to_string(raw_record->pos+1) + " has undefined genotype of " + std::to_string(genotype));
                     }
                 }
                 record_genotypes.emplace_back((int)-1);
@@ -513,7 +513,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                         }
                     }
                 } else if (idx_path_allele != (int)-1 && sample_hap_index % 2 == 1 && bcf_gt_allele(gt[sample_hap_index-1])) {
-                    stoat::LOG_WARN("VCF variant has undefined genotype of " + std::to_string(idx_path_allele), "bad_vcf_gt");
+                    throw std::runtime_error("VCF variant has undefined genotype of " + std::to_string(idx_path_allele));
                 }
             }
         }
