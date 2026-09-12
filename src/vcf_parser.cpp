@@ -451,7 +451,6 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         }
 
         // Now go through the paths and for each snarl in the path, remember how many copies of the snarl we see
-        const size_t ploidy = 2;
         for (int sample_num = 0; sample_num < rec_genotypes->n_sample; ++sample_num){
             for (int hap_num = 0; hap_num < ploidy; ++hap_num){
                 // allele hap_num of that sample
@@ -491,8 +490,8 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                             }
                         }
                     }
-                } else if (idx_path_allele != (int)-1 && sample_hap_index % 2 == 1 && bcf_gt_allele(gt[sample_hap_index-1])) {
-                    stoat::LOG_WARN("VCF variant has undefined genotype of " + std::to_string(idx_path_allele), "bad_vcf_gt");
+                } else if (idx_path_allele != (int)-1 && sample_hap_index % ploidy == 1 && bcf_gt_allele(gt[sample_hap_index-1])) {
+                    throw std::invalid_argument("VCF variant has undefined genotype of " + std::to_string(idx_path_allele));
                 }
             }
         }
