@@ -311,7 +311,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 
 
 
-// Get the traversals through the snarl from the gbwt
+// Get the traversals through the snarl from the gbwt, filling in finished_paths
 // This is heavily based on vg/haplotype_extracter.cpp
 size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,     
                            const handlegraph::net_handle_t& snarl,
@@ -502,6 +502,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                         handlegraph::net_handle_t chain_start = distance_index.get_bound(next_net_parent, false, true);
                         handlegraph::net_handle_t chain_end = distance_index.get_bound(next_net_parent, true, true);
                         if (next_net == chain_start || next_net == chain_end) {
+                            // If this is going into the child chain, then add the chain and then this node
                             branch = true;
                             #ifdef DEBUG_PATH_PARTITIONER
                                 std::cerr << "\t\tnew path with chain child" << std::endl;
@@ -509,11 +510,13 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                             updated_path.push_back(next_net_parent);
                             updated_path.push_back(next_net);
                         } else if (next_net == distance_index.flip(chain_start) || next_net == distance_index.flip(chain_end)) {
+                            // If this is leaving the child chain, then just pop the extra node so that the path finishes on the chain
                             #ifdef DEBUG_PATH_PARTITIONER
                                 std::cerr << "\t\t finish chain child" << std::endl;
                             #endif
                             updated_path.pop_back();
                         } else {
+                            // Otherwise, this is continuing the walk in the chain so just replace the last traversal in the path
                             #ifdef DEBUG_PATH_PARTITIONER
                                 std::cerr << "\t\t continue chain child" << std::endl;
                             #endif
@@ -564,6 +567,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
     // Get all start-end or start-start traversals and put them in  finished_paths 
     // Path count will be an upper bound of the number of distinct paths
+    // TODO: WHy is it an upper bound and not the exact value?
     size_t path_count = get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths);
 
     // At this point, finished paths holds a path for each distinct, haplotype-supported walk through th esnarl netgraph
@@ -625,7 +629,6 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     std::vector<size_t> intermediate_sets (all_sample_haplotypes.size(), 0);
 
     std::vector<size_t> new_sets (all_sample_haplotypes.size(), 0);
-    size_t new_set_count = 1;
 
     // Sort the finished paths so by path id so that identical paths are consecutive in the vector.
     // Since actually sorting the vector would be slow, make a vector of indices and sort that
@@ -652,7 +655,11 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
         //locate() finds the path identifiers for the search state
         std::vector<gbwt::size_type> path_ids = gbwt.locate(std::get<1>(current_state));
+
+        #ifdef DEBUG_PATH_PARTITIONER
         std::cerr << "Found " << path_ids.size() << " path ids for this path " << std::endl;
+        #endif
+
         for (const gbwt::size_type id : path_ids) {
             gbwt::size_type gbwt_path_id = gbwt::Path::id(id);
 
@@ -665,7 +672,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                                         gbwtgraph::get_path_phase_block(gbwt, gbwt_path_id, sense),
                                         gbwtgraph::get_path_subrange(gbwt, gbwt_path_id, sense)); 
             #ifdef DEBUG_PATH_PARTITIONER
-                std::cerr << "\tpath " << path_name << " takes this path" << std::endl;
+                std::cerr << "\tpath " << path_name << " takes this snarl traversal: " << gbwt_path_id << std::endl;
             #endif
 
             intermediate_sets.at(sample_to_index.at(sample_hap_t(path_name)))++;
@@ -677,6 +684,9 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             // If we finished going through the last set of paths for this path id
             std::map<std::pair<size_t, size_t>, size_t> old_to_new_set;
             old_to_new_set[std::make_pair(0,0)] = 0;
+
+            // How many new sets have we found?
+            size_t new_set_count = 1;
 
             for (size_t sample_i = 0 ; sample_i < old_sets.size() ; sample_i++) {
                 if (old_to_new_set.count(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))) == 0) {
@@ -690,7 +700,6 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             old_set_count = new_set_count;
             new_sets.assign(all_sample_haplotypes.size(), 0);
             intermediate_sets.assign(all_sample_haplotypes.size(), 0);
-            new_set_count = 1;
 
             // Now deal with the walks
             paths_per_path_id.at(std::get<2>(current_state)) = std::move(std::get<0>(current_state));
@@ -716,6 +725,10 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
         }
     }
 
+    // Now fill in paths_per_allele
+    #ifdef DEBUG_PATH_PARTITIONER
+    assert(paths_per_allele.size() == 0);
+    #endif
     for (size_t allele_num = 0 ; allele_num < old_set_count ; allele_num++) {
 
         paths_per_allele.emplace_back();
