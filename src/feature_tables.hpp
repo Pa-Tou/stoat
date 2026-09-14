@@ -77,6 +77,9 @@ class FeatureBySampleTable {
     // mask samples with no value in the input mask vector
     // returns the number of samples that were masked
     size_t mask_sample_index(std::vector<bool>& row_mask) const;
+
+    // Shuffle the values to randomize the assignment of value to sample
+    void shuffle_values();
     
     protected:
     // Map from the samples that we have features for to their index in values_per_sample
@@ -209,7 +212,7 @@ public:
     void link_to_quantitative_phenotype(const QuantitativePhenotypeTable& phenotype);
     void link_to_covariates(const CovariateTable& covariates);
 
-    // remove samples with no alleles supported
+    // remove samples with missing information (no phenotype or covariables)
     void remove_noncovered_samples();
 
     // look for predictors with the same values across all samples
@@ -243,6 +246,9 @@ public:
     // how many alleles are not masked
     // JEAN maybe more efficient to keep track of this instead of recomputing from the mask each time?
     size_t get_n_active_alleles() const;
+
+    // Which alleles are used (true) or not used (false)?
+    std::vector<bool> get_active_alleles() const;
 
     /// this will include alleles, covariates, and the total allele count if it was added by add_total_allele_count_covariable
     size_t get_n_active_columns() const;

@@ -5,14 +5,46 @@
 
 namespace stoat {
 
-Writer::Writer(const std::string output_file_path) : file_path(output_file_path) {};
+Writer::Writer(const std::string output_file_path, size_t thread_count, size_t max_buffer_length) : 
+    file_path(output_file_path),
+    max_buffer_length(max_buffer_length) {
+        // Allocate memory for the buffer
+        buffer.reserve(max_buffer_length);
+    };
 
 std::string Writer::get_file_path() const {
     return file_path;
 }
 
+bool Writer::write(const std::string out_content) {
+    bool success = true;
+    #pragma omp critical (writer)
+    {
+        buffer.append(out_content);
+        if (buffer.size() > max_buffer_length) {
+            success = flush();
+        }
+    }
+    return success;
+}
+
+bool Writer::flush() {
+    // Call the virtual function to write the buffer then clear it
+
+    bool written = write_string_to_file(buffer);
+    buffer.clear();
+    return written;
+}
+
+void Writer::close() {
+    // Flush the buffer
+    flush();
+    // Call the virtual function to close the file
+    close_file();
+}
+
 // Uncompressed writer using a standard output file stream
-StdWriter::StdWriter(const std::string output_file_path) : Writer(output_file_path) {
+StdWriter::StdWriter(const std::string output_file_path, size_t max_buffer_length) : Writer(output_file_path, max_buffer_length) {
     // do nothing if the file path is null
     if (output_file_path == "") {
         return;
@@ -21,21 +53,21 @@ StdWriter::StdWriter(const std::string output_file_path) : Writer(output_file_pa
     file_stream.open(file_path);
 }
 
-bool StdWriter::write(const std::string out_content) {
-    #pragma omp critical (writer)
-    {
-        file_stream << out_content;
-    }
+bool StdWriter::write_string_to_file(const std::string& out_content) {
+    // Write to the output file. Since this is always called within the omp guards from write(), this doesn't need its own guards (I think)
+    file_stream << out_content;
     return true;
 }
 
-void StdWriter::close() {
+
+
+void StdWriter::close_file() {
     // close steam
     file_stream.close();
 }
 
 // Bgzipped writer using a HTSlib
-BgzWriter::BgzWriter(const std::string output_file_path) : Writer(output_file_path) {
+BgzWriter::BgzWriter(const std::string output_file_path, size_t max_buffer_length) : Writer(output_file_path, max_buffer_length) {
     // do nothing if the file path is null
     if (output_file_path == "") {
         return;
@@ -47,16 +79,17 @@ BgzWriter::BgzWriter(const std::string output_file_path) : Writer(output_file_pa
     }
 }
 
-bool BgzWriter::write(const std::string out_content) {
+bool BgzWriter::write_string_to_file(const std::string& out_content) {
+    // Write to the output file. Since this is always called within the omp guards from write(), this doesn't need its own guards
     if (bgzf_write(file_p, out_content.c_str(), out_content.size()) < 0) {
         stoat::LOG_ERROR("Error writing to BGZ output: " + file_path + "\n");
         bgzf_close(file_p);
-        return 0;
+        return false;
     }
-    return 1;
+    return true;
 }
 
-void BgzWriter::close() {
+void BgzWriter::close_file() {
     // close steam
     bgzf_close(file_p);
 }
@@ -121,15 +154,15 @@ void Writer::write_stoat_output_header(stoat::phenotype_type_t phenotype_type) {
     if (phenotype_type == stoat::BINARY) {
         write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP_FISHER\tP_CHI2\tALLELE_COUNT_PER_PHENO\tDEPTH\n");
     } else if (phenotype_type == stoat::BINARY_COVAR) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLELE_COUNT\tDEPTH\n");
     } else if (phenotype_type == stoat::QUANTITATIVE) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLEL_COUNT\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tP\tALLELE_COUNT\tDEPTH\n");
     } else if (phenotype_type == stoat::EQTL) {
-        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tGENE\tP\tALLEL_COUNT\tDEPTH\n");
+        write("#CHR\tSTART_OFFSET\tEND_OFFSET\tSTART_NODE\tEND_NODE\tALLELE_LENGTHS\tGENE\tP\tALLELE_COUNT\tDEPTH\n");
     }
 }
 
-void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::test_result_t& test_result, const std::vector<bool>& active_alleles) {
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
@@ -139,7 +172,7 @@ void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::te
         //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
         outl += "\tNA";
     } else {
-        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
+        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true, active_alleles);
     }
     // pvalues and contingency table
     outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + stoat::set_precision(test_result.second_pv) + "\t" + test_result.group_paths + "\t" +
@@ -148,7 +181,7 @@ void Writer::write_binary(const stoat::snarl_info_t& snarl_data, const stoat::te
     write(outl);
 }
 
-void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result, const std::vector<bool>& active_alleles) {
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
@@ -158,7 +191,7 @@ void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::tes
         //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
         outl += "\tNA";
     } else {
-        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
+        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true, active_alleles);
     }
     // pvalues and contingency table
     outl += "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";
@@ -166,12 +199,12 @@ void Writer::write_quantitative(const snarl_info_t& snarl_data, const stoat::tes
     write(outl);
 }
 
-void Writer::write_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result) {
+void Writer::write_binary_covar(const snarl_info_t& snarl_data, const stoat::test_result_t& test_result, const std::vector<bool>& active_alleles) {
     // now it's the same output
-    write_quantitative(snarl_data, test_result);
+    write_quantitative(snarl_data, test_result, active_alleles);
 }
 
-void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result) {
+void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_name, const stoat::test_result_t& test_result, const std::vector<bool>& active_alleles) {
     // snarl information
     std::string outl = snarl_data.ref_path;
     outl += "\t" + std::to_string(snarl_data.start_position) + "\t" + std::to_string(snarl_data.end_position);
@@ -181,7 +214,7 @@ void Writer::write_eqtl(const snarl_info_t& snarl_data, const std::string& gene_
         //TODO: This writes "NA" if there are no paths/path lengths for the alleles. idk if this is what we want to do
         outl += "\tNA";
     } else {
-        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true);
+        outl += "\t" + stoat::vectorPathToString(snarl_data.walks_by_allele, true, active_alleles);
     }
     // pvalues and contingency table
     outl += "\t" + gene_name + "\t" + stoat::set_precision(test_result.pv) + "\t" + test_result.allele_paths + "\t" + std::to_string(snarl_data.depth) + "\n";

@@ -11,8 +11,6 @@
 #include <handlegraph/handle_graph.hpp>
 #include <handlegraph/path_handle_graph.hpp>
 
-#include <boost/multiprecision/cpp_dec_float.hpp>
-
 #include "types_and_structs.hpp"
 
 #include "log.hpp"

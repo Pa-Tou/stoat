@@ -70,6 +70,8 @@ int main_stoat_graph(int argc, char *argv[]) {
     bool ascii = false;
     bool find_allele_lengths = false; 
 
+    size_t thread_count = 1;
+
     int c = 0;
     optind = 1;
     while (true) {
@@ -116,7 +118,8 @@ int main_stoat_graph(int argc, char *argv[]) {
                     stoat::LOG_ERROR("[stoat graph] Number of threads must be > 0");
                     return EXIT_FAILURE;
                 }
-                omp_set_num_threads(std::stoi(optarg));
+                thread_count = std::stoi(optarg);
+                omp_set_num_threads(thread_count);
                 break;
             case 'V':
                 {
@@ -275,9 +278,9 @@ int main_stoat_graph(int argc, char *argv[]) {
     std::shared_ptr<stoat::Writer> snarl_writer;
     if ((snarls_filename.compare(snarls_filename.length()-3, 3, ".gz") == 0) ||
         (snarls_filename.compare(snarls_filename.length()-4, 4, ".bgz") == 0)) {
-        snarl_writer.reset(new BgzWriter(snarls_filename));
+        snarl_writer.reset(new BgzWriter(snarls_filename, thread_count));
     } else {
-        snarl_writer.reset(new StdWriter(snarls_filename));
+        snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
     }
 
     // Find and write the information (inc. paths and genotypes) for each snarl in the index

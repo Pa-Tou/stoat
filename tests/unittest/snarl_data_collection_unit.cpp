@@ -726,6 +726,26 @@ TEST_CASE( "Snarl collection nested bubbles",
             int rm = system(rm_cmd.c_str());
             
         }
+        SECTION("Serialize it and load one line at a time in parallel") {
+            // This uses the same code as the normal loader so just test that it doesn't crash and gets the right number of snarls
+
+            std::string test_file = "./test_snarls.txt";
+            stoat::StdWriter out_writer(test_file);
+            snarl_collection.write_snarl_data_collection(out_writer);
+            out_writer.close();
+
+            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            stoat::StdReader snarl_reader(test_file);
+            size_t loaded_snarl_count = 0;
+            loaded_snarl_collection.for_each_snarl_in_file_parallel(snarl_reader, [&](const snarl_info_t& snarl_info) {
+                ++loaded_snarl_count;
+            });
+            snarl_reader.close();
+            REQUIRE(loaded_snarl_count == 4);
+            std::string rm_cmd = "rm " + test_file;
+            int rm = system(rm_cmd.c_str());
+            
+        }
         
         SECTION("Write a snarl collection as its being filled in") {
 

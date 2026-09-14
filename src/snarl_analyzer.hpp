@@ -28,13 +28,14 @@ public:
 
     // Go throught the snarls in a file and test the association with the phenotype.
     // Avoids loading the entire snarl collection with all the genotypes at once.
-    void test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer);
+    // if randomize_geno is true, then shuffle the genotypes among the samples
+    void test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer, bool randomize_geno = false) const;
     
     // get the type of phenotype, in case we do specific things outside of this class (although we should try to avoid it)
     stoat::phenotype_type_t get_phenotype_type() const;
     
     /// For the given snarl, get the genotypes and test the snarl, then write results to outf
-    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) = 0;
+    virtual bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const = 0;
     
 //////////////// Private data members
 protected:
@@ -63,7 +64,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
 
 protected:
 
@@ -81,7 +82,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
 
 protected:
     std::pair<std::set<std::string>, std::set<std::string>> sample_sets;
@@ -99,7 +100,7 @@ public:
         const stoat::BinaryPhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
 
 /////////////////// Private data members
 protected:
@@ -119,7 +120,7 @@ public:
         const stoat::QuantitativePhenotypeTable& phenotype,
         const size_t min_individuals);
 
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) ;
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer)  const;
 
 /////////////////// Private data members
 protected:
@@ -139,7 +140,7 @@ public:
                       const size_t max_gene_dist,
                       const size_t min_individuals);
     
-    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer);
+    bool test_and_write_snarl(stoat::snarl_info_t& snarl_data, stoat::Writer& out_writer) const;
     
 protected:
 

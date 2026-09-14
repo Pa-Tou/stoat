@@ -9,7 +9,7 @@ namespace stoat_vcf {
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;
     if (!std::filesystem::exists(file_path)) {
-        stoat::LOG_WARN("given reference file " + file_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", 0);
+        stoat::LOG_WARN("given reference file " + file_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
         return reference;
     }
     std::ifstream file(file_path);
@@ -22,7 +22,7 @@ std::unordered_set<std::string> parse_chromosome_reference(const std::string& fi
     file.close();
 
     if (reference.size() == 0) {
-        stoat::LOG_WARN("given reference file " + file_path + " is empty. Defaulting to using any reference- or generic-sense paths as references", 0);
+        stoat::LOG_WARN("given reference file " + file_path + " is empty. Defaulting to using any reference- or generic-sense paths as references", "");
     }
     return reference;
 }
@@ -80,7 +80,7 @@ std::string methods_stats_prediction(const std::string& file_path, const bool& c
 
 }
 
-stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
+std::unique_ptr<stoat::BinaryPhenotypeTable> parse_binary_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
 
     // fill this map first
     std::unordered_map<std::string, bool> binary_pheno;
@@ -149,7 +149,7 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
 
     // Prepare the Table object to fill and output
     // ideally we could fill it when reading each line
-    stoat::BinaryPhenotypeTable* output_table = new stoat::BinaryPhenotypeTable(sample_to_index);
+   std::unique_ptr< stoat::BinaryPhenotypeTable> output_table ( new stoat::BinaryPhenotypeTable(sample_to_index));
 
     size_t unique_to_pheno = 0;
     size_t missing_in_pheno = 0;
@@ -183,21 +183,21 @@ stoat::BinaryPhenotypeTable* parse_binary_pheno_table(const std::string& file_pa
 
     // print the warnings
     if (unique_to_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", 0);
+        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", "");
     }
 
     if (missing_in_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", 0);
+        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", "");
     }
 
     // print how many samples will be used
     stoat::LOG_INFO("Binary phenotypes used for GWAS: " + std::to_string(used_cases + used_controls) + 
         " (Control: " + std::to_string(used_controls) + ", Case: " + std::to_string(used_cases) + ")");
 
-    return (output_table);
+    return output_table;
 }
 
-stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
+std::unique_ptr<stoat::QuantitativePhenotypeTable> parse_quantitative_pheno_table(const std::string& file_path, std::unordered_map<std::string, size_t>& sample_to_index) {
 
     // fill this map first
     std::unordered_map<std::string, double> quantitative_pheno;
@@ -260,7 +260,7 @@ stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::str
 
     // Prepare the Table object to fill and output
     // ideally we could fill it when reading each line
-    stoat::QuantitativePhenotypeTable* output_table = new stoat::QuantitativePhenotypeTable(sample_to_index);
+    std::unique_ptr<stoat::QuantitativePhenotypeTable> output_table ( new stoat::QuantitativePhenotypeTable(sample_to_index));
     
     size_t unique_to_pheno = 0;
     size_t missing_in_pheno = 0;
@@ -284,21 +284,21 @@ stoat::QuantitativePhenotypeTable* parse_quantitative_pheno_table(const std::str
 
     // Warnings
     if (unique_to_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", 0);
+        stoat::LOG_WARN(std::to_string(unique_to_pheno) + " phenotype samples were not found in the sample set", "");
     }
 
     if (missing_in_pheno > 0) {
-        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", 0);
+        stoat::LOG_WARN(std::to_string(missing_in_pheno) + " samples have no phenotype", "");
     }
 
     // Final Pheno GWAS counts
     stoat::LOG_INFO("Quantitative phenotypes used for GWAS: " + 
         std::to_string(samp_with_pheno) + " samples");
 
-    return (output_table);
+    return output_table;
 }
 
-stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_expression_path, const std::string& gene_position_path, std::unordered_map<std::string, size_t>& sample_to_index, std::unordered_map<std::string, size_t>& gene_to_index) {
+std::unique_ptr<stoat::GeneExpressionTable> parse_gene_expression_table(const std::string& gene_expression_path, const std::string& gene_position_path, std::unordered_map<std::string, size_t>& sample_to_index, std::unordered_map<std::string, size_t>& gene_to_index) {
 
     // should we update the sample to index map? yes if it's empty at the start
     bool update_sample_to_index = sample_to_index.empty();
@@ -397,7 +397,7 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
     stoat::LOG_INFO("Gene number found in expression file: " + std::to_string(gene_idx));
 
     // Build output table
-    stoat::GeneExpressionTable* output_table = new stoat::GeneExpressionTable(sample_to_index, gene_to_index);
+    std::unique_ptr<stoat::GeneExpressionTable> output_table ( new stoat::GeneExpressionTable(sample_to_index, gene_to_index));
 
     size_t unique_to_expression = 0;
     size_t missing_in_expression = 0;
@@ -425,12 +425,12 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
     // Warnings
     if (unique_to_expression > 0) {
         stoat::LOG_WARN(std::to_string(unique_to_expression) +
-            " samples with expression not found in current sample set", 0);
+            " samples with expression not found in current sample set", "");
     }
 
     if (missing_in_expression > 0) {
         stoat::LOG_WARN(std::to_string(missing_in_expression) +
-            " samples missing expression values", 0);
+            " samples missing expression values", "");
     }
 
     stoat::LOG_INFO("Samples with expression used in analysis: " +
@@ -438,17 +438,16 @@ stoat::GeneExpressionTable* parse_gene_expression_table(const std::string& gene_
 
     // Load gene positions
     output_table->read_gene_positions_from_file(gene_position_path);
-    return (output_table);
+    return output_table;
 }
 
-stoat::CovariateTable* parse_covariate_table(
+std::unique_ptr<stoat::CovariateTable> parse_covariate_table(
     const std::string& file_path,
     std::unordered_map<std::string, size_t>& sample_to_index,
     std::unordered_map<std::string, size_t>& covar_to_index) {
 
     std::unordered_map<std::string, std::vector<double>> covariate_map;
     bool update_sample_to_index = sample_to_index.empty();
-    assert(!covar_to_index.empty());
 
     std::ifstream file(file_path);
     if (!file.is_open()) {
@@ -469,11 +468,23 @@ stoat::CovariateTable* parse_covariate_table(
     while (header_stream >> head_val) {
         headers.push_back(head_val);
     }
+    //TODO: Check that everything in covar_to_index is in headers
 
     // check for a SAMPLE column
     auto samp_head_it = std::find(headers.begin(), headers.end(), "SAMPLE");
     if (samp_head_it == headers.end()) {
         throw std::invalid_argument("Header must include 'SAMPLE' column");
+    }
+
+    // If we didn't already specify which covariates, use all of them
+    size_t samp_head_i =  samp_head_it - headers.begin();
+    size_t covar_count = 0;
+    if (covar_to_index.empty()) {
+        for (size_t i = 0 ; i < headers.size() ; i++) {
+            if (i != samp_head_i) {
+                covar_to_index[headers.at(i)] = covar_count++;
+            }
+        }
     }
 
     size_t samp_head_idx = std::distance(headers.begin(), samp_head_it);
@@ -549,7 +560,7 @@ stoat::CovariateTable* parse_covariate_table(
     file.close();
 
     // Build output table
-    stoat::CovariateTable* output_table = new stoat::CovariateTable(sample_to_index, covar_to_index);
+    std::unique_ptr<stoat::CovariateTable> output_table (new stoat::CovariateTable(sample_to_index, covar_to_index));
     size_t unique_to_covar = 0;
     size_t genotype_missing_covars = 0;
     size_t used_samples = 0;
@@ -580,18 +591,18 @@ stoat::CovariateTable* parse_covariate_table(
     // Warnings
     if (unique_to_covar > 0) {
         stoat::LOG_WARN(std::to_string(unique_to_covar) +
-            " samples with covariates not found in sample set", 0);
+            " samples with covariates not found in sample set", "");
     }
 
     if (genotype_missing_covars > 0) {
         stoat::LOG_WARN(std::to_string(genotype_missing_covars) +
-            " samples missing covariates", 0);
+            " samples missing covariates", "");
     }
 
     stoat::LOG_INFO("Samples with covariates used in analysis: " +
         std::to_string(used_samples));
 
-    return (output_table);
+    return output_table;
 }
 
 // Function to open a VCF file and return pointers to the file, header, and record
@@ -644,7 +655,7 @@ void check_match_samples(const std::unordered_map<std::string, T>& map, const st
         }
     }
     if (map.size() != keys.size()) {
-        stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").", 0);
+        stoat::LOG_WARN("Number of samples found in VCF (" + std::to_string(keys.size()) + ") does not match the number of samples in the phenotype file (" + std::to_string(map.size()) + ").", "");
     }
 }
 

@@ -25,9 +25,6 @@ and can be found at https://github.com/chrchang/plink-ng/blob/master/1.9/plink_s
 #include "stats_test.hpp"
 #include "utils.hpp"
 
-// using boost::multiprecision::cpp_dec_float_50;
-// using boost::math::chi_squared_distribution;
-
 // Fisher's Exact Test for 2x2 contingency table
 #define DBL_MAX 1.7976931348623157e308
 
@@ -37,7 +34,7 @@ namespace stoat {
 // Fisher's exact test for a 2x2 contingency table
 // m11, m12, m21, m22 are the counts in the table
 double FisherChi2::fastFishersExactTest(size_t m11, size_t m12,
-                                 size_t m21, size_t m22) {
+                                 size_t m21, size_t m22) const {
     
     // Check for any full-zero row or column
     if ((m11 | m12) == 0 || (m21 | m22) == 0 || (m11 | m21) == 0 || (m12 | m22) == 0) {

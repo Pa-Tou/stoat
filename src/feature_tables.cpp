@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <random>
 
 // #define DEBUG_TABLES
 
@@ -21,7 +22,7 @@ CategoricalFeatureBySampleTable<ValueType>::CategoricalFeatureBySampleTable(cons
 
     this->values_per_sample.reserve(this->sample_to_index.size());
     for (size_t i = 0; i < sample_to_index.size(); i++) {
-        this->values_per_sample[i] = std::vector<ValueType>(feature_to_index.size());
+        this->values_per_sample.at(i) = std::vector<ValueType>(feature_to_index.size());
     }
 }
 
@@ -34,7 +35,7 @@ CategoricalFeatureBySampleTable<double>::CategoricalFeatureBySampleTable(const s
 
     this->values_per_sample.reserve(this->sample_to_index.size());
     for (size_t i = 0; i < sample_to_index.size(); i++) {
-        this->values_per_sample[i] = std::vector<double>(feature_to_index.size(), std::numeric_limits<double>::max());
+        this->values_per_sample.at(i) = std::vector<double>(feature_to_index.size(), std::numeric_limits<double>::max());
     }
 }
 
@@ -52,7 +53,7 @@ ValueType FeatureBySampleTable<ValueType>::get_value_for_sample_id(size_t sample
 // Setter for FeatureBySampleTable
 template<class ValueType>
 void FeatureBySampleTable<ValueType>::set_value_for_sample(const std::string& sample, ValueType value) {
-    values_per_sample[sample_to_index.at(sample)] = value;
+    values_per_sample.at(sample_to_index.at(sample)) = value;
 }
 
 template<class ValueType>
@@ -94,6 +95,15 @@ size_t FeatureBySampleTable<ValueType>::mask_sample_index(std::vector<bool>& row
     }
     return n_masked;
 }
+
+template<class ValueType>
+void FeatureBySampleTable<ValueType>::shuffle_values() {
+    
+    std::random_device rd;
+    std::mt19937 g(rd());
+    
+    std::shuffle(values_per_sample.begin(), values_per_sample.end(), g);
+}
     
 // Getter for CategoricalFeatureBySampleTable
 template<class ValueType>
@@ -109,7 +119,7 @@ ValueType CategoricalFeatureBySampleTable<ValueType>::get_value_for_sample_and_f
 // Setter for CategoricalFeatureBySampleTable
 template<class ValueType>
 void CategoricalFeatureBySampleTable<ValueType>::set_value_for_sample_and_feature(const std::string& sample, const std::string& feature, ValueType value) {
-    this->values_per_sample[this->sample_to_index.at(sample)][this->feature_to_index.at(feature)] = value;
+    this->values_per_sample.at(this->sample_to_index.at(sample)).at(this->feature_to_index.at(feature)) = value;
 }
 
 template<class ValueType>
@@ -153,6 +163,8 @@ void GeneExpressionTable::read_gene_positions_from_file(const std::string filena
     }
 
     // read the gene positions and fill our map
+    std::unordered_set<std::string> genes_without_exp;
+    std::unordered_set<std::string> genes_with_both;
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string gene_val, chrom_val, start_val, end_val;
@@ -169,12 +181,31 @@ void GeneExpressionTable::read_gene_positions_from_file(const std::string filena
             size_t start = std::stoull(start_val);
             size_t end = std::stoull(end_val);
             gene_position_t gpos(gene_val, start, end);
-            gene_positions_by_chr[chrom_val].emplace_back(gpos);
+            // only store genes with some expression information
+            if(feature_to_index.find(gene_val) != feature_to_index.end()) {
+                gene_positions_by_chr[chrom_val].emplace_back(gpos);
+                genes_with_both.insert(gene_val);
+            } else {
+                genes_without_exp.insert(gene_val);
+            }
         } catch (...) {
             throw std::invalid_argument("In parsing gene position file, invalid numeric value in line: " + line);
         }
     }
 
+    // warning if some genes are  missing expression
+    if (genes_without_exp.size() > 0) {
+        stoat::LOG_WARN(std::to_string(genes_without_exp.size()) +
+                        " genes with position information but no expression", "");
+    }
+    
+    // error if any gene doesn't have a position
+    for(auto& gene_index: feature_to_index) {
+        if(genes_with_both.find(gene_index.first) == genes_with_both.end()) {
+            throw std::invalid_argument("Missing gene position for " + gene_index.first);
+        }
+    }
+    
     file.close();
 }
 
@@ -182,6 +213,11 @@ std::vector<std::string> GeneExpressionTable::get_genes_around_pos(const std::st
 
     // we'll save the nearby genes here
     std::vector<std::string> near_genes;
+
+    // make sure that chromosome is part of the ones we've stored positions for
+    if(gene_positions_by_chr.find(chrom) == gene_positions_by_chr.end()) {
+        return near_genes;
+    }
     
     // we look for genes in the specified range +- the maximum distance
     size_t min_start_pos = (start_pos > max_distance) ? start_pos - max_distance : 0;
@@ -207,7 +243,7 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     this->values_per_sample.reserve(this->sample_to_index.size());
 
     for (size_t i = 0; i < sample_to_index.size(); i++) {
-        this->values_per_sample[i] = std::vector<double>(allele_count, 0);
+        this->values_per_sample.at(i) = std::vector<double>(allele_count, 0);
     }
 
     // init the variable to keep track of the matrix dimensions
@@ -223,7 +259,7 @@ GenotypeTable::GenotypeTable(const std::unordered_map<std::string, size_t>& samp
     n_active_columns = n_alleles;
 
     // init the column with the total allele counts
-    total_allele_counts_per_sample = std::vector<double>(n_samples, 0);
+    this->total_allele_counts_per_sample = std::vector<double>(n_samples, 0);
     use_total_ac = false;
 
     // init info about the phenotype being linked already
@@ -248,8 +284,9 @@ void GenotypeTable::clear() {
 
 void GenotypeTable::increment_count(size_t sample_idx, size_t allele_num) {
     // increment the appropriate allele column and total count
-    this->values_per_sample[sample_idx][allele_num]++;
-    total_allele_counts_per_sample[sample_idx]++;
+
+    this->values_per_sample.at(sample_idx).at(allele_num)++;
+    this->total_allele_counts_per_sample.at(sample_idx)++;
 }
 
 double GenotypeTable::get_value(size_t row, size_t col) const {
@@ -336,15 +373,6 @@ void GenotypeTable::link_to_covariates(const CovariateTable& in_covariates) {
 
 void GenotypeTable::remove_noncovered_samples() {
 
-    // check the total allele count (filled previously) to decide if a sample should be masked
-    for (size_t samp_i = 0; samp_i < n_samples; samp_i++) {
-        // no allele counts present in sample or sample not have phenotype 
-        if (total_allele_counts_per_sample[samp_i] == 0 && !row_mask[samp_i]) {
-            row_mask[samp_i] = true;
-            n_active_samples--;
-        }
-    }
-
     // mask samples that don't have a phenotype
     size_t masked_samples = 0;
     if (linked_phenotype) {
@@ -381,12 +409,14 @@ void GenotypeTable::remove_constant_predictors() {
         // compare each value with the first value
         double first_value;
         bool constant = false;
+        bool has_any_allele = false;
         for (size_t row_ii = 0; row_ii < n_samples; row_ii++) {
 
             // skip if already masked
             if (row_mask[row_ii]) {
                 continue;
             }
+            has_any_allele = true;
 
             // if first value to consider, save it
             if (!constant) {
@@ -399,6 +429,9 @@ void GenotypeTable::remove_constant_predictors() {
                 constant = false;
                 break;
             }
+        }
+        if (!has_any_allele) {
+            constant = true;
         }
 
         // mask if constant
@@ -455,7 +488,7 @@ void GenotypeTable::remove_duplicated_predictors() {
             }
             // compare each (not masked) rows
             size_t samp_i = 0;
-            while (samp_i < n_samples && (row_mask[samp_i] || total_allele_counts_per_sample[samp_i] == get_value(samp_i, col_jj))) {
+            while (samp_i < n_samples && (row_mask[samp_i] || this->total_allele_counts_per_sample.at(samp_i) == get_value(samp_i, col_jj))) {
                 samp_i++;
             }
             // if one value is different, we will stop before reaching the end
@@ -490,6 +523,16 @@ void GenotypeTable::fill_contingency_table(std::vector<size_t>& g0, std::vector<
         }
         active_al_i++;
     }
+}
+
+std::vector<bool> GenotypeTable::get_active_alleles() const {
+    std::vector<bool> alleles(n_alleles, false);
+
+    // This is the reverse of the mask
+    for (size_t al_i = 0; al_i < n_alleles; al_i++) {
+        alleles[al_i] = !col_mask[al_i];
+    }
+    return alleles;
 }
 
 // JEAN maybe these won't be used in the end. Remove at the end if not
@@ -537,12 +580,12 @@ void GenotypeTable::add_total_allele_count_covariable() {
         }
         if (use_total_ac) {
             // first active sample, save the first value
-            first_tot_ac = total_allele_counts_per_sample[samp_i];
+            first_tot_ac = this->total_allele_counts_per_sample.at(samp_i);
             // and start checking for any differences
             use_total_ac = false;
         } else {
             // check if different from the first one
-            if (total_allele_counts_per_sample[samp_i] != first_tot_ac) {
+            if (this->total_allele_counts_per_sample.at(samp_i) != first_tot_ac) {
                 // "add" the new column
                 use_total_ac = true;
                 n_active_columns++;
@@ -560,7 +603,14 @@ bool GenotypeTable::passes_filters(const double maf, const size_t min_individual
     }
 
     // make sure there are enough individuals
-    if(n_active_samples < min_individuals) {
+    // count how many individuals have at least one allele supported
+    size_t supp_samples = 0;
+    for (double ac: this->total_allele_counts_per_sample){
+        if (ac > 0) {
+            supp_samples++;
+        }
+    }
+    if(supp_samples < min_individuals) {
         stoat::LOG_DEBUG("Filtered: not enough individuals: " + std::to_string(n_active_samples));
         return false;
     }
@@ -629,7 +679,7 @@ Eigen::MatrixXd GenotypeTable::make_matrixXd_features() {
                 continue;
             }
             cur_row++;
-            X(cur_row, X.cols() - 1) = total_allele_counts_per_sample[samp_i];
+            X(cur_row, X.cols() - 1) = this->total_allele_counts_per_sample.at(samp_i);
         }           
     }
     return X;

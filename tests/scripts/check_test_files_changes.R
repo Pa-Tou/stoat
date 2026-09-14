@@ -7,26 +7,28 @@ library(ggplot2)
 library(tidyr)
 
 ## read the expected output
-exp.lab = 'output_binary_covar'
+exp.lab = 'output_quantitative_covar'
 exp.df = read.table(paste0('../test_data/expected_output/vcf/', exp.lab, '/stoat.assoc.pvalues.tsv'),
                     comment.char='', header=TRUE, as.is=TRUE)
 ## read the current output (by manually running the command in the test log)
-cur.lab = 'output_binary'
+cur.lab = 'output_quantitative'
 cur.df = read.table(paste0('../../', cur.lab, '/stoat.assoc.pvalues.tsv'),
                     comment.char='', header=TRUE, as.is=TRUE)
 head(cur.df)
 
 ## merge both
-eqtl = TRUE
+eqtl = FALSE
 if(eqtl) {
-  df = merge(exp.df, cur.df, by=c('SNARL', 'GENE'), suffixes=c('.e', '.c'))
+  df = merge(exp.df, cur.df, by=c('START_NODE', 'GENE'), suffixes=c('.e', '.c'))
 } else {
-  df = merge(exp.df, cur.df, by=c('SNARL'), suffixes=c('.e', '.c'))
+  df = merge(exp.df, cur.df, by=c('END_NODE'), suffixes=c('.e', '.c'))
 }
 head(df)
 
 
 summary(df$P.e-df$P.c)
+
+summary(df$P_CHI2.e-df$P_CHI2.c)
 
 ggplot(df, aes(x=P.e, P.c)) + geom_point(alpha=.4) + theme_bw()
 
