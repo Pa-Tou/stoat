@@ -43,13 +43,10 @@ ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 # Build stoat
 # ----------------------------------------------------------------------
 
-#Make stoat
-WORKDIR /stoat
-
-COPY . /stoat
-
-RUN git submodule update --init --recursive && \
-    rm -rf build \
+RUN git clone --recursive --branch static-minimal https://github.com/Pa-Tou/stoat.git \
+    && cd stoat \
+    && git submodule update --init --recursive \
+    && rm -rf build \
     && mkdir build \
     && cd build \
     && cmake .. -DSTATIC_BUILD=ON \
