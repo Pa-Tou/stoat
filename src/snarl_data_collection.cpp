@@ -107,6 +107,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                         // If this is a chain, then just add all the snarls to the list of net handles
                         #ifdef DEBUG_SNARL_DATA_COLLECTION
+                        #pragma omp atomic
                         chains_processed++;
                     
                         #pragma omp critical (cerr)
@@ -135,6 +136,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                             // Make the snarl_info_internal_t to fill in. Since it's multithreaded it's better to move() it instead of adding it here
                             snarl_info_internal_t snarl_data;
+                            #pragma omp atomic
                             number_snarl_analyzed++;
 
                             // Get the start and end nodes
@@ -306,6 +308,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                 if (!distance_index.is_trivial_chain(child)) {
                                     net_handles.emplace_back(child);
                                     #ifdef DEBUG_SNARL_DATA_COLLECTION
+                                    #pragma omp atomic
                                     net_handles_added++;
                                     #endif
                                 }
