@@ -72,9 +72,6 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
-    // The size of the record chunks vector read from the vcf
-    const size_t CHUNK_SIZE = 100000;
-
     if (resolve_nested_calls) {
         // If we are going to untangle stuff, process the snarls first.
         snarl_in_to_out.clear();
@@ -388,7 +385,6 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
     //TODO: Make sure all the reading matches that of the edge matrix
     
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
-    constexpr size_t CHUNK_SIZE = 10000;
     int bounds_read_status = 0;
 
     while (bounds_read_status >= 0 &&
@@ -405,11 +401,10 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
         std::vector<nested_snarl_bound_t> bounds(raw_records.size());
         std::vector<bool> keep(raw_records.size(), false);
         std::exception_ptr parse_exception;
-        std::atomic<bool> has_error{false};
+        bool has_error = false;
 
         #pragma omp parallel for schedule(static)
         for (size_t i = 0; i < raw_records.size(); ++i) {
-            if (has_error.load(std::memory_order_relaxed)) continue;
             try {
                 bcf1_t* record = raw_records[i].get();
                 bcf_unpack(record, BCF_UN_STR);
@@ -428,9 +423,13 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
                     bounds[i] = nested_snarl_bound_t(snarl_bounds[0], snarl_bounds[1]);
                 }
             } catch (...) {
-                has_error.store(true, std::memory_order_relaxed);
+
+                #pragma omp atomic write
+                has_error = true;
                 #pragma omp critical(vcf_parser_exception)
-                if (!parse_exception) parse_exception = std::current_exception();
+                {
+                    parse_exception = std::current_exception();
+                }
             }
         }
         if (parse_exception) std::rethrow_exception(parse_exception);
@@ -456,7 +455,6 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
     genotypes.resize(hap_count * snarl_count, 0);
 
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
-    constexpr size_t CHUNK_SIZE = 10000;
     int genotype_read_status = 0;
     while (genotype_read_status >= 0 &&
            bcf_hdr_id2name(hdr_genotypes, rec_genotypes->rid) == chr) {
@@ -471,7 +469,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
 
         std::vector<nested_genotype_record_t> processed(raw_records.size());
         std::exception_ptr parse_exception;
-        std::atomic<bool> has_error{false};
+        bool has_error = false;
         #pragma omp parallel for schedule(static)
         for (size_t record_i = 0; record_i < raw_records.size(); ++record_i) {
             if (has_error.load(std::memory_order_relaxed)) continue;
@@ -527,9 +525,13 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                 }
                 free(gt);
             } catch (...) {
-                has_error.store(true, std::memory_order_relaxed);
+
+                #pragma omp atomic write
+                has_error = true;
                 #pragma omp critical(vcf_parser_exception)
-                if (!parse_exception) parse_exception = std::current_exception();
+                {
+                    parse_exception = std::current_exception();
+                }
             }
         }
         if (parse_exception) std::rethrow_exception(parse_exception);

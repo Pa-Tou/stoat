@@ -147,6 +147,8 @@ class VCFParser {
     bcf_hdr_t* hdr_genotypes; 
     bcf1_t* rec_genotypes;
 
+    // The size of the record chunks vector read from the vcf
+    const size_t CHUNK_SIZE = 100000;
 
     /// For each nested snarl (everything except top-level snarls), map the start bound going in to the end bound going out, and to an index for genotypes.
     /// also stores the reverse to find the snarl from the end bound. 
