@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <memory>
 #include "types_and_structs.hpp"
 
 
@@ -25,6 +26,18 @@ struct vcf_info_t {
 
 };
 
+struct nested_snarl_bound_t {
+    nested_snarl_bound_t() : start(0, false), end(0, false) {}
+    nested_snarl_bound_t(const stoat::node_traversal_t& start,
+                         const stoat::node_traversal_t& end) : start(start), end(end) {}
+    stoat::node_traversal_t start;
+    stoat::node_traversal_t end;
+};
+
+struct nested_genotype_record_t {
+    std::vector<std::pair<size_t, stoat::node_traversal_t>> present_snarls;
+};
+
 /// This is used to walk through a VCF file with a VCFUntangler and keep everything synchronized
 /// A workflow would be 
 /// 1. Make a VCFParser and call initialize_parser() to parse the header
@@ -36,6 +49,7 @@ struct vcf_info_t {
 class VCFParser {
 
     public:
+    using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
     VCFParser(bool resolve_nested_calls) : resolve_nested_calls(resolve_nested_calls) {};
@@ -135,6 +149,8 @@ class VCFParser {
     bcf_hdr_t* hdr_genotypes; 
     bcf1_t* rec_genotypes;
 
+    // The size of the record chunks vector read from the vcf
+    static constexpr size_t CHUNK_SIZE = 100000;
 
     /// For each nested snarl (everything except top-level snarls), map the start bound going in to the end bound going out, and to an index for genotypes.
     /// also stores the reverse to find the snarl from the end bound. 
