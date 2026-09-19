@@ -1,8 +1,6 @@
 #include "vcf_parser.hpp"
 #include <omp.h>
-#include <atomic>
 #include <exception>
-#include <memory>
 
 //#define DEBUG_VCF_PARSER
 
@@ -70,8 +68,6 @@ std::string VCFParser::get_next_chromosome_name() {
 
 void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee) {
 
-    using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
-
     if (resolve_nested_calls) {
         // If we are going to untangle stuff, process the snarls first.
         snarl_in_to_out.clear();
@@ -120,7 +116,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
             }
 
             try {
-                bcf1_t* record = raw_records[record_i].get();
+                bcf1_t* record = raw_records.at(record_i).get();
 
                 // CPU-intensive operation: do this in parallel.
                 bcf_unpack(record, BCF_UN_STR);
@@ -384,7 +380,6 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
     // and gives an id to each snarl
     //TODO: Make sure all the reading matches that of the edge matrix
     
-    using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
     int bounds_read_status = 0;
 
     while (bounds_read_status >= 0 &&
@@ -406,21 +401,21 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
         #pragma omp parallel for schedule(static)
         for (size_t i = 0; i < raw_records.size(); ++i) {
             try {
-                bcf1_t* record = raw_records[i].get();
+                bcf1_t* record = raw_records.at(i).get();
                 bcf_unpack(record, BCF_UN_STR);
                 int32_t* lv = nullptr;
                 int n_lv = 0;
                 int has_lv = bcf_get_info_int32(hdr_bounds, record, "LV", &lv, &n_lv);
-                keep[i] = !(has_lv > 0 && lv[0] == 0);
+                keep.at(i) = !(has_lv > 0 && lv[0] == 0);
                 free(lv);
-                if (keep[i]) {
+                if (keep.at(i)) {
                     std::vector<stoat::node_traversal_t> snarl_bounds =
                         string_to_path_node_traversal(record->d.id);
                     if (snarl_bounds.size() < 2) {
                         throw std::invalid_argument("Invalid nested snarl bounds in VCF at position " +
                                                     std::to_string(record->pos + 1));
                     }
-                    bounds[i] = nested_snarl_bound_t(snarl_bounds[0], snarl_bounds[1]);
+                    bounds.at(i) = nested_snarl_bound_t(snarl_bounds.at(0), snarl_bounds.at(1));
                 }
             } catch (...) {
 
@@ -435,11 +430,11 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
         if (parse_exception) std::rethrow_exception(parse_exception);
 
         for (size_t i = 0; i < bounds.size(); ++i) {
-            if (!keep[i]) continue;
-            snarl_in_to_out.emplace(bounds[i].start,
-                                    std::make_pair(bounds[i].end, snarl_count));
-            snarl_in_to_out.emplace(bounds[i].end.get_flipped(),
-                                    std::make_pair(bounds[i].start.get_flipped(), snarl_count));
+            if (!keep.at(i)) continue;
+            snarl_in_to_out.emplace(bounds.at(i).start,
+                                    std::make_pair(bounds.at(i).end, snarl_count));
+            snarl_in_to_out.emplace(bounds.at(i).end.get_flipped(),
+                                    std::make_pair(bounds.at(i).start.get_flipped(), snarl_count));
             ++snarl_count;
         }
     }
@@ -454,7 +449,6 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
     // Index into genotypes can be found with get_genotype_index()
     genotypes.resize(hap_count * snarl_count, 0);
 
-    using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
     int genotype_read_status = 0;
     while (genotype_read_status >= 0 &&
            bcf_hdr_id2name(hdr_genotypes, rec_genotypes->rid) == chr) {
@@ -472,9 +466,9 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         bool has_error = false;
         #pragma omp parallel for schedule(static)
         for (size_t record_i = 0; record_i < raw_records.size(); ++record_i) {
-            if (has_error.load(std::memory_order_relaxed)) continue;
+            if (has_error) continue;
             try {
-                bcf1_t* record = raw_records[record_i].get();
+                bcf1_t* record = raw_records.at(record_i).get();
                 bcf_unpack(record, BCF_UN_STR);
                 int ngt = 0;
                 int32_t* gt = nullptr;
@@ -507,12 +501,12 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                         int idx_path_allele = bcf_gt_allele(gt[sample_hap_index]);
                         if (idx_path_allele > -1 &&
                             idx_path_allele < static_cast<int>(allele_paths.size())) {
-                            const auto& path = allele_paths[idx_path_allele];
+                            const auto& path = allele_paths.at(idx_path_allele);
                             for (size_t i = 1; i + 1 < path.size(); ++i) {
                                 auto it = snarl_in_to_out.find(path[i]);
                                 if (it != snarl_in_to_out.end()) {
-                                    processed[record_i].present_snarls.emplace_back(sample_hap_index, path[i]);
-                                    while (i + 1 < path.size() && path[i + 1] != it->second.first) ++i;
+                                    processed.at(record_i).present_snarls.emplace_back(sample_hap_index, path.at(i));
+                                    while (i + 1 < path.size() && path.at(i + 1) != it->second.first) ++i;
                                 }
                             }
                         } else if (idx_path_allele != -1 && hap_num == 1 &&
@@ -537,7 +531,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         if (parse_exception) std::rethrow_exception(parse_exception);
         for (const auto& record : processed) {
             for (const auto& present : record.present_snarls) {
-                genotypes[genotype_index(present.first, present.second)] = true;
+                genotypes.at(genotype_index(present.first, present.second)) = true;
             }
         }
     }
@@ -552,8 +546,8 @@ bool VCFParser::does_sample_have_snarl(size_t sample_hap_index, const std::strin
 
     // This should be a vector of two node_traversal_t's of the snarl bounds, first one pointing in, second one pointing out
     std::vector<stoat::node_traversal_t> snarl_bounds = string_to_path_node_traversal(snarl_id);
-    if (snarl_in_to_out.count(snarl_bounds[0])) {
-        return genotypes.at(genotype_index(sample_hap_index, snarl_bounds[0]));
+    if (snarl_in_to_out.count(snarl_bounds.at(0))) {
+        return genotypes.at(genotype_index(sample_hap_index, snarl_bounds.at(0)));
     } else {
         // If this snarl wasn't saved, then it must be a top-level snarl so it is always present
         return true;

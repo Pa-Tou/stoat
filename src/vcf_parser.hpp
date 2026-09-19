@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <memory>
 #include "types_and_structs.hpp"
 
 
@@ -48,6 +49,7 @@ struct nested_genotype_record_t {
 class VCFParser {
 
     public:
+    using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
     VCFParser(bool resolve_nested_calls) : resolve_nested_calls(resolve_nested_calls) {};
@@ -148,7 +150,7 @@ class VCFParser {
     bcf1_t* rec_genotypes;
 
     // The size of the record chunks vector read from the vcf
-    const size_t CHUNK_SIZE = 100000;
+    static constexpr size_t CHUNK_SIZE = 100000;
 
     /// For each nested snarl (everything except top-level snarls), map the start bound going in to the end bound going out, and to an index for genotypes.
     /// also stores the reverse to find the snarl from the end bound. 
