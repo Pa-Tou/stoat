@@ -461,7 +461,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                  genotype_read_status >= 0 &&
                  chr == bcf_hdr_id2name(hdr_genotypes, rec_genotypes->rid));
 
-        std::vector<nested_genotype_record_t> processed(raw_records.size());
+        std::vector<std::vector<std::pair<size_t, stoat::node_traversal_t>> present_snarls> processed(raw_records.size());
         std::exception_ptr parse_exception;
         bool has_error = false;
         #pragma omp parallel for schedule(static)
