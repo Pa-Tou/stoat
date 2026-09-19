@@ -25,6 +25,18 @@ struct vcf_info_t {
 
 };
 
+struct nested_snarl_bound_t {
+    nested_snarl_bound_t() : start(0, false), end(0, false) {}
+    nested_snarl_bound_t(const stoat::node_traversal_t& start,
+                         const stoat::node_traversal_t& end) : start(start), end(end) {}
+    stoat::node_traversal_t start;
+    stoat::node_traversal_t end;
+};
+
+struct nested_genotype_record_t {
+    std::vector<std::pair<size_t, stoat::node_traversal_t>> present_snarls;
+};
+
 /// This is used to walk through a VCF file with a VCFUntangler and keep everything synchronized
 /// A workflow would be 
 /// 1. Make a VCFParser and call initialize_parser() to parse the header
