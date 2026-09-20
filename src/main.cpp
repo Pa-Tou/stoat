@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
 // ./stoat vcf -s ../output_binary_snarl/snarl_info.tsv -v ../tests/test_data/input_data/binary/merged_output.vcf.gz --no-bgzip --output ../output_binary_genotype
 
 // BINARY TEST + Fisher/Chi-Squared
-// ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../tests/test_data/input_data/binary/sample_phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test
+// ./stoat test -g ../output_binary_genotype/snarl_genotypes.tsv -p ../tests/test_data/input_data/binary/phenotype.tsv -m chi2 --no-bgzip --output ../output_binary_test
 
 // BINARY + COVARIATE
 // ./stoat vcf -g ../tests/test_data/input_data/binary/pg.full.pg -d ../tests/test_data/input_data/binary/pg.full.dist -r ../tests/test_data/input_data/binary/pg.chromosome -v ../tests/test_data/input_data/binary/merged_output.vcf.gz -b ../tests/test_data/input_data/binary/phenotype.tsv --covariate ../tests/test_data/input_data/binary/covariate.tsv --covar-name PC1,SEX,PC3 --output ../output_binary_covar
