@@ -423,6 +423,8 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         if (ngt <= 0 || gt == nullptr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
         }
+
+        const size_t gt_ploidy = static_cast<size_t>(ngt) / sample_names.size();
         std::vector<std::vector<stoat::node_traversal_t>> allele_paths;
 
         // extract AT or ID field from INFO
@@ -452,10 +454,22 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         for (int sample_num = 0; sample_num < rec_genotypes->n_sample; ++sample_num){
             for (int hap_num = 0; hap_num < ploidy; ++hap_num){
                 // allele hap_num of that sample
-                // JEAN here we are assuming diploid genotypes. check how to make sure we're really/always getting the genotype for sample sample_num with bcf_gt_allele
-                size_t sample_hap_index = sample_num*2 + hap_num;
+                const size_t sample_hap_index = static_cast<size_t>(sample_num) * ploidy + hap_num;
 
-                int idx_path_allele = bcf_gt_allele(gt[sample_hap_index]);
+                // HTSlib stores a rectangular GT array. Shorter genotypes are
+                // padded with bcf_int32_vector_end.
+                if (static_cast<size_t>(hap_num) >= gt_ploidy) {
+                    continue;
+                }
+
+                const size_t gt_index = static_cast<size_t>(sample_num) * gt_ploidy + hap_num;
+                const int32_t encoded_gt = gt[gt_index];
+
+                if (encoded_gt == bcf_int32_vector_end || bcf_gt_is_missing(encoded_gt)) {
+                    continue;
+                }
+
+                int idx_path_allele = bcf_gt_allele(encoded_gt);
 
                 if (idx_path_allele > (int)-1 && idx_path_allele < (int)allele_paths.size() ) { // If this has acceptable genotypes
                     #ifdef DEBUG_VCF_PARSER
@@ -487,7 +501,12 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                             }
                         }
                     }
-                } else if (idx_path_allele != (int)-1 && sample_hap_index % ploidy == 1 && bcf_gt_allele(gt[sample_hap_index-1])) {
+    
+                } else if (sample_hap_index % ploidy == 1 &&
+                           gt_index > 0 &&
+                           gt[gt_index - 1] != bcf_int32_vector_end &&
+                           !bcf_gt_is_missing(gt[gt_index - 1]) &&
+                           bcf_gt_allele(gt[gt_index - 1]) >= 0) {
                     throw std::invalid_argument("VCF variant has undefined genotype of " + std::to_string(idx_path_allele));
                 }
             }
@@ -546,5 +565,4 @@ void VCFParser::close_vcf(){
 
 
 }//end namespace
-
 
