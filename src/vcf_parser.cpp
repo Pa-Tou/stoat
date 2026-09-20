@@ -461,7 +461,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                  genotype_read_status >= 0 &&
                  chr == bcf_hdr_id2name(hdr_genotypes, rec_genotypes->rid));
 
-        std::vector<std::vector<std::pair<size_t, stoat::node_traversal_t>> present_snarls> processed(raw_records.size());
+        std::vector<std::vector<std::pair<size_t, stoat::node_traversal_t>>> processed(raw_records.size());
         std::exception_ptr parse_exception;
         bool has_error = false;
         #pragma omp parallel for schedule(static)
@@ -505,7 +505,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                             for (size_t i = 1; i + 1 < path.size(); ++i) {
                                 auto it = snarl_in_to_out.find(path[i]);
                                 if (it != snarl_in_to_out.end()) {
-                                    processed.at(record_i).present_snarls.emplace_back(sample_hap_index, path.at(i));
+                                    processed.at(record_i).emplace_back(sample_hap_index, path.at(i));
                                     while (i + 1 < path.size() && path.at(i + 1) != it->second.first) ++i;
                                 }
                             }
@@ -530,7 +530,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         }
         if (parse_exception) std::rethrow_exception(parse_exception);
         for (const auto& record : processed) {
-            for (const auto& present : record.present_snarls) {
+            for (const auto& present : record) {
                 genotypes.at(genotype_index(present.first, present.second)) = true;
             }
         }
