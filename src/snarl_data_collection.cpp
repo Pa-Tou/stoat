@@ -2,6 +2,27 @@
 #include <fstream>
 #include <filesystem>
 #include "matrix.hpp"
+
+namespace {
+
+std::vector<stoat::sample_hap_t> make_sample_haplotypes(
+        const std::vector<std::string>& sample_names, size_t hap_count) {
+    if (!sample_names.empty() && hap_count % sample_names.size() != 0) {
+        throw std::runtime_error("VCF haplotype count is not divisible by the number of samples");
+    }
+
+    const size_t haplotypes_per_sample = sample_names.empty() ? 0 : hap_count / sample_names.size();
+    std::vector<stoat::sample_hap_t> sample_haplotypes;
+    sample_haplotypes.reserve(hap_count);
+    for (const std::string& sample_name : sample_names) {
+        for (size_t haplotype = 0; haplotype < haplotypes_per_sample; ++haplotype) {
+            sample_haplotypes.emplace_back(sample_name, std::to_string(haplotype));
+        }
+    }
+    return sample_haplotypes;
+}
+
+}
 #include "utils.hpp"
 
 //#define DEBUG_SNARL_DATA_COLLECTION
@@ -435,21 +456,13 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
     // we'll use this edge matrix object
     // TODO find the vector of sample names from the VCF header?
-    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
+    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, vcf_parser.hap_count, 0);
 
     // use the corresponding sample-haplotypes for this collection
     // remove any existing sample in the collection first
     all_sample_haplotypes.clear();
 
-    // add two haplotypes per sample
-    for (std::string sample_name: sample_names) {
-        for (std::string hap_name: {"0", "1"}) {
-            sample_hap_t samp_hap;
-            samp_hap.sample = sample_name;
-            samp_hap.haplotype = hap_name;
-            all_sample_haplotypes.emplace_back(samp_hap);
-        }
-    }
+    all_sample_haplotypes = make_sample_haplotypes(sample_names, vcf_parser.hap_count);
 
     // Fill in sample_to_index
     size_t sample_index = 0;
@@ -518,6 +531,73 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
 
         // The parser has now passed the current chromosome. Get the name of the next one
         chr = vcf_parser.get_next_chromosome_name();
+    }
+}
+
+void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(
+        stoat::Reader& snarl_reader, stoat::Writer& out_writer,
+        std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
+
+    all_sample_haplotypes.clear();
+    sample_to_index.clear();
+    all_sample_haplotypes = make_sample_haplotypes(sample_names, vcf_parser.hap_count);
+
+    size_t sample_index = 0;
+    for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
+        if (!sample_to_index.count(sample_hap.sample)) {
+            sample_to_index.emplace(sample_hap.sample, sample_index++);
+        }
+    }
+
+    write_snarl_data_collection_header(out_writer);
+    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, vcf_parser.hap_count, 0);
+    std::string vcf_chr = vcf_parser.get_next_chromosome_name();
+    std::string snarl_chr;
+
+    // Go through the snarl data collection file and the VCF file in parallel, chunk by chromosome
+    while (load_next_snarl_data_collection_chunk(snarl_reader, snarl_chr)) {
+
+        if (vcf_chr.empty()) {
+            throw std::runtime_error("stoat [vcf]: VCF file has a variant with no chromosome name");
+        }
+
+        if (snarl_chr.empty()) {
+            throw std::runtime_error("stoat [vcf]: snarl data collection chunk has empty chromosome name");
+        }
+
+        // Get the index of the reference in reference_names. If it's not there, then return max size_t
+        const auto reference_index = [this](const std::string& chr) {
+            const auto it = std::find(reference_names.begin(), reference_names.end(), chr);
+            return it == reference_names.end()
+                ? std::numeric_limits<size_t>::max()
+                : static_cast<size_t>(std::distance(reference_names.begin(), it));
+        };
+
+        // Get the index of the reference in reference_names. If it's not there, then return max size_t
+        const size_t snarl_reference_index = reference_index(snarl_chr);
+        while (vcf_chr != snarl_chr) {
+            vcf_parser.skip_to_next_chromosome(vcf_chr);
+            vcf_chr = vcf_parser.get_next_chromosome_name();
+        }
+
+        // If the chromosome names match, then load the VCF chunk and add the alleles by sample
+        if (vcf_chr == snarl_chr) {
+            edge_matrix.load_vcf_chunk(vcf_parser, snarl_chr);
+            add_alleles_by_sample([&] (const snarl_info_t& snarl_data,
+                                       const std::vector<stoat::sample_hap_t>& haplotypes) {
+                std::vector<size_t> allele_idx(haplotypes.size(), std::numeric_limits<size_t>::max());
+                for (size_t allele = 0; allele < snarl_data.walks_by_allele.size(); ++allele) {
+                    for (size_t sample_hap_idx : edge_matrix.get_samples_on_path(snarl_data.walks_by_allele.at(allele))) {
+                        allele_idx.at(sample_hap_idx) = allele;
+                    }
+                }
+                return allele_idx;
+            }, snarl_chr);
+            vcf_chr = vcf_parser.get_next_chromosome_name();
+        }
+
+        // Write the snarl data collection chunk to the output writer
+        write_snarl_data_collection_chunk(out_writer);
     }
 }
 
@@ -1072,13 +1152,13 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
 
 void SnarlDataCollection::write_snarl_data_collection(stoat::Writer& out_writer) const {
     write_snarl_data_collection_header(out_writer);
+    write_snarl_data_collection_chunk(out_writer);
+}
 
-    // Now write the snarls, one per line
+void SnarlDataCollection::write_snarl_data_collection_chunk(stoat::Writer& out_writer) const {
     for (const snarl_info_internal_t& snarl_data : all_snarl_data) {
         write_snarl_data_line(out_writer, snarl_data);
     }
-
-    return;
 }
 
 void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_reader) {
@@ -1091,6 +1171,8 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     reference_names.clear();
     all_sample_haplotypes.clear(); 
     sample_to_index.clear();
+    pending_snarl_line.clear();
+    has_pending_snarl_line = false;
 
     // Read the first line, which must match the header
     std::string line;
@@ -1183,6 +1265,48 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
             sample_to_index.emplace(sample_hap.sample, sample_index++);
         }
     }
+}
+
+bool SnarlDataCollection::load_next_snarl_data_collection_chunk(stoat::Reader& in_reader, std::string& chr) {
+    all_snarl_data.clear();
+    snarl_to_walks.clear();
+    snarl_to_alleles_by_sample.clear();
+    snarl_to_sequences.clear();
+    chr.clear();
+
+    auto line_chr = [this](const std::string& line) {
+        std::stringstream linestream(line);
+        std::string field;
+        std::getline(linestream, field, '\t');
+        std::getline(linestream, field, '\t');
+        std::getline(linestream, field, '\t');
+        const size_t reference_index = std::stoull(field);
+        return reference_index == std::numeric_limits<size_t>::max() ? std::string() : reference_names.at(reference_index);
+    };
+
+    std::string line;
+    if (has_pending_snarl_line) {
+        line = std::move(pending_snarl_line);
+        pending_snarl_line.clear();
+        has_pending_snarl_line = false;
+    } else if (!in_reader.getline(line)) {
+        return false;
+    }
+
+    chr = line_chr(line);
+    do {
+        all_snarl_data.emplace_back(load_snarl_data_line(line));
+        if (!in_reader.getline(line)) {
+            break;
+        }
+        if (line_chr(line) != chr) {
+            pending_snarl_line = std::move(line);
+            has_pending_snarl_line = true;
+            break;
+        }
+    } while (true);
+
+    return !all_snarl_data.empty();
 }
 
 SnarlDataCollection::snarl_info_internal_t SnarlDataCollection::load_snarl_data_line(std::string& line) {
@@ -1646,4 +1770,3 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
 }
     
 }
-

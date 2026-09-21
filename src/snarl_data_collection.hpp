@@ -103,6 +103,7 @@ class SnarlDataCollection {
         /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
         /// also a mode to load just the header used to reuse the same sample_to_index for other objects and then run snarl file line by line (although it means loading the sample_to_index map twice technically)
        void load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only = false); 
+       void load_snarl_data_collection_header(stoat::Reader& in_reader);
 
         std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
     
@@ -135,6 +136,15 @@ class SnarlDataCollection {
         // the VCF is read and parsed by chromosome
         // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
         void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
+        void genotype_snarls_by_chr_from_vcf(stoat::Reader& snarl_reader, stoat::Writer& out_writer,
+                                             std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
+
+        /// Load and process one chromosome-sized chunk of a serialized snarl collection.
+        /// The input must be ordered by reference path, as produced by fill_in_snarl_info().
+        bool load_next_snarl_data_collection_chunk(stoat::Reader& in_reader, std::string& chr);
+
+        /// Write the currently loaded chromosome-sized chunk without writing its header.
+        void write_snarl_data_collection_chunk(stoat::Writer& out_writer) const;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
@@ -196,6 +206,10 @@ class SnarlDataCollection {
         // This gets made based on all_sample_halpotypes
         std::unordered_map<std::string, size_t> sample_to_index;
 
+        // A line belonging to the next chromosome while streaming a collection.
+        std::string pending_snarl_line;
+        bool has_pending_snarl_line = false;
+
         //////////////////////////// Extra housekeeping stuff
 
         /// This goes at the beginning of the file to ensure that it is the right file type and version
@@ -238,8 +252,6 @@ class SnarlDataCollection {
                                     const std::vector<std::string>* snarl_sequences, const allele_by_sample_t* alleles_by_sample) const;
 
         /// Given a stream to the start of the file, load just the header. The stream will be advanced to point to the beginning of the snarl records
-        void load_snarl_data_collection_header(stoat::Reader& in_reader);
-
         /// Given a string representing a line in the file, load one snarl_info_internal_t
         /// This assumes that load_snarl_collection_header() has already been called
         /// This is thread safe

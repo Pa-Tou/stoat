@@ -204,6 +204,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
     stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
+    std::shared_ptr<stoat::Reader> snarl_reader;
 
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
@@ -213,7 +214,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     //////////////////////////////////////// Enumerate/load the snarls in the pangenome
     if (!snarl_path.empty()){ // if we have already saved the snarls info, load it
         stoat::LOG_INFO("Loading snarls from " + snarl_path);
-        std::shared_ptr<stoat::Reader> snarl_reader;
         if ((snarl_path.compare(snarl_path.length()-3, 3, ".gz") == 0) ||
             (snarl_path.compare(snarl_path.length()-4, 4, ".bgz") == 0)) {
             snarl_reader.reset(new BgzReader(snarl_path));
@@ -221,10 +221,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
             snarl_reader.reset(new StdReader(snarl_path));
         }
         auto start_load_timer = std::chrono::high_resolution_clock::now();
-        snarl_collection.load_snarl_data_collection(*snarl_reader);
+        snarl_collection.load_snarl_data_collection_header(*snarl_reader);
         auto end_load_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Loading snarl information took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_load_timer).count()) + " s");
-        snarl_reader->close();
     } else { // otherwise, find them from the pangenome graph and snarl tree
         stoat::LOG_INFO("Starting snarl decomposition... ");
         auto start_dec_timer = std::chrono::high_resolution_clock::now();
@@ -303,11 +302,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
             ref_path_names, // reference 
             false, //check distances
             *snarl_writer, // Writer object for the snarls
-            !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
+            false // Genotyping streams the serialized snarls chromosome by chromosome
             ); 
 
         // done saving the snarls, close the writer
         snarl_writer->close();
+        snarl_path = snarls_filename;
 
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Snarl decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
@@ -335,20 +335,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat_vcf::VCFParser vcf_parser(resolve_vcf);
         std::vector<std::string> list_samples = vcf_parser.initialize_parser(vcf_path);
 
-        // retrieve genotypes one chromosome at a time
-        snarl_collection.genotype_snarls_by_chr_from_vcf(list_samples, vcf_parser);
-
-        // We are done reading through the vcf file so close it
-        vcf_parser.close_vcf();
-
-        auto end_gt_timer = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Retrieving snarl genotypes took " + std::to_string(std::chrono::duration<double>(end_gt_timer - start_gt_timer).count()) + " s");
-
         // write the genotypes
         std::string genotype_path = output_dir + "/snarl_genotypes.tsv";
         if (bgzip_output) {
             genotype_path += ".gz";
         }
+
         std::shared_ptr<stoat::Writer> gt_writer;
         if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
             (genotype_path.compare(genotype_path.length()-4, 4, ".bgz") == 0)) {
@@ -356,11 +348,27 @@ int main_stoat_vcf(int argc, char* argv[]) {
         } else {
             gt_writer.reset(new StdWriter(genotype_path, thread_count));
         }
+
         stoat::LOG_INFO("Writing genotypes in " + genotype_path);
-        // JEAN would reduce memory to write the collection while genotyping the snarls, one chr at a time, appending to the output file (or in separate chr files).
         auto start_writegt_timer = std::chrono::high_resolution_clock::now();
-        snarl_collection.write_snarl_data_collection(*gt_writer);
+
+        if (!snarl_reader) {
+            if ((snarl_path.compare(snarl_path.length()-3, 3, ".gz") == 0) ||
+                (snarl_path.compare(snarl_path.length()-4, 4, ".bgz") == 0)) {
+                snarl_reader.reset(new BgzReader(snarl_path));
+            } else {
+                snarl_reader.reset(new StdReader(snarl_path));
+            }
+            snarl_collection.load_snarl_data_collection_header(*snarl_reader);
+        }
+
+        snarl_collection.genotype_snarls_by_chr_from_vcf(*snarl_reader, *gt_writer, list_samples, vcf_parser);
         gt_writer->close();
+        snarl_reader->close();
+        vcf_parser.close_vcf();
+
+        auto end_gt_timer = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Retrieving snarl genotypes took " + std::to_string(std::chrono::duration<double>(end_gt_timer - start_gt_timer).count()) + " s");
         auto end_writegt_timer = std::chrono::high_resolution_clock::now();
         stoat::LOG_INFO("Writing genotypes took " + std::to_string(std::chrono::duration<double>(end_writegt_timer - start_writegt_timer).count()) + " s");
     }

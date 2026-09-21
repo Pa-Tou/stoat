@@ -45,14 +45,22 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
     for (int i = 0; i < bcf_hdr_nsamples(hdr); i++) {
         list_samples.push_back(bcf_hdr_int2id(hdr, BCF_DT_SAMPLE, i));
     }
-    //TOD: This assumes that the ploidy is 2 but idk if that is always true in a vcf
-    hap_count = list_samples.size() * 2;
-
     // Read the current line
     read_status = bcf_read(ptr_vcf, hdr, rec);
     if (resolve_nested_calls) {
         bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
         bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
+    }
+
+    hap_count = 0;
+    if (read_status >= 0 && !list_samples.empty()) {
+        int ngt = 0;
+        int32_t* gt = nullptr;
+        const int genotype_count = bcf_get_genotypes(hdr, rec, &gt, &ngt);
+        if (genotype_count > 0 && gt != nullptr && genotype_count % list_samples.size() == 0) {
+            hap_count = genotype_count;
+        }
+        free(gt);
     }
 
     return list_samples;
@@ -280,6 +288,9 @@ vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
     if (ngt <= 0 || gt == nullptr) {
         throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(raw_record->pos + 1));
     }
+    if (static_cast<size_t>(ngt) != hap_count) {
+        throw std::invalid_argument("VCF records have inconsistent ploidy at position " + std::to_string(raw_record->pos + 1));
+    }
 
     // Make the actual vector of genotypes
     // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
@@ -447,6 +458,9 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
         if (ngt <= 0 || gt == nullptr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
         }
+        if (static_cast<size_t>(ngt) != hap_count) {
+            throw std::invalid_argument("VCF records have inconsistent ploidy at position " + std::to_string(rec_genotypes->pos + 1));
+        }
         std::vector<std::vector<stoat::node_traversal_t>> allele_paths;
 
         // extract AT or ID field from INFO
@@ -571,4 +585,3 @@ void VCFParser::close_vcf(){
 
 
 }//end namespace
-

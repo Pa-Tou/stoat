@@ -23,6 +23,7 @@ struct pending_edge_t {
 // Columns represent samples/haplotypes
 class EdgeBySampleMatrix {
 public:
+    EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t hap_count, size_t n_edges);
     EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges);
     ~EdgeBySampleMatrix()=default;
 
