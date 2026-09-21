@@ -2,27 +2,6 @@
 #include <fstream>
 #include <filesystem>
 #include "matrix.hpp"
-
-namespace {
-
-std::vector<stoat::sample_hap_t> make_sample_haplotypes(
-        const std::vector<std::string>& sample_names, size_t hap_count) {
-    if (!sample_names.empty() && hap_count % sample_names.size() != 0) {
-        throw std::runtime_error("VCF haplotype count is not divisible by the number of samples");
-    }
-
-    const size_t haplotypes_per_sample = sample_names.empty() ? 0 : hap_count / sample_names.size();
-    std::vector<stoat::sample_hap_t> sample_haplotypes;
-    sample_haplotypes.reserve(hap_count);
-    for (const std::string& sample_name : sample_names) {
-        for (size_t haplotype = 0; haplotype < haplotypes_per_sample; ++haplotype) {
-            sample_haplotypes.emplace_back(sample_name, std::to_string(haplotype));
-        }
-    }
-    return sample_haplotypes;
-}
-
-}
 #include "utils.hpp"
 
 //#define DEBUG_SNARL_DATA_COLLECTION
@@ -452,95 +431,16 @@ void SnarlDataCollection::add_alleles_by_sample(
     }
 }
 
-void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
-
-    // we'll use this edge matrix object
-    // TODO find the vector of sample names from the VCF header?
-    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, vcf_parser.hap_count, 0);
-
-    // use the corresponding sample-haplotypes for this collection
-    // remove any existing sample in the collection first
-    all_sample_haplotypes.clear();
-
-    all_sample_haplotypes = make_sample_haplotypes(sample_names, vcf_parser.hap_count);
-
-    // Fill in sample_to_index
-    size_t sample_index = 0;
-    for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
-        if (!sample_to_index.count(sample_hap.sample)) {
-            sample_to_index.emplace(sample_hap.sample, sample_index++);
-        }
-    }
-
-    // now the index in the edge matrix should match the index in the collection sample-hap list
-    // read the VCF by chunk, build the edge matrix and genotype each snarl
-    // We assume that the vcf parser has read the header and is now ready to go through the snarls
-    std::string chr = vcf_parser.get_next_chromosome_name();
-
-    // Go through to the end of the VCF. Chunk by chromosome 
-    while(chr != "") {
-
-        // Skip chromosomes not in ref_chrs
-        while (std::find(reference_names.begin(), reference_names.end(), chr) == reference_names.end()) {
-            stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.", "");
-            bool found_new_chr = false;
-
-            // Just skip to the next one without doing anything
-            vcf_parser.skip_to_next_chromosome(chr);
-            
-            chr = vcf_parser.get_next_chromosome_name();
-            if (chr == "") {
-                // If we've reached the end of the file, return
-                return;
-            }
-
-            // chr is now the next chromosome we want to look at
-        }
-
-        // start analyzing this chromosome chr
-        stoat::LOG_INFO("Analyzing chr : " + chr);
-        auto timer_start_chr = std::chrono::high_resolution_clock::now();
-
-        // prepare the edge matrix for this chromosome by reading the VCF
-        // this will read to the end of this chr
-        edge_matrix.load_vcf_chunk(vcf_parser, chr);
-
-        auto timer_end_matrix = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Edge matrix construction for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_matrix - timer_start_chr).count()) + " s");
-
-        add_alleles_by_sample([&] (const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) {
-            // JEAN init with max of size_t which I believe means "absent"/"no allele"
-            std::vector<size_t> allele_idx(all_sample_haplotypes.size(), std::numeric_limits<size_t>::max());
-
-            for (size_t al_idx = 0; al_idx < snarl_data.walks_by_allele.size(); al_idx++) {
-                stoat::PathTraversal path_trav = snarl_data.walks_by_allele.at(al_idx);
-                for (size_t samp_hap_idx: edge_matrix.get_samples_on_path(path_trav)) {
-                    allele_idx.at(samp_hap_idx) = al_idx;
-                }
-            }
-
-            return allele_idx;
-        }, chr);
-
-        stoat::LOG_INFO("Total number of snarl found in chr " + chr + " : " + std::to_string(number_snarl_analyzed));
-        number_snarl_analyzed = 0; // reset for next chromosome
-
-        auto timer_end_chr = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Snarl genotypes retrieved in chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_end_matrix).count()) + " s");
-        stoat::LOG_INFO("Total time for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_start_chr).count()) + " s");
-
-        // The parser has now passed the current chromosome. Get the name of the next one
-        chr = vcf_parser.get_next_chromosome_name();
-    }
-}
-
 void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(
         stoat::Reader& snarl_reader, stoat::Writer& out_writer,
         std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
 
     all_sample_haplotypes.clear();
     sample_to_index.clear();
-    all_sample_haplotypes = make_sample_haplotypes(sample_names, vcf_parser.hap_count);
+    for (const std::string& sample_name : sample_names) {
+        all_sample_haplotypes.emplace_back(sample_name, "0");
+        all_sample_haplotypes.emplace_back(sample_name, "1");
+    }
 
     size_t sample_index = 0;
     for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
@@ -550,7 +450,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(
     }
 
     write_snarl_data_collection_header(out_writer);
-    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, vcf_parser.hap_count, 0);
+    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
     std::string vcf_chr = vcf_parser.get_next_chromosome_name();
     std::string snarl_chr;
 
