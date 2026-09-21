@@ -45,6 +45,7 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
     for (int i = 0; i < bcf_hdr_nsamples(hdr); i++) {
         list_samples.push_back(bcf_hdr_int2id(hdr, BCF_DT_SAMPLE, i));
     }
+    //TOD: This assumes that the ploidy is 2 but idk if that is always true in a vcf
     hap_count = list_samples.size() * 2;
 
     // Read the current line
@@ -279,6 +280,7 @@ vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
     if (ngt <= 0 || gt == nullptr) {
         throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(raw_record->pos + 1));
     }
+
     // Make the actual vector of genotypes
     // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
     std::vector<int> record_genotypes;
