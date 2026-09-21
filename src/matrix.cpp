@@ -6,6 +6,7 @@ namespace stoat_vcf {
 // Constructor implementation
 EdgeBySampleMatrix::EdgeBySampleMatrix(const std::vector<std::string>& sample_names, size_t n_edges) : sample_names(sample_names), max_edges(n_edges) {
 
+    // assuming (at max) two copies per individuals
     n_samp_haps = sample_names.size() * 2;
 
     // nothing to do if no edges or no samples
@@ -14,7 +15,7 @@ EdgeBySampleMatrix::EdgeBySampleMatrix(const std::vector<std::string>& sample_na
     }
 
     // Initialize with "zeros"
-    matrix_1D.resize(n_edges * n_samp_haps, false);
+    matrix_1D.resize(n_edges * n_samp_haps, false); 
     row_header.rehash(n_edges); // JEAN not sure if that's useful?
 }
 
