@@ -149,6 +149,8 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
 
    */
     //built = system("vg gbwt -x ../tests/test_data/test_graphs/simple_nested_chain.hg -E --gbz-format -g ../tests/test_data/test_graphs/simple_nested_chain.gbz "); 
+    // Get the r index from the gbz
+    //vg gbwt -r simple_nested_chain.ri -Z simple_nested_chain.gbz
 
 
     bdsg::SnarlDistanceIndex distance_index;
@@ -163,6 +165,14 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
     instream.close();
 
     gbwt::GBWT* gbwt = &gbz.gbz.index;
+
+    gbwt::FastLocate r_index;
+    std::ifstream r_instream;
+    r_instream.open("../tests/test_data/test_graphs/simple_nested_chain.ri");
+    r_index.load(r_instream);
+    r_instream.close();
+    r_index.setGBWT(*gbwt);
+
 
     //handlegraph::PathHandleGraph* graph = gbz.get();
 
@@ -199,7 +209,7 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
         // Should be {0,1} and {2,3}
         
         std::vector<PathTraversal> paths_per_allele1;
-        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl1,
                                                          all_samples, paths_per_allele1);
 
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
@@ -217,7 +227,7 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
         // Should be {0,1,3} and {2}
         
         std::vector<PathTraversal> paths_per_allele2;
-        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl2,
                                                          all_samples, paths_per_allele2);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
@@ -232,7 +242,7 @@ TEST_CASE( "Path partitioner nested bubbles gbz",
 
         // Should be {0}, {1,3}. 2 didn't go through this snarl
         std::vector<PathTraversal> paths_per_allele3;
-        std::vector<size_t> alleles_per_sample3 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl3,
+        std::vector<size_t> alleles_per_sample3 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl3,
                                                          all_samples, paths_per_allele3);
         REQUIRE(alleles_per_sample3.size() == all_samples.size());
         REQUIRE(alleles_per_sample3[0] != alleles_per_sample3[1]);
@@ -568,7 +578,7 @@ TEST_CASE( "Path partitioner finder looping snarl", "[path_partitioner]" ) {
 
 }
 
-TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner][bug]" ) {
+TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner]" ) {
 
     /*
 
@@ -579,6 +589,7 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner][bug]
 
     */
 
+    //vg gbwt -r loop_with_indel.ri -Z loop_with_indel.gbz
 
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/test_data/test_graphs/loop_with_indel.dist");
@@ -590,6 +601,13 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner][bug]
     instream.close();
 
     gbwt::GBWT* gbwt = &gbz.gbz.index;
+
+    gbwt::FastLocate r_index;
+    std::ifstream r_instream;
+    r_instream.open("../tests/test_data/test_graphs/loop_with_indel.ri");
+    r_index.load(r_instream);
+    r_instream.close();
+    r_index.setGBWT(*gbwt);
 
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&gbz);
@@ -617,7 +635,7 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner][bug]
         // Should be {0} and {1,2}
 
         std::vector<PathTraversal> paths_per_allele1;
-        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl1,
                                                          all_samples, paths_per_allele1);
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
         REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
@@ -638,7 +656,7 @@ TEST_CASE( "Path partitioner finder looping snarl gbz", "[path_partitioner][bug]
         // Should be {0}, {1} and {2}
 
         std::vector<PathTraversal> paths_per_allele2;
-        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl2,
                                                          all_samples, paths_per_allele2);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
         REQUIRE(alleles_per_sample2[0] != alleles_per_sample2[1]);
@@ -829,6 +847,13 @@ TEST_CASE( "Path partitioner finder looping snarl with fragments gbz", "[path_pa
 
     gbwt::GBWT* gbwt = &gbz.gbz.index;
 
+    gbwt::FastLocate r_index;
+    std::ifstream r_instream;
+    r_instream.open("../tests/test_data/test_graphs/loop_with_indel_fragmented.ri");
+    r_index.load(r_instream);
+    r_instream.close();
+    r_index.setGBWT(*gbwt);
+
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&gbz);
 
@@ -865,7 +890,7 @@ TEST_CASE( "Path partitioner finder looping snarl with fragments gbz", "[path_pa
     SECTION("partition_embedded_paths_in_snarl") {
 
         std::vector<PathTraversal> paths_per_allele2;
-        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
+        std::vector<size_t> alleles_per_sample2 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl2,
                                                          all_samples, paths_per_allele2);
         REQUIRE(alleles_per_sample2.size() == all_samples.size());
         REQUIRE(alleles_per_sample2[0] == alleles_per_sample2[1]);
@@ -1411,6 +1436,13 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds gbz",
 
     gbwt::GBWT* gbwt = &gbz.gbz.index;
 
+    gbwt::FastLocate r_index;
+    std::ifstream r_instream;
+    r_instream.open("../tests/test_data/test_graphs/simple_nested_chain_fragmented.ri");
+    r_index.load(r_instream);
+    r_instream.close();
+    r_index.setGBWT(*gbwt);
+
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&gbz);
 
@@ -1445,7 +1477,7 @@ TEST_CASE( "Path partitioner doesn't go through snarl bounds gbz",
         // Should be {0}
 
         std::vector<PathTraversal> paths_per_allele1;
-        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl2,
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl2,
                                                          all_samples, paths_per_allele1);
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
         REQUIRE(alleles_per_sample1[0] != std::numeric_limits<size_t>::max());
@@ -1521,6 +1553,14 @@ TEST_CASE( "Path partitioner rejoining paths",
 
     gbwt::GBWT* gbwt = &gbz.gbz.index;
 
+
+    gbwt::FastLocate r_index;
+    std::ifstream r_instream;
+    r_instream.open("../tests/test_data/test_graphs/split_paths.ri");
+    r_index.load(r_instream);
+    r_instream.close();
+    r_index.setGBWT(*gbwt);
+
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&gbz);
 
@@ -1551,7 +1591,7 @@ TEST_CASE( "Path partitioner rejoining paths",
 
         // Should be {0,1} and {2,3}
         std::vector<PathTraversal> paths_per_allele1;
-        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl1,
                                                          all_samples, paths_per_allele1);
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
         REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
@@ -1635,6 +1675,15 @@ TEST_CASE( "Path partitioner self loops",
 
     gbwt::GBWT* gbwt = &gbz.gbz.index;
 
+
+
+    gbwt::FastLocate r_index;
+    std::ifstream r_instream;
+    r_instream.open("../tests/test_data/test_graphs/split_paths_loops.ri");
+    r_index.load(r_instream);
+    r_instream.close();
+    r_index.setGBWT(*gbwt);
+
     bdsg::PathPositionOverlayHelper overlay_helper;
     auto path_graph = overlay_helper.apply(&gbz);
 
@@ -1689,7 +1738,7 @@ TEST_CASE( "Path partitioner self loops",
 
         // {0}, {1,2} {3} {4}
         std::vector<PathTraversal> paths_per_allele1;
-        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, distance_index, snarl1,
+        std::vector<size_t> alleles_per_sample1 = partition_embedded_paths_in_snarl_with_gbwt(*path_graph, *gbwt, r_index, distance_index, snarl1,
                                                          all_samples, paths_per_allele1);
         REQUIRE(alleles_per_sample1.size() == all_samples.size());
         REQUIRE(alleles_per_sample1[0] != alleles_per_sample1[1]);
