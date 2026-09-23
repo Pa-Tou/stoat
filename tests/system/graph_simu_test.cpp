@@ -97,6 +97,96 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
 
     clean_output_dir(output_dir);
 }
+TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[test]") {
+    // Just check that this runs and produces some output
+
+    const std::string output_dir = "../output_binary";
+    const std::string data_path = "../tests/test_data/input_data/binary";
+    const std::string graph_base = "pg.full";
+
+    SECTION("Test stoat graph output") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph -u";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".gbz"
+            + " --r-index " + data_path + "/" + graph_base + ".ri"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -L -r ref --output " + output_dir;
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
+        std::ifstream snarlsfile;
+        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
+        REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+
+        size_t line_count = 0;
+        std::string line;
+        while (std::getline(snarlsfile, line)) {
+            // Only start counting snarls after proper header
+            if (line[0] != '#') {
+                line_count++;
+            }
+        }
+        snarlsfile.close();
+        REQUIRE(line_count==1524);
+
+        // TODO: Add something that actually checks this
+        //bool passed = compare_output_dirs(output_dir, expected_dir);
+        //REQUIRE(passed);
+
+    }
+    SECTION("Test stoat graph output multithreaded") {
+
+        clean_output_dir(output_dir);
+
+        std::string cmd = "../bin/stoat graph -u";
+
+        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -L -r ref --output " + output_dir 
+            + " -t 4";
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
+        std::ifstream snarlsfile;
+        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
+        REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+
+        size_t line_count = 0;
+        std::string line;
+        while (std::getline(snarlsfile, line)) {
+            // Only start counting snarls after proper header
+            if (line[0] != '#') {
+                line_count++;
+            }
+        }
+        snarlsfile.close();
+        REQUIRE(line_count==1524);
+
+        // TODO: Add something that actually checks this
+        //bool passed = compare_output_dirs(output_dir, expected_dir);
+        //REQUIRE(passed);
+
+    }
+
+    clean_output_dir(output_dir);
+}
 
 TEST_CASE("Output simple nested chain stats", "[test][bug]") {
     const std::string output_dir = "../output_binary";
