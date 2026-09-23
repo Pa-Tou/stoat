@@ -380,13 +380,12 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     // The same as gbwt_path_t but with one step instead of a path
     struct gbwt_step_t {
         handle_t node_handle;
-        gbwt::node_type gbwt_node;
         gbwt::SearchState search_state;
         gbwt::size_type sa_index;
 
         // destructively construct the struct by move()ing the search state
-        gbwt_step_t(handle_t node_handle, gbwt::node_type gbwt_node, gbwt::SearchState search_state, gbwt::size_type sa_index) :
-             node_handle(node_handle), gbwt_node(gbwt_node), search_state(std::move(search_state)), sa_index(sa_index) {}
+        gbwt_step_t(handle_t node_handle, gbwt::SearchState search_state, gbwt::size_type sa_index) :
+             node_handle(node_handle), search_state(std::move(search_state)), sa_index(sa_index) {}
     };
 
 
@@ -399,7 +398,9 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 
     // When using the r-index, we keep track of the first occurrence in the suffix array of our range to get back to the location in the original text
     gbwt::size_type first_sa_index;
+    std::cerr << "Find first node " << start_node << ": " << graph.get_id(start_in) << std::endl;
     gbwt::SearchState first_state = r_index.find(start_node, first_sa_index);
+    std::cerr << "DONE" << std::endl;
 
     intermediate_paths.emplace_back(first_path, first_state, path_count++, first_sa_index);
 
@@ -443,7 +444,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
             gbwt::size_type next_sa_index = current_path.sa_index;
             auto new_state = r_index.extend(current_path.search_state, gbwt_next, next_sa_index);
             if (!new_state.empty()) {
-                next_steps.emplace_back(next, gbwt_next, new_state, next_sa_index);
+                next_steps.emplace_back(next, new_state, next_sa_index);
             }
         });
 
