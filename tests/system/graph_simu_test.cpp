@@ -608,6 +608,7 @@ TEST_CASE("Output simple nested chain stats", "[test][bug]") {
 
         std::string cmd = "../bin/stoat graph -u";
            cmd += " -g " + graph_base + ".gbz"
+            + " --r-index " + graph_base + ".ri"
             + " -d " + graph_base + ".dist"
             + " -L"
             + " -r path0 -V 4"
