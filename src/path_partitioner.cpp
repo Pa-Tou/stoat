@@ -771,7 +771,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                 // Add the path through the snarl
                 for (size_t i = 0 ; i < path_as_net_handles.size() ; i++) {
                     const handlegraph::net_handle_t& net = path_as_net_handles.at(i);
-                    paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == path_as_net_handles.size());
+                    paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == path_as_net_handles.size()-1);
                 }
             }
 
