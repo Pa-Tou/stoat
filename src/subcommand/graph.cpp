@@ -210,8 +210,11 @@ int main_stoat_graph(int argc, char *argv[]) {
     stoat::LOG_INFO("Loading graph and preparing indexes...");
 
     // Load the graph and make it a PathPositionHandleGraph
-    std::unique_ptr<handlegraph::PathHandleGraph> handle_graph; 
+    handlegraph::PathHandleGraph* handle_graph = nullptr; 
+    // This is just to hold the unique pointer from try_load_first so it can be destroyed properly later
+    std::unique_ptr<handlegraph::PathHandleGraph> handle_graph_holder; 
     gbwt::GBWT* gbwt = nullptr; 
+    GBZGraph* gbz = nullptr; 
     gbwt::FastLocate r_index;
     // We want to know if it is specifically a gbz or not since the r-index requires a gbz
     auto options = vg::io::VPKG::try_load_first<GBZGraph, handlegraph::PathHandleGraph>(graph_name);
@@ -222,7 +225,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             stoat::LOG_ERROR("[stoat] The gbz must be used with an r-index");
         }
 
-        GBZGraph* gbz = std::get<0>(options).get();
+        gbz = std::get<0>(options).get();
 
         gbwt = &gbz->gbz.index;
 
@@ -232,13 +235,14 @@ int main_stoat_graph(int argc, char *argv[]) {
         r_instream.close();
         r_index.setGBWT(*gbwt);
 
-        handle_graph.reset(gbz);
+        handle_graph = gbz;
 
 
 
     } else {
         // This is another type of graph, load it as a generic PathHandleGraph
-        handle_graph.reset(std::get<1>(options).get());
+        handle_graph_holder = std::move(std::get<1>(options));
+        handle_graph = handle_graph_holder.get();
 
         if (!r_index_name.empty()) {
             // If we are given an r-index, then the graph must have been a gbz
@@ -270,7 +274,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     });
 
     bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph.get(), paths_set);
+    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph, paths_set);
 
     // Load the distance index
     bdsg::SnarlDistanceIndex distance_index;
