@@ -760,10 +760,15 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             #endif
             sample_per_allele.push_back(sample_num);        
             // Get the path from current_path, which has the path id for each sample
-            for (size_t path_id : current_path) {
+            for (size_t path_num = 0 ; path_num < current_path.size() ; path_num++) {
+                size_t path_id =  current_path[path_num];
+                if (path_num > 0) {
+                    // Add an out-of-snarl marker
+                    paths_per_allele.back().add_out_of_snarl_walk();
+                }
                 const std::vector<handlegraph::net_handle_t>& path_as_net_handles = paths_per_path_id.at(path_id);
                 
-                // Add the first path through the snarl
+                // Add the path through the snarl
                 for (size_t i = 0 ; i < path_as_net_handles.size() ; i++) {
                     const handlegraph::net_handle_t& net = path_as_net_handles.at(i);
                     paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == path_as_net_handles.size());
