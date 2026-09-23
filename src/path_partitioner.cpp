@@ -313,9 +313,10 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 
 // Get the traversals through the snarl from the gbwt, filling in finished_paths
 // This is heavily based on vg/haplotype_extracter.cpp
-size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,     
+size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt,
+                           const bdsg::SnarlDistanceIndex& distance_index,     
                            const handlegraph::net_handle_t& snarl,
-                           std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>>& finished_paths) {
+                           std::vector<gbwt_path_t>& finished_paths) {
     #ifdef DEBUG_PATH_PARTITIONER
     std::cerr << "Get threads through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
     #endif
@@ -337,12 +338,13 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     // Look up the start node in GBWT and start a path
     gbwt::node_type start_node = gbwt::Node::encode(graph.get_id(start_in), graph.get_is_reverse(start_in));
     std::vector<handlegraph::net_handle_t> first_path = {start_net};
+    // When using the r-index, we keep track of the first occurrence in the suffix array of our range to get back to the location in the original text
+    gbwt::size_type first_sa_index;
     gbwt::SearchState first_state = gbwt.find(start_node);
 
     // The list of intermediate paths and the gbwt::SearchState they end on
     // The search state encompasses the haplotypes that followed the path
-    // The size_t is an identifier for the path, since some paths may be identical
-    std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>> intermediate_paths;
+    std::vector<gbwt_path_t> intermediate_paths;
 
     // The GBWT traversals may split up in nested chains, meaning that we'd get a separate SearchState for the same
     // path through the netgraph. Since these separate threads might then take different paths, we need to make sure that
@@ -379,6 +381,20 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     };
 
 
+    // Define a struct representing one step in a walk through the gbwt
+    // The same as gbwt_path_t but with one step instead of a path
+    struct gbwt_step_t {
+        handle_t node_handle;
+        gbwt::node_type gbwt_node;
+        gbwt::SearchState search_state;
+        gbwt::size_type sa_index;
+
+        // destructively construct the struct by move()ing the search state
+        gbwt_step_t(handle_t node_handle, gbwt::node_type gbwt_node, gbwt::SearchState search_state, gbwt::size_type sa_index) :
+             node_handle(node_handle), gbwt_node(gbwt_node), search_state(std::move(search_state)), sa_index(sa_index) {}
+    };
+
+
 
 #ifdef DEBUG_PATH_PARTITIONER
     std::cerr << "Start with state " << first_state << " for node " << gbwt::Node::id(start_node)  << ":"
@@ -386,33 +402,34 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 #endif
 
     if (!first_path.empty()) {
-        intermediate_paths.emplace_back(first_path, first_state, path_count++);
+        gbwt::size_type empty_sa_index;
+        intermediate_paths.emplace_back(first_path, first_state, path_count++, empty_sa_index);
     }
 
     while (!intermediate_paths.empty()) {
         // For one intermediate path, add the next step
 
 
-        std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t> current_path = std::move(intermediate_paths.back()); 
+        gbwt_path_t current_path = std::move(intermediate_paths.back()); 
         intermediate_paths.pop_back();
         #ifdef DEBUG_PATH_PARTITIONER
-        std::cerr << "Continue path " << std::get<2>(current_path) << ":\t";
-        for (const auto& net : std::get<0>(current_path)) {
+        std::cerr << "Continue path " << current_path.identifier << ":\t";
+        for (const auto& net : current_path.path) {
             std::cerr << distance_index.net_handle_as_string(net) << ",";
         }
         std::cerr << std::endl;
         #endif
 
 
-        // The next steps out from the current path, as a handle, a node in the gbwt, and a search state
-        std::vector<std::tuple<handle_t, gbwt::node_type, gbwt::SearchState>> next_steps;
+        // The next steps out from the current path, as a handle, a node in the gbwt, a search state, and the suffix array offset for the range in the search state
+        std::vector<gbwt_step_t> next_steps;
 
         // Get the net handle to the last node in the path. If it was a chain, make sure to get the boundary node leaving the chain in the right direction
-        handlegraph::net_handle_t last_net = distance_index.is_node(std::get<0>(current_path).back()) 
-                                          ? std::get<0>(current_path).back()
-                                          : (distance_index.ends_at(std::get<0>(current_path).back()) == handlegraph::SnarlDecomposition::END 
-                                               ? distance_index.get_bound(std::get<0>(current_path).back(), true, false)
-                                               : distance_index.get_bound(std::get<0>(current_path).back(), false, false));
+        handlegraph::net_handle_t last_net = distance_index.is_node(current_path.path.back()) 
+                                          ? current_path.path.back()
+                                          : (distance_index.ends_at(current_path.path.back()) == handlegraph::SnarlDecomposition::END 
+                                               ? distance_index.get_bound(current_path.path.back(), true, false)
+                                               : distance_index.get_bound(current_path.path.back(), false, false));
 
         #ifdef DEBUG_PATH_PARTITIONER
             std::cerr << "\tFrom last net " << distance_index.net_handle_as_string(last_net) << std::endl;
@@ -421,9 +438,10 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
         graph.follow_edges(distance_index.get_handle(last_net, &graph), false, [&](const handle_t& next) {
             // extend the last node of the thread using gbwt
             auto gbwt_next = gbwt::Node::encode(graph.get_id(next), graph.get_is_reverse(next));
-            auto new_state = gbwt.extend(std::get<1>(current_path), gbwt_next);
+            gbwt::size_type next_sa_index;
+            auto new_state = gbwt.extend(current_path.search_state, gbwt_next);
             if (!new_state.empty()) {
-                next_steps.push_back(std::make_tuple(next, gbwt_next, new_state));
+                next_steps.emplace_back(next, gbwt_next, new_state, next_sa_index);
             }
         });
 
@@ -436,19 +454,15 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
             // child chain and this isn't the first new node or child chain.
             bool branch = false;
 
-            const handlegraph::handle_t& next = std::get<0>(next_step);
-            gbwt::node_type& gbwt_next = std::get<1>(next_step);
-            gbwt::SearchState& new_state = std::get<2>(next_step);
-
-            size_t current_path_length = std::get<0>(current_path).size();
+            size_t current_path_length = current_path.path.size();
 
             std::vector<handlegraph::net_handle_t> updated_path;
             if (&next_step == &next_steps.back()) {
                 // avoid a copy by re-using the vector for the last thread. this way simple cases
                 // like scanning along one path don't blow up to n^2
-                updated_path = std::move(std::get<0>(current_path));
+                updated_path = std::move(current_path.path);
             } else {
-                updated_path = std::get<0>(current_path);
+                updated_path = current_path.path;
             }
 
             // Add this node to the path, keeping track of if it is a node or a nested chain
@@ -456,7 +470,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
             // As the path is traversed, the last thing in the path is popped and replaced with the current node
             // until the end of the chain is reached, in which case the path will end with the chain
 
-            handlegraph::net_handle_t next_net = distance_index.get_net(next, &graph);
+            handlegraph::net_handle_t next_net = distance_index.get_net(next_step.node_handle, &graph);
             // The parent is always going to be a chain, trivial or not
             handlegraph::net_handle_t next_net_parent = distance_index.get_parent(next_net);
             // if this is a node we're interested in, then the grandparent is the current snarl
@@ -471,10 +485,13 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                 if (next_net == end_net) {
 
                     updated_path.push_back(next_net); 
-                    finished_paths.emplace_back(std::move(updated_path), new_state, get_next_path_id(std::get<2>(current_path), current_path_length, next_net));
+                    gbwt::size_type next_sa_index;
+                    finished_paths.emplace_back(updated_path, next_step.search_state, 
+                                                get_next_path_id(current_path.identifier, current_path_length, next_net),
+                                                next_sa_index);
                     #ifdef DEBUG_PATH_PARTITIONER
-                        std::cerr << "\tFinished_path num " << std::get<2>(finished_paths.back()) << ":\t";
-                        for (const auto& net : std::get<0>(finished_paths.back())) {
+                        std::cerr << "\tFinished_path num " << finished_paths.back().identifier << ":\t";
+                        for (const auto& net : finished_paths.back().path) {
                             std::cerr << distance_index.net_handle_as_string(net) << ",";
                         }
                         std::cerr << std::endl;
@@ -533,8 +550,10 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     updated_path.pop_back();
                     updated_path.push_back(next_net);
                 }
-                intermediate_paths.emplace_back(std::move(updated_path), new_state, 
-                                                branch ? get_next_path_id(std::get<2>(current_path), current_path_length, next_net) : std::get<2>(current_path));
+                gbwt::size_type next_sa_index;
+                intermediate_paths.emplace_back(std::move(updated_path), next_step.search_state, 
+                                                branch ? get_next_path_id(current_path.identifier, current_path_length, next_net) : current_path.identifier,
+                                                next_sa_index);
             }
         }
     } // End while loop going through intermediate paths
@@ -542,8 +561,8 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     std::cerr << "Found " << finished_paths.size() << " threads through " << distance_index.net_handle_as_string(snarl) << std::endl;
     std::cerr << "\tthere are " << path_count << " distinct walks" << std::endl;
     for (const auto& current_path : finished_paths) {
-        std::cerr << "\t" << std::get<2>(current_path) << ":";
-        for (const auto& net : std::get<0>(current_path)) {
+        std::cerr << "\t" << current_path.identifier << ":";
+        for (const auto& net : current_path.path) {
             std::cerr << distance_index.net_handle_as_string(net) << ",";
         }
         std::cerr << std::endl;
@@ -554,7 +573,8 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 }
 
 std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, 
-                          const gbwt::GBWT& gbwt, const bdsg::SnarlDistanceIndex& distance_index,
+                          const gbwt::GBWT& gbwt,
+                          const bdsg::SnarlDistanceIndex& distance_index,
                           const net_handle_t& snarl,
                           const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
                           std::vector<PathTraversal>& paths_per_allele) {
@@ -563,7 +583,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
     // The final boundary-to-boundary paths
     // The size_t is an identifier for the path, since some paths may be identical
-    std::vector<std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>> finished_paths;
+    std::vector<gbwt_path_t> finished_paths;
 
     // Get all start-end or start-start traversals and put them in  finished_paths 
     // Path count will be an upper bound of the number of distinct paths
@@ -636,17 +656,17 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     for (size_t i = 0 ; i < sort_order.size() ; i++) {
         sort_order[i] = i;
     }
-    std::sort(sort_order.begin(), sort_order.end(), [&](size_t a, size_t b) { return std::get<2>(finished_paths.at(a)) < std::get<2>(finished_paths.at(b)); });
+    std::sort(sort_order.begin(), sort_order.end(), [&](size_t a, size_t b) { return finished_paths.at(a).identifier < finished_paths.at(b).identifier; });
 
     auto gbwt_reference_samples = gbwtgraph::parse_reference_samples_tag(gbwt);
 
 
     // Go through all finished paths by path id
     for (size_t sorted_i = 0 ; sorted_i < sort_order.size() ; sorted_i++) {
-        const std::tuple<std::vector<handlegraph::net_handle_t>, gbwt::SearchState, size_t>& current_state = finished_paths.at(sort_order.at(sorted_i));
+        const gbwt_path_t& current_path = finished_paths.at(sort_order.at(sorted_i));
         #ifdef DEBUG_PATH_PARTITIONER
-            std::cerr << "At path id " << std::get<2>(current_state) << ":\t";
-            for (const auto& net : std::get<0>(current_state)) {
+            std::cerr << "At path id " << current_path.identifier << ":\t";
+            for (const auto& net : current_path.path) {
                 std::cerr << distance_index.net_handle_as_string(net) << ",";
             }
             std::cerr << std::endl;
@@ -654,7 +674,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
 
         //locate() finds the path identifiers for the search state
-        std::vector<gbwt::size_type> path_ids = gbwt.locate(std::get<1>(current_state));
+        std::vector<gbwt::size_type> path_ids = gbwt.locate(current_path.search_state);
 
         #ifdef DEBUG_PATH_PARTITIONER
         std::cerr << "Found " << path_ids.size() << " path ids for this path " << std::endl;
@@ -677,10 +697,10 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
             intermediate_sets.at(sample_to_index.at(sample_hap_t(path_name)))++;
 
-            add_path_to_sample(sample_to_index.at(sample_hap_t(path_name)), std::get<2>(current_state));
+            add_path_to_sample(sample_to_index.at(sample_hap_t(path_name)), current_path.identifier);
         }
 
-        if (sorted_i == sort_order.size()-1 || std::get<2>(current_state) != std::get<2>(finished_paths.at(sort_order.at(sorted_i+1)))) {
+        if (sorted_i == sort_order.size()-1 || current_path.identifier != finished_paths.at(sort_order.at(sorted_i+1)).identifier) {
             // If we finished going through the last set of paths for this path id
             std::map<std::pair<size_t, size_t>, size_t> old_to_new_set;
             old_to_new_set[std::make_pair(0,0)] = 0;
@@ -702,7 +722,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             intermediate_sets.assign(all_sample_haplotypes.size(), 0);
 
             // Now deal with the walks
-            paths_per_path_id.at(std::get<2>(current_state)) = std::move(std::get<0>(current_state));
+            paths_per_path_id.at(current_path.identifier) = std::move(current_path.path);
         }
     }
 
@@ -730,6 +750,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     assert(paths_per_allele.size() == 0);
     #endif
     for (size_t allele_num = 0 ; allele_num < old_set_count ; allele_num++) {
+        std::cerr << "Allele: " << allele_num << std::endl;
 
         paths_per_allele.emplace_back();
 
@@ -745,9 +766,11 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             const handlegraph::net_handle_t& net = path_as_net_handles.at(i);
             paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == path_as_net_handles.size());
         }
+        std::cerr << "Added primary allele" << paths_per_allele.back().to_string() << std::endl;
 
         // If there are additional paths through the snarl, add them too
         while (next_edge != std::numeric_limits<size_t>::max()) {
+            std::cerr << "Follow next edge " << std::endl;
             paths_per_allele.back().add_out_of_snarl_walk();
 
             path_id = additional_edges.at(next_edge).path_id;
@@ -758,6 +781,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                 const handlegraph::net_handle_t& net = next_path_as_net_handles.at(i);
                 paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == next_path_as_net_handles.size());
             }
+        std::cerr << "Added next allele" << paths_per_allele.back().to_string() << std::endl;
         }
     }
 
