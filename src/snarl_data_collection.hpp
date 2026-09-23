@@ -46,10 +46,10 @@ class SnarlDataCollection {
         /// find_alleles_by_sample must return a vector of length all_sample_haplotypes with the allele of each sample_hap_t (std::numeric_limits<size_t>::max() if not present).
         /// If walks_requested is true, then find the walks using find_walks.
         /// If sequence_requested is true, then find the sequence of each walk.
-        /// The walks, sample sets, and sequences must all match each other, and the walks may be dependent on the sample sets or vice versa 
-        /// find_alleles_first is true if we want to find the sample sets first and then walks based on the sample sets, and false to do the opposite.
-        /// If only one or the other of sample sets and walks is requested then find_alleles_first doesn't matter.
-        /// find_alleles_by_sample and find_walks must check the walks or sample sets accordingly to make sure that they match.
+        /// The walks, allele assignments, and sequences must all match each other, and the walks may be dependent on the allele assignments or vice versa 
+        /// find_alleles_first is true if we want to find the allele assignments first and then walks based on the allele assignments, and false to do the opposite.
+        /// If only one or the other of allele assignments and walks is requested then find_alleles_first doesn't matter.
+        /// find_alleles_by_sample and find_walks must check the walks or allele assignments accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
         /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_alleles that may be used for find_walks
         /// If reference_samples is not empty, get coordinates on one of these reference path. If it is empty then the coordinates will be on any path
