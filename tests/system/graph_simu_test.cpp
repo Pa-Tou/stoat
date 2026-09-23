@@ -112,7 +112,7 @@ TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[tes
 
         cmd +=" -g " + data_path + "/" + graph_base + ".gbz"
             + " --r-index " + data_path + "/" + graph_base + ".ri"
-            + " -d " + data_path + "/" + graph_base + ".dist"
+            + " -d " + data_path + "/" + graph_base + ".gbz.dist"
             + " -L -r ref --output " + output_dir;
 
         std::cout << "Command run : \n" << cmd << std::endl;
