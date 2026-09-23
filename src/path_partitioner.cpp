@@ -51,6 +51,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
     // Represents the next node and orientation and the offset along the path of the edge
     // Use (0,0,0,false) as a default value to indicate that the path didn't traverse this child
     // This becomes a linked list when a path traverses the child multiple times (this doesn't happen often) 
+    // The linked list is sorted by order in the traversal
     struct path_edge_t {
         size_t offset;           // The offset along the path
         size_t additional_edge;  // If this path traverses the child multiple times, index into additional_steps for others. max() for end of linked list 
@@ -314,6 +315,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 // Get the traversals through the snarl from the gbwt, filling in finished_paths
 // This is heavily based on vg/haplotype_extracter.cpp
 size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt,
+                           const gbwt::FastLocate& r_index,
                            const bdsg::SnarlDistanceIndex& distance_index,     
                            const handlegraph::net_handle_t& snarl,
                            std::vector<gbwt_path_t>& finished_paths) {
@@ -340,7 +342,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     std::vector<handlegraph::net_handle_t> first_path = {start_net};
     // When using the r-index, we keep track of the first occurrence in the suffix array of our range to get back to the location in the original text
     gbwt::size_type first_sa_index;
-    gbwt::SearchState first_state = gbwt.find(start_node);
+    gbwt::SearchState first_state = r_index.find(start_node, first_sa_index);
 
     // The list of intermediate paths and the gbwt::SearchState they end on
     // The search state encompasses the haplotypes that followed the path
@@ -439,7 +441,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
             // extend the last node of the thread using gbwt
             auto gbwt_next = gbwt::Node::encode(graph.get_id(next), graph.get_is_reverse(next));
             gbwt::size_type next_sa_index;
-            auto new_state = gbwt.extend(current_path.search_state, gbwt_next);
+            auto new_state = r_index.extend(current_path.search_state, gbwt_next, next_sa_index);
             if (!new_state.empty()) {
                 next_steps.emplace_back(next, gbwt_next, new_state, next_sa_index);
             }
@@ -574,6 +576,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 
 std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, 
                           const gbwt::GBWT& gbwt,
+                          const gbwt::FastLocate& r_index,
                           const bdsg::SnarlDistanceIndex& distance_index,
                           const net_handle_t& snarl,
                           const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
@@ -588,7 +591,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     // Get all start-end or start-start traversals and put them in  finished_paths 
     // Path count will be an upper bound of the number of distinct paths
     // TODO: WHy is it an upper bound and not the exact value?
-    size_t path_count = get_gbwt_traversals(graph, gbwt, distance_index, snarl, finished_paths);
+    size_t path_count = get_gbwt_traversals(graph, gbwt, r_index, distance_index, snarl, finished_paths);
 
     // At this point, finished paths holds a path for each distinct, haplotype-supported walk through th esnarl netgraph
     // Since a sample may go through the snarl multiple times, we now want to partition the samples based on how many
@@ -608,47 +611,55 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     // This becomes a linked list when a sample traverses the snarl multiple times (this doesn't happen often) 
     // A value of {max(), max()} indicates that no path was taken
     struct path_link_t {
-        size_t path_id;           // The path
-        size_t additional_edge;  // Index into a list of additional edges
+        size_t path_id;          // The path
+        size_t offset;           // The offset of this path (traversal of the snarl) along the haplotype, so we can order in additional_paths 
+        size_t additional_path; // Index into a list of additional paths
 
-        path_link_t() : path_id(std::numeric_limits<size_t>::max()), additional_edge(std::numeric_limits<size_t>::max()){};
-        path_link_t(size_t path_id) : 
-            path_id(path_id), additional_edge(std::numeric_limits<size_t>::max()){};
+        path_link_t() : path_id(std::numeric_limits<size_t>::max()), offset(std::numeric_limits<size_t>::max()), additional_path(std::numeric_limits<size_t>::max()){};
+        path_link_t(size_t path_id, size_t offset) : 
+            path_id(path_id), offset(offset), additional_path(std::numeric_limits<size_t>::max()){};
     };
     std::vector<path_link_t> path_by_sample (all_sample_haplotypes.size());
-    std::vector<path_link_t> additional_edges;
+    std::vector<path_link_t> additional_paths;
 
-    auto add_path_to_sample = [&](size_t sample_id, size_t path_id) {
+    auto add_path_to_sample = [&](size_t sample_id, size_t path_id, size_t offset) {
+        path_link_t this_path_link (path_id, offset);
         if (path_by_sample.at(sample_id).path_id == std::numeric_limits<size_t>::max()) {
-            path_by_sample.at(sample_id).path_id = path_id;
+            // If this is the first time we've found a path for this sample
+            path_by_sample.at(sample_id) = std::move(this_path_link);
         } else {
-            // Follow the linked list to the end and then add this
-            size_t next_index = path_by_sample.at(sample_id).additional_edge;
-            if (next_index == std::numeric_limits<size_t>::max()) {
-                path_by_sample.at(sample_id).additional_edge = additional_edges.size();
-                additional_edges.emplace_back(path_id);
+            // If this sample already has a path, place this path in the correct place in the linked list
+
+            if (offset < path_by_sample.at(sample_id).offset) {
+                // If this path is the first for this sample, just shift the linked list
+                this_path_link.additional_path = additional_paths.size();
+                additional_paths.emplace_back(std::move(path_by_sample.at(sample_id)));
+                path_by_sample.at(sample_id) = std::move(this_path_link);
             } else {
-                while (additional_edges.at(next_index).additional_edge != std::numeric_limits<size_t>::max()) {
-                    next_index = additional_edges.at(next_index).additional_edge;
+
+                // The current and next indices in the linked list
+                // Since we've already checked the case where this path goes first, we will only check indices in additional_paths 
+                size_t current_index = sample_id; 
+                size_t next_index = path_by_sample.at(sample_id).additional_path;
+
+                while (next_index != std::numeric_limits<size_t>::max() &&
+                       additional_paths[next_index].offset < offset) {
+                    current_index = next_index;
+                    next_index = additional_paths.at(current_index).additional_path;
                 }
-                additional_edges.at(next_index).additional_edge = additional_edges.size();
-                additional_edges.emplace_back(path_id);
+                //current_index now points to the item just smaller than the current path
+                // and next_index is the item just larger than the current path
+                this_path_link.additional_path = next_index;
+                additional_paths.at(current_index).additional_path = additional_paths.size();
+                additional_paths.emplace_back(std::move(this_path_link)); 
             }
         }
+                   
     };
 
     // Remember the paths themselves, once per path_id
     std::vector<std::vector<handlegraph::net_handle_t>> paths_per_path_id (path_count);
 
-    // For each path (along all_sample_haplotypes), the index of the set it is currently in
-    // Everything starts out in the same set, 0, which represents not being in the snarl
-    std::vector<size_t> old_sets (all_sample_haplotypes.size(), 0);
-    size_t old_set_count = 1;
-
-    // This will be the count of the current allele for each haplotype
-    std::vector<size_t> intermediate_sets (all_sample_haplotypes.size(), 0);
-
-    std::vector<size_t> new_sets (all_sample_haplotypes.size(), 0);
 
     // Sort the finished paths so by path id so that identical paths are consecutive in the vector.
     // Since actually sorting the vector would be slow, make a vector of indices and sort that
@@ -672,16 +683,14 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             std::cerr << std::endl;
         #endif
 
+        // Now use the r-index to find the occurrences of this path - the range in the search state
+        // We use the suffix array offset to find this information for each haplotype in the range
+        gbwt::size_type current_sa_index = current_path.sa_index;
+        for (size_t i = 0 ; i < current_path.search_state.size() ; i++) {
+            gbwt::size_type gbwt_path_id = gbwt::Path::id(r_index.seqId(current_sa_index));
+            gbwt::size_type path_offset = r_index.seqOffset(current_sa_index);
 
-        //locate() finds the path identifiers for the search state
-        std::vector<gbwt::size_type> path_ids = gbwt.locate(current_path.search_state);
-
-        #ifdef DEBUG_PATH_PARTITIONER
-        std::cerr << "Found " << path_ids.size() << " path ids for this path " << std::endl;
-        #endif
-
-        for (const gbwt::size_type id : path_ids) {
-            gbwt::size_type gbwt_path_id = gbwt::Path::id(id);
+            gbwt::size_type next_sa_index = r_index.locateNext(current_sa_index);
 
             handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, gbwt_path_id, gbwt_reference_samples);
 
@@ -695,53 +704,52 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
                 std::cerr << "\tpath " << path_name << " takes this snarl traversal: " << gbwt_path_id << std::endl;
             #endif
 
-            intermediate_sets.at(sample_to_index.at(sample_hap_t(path_name)))++;
 
-            add_path_to_sample(sample_to_index.at(sample_hap_t(path_name)), current_path.identifier);
+            add_path_to_sample(sample_to_index.at(sample_hap_t(path_name)), current_path.identifier, path_offset);
+
+            current_sa_index = next_sa_index;
         }
 
         if (sorted_i == sort_order.size()-1 || current_path.identifier != finished_paths.at(sort_order.at(sorted_i+1)).identifier) {
-            // If we finished going through the last set of paths for this path id
-            std::map<std::pair<size_t, size_t>, size_t> old_to_new_set;
-            old_to_new_set[std::make_pair(0,0)] = 0;
-
-            // How many new sets have we found?
-            size_t new_set_count = 1;
-
-            for (size_t sample_i = 0 ; sample_i < old_sets.size() ; sample_i++) {
-                if (old_to_new_set.count(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))) == 0) {
-                    new_sets[sample_i] = new_set_count;
-                    old_to_new_set[std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))] = new_set_count++; 
-                } else {
-                    new_sets.at(sample_i) = old_to_new_set.at(std::make_pair(old_sets.at(sample_i), intermediate_sets.at(sample_i))); 
-                }
-            }
-            old_sets = std::move(new_sets);
-            old_set_count = new_set_count;
-            new_sets.assign(all_sample_haplotypes.size(), 0);
-            intermediate_sets.assign(all_sample_haplotypes.size(), 0);
-
-            // Now deal with the walks
+            // If we finished going through the last set of paths for this path id, remember the path itself
             paths_per_path_id.at(current_path.identifier) = std::move(current_path.path);
         }
     }
 
-    // The old_set_count originally counted the set with nothing, so decrement it
-    old_set_count--;
+    // Now that we've gone though all paths and assigned paths to samples, do the partitioning by assigning an allele id to each path/linked list of paths
+    std::vector<size_t> allele_assignments (all_sample_haplotypes.size(), std::numeric_limits<size_t>::max());
+    size_t current_allele_count = 0;
+    // For each distinct path (snarl traversal, which may include multiple traversals of the snarl), map it to the new allele number
+    std::map<std::vector<size_t>, size_t> path_list_to_allele_num;
+    for (size_t sample_num = 0 ; sample_num < path_by_sample.size() ; sample_num++) {
+
+        // First, get the list of path ids for this sample
+        std::vector<size_t> current_path ({path_by_sample[sample_num].path_id});
+        size_t next_link = path_by_sample[sample_num].additional_path;
+        while (next_link != std::numeric_limits<size_t>::max()) {
+            current_path.push_back(additional_paths[next_link].path_id);
+            next_link = additional_paths[next_link].additional_path;
+        }
+
+        // If we've seen this before, then we have the allele number so assign it
+        const auto& allele_assignment = path_list_to_allele_num.find(current_path);
+        if (allele_assignment != path_list_to_allele_num.end()) {
+            allele_assignments[sample_num] = allele_assignment->second;
+        } else {
+            allele_assignments[sample_num] = current_allele_count;
+            path_list_to_allele_num[current_path] = current_allele_count;
+            ++current_allele_count;
+        }
+
+    }
+
 
     // For each allele, get one sample with this allele. Used to get the paths
-    std::vector<size_t> sample_per_allele (old_set_count, std::numeric_limits<size_t>::max());
+    std::vector<size_t> sample_per_allele (current_allele_count, std::numeric_limits<size_t>::max());
     paths_per_allele.clear();
-
-    // Now go through the sets and change 0 to inf, and decrement all others
-    for (size_t i = 0 ; i < old_sets.size() ; i++) {
-        if (old_sets[i] == 0) {
-            old_sets[i] = std::numeric_limits<size_t>::max();
-        } else {
-            --old_sets[i];
-            if (sample_per_allele.at(old_sets[i]) == std::numeric_limits<size_t>::max()) {
-                sample_per_allele.at(old_sets[i]) = i;
-            }
+    for (size_t i = 0 ; i < allele_assignments.size() ; i++) {
+        if (sample_per_allele.at(allele_assignments[i]) == std::numeric_limits<size_t>::max()) {
+            sample_per_allele.at(allele_assignments[i]) = i;
         }
     }
 
@@ -749,14 +757,14 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
     #ifdef DEBUG_PATH_PARTITIONER
     assert(paths_per_allele.size() == 0);
     #endif
-    for (size_t allele_num = 0 ; allele_num < old_set_count ; allele_num++) {
+    for (size_t allele_num = 0 ; allele_num < current_allele_count ; allele_num++) {
         std::cerr << "Allele: " << allele_num << std::endl;
 
         paths_per_allele.emplace_back();
 
         size_t sample_num = sample_per_allele.at(allele_num);
         size_t path_id = path_by_sample.at(sample_num).path_id;
-        size_t next_edge = path_by_sample.at(sample_num).additional_edge;
+        size_t next_path = path_by_sample.at(sample_num).additional_path;
         assert (path_id != std::numeric_limits<size_t>::max());
 
         const std::vector<handlegraph::net_handle_t>& path_as_net_handles = paths_per_path_id.at(path_id);
@@ -769,12 +777,12 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
         std::cerr << "Added primary allele" << paths_per_allele.back().to_string() << std::endl;
 
         // If there are additional paths through the snarl, add them too
-        while (next_edge != std::numeric_limits<size_t>::max()) {
+        while (next_path != std::numeric_limits<size_t>::max()) {
             std::cerr << "Follow next edge " << std::endl;
             paths_per_allele.back().add_out_of_snarl_walk();
 
-            path_id = additional_edges.at(next_edge).path_id;
-            next_edge = additional_edges.at(next_edge).additional_edge;
+            path_id = additional_paths.at(next_path).path_id;
+            next_path = additional_paths.at(next_path).additional_path;
 
             const std::vector<handlegraph::net_handle_t>& next_path_as_net_handles = paths_per_path_id.at(path_id);
             for (size_t i = 0 ; i < next_path_as_net_handles.size() ; i++) {
@@ -785,7 +793,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
         }
     }
 
-    return old_sets;
+    return allele_assignments;
 }
 
 }
