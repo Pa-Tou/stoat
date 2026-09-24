@@ -19,6 +19,11 @@ void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& gra
                                  const net_handle_t& snarl, std::vector<stoat::PathTraversal>& walks,
 				                 size_t walk_cycle_limit = 1, size_t walk_steps_limit = 50);
 
+/// Find all walks through the snarl netgraph that are taken by haplotypes in the gbwt and fill in walks
+void get_haplotype_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, 
+                           const gbwt::FastLocate& r_index,const bdsg::SnarlDistanceIndex& distance_index, 
+                                 const net_handle_t& snarl, std::vector<stoat::PathTraversal>& walks);
+
 /// A struct for holding the growing path through the gbwt
 struct gbwt_path_t {
 
