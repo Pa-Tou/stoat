@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 using namespace std;
 
 
-TEST_CASE("Giant unverified binary association tests graph plus test", "[test]") {
+TEST_CASE("Giant unverified binary association tests graph plus test", "[test][bug]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
