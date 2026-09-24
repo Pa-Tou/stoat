@@ -94,6 +94,10 @@ class SnarlDataCollection {
         /// The same as above, but parallelized. iteratee must be thread safe
         void for_each_snarl_in_file_parallel(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
+        /// The same as above, but loads and processes one reference chromosome at a time.
+        /// iteratee must be thread safe.
+        void for_each_snarl_in_file_by_chr_parallel(stoat::Reader& in_reader,
+            const std::function<void(snarl_info_t& snarl_info)>& iteratee);
 
 
         /// Write the collection of snarls to the given file

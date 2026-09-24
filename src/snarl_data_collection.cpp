@@ -550,6 +550,24 @@ void SnarlDataCollection::for_each_snarl_in_file_parallel(stoat::Reader& in_read
     } //End omp parallel
 }
 
+void SnarlDataCollection::for_each_snarl_in_file_by_chr_parallel(
+        stoat::Reader& in_reader,
+        const std::function<void(snarl_info_t& snarl_info)>& iteratee) {
+
+    load_snarl_data_collection_header(in_reader);
+
+    std::string chr;
+    while (load_next_snarl_data_collection_chunk(in_reader, chr)) {
+        #pragma omp parallel
+        {
+            #pragma omp for schedule(dynamic)
+            for (size_t i = 0; i < all_snarl_data.size(); ++i) {
+                run_iteratee_on_one_snarl(all_snarl_data.at(i), iteratee);
+            }
+        }
+    }
+}
+
 void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t& internal_snarl_info, const std::function<void(snarl_info_t& snarl_info)>& iteratee) const {
 
     // GenotypeTable constructor takes a map from sample to index, and the number of alleles

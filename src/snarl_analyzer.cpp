@@ -102,11 +102,11 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);
  
-    // read each snarl and test it
-    // for_each_snarl_in_file is parallelized. The test is independent of anything else, and the writer takes care of its own guards
+    // Read and test one chromosome-sized chunk at a time. The test is independent
+    // for each snarl, and the writer takes care of its own guards.
     // Just make sure that number_snarl_filtered doesn't get overwritten 
     size_t number_snarl_filtered = 0;
-    snarl_collection_stream.for_each_snarl_in_file_parallel(gt_reader, [&](snarl_info_t& snarl_info) {
+    snarl_collection_stream.for_each_snarl_in_file_by_chr_parallel(gt_reader, [&](snarl_info_t& snarl_info) {
         if (randomize_geno) {
             snarl_info.genotypes.shuffle_values();
         }

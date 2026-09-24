@@ -207,7 +207,7 @@ int main_stoat_test(int argc, char* argv[]) {
     } else {
         snarl_reader.reset(new StdReader(genotype_path));
     }
-    snarl_collection.load_snarl_data_collection(*snarl_reader, true);
+    snarl_collection.load_snarl_data_collection_header(*snarl_reader);
     snarl_reader->close();
 
     //////////////////////////////////////// Go through the genotypes and test against the phenotype    
