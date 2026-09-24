@@ -97,10 +97,11 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
 
     clean_output_dir(output_dir);
 }
-TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[test][bug]") {
+TEST_CASE("Giant unverified binary association tests graph plus test r-index", "[test]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
+    const std::string gbz_output_dir = output_dir + "_gbz";
     const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string graph_base = "pg.full";
 
@@ -143,6 +144,44 @@ TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[tes
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
         //REQUIRE(passed);
+        SECTION("r-index matches not r-index") {
+
+            clean_output_dir(gbz_output_dir);
+
+            std::string cmd = "../bin/stoat graph -u";
+
+            cmd +=" -g " + data_path + "/" + graph_base + ".gbz"
+                + " -d " + data_path + "/" + graph_base + ".gbz.dist"
+                + " -L -t 4 -r ref --output " + gbz_output_dir;
+
+            std::cout << "Command run : \n" << cmd << std::endl;
+
+            int command_output = std::system(cmd.c_str());
+            if (command_output != 0) {
+                std::cerr << "Command failed: " << cmd << "\n";
+                REQUIRE(false);
+            }
+            REQUIRE(std::filesystem::exists(gbz_output_dir + "/snarl_genotypes.tsv"));
+            std::ifstream snarlsfile;
+            snarlsfile.open(gbz_output_dir + "/snarl_genotypes.tsv");
+            REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+
+            size_t line_count = 0;
+            std::string line;
+            while (std::getline(snarlsfile, line)) {
+                // Only start counting snarls after proper header
+                if (line[0] != '#') {
+                    line_count++;
+                }
+            }
+            snarlsfile.close();
+            // There are fewer snarls in this graph than the pg version
+            REQUIRE(line_count==1508);
+
+            // Make sure that the r-index and non-r-index outputs are the same
+            REQUIRE(files_equal(gbz_output_dir + "/snarl_genotypes.tsv", output_dir + "/snarl_genotypes.tsv"));
+
+        }
 
     }
     SECTION("Test stoat graph output multithreaded") {
@@ -151,7 +190,8 @@ TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[tes
 
         std::string cmd = "../bin/stoat graph -u";
 
-        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
+        cmd +=" -g " + data_path + "/" + graph_base + ".gbz"
+            + " --r-index " + data_path + "/" + graph_base + ".ri"
             + " -d " + data_path + "/" + graph_base + ".dist"
             + " -L -r ref --output " + output_dir 
             + " -t 4";
@@ -187,6 +227,7 @@ TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[tes
     }
 
     clean_output_dir(output_dir);
+    clean_output_dir(gbz_output_dir);
 }
 
 TEST_CASE("Output simple nested chain stats", "[test]") {

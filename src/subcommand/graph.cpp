@@ -220,22 +220,25 @@ int main_stoat_graph(int argc, char *argv[]) {
     auto options = vg::io::VPKG::try_load_first<GBZGraph, handlegraph::PathHandleGraph>(graph_name);
     if (std::get<0>(options)) {
         // This is a gbz 
-        if (r_index_name.empty()) {
-            // If we are given an r-index, then the graph must have been a gbz
-            stoat::LOG_ERROR("[stoat] The gbz must be used with an r-index");
-        }
+
 
         gbz = std::get<0>(options).get();
 
         gbwt = &gbz->gbz.index;
 
-        std::ifstream r_instream;
-        r_instream.open(r_index_name);
-        r_index.load(r_instream);
-        r_instream.close();
-        r_index.setGBWT(*gbwt);
+        if (r_index_name.empty()) {
+            // If we are given an r-index, then the graph must have been a gbz 
+            std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
+        } else {
+            std::ifstream r_instream;
+            r_instream.open(r_index_name);
+            r_index.load(r_instream);
+            r_instream.close();
+            r_index.setGBWT(*gbwt);
+        }
 
         handle_graph = gbz;
+
 
 
 
@@ -298,6 +301,7 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         return true;
     });
+    std::cerr << "Loaded all graphs" << std::endl;
 
     //////////////////////////////// Make the snarls file and load it if possible
     // If it is being built, it will count towards the time of analysis
@@ -338,7 +342,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                                         [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks
                                              std::vector<PathTraversal>& walks) {
                                             // If we actually need the walks to get the sequences or the lengths
-                                            if (r_index.empty()) {
+                                            if (r_index_name.empty()) {
                                                 SnarlDataCollection::get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
                                             } else {
                                                 // If we used the r-index, then we've already filled in the walks in paths_per_allele
@@ -349,7 +353,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                                         // Function to find the alleles 
                                         [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                              const std::vector<stoat::sample_hap_t>& sample_haplotypes) {
-                                            if (r_index.empty()) {
+                                            if (r_index_name.empty()) {
                                                 return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
                                             } else {
                                                 return stoat_graph::partition_embedded_paths_in_snarl_with_gbwt(*path_position_graph, *gbwt, r_index, 

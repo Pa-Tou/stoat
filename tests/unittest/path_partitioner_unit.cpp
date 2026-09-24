@@ -1613,56 +1613,63 @@ TEST_CASE( "Path partitioner self loops",
 
    */
 
+    //bdsg::HashGraph graph;
+
+    //std::vector<std::string> sequences = { "CCCCCCCCCCCC", "C", "T", "C", "A", "G", "T", "AAAAAAAAAAAAAAAAAAAAA"};
+
+    //std::vector<handlegraph::handle_t> nodes;
+    //for (auto& seq : sequences) {
+    //    nodes.emplace_back(graph.create_handle(seq));
+    //}
+
+    //// Add the -1 to make them 1-offset because it's easier
+    //graph.create_edge(nodes[1-1], nodes[2-1]);
+    //graph.create_edge(nodes[1-1], nodes[3-1]);
+    //graph.create_edge(nodes[2-1], nodes[3-1]);
+    //graph.create_edge(nodes[2-1], nodes[7-1]);
+    //graph.create_edge(nodes[3-1], nodes[4-1]);
+    //graph.create_edge(nodes[3-1], nodes[5-1]);
+    //graph.create_edge(nodes[4-1], nodes[6-1]);
+    //graph.create_edge(nodes[5-1], nodes[6-1]);
+    //graph.create_edge(nodes[6-1], nodes[7-1]);
+    //graph.create_edge(nodes[6-1], nodes[8-1]);
+    //graph.create_edge(nodes[7-1], nodes[8-1]);
+    //graph.create_edge(nodes[1-1], graph.flip(nodes[1-1]));
+    //graph.create_edge(nodes[8-1], graph.flip(nodes[8-1]));
+
+    //// These paths are the same going into the snarl, then the split in the snarl, and must be rejoined after the snarl but split right after
+    //// {0}, {1,2} {3} {4}
+    //std::vector<std::vector<std::size_t>> paths_seqs = {{0, 1, 2, 4, 5, 6, 7}, {0, 1, 2, 3, 5, 7}, {0, 1, 2, 4, 5, 7}, {0, 2, 4, 5, 6, 7}, {0, 1, 6, 7}};
+    //std::vector<handlegraph::path_handle_t> paths;
+
+    //for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
+    //    paths.emplace_back(graph.create_path_handle("path"+std::to_string(path_i)));
+    //    for (size_t node_i : paths_seqs[path_i]) {
+    //        graph.append_step(paths.back(), nodes[node_i]);
+    //    }
+    //}
+    //// Add two self-loop paths
+    //paths.emplace_back(graph.create_path_handle("path5"));
+    //graph.append_step(paths.back(), nodes[0]);
+    //graph.append_step(paths.back(), graph.flip(nodes[0]));
+
+    //paths.emplace_back(graph.create_path_handle("path6"));
+    //graph.append_step(paths.back(), graph.flip(nodes[7]));
+    //graph.append_step(paths.back(), nodes[7]);
+
+    //// vg isn't included so the distance index can only be built from the command line
+    //graph.serialize("../tests/test_data/test_graphs/split_paths_loops.hg");
+    //int built = system("vg index -j ../tests/test_data/test_graphs/split_paths_loops.dist ../tests/test_data/test_graphs/split_paths_loops.hg"); 
+    //built = system("vg gbwt -x ../tests/test_data/test_graphs/split_paths_loops.hg -E --gbz-format -g ../tests/test_data/test_graphs/split_paths_loops.gbz "); 
+
+
     bdsg::HashGraph graph;
+    graph.deserialize("../tests/test_data/test_graphs/split_paths_loops.hg");
 
-    std::vector<std::string> sequences = { "CCCCCCCCCCCC", "C", "T", "C", "A", "G", "T", "AAAAAAAAAAAAAAAAAAAAA"};
-
-    std::vector<handlegraph::handle_t> nodes;
-    for (auto& seq : sequences) {
-        nodes.emplace_back(graph.create_handle(seq));
-    }
-
-    // Add the -1 to make them 1-offset because it's easier
-    graph.create_edge(nodes[1-1], nodes[2-1]);
-    graph.create_edge(nodes[1-1], nodes[3-1]);
-    graph.create_edge(nodes[2-1], nodes[3-1]);
-    graph.create_edge(nodes[2-1], nodes[7-1]);
-    graph.create_edge(nodes[3-1], nodes[4-1]);
-    graph.create_edge(nodes[3-1], nodes[5-1]);
-    graph.create_edge(nodes[4-1], nodes[6-1]);
-    graph.create_edge(nodes[5-1], nodes[6-1]);
-    graph.create_edge(nodes[6-1], nodes[7-1]);
-    graph.create_edge(nodes[6-1], nodes[8-1]);
-    graph.create_edge(nodes[7-1], nodes[8-1]);
-    graph.create_edge(nodes[1-1], graph.flip(nodes[1-1]));
-    graph.create_edge(nodes[8-1], graph.flip(nodes[8-1]));
-
-    // These paths are the same going into the snarl, then the split in the snarl, and must be rejoined after the snarl but split right after
-    // {0}, {1,2} {3} {4}
-    std::vector<std::vector<std::size_t>> paths_seqs = {{0, 1, 2, 4, 5, 6, 7}, {0, 1, 2, 3, 5, 7}, {0, 1, 2, 4, 5, 7}, {0, 2, 4, 5, 6, 7}, {0, 1, 6, 7}};
     std::vector<handlegraph::path_handle_t> paths;
-
-    for (int path_i = 0 ; path_i < paths_seqs.size() ; path_i++) {
-        paths.emplace_back(graph.create_path_handle("path"+std::to_string(path_i)));
-        for (size_t node_i : paths_seqs[path_i]) {
-            graph.append_step(paths.back(), nodes[node_i]);
-        }
+    for (int path_i = 0 ; path_i <= 6 ; path_i++) {
+        paths.emplace_back(graph.get_path_handle("path" + std::to_string(path_i)));
     }
-    // Add two self-loop paths
-    paths.emplace_back(graph.create_path_handle("path5"));
-    graph.append_step(paths.back(), nodes[0]);
-    graph.append_step(paths.back(), graph.flip(nodes[0]));
-
-    paths.emplace_back(graph.create_path_handle("path6"));
-    graph.append_step(paths.back(), graph.flip(nodes[7]));
-    graph.append_step(paths.back(), nodes[7]);
-
-    // vg isn't included so the distance index can only be built from the command line
-    graph.serialize("../tests/test_data/test_graphs/split_paths_loops.hg");
-    int built = system("vg index -j ../tests/test_data/test_graphs/split_paths_loops.dist ../tests/test_data/test_graphs/split_paths_loops.hg"); 
-    built = system("vg gbwt -x ../tests/test_data/test_graphs/split_paths_loops.hg -E --gbz-format -g ../tests/test_data/test_graphs/split_paths_loops.gbz "); 
-
-
 
     bdsg::SnarlDistanceIndex distance_index;
     distance_index.deserialize("../tests/test_data/test_graphs/split_paths_loops.dist");
