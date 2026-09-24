@@ -16,6 +16,7 @@
 #include "../arg_parser.hpp"
 #include "../io/register_io.hpp"
 #include "../snarl_data_collection.hpp"
+#include "../snarl_traversals.hpp"
 #include "../writer.hpp"
 #include "../vcf_parser.hpp"
 
@@ -293,7 +294,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             true, //find_alleles_first, doesn't matter in this case
             true, // walks_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
-                SnarlDataCollection::get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, snarl_data, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
+                get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
             },
             false, //alleles_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles

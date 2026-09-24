@@ -151,6 +151,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/snarl_analyzer.cpp
     src/path_partitioner.cpp
     src/snarl_data_collection.cpp
+    src/snarl_traversals.cpp
     src/feature_tables.cpp
     src/vcf_parser.cpp
     src/banner.cpp
