@@ -476,13 +476,24 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(
         // Get the index of the reference in reference_names. If it's not there, then return max size_t
         const size_t snarl_reference_index = reference_index(snarl_chr);
         while (vcf_chr != snarl_chr) {
+            // start analyzing this chromosome chr
+            stoat::LOG_INFO("Chr : " + vcf_chr + " not in snarl data collection, skipping to next chromosome");
             vcf_parser.skip_to_next_chromosome(vcf_chr);
             vcf_chr = vcf_parser.get_next_chromosome_name();
         }
 
         // If the chromosome names match, then load the VCF chunk and add the alleles by sample
         if (vcf_chr == snarl_chr) {
+
+            // start analyzing this chromosome chr
+            stoat::LOG_INFO("Analyzing chr : " + vcf_chr);
+            auto timer_start_chr = std::chrono::high_resolution_clock::now();
+
             edge_matrix.load_vcf_chunk(vcf_parser, snarl_chr);
+            
+            auto timer_end_matrix = std::chrono::high_resolution_clock::now();
+            stoat::LOG_INFO("Edge matrix construction for chr " + vcf_chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_matrix - timer_start_chr).count()) + " s");
+
             add_alleles_by_sample([&] (const snarl_info_t& snarl_data,
                                        const std::vector<stoat::sample_hap_t>& haplotypes) {
                 std::vector<size_t> allele_idx(haplotypes.size(), std::numeric_limits<size_t>::max());
@@ -493,6 +504,14 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(
                 }
                 return allele_idx;
             }, snarl_chr);
+
+        stoat::LOG_INFO("Total number of snarl found in chr " + vcf_chr + " : " + std::to_string(number_snarl_analyzed));
+        number_snarl_analyzed = 0; // reset for next chromosome
+
+        auto timer_end_chr = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Snarl genotypes retrieved in chr " + vcf_chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_end_matrix).count()) + " s");
+        stoat::LOG_INFO("Total time for chr " + vcf_chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_start_chr).count()) + " s");
+
             vcf_chr = vcf_parser.get_next_chromosome_name();
         }
 
