@@ -97,7 +97,7 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
 
     clean_output_dir(output_dir);
 }
-TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[test]") {
+TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[test][bug]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
@@ -137,7 +137,8 @@ TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[tes
             }
         }
         snarlsfile.close();
-        REQUIRE(line_count==1524);
+        // There are fewer snarls in this graph than the pg version
+        REQUIRE(line_count==1508);
 
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
@@ -188,7 +189,7 @@ TEST_CASE("Giant unverified binary association tests graph plus test gbz", "[tes
     clean_output_dir(output_dir);
 }
 
-TEST_CASE("Output simple nested chain stats", "[test][bug]") {
+TEST_CASE("Output simple nested chain stats", "[test]") {
     const std::string output_dir = "../output_binary";
     const std::string graph_base = "../tests/test_data/test_graphs/simple_nested_chain";
 

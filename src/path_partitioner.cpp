@@ -398,9 +398,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 
     // When using the r-index, we keep track of the first occurrence in the suffix array of our range to get back to the location in the original text
     gbwt::size_type first_sa_index;
-    std::cerr << "Find first node " << start_node << ": " << graph.get_id(start_in) << std::endl;
     gbwt::SearchState first_state = r_index.find(start_node, first_sa_index);
-    std::cerr << "DONE" << std::endl;
 
     intermediate_paths.emplace_back(first_path, first_state, path_count++, first_sa_index);
 

@@ -230,7 +230,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         gbwt = &gbz->gbz.index;
 
         std::ifstream r_instream;
-        r_instream.open("../tests/test_data/test_graphs/simple_nested_chain.ri");
+        r_instream.open(r_index_name);
         r_index.load(r_instream);
         r_instream.close();
         r_index.setGBWT(*gbwt);
