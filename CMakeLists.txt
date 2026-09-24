@@ -237,7 +237,8 @@ add_executable(graph_simu_test tests/system/compare_files_utils.cpp tests/system
 # add src target lib + Catch2 lib 
 target_link_libraries(graph_simu_test PRIVATE 
     Boost::boost
-    ${HTSLIB_LIBRARIES})
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
 
 # Register with CTest
 add_test(NAME GraphSimuTest COMMAND graph_simu_test)
