@@ -198,7 +198,7 @@ TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
         + " -d " + data_path + "/pg.full.dist"
         + " -R " + data_path + "/pg.chromosome"
         + " -v " + data_path + "/merged_output.vcf.gz"
-        + " --output " + output_dir;
+        + " -t 4 --output " + output_dir;
         
         std::cout << "Command run : \n" << cmd << std::endl;
         int command_output = std::system(cmd.c_str());
@@ -219,7 +219,7 @@ TEST_CASE("Binary association tests with snarl resolving vcf", "[binary]") {
         + " -d " + data_path + "/pg.full.dist"
         + " -R " + data_path + "/pg.chromosome"
         + " -v " + data_path + "/merged_output.vcf.gz"
-        + " --output " + output_dir;
+        + " -t 4 --output " + output_dir;
         
         std::cout << "Command run : \n" << cmd << std::endl;
         int command_output = std::system(cmd.c_str());
