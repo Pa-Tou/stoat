@@ -26,7 +26,8 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                                                                      const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                              bool sequence_requested,
                                              const std::unordered_set<std::string>& reference_samples, bool check_distances,
-                                             stoat::Writer& out_writer, bool keep_snarls) {
+                                             stoat::Writer& out_writer, bool keep_snarls,
+                                             const std::string& chromosome) {
 
     // If we are going to write the snarls, then we are going to write all the snarls to a temporary file, then write the header (which isn't done until we find
     // all the snarls since there could be new references added), then copy the temporary file after the header
@@ -136,8 +137,6 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
 
                             // Make the snarl_info_internal_t to fill in. Since it's multithreaded it's better to move() it instead of adding it here
                             snarl_info_internal_t snarl_data;
-                            #pragma omp atomic
-                            number_snarl_analyzed++;
 
                             // Get the start and end nodes
                             // Do it through the graph because it's a pain to get the orientation from the distance index
@@ -155,6 +154,19 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     
                             // Get the offsets of the start and end nodes along the reference
                             std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, distance_index, net, true, reference_samples, false);
+                            bool chromosome_matches = true;
+                            if (!chromosome.empty()) {
+                                chromosome_matches = false;
+                                for (const auto& range : ranges) {
+                                    if (std::get<0>(get_name_and_offsets_of_snarl_path_range(graph, range)) == chromosome) {
+                                        chromosome_matches = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (chromosome_matches) {
+                            #pragma omp atomic
+                            number_snarl_analyzed++;
                             if (ranges.size() != 0) {
                                 // Check if we have already seen the reference path and if not add it
                                 size_t ref_index;
@@ -296,6 +308,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                                     all_snarl_data.emplace_back(std::move(snarl_data));
                                 }
                             }
+                            }
 
                         } // end if snarl_is_eligible
 
@@ -429,6 +442,43 @@ void SnarlDataCollection::add_alleles_by_sample(
             number_snarl_analyzed++;
         }
     }
+}
+
+void SnarlDataCollection::genotype_snarl_chunk_from_vcf(
+        stoat::Writer& out_writer, std::vector<std::string>& sample_names,
+        stoat_vcf::VCFParser& vcf_parser, const std::string& chromosome,
+        bool write_header) {
+    if (all_sample_haplotypes.empty()) {
+        for (const std::string& sample_name : sample_names) {
+            all_sample_haplotypes.emplace_back(sample_name, "0");
+            all_sample_haplotypes.emplace_back(sample_name, "1");
+        }
+        size_t sample_index = 0;
+        for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
+            if (!sample_to_index.count(sample_hap.sample)) {
+                sample_to_index.emplace(sample_hap.sample, sample_index++);
+            }
+        }
+    }
+
+    if (write_header) {
+        write_snarl_data_collection_header(out_writer);
+    }
+
+    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
+    std::string chromosome_copy = chromosome;
+    edge_matrix.load_vcf_chunk(vcf_parser, chromosome_copy);
+    add_alleles_by_sample([&] (const snarl_info_t& snarl_data,
+                               const std::vector<stoat::sample_hap_t>& haplotypes) {
+        std::vector<size_t> allele_idx(haplotypes.size(), std::numeric_limits<size_t>::max());
+        for (size_t allele = 0; allele < snarl_data.walks_by_allele.size(); ++allele) {
+            for (size_t sample_hap_idx : edge_matrix.get_samples_on_path(snarl_data.walks_by_allele.at(allele))) {
+                allele_idx.at(sample_hap_idx) = allele;
+            }
+        }
+        return allele_idx;
+    }, chromosome);
+    write_snarl_data_collection_chunk(out_writer);
 }
 
 void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(

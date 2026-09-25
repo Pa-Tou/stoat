@@ -68,7 +68,8 @@ class SnarlDataCollection {
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
                                 const std::unordered_set<std::string>& reference_samples, bool check_distances,
-                                Writer& out_writer, bool keep_snarls);
+                                Writer& out_writer, bool keep_snarls,
+                                const std::string& chromosome = "");
 
         
         /// Use if the snarl allele_by_sample (which assigns sample/haplotypes to each snarl_walk) were not found during construction. Go through
@@ -141,6 +142,11 @@ class SnarlDataCollection {
         // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
         void genotype_snarls_by_chr_from_vcf(stoat::Reader& snarl_reader, stoat::Writer& out_writer,
                                              std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
+        void genotype_snarl_chunk_from_vcf(stoat::Writer& out_writer,
+                                           std::vector<std::string>& sample_names,
+                                           stoat_vcf::VCFParser& vcf_parser,
+                                           const std::string& chromosome,
+                                           bool write_header);
 
         /// Load and process one chromosome-sized chunk of a serialized snarl collection.
         /// The input must be ordered by reference path, as produced by fill_in_snarl_info().

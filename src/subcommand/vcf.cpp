@@ -205,6 +205,14 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // TODO: Double check that these thresholds are doing the right thing
     stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
     std::shared_ptr<stoat::Reader> snarl_reader;
+    std::unique_ptr<stoat_vcf::VCFParser> combined_vcf_parser;
+    std::vector<std::string> combined_samples;
+    bool genotypes_written = false;
+
+    if (!vcf_path.empty() && snarl_path.empty() && !graph_path.empty() && !dist_path.empty()) {
+        combined_vcf_parser = std::make_unique<stoat_vcf::VCFParser>(resolve_vcf);
+        combined_samples = combined_vcf_parser->initialize_parser(vcf_path);
+    }
 
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
@@ -274,6 +282,58 @@ int main_stoat_vcf(int argc, char* argv[]) {
         // because we'll work on the samples from the VCF later, so we use an empty set of haplotypes
         std::vector<stoat::sample_hap_t> sample_haplotypes;
 
+        if (combined_vcf_parser) {
+            std::string genotype_path = output_dir + "/snarl_genotypes.tsv";
+            if (bgzip_output) {
+                genotype_path += ".gz";
+            }
+            std::shared_ptr<stoat::Writer> gt_writer;
+            if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
+                (genotype_path.compare(genotype_path.length()-4, 4, ".bgz") == 0)) {
+                gt_writer.reset(new BgzWriter(genotype_path, thread_count));
+            } else {
+                gt_writer.reset(new StdWriter(genotype_path, thread_count));
+            }
+
+            bool write_header = true;
+            std::string chromosome = combined_vcf_parser->get_next_chromosome_name();
+            while (!chromosome.empty()) {
+                if (!graph->has_path(chromosome)) {
+                    throw std::runtime_error("VCF chromosome: " + chromosome + " not present in graph");
+                }
+
+                stoat::SnarlDataCollection chromosome_collection(
+                    0, children_threshold, path_length_threshold);
+                stoat::StdWriter discard_writer("");
+                std::unordered_set<std::string> chromosome_reference{chromosome};
+                chromosome_collection.fill_in_snarl_info(
+                    *path_position_graph, *distance_index, {},
+                    true, true,
+                    [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
+                         std::vector<PathTraversal>& walks) {
+                        SnarlDataCollection::get_all_walks_through_snarl(
+                            *path_position_graph, *distance_index, snarl, snarl_data,
+                            walks, cycle_threshold);
+                    },
+                    false,
+                    [&] (const net_handle_t&, const snarl_info_t&,
+                         const std::vector<stoat::sample_hap_t>&) {
+                        return std::vector<size_t>();
+                    },
+                    false, chromosome_reference, false, discard_writer, true,
+                    chromosome);
+
+                chromosome_collection.genotype_snarl_chunk_from_vcf(
+                    *gt_writer, combined_samples, *combined_vcf_parser,
+                    chromosome, write_header);
+                write_header = false;
+                chromosome = combined_vcf_parser->get_next_chromosome_name();
+            }
+
+            gt_writer->close();
+            combined_vcf_parser->close_vcf();
+            genotypes_written = true;
+        } else {
         // prepare a Writer for the collection
         std::string snarls_filename = output_dir + "/snarl_info.tsv";
         if (bgzip_output) {
@@ -316,6 +376,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             // we're done
             return EXIT_SUCCESS;
         }
+        }
     }
 
     // If there were no references given, fill them in with the references from the snarl collection
@@ -327,7 +388,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     }
 
     //////////////////////////////////////// Go through the vcf, genotype all the snarls (and save the intermediate file)
-    if (!only_prepare_snarls) {
+    if (!only_prepare_snarls && !genotypes_written) {
         stoat::LOG_INFO("Retrieving genotypes for all snarls...");
         auto start_gt_timer = std::chrono::high_resolution_clock::now();
 
