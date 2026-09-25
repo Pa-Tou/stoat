@@ -10,6 +10,7 @@
 
 #include <bdsg/overlays/overlay_helper.hpp>
 #include <vg/io/vpkg.hpp>
+#include "../../src/gbzgraph.hpp"
 
 #include "../log.hpp"
 #include "../banner.hpp"
@@ -19,6 +20,7 @@
 #include "../snarl_traversals.hpp"
 #include "../writer.hpp"
 #include "../vcf_parser.hpp"
+
 
 // #define USE_CALLGRIND
 
@@ -32,7 +34,8 @@ namespace stoat_command {
 void print_help_vcf() {
     stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -g, --graph FILE                Path to the graph file (only Packed Graph works for now)\n"
+              << "  -g, --graph FILE                Path to the graph file\n"
+              << "  -G, --r-index FILE              Use this r-index (optional, requires -g be a gbz)" << std::endl
               << "  -d, --dist FILE                 Path to the distance index file\n"
               << "  -v, --vcf FILE                  Path to the VCF file\n"
               << "  -s, --snarl FILE                Path to the snarl file\n"
@@ -53,7 +56,7 @@ void print_help_vcf() {
 int main_stoat_vcf(int argc, char* argv[]) {
 
     // Declare variables to hold argument values
-    std::string vcf_path, snarl_path, graph_path, dist_path, reference_path, reference_prefix;
+    std::string vcf_path, snarl_path, graph_path, r_index_path, dist_path, reference_path, reference_prefix;
 
     size_t cycle_threshold = 1;
     size_t children_threshold = 50;
@@ -75,6 +78,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"vcf", required_argument, 0, 'v'},
         {"snarl", required_argument, 0, 's'},
         {"graph", required_argument, 0, 'g'},
+        {"r-index", required_argument, 0, 'G'},
         {"dist", required_argument, 0, 'd'},
         {"reference-file", required_argument, 0, 'R'},
         {"reference-prefix", required_argument, 0, 'r'},
@@ -91,11 +95,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:d:r:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:G:d:r:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
             case 'g': graph_path = optarg; stoat_vcf::check_file(graph_path); break;
+            case 'G': r_index_path = optarg; stoat_vcf::check_file(r_index_path); break;
             case 'd': dist_path = optarg; stoat_vcf::check_file(dist_path); break;
             case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
             case 'r': reference_prefix = optarg; break;
@@ -237,10 +242,52 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
         // Load the graph and make it a PathPositionHandleGraph
-        std::unique_ptr<handlegraph::PathHandleGraph> graph = std::move(vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_path));
+        handlegraph::PathHandleGraph* graph = nullptr;
+        // This is just to hold the unique pointer from try_load_first so it can be destroyed properly later
+        std::unique_ptr<handlegraph::PathHandleGraph> handle_graph_holder;
+        gbwt::GBWT* gbwt = nullptr;
+        GBZGraph* gbz = nullptr;
+        gbwt::FastLocate r_index;
+
+        // We want to know if the graph is specifically a gbz or not since the r-index requires a gbz
+        auto options = vg::io::VPKG::try_load_first<GBZGraph, handlegraph::PathHandleGraph>(graph_path);
+        if (std::get<0>(options)) {
+            // This is a gbz 
+        
+                
+            gbz = std::get<0>(options).get();
+                        
+            gbwt = &gbz->gbz.index;
+        
+            if (r_index_path.empty()) { 
+                // If we are given an r-index, then the graph must have been a gbz 
+                std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
+            } else {
+                std::ifstream r_instream;
+                r_instream.open(r_index_path);
+                r_index.load(r_instream);
+                r_instream.close();
+                r_index.setGBWT(*gbwt);
+            }       
+                
+            graph = gbz;
+        
+        } else {
+            // This is another type of graph, load it as a generic PathHandleGraph
+            handle_graph_holder = std::move(std::get<1>(options));
+            graph = handle_graph_holder.get();
+        
+            if (!r_index_path.empty()) {
+                // If we are given an r-index, then the graph must have been a gbz
+                std::cerr << "[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index" << std::endl;
+                r_index_path.clear();
+            }
+        }
+
+
         bdsg::PathPositionOverlayHelper overlay_helper;
         bdsg::PathPositionHandleGraph* path_position_graph;
-        path_position_graph =  overlay_helper.apply(graph.get());
+        path_position_graph =  overlay_helper.apply(graph);
 
         // Get the reference sample names from the prefix
         size_t n_ref_paths_before = ref_path_names.size();
@@ -294,7 +341,11 @@ int main_stoat_vcf(int argc, char* argv[]) {
             true, //find_alleles_first, doesn't matter in this case
             true, // walks_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
-                get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
+                if (r_index_path.empty()) {
+                    get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
+                } else {
+                    get_haplotype_walks_through_snarl(*path_position_graph, *gbwt, r_index, *distance_index, snarl, walks);
+                }
             },
             false, //alleles_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<stoat::sample_hap_t>& all_sample_haplotypes) { //function to find alleles

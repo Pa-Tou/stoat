@@ -34,7 +34,7 @@ void print_help_graph() {
         << std::endl
         << "input:" << std::endl
         << "  -g, --graph FILE                   Use this graph (required)" << std::endl
-        << "  -f, --r-index FILE                 Use this r-index (optional, requires -g be a gbz)" << std::endl
+        << "  -G, --r-index FILE                 Use this r-index (optional, requires -g be a gbz)" << std::endl
         << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
         << std::endl
         << "output:" << std::endl
@@ -81,7 +81,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         static struct option long_options[] =
             {
                 {"graph", required_argument, 0, 'g'},
-                {"r-index", required_argument, 0, 'f'},
+                {"r-index", required_argument, 0, 'G'},
                 {"distance-index", required_argument, 0, 'd'},
                 {"allele-size-limit", required_argument, 0, 'l'},
                 {"threads", required_argument, 0, 't'},
@@ -97,7 +97,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:f:d:l:t:R:r:V:o:Luah",
+        c = getopt_long(argc, argv, "g:G:d:l:t:R:r:V:o:Luah",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -239,9 +239,6 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         handle_graph = gbz;
 
-
-
-
     } else {
         // This is another type of graph, load it as a generic PathHandleGraph
         handle_graph_holder = std::move(std::get<1>(options));
@@ -250,6 +247,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         if (!r_index_name.empty()) {
             // If we are given an r-index, then the graph must have been a gbz
             std::cerr << "[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index" << std::endl;
+            r_index_name.clear();
         }
     }
 
