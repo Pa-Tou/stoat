@@ -106,7 +106,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             case 'g':
                 graph_name = optarg;
                 break;
-            case 'f':
+            case 'G':
                 r_index_name = optarg;
                 break;
             case 'a': ascii = true; break;
