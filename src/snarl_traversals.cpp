@@ -13,7 +13,10 @@ void get_all_walks_through_snarl(
         size_t walk_cycle_limit, size_t walk_steps_limit) {
 
 #ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
     std::cerr << "Get all possible walks through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
+}
 #endif
 
     // Path exploration
@@ -102,12 +105,14 @@ void get_all_walks_through_snarl(
     walks = stoat::net_handles_to_path_traversals(distance_index, graph, walks_as_net_handles);  
  
 #ifdef DEBUG_SNARL_TRAVERSALS
-    // Validate paths
+#pragma omp critical(cerr)
+{
     std::cerr << "Found " << walks.size() << " paths through the snarl" << std::endl;
     for (const auto& walk : walks) {
         
         std::cerr << "\t" << walk.to_string() << std::endl;
     }
+}
 #endif
 
     return;
@@ -140,9 +145,12 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                            const bdsg::SnarlDistanceIndex& distance_index,     
                            const handlegraph::net_handle_t& snarl,
                            std::vector<gbwt_path_t>& finished_paths) {
-    #ifdef DEBUG_SNARL_TRAVERSALS
+#ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
     std::cerr << "Get threads through snarl " << distance_index.net_handle_as_string(snarl) << std::endl;
-    #endif
+}
+#endif
 
     size_t path_count = 0;
 
@@ -224,8 +232,11 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     intermediate_paths.emplace_back(first_path, first_state, path_count++, first_sa_index);
 
 #ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
     std::cerr << "Start with state " << first_state << " for node " << gbwt::Node::id(start_node)  << ":"
          << gbwt::Node::is_reverse(start_node) << " with sa index " << first_sa_index << std::endl;
+}
 #endif
 
     while (!intermediate_paths.empty()) {
@@ -234,13 +245,16 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 
         gbwt_path_t current_path = std::move(intermediate_paths.back()); 
         intermediate_paths.pop_back();
-        #ifdef DEBUG_SNARL_TRAVERSALS
+#ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
         std::cerr << "Continue path " << current_path.identifier << ":\t";
         for (const auto& net : current_path.path) {
             std::cerr << distance_index.net_handle_as_string(net) << ",";
         }
         std::cerr << std::endl;
-        #endif
+}
+#endif
 
 
         // The next steps out from the current path, as a handle, a node in the gbwt, a search state, and the suffix array offset for the range in the search state
@@ -253,9 +267,12 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                                                ? distance_index.get_bound(current_path.path.back(), true, false)
                                                : distance_index.get_bound(current_path.path.back(), false, false));
 
-        #ifdef DEBUG_SNARL_TRAVERSALS
+#ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
             std::cerr << "\tFrom last net " << distance_index.net_handle_as_string(last_net) << std::endl;
-        #endif
+}
+#endif
 
         graph.follow_edges(distance_index.get_handle(last_net, &graph), false, [&](const handle_t& next) {
             // extend the last node of the thread using gbwt
@@ -297,9 +314,12 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
             handlegraph::net_handle_t next_net_parent = distance_index.get_parent(next_net);
             // if this is a node we're interested in, then the grandparent is the current snarl
             handlegraph::net_handle_t next_net_grandparent = distance_index.get_parent(next_net_parent);
-            #ifdef DEBUG_SNARL_TRAVERSALS
+#ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
                 std::cerr << "\tReached next net " << distance_index.net_handle_as_string(next_net) << std::endl;
-            #endif
+}
+#endif
 
 
             if (next_net == snarl_start || next_net == snarl_end) {
@@ -310,13 +330,16 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     finished_paths.emplace_back(updated_path, next_step.search_state, 
                                                 get_next_path_id(current_path.identifier, current_path_length, next_net),
                                                 next_step.sa_index);
-                    #ifdef DEBUG_SNARL_TRAVERSALS
+#ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
                         std::cerr << "\tFinished_path num " << finished_paths.back().identifier << ":\t";
                         for (const auto& net : finished_paths.back().path) {
                             std::cerr << distance_index.net_handle_as_string(net) << ",";
                         }
                         std::cerr << std::endl;
-                    #endif
+}
+#endif
                 }
                 branch = true;
 
@@ -327,9 +350,12 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     if (distance_index.is_trivial_chain(next_net_parent)) {
                         // If this is a trivial chain whose parent is the snarl, add it as the node
                         branch = true;
-                        #ifdef DEBUG_SNARL_TRAVERSALS
+#ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
                             std::cerr << "\t\tnew path with node child " << distance_index.net_handle_as_string(next_net) << std::endl;
-                        #endif
+}
+#endif
                         updated_path.push_back(next_net);
                         // TODO: Could also get the sequence here
                     } else {
@@ -342,22 +368,13 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                         if (next_net == chain_start || next_net == chain_end) {
                             // If this is going into the child chain, then add the chain and then this node
                             branch = true;
-                            #ifdef DEBUG_SNARL_TRAVERSALS
-                                std::cerr << "\t\tnew path with chain child" << std::endl;
-                            #endif
                             updated_path.push_back(next_net_parent);
                             updated_path.push_back(next_net);
                         } else if (next_net == distance_index.flip(chain_start) || next_net == distance_index.flip(chain_end)) {
                             // If this is leaving the child chain, then just pop the extra node so that the path finishes on the chain
-                            #ifdef DEBUG_SNARL_TRAVERSALS
-                                std::cerr << "\t\t finish chain child" << std::endl;
-                            #endif
                             updated_path.pop_back();
                         } else {
                             // Otherwise, this is continuing the walk in the chain so just replace the last traversal in the path
-                            #ifdef DEBUG_SNARL_TRAVERSALS
-                                std::cerr << "\t\t continue chain child" << std::endl;
-                            #endif
                             updated_path.pop_back();
                             updated_path.push_back(next_net);
                         }
@@ -365,9 +382,6 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
                     }
                 } else {
                     // Otherwise, this is nested and we need to replace the last thing in the path with this node
-                    #ifdef DEBUG_SNARL_TRAVERSALS
-                        std::cerr << "\t\tnested node, replace last node in path" << std::endl;
-                    #endif
                     updated_path.pop_back();
                     updated_path.push_back(next_net);
                 }
@@ -377,7 +391,9 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
             }
         }
     } // End while loop going through intermediate paths
-    #ifdef DEBUG_SNARL_TRAVERSALS
+#ifdef DEBUG_SNARL_TRAVERSALS
+#pragma omp critical(cerr)
+{
     std::cerr << "Found " << finished_paths.size() << " threads through " << distance_index.net_handle_as_string(snarl) << std::endl;
     std::cerr << "\tthere are " << path_count << " distinct walks" << std::endl;
     for (const auto& current_path : finished_paths) {
@@ -387,7 +403,8 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
         }
         std::cerr << std::endl;
     }
-    #endif
+}
+#endif
 
     return path_count;
 }

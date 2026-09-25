@@ -9,11 +9,11 @@ namespace fs = std::filesystem;
 using namespace std;
 
 
-TEST_CASE("Giant unverified binary association tests graph plus test", "[test][bug]") {
+TEST_CASE("Giant unverified binary association tests graph plus test", "[test]") {
     // Just check that this runs and produces some output
 
     const std::string output_dir = "../output_binary";
-    const std::string gbz_output_dir = output_dir + "_gbz";
+    const std::string compare_output_dir = output_dir + "_gbz";
     const std::string data_path = "../tests/test_data/input_data/binary";
     const std::string graph_base = "pg.full";
 
@@ -54,17 +54,16 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test][b
         // TODO: Add something that actually checks this
         //bool passed = compare_output_dirs(output_dir, expected_dir);
         //REQUIRE(passed);
+        SECTION("Test stoat graph output multithreaded") {
 
-        SECTION("r-index matches not r-index") {
-
-            clean_output_dir(gbz_output_dir);
+            clean_output_dir(compare_output_dir);
 
             std::string cmd = "../bin/stoat graph -u";
 
-            cmd +=" -g " + data_path + "/" + graph_base + ".gbz"
-                + " --r-index " + data_path + "/" + graph_base + ".ri"
+            cmd +=" -g " + data_path + "/" + graph_base + ".pg"
                 + " -d " + data_path + "/" + graph_base + ".dist"
-                + " -L -t 4 -r ref --output " + gbz_output_dir;
+                + " -L -r ref --output " + compare_output_dir 
+                + " -t 4";
 
             std::cout << "Command run : \n" << cmd << std::endl;
 
@@ -73,9 +72,59 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test][b
                 std::cerr << "Command failed: " << cmd << "\n";
                 REQUIRE(false);
             }
-            REQUIRE(std::filesystem::exists(gbz_output_dir + "/snarl_genotypes.tsv"));
+
+            REQUIRE(std::filesystem::exists(compare_output_dir + "/snarl_genotypes.tsv"));
             std::ifstream snarlsfile;
-            snarlsfile.open(gbz_output_dir + "/snarl_genotypes.tsv");
+            snarlsfile.open(compare_output_dir + "/snarl_genotypes.tsv");
+            REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+
+            size_t line_count = 0;
+            std::string line;
+            while (std::getline(snarlsfile, line)) {
+                // Only start counting snarls after proper header
+                if (line[0] != '#') {
+                    line_count++;
+                }
+            }
+            snarlsfile.close();
+            REQUIRE(line_count==1508);
+
+            // Make sure that the multithreaded and non-multithreaded outputs are the same
+            SnarlDataCollection multithread_snarls(0,0,0);
+            StdReader multithread_reader(compare_output_dir + "/snarl_genotypes.tsv");
+            multithread_snarls.load_snarl_data_collection(multithread_reader);
+            multithread_reader.close();
+
+            SnarlDataCollection pg_snarls(0,0,0);
+            StdReader pg_reader(output_dir + "/snarl_genotypes.tsv");
+            pg_snarls.load_snarl_data_collection(pg_reader);
+            pg_reader.close();
+
+            REQUIRE(SnarlDataCollection::is_equivalent(multithread_snarls, pg_snarls));
+
+        }
+
+        SECTION("r-index matches not r-index") {
+
+            clean_output_dir(compare_output_dir);
+
+            std::string cmd = "../bin/stoat graph -u";
+
+            cmd +=" -g " + data_path + "/" + graph_base + ".gbz"
+                + " --r-index " + data_path + "/" + graph_base + ".ri"
+                + " -d " + data_path + "/" + graph_base + ".dist"
+                + " -L -t 1 -r ref --output " + compare_output_dir;
+
+            std::cout << "Command run : \n" << cmd << std::endl;
+
+            int command_output = std::system(cmd.c_str());
+            if (command_output != 0) {
+                std::cerr << "Command failed: " << cmd << "\n";
+                REQUIRE(false);
+            }
+            REQUIRE(std::filesystem::exists(compare_output_dir + "/snarl_genotypes.tsv"));
+            std::ifstream snarlsfile;
+            snarlsfile.open(compare_output_dir + "/snarl_genotypes.tsv");
             REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
 
             size_t line_count = 0;
@@ -92,7 +141,57 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test][b
 
             // Make sure that the r-index and non-r-index outputs are the same
             SnarlDataCollection r_index_snarls(0,0,0);
-            StdReader r_index_reader(gbz_output_dir + "/snarl_genotypes.tsv");
+            StdReader r_index_reader(compare_output_dir + "/snarl_genotypes.tsv");
+            r_index_snarls.load_snarl_data_collection(r_index_reader);
+            r_index_reader.close();
+
+            SnarlDataCollection pg_snarls(0,0,0);
+            StdReader pg_reader(output_dir + "/snarl_genotypes.tsv");
+            pg_snarls.load_snarl_data_collection(pg_reader);
+            pg_reader.close();
+
+            REQUIRE(SnarlDataCollection::is_equivalent(r_index_snarls, pg_snarls));
+            
+
+        }
+        SECTION("r-index multithreaded matches not r-index") {
+
+            clean_output_dir(compare_output_dir);
+
+            std::string cmd = "../bin/stoat graph -u";
+
+            cmd +=" -g " + data_path + "/" + graph_base + ".gbz"
+                + " --r-index " + data_path + "/" + graph_base + ".ri"
+                + " -d " + data_path + "/" + graph_base + ".dist"
+                + " -L -t 4 -r ref --output " + compare_output_dir;
+
+            std::cout << "Command run : \n" << cmd << std::endl;
+
+            int command_output = std::system(cmd.c_str());
+            if (command_output != 0) {
+                std::cerr << "Command failed: " << cmd << "\n";
+                REQUIRE(false);
+            }
+            REQUIRE(std::filesystem::exists(compare_output_dir + "/snarl_genotypes.tsv"));
+            std::ifstream snarlsfile;
+            snarlsfile.open(compare_output_dir + "/snarl_genotypes.tsv");
+            REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
+
+            size_t line_count = 0;
+            std::string line;
+            while (std::getline(snarlsfile, line)) {
+                // Only start counting snarls after proper header
+                if (line[0] != '#') {
+                    line_count++;
+                }
+            }
+            snarlsfile.close();
+            // There are fewer snarls in this graph than the pg version
+            REQUIRE(line_count==1508);
+
+            // Make sure that the r-index and non-r-index outputs are the same
+            SnarlDataCollection r_index_snarls(0,0,0);
+            StdReader r_index_reader(compare_output_dir + "/snarl_genotypes.tsv");
             r_index_snarls.load_snarl_data_collection(r_index_reader);
             r_index_reader.close();
 
@@ -107,49 +206,10 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test][b
         }
 
     }
-    SECTION("Test stoat graph output multithreaded") {
 
-        clean_output_dir(output_dir);
-
-        std::string cmd = "../bin/stoat graph -u";
-
-        cmd +=" -g " + data_path + "/" + graph_base + ".pg"
-            + " -d " + data_path + "/" + graph_base + ".dist"
-            + " -L -r ref --output " + output_dir 
-            + " -t 4";
-
-        std::cout << "Command run : \n" << cmd << std::endl;
-
-        int command_output = std::system(cmd.c_str());
-        if (command_output != 0) {
-            std::cerr << "Command failed: " << cmd << "\n";
-            REQUIRE(false);
-        }
-
-        REQUIRE(std::filesystem::exists(output_dir + "/snarl_genotypes.tsv"));
-        std::ifstream snarlsfile;
-        snarlsfile.open(output_dir + "/snarl_genotypes.tsv");
-        REQUIRE(snarlsfile.peek() != std::ifstream::traits_type::eof());
-
-        size_t line_count = 0;
-        std::string line;
-        while (std::getline(snarlsfile, line)) {
-            // Only start counting snarls after proper header
-            if (line[0] != '#') {
-                line_count++;
-            }
-        }
-        snarlsfile.close();
-        REQUIRE(line_count==1508);
-
-        // TODO: Add something that actually checks this
-        //bool passed = compare_output_dirs(output_dir, expected_dir);
-        //REQUIRE(passed);
-
-    }
 
     clean_output_dir(output_dir);
-    clean_output_dir(gbz_output_dir);
+    clean_output_dir(compare_output_dir);
 }
 
 

@@ -333,7 +333,9 @@ int main_stoat_graph(int argc, char *argv[]) {
     } else {
         snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
     }
-    std::vector<PathTraversal> paths_per_allele;
+    // Since partition_embedded_paths_in_snarl_with_gbwt finds the paths of the alleles, keep track of them here to be added later
+    // TODO: this isn't the best way of handling this but it works with the way I set things up before
+    std::unordered_map<handlegraph::net_handle_t, std::vector<PathTraversal>> paths_per_allele_per_snarl;
 
     // Find and write the information (inc. paths and genotypes) for each snarl in the index
     snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
@@ -346,7 +348,11 @@ int main_stoat_graph(int argc, char *argv[]) {
                                                 SnarlDataCollection::get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
                                             } else {
                                                 // If we used the r-index, then we've already filled in the walks in paths_per_allele
-                                                walks = std::move(paths_per_allele);
+                                                #pragma omp critical(paths_per_allele)
+                                                {
+                                                walks = std::move(paths_per_allele_per_snarl[distance_index.start_end_traversal_of(snarl)]);
+                                                paths_per_allele_per_snarl.erase(distance_index.start_end_traversal_of(snarl));
+                                                }
                                             }
                                         },
                                         true, // find the alleles
@@ -356,8 +362,15 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             if (r_index_name.empty()) {
                                                 return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
                                             } else {
-                                                return stoat_graph::partition_embedded_paths_in_snarl_with_gbwt(*path_position_graph, *gbwt, r_index, 
+                                                std::vector<PathTraversal> paths_per_allele;
+                                                auto assignments =  stoat_graph::partition_embedded_paths_in_snarl_with_gbwt(*path_position_graph, *gbwt, r_index, 
                                                                                                                 distance_index, snarl, sample_haplotypes, paths_per_allele);
+
+                                                #pragma omp critical(paths_per_allele)
+                                                {
+                                                paths_per_allele_per_snarl.emplace(distance_index.start_end_traversal_of(snarl), std::move(paths_per_allele));
+                                                }
+                                                return assignments;
                                             }
                                         },
                                         false, // find the sequences, only for fasta format
