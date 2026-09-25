@@ -1494,14 +1494,16 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
                                          " collection 1 has " + std::to_string(snarl_info1.walks_by_allele.size()) + " walks and collection 2 has " 
                                          + std::to_string(snarl_info2.walks_by_allele.size()) + " walks"); 
             }
-            auto flipped_walks1 = snarl_info1.walks_by_allele[allele_num1];
-            flipped_walks1.path_flip();
-            if (snarl_info1.walks_by_allele.size() != 0 && !(allele_num1 == std::numeric_limits<size_t>::max() && allele_num2 == std::numeric_limits<size_t>::max()) && 
-                snarl_info1.walks_by_allele[allele_num1].to_string() != snarl_info2.walks_by_allele[allele_num2].to_string() &&
-                flipped_walks1.to_string() != snarl_info2.walks_by_allele[allele_num2].to_string()){
-                throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + " is "
-                                         + snarl_info1.walks_by_allele[allele_num1].to_string() + " for collection1 and "
-                                         + snarl_info2.walks_by_allele[allele_num2].to_string() + " for collection2"); 
+            if (snarl_info1.walks_by_allele.size() != 0 && !(allele_num1 == std::numeric_limits<size_t>::max() && allele_num2 == std::numeric_limits<size_t>::max())) { 
+                auto flipped_walks1 = snarl_info1.walks_by_allele[allele_num1];
+                flipped_walks1.path_flip();
+                if (snarl_info1.walks_by_allele[allele_num1].to_string() != snarl_info2.walks_by_allele[allele_num2].to_string() &&
+                    flipped_walks1.to_string() != snarl_info2.walks_by_allele[allele_num2].to_string()){
+
+                    throw std::runtime_error("SnarlDataCollections do not match for snarl " + snarl_id + ": the walk for sample/haplotype "+ hap.to_string() + " is "
+                                             + snarl_info1.walks_by_allele[allele_num1].to_string() + " for collection1 and "
+                                             + snarl_info2.walks_by_allele[allele_num2].to_string() + " for collection2"); 
+                }
             }
 
             if (snarl_info1.walks_by_allele.size() != 0 && !(allele_num1 == std::numeric_limits<size_t>::max() && allele_num2 == std::numeric_limits<size_t>::max()) && 
