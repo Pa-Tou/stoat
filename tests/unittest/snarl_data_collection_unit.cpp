@@ -3,6 +3,7 @@
 #include <bdsg/hash_graph.hpp>
 #include <bdsg/overlays/overlay_helper.hpp>
 #include "../../src/snarl_data_collection.hpp"
+#include "../../src/snarl_traversals.hpp"
 #include "../../src/log.hpp"
 
 using namespace stoat;
@@ -596,7 +597,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             true, // allele before walks but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 1);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 1);
             },
             false, // don't get allele 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& sample_haps) { 
@@ -617,7 +618,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             false, //walks before alleles but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 1);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 1);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<sample_hap_t>& samples) { 
@@ -643,7 +644,7 @@ TEST_CASE( "Snarl collection nested bubbles",
             false, // walks before alleles but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 0);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 0);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<sample_hap_t>& samples) { 
@@ -1011,7 +1012,7 @@ TEST_CASE( "Snarl collection multiple connected components",
             true, // alleles before walks but it doesn't matter here
             true, // get walks  
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 1);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 1);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
@@ -1599,7 +1600,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             false, // walks before alleles but it doesn't matter here
             true, // get walks  
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 0);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 0);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<sample_hap_t>& samples) { 

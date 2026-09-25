@@ -194,8 +194,9 @@ void PathTraversal::path_flip() {
     std::reverse(path.begin(), path.end());
 
     for (size_t i = 0; i < path.size(); ++i) {
-        // JEAN maybe here never flip >0?
-        path[i].set_is_reverse(!path[i].get_is_reverse());    
+        if (path[i].get_node_id() != 0) {
+            path[i].set_is_reverse(!path[i].get_is_reverse());    
+        }
     }
 }
 

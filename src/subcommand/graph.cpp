@@ -34,7 +34,7 @@ void print_help_graph() {
         << std::endl
         << "input:" << std::endl
         << "  -g, --graph FILE                   Use this graph (required)" << std::endl
-        << "  -f, --r-index FILE                 Use this r-index (optional, requires -g be a gbz)" << std::endl
+        << "  -G, --r-index FILE                 Use this r-index (optional, requires -g be a gbz)" << std::endl
         << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
         << std::endl
         << "output:" << std::endl
@@ -81,7 +81,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         static struct option long_options[] =
             {
                 {"graph", required_argument, 0, 'g'},
-                {"r-index", required_argument, 0, 'f'},
+                {"r-index", required_argument, 0, 'G'},
                 {"distance-index", required_argument, 0, 'd'},
                 {"allele-size-limit", required_argument, 0, 'l'},
                 {"threads", required_argument, 0, 't'},
@@ -97,7 +97,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:f:d:l:t:R:r:V:o:Luah",
+        c = getopt_long(argc, argv, "g:G:d:l:t:R:r:V:o:Luah",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -106,7 +106,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             case 'g':
                 graph_name = optarg;
                 break;
-            case 'f':
+            case 'G':
                 r_index_name = optarg;
                 break;
             case 'a': ascii = true; break;
@@ -239,9 +239,6 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         handle_graph = gbz;
 
-
-
-
     } else {
         // This is another type of graph, load it as a generic PathHandleGraph
         handle_graph_holder = std::move(std::get<1>(options));
@@ -250,6 +247,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         if (!r_index_name.empty()) {
             // If we are given an r-index, then the graph must have been a gbz
             std::cerr << "[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index" << std::endl;
+            r_index_name.clear();
         }
     }
 
@@ -333,7 +331,9 @@ int main_stoat_graph(int argc, char *argv[]) {
     } else {
         snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
     }
-    std::vector<PathTraversal> paths_per_allele;
+    // Since partition_embedded_paths_in_snarl_with_gbwt finds the paths of the alleles, keep track of them here to be added later
+    // TODO: this isn't the best way of handling this but it works with the way I set things up before
+    std::unordered_map<handlegraph::net_handle_t, std::vector<PathTraversal>> paths_per_allele_per_snarl;
 
     // Find and write the information (inc. paths and genotypes) for each snarl in the index
     snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
@@ -346,7 +346,11 @@ int main_stoat_graph(int argc, char *argv[]) {
                                                 SnarlDataCollection::get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
                                             } else {
                                                 // If we used the r-index, then we've already filled in the walks in paths_per_allele
-                                                walks = std::move(paths_per_allele);
+                                                #pragma omp critical(paths_per_allele)
+                                                {
+                                                walks = std::move(paths_per_allele_per_snarl[distance_index.start_end_traversal_of(snarl)]);
+                                                paths_per_allele_per_snarl.erase(distance_index.start_end_traversal_of(snarl));
+                                                }
                                             }
                                         },
                                         true, // find the alleles
@@ -356,8 +360,15 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             if (r_index_name.empty()) {
                                                 return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
                                             } else {
-                                                return stoat_graph::partition_embedded_paths_in_snarl_with_gbwt(*path_position_graph, *gbwt, r_index, 
+                                                std::vector<PathTraversal> paths_per_allele;
+                                                auto assignments =  stoat_graph::partition_embedded_paths_in_snarl_with_gbwt(*path_position_graph, *gbwt, r_index, 
                                                                                                                 distance_index, snarl, sample_haplotypes, paths_per_allele);
+
+                                                #pragma omp critical(paths_per_allele)
+                                                {
+                                                paths_per_allele_per_snarl.emplace(distance_index.start_end_traversal_of(snarl), std::move(paths_per_allele));
+                                                }
+                                                return assignments;
                                             }
                                         },
                                         false, // find the sequences, only for fasta format
