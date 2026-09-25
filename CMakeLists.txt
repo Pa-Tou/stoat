@@ -204,6 +204,7 @@ add_executable(unit_tests
     tests/unittest/matrix_unit.cpp
     tests/unittest/quantitative_test_unit.cpp
     tests/unittest/path_partitioner_unit.cpp
+    tests/unittest/snarl_traversals_unit.cpp
     tests/unittest/arg_parsing_unit.cpp
     tests/unittest/post_processing_unit.cpp
     tests/unittest/snarl_analyzer_unit.cpp

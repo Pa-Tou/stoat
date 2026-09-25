@@ -14,6 +14,7 @@ namespace stoat {
 /// Find all possible walks through the snarl's netgraph. Fills in walks
 /// Walks include the start and end bounds of the snarl
 /// If a path cycles more than walk_cycle_limit times, stop looking for more cycles
+/// i.e. if walk_cycle_limit is 1, then a path with 2 cycles may be returned
 /// If a path takes more than walk_steps_limit steps, stop extending this path 
 void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                                  const net_handle_t& snarl, std::vector<stoat::PathTraversal>& walks,
