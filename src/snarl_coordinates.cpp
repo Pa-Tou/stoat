@@ -62,7 +62,7 @@ std::tuple<size_t, size_t, size_t> SnarlCoordinates::get_reference_coordinates_a
     net_handle_t canonical_snarl = distance_index.start_end_traversal_of(snarl);
 
     if (distance_index.is_root(canonical_snarl)) {
-        return std::make_tuple(std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max());
+        return std::make_tuple(std::numeric_limits<size_t>::max(), 0, 0);
     }
     // First see if we already found this snarl
     bool already_found = false;
@@ -162,7 +162,7 @@ std::tuple<size_t, size_t, size_t> SnarlCoordinates::get_reference_coordinates_a
         path_type = PathType::OTHER;
     } else {
         // If we didn't find any coordinates, return std::numeric_limits<size_t>::max() for everything
-        std::tuple<size_t, size_t, size_t> empty_coords(std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max());
+        std::tuple<size_t, size_t, size_t> empty_coords(std::numeric_limits<size_t>::max(), 0, 0);
         #pragma omp critical(SC_snarls) 
         {
         snarl_to_coordinates.emplace(canonical_snarl, empty_coords);
@@ -275,6 +275,9 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
 
         const handlegraph::path_handle_t& path = path_steps.first;
         std::vector<handlegraph::step_handle_t>& steps = path_steps.second;
+        if (steps.size() < 2) {
+            continue;
+        }
 
         std::sort(steps.begin(), steps.end(), [&] (const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
             return graph.get_position_of_step(a) < graph.get_position_of_step(b);

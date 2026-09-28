@@ -28,13 +28,13 @@ class SnarlCoordinates {
         /// This firs tries to find a reference path given by add_reference_path, then a reference path given by add_reference_path on an ancestor snarl,
         /// then a reference-sense path on this snarl, then a reference-sense path on an ancestor snarl, then any path on this snarl, then any path on an
         /// ancestor snarl
-        /// Returns "NA", max(), max() if no coordinates were found
+        /// Returns "NA", 0, 0 if no coordinates were found
         std::tuple<std::string, size_t, size_t> get_reference_coordinates_as_string(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                     const bdsg::SnarlDistanceIndex& distance_index,
                                                                                     net_handle_t snarl);
 
         /// As above, but instead of returning the reference name, return an index into reference_names_as_vector() 
-        /// Returns max(), max(), max() if no coordinates were found
+        /// Returns max(), 0, 0 if no coordinates were found
         std::tuple<size_t, size_t, size_t> get_reference_coordinates_as_index(const handlegraph::PathPositionHandleGraph& graph,
                                                                               const bdsg::SnarlDistanceIndex& distance_index,
                                                                               net_handle_t snarl);
