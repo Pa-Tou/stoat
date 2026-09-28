@@ -194,8 +194,9 @@ void PathTraversal::path_flip() {
     std::reverse(path.begin(), path.end());
 
     for (size_t i = 0; i < path.size(); ++i) {
-        // JEAN maybe here never flip >0?
-        path[i].set_is_reverse(!path[i].get_is_reverse());    
+        if (path[i].get_node_id() != 0) {
+            path[i].set_is_reverse(!path[i].get_is_reverse());    
+        }
     }
 }
 
@@ -349,29 +350,6 @@ std::vector<stoat::PathTraversal> net_handles_to_path_traversals(
     }
 
     return path_travs;
-}
-
-sample_hap_t::sample_hap_t(const handlegraph::PathHandleGraph& graph, const handlegraph::path_handle_t& path) {
-
-    std::string path_name = graph.get_path_name(path);
-
-    std::stringstream stream(path_name);
-    if (std::getline(stream, sample, '#')) {
-        std::getline(stream, haplotype);
-    } else {
-        haplotype = "";
-    }
-
-    #ifdef DEBUG
-    std::string test_sample;
-    if (graph.get_sense(path) == handlegraph::PathSense::GENERIC) {
-        // Generic paths only have a locus, so return whatever that is
-        test_sample = graph.get_locus_name(path);
-    } else {
-        test_sample = graph.get_sample_name(path);
-    }
-    assert(sample == test_sample);
-    #endif
 }
 
 
