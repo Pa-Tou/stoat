@@ -39,7 +39,7 @@ class SnarlDataCollection {
         /// Ignore snarls whose maximum length is less than allele_size_limit
         /// Ignore snarls with more children than snarl_child_limit
         /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
-        SnarlDataCollection(SnarlCoordinates& snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
+        SnarlDataCollection(SnarlCoordinates snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fills in sample_to_index based on sample_haplotypes 
@@ -129,7 +129,7 @@ class SnarlDataCollection {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
     private:
-        SnarlCoordinates& snarl_coordinate_finder;
+        SnarlCoordinates snarl_coordinate_finder;
 
         /// This stores the basic information from the snarl_info_t
         struct snarl_info_internal_t {

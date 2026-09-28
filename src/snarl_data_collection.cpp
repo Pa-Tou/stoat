@@ -9,8 +9,8 @@
 namespace stoat {
 
 // Constructor
-SnarlDataCollection::SnarlDataCollection(SnarlCoordinates& snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
-                    snarl_coordinate_finder(snarl_coordinate_finder),
+SnarlDataCollection::SnarlDataCollection(SnarlCoordinates snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
+                    snarl_coordinate_finder(std::move(snarl_coordinate_finder)),
                     allele_size_limit(allele_size_limit),
                     snarl_child_limit(snarl_child_limit),
                     walk_steps_limit(walk_steps_limit) {}
