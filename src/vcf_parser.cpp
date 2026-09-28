@@ -400,6 +400,7 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
 
         #pragma omp parallel for schedule(static)
         for (size_t i = 0; i < raw_records.size(); ++i) {
+            if (has_error) continue;
             try {
                 bcf1_t* record = raw_records.at(i).get();
                 bcf_unpack(record, BCF_UN_STR);
