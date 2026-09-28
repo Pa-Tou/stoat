@@ -25,17 +25,31 @@ class SnarlCoordinates {
 
         /// Return the reference coordinates as a tuple of reference name, start offset, and end offset
         /// The offsets do not include the boundary nodes 
+        /// This firs tries to find a reference path given by add_reference_path, then a reference path given by add_reference_path on an ancestor snarl,
+        /// then a reference-sense path on this snarl, then a reference-sense path on an ancestor snarl, then any path on this snarl, then any path on an
+        /// ancestor snarl
+        /// Returns "NA", max(), max() if no coordinates were found
         std::tuple<std::string, size_t, size_t> get_reference_coordinates_as_string(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                     const bdsg::SnarlDistanceIndex& distance_index,
                                                                                     net_handle_t snarl);
 
         /// As above, but instead of returning the reference name, return an index into reference_names_as_vector() 
+        /// Returns max(), max(), max() if no coordinates were found
         std::tuple<size_t, size_t, size_t> get_reference_coordinates_as_index(const handlegraph::PathPositionHandleGraph& graph,
                                                                               const bdsg::SnarlDistanceIndex& distance_index,
                                                                               net_handle_t snarl);
 
         /// Get a vector of reference path names, ordered by the order in which the references added in add_reference(), then by the order in which new paths were found
-        std::vector<std::string> reference_names_as_vector();
+        std::vector<std::string> reference_names_as_vector() const;
+
+        /// Get the path name as a string
+        std::string get_path_name_from_index(size_t i) const;
+
+        /// Have we seen this reference before?
+        bool has_reference(const std::string& pathname) const { return path_to_index.count(pathname) != 0; }
+
+        /// Clear any previously found data, including previously found paths
+        void clear();
 
 
     //////////////////////////////////////////////////// Private data members
@@ -53,10 +67,11 @@ class SnarlCoordinates {
 
     /////////////////////////////////////////////////// Private helper functions
 
+    private:
     /// Get a list of all traversals (which may or may not traverse both boundary nodes) as path handle, start coordinate, end coordinate
-    std::vector<std::tuple<handle_graph::path_handle_t, size_t, size_t> get_traversals of snarl(const handlegraph::PathPositionHandleGraph& graph, 
+    std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> get_traversals_of_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                                 const bdsg::SnarlDistanceIndex& distance_index,
-                                                                                                net_handle_t snarl) {
+                                                                                                net_handle_t snarl);
 
 };
 }

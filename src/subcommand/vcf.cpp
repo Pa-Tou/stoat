@@ -200,16 +200,28 @@ int main_stoat_vcf(int argc, char* argv[]) {
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
     stoat::LOG_SILENTE(ss.str());
 
-    // read reference chromosome, if provided
-    // if not, we will use reference haplotypes in the pangenome
-    std::unordered_set<std::string> ref_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
+    // class for keeping track of reference coordinates of snarls
+    SnarlCoordinates snarl_coordinate_finder;
+    if (!std::filesystem::exists(reference_path)) {
+        stoat::LOG_WARN("given reference file " + reference_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
+    } else {
+        std::ifstream file(reference_path);
+        std::string line;
+        
+        while (getline(file, line)) {
+            snarl_coordinate_finder.add_reference_path(line);
+        }
+        
+        file.close();
+    }
+
 
     // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
-    stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
+    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0, children_threshold, path_length_threshold);
 
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
@@ -290,21 +302,21 @@ int main_stoat_vcf(int argc, char* argv[]) {
         path_position_graph =  overlay_helper.apply(graph);
 
         // Get the reference sample names from the prefix
-        size_t n_ref_paths_before = ref_path_names.size();
         graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
             std::string path_name = graph->get_path_name(path);
 
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
-                ref_path_names.emplace(graph->get_path_name(path));
+                snarl_coordinate_finder.add_reference_path(graph->get_path_name(path));
             }
 
             return true;
         });
+        std::vector<std::string> ref_path_names = snarl_coordinate_finder.reference_names_as_vector();
         // warning if no reference path matched the provided prefix
-        if (!reference_prefix.empty() && ref_path_names.size() == n_ref_paths_before) {
-            stoat::LOG_WARN("No reference path matched the provided prefix: " + reference_prefix, "");
+        if (ref_path_names.size() == 0) {
+            stoat::LOG_WARN("No reference paths found: " + reference_prefix, "");
         }
 
         // Load the distance index
@@ -352,7 +364,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 return std::vector<size_t>();
             }, 
             false, // sequence_requested 
-            ref_path_names, // reference 
             false, //check distances
             *snarl_writer, // Writer object for the snarls
             !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
@@ -367,14 +378,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
         if (only_prepare_snarls) {
             // we're done
             return EXIT_SUCCESS;
-        }
-    }
-
-    // If there were no references given, fill them in with the references from the snarl collection
-    //TODO: I don't think this is used
-    if (ref_path_names.empty()) {
-        for (const std::string& ref : snarl_collection.get_reference_names()) {
-            ref_path_names.insert(ref);
         }
     }
 

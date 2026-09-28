@@ -285,7 +285,22 @@ int main_stoat_graph(int argc, char *argv[]) {
     }
 
     // Get the reference sample names from the file
-    std::unordered_set<std::string> reference_path_names = (!reference_file.empty()) ? stoat_vcf::parse_chromosome_reference(reference_file) : std::unordered_set<std::string>{};
+    // Make a SnarlCoordinates class and have it keep track of the references we've found
+    SnarlCoordinates snarl_coordinate_finder;
+
+    if (std::filesystem::exists(reference_file)) {
+        stoat::LOG_WARN("given reference file " + reference_file + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
+    } else {
+        std::ifstream file(reference_file);
+        std::string line;
+
+        while (getline(file, line)) {
+            snarl_coordinate_finder.add_reference_path(line);
+        }
+
+        file.close();
+    }
+
 
     // Get the reference sample names from the prefix
     handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
@@ -294,7 +309,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                           reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
             // If these paths match
-            reference_path_names.emplace(handle_graph->get_path_name(path));
+            snarl_coordinate_finder.add_reference_path(handle_graph->get_path_name(path));
         }
 
         return true;
@@ -310,7 +325,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     size_t total_number_snarl_limit_distance = 0;
     size_t total_number_snarl_limit_children = 0;
     size_t total_snarl_chr_analysed = 0;
-    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit);
+    SnarlDataCollection snarl_collection(snarl_coordinate_finder, allele_size_limit, snarl_child_limit, walk_steps_limit);
     
     ////////////////////////////////////////////////// Start doing work
 
@@ -372,7 +387,6 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             }
                                         },
                                         false, // find the sequences, only for fasta format
-                                        reference_path_names,
                                         distance_index.has_distances(),
                                         *snarl_writer, // Filename to write the snarls to
                                         false // Keep the snarls in the collection?

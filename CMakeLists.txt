@@ -150,6 +150,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/writer.cpp
     src/snarl_analyzer.cpp
     src/path_partitioner.cpp
+    src/snarl_coordinates.cpp
     src/snarl_data_collection.cpp
     src/snarl_traversals.cpp
     src/feature_tables.cpp
