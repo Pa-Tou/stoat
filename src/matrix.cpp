@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include <omp.h>
 
 namespace stoat_vcf {
 
@@ -169,26 +170,43 @@ std::vector<size_t> EdgeBySampleMatrix::get_samples_on_path(const stoat::PathTra
 
 void EdgeBySampleMatrix::load_vcf_chunk(stoat_vcf::VCFParser& vcf_parser, std::string &chr) {
     // init the edge matrix, allocating about 10 000 edges?
-    clear_edges(10000);
+    const size_t EXPECTED_EDGE_COUNT=10000;
+    clear_edges(EXPECTED_EDGE_COUNT);
+
+    const size_t thread_count = omp_get_max_threads();
+    std::vector<std::vector<pending_edge_t>> pending_edges(thread_count);
+    const size_t edges_per_thread = (EXPECTED_EDGE_COUNT + thread_count - 1) / thread_count;
+
+    // Reserve memory for the edges in pending_edges
+    for (std::vector<pending_edge_t>& v : pending_edges) {
+        v.reserve(edges_per_thread);
+    }
 
     vcf_parser.for_each_record_on_chromosome(chr, [&](const stoat_vcf::vcf_info_t& vcf_info) {
+        std::vector<pending_edge_t>& thread_edges = pending_edges.at(omp_get_thread_num());
         if (vcf_info.lv == 0 || vcf_parser.resolve_nested_calls ) {
             // If we resolve snarls, then keep edges in all snarls. If we aren't resolving snarls, then only keep lv=0 snarls
             for (size_t hap_num = 0 ; hap_num < vcf_parser.hap_count ; hap_num++) {
-                int allele_num = vcf_info.genotype[hap_num];
+                int allele_num = vcf_info.genotype.at(hap_num);
                 if (allele_num != -1) { // if the genotype wasn't .
-                    const std::vector<stoat::node_traversal_t>& path = vcf_info.paths[allele_num];
+                    const std::vector<stoat::node_traversal_t>& path = vcf_info.paths.at(allele_num);
                     for (size_t node_i = 0 ; node_i < path.size()-1 ; node_i++) {
                         // Go through each edge (as pair of nodes) and add it to the edge matrix
                         // ignoring any 0 nodes which indicate the inside of a snarl
-                        if (path[node_i].get_node_id() != 0 && path[node_i+1].get_node_id() != 0) {
-                            add_sample_edge(stoat::edge_t(path[node_i], path[node_i+1]), hap_num);
+                        if (path.at(node_i).get_node_id() != 0 && path.at(node_i+1).get_node_id() != 0) {
+                            thread_edges.push_back({stoat::edge_t(path.at(node_i), path.at(node_i+1)), hap_num});
                         }
                     }
                 }
             }
         }
     });
+
+    for (const std::vector<pending_edge_t>& thread_edges : pending_edges) {
+        for (const pending_edge_t& pending_edge : thread_edges) {
+            add_sample_edge(pending_edge.edge, pending_edge.hap_num);
+        }
+    }
 
     // we're done, we can shrink the matrix to rows set
     shrink();

@@ -1,6 +1,7 @@
 #include "path_partitioner.hpp"
 #include "log.hpp"
 #include <fstream>
+#include "snarl_traversals.hpp"
 
 //#define DEBUG_PATH_PARTITIONER
 
@@ -51,6 +52,7 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
     // Represents the next node and orientation and the offset along the path of the edge
     // Use (0,0,0,false) as a default value to indicate that the path didn't traverse this child
     // This becomes a linked list when a path traverses the child multiple times (this doesn't happen often) 
+    // The linked list is sorted by order in the traversal
     struct path_edge_t {
         size_t offset;           // The offset along the path
         size_t additional_edge;  // If this path traverses the child multiple times, index into additional_steps for others. max() for end of linked list 
@@ -289,9 +291,10 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
 
     #ifdef DEBUG_PATH_PARTITIONER
     std::vector<std::set<sample_hap_t>> sample_sets_by_allele(old_set_count-1);
+    std::cerr << "Check for " << all_sample_haplotypes.size() << " sample" << std::endl;
     for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
-        if (old_sets[i] != 0) {
-            sample_sets_by_allele[old_sets[i]-1].emplace(all_sample_haplotypes[i]);
+        if (old_sets[i] != std::numeric_limits<size_t>::max()) {
+            sample_sets_by_allele[old_sets[i]].emplace(all_sample_haplotypes[i]);
         }
     }
     std::cerr << "Found walk sets " << std::endl;
@@ -307,5 +310,219 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
     // Return this
     return old_sets;
 }
+
+
+
+
+std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, 
+                          const gbwt::GBWT& gbwt,
+                          const gbwt::FastLocate& r_index,
+                          const bdsg::SnarlDistanceIndex& distance_index,
+                          const net_handle_t& snarl,
+                          const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
+                          std::vector<PathTraversal>& paths_per_allele) {
+
+
+
+    // The final boundary-to-boundary paths
+    // The size_t is an identifier for the path, since some paths may be identical
+    std::vector<gbwt_path_t> finished_paths;
+
+    // Get all start-end or start-start traversals and put them in  finished_paths 
+    // Path count will be an upper bound of the number of distinct paths
+    // TODO: WHy is it an upper bound and not the exact value?
+    size_t path_count = get_gbwt_traversals(graph, gbwt, r_index, distance_index, snarl, finished_paths);
+
+    // At this point, finished paths holds a path for each distinct, haplotype-supported walk through th esnarl netgraph
+    // Since a sample may go through the snarl multiple times, we now want to partition the samples based on how many
+    // of each walk they take.
+
+    // Map each sample(plus haplotype) to its index in all_sample_haplotypes
+    std::map<stoat::sample_hap_t, std::size_t> sample_to_index;
+    for (size_t i = 0 ; i < all_sample_haplotypes.size() ; i++) {
+        sample_to_index[all_sample_haplotypes[i]] = i;
+    }
+
+    // For each sample, remember which paths through the snarl it takes. Since it may take multiple, save this as a linked list.
+    // Since it doesn't happen very often, there will be one vector of all the heads of the linked list, and a separate vector of
+    // the subsequent nodes/repeats.
+
+    // A struct representing the allele/path taken by a sample.
+    // This becomes a linked list when a sample traverses the snarl multiple times (this doesn't happen often) 
+    // A value of {max(), max()} indicates that no path was taken
+    struct path_link_t {
+        size_t path_id;          // The path
+        size_t offset;           // The offset of this path (traversal of the snarl) along the haplotype, so we can order in additional_paths 
+        size_t additional_path; // Index into a list of additional paths
+
+        path_link_t() : path_id(std::numeric_limits<size_t>::max()), offset(std::numeric_limits<size_t>::max()), additional_path(std::numeric_limits<size_t>::max()){};
+        path_link_t(size_t path_id, size_t offset) : 
+            path_id(path_id), offset(offset), additional_path(std::numeric_limits<size_t>::max()){};
+    };
+    std::vector<path_link_t> path_by_sample (all_sample_haplotypes.size());
+    std::vector<path_link_t> additional_paths;
+
+    auto add_path_to_sample = [&](size_t sample_id, size_t path_id, size_t offset) {
+        path_link_t this_path_link (path_id, offset);
+        if (path_by_sample.at(sample_id).path_id == std::numeric_limits<size_t>::max()) {
+            // If this is the first time we've found a path for this sample
+            path_by_sample.at(sample_id) = std::move(this_path_link);
+        } else {
+            // If this sample already has a path, place this path in the correct place in the linked list
+
+            if (offset < path_by_sample.at(sample_id).offset) {
+                // If this path is the first for this sample, just shift the linked list
+                this_path_link.additional_path = additional_paths.size();
+                additional_paths.emplace_back(std::move(path_by_sample.at(sample_id)));
+                path_by_sample.at(sample_id) = std::move(this_path_link);
+            } else {
+
+                // The current and next indices in the linked list
+                // since current_index may be an index into the original path_by_sample, remember this 
+                size_t current_index = sample_id; 
+                bool current_index_is_first = true;
+                size_t next_index = path_by_sample.at(sample_id).additional_path;
+
+                while (next_index != std::numeric_limits<size_t>::max() &&
+                       additional_paths[next_index].offset < offset) {
+                    current_index = next_index;
+                    next_index = additional_paths.at(current_index).additional_path;
+                    current_index_is_first = false;
+                }
+                //current_index now points to the item just smaller than the current path
+                // and next_index is the item just larger than the current path
+                this_path_link.additional_path = next_index;
+                if (current_index_is_first) {
+                    path_by_sample.at(current_index).additional_path = additional_paths.size();
+                } else {
+                    additional_paths.at(current_index).additional_path = additional_paths.size();
+                }
+                additional_paths.emplace_back(std::move(this_path_link)); 
+            }
+        }
+                   
+    };
+
+    // Remember the paths themselves, once per path_id
+    std::vector<std::vector<handlegraph::net_handle_t>> paths_per_path_id (path_count);
+
+
+    // Sort the finished paths so by path id so that identical paths are consecutive in the vector.
+    // Since actually sorting the vector would be slow, make a vector of indices and sort that
+    std::vector<size_t> sort_order(finished_paths.size(), 0);
+    for (size_t i = 0 ; i < sort_order.size() ; i++) {
+        sort_order[i] = i;
+    }
+    std::sort(sort_order.begin(), sort_order.end(), [&](size_t a, size_t b) { return finished_paths.at(a).identifier < finished_paths.at(b).identifier; });
+
+    auto gbwt_reference_samples = gbwtgraph::parse_reference_samples_tag(gbwt);
+
+
+    // Go through all finished paths by path id
+    for (size_t sorted_i = 0 ; sorted_i < sort_order.size() ; sorted_i++) {
+        const gbwt_path_t& current_path = finished_paths.at(sort_order.at(sorted_i));
+        #ifdef DEBUG_PATH_PARTITIONER
+            std::cerr << "At path id " << current_path.identifier << ":\t";
+            for (const auto& net : current_path.path) {
+                std::cerr << distance_index.net_handle_as_string(net) << ",";
+            }
+            std::cerr << std::endl;
+        #endif
+
+        // Now use the r-index to find the occurrences of this path - the range in the search state
+        // We use the suffix array offset to find this information for each haplotype in the range
+        gbwt::size_type current_sa_index = current_path.sa_index;
+        for (size_t i = 0 ; i < current_path.search_state.size() ; i++) {
+            gbwt::size_type gbwt_path_id = gbwt::Path::id(r_index.seqId(current_sa_index));
+            gbwt::size_type path_offset = r_index.seqOffset(current_sa_index);
+
+            gbwt::size_type next_sa_index = r_index.locateNext(current_sa_index);
+
+            handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, gbwt_path_id, gbwt_reference_samples);
+
+            std::string path_name = handlegraph::PathMetadata::create_path_name(sense,
+                                        gbwtgraph::get_path_sample_name(gbwt, gbwt_path_id, sense),
+                                        gbwtgraph::get_path_locus_name(gbwt, gbwt_path_id, sense),
+                                        gbwtgraph::get_path_haplotype(gbwt, gbwt_path_id, sense),
+                                        gbwtgraph::get_path_phase_block(gbwt, gbwt_path_id, sense),
+                                        gbwtgraph::get_path_subrange(gbwt, gbwt_path_id, sense)); 
+            #ifdef DEBUG_PATH_PARTITIONER
+                std::cerr << "\t\tpath " << path_name << " takes this snarl traversal: " << gbwt_path_id << std::endl;
+            #endif
+
+
+            add_path_to_sample(sample_to_index.at(sample_hap_t(path_name)), current_path.identifier, path_offset);
+
+            current_sa_index = next_sa_index;
+        }
+
+        if (sorted_i == sort_order.size()-1 || current_path.identifier != finished_paths.at(sort_order.at(sorted_i+1)).identifier) {
+            // If we finished going through the last set of paths for this path id, remember the path itself
+            paths_per_path_id.at(current_path.identifier) = std::move(current_path.path);
+        }
+    }
+
+    // we have now filled in path_by_sample to assign each sample to a path (or sequence of paths in additional_paths)
+
+    // Now that we've gone though all paths and assigned paths to samples, do the partitioning by assigning an allele id to each path/linked list of paths
+    std::vector<size_t> allele_assignments (all_sample_haplotypes.size(), std::numeric_limits<size_t>::max());
+    size_t current_allele_num = 0;
+    // For each distinct path (snarl traversal, which may include multiple traversals of the snarl), map it to the new allele number
+    std::map<std::vector<size_t>, size_t> path_list_to_allele_num;
+    // For each allele, get one sample with this allele. Used to get the paths
+    std::vector<size_t> sample_per_allele;
+    paths_per_allele.clear();
+    for (size_t sample_num = 0 ; sample_num < path_by_sample.size() ; sample_num++) {
+        size_t first_path_id = path_by_sample[sample_num].path_id;
+        if (first_path_id == std::numeric_limits<size_t>::max()) {
+            // If this sample didn't have a path through this snarl
+            continue;
+        }
+
+        // First, get the list of path ids for this sample
+        std::vector<size_t> current_path ({first_path_id});
+        size_t next_link = path_by_sample[sample_num].additional_path;
+        while (next_link != std::numeric_limits<size_t>::max()) {
+            current_path.push_back(additional_paths[next_link].path_id);
+            next_link = additional_paths[next_link].additional_path;
+        }
+
+        // If we've seen this before, then we have the allele number so assign it
+        const auto& allele_assignment = path_list_to_allele_num.find(current_path);
+        if (allele_assignment != path_list_to_allele_num.end()) {
+            allele_assignments[sample_num] = allele_assignment->second;
+        } else {
+            allele_assignments[sample_num] = current_allele_num;
+            path_list_to_allele_num[current_path] = current_allele_num;
+
+            // Record the path for this allele
+            paths_per_allele.emplace_back();
+            #ifdef DEBUG_PATH_PARTITIONER
+            assert(current_allele_num == sample_per_allele.size());
+            #endif
+            sample_per_allele.push_back(sample_num);        
+            // Get the path from current_path, which has the path id for each sample
+            for (size_t path_num = 0 ; path_num < current_path.size() ; path_num++) {
+                size_t path_id =  current_path[path_num];
+                if (path_num > 0) {
+                    // Add an out-of-snarl marker
+                    paths_per_allele.back().add_out_of_snarl_walk();
+                }
+                const std::vector<handlegraph::net_handle_t>& path_as_net_handles = paths_per_path_id.at(path_id);
+                
+                // Add the path through the snarl
+                for (size_t i = 0 ; i < path_as_net_handles.size() ; i++) {
+                    const handlegraph::net_handle_t& net = path_as_net_handles.at(i);
+                    paths_per_allele.back().add_net_handle(net, distance_index, i == 0 || i == path_as_net_handles.size()-1);
+                }
+            }
+
+            ++current_allele_num;
+        }
+    }
+
+    return allele_assignments;
+}
+
 
 }
