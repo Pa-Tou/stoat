@@ -55,9 +55,11 @@ class SnarlCoordinates {
     //////////////////////////////////////////////////// Private data members
     private:
         enum PathType {REF, REF_SENSE, OTHER};
+
         // Keep track of which reference paths we have and an index for them
         // The bool indicates whether it was a reference. This is so that we can prioritize references
         std::unordered_map<std::string, std::pair<size_t, PathType>> path_to_index;
+
         // The inverse of path_to_index. This is duplicative but it lets us store the paths as indices in the snarl to coordinates map
         std::vector<std::pair<std::string, PathType>> path_by_index;
 
