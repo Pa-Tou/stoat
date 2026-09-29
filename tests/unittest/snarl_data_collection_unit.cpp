@@ -475,9 +475,9 @@ TEST_CASE( "Snarl collection nested bubbles",
 
             } else if ((snarl_info.start_node == stoat::node_traversal_t(8, false) && snarl_info.end_node == stoat::node_traversal_t(10, true)) ||
                 (snarl_info.start_node == stoat::node_traversal_t(10, true) && snarl_info.end_node == stoat::node_traversal_t(8, false))) {
-                REQUIRE(snarl_info.ref_path == "NA");
-                REQUIRE(snarl_info.start_position == 0);
-                REQUIRE(snarl_info.end_position == 0);
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 7);
+                REQUIRE(snarl_info.end_position == 7);
                 REQUIRE(snarl_info.depth == 1);
                 if (get_all_walks && check_walks) {
                     REQUIRE(snarl_info.walks_by_allele.size() == 2);

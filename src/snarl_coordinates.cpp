@@ -321,17 +321,16 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
         const handlegraph::path_handle_t& path = path_steps.first;
         if (want_ref_path(path)) {
             std::vector<handlegraph::step_handle_t>& steps = path_steps.second;
-            if (steps.size() < 2) {
-                continue;
-            }
 
             std::sort(steps.begin(), steps.end(), [&] (const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
                 return graph.get_position_of_step(a) < graph.get_position_of_step(b);
             });
+            size_t start_offset = graph.get_position_of_step(steps.front()) + graph.get_sequence(graph.get_handle_of_step(steps.front())).size();
+            size_t end_offset = steps.size() == 1 ? start_offset : graph.get_position_of_step(steps.back());
 
             ranges.push_back({path,
-                              graph.get_position_of_step(steps.front()) + graph.get_sequence(graph.get_handle_of_step(steps.front())).size(),
-                              graph.get_position_of_step(steps.back())});
+                              start_offset,
+                              end_offset});
         }
     }
     return ranges;
