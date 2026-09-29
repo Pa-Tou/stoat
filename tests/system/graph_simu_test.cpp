@@ -257,7 +257,7 @@ TEST_CASE("Output simple nested chain stats", "[test]") {
         allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
         allele_assignment["path3#"] = std::numeric_limits<size_t>::max();
         snarl_genotype_values_t truth4 ({">8", "<10",
-                                       (std::string)".", (size_t)0, (size_t)0, 
+                                       (std::string)"path0#0#path0", (size_t)7, (size_t)7, 
                                        (size_t) 1,
                                        lengths,
                                        paths, 
@@ -384,7 +384,7 @@ TEST_CASE("Output simple nested chain stats", "[test]") {
         allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
         allele_assignment["path3#"] = std::numeric_limits<size_t>::max();
         snarl_genotype_values_t truth4 ({">8", "<10",
-                                       (std::string)".", (size_t)0, (size_t)0, 
+                                       (std::string)"path0#0#path0", (size_t)7, (size_t)7, 
                                        (size_t) 1,
                                        lengths,
                                        paths, 
@@ -519,7 +519,7 @@ TEST_CASE("Output simple nested chain stats", "[test]") {
         allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
         allele_assignment["path3#"] = std::numeric_limits<size_t>::max();
         snarl_genotype_values_t truth4 ({">8", "<10",
-                                       (std::string)".", (size_t)0, (size_t)0, 
+                                       (std::string)"path0#0#path0", (size_t)7, (size_t)7, 
                                        (size_t) 1,
                                        lengths,
                                        paths, 
@@ -629,7 +629,7 @@ TEST_CASE("Output simple nested chain stats", "[test]") {
         allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
         allele_assignment["path3#"] = std::numeric_limits<size_t>::max();
         snarl_genotype_values_t truth4 ({">8", "<10",
-                                       (std::string)".", (size_t)0, (size_t)0, 
+                                       (std::string)"path0#0#path0", (size_t)7, (size_t)7, 
                                        (size_t) 1,
                                        lengths,
                                        paths, 
@@ -759,7 +759,7 @@ TEST_CASE("Output simple nested chain stats", "[test]") {
         allele_assignment["path2#"] = std::numeric_limits<size_t>::max();
         allele_assignment["path3#"] = std::numeric_limits<size_t>::max();
         snarl_genotype_values_t truth4 ({">8", "<10",
-                                       (std::string)".", (size_t)0, (size_t)0, 
+                                       (std::string)"path0#0#path0", (size_t)7, (size_t)7, 
                                        (size_t) 1,
                                        lengths,
                                        paths, 
