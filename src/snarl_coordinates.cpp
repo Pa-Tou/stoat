@@ -135,7 +135,7 @@ std::tuple<size_t, size_t, size_t> SnarlCoordinates::get_reference_coordinates_a
         }
         if (parent_type == PathType::REF || 
             (parent_type == PathType::REF_SENSE && index_on_ref_sense == std::numeric_limits<size_t>::max()) ||
-            (index_on_any == std::numeric_limits<size_t>::max() && index_on_new == std::numeric_limits<size_t>::max())) {
+            (index_on_ref_sense == std::numeric_limits<size_t>::max() && index_on_any == std::numeric_limits<size_t>::max() && index_on_new == std::numeric_limits<size_t>::max())) {
             // If the parent had coordinates on the reference, or if this snarl had no coordinates on a reference sense but the parent did, 
             // or if this snarl didn't have any coordinates,
             // Return the parent coordinates
@@ -217,6 +217,7 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
                                                                                            const bdsg::SnarlDistanceIndex& distance_index,
                                                                                            net_handle_t snarl) {
 
+
     handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
     handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, true)), &graph);
 
@@ -232,13 +233,55 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
 
     // Get the step_handles of all paths traversing start or end
     // Steps don't care about the orientation of the handle, they will always (I think) be going forwards in the path
+
     
+    // Going through all the path and finding their offsets is super slow so try to limit the number of paths we keep.
+    // If we find a reference path, don't look for anything else. If we find a reference-sense path, don't look for non-ref paths
+    bool only_ref = false;
+    bool only_ref_sense = false;
+    bool only_found = false;
+    auto want_ref_path = [&](const handlegraph::path_handle_t& path ) {
+        bool is_ref = false;
+        bool is_ref_sense = false;
+        bool is_found = false;
+        #pragma omp critical (SC_references) 
+        {
+            auto found_ref = path_to_index.find(graph.get_path_name(path));
+
+            // What is this path? reference or reference sense or something else
+            if (found_ref != path_to_index.end() && found_ref->second.second == PathType::REF) {
+                is_ref = true;
+                only_ref = true;
+            } else if (graph.get_sense(path) == handlegraph::PathSense::REFERENCE) {
+                is_ref_sense = true;
+                only_ref_sense = true;
+            } else if (found_ref != path_to_index.end()) {
+                is_found = true;
+                only_found = true;
+            } 
+        } //end omp critical
+        bool keep_this_path = false;
+
+        if ((only_ref && is_ref) || 
+            (!only_ref && only_ref_sense && is_ref_sense) ||
+            (!only_ref && !only_ref_sense && only_found && is_found) ||
+            (!only_ref && !only_ref_sense && !only_found)) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     graph.for_each_step_on_handle(start_handle, [&] (const handlegraph::step_handle_t& step) {
         handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
-        if (path_to_steps.count(path) == 0) {
-            path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+
+        if (want_ref_path(path)) {
+
+            if (path_to_steps.count(path) == 0) {
+                path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+            }
+            path_to_steps[path].emplace_back(step);
         }
-        path_to_steps[path].emplace_back(step);
         return true;
     });
     
@@ -251,10 +294,12 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
     
     graph.for_each_step_on_handle(end_handle, [&] (const handlegraph::step_handle_t& step) {
         handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
-        if (path_to_steps.count(path) == 0) {
-            path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+        if (want_ref_path(path)) {
+            if (path_to_steps.count(path) == 0) {
+                path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+            }
+            path_to_steps[path].emplace_back(step);
         }
-        path_to_steps[path].emplace_back(step);
         return true;
     });
     
@@ -274,18 +319,20 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
     for (auto& path_steps : path_to_steps) {
 
         const handlegraph::path_handle_t& path = path_steps.first;
-        std::vector<handlegraph::step_handle_t>& steps = path_steps.second;
-        if (steps.size() < 2) {
-            continue;
+        if (want_ref_path(path)) {
+            std::vector<handlegraph::step_handle_t>& steps = path_steps.second;
+            if (steps.size() < 2) {
+                continue;
+            }
+
+            std::sort(steps.begin(), steps.end(), [&] (const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
+                return graph.get_position_of_step(a) < graph.get_position_of_step(b);
+            });
+
+            ranges.push_back({path,
+                              graph.get_position_of_step(steps.front()) + graph.get_sequence(graph.get_handle_of_step(steps.front())).size(),
+                              graph.get_position_of_step(steps.back())});
         }
-
-        std::sort(steps.begin(), steps.end(), [&] (const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
-            return graph.get_position_of_step(a) < graph.get_position_of_step(b);
-        });
-
-        ranges.push_back({path,
-                          graph.get_position_of_step(steps.front()) + graph.get_sequence(graph.get_handle_of_step(steps.front())).size(),
-                          graph.get_position_of_step(steps.back())});
     }
     return ranges;
 }
