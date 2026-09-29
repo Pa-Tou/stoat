@@ -288,7 +288,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     // Make a SnarlCoordinates class and have it keep track of the references we've found
     SnarlCoordinates snarl_coordinate_finder;
 
-    if (std::filesystem::exists(reference_file)) {
+    if (!std::filesystem::exists(reference_file)) {
         stoat::LOG_WARN("given reference file " + reference_file + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
     } else {
         std::ifstream file(reference_file);
