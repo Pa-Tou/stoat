@@ -9,8 +9,8 @@
 namespace stoat {
 
 // Constructor
-SnarlDataCollection::SnarlDataCollection(SnarlCoordinates snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
-                    snarl_coordinate_finder(std::move(snarl_coordinate_finder)),
+SnarlDataCollection::SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
+                    snarl_coordinate_finder(snarl_coordinate_finder),
                     allele_size_limit(allele_size_limit),
                     snarl_child_limit(snarl_child_limit),
                     walk_steps_limit(walk_steps_limit) {}
@@ -148,7 +148,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     
                             // Get the offsets of the start and end nodes along the reference
                             std::tie(snarl_data.reference_index, snarl_data.start_position, snarl_data.end_position) = 
-                                                    snarl_coordinate_finder.get_reference_coordinates_as_index(graph, distance_index, net);
+                                                    snarl_coordinate_finder->get_reference_coordinates_as_index(graph, distance_index, net);
                             // Optionally fill in the walks, alleles, and sequences.
                             // walks_by_allele and snarl_sequences must have the same number of entries because they correspond to the same alleles
                             // The entries in alleles_by_sample correspond to these alleles so its max value (that is not inf) must be the length of the others
@@ -167,7 +167,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
                             // except when references to them are passed as the thing we're filling in
                             snarl_info_t new_snarl_info (snarl_data.start_node, 
                                                          snarl_data.end_node, 
-                                                         snarl_coordinate_finder.get_path_name_from_index(snarl_data.reference_index),
+                                                         snarl_coordinate_finder->get_path_name_from_index(snarl_data.reference_index),
                                                          snarl_data.start_position,
                                                          snarl_data.end_position,
                                                          snarl_data.depth,
@@ -343,7 +343,7 @@ void SnarlDataCollection::add_alleles_by_sample(
 
         // If we are limiting to a chromosome (by reference path), then skip anything not on this chromosome
         if (chr != "" && (snarl_info.reference_index == std::numeric_limits<size_t>::max() || 
-                           chr != snarl_coordinate_finder.get_path_name_from_index(snarl_info.reference_index))) {
+                           chr != snarl_coordinate_finder->get_path_name_from_index(snarl_info.reference_index))) {
             continue;
         }
 
@@ -358,7 +358,7 @@ void SnarlDataCollection::add_alleles_by_sample(
         std::vector<std::string> empty_sequences (0);
         snarl_info_t new_snarl_info(snarl_info.start_node, 
                                 snarl_info.end_node, 
-                                snarl_coordinate_finder.get_path_name_from_index(snarl_info.reference_index),
+                                snarl_coordinate_finder->get_path_name_from_index(snarl_info.reference_index),
                                 snarl_info.start_position,
                                 snarl_info.end_position,
                                 snarl_info.depth,
@@ -429,7 +429,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
     while(chr != "") {
 
         // Skip chromosomes not in ref_chrs
-        while (snarl_coordinate_finder.has_reference(chr)) {
+        while (!snarl_coordinate_finder->has_reference(chr)) {
             stoat::LOG_WARN("Chromosome " + chr + " not found in snarl paths file. Skipping.", "");
             bool found_new_chr = false;
 
@@ -562,7 +562,7 @@ void SnarlDataCollection::run_iteratee_on_one_snarl(const snarl_info_internal_t&
     std::vector<std::string> empty_sequences (0);
     snarl_info_t new_snarl_info (internal_snarl_info.start_node, 
                           internal_snarl_info.end_node, 
-                          snarl_coordinate_finder.get_path_name_from_index(internal_snarl_info.reference_index),
+                          snarl_coordinate_finder->get_path_name_from_index(internal_snarl_info.reference_index),
                           internal_snarl_info.start_position,
                           internal_snarl_info.end_position,
                           internal_snarl_info.depth,
@@ -836,7 +836,7 @@ void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_
 
     // Next will be a list of reference path names.
     outstream << "#REFS" << std::endl;
-    std::vector<std::string> reference_names = snarl_coordinate_finder.reference_names_as_vector();
+    std::vector<std::string> reference_names = snarl_coordinate_finder->reference_names_as_vector();
     for (const auto& ref : reference_names) {
         outstream << "#" << ref << std::endl;
     }
@@ -945,7 +945,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     snarl_to_walks.clear();
     snarl_to_alleles_by_sample.clear();
     snarl_to_sequences.clear();
-    snarl_coordinate_finder.clear();
+    snarl_coordinate_finder->clear();
     all_sample_haplotypes.clear(); 
     sample_to_index.clear();
 
@@ -1012,7 +1012,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     // Get the reference path names from the file
     while (line != "#SNARLS") {
         std::string ref (line.begin()+1, line.end());
-        snarl_coordinate_finder.add_reference_path(std::move(ref));
+        snarl_coordinate_finder->add_reference_path(std::move(ref));
         in_reader.getline(line);
     }
 
@@ -1267,7 +1267,7 @@ void SnarlDataCollection::run_iteratee_on_snarl_data_line(const std::string& lin
 
     snarl_info_t new_snarl_info (snarl_info.start_node, 
                           snarl_info.end_node, 
-                          snarl_coordinate_finder.get_path_name_from_index(snarl_info.reference_index),
+                          snarl_coordinate_finder->get_path_name_from_index(snarl_info.reference_index),
                           snarl_info.start_position,
                           snarl_info.end_position,
                           snarl_info.depth,

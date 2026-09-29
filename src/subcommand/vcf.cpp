@@ -201,7 +201,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     stoat::LOG_SILENTE(ss.str());
 
     // class for keeping track of reference coordinates of snarls
-    SnarlCoordinates snarl_coordinate_finder;
+    std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
     if (!reference_path.empty()) {
         if (!std::filesystem::exists(reference_path)) {
             stoat::LOG_WARN("given reference file " + reference_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
@@ -210,7 +210,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             std::string line;
             
             while (getline(file, line)) {
-                snarl_coordinate_finder.add_reference_path(line);
+                snarl_coordinate_finder->add_reference_path(line);
             }
             
             file.close();
@@ -310,12 +310,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
-                snarl_coordinate_finder.add_reference_path(graph->get_path_name(path));
+                snarl_coordinate_finder->add_reference_path(graph->get_path_name(path));
             }
 
             return true;
         });
-        std::vector<std::string> ref_path_names = snarl_coordinate_finder.reference_names_as_vector();
+        std::vector<std::string> ref_path_names = snarl_coordinate_finder->reference_names_as_vector();
         // warning if no reference path matched the provided prefix
         if (ref_path_names.size() == 0) {
             stoat::LOG_WARN("No reference paths found: " + reference_prefix, "");

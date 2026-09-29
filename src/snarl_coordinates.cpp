@@ -1,6 +1,6 @@
 #include "snarl_coordinates.hpp"
 
-#define DEBUG_SNARL_COORDINATES
+//#define DEBUG_SNARL_COORDINATES
 
 namespace stoat {
 

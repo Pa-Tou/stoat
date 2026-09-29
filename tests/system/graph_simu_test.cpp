@@ -90,13 +90,13 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
             REQUIRE(line_count==1508);
 
             // Make sure that the multithreaded and non-multithreaded outputs are the same
-            SnarlCoordinates snarl_coordinates_multithread;
+            std::shared_ptr<SnarlCoordinates> snarl_coordinates_multithread (new SnarlCoordinates);
             SnarlDataCollection multithread_snarls(snarl_coordinates_multithread, 0,0,0);
             StdReader multithread_reader(compare_output_dir + "/snarl_genotypes.tsv");
             multithread_snarls.load_snarl_data_collection(multithread_reader);
             multithread_reader.close();
 
-            SnarlCoordinates snarl_coordinates_pg;
+            std::shared_ptr<SnarlCoordinates> snarl_coordinates_pg (new SnarlCoordinates);
             SnarlDataCollection pg_snarls(snarl_coordinates_pg, 0,0,0);
             StdReader pg_reader(output_dir + "/snarl_genotypes.tsv");
             pg_snarls.load_snarl_data_collection(pg_reader);
@@ -142,13 +142,13 @@ TEST_CASE("Giant unverified binary association tests graph plus test", "[test]")
             REQUIRE(line_count==1508);
 
             // Make sure that the r-index and non-r-index outputs are the same
-            SnarlCoordinates snarl_coords_r;
+            std::shared_ptr<SnarlCoordinates> snarl_coords_r (new SnarlCoordinates);
             SnarlDataCollection r_index_snarls(snarl_coords_r, 0,0,0);
             StdReader r_index_reader(compare_output_dir + "/snarl_genotypes.tsv");
             r_index_snarls.load_snarl_data_collection(r_index_reader);
             r_index_reader.close();
 
-            SnarlCoordinates snarl_coords_pg;
+            std::shared_ptr<SnarlCoordinates> snarl_coords_pg (new SnarlCoordinates);
             SnarlDataCollection pg_snarls(snarl_coords_pg, 0,0,0);
             StdReader pg_reader(output_dir + "/snarl_genotypes.tsv");
             pg_snarls.load_snarl_data_collection(pg_reader);

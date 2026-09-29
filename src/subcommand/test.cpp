@@ -198,7 +198,7 @@ int main_stoat_test(int argc, char* argv[]) {
 #endif
 
     // Load the SnarlDataCollection
-    SnarlCoordinates snarl_coordinate_finder;
+    std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder ( new SnarlCoordinates);
     stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0, 0, 0);
     // load the header from the snarl collection file. We'll use those sample indices
     std::shared_ptr<stoat::Reader> snarl_reader;
