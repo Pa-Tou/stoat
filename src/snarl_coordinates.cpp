@@ -32,7 +32,7 @@ void SnarlCoordinates::clear() {
     {
     path_by_index.clear();
     //TODO: I have no idea why this could segfault
-    //path_to_index.clear();
+    path_to_index.clear();
     }
     #pragma omp critical(SC_snarls) 
     {
