@@ -202,17 +202,19 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     // class for keeping track of reference coordinates of snarls
     SnarlCoordinates snarl_coordinate_finder;
-    if (!std::filesystem::exists(reference_path)) {
-        stoat::LOG_WARN("given reference file " + reference_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
-    } else {
-        std::ifstream file(reference_path);
-        std::string line;
-        
-        while (getline(file, line)) {
-            snarl_coordinate_finder.add_reference_path(line);
+    if (!reference_path.empty()) {
+        if (!std::filesystem::exists(reference_path)) {
+            stoat::LOG_WARN("given reference file " + reference_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
+        } else {
+            std::ifstream file(reference_path);
+            std::string line;
+            
+            while (getline(file, line)) {
+                snarl_coordinate_finder.add_reference_path(line);
+            }
+            
+            file.close();
         }
-        
-        file.close();
     }
 
 
