@@ -70,8 +70,11 @@ class SnarlCoordinates {
     /////////////////////////////////////////////////// Private helper functions
 
     private:
-    /// Get a list of all traversals (which may or may not traverse both boundary nodes) as path handle, start coordinate, end coordinate
-    std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> get_traversals_of_snarl(const handlegraph::PathPositionHandleGraph& graph, 
+    /// Get a traversal (which may or may not traverse both boundary nodes) as path handle, start coordinate, end coordinate
+    /// This traversal should be of the best class of traversals that we find- that is, a reference path, then a reference-sense path, then a path we've already seen,
+    /// then anything else
+    /// Return <default path_handle_t, max(), max()> if no traversals were found
+    std::tuple<handlegraph::path_handle_t, size_t, size_t> get_traversal_of_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                                 const bdsg::SnarlDistanceIndex& distance_index,
                                                                                                 net_handle_t snarl);
 

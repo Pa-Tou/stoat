@@ -66,63 +66,69 @@ std::tuple<size_t, size_t, size_t> SnarlCoordinates::get_reference_coordinates_a
     }
     // First see if we already found this snarl
     bool already_found = false;
-    std::tuple<size_t, size_t, size_t> return_coords;
+    std::tuple<size_t, size_t, size_t> already_found_coords;
     #pragma omp critical(SC_snarls) 
     {
     auto found_coords = snarl_to_coordinates.find(canonical_snarl);
     if (found_coords != snarl_to_coordinates.end()) {
         already_found = true;
-        return_coords = found_coords->second;
+        already_found_coords = found_coords->second;
     }
     }
     if (already_found) {
-        return return_coords;
+        return already_found_coords;
     }
 
     // We prioritize coordinates on any of the reference paths for this snarl, then reference paths on an ancestor,
     // Then a reference-sense path on this snarl, then a reference-sense path of an ancestor, then any path on this snarl,
     // then any path on the ancestor
-    std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> traversals = get_traversals_of_snarl(graph, distance_index, canonical_snarl);
+    std::tuple<handlegraph::path_handle_t, size_t, size_t> traversal = get_traversal_of_snarl(graph, distance_index, canonical_snarl);
+    bool found_traversal = std::get<1>(traversal) != std::numeric_limits<size_t>::max();
 
-    // First look at all options on this snarl. These are indices into traversals
-    size_t index_on_ref = std::numeric_limits<size_t>::max();
-    size_t index_on_ref_sense = std::numeric_limits<size_t>::max();
-    size_t index_on_any = std::numeric_limits<size_t>::max(); //non-ref or ref-sense path that we've already seen
-    size_t index_on_new = std::numeric_limits<size_t>::max(); //non-ref or ref-sense path that we haven't seen before
+    // Decide what type of path we just found
+    bool traversal_is_ref = false;
+    bool traversal_is_ref_sense = false;
+    bool traversal_is_any = false; //non-ref or ref-sense path that we've already seen
+    bool traversal_is_new = false; //non-ref or ref-sense path that we haven't seen before
 
-    for (size_t i = 0 ; i < traversals.size() ; i++) {
 
-        handlegraph::path_handle_t path = std::get<0>(traversals[i]);
-        std::string refpath = graph.get_path_name(path);
-        std::tuple<size_t, size_t, size_t> snarl_coords(std::numeric_limits<size_t>::max(), 0, 0); 
-        #pragma omp critical (SC_references) 
-        {
+    handlegraph::path_handle_t path = std::get<0>(traversal);
+    std::string refpath = found_traversal ? graph.get_path_name(path) : "NA";
+    std::tuple<size_t, size_t, size_t> traversal_coords(std::numeric_limits<size_t>::max(), std::get<1>(traversal), std::get<2>(traversal)); 
+    #pragma omp critical (SC_references) 
+    {
+    if (found_traversal) {
         auto found_ref = path_to_index.find(refpath);
+        // If we did find something for this snarl
 
         // What is this path? reference or reference sense or something else
         if (found_ref != path_to_index.end() && found_ref->second.second == PathType::REF) {
+            traversal_coords = std::make_tuple(found_ref->second.first, std::get<1>(traversal), std::get<2>(traversal));
             // If this is a reference that we want, then we will return this
-            snarl_coords = std::make_tuple(found_ref->second.first, std::get<1>(traversals[i]), std::get<2>(traversals[i]));
             #pragma omp critical(SC_snarls) 
             {
-            snarl_to_coordinates.emplace(canonical_snarl, snarl_coords);
+            snarl_to_coordinates.emplace(canonical_snarl, traversal_coords);
             }
+            traversal_is_ref = true;
         } else if (graph.get_sense(path) == handlegraph::PathSense::REFERENCE) {
             // If it is a reference-sense path then just remember it 
-            index_on_ref_sense = i;
+            traversal_is_ref_sense = true;
         } else if (found_ref != path_to_index.end()) {
             // If we found coordinates on a path we already have
-            index_on_any = i;
+            traversal_is_any = true;
         } else {
             // If we found coordinates on a new path we haven't seen before
-            index_on_new = i;
+            traversal_is_new = true;
         } 
-        } //end omp critical
-        if (std::get<0>(snarl_coords) != std::numeric_limits<size_t>::max()) {
-            return snarl_coords;
-        }
+
     }
-    // If we didn't return something in the loop, then we didn't find a reference path
+    } //end omp critical
+
+    // If we already found a reference path through the snarl, return it
+    if (traversal_is_ref) {
+        return traversal_coords;
+    }
+    
     // Look for the best option for the parent snarl (which will recursively check all the ancestors until it finds something)
     // I think that the snarl tree should be shallow enough that the recursion won't be a problem
     // Return the parent snarl's coordinates if it is better than anything we've found in this snarl
@@ -133,9 +139,9 @@ std::tuple<size_t, size_t, size_t> SnarlCoordinates::get_reference_coordinates_a
         {
         parent_type = path_by_index[std::get<0>(parent_coords)].second;
         }
-        if (parent_type == PathType::REF || 
-            (parent_type == PathType::REF_SENSE && index_on_ref_sense == std::numeric_limits<size_t>::max()) ||
-            (index_on_ref_sense == std::numeric_limits<size_t>::max() && index_on_any == std::numeric_limits<size_t>::max() && index_on_new == std::numeric_limits<size_t>::max())) {
+        if (!found_traversal || parent_type == PathType::REF || 
+            (parent_type == PathType::REF_SENSE && !traversal_is_ref_sense) ||
+            (!traversal_is_ref_sense && !traversal_is_any && !traversal_is_new)) {
             // If the parent had coordinates on the reference, or if this snarl had no coordinates on a reference sense but the parent did, 
             // or if this snarl didn't have any coordinates,
             // Return the parent coordinates
@@ -146,19 +152,18 @@ std::tuple<size_t, size_t, size_t> SnarlCoordinates::get_reference_coordinates_a
             return parent_coords;
         }
     }
+    if (!found_traversal) {
+        return std::make_tuple(std::numeric_limits<size_t>::max(), 0, 0);
+    }
 
     // If we got here, then the parent's coordinates wouldn't have been better than what we found
-    // Pick the best traversal we found, add the path if we haven't seen it before, add the snarl's coordinates, and return
-    size_t traversal_index = std::numeric_limits<size_t>::max();
+    // Add the path if we haven't seen it before, add the snarl's coordinates, and return
     PathType path_type; 
-    if (index_on_ref_sense != std::numeric_limits<size_t>::max()) {
-        traversal_index =  index_on_ref_sense;
+    if (traversal_is_ref_sense) {
         path_type = PathType::REF_SENSE;
-    } else if ( index_on_any != std::numeric_limits<size_t>::max() ) {
-        traversal_index = index_on_any;
+    } else if ( traversal_is_any ) {
         path_type = PathType::OTHER;
-    } else if (index_on_new != std::numeric_limits<size_t>::max()) {
-        traversal_index = index_on_new;
+    } else if (traversal_is_new) {
         path_type = PathType::OTHER;
     } else {
         // If we didn't find any coordinates, return std::numeric_limits<size_t>::max() for everything
@@ -171,31 +176,29 @@ std::tuple<size_t, size_t, size_t> SnarlCoordinates::get_reference_coordinates_a
     }
 
     // This is the traversal we want to return
-    std::tuple<handlegraph::path_handle_t, size_t, size_t>& found_traversal = traversals[traversal_index];
     // Rearrange it to the format we want, but we don't know the index of the path yet
-    std::tuple<size_t, size_t, size_t> snarl_coords(0, std::get<1>(found_traversal), std::get<2>(found_traversal)); 
-    std::string pathname = graph.get_path_name(std::get<0>(found_traversal));
+    std::string pathname = graph.get_path_name(std::get<0>(traversal));
 
     #pragma omp critical (SC_references) 
     {
     // Have we seen this path before?
     auto found_ref = path_to_index.find(pathname);
     if (found_ref != path_to_index.end()) {
-        std::get<0>(snarl_coords) = found_ref->second.first;
+        std::get<0>(traversal_coords) = found_ref->second.first;
     } else {
         // If we haven't seen this path before, add it to the list
-        std::get<0>(snarl_coords) = path_by_index.size();
+        std::get<0>(traversal_coords) = path_by_index.size();
         path_to_index.emplace(pathname, std::make_pair(path_by_index.size(), path_type));
         path_by_index.emplace_back(pathname, path_type);
     }
     }// end omp critical
     #pragma omp critical(SC_snarls) 
     {
-    snarl_to_coordinates.emplace(canonical_snarl, snarl_coords);
+    snarl_to_coordinates.emplace(canonical_snarl, traversal_coords);
     }
 
 
-    return snarl_coords;
+    return traversal_coords;
 
 }
 
@@ -212,8 +215,9 @@ std::vector<std::string> SnarlCoordinates::reference_names_as_vector() const {
 }
 
 
-// Get traversals of the snarl as path name, start offset, end offset
-std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordinates::get_traversals_of_snarl(const handlegraph::PathPositionHandleGraph& graph, 
+// Get a traversal of the snarl as path name, start offset, end offset
+// Should be the best we can find, prioritizing reference, then reference-sense, then any path that we've already seen
+std::tuple<handlegraph::path_handle_t, size_t, size_t> SnarlCoordinates::get_traversal_of_snarl(const handlegraph::PathPositionHandleGraph& graph, 
                                                                                            const bdsg::SnarlDistanceIndex& distance_index,
                                                                                            net_handle_t snarl) {
 
@@ -311,8 +315,6 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
         }
     #endif
 
-    // Range of paths as name of path, start offset, end offset 
-    std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> ranges;
 
     //If we found a path going through the snarl, return maximal ranges
 
@@ -328,12 +330,17 @@ std::vector<std::tuple<handlegraph::path_handle_t, size_t, size_t>> SnarlCoordin
             size_t start_offset = graph.get_position_of_step(steps.front()) + graph.get_sequence(graph.get_handle_of_step(steps.front())).size();
             size_t end_offset = steps.size() == 1 ? start_offset : graph.get_position_of_step(steps.back());
 
-            ranges.push_back({path,
-                              start_offset,
-                              end_offset});
+            // want_ref_path() will tell us if this was the best path, so return it immediately
+            #ifdef DEBUG_SNARL_COORDINATES
+            std::cerr << "Found best range for snarl " << distance_index.net_handle_as_string(snarl) << ": " << graph.get_path_name(path) << ":" << start_offset << "-" << end_offset << std::endl;
+            #endif
+            return std::make_tuple(path, start_offset, end_offset);
         }
     }
-    return ranges;
+    #ifdef DEBUG_SNARL_COORDINATES
+    std::cerr << "Couldn't find a traversal of this snarl" << std::endl;
+    #endif
+    return std::make_tuple(handlegraph::path_handle_t(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max());
 }
 } // end namespace stoat
 
