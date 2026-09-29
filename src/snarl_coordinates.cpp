@@ -327,6 +327,7 @@ std::tuple<handlegraph::path_handle_t, size_t, size_t> SnarlCoordinates::get_tra
             std::sort(steps.begin(), steps.end(), [&] (const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
                 return graph.get_position_of_step(a) < graph.get_position_of_step(b);
             });
+            //TODO: If there is just one traversal, need to decide if we need to add the node offset or not (depending on if it is going into or out of the snarl
             size_t start_offset = graph.get_position_of_step(steps.front()) + graph.get_sequence(graph.get_handle_of_step(steps.front())).size();
             size_t end_offset = steps.size() == 1 ? start_offset : graph.get_position_of_step(steps.back());
 
