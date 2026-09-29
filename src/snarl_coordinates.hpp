@@ -10,6 +10,8 @@ namespace stoat {
 /// A class for holding the reference coordinates of snarls
 /// This will first try to find coordinates on the given sample. If the given sample does not pass through the snarl, then report the coordinates of the lowest
 /// ancestor of the snarl with reference coordinates. 
+/// If the path traverses the snarl multiple times, return the maximal range.
+/// If the path traverses just one of the boundary nodes, return the range as just that coordinate
 /// If none of the ancestors have reference coordinates, then try reference-sense paths then any path.
 /// To use specific references, call add_reference_path() with the full path name. For consistency, add_reference_path() should be called all at once before looking for coordinates
 /// Since a path may traverse a snarl multiple times, report the largest range of coordinates of the given path
