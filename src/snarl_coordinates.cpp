@@ -280,18 +280,21 @@ std::tuple<handlegraph::path_handle_t, size_t, size_t> SnarlCoordinates::get_tra
     };
 
     // Now go through all steps on the start and end handles and keep them if we decide to keep the path they're on 
-    graph.for_each_step_on_handle(start_handle, [&] (const handlegraph::step_handle_t& step) {
-        handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
+    // It is possible for the gbz to not have a record for a node if no paths go through it. Check first
+    if (graph.has_node(graph.get_id(start_handle))) {
+        graph.for_each_step_on_handle(start_handle, [&] (const handlegraph::step_handle_t& step) {
+            handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
 
-        if (keep_this_path(path)) {
+            if (keep_this_path(path)) {
 
-            if (path_to_steps.count(path) == 0) {
-                path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+                if (path_to_steps.count(path) == 0) {
+                    path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+                }
+                path_to_steps[path].emplace_back(step);
             }
-            path_to_steps[path].emplace_back(step);
-        }
-        return true;
-    });
+            return true;
+        });
+    }
     
     #ifdef DEBUG_SNARL_COORDINATES
         std::cerr << "After start node, found" << std::endl;
@@ -300,16 +303,18 @@ std::tuple<handlegraph::path_handle_t, size_t, size_t> SnarlCoordinates::get_tra
         }
     #endif
     
-    graph.for_each_step_on_handle(end_handle, [&] (const handlegraph::step_handle_t& step) {
-        handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
-        if (keep_this_path(path)) {
-            if (path_to_steps.count(path) == 0) {
-                path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+    if (graph.has_node(graph.get_id(end_handle))) {
+        graph.for_each_step_on_handle(end_handle, [&] (const handlegraph::step_handle_t& step) {
+            handlegraph::path_handle_t path = graph.get_path_handle_of_step(step);
+            if (keep_this_path(path)) {
+                if (path_to_steps.count(path) == 0) {
+                    path_to_steps[path] = std::vector<handlegraph::step_handle_t>();
+                }
+                path_to_steps[path].emplace_back(step);
             }
-            path_to_steps[path].emplace_back(step);
-        }
-        return true;
-    });
+            return true;
+        });
+    }
     
 
     #ifdef DEBUG_SNARL_COORDINATES

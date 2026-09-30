@@ -22,7 +22,7 @@
 #include "../vcf_parser.hpp"
 
 
-// #define USE_CALLGRIND
+//#define USE_CALLGRIND
 
 #ifdef USE_CALLGRIND
     #include <valgrind/callgrind.h>
@@ -299,13 +299,11 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
 
-        bdsg::PathPositionOverlayHelper overlay_helper;
-        bdsg::PathPositionHandleGraph* path_position_graph;
-        path_position_graph =  overlay_helper.apply(graph);
-
+        std::unordered_set<std::string> additional_paths;
         // Get the reference sample names from the prefix
         graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
             std::string path_name = graph->get_path_name(path);
+            additional_paths.emplace(path_name);
 
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
@@ -315,6 +313,12 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
             return true;
         });
+
+
+        bdsg::ReferencePathOverlayHelper overlay_helper;
+        bdsg::PathPositionHandleGraph* path_position_graph;
+        path_position_graph = overlay_helper.apply(graph, additional_paths);
+
         std::vector<std::string> ref_path_names = snarl_coordinate_finder->reference_names_as_vector();
         // warning if no reference path matched the provided prefix
         if (ref_path_names.size() == 0) {

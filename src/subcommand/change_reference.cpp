@@ -136,9 +136,17 @@ int main_stoat_change_reference(int argc, char *argv[]) {
 
 
     // Load the graph and make it a PathPositionHandleGraph
+
     std::unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
-    bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph =  overlay_helper.apply(graph.get());
+    // Index all paths so we can get off-reference coordinates too
+    std::unordered_set<std::string> additional_paths;
+    graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+        std::string path_name = graph->get_path_name(path);
+        additional_paths.emplace(path_name);
+        return true;
+    });
+    bdsg::ReferencePathOverlayHelper overlay_helper;
+    bdsg::PathPositionHandleGraph* path_position_graph =  overlay_helper.apply(graph.get(), additional_paths);
 
     // print banner
     stoat::print_banner(std::string(STOAT_VERSION));

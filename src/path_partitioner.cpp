@@ -103,78 +103,81 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
         std::cerr << "\tgraph handle " << graph.get_id(handle) << " going " << (graph.get_is_reverse(handle) ? "left" : "right") << std::endl;
         #endif
 
-        for (const auto& sense : senses) {
-            graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
-                // For each step on the node handle, keep track of which paths take different steps
+        // If the graph has this node
+        if (graph.has_node(graph.get_id(handle))) {
+            for (const auto& sense : senses) {
+                graph.for_each_step_of_sense(handle, sense, [&](const handlegraph::step_handle_t& step) {
+                    // For each step on the node handle, keep track of which paths take different steps
 
-                #ifdef DEBUG_PATH_PARTITIONER
-                std::cerr << "\ton path " << graph.get_path_name(graph.get_path_handle_of_step(step)) << std::endl;
-                #endif
+                    #ifdef DEBUG_PATH_PARTITIONER
+                    std::cerr << "\ton path " << graph.get_path_name(graph.get_path_handle_of_step(step)) << std::endl;
+                    #endif
 
-                sample_hap_t step_sample_haplotype (graph, graph.get_path_handle_of_step(step));
+                    sample_hap_t step_sample_haplotype (graph, graph.get_path_handle_of_step(step));
 
-                // If this is not a sample of interest, skip it
-                if (!sample_to_index.count(step_sample_haplotype)) {
-                    return true;
-                }
-        
-                //Do we go forwards in the path? We need to check the direction of the handle in the path
-                bool go_forwards = graph.get_is_reverse(handle) == graph.get_is_reverse(graph.get_handle_of_step(step));
-        
-                //In the case where a path doesn't go all the way through the snarl, stop when the path stops
-                if ((go_forwards && !graph.has_next_step(step)) || (!go_forwards && !graph.has_previous_step(step))){
-                    return true;
-                }
-        
-                //Get the next step and make an edge
-                handlegraph::step_handle_t next_step = go_forwards ? graph.get_next_step(step) : graph.get_previous_step(step);
-                handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
-        
-                #ifdef DEBUG_PATH_PARTITIONER
-                std::cerr << "" << "\t\tgoing to " << graph.get_id(next_handle) << std::endl;
-                #endif
-        
-                path_edge_t edge (graph.get_position_of_step(step), 
-                                  std::numeric_limits<size_t>::max(),
-                                  graph.get_id(next_handle), 
-                                  graph.get_is_reverse(next_handle));
-        
-                size_t sample_num = sample_to_index[step_sample_haplotype];
-        
-                if (next_steps[sample_num].id == 0) {
-                    // If this path hasn't been seen before
-                    next_steps[sample_num] = std::move(edge);
-                } else if (next_steps[sample_num].offset > edge.offset) {
-                    // If the new edge comes before the edge stored in the vector, replace it
-                    edge.additional_edge = additional_steps.size();
-                    additional_steps.emplace_back(std::move(next_steps[sample_num]));
-                    next_steps[sample_num] = std::move(edge);
-                } else {
-                    // If the new edge comes after something in additional_steps, walk through the linked list to find its place
-
-                    // The index into the linked list. Need a bool to know if it's an index into next_steps or additional_steps
-                    bool old_edge_first = true;
-                    size_t old_edge_index = sample_num;
-                    size_t old_next_edge = next_steps[old_edge_index].additional_edge;
-                    while (old_next_edge != std::numeric_limits<size_t>::max() &&
-                           additional_steps[old_next_edge].offset < edge.offset) {
-                        // Step through the linked list
-                        old_edge_first = false;
-                        old_edge_index = old_next_edge;
-                        old_next_edge = additional_steps[old_edge_index].additional_edge;
+                    // If this is not a sample of interest, skip it
+                    if (!sample_to_index.count(step_sample_haplotype)) {
+                        return true;
                     }
-                    //old_edge_index now points to the item just smaller than edge
-                    if (old_edge_first) {
-                        next_steps[old_edge_index].additional_edge = additional_steps.size();
+            
+                    //Do we go forwards in the path? We need to check the direction of the handle in the path
+                    bool go_forwards = graph.get_is_reverse(handle) == graph.get_is_reverse(graph.get_handle_of_step(step));
+            
+                    //In the case where a path doesn't go all the way through the snarl, stop when the path stops
+                    if ((go_forwards && !graph.has_next_step(step)) || (!go_forwards && !graph.has_previous_step(step))){
+                        return true;
+                    }
+            
+                    //Get the next step and make an edge
+                    handlegraph::step_handle_t next_step = go_forwards ? graph.get_next_step(step) : graph.get_previous_step(step);
+                    handlegraph::handle_t next_handle = graph.get_handle_of_step(next_step);
+            
+                    #ifdef DEBUG_PATH_PARTITIONER
+                    std::cerr << "" << "\t\tgoing to " << graph.get_id(next_handle) << std::endl;
+                    #endif
+            
+                    path_edge_t edge (graph.get_position_of_step(step), 
+                                      std::numeric_limits<size_t>::max(),
+                                      graph.get_id(next_handle), 
+                                      graph.get_is_reverse(next_handle));
+            
+                    size_t sample_num = sample_to_index[step_sample_haplotype];
+            
+                    if (next_steps[sample_num].id == 0) {
+                        // If this path hasn't been seen before
+                        next_steps[sample_num] = std::move(edge);
+                    } else if (next_steps[sample_num].offset > edge.offset) {
+                        // If the new edge comes before the edge stored in the vector, replace it
+                        edge.additional_edge = additional_steps.size();
+                        additional_steps.emplace_back(std::move(next_steps[sample_num]));
+                        next_steps[sample_num] = std::move(edge);
                     } else {
-                        additional_steps[old_edge_index].additional_edge = additional_steps.size();
+                        // If the new edge comes after something in additional_steps, walk through the linked list to find its place
+
+                        // The index into the linked list. Need a bool to know if it's an index into next_steps or additional_steps
+                        bool old_edge_first = true;
+                        size_t old_edge_index = sample_num;
+                        size_t old_next_edge = next_steps[old_edge_index].additional_edge;
+                        while (old_next_edge != std::numeric_limits<size_t>::max() &&
+                               additional_steps[old_next_edge].offset < edge.offset) {
+                            // Step through the linked list
+                            old_edge_first = false;
+                            old_edge_index = old_next_edge;
+                            old_next_edge = additional_steps[old_edge_index].additional_edge;
+                        }
+                        //old_edge_index now points to the item just smaller than edge
+                        if (old_edge_first) {
+                            next_steps[old_edge_index].additional_edge = additional_steps.size();
+                        } else {
+                            additional_steps[old_edge_index].additional_edge = additional_steps.size();
+                        }
+                        edge.additional_edge = old_next_edge;
+                        additional_steps.emplace_back(std::move(edge));
                     }
-                    edge.additional_edge = old_next_edge;
-                    additional_steps.emplace_back(std::move(edge));
-                }
-        
-                return true;
-            });
+            
+                    return true;
+                });
+            }
         }
         
         // We now have the edges for all paths going out of the node in one direction

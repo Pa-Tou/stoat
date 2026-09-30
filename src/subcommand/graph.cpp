@@ -274,7 +274,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         return true;
     });
 
-    bdsg::PathPositionOverlayHelper overlay_helper;
+    bdsg::ReferencePathOverlayHelper overlay_helper;
     bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph, paths_set);
 
     // Load the distance index
