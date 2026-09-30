@@ -22,7 +22,7 @@
 #include "../vcf_parser.hpp"
 
 
-//#define USE_CALLGRIND
+#define USE_CALLGRIND
 
 #ifdef USE_CALLGRIND
     #include <valgrind/callgrind.h>
@@ -356,6 +356,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         } else {
             snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
         }
+        stoat::LOG_INFO("Starting processing snarls...");
 
         // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
         snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
