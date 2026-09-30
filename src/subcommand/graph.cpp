@@ -228,7 +228,7 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         if (r_index_name.empty()) {
             // If we are given an r-index, then the graph must have been a gbz 
-            std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
+            stoat::LOG_INFO("[stoat] warning: The gbz may be slow without an r-index if there are many paths");
         } else {
             std::ifstream r_instream;
             r_instream.open(r_index_name);
@@ -246,43 +246,14 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         if (!r_index_name.empty()) {
             // If we are given an r-index, then the graph must have been a gbz
-            std::cerr << "[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index" << std::endl;
+            stoat::LOG_INFO("[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index");
             r_index_name.clear();
         }
     }
 
-
-
-    /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names
-    /// that we want to be included in the index.
-    /// We used to select specific samples/haplotypes but now include all paths in this "genotype retrieval" subcommand.
-
     // Get a list of paths to include in the path position overlay
+    // When we don't use the r-index, this needs to include everything. Otherwise, just references 
     std::unordered_set<std::string> paths_set;
-
-    // A set of the samples+haplotypes in the graph
-    std::vector<stoat::sample_hap_t> all_sample_haplotypes;
-
-    // go through all paths in the pangenome and save them
-    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-        std::string sample_name = stoat::get_sample_name_from_path(*handle_graph, path);
-        // Get the sample haplotypes that we want
-        // TODO: For now, if we are saving the snarls to be used again, force all samples to be included. This may change when this is a separate subcommand
-        // JEAN right, maybe we do want to be able to say which ones to include (new input file or prefix selection?)
-        paths_set.emplace(handle_graph->get_path_name(path));
-        all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*handle_graph, path));
-        return true;
-    });
-
-    bdsg::ReferencePathOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph, paths_set);
-
-    // Load the distance index
-    bdsg::SnarlDistanceIndex distance_index;
-    if (!distance_name.empty()) {
-        // Load the distance index
-        distance_index.deserialize(distance_name);
-    }
 
     // Get the reference sample names from the file
     // Make a SnarlCoordinates class and have it keep track of the references we've found
@@ -297,6 +268,7 @@ int main_stoat_graph(int argc, char *argv[]) {
 
             while (getline(file, line)) {
                 snarl_coordinate_finder->add_reference_path(line);
+                paths_set.emplace(line);
             }
 
             file.close();
@@ -312,11 +284,48 @@ int main_stoat_graph(int argc, char *argv[]) {
                           reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
             // If these paths match
             snarl_coordinate_finder->add_reference_path(handle_graph->get_path_name(path));
+            paths_set.emplace(handle_graph->get_path_name(path));
         }
 
         return true;
     });
-    std::cerr << "Loaded all graphs" << std::endl;
+
+
+    /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names
+    /// that we want to be included in the index.
+    /// We used to select specific samples/haplotypes but now include all paths in this "genotype retrieval" subcommand.
+
+
+    // A set of the samples+haplotypes in the graph
+    std::vector<stoat::sample_hap_t> all_sample_haplotypes;
+
+    // go through all paths in the pangenome and save them
+    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+        std::string sample_name = stoat::get_sample_name_from_path(*handle_graph, path);
+        // Get the sample haplotypes that we want
+        // TODO: For now, if we are saving the snarls to be used again, force all samples to be included. This may change when this is a separate subcommand
+        // JEAN right, maybe we do want to be able to say which ones to include (new input file or prefix selection?)
+        if (r_index_name.empty()) {
+            // Only do this if we don't include the r-index
+            paths_set.emplace(handle_graph->get_path_name(path));
+        }
+        all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*handle_graph, path));
+        return true;
+    });
+
+    stoat::LOG_INFO("Applying overlay...");
+    bdsg::ReferencePathOverlayHelper overlay_helper;
+    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph, paths_set);
+
+    stoat::LOG_INFO("Loading distance index...");
+    // Load the distance index
+    bdsg::SnarlDistanceIndex distance_index;
+    if (!distance_name.empty()) {
+        // Load the distance index
+        distance_index.deserialize(distance_name);
+    }
+
+    stoat::LOG_INFO("Loaded all graphs");
 
     //////////////////////////////// Make the snarls file and load it if possible
     // If it is being built, it will count towards the time of analysis

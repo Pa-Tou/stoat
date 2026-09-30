@@ -200,6 +200,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
     stoat::LOG_SILENTE(ss.str());
 
+    std::unordered_set<std::string> ref_path_names;
+
     // class for keeping track of reference coordinates of snarls
     std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
     if (!reference_path.empty()) {
@@ -211,6 +213,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             
             while (getline(file, line)) {
                 snarl_coordinate_finder->add_reference_path(line);
+                ref_path_names.emplace(line);
             }
             
             file.close();
@@ -299,25 +302,25 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
 
-        std::unordered_set<std::string> additional_paths;
         // Get the reference sample names from the prefix
         graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
             std::string path_name = graph->get_path_name(path);
-            additional_paths.emplace(path_name);
 
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
                 snarl_coordinate_finder->add_reference_path(graph->get_path_name(path));
+                ref_path_names.emplace(graph->get_path_name(path));
             }
 
             return true;
         });
 
 
+        stoat::LOG_INFO("Applying overlay...");
         bdsg::ReferencePathOverlayHelper overlay_helper;
         bdsg::PathPositionHandleGraph* path_position_graph;
-        path_position_graph = overlay_helper.apply(graph, additional_paths);
+        path_position_graph = overlay_helper.apply(graph, ref_path_names);
 
         std::vector<std::string> ref_path_names = snarl_coordinate_finder->reference_names_as_vector();
         // warning if no reference path matched the provided prefix
