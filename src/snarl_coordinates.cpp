@@ -31,7 +31,6 @@ void SnarlCoordinates::clear() {
     #pragma omp critical (SC_references) 
     {
     path_by_index.clear();
-    //TODO: I have no idea why this could segfault
     path_to_index.clear();
     }
     #pragma omp critical(SC_snarls) 
@@ -222,6 +221,7 @@ std::tuple<handlegraph::path_handle_t, size_t, size_t> SnarlCoordinates::get_tra
                                                                                            net_handle_t snarl) {
 
 
+    // Boundary nodes facing into the snarl
     handlegraph::handle_t start_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true)), &graph);
     handlegraph::handle_t end_handle = distance_index.get_handle(distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, true)), &graph);
 
@@ -327,8 +327,12 @@ std::tuple<handlegraph::path_handle_t, size_t, size_t> SnarlCoordinates::get_tra
             std::sort(steps.begin(), steps.end(), [&] (const handlegraph::step_handle_t& a, const handlegraph::step_handle_t& b) {
                 return graph.get_position_of_step(a) < graph.get_position_of_step(b);
             });
-            //TODO: If there is just one traversal, need to decide if we need to add the node offset or not (depending on if it is going into or out of the snarl
-            size_t start_offset = graph.get_position_of_step(steps.front()) + graph.get_sequence(graph.get_handle_of_step(steps.front())).size();
+            //If there is just one traversal, need to decide if we need to add the node offset or not (depending on if it is going into or out of the snarl)
+            handlegraph::handle_t front_step_handle = graph.get_handle_of_step(steps.front());
+            bool add_start_node_length = steps.size() > 1 || front_step_handle == start_handle || front_step_handle == end_handle;
+
+            size_t start_offset = graph.get_position_of_step(steps.front()) + (add_start_node_length ? graph.get_sequence(front_step_handle).size()
+                                                                                                     : 0);
             size_t end_offset = steps.size() == 1 ? start_offset : graph.get_position_of_step(steps.back());
 
             // want_ref_path() will tell us if this was the best path, so return it immediately
