@@ -249,7 +249,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Loading snarl information took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_load_timer).count()) + " s");
         snarl_reader->close();
     } else { // otherwise, find them from the pangenome graph and snarl tree
-        stoat::LOG_INFO("Starting snarl decomposition... ");
+        stoat::LOG_INFO("Loading graph... ");
         auto start_dec_timer = std::chrono::high_resolution_clock::now();
 
         // Load the snarl tree and graph
@@ -327,6 +327,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         if (ref_path_names.size() == 0) {
             stoat::LOG_WARN("No reference paths found: " + reference_prefix, "");
         }
+        stoat::LOG_INFO("Loading distance index...");
 
         // Load the distance index
         std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
@@ -356,6 +357,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
         } else {
             snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
         }
+        auto end_load_timer = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Loading and preparing the graph took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_dec_timer).count()) + " s");
+
         stoat::LOG_INFO("Starting processing snarls...");
 
         // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
@@ -383,7 +387,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         snarl_writer->close();
 
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Snarl decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
+        stoat::LOG_INFO("Finding alleles in snarls took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_dec_timer).count()) + " s");
 
         if (only_prepare_snarls) {
             // we're done

@@ -407,7 +407,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     snarl_writer->close();
     
     auto end_2 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
+    stoat::LOG_INFO("Snarl processing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
     stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_2 - start_1).count()) + " s");
     return EXIT_SUCCESS;
 }
