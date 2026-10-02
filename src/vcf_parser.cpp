@@ -81,6 +81,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
     // Process the chromosome chunk by chunk.
     while (read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid)) {
 
+        // Buffer the next chunk of records in a vector of unique pointers so that they are freed when the vector is cleared.
         std::vector<Bcf1Ptr> raw_records;
         raw_records.reserve(CHUNK_SIZE);
 
@@ -116,6 +117,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
             }
 
             try {
+                // Get the raw record from the vector of unique pointers
                 bcf1_t* record = raw_records.at(record_i).get();
 
                 // CPU-intensive operation: do this in parallel.
@@ -123,6 +125,9 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
                 vcf_info_t vcf_info = parse_record(record, chr);
                 iteratee(vcf_info);
 
+            // If anything has failed, skip the rest of the chunk and throw the error later
+            // This is a bit of a hack to get around the fact that OpenMP doesn't support exceptions. 
+            // We just set a flag and throw the exception after the parallel region.
             } catch (...) {
 
                 #pragma omp atomic write
@@ -179,8 +184,12 @@ vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
     int nat = 0;
     nat = bcf_get_info_string(hdr, raw_record, "AT", &at, &nat);
 
+    // extract ID field from INFO
     char *id_field = nullptr;
     int nid = 0;
+
+    // If there is an AT field, then this is a vg call vcf with the paths directly in the AT field
+    // If there is an ID field, then this is a pangenie vcf with the paths as part of the ID
     nid = bcf_get_info_string(hdr, raw_record, "ID", &id_field, &nid);
     if ((nat > 0 && at) || (nid > 0 && id_field)) {
         std::string info_str;
@@ -384,19 +393,28 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
     // held while the bounds are parsed.
     int bounds_read_status = 0;
 
+    // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
     while (bounds_read_status >= 0 &&
            bcf_hdr_id2name(hdr_bounds, rec_bounds->rid) == chr) {
+
+        // Buffer the next chunk of records in a vector of unique pointers so that they are freed when the vector is cleared.
         std::vector<Bcf1Ptr> raw_records;
         raw_records.reserve(CHUNK_SIZE);
 
-        // Read the next chunk serially because the underlying VCF reader is not
-        // thread-safe.
+        // ------------------------------------------------------------
+        // Phase 1: serial VCF reading
+        // ------------------------------------------------------------
+
         do {
             raw_records.emplace_back(bcf_dup(rec_bounds), &bcf_destroy);
             bounds_read_status = bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
         } while (raw_records.size() < CHUNK_SIZE &&
                  bounds_read_status >= 0 &&
                  chr == bcf_hdr_id2name(hdr_bounds, rec_bounds->rid));
+
+        // ------------------------------------------------------------
+        // Phase 2: parallel processing of this chunk
+        // ------------------------------------------------------------
 
         std::vector<nested_snarl_bound_t> bounds(raw_records.size());
         std::vector<bool> keep(raw_records.size(), false);
@@ -420,8 +438,7 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
                 free(lv);
                 if (keep.at(i)) {
                     // The VCF ID gives the entering and exiting bounds of this snarl.
-                    std::vector<stoat::node_traversal_t> snarl_bounds =
-                        string_to_path_node_traversal(record->d.id);
+                    std::vector<stoat::node_traversal_t> snarl_bounds = string_to_path_node_traversal(record->d.id);
                     if (snarl_bounds.size() < 2) {
                         throw std::invalid_argument("Invalid nested snarl bounds in VCF at position " +
                                                     std::to_string(record->pos + 1));
@@ -443,10 +460,12 @@ void VCFParser::fill_in_nested_snarl_bounds(const std::string& chr) {
         // Add the bounds serially in VCF order, assigning each snarl a stable index.
         for (size_t i = 0; i < bounds.size(); ++i) {
             if (!keep.at(i)) continue;
+
 #ifdef DEBUG_VCF_PARSER
             std::cerr << "Add snarl bounds " << bounds.at(i).start.to_string()
                       << " and " << bounds.at(i).end.to_string() << std::endl;
 #endif
+
             // Map the entering bound to the exiting bound.
             snarl_in_to_out.emplace(bounds.at(i).start,
                                     std::make_pair(bounds.at(i).end, snarl_count));
