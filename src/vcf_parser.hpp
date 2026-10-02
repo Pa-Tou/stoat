@@ -26,6 +26,9 @@ struct vcf_info_t {
 
 };
 
+// Stores the entering and exiting node traversals parsed from a nested snarl's VCF ID.
+// Keeping them together gives each buffered VCF record one bounds value while the
+// records are parsed in parallel, then lets the bounds be added in input order.
 struct nested_snarl_bound_t {
     nested_snarl_bound_t() : start(0, false), end(0, false) {}
     nested_snarl_bound_t(const stoat::node_traversal_t& start,
