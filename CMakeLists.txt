@@ -150,6 +150,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/writer.cpp
     src/snarl_analyzer.cpp
     src/path_partitioner.cpp
+    src/snarl_coordinates.cpp
     src/snarl_data_collection.cpp
     src/snarl_traversals.cpp
     src/feature_tables.cpp
@@ -209,6 +210,7 @@ add_executable(unit_tests
     tests/unittest/post_processing_unit.cpp
     tests/unittest/snarl_analyzer_unit.cpp
     tests/unittest/utils_unit.cpp
+    tests/unittest/snarl_coordinates_unit.cpp
     tests/unittest/snarl_data_collection_unit.cpp
     tests/unittest/feature_tables_unit.cpp
     tests/unittest/vcf_parser_unit.cpp

@@ -20,13 +20,13 @@ namespace stoat_command {
 
 void print_help_change_reference() {
     stoat::print_banner(std::string(STOAT_VERSION));
-    std::cerr << "Usage: stoat change-ref -T [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -r [reference name] > [renamed_tsv]" << endl << endl
+    std::cerr << "Usage: stoat change-ref -T [stoat.assoc.pvalues.tsv] -g [graph] -d [distance-index] -R [reference name] > [renamed_tsv]" << endl << endl
               << "options:" << endl
               << "  -T, --tsv FILE                  The TSV file to be processed, the output file of stoat" << endl
               << "  -o, --out-tsv FILE              The output file to be written" << endl
               << "  -g, --graph FILE                The graph used to find coordinates" << endl
               << "  -d, --distance-index FILE       The distance index" << endl
-              << "  -r, --reference-names FILE      Rewrite the reference coordinates to be relative to the paths listed in FILE (one per line)" << endl
+              << "  -R, --reference-names FILE      Rewrite the reference coordinates to be relative to the paths listed in FILE (one per line)" << endl
               << "                                  Paths in the graph can be found with vg paths" << endl
               << "  -t, --threads N                 Number of threads to use" << endl;
 }
@@ -55,14 +55,14 @@ int main_stoat_change_reference(int argc, char *argv[]) {
                 {"out-tsv", required_argument, 0, 'o'},
                 {"graph", required_argument, 0, 'g'},
                 {"dist_name", required_argument, 0, 'd'},
-                {"reference-prefix", required_argument, 0, 'r'},
+                {"reference-prefix", required_argument, 0, 'R'},
                 {"threads", required_argument, 0, 't'},
                 {"help", no_argument, 0, 'h'},
                 {0, 0, 0, 0}
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "T:o:g:d:r:t:h",
+        c = getopt_long(argc, argv, "T:o:g:d:R:t:h",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -80,7 +80,7 @@ int main_stoat_change_reference(int argc, char *argv[]) {
             case 'd':
                 dist_name = optarg;
                 break;
-            case 'r':
+            case 'R':
                 reference_file = optarg;
                 break;
             case 't':
@@ -136,9 +136,8 @@ int main_stoat_change_reference(int argc, char *argv[]) {
 
 
     // Load the graph and make it a PathPositionHandleGraph
+
     std::unique_ptr<handlegraph::PathHandleGraph> graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
-    bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph =  overlay_helper.apply(graph.get());
 
     // print banner
     stoat::print_banner(std::string(STOAT_VERSION));
@@ -156,6 +155,9 @@ int main_stoat_change_reference(int argc, char *argv[]) {
         reference_names.emplace(ref_name);
     }
     ref_stream.close();
+
+    bdsg::ReferencePathOverlayHelper overlay_helper;
+    bdsg::PathPositionHandleGraph* path_position_graph =  overlay_helper.apply(graph.get(), reference_names);
 
     std::shared_ptr<stoat::Reader> reader;
     std::shared_ptr<stoat::Writer> writer;

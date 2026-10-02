@@ -10,8 +10,10 @@ namespace fs = std::filesystem;
 //Check if two snarl collections are equivalent
 bool compare_snarl_collection(std::string test_name, std::string truth_name) {
     std::cerr << "Compare files " << test_name << " and " << truth_name << std::endl;
-    SnarlDataCollection test_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
-    SnarlDataCollection truth_snarl(0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
+    std::shared_ptr<SnarlCoordinates> snarl_coords_test ( new SnarlCoordinates);
+    std::shared_ptr<SnarlCoordinates> snarl_coords_truth ( new SnarlCoordinates);
+    SnarlDataCollection test_snarl(snarl_coords_test, 0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
+    SnarlDataCollection truth_snarl(snarl_coords_truth, 0,std::numeric_limits<size_t>::max(),std::numeric_limits<size_t>::max());
 
     if ((test_name.compare(test_name.length()-3, 3, ".gz") == 0)) {
         stoat::BgzReader test_reader(test_name);

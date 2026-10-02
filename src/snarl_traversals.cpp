@@ -155,19 +155,21 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
     size_t path_count = 0;
 
 
-    // Get the bounds of the snarl: start facing in and end facing out. It doesn't matter which one is which since we get all start-end traversals
-    handlegraph::net_handle_t start_net = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true));
-    handlegraph::net_handle_t end_net = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false));
+    // Get the bounds of the snarl: start facing in and out and end facing out. It doesn't matter which one is which since we get all start-end traversals
+    handlegraph::net_handle_t snarl_start_in = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, true));
+    handlegraph::net_handle_t snarl_start_out = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false));
+    handlegraph::net_handle_t snarl_end_out = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false));
 
-    handlegraph::handle_t start_in = distance_index.get_handle(start_net, &graph);
+    handlegraph::handle_t start_in = distance_index.get_handle(snarl_start_in, &graph);
 
-
-    // The bounds leaving the snarl
-    handlegraph::net_handle_t snarl_start = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, false, false));
-    handlegraph::net_handle_t snarl_end = distance_index.get_node_from_sentinel(distance_index.get_bound(snarl, true, false));
 
     // The list of intermediate paths and the gbwt::SearchState they end on
     // The search state encompasses the haplotypes that followed the path
+    // gbwt_path_t contains:
+    //    std::vector<handlegraph::net_handle_t> path;
+    //    gbwt::SearchState search_state;
+    //    size_t identifier;
+    //    gbwt::size_type sa_index;
     std::vector<gbwt_path_t> intermediate_paths;
 
     // The GBWT traversals may split up in nested chains, meaning that we'd get a separate SearchState for the same
@@ -177,7 +179,7 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 
     // For a path id and its length, has a next step been found?
     // This is used to determine if any new next step should be given a new path id
-    // One path can keep the same id as the current path but each  other branching path needs a new one. 
+    // One path can keep the same id as the current path but each additional branching path needs a new one. 
     // The length is the number of net_handle_t's in the path before taking the next step
     std::unordered_set<std::pair<size_t, size_t>> path_step_was_continued; 
 
@@ -223,9 +225,10 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 
     // Look up the start node in GBWT and start a path
     gbwt::node_type start_node = gbwt::Node::encode(graph.get_id(start_in), graph.get_is_reverse(start_in));
-    std::vector<handlegraph::net_handle_t> first_path = {start_net};
+    std::vector<handlegraph::net_handle_t> first_path = {snarl_start_in};
 
     // When using the r-index, we keep track of the first occurrence in the suffix array of our range to get back to the location in the original text
+    // which in this case means finding the path identifier and offset (offset in the list of nodes not the sequence)
     gbwt::size_type first_sa_index;
     gbwt::SearchState first_state = r_index.find(start_node, first_sa_index);
 
@@ -322,9 +325,9 @@ size_t get_gbwt_traversals(const handlegraph::PathPositionHandleGraph& graph, co
 #endif
 
 
-            if (next_net == snarl_start || next_net == snarl_end) {
+            if (next_net == snarl_start_out || next_net == snarl_end_out) {
                 // If this handle is leaving the snarl, then add the completed path to the list of completed paths
-                if (next_net == end_net) {
+                if (next_net == snarl_end_out) {
 
                     updated_path.push_back(next_net); 
                     finished_paths.emplace_back(updated_path, next_step.search_state, 
