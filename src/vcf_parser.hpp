@@ -48,6 +48,8 @@ struct nested_snarl_bound_t {
 class VCFParser {
 
     public:
+    /// A unique pointer to a VCF record that calls bcf_destroy when deleted.
+    /// Used to own duplicated records while parsing VCF chunks in parallel, so each record is freed when its chunk is cleared.
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
