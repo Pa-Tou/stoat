@@ -133,6 +133,9 @@ class VCFParser {
 
     /////////////////////////////////// These would be private for the untangler
 
+    // We assume diploid samples
+    static constexpr size_t PLOIDY = 2;
+
     // How many snarls do we have
     size_t snarl_count;
     

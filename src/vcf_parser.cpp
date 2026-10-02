@@ -46,8 +46,7 @@ std::vector<std::string> VCFParser::initialize_parser(const std::string& vcf_pat
     for (int i = 0; i < bcf_hdr_nsamples(hdr); i++) {
         list_samples.push_back(bcf_hdr_int2id(hdr, BCF_DT_SAMPLE, i));
     }
-    //TOD: This assumes that the ploidy is 2 but idk if that is always true in a vcf
-    hap_count = list_samples.size() * 2;
+    hap_count = list_samples.size() * PLOIDY;
 
     // Read the current line
     read_status = bcf_read(ptr_vcf, hdr, rec);
@@ -176,7 +175,7 @@ vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
     // For a vg call vcf, the snarl id is the snarl bounds
     std::string snarl_id (raw_record->d.id);
 
-    // Get the paths of the alleles. This is either from the AT and RT fields (vg call) or the ID field (pangenie)
+    // Get the paths of the alleles. This is either from the AT field (vg call) or the ID and RD fields (pangenie)
     std::vector<std::vector<stoat::node_traversal_t>> paths;
 
     // extract AT field from INFO
@@ -189,7 +188,7 @@ vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
     int nid = 0;
 
     // If there is an AT field, then this is a vg call vcf with the paths directly in the AT field
-    // If there is an ID field, then this is a pangenie vcf with the paths as part of the ID
+    // If there is an ID field, then this is a pangenie vcf with the paths as part of the ID for the alt alleles and RD for the reference allele
     nid = bcf_get_info_string(hdr, raw_record, "ID", &id_field, &nid);
     if ((nat > 0 && at) || (nid > 0 && id_field)) {
         std::string info_str;
@@ -549,11 +548,11 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
                 // For each sample haplotype, record the nested snarls present on
                 // its called allele path.
                 // This currently assumes diploid genotypes.
-                const size_t ploidy = 2;
                 for (int sample_num = 0; sample_num < record->n_sample; ++sample_num) {
-                    for (size_t hap_num = 0; hap_num < ploidy; ++hap_num) {
+                    for (size_t hap_num = 0; hap_num < PLOIDY; ++hap_num) {
                         // The VCF stores two consecutive genotype entries per sample.
-                        size_t sample_hap_index = sample_num * 2 + hap_num;
+                        // JEAN here we are assuming diploid genotypes. check how to make sure we're really/always getting the genotype for sample sample_num with bcf_gt_allele
+                        size_t sample_hap_index = sample_num * PLOIDY + hap_num;
                         int idx_path_allele = bcf_gt_allele(gt[sample_hap_index]);
                         if (idx_path_allele > -1 &&
                             idx_path_allele < static_cast<int>(allele_paths.size())) {
