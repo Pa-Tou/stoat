@@ -6,6 +6,9 @@
 #include <bdsg/snarl_distance_index.hpp>
 #include "utils.hpp"
 #include "snarl_data_collection.hpp"
+#include <gbwt/gbwt.h>
+#include <gbwt/fast_locate.h>
+#include <gbwtgraph/gbwtgraph.h>
 
 using namespace stoat;
 
@@ -23,6 +26,17 @@ std::vector<size_t> partition_embedded_paths_in_snarl(const handlegraph::PathPos
                           const net_handle_t& snarl,
                           const std::vector<stoat::sample_hap_t>& all_sample_haplotypes);
 
+
+/// The same as partition_embedded_paths_in_snarl, except using a GBWT. 
+/// Fills in allele assignments, paths_per_allele, and, optionally, sequences_per_allele
+/// This only finds start-end/end-start paths
+/// TODO: This finds all steps along the path including those going through nested snarls. Could do all nested snarls at the same time
+std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegraph::PathPositionHandleGraph& graph, const gbwt::GBWT& gbwt, 
+                                                                const gbwt::FastLocate& r_index,
+                                                                const bdsg::SnarlDistanceIndex& distance_index,
+                                                                const net_handle_t& snarl,
+                                                                const std::vector<stoat::sample_hap_t>& all_sample_haplotypes,
+                                                                std::vector<PathTraversal>& paths_per_allele);
 
 }
 

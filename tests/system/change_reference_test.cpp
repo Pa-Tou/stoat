@@ -50,7 +50,7 @@ TEST_CASE("Output loop with snarl", "[changeref]") {
     cmd += " -g " + graph_base + ".hg"
         + " -d " + graph_base + ".dist"
         + " -L"
-        + " -r " + refs_file
+        + " -R " + refs_file
         + " --output " + output_dir;
 
     std::cout << "Command run : \n" << cmd << std::endl;
@@ -71,7 +71,7 @@ TEST_CASE("Output loop with snarl", "[changeref]") {
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -T " + output_dir+"/stoat.assoc.pvalues.tsv"
-            + " -r " + refs_file 
+            + " -R " + refs_file 
             + " -o " + output_dir+"/stoat.assoc.pvalues.path0.tsv"; 
 
         std::cout << "Command run : \n" << cmd << std::endl;
@@ -110,7 +110,7 @@ TEST_CASE("Output loop with snarl", "[changeref]") {
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -T " + output_dir+"/stoat.assoc.pvalues.tsv"
-            + " -r " + refs_file 
+            + " -R " + refs_file 
             + " -o " + output_dir+"/stoat.assoc.pvalues.path1.tsv"; 
 
         std::cout << "Command run : \n" << rewrite_cmd << std::endl;
@@ -222,7 +222,7 @@ TEST_CASE("Output loop with snarl with bgzipped output", "[changeref]") {
     cmd += " -g " + graph_base + ".hg"
         + " -d " + graph_base + ".dist"
         + " -L"
-        + " -r " + refs_file
+        + " -R " + refs_file
         + " --output " + output_dir;
 
     std::cout << "Command run : \n" << cmd << std::endl;
@@ -243,7 +243,7 @@ TEST_CASE("Output loop with snarl with bgzipped output", "[changeref]") {
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -T " + output_dir+"/stoat.assoc.pvalues.tsv.gz"
-            + " -r " + refs_file 
+            + " -R " + refs_file 
             + " -o " + output_dir+"/stoat.assoc.pvalues.path0.tsv.gz"; 
 
         std::cout << "Command run : \n" << cmd << std::endl;
@@ -288,7 +288,7 @@ TEST_CASE("Output loop with snarl with bgzipped output", "[changeref]") {
         rewrite_cmd += " -g " + graph_base + ".hg"
             + " -d " + graph_base + ".dist"
             + " -T " + output_dir+"/stoat.assoc.pvalues.tsv.gz"
-            + " -r " + refs_file 
+            + " -R " + refs_file 
             + " -o " + output_dir+"/stoat.assoc.pvalues.path1.tsv.gz"; 
 
         std::cout << "Command run : \n" << rewrite_cmd << std::endl;

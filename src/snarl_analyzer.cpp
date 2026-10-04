@@ -97,7 +97,8 @@ namespace stoat_vcf {
 void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Writer& out_writer, bool randomize_geno) const{
 
     // prepare snarl collection that will stream the snarls and open connection to the file
-    stoat::SnarlDataCollection snarl_collection_stream(0, 0, 0);
+    std::shared_ptr<SnarlCoordinates> snarl_data_collection ( new SnarlCoordinates);
+    stoat::SnarlDataCollection snarl_collection_stream(snarl_data_collection, 0, 0, 0);
 
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);

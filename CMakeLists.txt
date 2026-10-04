@@ -150,7 +150,9 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/writer.cpp
     src/snarl_analyzer.cpp
     src/path_partitioner.cpp
+    src/snarl_coordinates.cpp
     src/snarl_data_collection.cpp
+    src/snarl_traversals.cpp
     src/feature_tables.cpp
     src/vcf_parser.cpp
     src/banner.cpp
@@ -203,10 +205,12 @@ add_executable(unit_tests
     tests/unittest/matrix_unit.cpp
     tests/unittest/quantitative_test_unit.cpp
     tests/unittest/path_partitioner_unit.cpp
+    tests/unittest/snarl_traversals_unit.cpp
     tests/unittest/arg_parsing_unit.cpp
     tests/unittest/post_processing_unit.cpp
     tests/unittest/snarl_analyzer_unit.cpp
     tests/unittest/utils_unit.cpp
+    tests/unittest/snarl_coordinates_unit.cpp
     tests/unittest/snarl_data_collection_unit.cpp
     tests/unittest/feature_tables_unit.cpp
     tests/unittest/vcf_parser_unit.cpp
@@ -237,7 +241,8 @@ add_executable(graph_simu_test tests/system/compare_files_utils.cpp tests/system
 # add src target lib + Catch2 lib 
 target_link_libraries(graph_simu_test PRIVATE 
     Boost::boost
-    ${HTSLIB_LIBRARIES})
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
 
 # Register with CTest
 add_test(NAME GraphSimuTest COMMAND graph_simu_test)

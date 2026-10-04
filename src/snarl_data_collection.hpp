@@ -6,6 +6,7 @@
 #include "types_and_structs.hpp"
 #include "writer.hpp"
 #include "vcf_parser.hpp"
+#include "snarl_coordinates.hpp"
 
 namespace stoat {
 
@@ -38,7 +39,7 @@ class SnarlDataCollection {
         /// Ignore snarls whose maximum length is less than allele_size_limit
         /// Ignore snarls with more children than snarl_child_limit
         /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
-        SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
+        SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fills in sample_to_index based on sample_haplotypes 
@@ -46,13 +47,12 @@ class SnarlDataCollection {
         /// find_alleles_by_sample must return a vector of length all_sample_haplotypes with the allele of each sample_hap_t (std::numeric_limits<size_t>::max() if not present).
         /// If walks_requested is true, then find the walks using find_walks.
         /// If sequence_requested is true, then find the sequence of each walk.
-        /// The walks, sample sets, and sequences must all match each other, and the walks may be dependent on the sample sets or vice versa 
-        /// find_alleles_first is true if we want to find the sample sets first and then walks based on the sample sets, and false to do the opposite.
-        /// If only one or the other of sample sets and walks is requested then find_alleles_first doesn't matter.
-        /// find_alleles_by_sample and find_walks must check the walks or sample sets accordingly to make sure that they match.
+        /// The walks, allele assignments, and sequences must all match each other, and the walks may be dependent on the allele assignments or vice versa 
+        /// find_alleles_first is true if we want to find the allele assignments first and then walks based on the allele assignments, and false to do the opposite.
+        /// If only one or the other of allele assignments and walks is requested then find_alleles_first doesn't matter.
+        /// find_alleles_by_sample and find_walks must check the walks or allele assignments accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
-        /// The SnarlDataCollection provides default implementations get_all_walks_through_snarl and get_walks_from_alleles that may be used for find_walks
-        /// If reference_samples is not empty, get coordinates on one of these reference path. If it is empty then the coordinates will be on any path
+        /// get_all_walks_through_snarl (in snarl_traversals.hpp) and SnarlDataCollection::get_walks_from_alleles that may be used for find_walks
         /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
         /// If out_filename is not empty, then write the snarl collection to a file as well. If keep_snarls is False, then delete the snarls as they are found
         /// instead of keeping them in the collection. This saves memory if writing the snarls. If out_filename is empty, then keep_snarls should be True
@@ -67,7 +67,7 @@ class SnarlDataCollection {
                                 const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
-                                const std::unordered_set<std::string>& reference_samples, bool check_distances,
+                                bool check_distances,
                                 Writer& out_writer, bool keep_snarls);
 
         
@@ -115,16 +115,6 @@ class SnarlDataCollection {
 
         ///////////////////////////// Helper functions for use in add_alleles_by_sample
 
-        /// TODO: The walks must include the start and end bounds of the snarl. Could be taken out 
-        /// TODO: This should probably not be a member function but I'm leaving it here for now instead of changing Matis's code to use my data types (from write_snarls_with_paths() in snarl_data_t.hpp)
-        /// Helper function for finding all possible walks through the snarl. Fills in walks
-        /// snarl_data will not have the allele_by_sample filled in
-        /// If a path cycles more than walk_cycle_limit times, stop looking for more cycles
-        /// TODO remove walk_steps_limit from the object
-        static void get_all_walks_through_snarl(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
-                           const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks,
-						size_t walk_cycle_limit = 1, size_t walk_steps_limit = 50);
-
         /// Helper function for finding walks through the snarl. Fills in walks
         /// the collection is assumed to have the allele_by_sample filled in and walks must be filled in to match the allele_by_sample
         /// This requires a PathPositionHandleGraph to make sure that multiple traversals of the snarl are properly ordered
@@ -139,6 +129,7 @@ class SnarlDataCollection {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
     private:
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder;
 
         /// This stores the basic information from the snarl_info_t
         struct snarl_info_internal_t {

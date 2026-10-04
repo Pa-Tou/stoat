@@ -9,6 +9,7 @@
 #include <bdsg/overlays/overlay_helper.hpp>
 #include <handlegraph/path_handle_graph.hpp>
 #include <vg/io/vpkg.hpp>
+#include "../../src/gbzgraph.hpp"
 
 #include "../banner.hpp"
 #include "../snarl_data_collection.hpp"
@@ -32,7 +33,8 @@ void print_help_graph() {
         << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
         << std::endl
         << "input:" << std::endl
-        << "  -g, --graph FILE                   Use this graph (only hash graph works for now) (required)" << std::endl
+        << "  -g, --graph FILE                   Use this graph (required)" << std::endl
+        << "  -G, --r-index FILE                 Use this r-index (optional, requires -g be a gbz)" << std::endl
         << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
         << std::endl
         << "output:" << std::endl
@@ -59,6 +61,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     }
 
     std::string graph_name;
+    std::string r_index_name;
     std::string distance_name;
     size_t allele_size_limit = 0;
     std::string reference_file;
@@ -78,6 +81,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         static struct option long_options[] =
             {
                 {"graph", required_argument, 0, 'g'},
+                {"r-index", required_argument, 0, 'G'},
                 {"distance-index", required_argument, 0, 'd'},
                 {"allele-size-limit", required_argument, 0, 'l'},
                 {"threads", required_argument, 0, 't'},
@@ -93,7 +97,7 @@ int main_stoat_graph(int argc, char *argv[]) {
             };
 
         int option_index = 0;
-        c = getopt_long(argc, argv, "g:d:l:t:R:r:V:o:Luah",
+        c = getopt_long(argc, argv, "g:G:d:l:t:R:r:V:o:Luah",
                         long_options, &option_index); 
         if (c == -1) {
             break;
@@ -101,6 +105,9 @@ int main_stoat_graph(int argc, char *argv[]) {
         switch (c) {
             case 'g':
                 graph_name = optarg;
+                break;
+            case 'G':
+                r_index_name = optarg;
                 break;
             case 'a': ascii = true; break;
             case 'd':
@@ -203,14 +210,91 @@ int main_stoat_graph(int argc, char *argv[]) {
     stoat::LOG_INFO("Loading graph and preparing indexes...");
 
     // Load the graph and make it a PathPositionHandleGraph
-    std::unique_ptr<handlegraph::PathHandleGraph> handle_graph = vg::io::VPKG::load_one<handlegraph::PathHandleGraph>(graph_name);
+    handlegraph::PathHandleGraph* handle_graph = nullptr; 
+    // This is just to hold the unique pointer from try_load_first so it can be destroyed properly later
+    std::unique_ptr<handlegraph::PathHandleGraph> handle_graph_holder; 
+    gbwt::GBWT* gbwt = nullptr; 
+    GBZGraph* gbz = nullptr; 
+    gbwt::FastLocate r_index;
+    // We want to know if it is specifically a gbz or not since the r-index requires a gbz
+    auto options = vg::io::VPKG::try_load_first<GBZGraph, handlegraph::PathHandleGraph>(graph_name);
+    if (std::get<0>(options)) {
+        // This is a gbz 
+
+
+        gbz = std::get<0>(options).get();
+
+        gbwt = &gbz->gbz.index;
+
+        if (r_index_name.empty()) {
+            // If we are given an r-index, then the graph must have been a gbz 
+            stoat::LOG_INFO("[stoat] warning: The gbz may be slow without an r-index if there are many paths");
+        } else {
+            std::ifstream r_instream;
+            r_instream.open(r_index_name);
+            r_index.load(r_instream);
+            r_instream.close();
+            r_index.setGBWT(*gbwt);
+        }
+
+        handle_graph = gbz;
+
+    } else {
+        // This is another type of graph, load it as a generic PathHandleGraph
+        handle_graph_holder = std::move(std::get<1>(options));
+        handle_graph = handle_graph_holder.get();
+
+        if (!r_index_name.empty()) {
+            // If we are given an r-index, then the graph must have been a gbz
+            stoat::LOG_INFO("[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index");
+            r_index_name.clear();
+        }
+    }
+
+    // Get a list of paths to include in the path position overlay
+    // When we don't use the r-index, this needs to include everything. Otherwise, just references 
+    std::unordered_set<std::string> paths_set;
+
+    // Get the reference sample names from the file
+    // Make a SnarlCoordinates class and have it keep track of the references we've found
+    std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+
+    if (!reference_file.empty()) {
+        if (!std::filesystem::exists(reference_file)) {
+            stoat::LOG_WARN("given reference file " + reference_file + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
+        } else {
+            std::ifstream file(reference_file);
+            std::string line;
+
+            while (getline(file, line)) {
+                snarl_coordinate_finder->add_reference_path(line);
+                paths_set.emplace(line);
+            }
+
+            file.close();
+        }
+    }
+
+
+    // Get the reference sample names from the prefix
+    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+        std::string path_name = handle_graph->get_path_name(path);
+        
+        if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
+                          reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
+            // If these paths match
+            snarl_coordinate_finder->add_reference_path(handle_graph->get_path_name(path));
+            paths_set.emplace(handle_graph->get_path_name(path));
+        }
+
+        return true;
+    });
+
 
     /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names
     /// that we want to be included in the index.
     /// We used to select specific samples/haplotypes but now include all paths in this "genotype retrieval" subcommand.
 
-    // Get a list of paths to include in the path position overlay
-    std::unordered_set<std::string> paths_set;
 
     // A set of the samples+haplotypes in the graph
     std::vector<stoat::sample_hap_t> all_sample_haplotypes;
@@ -221,14 +305,19 @@ int main_stoat_graph(int argc, char *argv[]) {
         // Get the sample haplotypes that we want
         // TODO: For now, if we are saving the snarls to be used again, force all samples to be included. This may change when this is a separate subcommand
         // JEAN right, maybe we do want to be able to say which ones to include (new input file or prefix selection?)
-        paths_set.emplace(handle_graph->get_path_name(path));
+        if (r_index_name.empty()) {
+            // Only do this if we don't include the r-index
+            paths_set.emplace(handle_graph->get_path_name(path));
+        }
         all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*handle_graph, path));
         return true;
     });
 
-    bdsg::PathPositionOverlayHelper overlay_helper;
-    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph.get(), paths_set);
+    stoat::LOG_INFO("Applying overlay...");
+    bdsg::ReferencePathOverlayHelper overlay_helper;
+    bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph, paths_set);
 
+    stoat::LOG_INFO("Loading distance index...");
     // Load the distance index
     bdsg::SnarlDistanceIndex distance_index;
     if (!distance_name.empty()) {
@@ -236,21 +325,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         distance_index.deserialize(distance_name);
     }
 
-    // Get the reference sample names from the file
-    std::unordered_set<std::string> reference_path_names = (!reference_file.empty()) ? stoat_vcf::parse_chromosome_reference(reference_file) : std::unordered_set<std::string>{};
-
-    // Get the reference sample names from the prefix
-    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-        std::string path_name = handle_graph->get_path_name(path);
-        
-        if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
-                          reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
-            // If these paths match
-            reference_path_names.emplace(handle_graph->get_path_name(path));
-        }
-
-        return true;
-    });
+    stoat::LOG_INFO("Loaded all graphs");
 
     //////////////////////////////// Make the snarls file and load it if possible
     // If it is being built, it will count towards the time of analysis
@@ -261,7 +336,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     size_t total_number_snarl_limit_distance = 0;
     size_t total_number_snarl_limit_children = 0;
     size_t total_snarl_chr_analysed = 0;
-    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit);
+    SnarlDataCollection snarl_collection(snarl_coordinate_finder, allele_size_limit, snarl_child_limit, walk_steps_limit);
     
     ////////////////////////////////////////////////// Start doing work
 
@@ -282,6 +357,9 @@ int main_stoat_graph(int argc, char *argv[]) {
     } else {
         snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
     }
+    // Since partition_embedded_paths_in_snarl_with_gbwt finds the paths of the alleles, keep track of them here to be added later
+    // TODO: this isn't the best way of handling this but it works with the way I set things up before
+    std::unordered_map<handlegraph::net_handle_t, std::vector<PathTraversal>> paths_per_allele_per_snarl;
 
     // Find and write the information (inc. paths and genotypes) for each snarl in the index
     snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
@@ -290,16 +368,36 @@ int main_stoat_graph(int argc, char *argv[]) {
                                         [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks
                                              std::vector<PathTraversal>& walks) {
                                             // If we actually need the walks to get the sequences or the lengths
-                                            return SnarlDataCollection::get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
+                                            if (r_index_name.empty()) {
+                                                SnarlDataCollection::get_walks_from_alleles(*path_position_graph, distance_index, snarl, snarl_data, walks);
+                                            } else {
+                                                // If we used the r-index, then we've already filled in the walks in paths_per_allele
+                                                #pragma omp critical(paths_per_allele)
+                                                {
+                                                walks = std::move(paths_per_allele_per_snarl[distance_index.start_end_traversal_of(snarl)]);
+                                                paths_per_allele_per_snarl.erase(distance_index.start_end_traversal_of(snarl));
+                                                }
+                                            }
                                         },
                                         true, // find the alleles
                                         // Function to find the alleles 
                                         [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                              const std::vector<stoat::sample_hap_t>& sample_haplotypes) {
-                                            return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
+                                            if (r_index_name.empty()) {
+                                                return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
+                                            } else {
+                                                std::vector<PathTraversal> paths_per_allele;
+                                                auto assignments =  stoat_graph::partition_embedded_paths_in_snarl_with_gbwt(*path_position_graph, *gbwt, r_index, 
+                                                                                                                distance_index, snarl, sample_haplotypes, paths_per_allele);
+
+                                                #pragma omp critical(paths_per_allele)
+                                                {
+                                                paths_per_allele_per_snarl.emplace(distance_index.start_end_traversal_of(snarl), std::move(paths_per_allele));
+                                                }
+                                                return assignments;
+                                            }
                                         },
                                         false, // find the sequences, only for fasta format
-                                        reference_path_names,
                                         distance_index.has_distances(),
                                         *snarl_writer, // Filename to write the snarls to
                                         false // Keep the snarls in the collection?
@@ -309,7 +407,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     snarl_writer->close();
     
     auto end_2 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
+    stoat::LOG_INFO("Snarl processing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
     stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_2 - start_1).count()) + " s");
     return EXIT_SUCCESS;
 }

@@ -3,14 +3,15 @@
 #include <bdsg/hash_graph.hpp>
 #include <bdsg/overlays/overlay_helper.hpp>
 #include "../../src/snarl_data_collection.hpp"
+#include "../../src/snarl_traversals.hpp"
 #include "../../src/log.hpp"
 
 using namespace stoat;
 
 class TestSnarlDataCollection : public SnarlDataCollection {
     public: 
-    TestSnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
-        SnarlDataCollection(allele_size_limit, snarl_child_limit, walk_steps_limit) {} 
+    TestSnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
+        SnarlDataCollection(snarl_coordinate_finder, allele_size_limit, snarl_child_limit, walk_steps_limit) {} 
     using SnarlDataCollection::fill_in_snarl_info;
     using SnarlDataCollection::add_alleles_by_sample;
     using SnarlDataCollection::for_each_snarl;
@@ -45,7 +46,8 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
     
     SECTION("Make and fill in snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
-        TestSnarlDataCollection snarl_collection(1,1,1);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,1,1);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
             false, // don't get walks 
@@ -56,13 +58,14 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
     }
     
     SECTION("Serialize snarl collection") {
         // There isn't much to do with one node so just make sure we can run the constructor without crashing
 
-        TestSnarlDataCollection snarl_collection(1,1,1);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,1,1);
 
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
@@ -74,7 +77,7 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
         std::string test_file = "./test.snarl_collection.txt";
 
@@ -82,7 +85,8 @@ TEST_CASE( "Snarl collection one node", "[snarl_collection]" ) {
         snarl_collection.write_snarl_data_collection(out_writer);
         out_writer.close();
         
-        TestSnarlDataCollection snarl_collection_loaded(1,1,1);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_loaded (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection_loaded(snarl_coordinate_finder_loaded, 1,1,1);
         stoat::StdReader snarl_reader(test_file);
         snarl_collection_loaded.load_snarl_data_collection(snarl_reader);
         snarl_reader.close();
@@ -471,9 +475,9 @@ TEST_CASE( "Snarl collection nested bubbles",
 
             } else if ((snarl_info.start_node == stoat::node_traversal_t(8, false) && snarl_info.end_node == stoat::node_traversal_t(10, true)) ||
                 (snarl_info.start_node == stoat::node_traversal_t(10, true) && snarl_info.end_node == stoat::node_traversal_t(8, false))) {
-                REQUIRE(snarl_info.ref_path == "NA");
-                REQUIRE(snarl_info.start_position == 0);
-                REQUIRE(snarl_info.end_position == 0);
+                REQUIRE(snarl_info.ref_path == "path0#0#path0");
+                REQUIRE(snarl_info.start_position == 7);
+                REQUIRE(snarl_info.end_position == 7);
                 REQUIRE(snarl_info.depth == 1);
                 if (get_all_walks && check_walks) {
                     REQUIRE(snarl_info.walks_by_allele.size() == 2);
@@ -573,7 +577,8 @@ TEST_CASE( "Snarl collection nested bubbles",
 
     SECTION("Make and fill in snarl collection with no walks, alleles, or sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
             false, // don't get walks 
@@ -584,26 +589,27 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
 
         check_collection(snarl_collection, false, false, false, true);
     }
     SECTION("Make and fill in snarl collection with walks and sequences but no allele") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // allele before walks but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 1);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 1);
             },
             false, // don't get allele 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& sample_haps) { 
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
 
         check_collection(snarl_collection, true, false, true, true);
@@ -612,19 +618,20 @@ TEST_CASE( "Snarl collection nested bubbles",
     SECTION("Make and fill in snarl collection with walks, sequences, and no alleles, then fill in alleles later") {
 
         // Don't get the alleles or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             false, //walks before alleles but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 1);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 1);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<sample_hap_t>& samples) { 
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
         check_collection(snarl_collection, true, false, true, true);
 
@@ -638,19 +645,20 @@ TEST_CASE( "Snarl collection nested bubbles",
     SECTION("Make and fill in snarl collection with no alleles, then fill in alleles later by chromosome") {
 
         // Don't get the alleles or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             false, // walks before alleles but it doesn't matter here
             true, // get walks 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 0);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 0);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<sample_hap_t>& samples) { 
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -670,7 +678,8 @@ TEST_CASE( "Snarl collection nested bubbles",
 
     SECTION("Make and fill in snarl collection with walks, alleles, and sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks
             true, // get walks 
@@ -684,7 +693,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                 return alleles;
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
         check_collection(snarl_collection, true, true, true, false);
 
@@ -695,7 +704,8 @@ TEST_CASE( "Snarl collection nested bubbles",
             snarl_collection.write_snarl_data_collection(out_writer);
             out_writer.close();
 
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_loaded (new SnarlCoordinates);
+            TestSnarlDataCollection loaded_snarl_collection(snarl_coordinate_finder_loaded, 1,10,10);
             stoat::StdReader snarl_reader(test_file);
             loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
             snarl_reader.close();
@@ -714,7 +724,8 @@ TEST_CASE( "Snarl collection nested bubbles",
             snarl_collection.write_snarl_data_collection(out_writer);
             out_writer.close();
 
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_loaded (new SnarlCoordinates);
+            TestSnarlDataCollection loaded_snarl_collection(snarl_coordinate_finder_loaded, 1,10,10);
             stoat::StdReader snarl_reader(test_file);
             size_t loaded_snarl_count = 0;
             loaded_snarl_collection.for_each_snarl_in_file(snarl_reader, [&](const snarl_info_t& snarl_info) {
@@ -734,7 +745,8 @@ TEST_CASE( "Snarl collection nested bubbles",
             snarl_collection.write_snarl_data_collection(out_writer);
             out_writer.close();
 
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_loaded (new SnarlCoordinates);
+            TestSnarlDataCollection loaded_snarl_collection(snarl_coordinate_finder_loaded, 1,10,10);
             stoat::StdReader snarl_reader(test_file);
             size_t loaded_snarl_count = 0;
             loaded_snarl_collection.for_each_snarl_in_file_parallel(snarl_reader, [&](const snarl_info_t& snarl_info) {
@@ -752,7 +764,8 @@ TEST_CASE( "Snarl collection nested bubbles",
             std::string test_file = "./test_snarls.txt";
             stoat::StdWriter out_writer(test_file);
 
-            TestSnarlDataCollection written_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_written (new SnarlCoordinates);
+            TestSnarlDataCollection written_snarl_collection(snarl_coordinate_finder_written, 1,10,10);
             written_snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
                 true, // alleles before walks
                 true, // get walks 
@@ -766,7 +779,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                     return alleles;
                 },
                 true, // get sequences
-                std::unordered_set<std::string>(), false, out_writer, true);
+                false, out_writer, true);
 
             out_writer.close();
 
@@ -776,7 +789,8 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
             // Load the written snarl collection
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_loaded (new SnarlCoordinates);
+            TestSnarlDataCollection loaded_snarl_collection(snarl_coordinate_finder_loaded, 1,10,10);
             stoat::StdReader snarl_reader(test_file);
             loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
             snarl_reader.close();
@@ -792,7 +806,8 @@ TEST_CASE( "Snarl collection nested bubbles",
             std::string test_file = "./test_snarls.txt";
             stoat::StdWriter out_writer(test_file);
 
-            TestSnarlDataCollection written_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_written (new SnarlCoordinates);
+            TestSnarlDataCollection written_snarl_collection(snarl_coordinate_finder_written, 1,10,10);
             written_snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples,
                 true, // alleles before walks
                 true, // get walks
@@ -806,7 +821,7 @@ TEST_CASE( "Snarl collection nested bubbles",
                     return alleles;
                 },
                 true, // get sequences
-                std::unordered_set<std::string>(), false, out_writer, false);
+                false, out_writer, false);
 
             out_writer.close();
             
@@ -820,7 +835,8 @@ TEST_CASE( "Snarl collection nested bubbles",
 
 
             // Load the written snarl collection
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_loaded (new SnarlCoordinates);
+            TestSnarlDataCollection loaded_snarl_collection(snarl_coordinate_finder_loaded, 1,10,10);
             stoat::StdReader snarl_reader(test_file);
             loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
             snarl_reader.close();
@@ -1006,19 +1022,20 @@ TEST_CASE( "Snarl collection multiple connected components",
     SECTION("Make and fill in snarl collection with no alleles, then fill in alleles later by chromosome") {
 
         // Don't get the alleles or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
             true, // get walks  
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 1);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 1);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, const std::vector<sample_hap_t>& samples) { 
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
         std::vector<stoat::sample_hap_t> sample_haps;
         for (const auto& path : paths) {
@@ -1532,7 +1549,8 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
     
     SECTION("Make and fill in snarl collection with no walks, alleles, or sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
             false, // don't get walks 
@@ -1543,7 +1561,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return std::vector<size_t>();
             },
             false, // don't get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
 
         check_collection(snarl_collection, false, false, false, true, true);
@@ -1552,7 +1570,8 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
 
 
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
             true, // get walks 
@@ -1565,7 +1584,7 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
                 return  get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
         check_collection(snarl_collection, true, true, true, false, true);
 
@@ -1576,7 +1595,8 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
             snarl_collection.write_snarl_data_collection(out_writer);
             out_writer.close();
 
-            TestSnarlDataCollection loaded_snarl_collection(1,10,10);
+            std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder_loaded (new SnarlCoordinates);
+            TestSnarlDataCollection loaded_snarl_collection(snarl_coordinate_finder_loaded, 1,10,10);
             stoat::StdReader snarl_reader(test_file);
             loaded_snarl_collection.load_snarl_data_collection(snarl_reader);
             snarl_reader.close();
@@ -1593,20 +1613,21 @@ TEST_CASE( "snarl collection looping snarl", "[snarl_collection]" ) {
     SECTION("Make and fill in snarl collection with no alleles, then fill in alleles later by chromosome") {
 
         // Don't get the alleles or anything else
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
 
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             false, // walks before alleles but it doesn't matter here
             true, // get walks  
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks) {
-                return SnarlDataCollection::get_all_walks_through_snarl(*path_graph, distance_index, snarl, snarl_data, walks, 0);
+                return get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 0);
             },
             false, // don't get alleles 
             [&](const net_handle_t& snarl, const snarl_info_t& snarl_data,const std::vector<sample_hap_t>& samples) { 
                 return std::vector<size_t>();
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
 
         // First fill it in with a non-existent path, which should do nothing
         std::unordered_map<stoat::sample_hap_t, size_t> sample_haplotype_to_index;
@@ -1814,7 +1835,8 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
 
     SECTION("Make and fill in snarl collection with walks, alleles, and sequences") {
 
-        TestSnarlDataCollection snarl_collection(1,10,10);
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+        TestSnarlDataCollection snarl_collection(snarl_coordinate_finder, 1,10,10);
         
         snarl_collection.fill_in_snarl_info(*path_graph, distance_index, all_samples, 
             true, // alleles before walks but it doesn't matter here
@@ -1827,7 +1849,7 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
                 return get_alleles_per_snarl(snarl_data, samples);
             },
             true, // get sequences
-            std::unordered_set<std::string>(), false, null_writer, true);
+            false, null_writer, true);
         
         check_collection(snarl_collection);
 
