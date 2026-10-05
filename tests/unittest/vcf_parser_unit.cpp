@@ -1,5 +1,7 @@
 #include <catch.hpp>
+#include <atomic>
 #include <cstdio>
+#include <omp.h>
 #include "../../src/arg_parser.hpp"
 #include "../../src/vcf_parser.hpp"
 
@@ -2039,6 +2041,7 @@ TEST_CASE("GT ploidy differing from configured ploidy", "[vcf_parser][polyploid]
             const std::vector<int> expected{0, -1, 1, -1};
             REQUIRE(vcf_info.genotype == expected);
         }
+
         ++record;
     });
     REQUIRE(record == 2);
@@ -2112,4 +2115,51 @@ TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_
     REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
                         Catch::Contains("duplicate chromosome"));
     std::remove(filename.c_str());
+}
+
+TEST_CASE("Parse polyploid VCF records in parallel", "[vcf_parser][polyploid][parallel]") {
+    struct ThreadCountGuard {
+        int original = omp_get_max_threads();
+        ~ThreadCountGuard() {
+            omp_set_num_threads(original);
+        }
+    } thread_count_guard;
+    omp_set_num_threads(4);
+
+    const std::string vcf_filename = "./test.vcf";
+    {
+        std::ofstream vcf_out(vcf_filename);
+        vcf_out << "##fileformat=VCFv4.2\n"
+                << "##FILTER=<ID=PASS,Description=\"All filters passed\">\n"
+                << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n"
+                << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree\">\n"
+                << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">\n"
+                << "##contig=<ID=ref1,length=100>\n"
+                << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n";
+        for (size_t position = 1; position <= 32; ++position) {
+            vcf_out << "ref1\t" << position
+                    << "\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\n";
+        }
+    }
+
+    TestVCFParser parser(false, {{"ref1", 3}});
+    parser.initialize_parser(vcf_filename);
+    std::atomic<size_t> records_seen{0};
+    std::atomic<bool> valid_records{true};
+    std::atomic<unsigned int> thread_mask{0};
+
+    parser.for_each_record_on_chromosome("ref1", [&](const vcf_info_t& vcf_info) {
+        if (vcf_info.lv != 0 || vcf_info.genotype != std::vector<int>{0, 1, 1}) {
+            valid_records.store(false, std::memory_order_relaxed);
+        }
+        records_seen.fetch_add(1, std::memory_order_relaxed);
+        thread_mask.fetch_or(1U << omp_get_thread_num(), std::memory_order_relaxed);
+    });
+    parser.close_vcf();
+    std::remove(vcf_filename.c_str());
+
+    REQUIRE(records_seen == 32);
+    REQUIRE(valid_records);
+    const unsigned int threads = thread_mask.load(std::memory_order_relaxed);
+    REQUIRE((threads & (threads - 1)) != 0);
 }

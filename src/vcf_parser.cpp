@@ -1,5 +1,8 @@
 #include <algorithm>
 #include <limits>
+#include <atomic>
+#include <omp.h>
+
 #include "vcf_parser.hpp"
 
 //#define DEBUG_VCF_PARSER
@@ -111,6 +114,7 @@ void VCFParser::initialize_parser(const std::string& vcf_path) {
 
     // Open the VCF file
     ptr_vcf = bcf_open(vcf_path.c_str(), "r");
+    hts_set_threads(ptr_vcf, omp_get_max_threads());
     
     // Read the VCF header
     hdr = bcf_hdr_read(ptr_vcf);
@@ -144,7 +148,10 @@ void VCFParser::initialize_parser(const std::string& vcf_path) {
     // If we want to untangle the snarls, then also open readers for the untangling steps
     if (resolve_nested_calls) {
         ptr_vcf_bounds = bcf_open(vcf_path.c_str(), "r");
+        hts_set_threads(ptr_vcf_bounds, omp_get_max_threads());
+
         ptr_vcf_genotypes = bcf_open(vcf_path.c_str(), "r");
+        hts_set_threads(ptr_vcf_genotypes, omp_get_max_threads());
 
         hdr_bounds = bcf_hdr_read(ptr_vcf_bounds);
         hdr_genotypes = bcf_hdr_read(ptr_vcf_genotypes);
@@ -235,17 +242,62 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         fill_in_nested_genotypes(chr);
     }
 
-    // Since we've already read the first line of this chunk, do a do-while loop and read the next at the end.
-    // At the end of this loop, we'll be looking at the first line that is not this chromosome
-    do {
-        bcf_unpack(rec, BCF_UN_STR);
+    while (read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid)) {
+        std::vector<Bcf1Ptr> raw_records;
+        raw_records.reserve(CHUNK_SIZE);
+
+        do {
+            bcf1_t* duplicated_record = bcf_dup(rec);
+            if (!duplicated_record) {
+                throw std::runtime_error("Unable to duplicate VCF record");
+            }
+            raw_records.emplace_back(duplicated_record, &bcf_destroy);
+            read_status = bcf_read(ptr_vcf, hdr, rec);
+            if (read_status < -1) {
+                throw std::runtime_error("Unable to read VCF file");
+            }
+        } while (raw_records.size() < CHUNK_SIZE && read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid));
+
+        std::exception_ptr parse_exception;
+        bool has_error = false;
+
+        #pragma omp parallel for schedule(static)
+        for (size_t record_i = 0; record_i < raw_records.size(); ++record_i) {
+            if (has_error) {
+                continue;
+            }
+
+            try {
+                bcf1_t* record = raw_records[record_i].get();
+                const vcf_info_t vcf_info = parse_record(record, chr);
+                iteratee(vcf_info);
+            } catch (...) {
+                #pragma omp critical(vcf_parser_exception)
+                {
+                    if (!parse_exception) {
+                        parse_exception = std::current_exception();
+                        has_error = true;
+                    }
+                }
+            }
+        }
+
+        raw_records.clear();
+        if (parse_exception) {
+            std::rethrow_exception(parse_exception);
+        }
+    }
+}
+
+vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
+    bcf1_t* rec = raw_record;
+    bcf_unpack(rec, BCF_UN_STR);
 
         int32_t *lv = nullptr;
         int n_lv = 0;
         // Default to LV=0 if it wasn't there
         size_t level = 0;
-        if (bcf_get_info_int32(hdr, rec, "LV", &lv, &n_lv) > 0)
-        {
+        if (bcf_get_info_int32(hdr, rec, "LV", &lv, &n_lv) > 0) {
             level = lv[0];
         }
         free(lv);
@@ -371,11 +423,14 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
         // Warn if the GT field has a different ploidy than expected for this chromosome.
         if (gt_ploidy != ploidy) {
-            stoat::LOG_WARN("GT field has " + std::to_string(gt_ploidy) + 
-                " slots per sample, but expected ploidy is " + std::to_string(ploidy) + 
-                (gt_ploidy > ploidy ? "; extra slots will be ignored" : "; remaining slots will be treated as missing") +
-                " at position " + std::to_string(rec->pos + 1), 
-                "gt_field_ploidy_mismatch");
+            #pragma omp critical(vcf_parser_log)
+            {
+                stoat::LOG_WARN("GT field has " + std::to_string(gt_ploidy) +
+                    " slots per sample, but expected ploidy is " + std::to_string(ploidy) +
+                    (gt_ploidy > ploidy ? "; extra slots will be ignored" : "; remaining slots will be treated as missing") +
+                    " at position " + std::to_string(rec->pos + 1),
+                    "gt_field_ploidy_mismatch");
+            }
         }
 
         // Make the actual vector of genotypes
@@ -408,9 +463,12 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
 
             // Invalid allele index.
             if (genotype < 0 || genotype >= static_cast<int>(paths.size())) {
-                stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" +
-                    std::to_string(rec->pos + 1) + " has invalid genotype of " +
-                    std::to_string(genotype), "bad_vcf_gt");
+                #pragma omp critical(vcf_parser_log)
+                {
+                    stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" +
+                        std::to_string(rec->pos + 1) + " has invalid genotype of " +
+                        std::to_string(genotype), "bad_vcf_gt");
+                }
 
                 genotypes.emplace_back(-1);
                 continue;
@@ -424,18 +482,7 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         }
         free(gt);
 
-        iteratee(vcf_info_t({level, genotypes, paths}));
-
-        read_status = bcf_read(ptr_vcf, hdr, rec);
-#ifdef DEBUG_VCF_PARSER
-        std::cerr << read_status << " on chr " << chr << std::endl;
-#endif
-
-    } while ((read_status >= 0) && (chr == bcf_hdr_id2name(hdr, rec->rid)));
-
-#ifdef DEBUG_VCF_PARSER
-    std::cerr << " broke out of loop with " << read_status << " At chr " << bcf_hdr_id2name(hdr, rec->rid) << std::endl;
-#endif
+        return vcf_info_t({level, std::move(genotypes), std::move(paths)});
 }
 
 std::vector<stoat::node_traversal_t> VCFParser::parse_pangenie_id(std::string& allele_id_str) {
@@ -450,8 +497,7 @@ std::vector<stoat::node_traversal_t> VCFParser::parse_pangenie_id(std::string& a
     // Make a path for this allele. Since the allele may have multiple parts, separate each part by a fake >0 node
     std::vector<stoat::node_traversal_t> allele_path;
     bool first_part = true;
-    while (std::getline(id_str_ss, id_str, ':'))
-    {
+    while (std::getline(id_str_ss, id_str, ':')) {
         if (first_part) {
             first_part=false;
         } else {

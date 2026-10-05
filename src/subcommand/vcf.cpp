@@ -67,8 +67,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     size_t path_length_threshold = 50;
     std::string haplotype_counts_text;
     std::string haplotype_counts_file;
-    bool has_haplotype_counts = false;
-    bool has_haplotype_counts_file = false;
     std::string output_dir = "stoat_output";
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
@@ -132,11 +130,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 }
                 break;
             case 'c':
-                has_haplotype_counts = true;
                 haplotype_counts_text = optarg;
                 break;
             case 'C':
-                has_haplotype_counts_file = true;
                 haplotype_counts_file = optarg;
                 stoat_vcf::check_file(haplotype_counts_file); 
                 break;
@@ -179,15 +175,15 @@ int main_stoat_vcf(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    if (has_haplotype_counts && has_haplotype_counts_file) {
+    if (!haplotype_counts_text.empty() && !haplotype_counts_file.empty()) {
         std::cerr << "Error: [stoat vcf] --haplotype-counts and --haplotype-counts-file are mutually exclusive\n";
         return EXIT_FAILURE;
     }
 
     stoat_vcf::VCFParser vcf_parser(resolve_vcf);
-    if (has_haplotype_counts) {
+    if (!haplotype_counts_text.empty()) {
         vcf_parser.parse_haplotype_counts(haplotype_counts_text);
-    } else if (has_haplotype_counts_file) {
+    } else if (!haplotype_counts_file.empty()) {
         vcf_parser.load_haplotype_counts_file(haplotype_counts_file);
     }
 
