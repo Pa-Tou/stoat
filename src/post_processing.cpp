@@ -1,5 +1,6 @@
 #include "post_processing.hpp"
 #include "utils.hpp"
+#include "snarl_coordinates.hpp"
 
 namespace stoat {
 
@@ -178,6 +179,10 @@ void add_BH_adjusted_column(
 void change_reference(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
     std::shared_ptr<stoat::Reader> reader, std::shared_ptr<stoat::Writer> writer, const std::unordered_set<std::string>& reference_names) {
 
+    SnarlCoordinates snarl_coordinate_finder;
+    for (std::string ref : reference_names) {
+        snarl_coordinate_finder.add_reference_path(ref);
+    }
 
     // Read the header line
     std::string header_line;
@@ -230,20 +235,8 @@ void change_reference(const handlegraph::PathPositionHandleGraph& graph, const b
         std::string new_reference_name;
         size_t new_reference_start;
         size_t new_reference_end;
-        std::vector<stoat::path_range_t> ranges = stoat::get_coordinates_of_snarl(graph, distance_index, snarl_net, true, reference_names, false);
-        if (ranges.size() != 0) {
-            // Check if we have already seen the reference path and if not add it
-        
-            auto reference_range = get_name_and_offsets_of_snarl_path_range(graph, ranges.front());
-            new_reference_name = std::get<0>(reference_range);
-            new_reference_start = std::get<1>(reference_range);
-            new_reference_end = std::get<2>(reference_range);
-        
-        } else {
-            new_reference_start = 0;
-            new_reference_end = 0;
-            new_reference_name = "NA";
-        }
+        std::tie(new_reference_name, new_reference_start, new_reference_end) = snarl_coordinate_finder.get_reference_coordinates_as_string(
+                                                                                       graph, distance_index, snarl_net);
         std::stringstream sstream;
 
         // Now write the new reference coordinates and the rest of the line

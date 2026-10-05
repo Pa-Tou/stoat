@@ -22,7 +22,7 @@
 #include "../vcf_parser.hpp"
 
 
-// #define USE_CALLGRIND
+//#define USE_CALLGRIND
 
 #ifdef USE_CALLGRIND
     #include <valgrind/callgrind.h>
@@ -44,7 +44,7 @@ void print_help_vcf() {
               << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
               << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
               << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
-              << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow\n"
+              << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow (pangenie vcf not supported)\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
               << "  -o, --output FILE               Output directory name [stoat_output]\n"
@@ -200,16 +200,33 @@ int main_stoat_vcf(int argc, char* argv[]) {
     for (int i = 0; i < argc; ++i) ss << argv[i] << " ";
     stoat::LOG_SILENTE(ss.str());
 
-    // read reference chromosome, if provided
-    // if not, we will use reference haplotypes in the pangenome
-    std::unordered_set<std::string> ref_path_names = (!reference_path.empty()) ? stoat_vcf::parse_chromosome_reference(reference_path) : std::unordered_set<std::string>{};
+    std::unordered_set<std::string> ref_path_names;
+
+    // class for keeping track of reference coordinates of snarls
+    std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+    if (!reference_path.empty()) {
+        if (!std::filesystem::exists(reference_path)) {
+            stoat::LOG_WARN("given reference file " + reference_path + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
+        } else {
+            std::ifstream file(reference_path);
+            std::string line;
+            
+            while (getline(file, line)) {
+                snarl_coordinate_finder->add_reference_path(line);
+                ref_path_names.emplace(line);
+            }
+            
+            file.close();
+        }
+    }
+
 
     // start the overall timer
     auto start_total_timer = std::chrono::high_resolution_clock::now();
 
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
-    stoat::SnarlDataCollection snarl_collection(0, children_threshold, path_length_threshold);
+    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0, children_threshold, path_length_threshold);
 
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
@@ -232,7 +249,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Loading snarl information took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_load_timer).count()) + " s");
         snarl_reader->close();
     } else { // otherwise, find them from the pangenome graph and snarl tree
-        stoat::LOG_INFO("Starting snarl decomposition... ");
+        stoat::LOG_INFO("Loading graph... ");
         auto start_dec_timer = std::chrono::high_resolution_clock::now();
 
         // Load the snarl tree and graph
@@ -285,27 +302,32 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
 
-        bdsg::PathPositionOverlayHelper overlay_helper;
-        bdsg::PathPositionHandleGraph* path_position_graph;
-        path_position_graph =  overlay_helper.apply(graph);
-
         // Get the reference sample names from the prefix
-        size_t n_ref_paths_before = ref_path_names.size();
         graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
             std::string path_name = graph->get_path_name(path);
 
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
+                snarl_coordinate_finder->add_reference_path(graph->get_path_name(path));
                 ref_path_names.emplace(graph->get_path_name(path));
             }
 
             return true;
         });
+
+
+        stoat::LOG_INFO("Applying overlay...");
+        bdsg::ReferencePathOverlayHelper overlay_helper;
+        bdsg::PathPositionHandleGraph* path_position_graph;
+        path_position_graph = overlay_helper.apply(graph, ref_path_names);
+
+        std::vector<std::string> ref_path_names = snarl_coordinate_finder->reference_names_as_vector();
         // warning if no reference path matched the provided prefix
-        if (!reference_prefix.empty() && ref_path_names.size() == n_ref_paths_before) {
-            stoat::LOG_WARN("No reference path matched the provided prefix: " + reference_prefix, "");
+        if (ref_path_names.size() == 0) {
+            stoat::LOG_WARN("No reference paths found: " + reference_prefix, "");
         }
+        stoat::LOG_INFO("Loading distance index...");
 
         // Load the distance index
         std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
@@ -335,6 +357,10 @@ int main_stoat_vcf(int argc, char* argv[]) {
         } else {
             snarl_writer.reset(new StdWriter(snarls_filename, thread_count));
         }
+        auto end_load_timer = std::chrono::high_resolution_clock::now();
+        stoat::LOG_INFO("Loading and preparing the graph took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_dec_timer).count()) + " s");
+
+        stoat::LOG_INFO("Starting processing snarls...");
 
         // equivalent to what was done before in stoat vcf: enumerate all walks through a snarl
         snarl_collection.fill_in_snarl_info(*path_position_graph, *distance_index, sample_haplotypes,
@@ -352,7 +378,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
                 return std::vector<size_t>();
             }, 
             false, // sequence_requested 
-            ref_path_names, // reference 
             false, //check distances
             *snarl_writer, // Writer object for the snarls
             !only_prepare_snarls // Keep the snarls in the collection? True if we're going to genotype
@@ -362,19 +387,11 @@ int main_stoat_vcf(int argc, char* argv[]) {
         snarl_writer->close();
 
         auto end_dec_timer = std::chrono::high_resolution_clock::now();
-        stoat::LOG_INFO("Snarl decomposition took " + std::to_string(std::chrono::duration<double>(end_dec_timer - start_dec_timer).count()) + " s");
+        stoat::LOG_INFO("Finding alleles in snarls took " + std::to_string(std::chrono::duration<double>(end_load_timer - start_dec_timer).count()) + " s");
 
         if (only_prepare_snarls) {
             // we're done
             return EXIT_SUCCESS;
-        }
-    }
-
-    // If there were no references given, fill them in with the references from the snarl collection
-    //TODO: I don't think this is used
-    if (ref_path_names.empty()) {
-        for (const std::string& ref : snarl_collection.get_reference_names()) {
-            ref_path_names.insert(ref);
         }
     }
 

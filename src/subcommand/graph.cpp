@@ -228,7 +228,7 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         if (r_index_name.empty()) {
             // If we are given an r-index, then the graph must have been a gbz 
-            std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
+            stoat::LOG_INFO("[stoat] warning: The gbz may be slow without an r-index if there are many paths");
         } else {
             std::ifstream r_instream;
             r_instream.open(r_index_name);
@@ -246,19 +246,55 @@ int main_stoat_graph(int argc, char *argv[]) {
 
         if (!r_index_name.empty()) {
             // If we are given an r-index, then the graph must have been a gbz
-            std::cerr << "[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index" << std::endl;
+            stoat::LOG_INFO("[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index");
             r_index_name.clear();
         }
     }
 
+    // Get a list of paths to include in the path position overlay
+    // When we don't use the r-index, this needs to include everything. Otherwise, just references 
+    std::unordered_set<std::string> paths_set;
+
+    // Get the reference sample names from the file
+    // Make a SnarlCoordinates class and have it keep track of the references we've found
+    std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder (new SnarlCoordinates);
+
+    if (!reference_file.empty()) {
+        if (!std::filesystem::exists(reference_file)) {
+            stoat::LOG_WARN("given reference file " + reference_file + " does not exist. Defaulting to using any reference- or generic-sense paths as references", "");
+        } else {
+            std::ifstream file(reference_file);
+            std::string line;
+
+            while (getline(file, line)) {
+                snarl_coordinate_finder->add_reference_path(line);
+                paths_set.emplace(line);
+            }
+
+            file.close();
+        }
+    }
+
+
+    // Get the reference sample names from the prefix
+    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+        std::string path_name = handle_graph->get_path_name(path);
+        
+        if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
+                          reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
+            // If these paths match
+            snarl_coordinate_finder->add_reference_path(handle_graph->get_path_name(path));
+            paths_set.emplace(handle_graph->get_path_name(path));
+        }
+
+        return true;
+    });
 
 
     /// For the PathPositionHandleGraph, haplotypes are not indexed automatically so we need to give additional path names
     /// that we want to be included in the index.
     /// We used to select specific samples/haplotypes but now include all paths in this "genotype retrieval" subcommand.
 
-    // Get a list of paths to include in the path position overlay
-    std::unordered_set<std::string> paths_set;
 
     // A set of the samples+haplotypes in the graph
     std::vector<stoat::sample_hap_t> all_sample_haplotypes;
@@ -269,14 +305,19 @@ int main_stoat_graph(int argc, char *argv[]) {
         // Get the sample haplotypes that we want
         // TODO: For now, if we are saving the snarls to be used again, force all samples to be included. This may change when this is a separate subcommand
         // JEAN right, maybe we do want to be able to say which ones to include (new input file or prefix selection?)
-        paths_set.emplace(handle_graph->get_path_name(path));
+        if (r_index_name.empty()) {
+            // Only do this if we don't include the r-index
+            paths_set.emplace(handle_graph->get_path_name(path));
+        }
         all_sample_haplotypes.emplace_back(stoat::sample_hap_t(*handle_graph, path));
         return true;
     });
 
-    bdsg::PathPositionOverlayHelper overlay_helper;
+    stoat::LOG_INFO("Applying overlay...");
+    bdsg::ReferencePathOverlayHelper overlay_helper;
     bdsg::PathPositionHandleGraph* path_position_graph = overlay_helper.apply(handle_graph, paths_set);
 
+    stoat::LOG_INFO("Loading distance index...");
     // Load the distance index
     bdsg::SnarlDistanceIndex distance_index;
     if (!distance_name.empty()) {
@@ -284,22 +325,7 @@ int main_stoat_graph(int argc, char *argv[]) {
         distance_index.deserialize(distance_name);
     }
 
-    // Get the reference sample names from the file
-    std::unordered_set<std::string> reference_path_names = (!reference_file.empty()) ? stoat_vcf::parse_chromosome_reference(reference_file) : std::unordered_set<std::string>{};
-
-    // Get the reference sample names from the prefix
-    handle_graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-        std::string path_name = handle_graph->get_path_name(path);
-        
-        if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
-                          reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
-            // If these paths match
-            reference_path_names.emplace(handle_graph->get_path_name(path));
-        }
-
-        return true;
-    });
-    std::cerr << "Loaded all graphs" << std::endl;
+    stoat::LOG_INFO("Loaded all graphs");
 
     //////////////////////////////// Make the snarls file and load it if possible
     // If it is being built, it will count towards the time of analysis
@@ -310,7 +336,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     size_t total_number_snarl_limit_distance = 0;
     size_t total_number_snarl_limit_children = 0;
     size_t total_snarl_chr_analysed = 0;
-    SnarlDataCollection snarl_collection(allele_size_limit, snarl_child_limit, walk_steps_limit);
+    SnarlDataCollection snarl_collection(snarl_coordinate_finder, allele_size_limit, snarl_child_limit, walk_steps_limit);
     
     ////////////////////////////////////////////////// Start doing work
 
@@ -372,7 +398,6 @@ int main_stoat_graph(int argc, char *argv[]) {
                                             }
                                         },
                                         false, // find the sequences, only for fasta format
-                                        reference_path_names,
                                         distance_index.has_distances(),
                                         *snarl_writer, // Filename to write the snarls to
                                         false // Keep the snarls in the collection?
@@ -382,7 +407,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     snarl_writer->close();
     
     auto end_2 = std::chrono::high_resolution_clock::now();
-    stoat::LOG_INFO("Snarl parsing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
+    stoat::LOG_INFO("Snarl processing time : " + std::to_string(std::chrono::duration<double>(end_2 - start_2).count()) + " s");
     stoat::LOG_INFO("Total time : " + std::to_string(std::chrono::duration<double>(end_2 - start_1).count()) + " s");
     return EXIT_SUCCESS;
 }

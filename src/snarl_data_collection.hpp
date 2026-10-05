@@ -6,6 +6,7 @@
 #include "types_and_structs.hpp"
 #include "writer.hpp"
 #include "vcf_parser.hpp"
+#include "snarl_coordinates.hpp"
 
 namespace stoat {
 
@@ -38,7 +39,7 @@ class SnarlDataCollection {
         /// Ignore snarls whose maximum length is less than allele_size_limit
         /// Ignore snarls with more children than snarl_child_limit
         /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
-        SnarlDataCollection(size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
+        SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fills in sample_to_index based on sample_haplotypes 
@@ -52,7 +53,6 @@ class SnarlDataCollection {
         /// find_alleles_by_sample and find_walks must check the walks or allele assignments accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
         /// get_all_walks_through_snarl (in snarl_traversals.hpp) and SnarlDataCollection::get_walks_from_alleles that may be used for find_walks
-        /// If reference_samples is not empty, get coordinates on one of these reference path. If it is empty then the coordinates will be on any path
         /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
         /// If out_filename is not empty, then write the snarl collection to a file as well. If keep_snarls is False, then delete the snarls as they are found
         /// instead of keeping them in the collection. This saves memory if writing the snarls. If out_filename is empty, then keep_snarls should be True
@@ -67,7 +67,7 @@ class SnarlDataCollection {
                                 const std::function<std::vector<size_t>(const net_handle_t& snarl, const snarl_info_t& snarl_data, 
                                                                         const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                 bool sequence_requested, 
-                                const std::unordered_set<std::string>& reference_samples, bool check_distances,
+                                bool check_distances,
                                 Writer& out_writer, bool keep_snarls);
 
         
@@ -130,6 +130,7 @@ class SnarlDataCollection {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////// Private data members
     private:
+        std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder;
 
         /// This stores the basic information from the snarl_info_t
         struct snarl_info_internal_t {
@@ -137,6 +138,9 @@ class SnarlDataCollection {
             // Start and end nodes, both pointing into the snarl
             stoat::node_traversal_t start_node = stoat::node_traversal_t(0, false);
             stoat::node_traversal_t end_node = stoat::node_traversal_t(0, false);
+
+            // Index into the coordinate finder's reference paths
+            size_t reference_index;
 
             // Start and end offset along the reference path
             size_t start_position;
