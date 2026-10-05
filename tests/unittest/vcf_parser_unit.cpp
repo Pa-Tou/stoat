@@ -2006,6 +2006,45 @@ TEST_CASE( "Haploide genotypes", "[vcf_parser][polyploid]" ) {
 
 }
 
+TEST_CASE("GT ploidy differing from configured ploidy", "[vcf_parser][polyploid]") {
+    const std::string vcf_filename = "./test.vcf";
+    std::ofstream vcf_out(vcf_filename);
+    vcf_out << "##fileformat=VCFv4.2" << std::endl;
+    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
+    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
+    vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
+    vcf_out << "##contig=<ID=ref1,length=100>" << std::endl;
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2" << std::endl;
+    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\t1/0/1" << std::endl;
+    vcf_out << "ref1\t2\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0\t1" << std::endl;
+    vcf_out.close();
+
+    TestVCFParser parser(true, {{"ref1", 2}});
+    parser.initialize_parser(vcf_filename);
+    const std::string chr = parser.get_next_chromosome_name();
+    REQUIRE(chr == "ref1");
+
+    size_t record = 0;
+    parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+        if (record == 0) {
+            // Three GT slots are present; the extra third allele is ignored.
+            const std::vector<int> expected{0, 1, 1, 0};
+            REQUIRE(vcf_info.genotype == expected);
+        } else {
+            // One GT slot is present; the remaining configured slot is missing.
+            const std::vector<int> expected{0, -1, 1, -1};
+            REQUIRE(vcf_info.genotype == expected);
+        }
+        ++record;
+    });
+    REQUIRE(record == 2);
+
+    parser.close_vcf();
+    const int rm = std::remove(vcf_filename.c_str());
+    REQUIRE(rm == 0);
+}
+
 TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_parser][haplotype-counts]") {
     const auto parsed = parse_haplotype_counts("chr1:2, chr2:4");
     REQUIRE(parsed.at("chr1") == 2);

@@ -14,11 +14,11 @@
 
 namespace stoat_vcf {
 
-// Parse a ploidy count string of the form "ploidy1:count1,ploidy2:count2,..." into a map of ploidy to count
-std::unordered_map<std::string, size_t> parse_ploidy_per_chr_string(const std::string& counts);
+// Parse a per-chromosome haplotype-count string such as "chr1:2,chr2:4".
+std::unordered_map<std::string, size_t> parse_haplotype_counts(const std::string& counts);
 
-// Parse a ploidy count file of the form "ploidy1\tcount1\nploidy2\tcount2\n..." into a map of ploidy to count
-std::unordered_map<std::string, size_t> parse_ploidy_per_chr_file(const std::string& filename);
+// Parse a tab-separated chromosome/count file, with or without a header.
+std::unordered_map<std::string, size_t> load_haplotype_counts_file(const std::string& filename);
 
 // Predicts which statistical methods to used based on the values in
 // the phenotype file (when a model is not specified by the user)

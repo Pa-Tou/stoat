@@ -55,8 +55,9 @@ class VCFParser {
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
-    VCFParser(bool resolve_nested_calls, std::unordered_map<std::string, size_t> chr_ploidy_counts={})
-        : resolve_nested_calls(resolve_nested_calls), chr_ploidy_counts(std::move(chr_ploidy_counts)) {};
+    VCFParser(bool resolve_nested_calls, std::unordered_map<std::string, size_t> chr_haplotype_counts={})
+        : ploidy(PLOIDY), hap_count(0), resolve_nested_calls(resolve_nested_calls),
+          chr_haplotype_counts(std::move(chr_haplotype_counts)) {};
 
     /// Parse the header
     void initialize_parser(const std::string& vcf_path); 
@@ -102,7 +103,7 @@ class VCFParser {
 
     // The ploidy counts for each chromosome, if user-provided.
     // If not the ploidy count is inferred from the first record of each chromosome.
-    std::unordered_map<std::string, size_t> chr_ploidy_counts;
+    std::unordered_map<std::string, size_t> chr_haplotype_counts;
 
     // I think this is a file handle for the vcf
     htsFile* ptr_vcf;

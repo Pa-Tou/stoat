@@ -187,7 +187,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
     std::unordered_map<std::string, size_t> haplotype_counts;
     try {
         if (has_haplotype_counts) {
-            haplotype_counts = stoat_vcf::parse_haplotype_counts_string(haplotype_counts_text);
+            haplotype_counts = stoat_vcf::parse_haplotype_counts(haplotype_counts_text);
         } else if (has_haplotype_counts_file) {
             haplotype_counts = stoat_vcf::load_haplotype_counts_file(haplotype_counts_file);
         }

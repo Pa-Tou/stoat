@@ -36,6 +36,7 @@ void VCFParser::initialize_parser(const std::string& vcf_path) {
     if (sample_count == 0) {
         throw std::invalid_argument("No samples found in VCF file");
     }
+    hap_count = sample_count * ploidy;
 
     // Read the current line
     read_status = bcf_read(ptr_vcf, hdr, rec);
@@ -56,7 +57,7 @@ void VCFParser::initialize_parser(const std::string& vcf_path) {
 }
 
 void VCFParser::set_chromosome_ploidy(const std::string& chromosome) {
-    const auto user_ploidy_count = chr_ploidy_counts.find(chromosome);
+    const auto user_ploidy_count = chr_haplotype_counts.find(chromosome);
     size_t inferred_ploidy = 0;
 
     if (read_status >= 0 && chromosome == bcf_hdr_id2name(hdr, rec->rid)) {
@@ -83,34 +84,32 @@ void VCFParser::set_chromosome_ploidy(const std::string& chromosome) {
     }
 
     // Chr ploidy was provided by the user
-    if (user_ploidy_count != chr_ploidy_counts.end()) {
+    if (user_ploidy_count != chr_haplotype_counts.end()) {
         size_t user_ploidy = user_ploidy_count->second;
 
         // Case where the user-provided haplotype count is higher than the inferred ploidy
         // report a warning but still use the user-provided count
         if (user_ploidy > inferred_ploidy) {
-            stoat::LOG_WARN("Inferred haplotype count" + chromosome +
-                " for chromosome " + std::to_string(inferred_ploidy) + 
-                " is greater than the user-provided count (" +
-                std::to_string(user_ploidy) + ").", 
-                "inferred_haplotype_higher_that_user_count");
+            stoat::LOG_WARN("User-provided haplotype count (" + std::to_string(user_ploidy) +
+                ") for chromosome " + chromosome + " is greater than the inferred count (" +
+                std::to_string(inferred_ploidy) + "); using the user-provided count.",
+                "user_haplotype_count_higher_than_inferred");
         }
 
         // Case where the user-provided haplotype count is lower than the inferred ploidy
-        // report a warning and use the inferred ploidy instead of the user-provided count
+        // report a warning but still use the user-provided count
         if (user_ploidy < inferred_ploidy) {
-            stoat::LOG_WARN("Inferred haplotype count" + chromosome +
-                " for chromosome " + std::to_string(inferred_ploidy) + 
-                " is less than the user-provided count (" +
-                std::to_string(user_ploidy) + ")", 
-                "inferred_haplotype_lower_than_user_count");
+            stoat::LOG_WARN("User-provided haplotype count (" + std::to_string(user_ploidy) +
+                ") for chromosome " + chromosome + " is lower than the inferred count (" +
+                std::to_string(inferred_ploidy) + "); using the user-provided count.",
+                "user_haplotype_count_lower_than_inferred");
         }
 
     } else {
-        chr_ploidy_counts.emplace(chromosome, inferred_ploidy);
+        chr_haplotype_counts.emplace(chromosome, inferred_ploidy);
     }
 
-    ploidy = chr_ploidy_counts.at(chromosome);
+    ploidy = chr_haplotype_counts.at(chromosome);
     hap_count = sample_names.size() * ploidy;
 }
 
@@ -262,15 +261,19 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         }
 
         const size_t sample_count = sample_names.size();
+        if (sample_count == 0 || static_cast<size_t>(ngt) % sample_count != 0) {
+            throw std::invalid_argument("GT field has an invalid number of genotype slots at position " +
+                std::to_string(rec->pos + 1));
+        }
 
         // Number of GT slots actually stored per sample in this record.
-        // This can be smaller than the expected maximum ploidy.
         const size_t gt_ploidy = ngt / sample_count;
 
-        // Print warning if the GT field has a different ploidy than expected. This is not an error, but it may indicate a problem with the VCF.
+        // Warn if the GT field has a different ploidy than expected for this chromosome.
         if (gt_ploidy != ploidy) {
             stoat::LOG_WARN("GT field has " + std::to_string(gt_ploidy) + 
                 " slots per sample, but expected ploidy is " + std::to_string(ploidy) + 
+                (gt_ploidy > ploidy ? "; extra slots will be ignored" : "; remaining slots will be treated as missing") +
                 " at position " + std::to_string(rec->pos + 1), 
                 "gt_field_ploidy_mismatch");
         }
@@ -468,6 +471,11 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
             throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec_genotypes->pos + 1));
         }
 
+        if (sample_names.empty() || static_cast<size_t>(ngt) % sample_names.size() != 0) {
+            throw std::invalid_argument("GT field has an invalid number of genotype slots at position " +
+                std::to_string(rec_genotypes->pos + 1));
+        }
+
         const size_t gt_ploidy = static_cast<size_t>(ngt) / sample_names.size();
         std::vector<std::vector<stoat::node_traversal_t>> allele_paths;
 
@@ -494,7 +502,7 @@ void VCFParser::fill_in_nested_genotypes(const std::string& chr) {
             throw std::invalid_argument("AT fields are missing in VCF at position " + std::to_string(rec_genotypes->pos + 1) + "\n\tPangenie VCFs cannot be used with the --resolve-vcf option");
         }
 
-        // Now go through the paths and for each snarl in the path, remember how many copies of the snarl we see
+        // Iterate only the configured haplotypes, ignoring any extra GT slots.
         for (int sample_num = 0; sample_num < rec_genotypes->n_sample; ++sample_num){
             for (int hap_num = 0; hap_num < ploidy; ++hap_num){
                 // allele hap_num of that sample
