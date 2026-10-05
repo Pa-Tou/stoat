@@ -242,247 +242,282 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         fill_in_nested_genotypes(chr);
     }
 
+    // Process the chromosome chunk by chunk.
     while (read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid)) {
+
+        // Buffer the next chunk of records in a vector of unique pointers so that they are freed when the vector is cleared.
         std::vector<Bcf1Ptr> raw_records;
         raw_records.reserve(CHUNK_SIZE);
 
+        // ------------------------------------------------------------
+        // Phase 1: serial VCF reading
+        // ------------------------------------------------------------
         do {
-            bcf1_t* duplicated_record = bcf_dup(rec);
-            if (!duplicated_record) {
-                throw std::runtime_error("Unable to duplicate VCF record");
-            }
-            raw_records.emplace_back(duplicated_record, &bcf_destroy);
+            raw_records.emplace_back(bcf_dup(rec), &bcf_destroy);
             read_status = bcf_read(ptr_vcf, hdr, rec);
+
+#ifdef DEBUG_VCF_PARSER
+    std::cerr << read_status << " on chr " << chr << std::endl;
+#endif
+            // If there was a problem with the VCF, stop. The bcftools reader should have output its own more informative error message but doesn't seem to throw an error
             if (read_status < -1) {
                 throw std::runtime_error("Unable to read VCF file");
             }
         } while (raw_records.size() < CHUNK_SIZE && read_status >= 0 && chr == bcf_hdr_id2name(hdr, rec->rid));
 
-        std::exception_ptr parse_exception;
+        // ------------------------------------------------------------
+        // Phase 2: parallel processing of this chunk
+        // ------------------------------------------------------------
+        std::exception_ptr parse_exception = nullptr;
         bool has_error = false;
 
         #pragma omp parallel for schedule(static)
         for (size_t record_i = 0; record_i < raw_records.size(); ++record_i) {
+
+            // If anything has failed, skip the rest of the chunk and throw the error later
             if (has_error) {
                 continue;
             }
 
             try {
-                bcf1_t* record = raw_records[record_i].get();
+                // Get the raw record from the vector of unique pointers
+                bcf1_t* record = raw_records.at(record_i).get();
+
+                // CPU-intensive operation: do this in parallel.
                 const vcf_info_t vcf_info = parse_record(record, chr);
                 iteratee(vcf_info);
+
+            // If anything has failed, skip the rest of the chunk and throw the error later
+            // This is a bit of a hack to get around the fact that OpenMP doesn't support exceptions.
+            // We just set a flag and throw the exception after the parallel region.
             } catch (...) {
+                #pragma omp atomic write
+                has_error = true;
                 #pragma omp critical(vcf_parser_exception)
                 {
-                    if (!parse_exception) {
-                        parse_exception = std::current_exception();
-                        has_error = true;
-                    }
+                    parse_exception = std::current_exception();
+                    has_error = true;
                 }
             }
         }
 
+        // Free the whole chunk before loading the next one.
         raw_records.clear();
         if (parse_exception) {
             std::rethrow_exception(parse_exception);
         }
+
+#ifdef DEBUG_VCF_PARSER
+    if (read_status >= 0) {
+        std::cerr << "Finished chunk on chr " << chr << std::endl;
     }
+#endif
+
+    }
+
+#ifdef DEBUG_VCF_PARSER
+    if (read_status >= 0) {
+        std::cerr << "Broke out of chromosome loop with " << read_status << " at chr " << bcf_hdr_id2name(hdr, rec->rid) << std::endl;
+    }
+#endif
+
 }
 
 vcf_info_t VCFParser::parse_record(bcf1_t* raw_record, const std::string& chr) {
-    bcf1_t* rec = raw_record;
-    bcf_unpack(rec, BCF_UN_STR);
+    bcf_unpack(raw_record, BCF_UN_STR);
 
-        int32_t *lv = nullptr;
-        int n_lv = 0;
-        // Default to LV=0 if it wasn't there
-        size_t level = 0;
-        if (bcf_get_info_int32(hdr, rec, "LV", &lv, &n_lv) > 0) {
-            level = lv[0];
+    int32_t *lv = nullptr;
+    int n_lv = 0;
+    // Default to LV=0 if it wasn't there
+    size_t level = 0;
+    if (bcf_get_info_int32(hdr, raw_record, "LV", &lv, &n_lv) > 0) {
+        level = lv[0];
+    }
+    free(lv);
+
+    // For a vg call vcf, the snarl id is the snarl bounds
+    std::string snarl_id (raw_record->d.id);
+
+    // Get the paths of the alleles. This is either from the AT and RT fields (vg call) or the ID field (pangenie)
+    std::vector<std::vector<stoat::node_traversal_t>> paths;
+
+    // extract AT field from INFO
+    char *at = nullptr;
+    int nat = 0;
+    nat = bcf_get_info_string(hdr, raw_record, "AT", &at, &nat);
+
+    char *id_field = nullptr;
+    int nid = 0;
+    nid = bcf_get_info_string(hdr, raw_record, "ID", &id_field, &nid);
+    if ((nat > 0 && at) || (nid > 0 && id_field)) {
+        std::string info_str;
+        if (nat>0 && at) {
+            // If there is an AT field, then this is a vg call vcf with the paths directly in the AT field
+            std::string at_str(at); // convert to C++ std::string
+            free(at);
+            free(id_field);
+            info_str= std::move(at_str);
+        } else {
+            std::string id_str(id_field); // convert to C++ std::string
+            free(id_field);
+            free(at);
+
+            // If there is an ID field, then this is a pangenie vcf with the paths as part of the ID
+            // Also add the RD field and put them together
+            char *rd_field = nullptr;
+            int nrd = 0;
+            nrd = bcf_get_info_string(hdr, raw_record, "RD", &rd_field, &nrd);
+            if (nrd <= 0 || !rd_field) {
+                throw std::invalid_argument("VCF contains ID field but not RD field " + std::to_string(raw_record->pos + 1) + "\n\tThis pangenie VCF contains the alt paths in the ID field but not the reference path in the RD field");
+            }
+            std::string rd_str(rd_field);
+            free(rd_field);
+            rd_str+=",";
+            rd_str.insert(rd_str.end(), std::make_move_iterator(id_str.begin()), std::make_move_iterator(id_str.end()));
+
+            info_str= std::move(rd_str);
         }
-        free(lv);
 
-        // For a vg call vcf, the snarl id is the snarl bounds
-        std::string snarl_id (rec->d.id);
-        
-        // Get the paths of the alleles. This is either from the AT and RT fields (vg call) or the ID field (pangenie)
-        std::vector<std::vector<stoat::node_traversal_t>> paths;
-        
-        // extract AT field from INFO
-        char *at = nullptr;
-        int nat = 0;
-        nat = bcf_get_info_string(hdr, rec, "AT", &at, &nat);
-
-        char *id_field = nullptr;
-        int nid = 0;
-        nid = bcf_get_info_string(hdr, rec, "ID", &id_field, &nid);
-        if ((nat > 0 && at) || (nid > 0 && id_field)) {
-            std::string info_str;
-            if (nat>0 && at) {
-                // If there is an AT field, then this is a vg call vcf with the paths directly in the AT field{
-                std::string at_str(at); // convert to C++ std::string
-                free(at);
-                free(id_field);
-                info_str= std::move(at_str);
+        // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
+        // from: ">123>213<234", ">123<234", ">123<234<345"
+        // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
+        std::stringstream info_ss(info_str);
+        std::string item;
+        while (std::getline(info_ss, item, ','))
+        {
+            // If we are untangling snarls, then skip any nested snarls
+            std::vector<stoat::node_traversal_t> path_as_nodes;
+            if (nat > 0 && at) {
+                path_as_nodes  = string_to_path_node_traversal(item);
             } else {
-                std::string id_str(id_field); // convert to C++ std::string
-                free(id_field);
-                free(at);
-
-                // If there is an ID field, then this is a pangenie vcf with the paths as part of the in the ID
-                // Also add the RD field and put them together
-                char *rd_field = nullptr;
-                int nrd = 0;
-                nrd = bcf_get_info_string(hdr, rec, "RD", &rd_field, &nrd);
-                if (nrd <= 0 || !rd_field) {
-                    throw std::invalid_argument("VCF contains ID field but not RD field " + std::to_string(rec->pos + 1) + "\n\tThis pangenie VCF contains the alt paths in the ID field but not the reference path in the RD field");
-                }
-                std::string rd_str(rd_field);
-                free(rd_field);
-                rd_str+=",";
-                rd_str.insert(rd_str.end(), std::make_move_iterator(id_str.begin()), std::make_move_iterator(id_str.end()));
-
-                info_str= std::move(rd_str);
+                path_as_nodes = parse_pangenie_id(item);
             }
 
-            // split by comma and save as a vector of edge lists [vector vector stoat::edge_t]
-            // from: ">123>213<234", ">123<234", ">123<234<345"
-            // to: [[edge_t(123, 213),stoat::edge_t(213, 234)], [...]]
-            std::stringstream info_ss(info_str);
-            std::string item;
-            while (std::getline(info_ss, item, ','))
-            {
-                // If we are untangling snarls, then skip any nested snarls
-                std::vector<stoat::node_traversal_t> path_as_nodes;
-                if (nat > 0 && at) { 
-                    path_as_nodes  = string_to_path_node_traversal(item);
-                } else {
-                    path_as_nodes = parse_pangenie_id(item);
-                }
+            if (resolve_nested_calls) {
+                // If we want to resolve snarls, remove any nested snarls by copying everything except nested snarls into new path
+                // Add a <0 node to represent the snarl
+                std::vector<stoat::node_traversal_t> filtered_path;
+                filtered_path.reserve(path_as_nodes.size());
+                size_t path_i = 0;
+                while (path_i < path_as_nodes.size()) {
 
+                    // Add the current node
+                    filtered_path.emplace_back(path_as_nodes[path_i]);
 
-                if (resolve_nested_calls) {
-                    // If we want to resolve snarls, remove any nested snarls by copying everything except nested snarls into new path
-                    // Add a <0 node to represent the snarl
-                    std::vector<stoat::node_traversal_t> filtered_path;
-                    filtered_path.reserve(path_as_nodes.size());
-                    size_t path_i = 0;
-                    while (path_i < path_as_nodes.size()) {
-
-                        // Add the current node
-                        filtered_path.emplace_back(path_as_nodes[path_i]);
-
-                        // Check if the current node is the start of a snarl
-                        if (path_i != 0 && path_i != path_as_nodes.size()-1) {
-                            stoat::node_traversal_t skip_to_node = get_opposite_snarl_bound(filtered_path.back());
-                            if (skip_to_node != filtered_path.back()) {
-                                // If this is the start of a snarl, a fake snarl node and skip to the end of the snarl
-                                // The loop should continue on the end node of the nested snarl
-                                // TODO: This will include the boundary nodes between snarls which is wasteful but simpler
-                                filtered_path.emplace_back(0, false);
-                                while (path_as_nodes[path_i] != skip_to_node) {
-                                    path_i++;
-                                }
-                            } else {
+                    // Check if the current node is the start of a snarl
+                    if (path_i != 0 && path_i != path_as_nodes.size()-1) {
+                        stoat::node_traversal_t skip_to_node = get_opposite_snarl_bound(filtered_path.back());
+                        if (skip_to_node != filtered_path.back()) {
+                            // If this is the start of a snarl, add a fake snarl node and skip to the end of the snarl
+                            // The loop should continue on the end node of the nested snarl
+                            // TODO: This will include the boundary nodes between snarls which is wasteful but simpler
+                            filtered_path.emplace_back(0, false);
+                            while (path_as_nodes[path_i] != skip_to_node) {
                                 path_i++;
                             }
                         } else {
                             path_i++;
                         }
+                    } else {
+                        path_i++;
                     }
-                    paths.push_back(std::move(filtered_path));
-                } else {
-                    paths.push_back(std::move(path_as_nodes));
                 }
-                
+                paths.push_back(std::move(filtered_path));
+            } else {
+                paths.push_back(std::move(path_as_nodes));
             }
 
-        // End if ID field
-        } else { 
-            // AT or ID field is mandatory, throw an error
-            throw std::invalid_argument("AT and ID field is missing in VCF at position " + std::to_string(rec->pos + 1) + "\n\tstoat vcf requires the AT or ID fields containing graph walks from each allele. This can be obtained using vg call or pangenie");
         }
 
-        // extract genotypes GT
-        int ngt = 0;
-        int32_t *gt = nullptr;
-        ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
+    // End if ID field
+    } else {
+        // AT or ID field is mandatory, throw an error
+        throw std::invalid_argument("AT and ID field is missing in VCF at position " + std::to_string(raw_record->pos + 1) + "\n\tstoat vcf requires the AT or ID fields containing graph walks from each allele. This can be obtained using vg call or pangenie");
+    }
 
-        if (ngt <= 0 || gt == nullptr) {
-            throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(rec->pos + 1));
+    // extract genotypes GT
+    int ngt = 0;
+    int32_t *gt = nullptr;
+    ngt = bcf_get_genotypes(hdr, raw_record, &gt, &ngt);
+
+    if (ngt <= 0 || gt == nullptr) {
+        throw std::invalid_argument("GT field is missing in VCF at position " + std::to_string(raw_record->pos + 1));
+    }
+
+    const size_t sample_count = sample_names.size();
+    if (sample_count == 0 || static_cast<size_t>(ngt) % sample_count != 0) {
+        throw std::invalid_argument("GT field has an invalid number of genotype slots at position " +
+            std::to_string(raw_record->pos + 1));
+    }
+
+    // Number of GT slots actually stored per sample in this record.
+    const size_t gt_ploidy = ngt / sample_count;
+
+    // Warn if the GT field has a different ploidy than expected for this chromosome.
+    if (gt_ploidy != ploidy) {
+        #pragma omp critical(vcf_parser_log)
+        {
+            stoat::LOG_WARN("GT field has " + std::to_string(gt_ploidy) +
+                " slots per sample, but expected ploidy is " + std::to_string(ploidy) +
+                (gt_ploidy > ploidy ? "; extra slots will be ignored" : "; remaining slots will be treated as missing") +
+                " at position " + std::to_string(raw_record->pos + 1),
+                "gt_field_ploidy_mismatch");
+        }
+    }
+
+    // Make the actual vector of genotypes
+    // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
+    std::vector<int> record_genotypes;
+    record_genotypes.reserve(hap_count);
+
+    for (size_t i = 0; i < hap_count; ++i) {
+        const size_t sample = i / ploidy;
+        const size_t haplotype = i % ploidy;
+
+        // This haplotype does not exist in the GT field for this sample.
+        // Fill it with missing genotype.
+        if (haplotype >= gt_ploidy) {
+            record_genotypes.emplace_back(-1);
+            continue;
         }
 
-        const size_t sample_count = sample_names.size();
-        if (sample_count == 0 || static_cast<size_t>(ngt) % sample_count != 0) {
-            throw std::invalid_argument("GT field has an invalid number of genotype slots at position " +
-                std::to_string(rec->pos + 1));
+        const size_t gt_index = sample * gt_ploidy + haplotype;
+        const int32_t encoded_gt = gt[gt_index];
+
+        // Missing values
+        if (encoded_gt == bcf_int32_vector_end || bcf_gt_is_missing(encoded_gt)) {
+            record_genotypes.emplace_back(-1);
+            continue;
         }
 
-        // Number of GT slots actually stored per sample in this record.
-        const size_t gt_ploidy = ngt / sample_count;
+        int genotype = bcf_gt_allele(encoded_gt);
 
-        // Warn if the GT field has a different ploidy than expected for this chromosome.
-        if (gt_ploidy != ploidy) {
+        // Invalid allele index.
+        if (genotype < 0 || genotype >= static_cast<int>(paths.size())) {
             #pragma omp critical(vcf_parser_log)
             {
-                stoat::LOG_WARN("GT field has " + std::to_string(gt_ploidy) +
-                    " slots per sample, but expected ploidy is " + std::to_string(ploidy) +
-                    (gt_ploidy > ploidy ? "; extra slots will be ignored" : "; remaining slots will be treated as missing") +
-                    " at position " + std::to_string(rec->pos + 1),
-                    "gt_field_ploidy_mismatch");
+                stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" +
+                    std::to_string(raw_record->pos + 1) + " has invalid genotype of " +
+                    std::to_string(genotype), "bad_vcf_gt");
             }
+
+            record_genotypes.emplace_back(-1);
+            continue;
         }
 
-        // Make the actual vector of genotypes
-        // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
-        std::vector<int> genotypes;
-        genotypes.reserve(hap_count);
-
-        for (size_t i = 0; i < hap_count; ++i) {
-
-            const size_t sample = i / ploidy;
-            const size_t haplotype = i % ploidy;
-
-            // This haplotype does not exist in the GT field for this sample.
-            // Fill it with missing genotype.
-            if (haplotype >= gt_ploidy) {
-                genotypes.emplace_back(-1);
-                continue;
-            }
-
-            const size_t gt_index = sample * gt_ploidy + haplotype;
-            const int32_t encoded_gt = gt[gt_index];
-
-            // Missing values
-            if (encoded_gt == bcf_int32_vector_end || bcf_gt_is_missing(encoded_gt)) {
-                genotypes.emplace_back(-1);
-                continue;
-            }
-
-            int genotype = bcf_gt_allele(encoded_gt);
-
-            // Invalid allele index.
-            if (genotype < 0 || genotype >= static_cast<int>(paths.size())) {
-                #pragma omp critical(vcf_parser_log)
-                {
-                    stoat::LOG_WARN("VCF variant " + snarl_id + " at " + chr + ":" +
-                        std::to_string(rec->pos + 1) + " has invalid genotype of " +
-                        std::to_string(genotype), "bad_vcf_gt");
-                }
-
-                genotypes.emplace_back(-1);
-                continue;
-            }
-
-            if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_id)) {
-                genotypes.emplace_back(genotype);
-            } else {
-                genotypes.emplace_back(-1);
-            }
+        if (!resolve_nested_calls || level == 0 || does_sample_have_snarl(i, snarl_id)) {
+            record_genotypes.emplace_back(genotype);
+        } else {
+            record_genotypes.emplace_back(-1);
         }
-        free(gt);
+    }
+    free(gt);
 
-        return vcf_info_t({level, std::move(genotypes), std::move(paths)});
+#ifdef DEBUG_VCF_PARSER
+    std::cerr << " broke out of loop with " << read_status << " At chr " << bcf_hdr_id2name(hdr, rec->rid) << std::endl;
+#endif
+
+    return vcf_info_t{level, std::move(record_genotypes), std::move(paths)};
 }
 
 std::vector<stoat::node_traversal_t> VCFParser::parse_pangenie_id(std::string& allele_id_str) {
