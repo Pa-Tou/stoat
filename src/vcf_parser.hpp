@@ -8,6 +8,8 @@
 #include <string>
 #include <memory>
 #include <utility>
+
+#include "utils.hpp"
 #include "arg_parser.hpp"
 #include "types_and_structs.hpp"
 
@@ -58,6 +60,12 @@ class VCFParser {
     VCFParser(bool resolve_nested_calls, std::unordered_map<std::string, size_t> chr_haplotype_counts={})
         : ploidy(PLOIDY), hap_count(0), resolve_nested_calls(resolve_nested_calls),
           chr_haplotype_counts(std::move(chr_haplotype_counts)) {};
+
+    /// Parse user-provided chromosome haplotype counts into the parser configuration.
+    void parse_haplotype_counts(const std::string& counts);
+
+    /// Load user-provided chromosome haplotype counts from a tab-separated file.
+    void load_haplotype_counts_file(const std::string& filename);
 
     /// Parse the header
     void initialize_parser(const std::string& vcf_path); 

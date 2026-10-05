@@ -14,12 +14,6 @@
 
 namespace stoat_vcf {
 
-// Parse a per-chromosome haplotype-count string such as "chr1:2,chr2:4".
-std::unordered_map<std::string, size_t> parse_haplotype_counts(const std::string& counts);
-
-// Parse a tab-separated chromosome/count file, with or without a header.
-std::unordered_map<std::string, size_t> load_haplotype_counts_file(const std::string& filename);
-
 // Predicts which statistical methods to used based on the values in
 // the phenotype file (when a model is not specified by the user)
 //   binary without covariate -> chi2

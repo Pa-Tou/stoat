@@ -184,16 +184,11 @@ int main_stoat_vcf(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    std::unordered_map<std::string, size_t> haplotype_counts;
-    try {
-        if (has_haplotype_counts) {
-            haplotype_counts = stoat_vcf::parse_haplotype_counts(haplotype_counts_text);
-        } else if (has_haplotype_counts_file) {
-            haplotype_counts = stoat_vcf::load_haplotype_counts_file(haplotype_counts_file);
-        }
-    } catch (const std::invalid_argument& error) {
-        std::cerr << "Error: [stoat vcf] " << error.what() << '\n';
-        return EXIT_FAILURE;
+    stoat_vcf::VCFParser vcf_parser(resolve_vcf);
+    if (has_haplotype_counts) {
+        vcf_parser.parse_haplotype_counts(haplotype_counts_text);
+    } else if (has_haplotype_counts_file) {
+        vcf_parser.load_haplotype_counts_file(haplotype_counts_file);
     }
 
     // Enforce valid argument combinations
@@ -435,7 +430,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
         auto start_gt_timer = std::chrono::high_resolution_clock::now();
 
         // start reading the VCF to get the sample list
-        stoat_vcf::VCFParser vcf_parser(resolve_vcf, haplotype_counts);
         vcf_parser.initialize_parser(vcf_path);
 
         // retrieve genotypes one chromosome at a time

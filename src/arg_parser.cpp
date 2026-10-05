@@ -1,11 +1,9 @@
 #include <filesystem>
 #include <algorithm>
-#include <charconv>
 #include <cctype>
 #include <fstream>
 #include <stdexcept>
 #include <string_view>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include "log.hpp"
@@ -14,126 +12,6 @@
 namespace fs = std::filesystem;
 
 namespace stoat_vcf {
-
-std::string trim(const std::string& value) {
-    const auto first = value.find_first_not_of(" \t\r\n");
-    if (first == std::string::npos) {
-        return "";
-    }
-    const auto last = value.find_last_not_of(" \t\r\n");
-    return value.substr(first, last - first + 1);
-}
-
-size_t parse_count(const std::string& count_text, const std::string& context) {
-    size_t count = 0;
-    const char* first = count_text.data();
-    const char* last = first + count_text.size();
-    const auto [ptr, ec] = std::from_chars(first, last, count);
-    if (count_text.empty() || ec != std::errc{} || ptr != last || count == 0) {
-        throw std::invalid_argument("Haplotype count must be a positive integer" + context);
-    }
-    return count;
-}
-
-std::unordered_map<std::string, size_t> parse_haplotype_counts(const std::string& counts) {
-    std::unordered_map<std::string, size_t> haplotype_counts;
-    size_t start = 0;
-
-    while (start < counts.size()) {
-        const size_t end = counts.find(',', start);
-        const std::string entry = trim(counts.substr(
-            start,
-            end == std::string::npos ? std::string::npos : end - start
-        ));
-
-        const size_t colon = entry.find(':');
-        if (colon == std::string::npos || colon == 0 || colon == entry.size() - 1 ||
-            entry.find(':', colon + 1) != std::string::npos) {
-            throw std::invalid_argument("Invalid entry; expected chromosome:count: " + entry);
-        }
-
-        const std::string chromosome = trim(entry.substr(0, colon));
-        const std::string count_text = trim(entry.substr(colon + 1));
-        if (chromosome.empty()) {
-            throw std::invalid_argument("Invalid entry; expected chromosome:count: " + entry);
-        }
-
-        const size_t count = parse_count(count_text, ": " + count_text);
-        if (!haplotype_counts.emplace(chromosome, count).second) {
-            throw std::invalid_argument("duplicate chromosome: " + chromosome);
-        }
-
-        if (end == std::string::npos) {
-            break;
-        }
-
-        start = end + 1;
-
-        if (start == counts.size()) {
-            throw std::invalid_argument("Invalid entry; expected chromosome:count after trailing comma");
-        }
-    }
-
-    if (haplotype_counts.empty()) {
-        throw std::invalid_argument("Expected at least one chromosome:count entry");
-    }
-    return haplotype_counts;
-}
-
-std::unordered_map<std::string, size_t> load_haplotype_counts_file(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        throw std::runtime_error("Cannot open haplotype-count file: " + filename);
-    }
-
-    std::unordered_map<std::string, size_t> haplotype_counts;
-    std::string line;
-    size_t line_number = 0;
-
-    while (std::getline(file, line)) {
-        ++line_number;
-
-        if (trim(line).empty()) {
-            continue;
-        }
-
-        if (trim(line) == "chromosome\thaplotype_count") {
-            continue;
-        }
-
-        const size_t tab = line.find('\t');
-        if (tab == std::string::npos || line.find('\t', tab + 1) != std::string::npos) {
-            throw std::runtime_error("Expected exactly two tab-separated columns at line " +
-                std::to_string(line_number));
-        }
-
-        const std::string chromosome = trim(line.substr(0, tab));
-        const std::string count_text = trim(line.substr(tab + 1));
-        if (chromosome.empty()) {
-            throw std::runtime_error("Missing chromosome at line " + std::to_string(line_number));
-        }
-
-        size_t count;
-        try {
-            count = parse_count(count_text, " at line " + std::to_string(line_number));
-        } catch (const std::invalid_argument& error) {
-            throw std::runtime_error(error.what());
-        }
-
-        if (!haplotype_counts.emplace(chromosome, count).second) {
-            throw std::runtime_error("duplicate chromosome at line " + std::to_string(line_number));
-        }
-    }
-
-    if (file.bad()) {
-        throw std::runtime_error("Error reading ploidy count file: " + filename);
-    }
-
-    if (haplotype_counts.empty()) {
-        throw std::runtime_error("No haplotype counts found in file: " + filename);
-    }
-    return haplotype_counts;
-}
 
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;

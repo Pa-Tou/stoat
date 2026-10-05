@@ -11,12 +11,15 @@ class TestVCFParser : VCFParser {
     TestVCFParser(bool untangle, std::unordered_map<std::string, size_t> haplotype_counts={}) :
         VCFParser(untangle, std::move(haplotype_counts)) {}
     using VCFParser::initialize_parser;
+    using VCFParser::parse_haplotype_counts;
+    using VCFParser::load_haplotype_counts_file;
     using VCFParser::get_next_chromosome_name;
     using VCFParser::for_each_record_on_chromosome;
     using VCFParser::skip_to_next_chromosome;
     using VCFParser::close_vcf;
     using VCFParser::ploidy;
     using VCFParser::hap_count;
+    using VCFParser::chr_haplotype_counts;
     using VCFParser::does_sample_have_snarl;
     using VCFParser::get_opposite_snarl_bound;
     using VCFParser::genotypes;
@@ -2046,19 +2049,21 @@ TEST_CASE("GT ploidy differing from configured ploidy", "[vcf_parser][polyploid]
 }
 
 TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_parser][haplotype-counts]") {
-    const auto parsed = parse_haplotype_counts("chr1:2, chr2:4");
+    TestVCFParser parser(false);
+    parser.parse_haplotype_counts("chr1:2, chr2:4");
+    const auto& parsed = parser.chr_haplotype_counts;
     REQUIRE(parsed.at("chr1") == 2);
     REQUIRE(parsed.at("chr2") == 4);
 
-    REQUIRE_THROWS_WITH(parse_haplotype_counts("chr1:0"),
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:0"),
                         Catch::Contains("positive integer"));
-    REQUIRE_THROWS_WITH(parse_haplotype_counts("chr1:-2"),
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:-2"),
                         Catch::Contains("positive integer"));
-    REQUIRE_THROWS_WITH(parse_haplotype_counts("chr1:2,chr1:4"),
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:2,chr1:4"),
                         Catch::Contains("duplicate chromosome"));
-    REQUIRE_THROWS_WITH(parse_haplotype_counts("chr1:2,"),
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:2,"),
                         Catch::Contains("expected chromosome:count"));
-    REQUIRE_THROWS_WITH(parse_haplotype_counts("chr1"),
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1"),
                         Catch::Contains("expected chromosome:count"));
 
     const std::string filename = "./haplotype_counts.tsv";
@@ -2068,10 +2073,11 @@ TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_
                << "chr1\t2\n"
                << "chr2\t4\n";
     }
-    const auto from_file = load_haplotype_counts_file(filename);
+    parser.load_haplotype_counts_file(filename);
+    const auto& from_file = parser.chr_haplotype_counts;
     REQUIRE(from_file.at("chr1") == 2);
     REQUIRE(from_file.at("chr2") == 4);
-    REQUIRE_THROWS_WITH(load_haplotype_counts_file("./missing_haplotype_counts.tsv"),
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file("./missing_haplotype_counts.tsv"),
                         Catch::Contains("Cannot open"));
     std::remove(filename.c_str());
 
@@ -2079,7 +2085,7 @@ TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_
         std::ofstream output(filename);
         output << "chr1\t0\n";
     }
-    REQUIRE_THROWS_WITH(load_haplotype_counts_file(filename),
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
                         Catch::Contains("positive integer"));
     std::remove(filename.c_str());
 
@@ -2087,7 +2093,7 @@ TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_
         std::ofstream output(filename);
         output << "chr1\t\n";
     }
-    REQUIRE_THROWS_WITH(load_haplotype_counts_file(filename),
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
                         Catch::Contains("positive integer"));
     std::remove(filename.c_str());
 
@@ -2095,7 +2101,7 @@ TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_
         std::ofstream output(filename);
         output << "chr1\t2\textra\n";
     }
-    REQUIRE_THROWS_WITH(load_haplotype_counts_file(filename),
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
                         Catch::Contains("exactly two tab-separated columns"));
     std::remove(filename.c_str());
 
@@ -2103,7 +2109,7 @@ TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_
         std::ofstream output(filename);
         output << "chr1\t2\nchr1\t4\n";
     }
-    REQUIRE_THROWS_WITH(load_haplotype_counts_file(filename),
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
                         Catch::Contains("duplicate chromosome"));
     std::remove(filename.c_str());
 }
