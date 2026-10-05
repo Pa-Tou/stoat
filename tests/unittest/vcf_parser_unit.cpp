@@ -1,4 +1,8 @@
 #include <catch.hpp>
+#include <atomic>
+#include <cstdio>
+#include <omp.h>
+#include "../../src/arg_parser.hpp"
 #include "../../src/vcf_parser.hpp"
 
 using namespace stoat_vcf;
@@ -6,14 +10,18 @@ using namespace stoat_vcf;
 
 class TestVCFParser : VCFParser {
     public: 
-    TestVCFParser(bool untangle) :
-        VCFParser(untangle) {} 
+    TestVCFParser(bool untangle, std::unordered_map<std::string, size_t> haplotype_counts={}) :
+        VCFParser(untangle, std::move(haplotype_counts)) {}
     using VCFParser::initialize_parser;
+    using VCFParser::parse_haplotype_counts;
+    using VCFParser::load_haplotype_counts_file;
     using VCFParser::get_next_chromosome_name;
     using VCFParser::for_each_record_on_chromosome;
     using VCFParser::skip_to_next_chromosome;
     using VCFParser::close_vcf;
+    using VCFParser::ploidy;
     using VCFParser::hap_count;
+    using VCFParser::chr_haplotype_counts;
     using VCFParser::does_sample_have_snarl;
     using VCFParser::get_opposite_snarl_bound;
     using VCFParser::genotypes;
@@ -41,7 +49,7 @@ TEST_CASE( "Parse empty vcf", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
 
         std::string chr = parser.get_next_chromosome_name();
@@ -97,7 +105,7 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser without untangling snarls") {
         TestVCFParser parser(false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -277,7 +285,7 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Skip a chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -405,7 +413,7 @@ TEST_CASE( "Parse vcf simple nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Skip last chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -530,7 +538,7 @@ TEST_CASE( "Parse pangenie vcf simple nested snarl multiple snps", "[vcf_parser]
 
     SECTION("Make a VCFParser without untangling snarls") {
         TestVCFParser parser(false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -710,7 +718,7 @@ TEST_CASE( "Parse pangenie vcf simple nested snarl multiple snps", "[vcf_parser]
     }
     SECTION("Skip a chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -838,7 +846,7 @@ TEST_CASE( "Parse pangenie vcf simple nested snarl multiple snps", "[vcf_parser]
     }
     SECTION("Skip last chromosome") {
         TestVCFParser parser (false);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -951,7 +959,7 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
 
     SECTION("Check the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1004,7 +1012,7 @@ TEST_CASE( "Untangle simple nested snarl", "[vcf_parser]" ) {
 
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -1100,7 +1108,7 @@ TEST_CASE( "Untangle simple nested snarl multiple snps", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1167,7 +1175,7 @@ TEST_CASE( "Untangle simple nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -1286,7 +1294,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
 
     SECTION("Make a VCFParser") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1353,7 +1361,7 @@ TEST_CASE( "Untangle three nested snarl multiple snps", "[vcf_parser]" ) {
     }
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -1472,7 +1480,7 @@ TEST_CASE( "Multiple records from a deletion", "[vcf_parser]" ) {
 
     SECTION("Check the contents of the utntangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         parser.for_each_record_on_chromosome("ref", [&](const auto& x ) {});
 
@@ -1539,7 +1547,7 @@ TEST_CASE( "Multiple records from a deletion", "[vcf_parser]" ) {
     }
     SECTION("Go through the contents using the untangler") {
         TestVCFParser parser (true);
-        std::vector<std::string> sample_names = parser.initialize_parser (vcf_filename);
+        parser.initialize_parser (vcf_filename);
 
         // Check first chr
         std::string chr = parser.get_next_chromosome_name();
@@ -1641,4 +1649,517 @@ TEST_CASE( "Multiple records from a deletion", "[vcf_parser]" ) {
     std::string rm_cmd = "rm " + vcf_filename;
     int rm = system(rm_cmd.c_str());
 
+}
+
+TEST_CASE( "Parse configured triploid genotypes", "[vcf_parser][polyploid]" ) {
+
+    // Write a simple VCF with two triploid samples (ploidy = 3)
+    std::string vcf_filename = "./test.vcf";
+    std::ofstream vcf_out;
+    vcf_out.open(vcf_filename);
+    vcf_out << "##fileformat=VCFv4.2" << std::endl;
+    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
+    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
+    vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
+    vcf_out << "##contig=<ID=ref1,length=100>" << std::endl;
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4" << std::endl;
+    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\t1/1/0\t.\t././." << std::endl; // here if . is missing in the genotype they must be interpreted like : ././.
+    vcf_out.close();
+
+    SECTION("Use the configured chromosome count") {
+            
+        TestVCFParser parser(true, {{"ref1", 3}});
+        parser.initialize_parser(vcf_filename);
+
+        REQUIRE(parser.ploidy == 2);
+        REQUIRE(parser.hap_count == 8);
+
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref1"));
+        size_t snarl_num = 0;
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            // >1>2>3,>1>3>4
+            // 0/1/1 1/1/0 ././. ././.
+            REQUIRE(vcf_info.lv == 0);
+            REQUIRE(vcf_info.paths.size() == 2); 
+            REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">1>2>3");
+            REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">1>3>4");
+            REQUIRE(vcf_info.genotype[0] == 0); 
+            REQUIRE(vcf_info.genotype[1] == 1); 
+            REQUIRE(vcf_info.genotype[2] == 1);
+
+            REQUIRE(vcf_info.genotype[3] == 1); 
+            REQUIRE(vcf_info.genotype[4] == 1); 
+            REQUIRE(vcf_info.genotype[5] == 0);
+
+            REQUIRE(vcf_info.genotype[6] == -1);
+            REQUIRE(vcf_info.genotype[7] == -1); 
+            REQUIRE(vcf_info.genotype[8] == -1);
+ 
+            REQUIRE(vcf_info.genotype[9] == -1);
+            REQUIRE(vcf_info.genotype[10] == -1); 
+            REQUIRE(vcf_info.genotype[11] == -1); 
+
+        });
+        REQUIRE(parser.ploidy == 3);
+        REQUIRE(parser.hap_count == 12);
+
+        parser.close_vcf();
+    }
+
+    // clean up
+
+    std::string rm_cmd = "rm " + vcf_filename;
+    int rm = system(rm_cmd.c_str());
+
+}
+
+TEST_CASE( "Triploid genotypes with missing haplotype", "[vcf_parser][polyploid]" ) {
+
+    // Write a simple VCF with two triploid samples (ploidy = 3)
+    std::string vcf_filename = "./test.vcf";
+    std::ofstream vcf_out;
+    vcf_out.open(vcf_filename);
+    vcf_out << "##fileformat=VCFv4.2" << std::endl;
+    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
+    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
+    vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
+    vcf_out << "##contig=<ID=ref1,length=100>" << std::endl;
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4" << std::endl;
+    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\t1/1/0\t./.\t0/0/0" << std::endl;
+    vcf_out << "ref2\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1\t0\t./.\t0/0" << std::endl;
+
+    vcf_out.close();
+
+    SECTION("Use configured count and infer the next chromosome independently") {
+            
+        TestVCFParser parser(true, {{"ref1", 3}});
+        parser.initialize_parser(vcf_filename);
+
+        // Ref1 is configured as triploid; ref2 defaults to diploid.
+        REQUIRE(parser.ploidy == 2);
+        REQUIRE(parser.hap_count == 8);
+
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref1"));
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            REQUIRE(parser.ploidy == 3);
+            REQUIRE(parser.hap_count == 12);
+            // >1>2>3,>1>3>4
+            // 0/1/1 1/1/0 ././. 0/0/0
+            REQUIRE(vcf_info.lv == 0);
+            REQUIRE(vcf_info.paths.size() == 2); 
+            REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">1>2>3");
+            REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">1>3>4");
+            REQUIRE(vcf_info.genotype[0] == 0); 
+            REQUIRE(vcf_info.genotype[1] == 1); 
+            REQUIRE(vcf_info.genotype[2] == 1);
+
+            REQUIRE(vcf_info.genotype[3] == 1); 
+            REQUIRE(vcf_info.genotype[4] == 1); 
+            REQUIRE(vcf_info.genotype[5] == 0);
+
+            REQUIRE(vcf_info.genotype[6] == -1);
+            REQUIRE(vcf_info.genotype[7] == -1); 
+            REQUIRE(vcf_info.genotype[8] == -1);
+ 
+            REQUIRE(vcf_info.genotype[9] == 0);
+            REQUIRE(vcf_info.genotype[10] == 0); 
+            REQUIRE(vcf_info.genotype[11] == 0); 
+
+        });
+        REQUIRE(parser.ploidy == 3);
+        REQUIRE(parser.hap_count == 12);
+
+        chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref2"));
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            REQUIRE(parser.ploidy == 2);
+            REQUIRE(parser.hap_count == 8);
+
+            // 0/1 0/. ././0/0 (extra alleles are ignored beyond the configured count)
+            REQUIRE(vcf_info.genotype[0] == 0); 
+            REQUIRE(vcf_info.genotype[1] == 1); 
+
+            REQUIRE(vcf_info.genotype[2] == 0);
+            REQUIRE(vcf_info.genotype[3] == -1);
+
+            REQUIRE(vcf_info.genotype[4] == -1);
+            REQUIRE(vcf_info.genotype[5] == -1);
+ 
+            REQUIRE(vcf_info.genotype[6] == 0);
+            REQUIRE(vcf_info.genotype[7] == 0);
+
+        });
+        REQUIRE(parser.ploidy == 2);
+        REQUIRE(parser.hap_count == 8);
+
+        parser.close_vcf();
+    }
+
+    SECTION("Infer maximum haplotype count from each chromosome's first variant") {
+        TestVCFParser parser(true);
+        parser.initialize_parser(vcf_filename);
+
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == "ref1");
+        parser.for_each_record_on_chromosome(chr, [] (const vcf_info_t&) {});
+        REQUIRE(parser.ploidy == 3);
+        REQUIRE(parser.hap_count == 12);
+
+        chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == "ref2");
+        parser.for_each_record_on_chromosome(chr, [] (const vcf_info_t&) {});
+        REQUIRE(parser.ploidy == 2);
+        REQUIRE(parser.hap_count == 8);
+
+        parser.close_vcf();
+    }
+
+    // clean up
+
+    std::string rm_cmd = "rm " + vcf_filename;
+    int rm = system(rm_cmd.c_str());
+
+}
+
+TEST_CASE( "Triploid genotypes with chromosome count configuration", "[vcf_parser][polyploid]" ) {
+
+    // Write a simple VCF with two triploid samples (ploidy = 3)
+    std::string vcf_filename = "./test.vcf";
+    std::ofstream vcf_out;
+    vcf_out.open(vcf_filename);
+    vcf_out << "##fileformat=VCFv4.2" << std::endl;
+    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
+    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
+    vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
+    vcf_out << "##contig=<ID=ref1,length=100>" << std::endl;
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4" << std::endl;
+    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1\t1/1\t./.\t0/0" << std::endl;
+    vcf_out << "ref2\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1/1/1\t0\t././././.\t1/0/0" << std::endl;
+    vcf_out.close();
+
+    SECTION("Use configured counts for each chromosome") {
+            
+        TestVCFParser parser(true, {{"ref1", 3}, {"ref2", 3}});
+        parser.initialize_parser(vcf_filename);
+
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref1"));
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            REQUIRE(parser.ploidy == 3);
+            REQUIRE(parser.hap_count == 12);
+            // >1>2>3,>1>3>4
+            // 0/1 1/1 ./. 0/0
+            REQUIRE(vcf_info.lv == 0);
+            REQUIRE(vcf_info.paths.size() == 2); 
+            REQUIRE(path_node_traversal_to_string(vcf_info.paths[0]) == ">1>2>3");
+            REQUIRE(path_node_traversal_to_string(vcf_info.paths[1]) == ">1>3>4");
+            REQUIRE(vcf_info.genotype[0] == 0); 
+            REQUIRE(vcf_info.genotype[1] == 1); 
+            REQUIRE(vcf_info.genotype[2] == -1);
+
+            REQUIRE(vcf_info.genotype[3] == 1); 
+            REQUIRE(vcf_info.genotype[4] == 1);
+            REQUIRE(vcf_info.genotype[5] == -1);
+
+            REQUIRE(vcf_info.genotype[6] == -1);
+            REQUIRE(vcf_info.genotype[7] == -1); 
+            REQUIRE(vcf_info.genotype[8] == -1);
+ 
+            REQUIRE(vcf_info.genotype[9] == 0);
+            REQUIRE(vcf_info.genotype[10] == 0); 
+            REQUIRE(vcf_info.genotype[11] == -1); 
+
+        });
+
+        chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref2"));
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            REQUIRE(parser.ploidy == 3);
+            REQUIRE(parser.hap_count == 12);
+
+            // 0/1/1/1/1 0 ././././. 1/0/0
+            REQUIRE(vcf_info.genotype[0] == 0); 
+            REQUIRE(vcf_info.genotype[1] == 1); 
+            REQUIRE(vcf_info.genotype[2] == 1);
+
+            REQUIRE(vcf_info.genotype[3] == 0); 
+            REQUIRE(vcf_info.genotype[4] == -1); 
+            REQUIRE(vcf_info.genotype[5] == -1);
+
+            REQUIRE(vcf_info.genotype[6] == -1);
+            REQUIRE(vcf_info.genotype[7] == -1); 
+            REQUIRE(vcf_info.genotype[8] == -1);
+ 
+            REQUIRE(vcf_info.genotype[9] == 1);
+            REQUIRE(vcf_info.genotype[10] == 0); 
+            REQUIRE(vcf_info.genotype[11] == 0); 
+
+        });
+
+        parser.close_vcf();
+    }
+
+    // clean up
+
+    std::string rm_cmd = "rm " + vcf_filename;
+    int rm = system(rm_cmd.c_str());
+
+}
+
+TEST_CASE( "Haploide genotypes", "[vcf_parser][polyploid]" ) {
+
+    // Write a simple VCF
+    std::string vcf_filename = "./test.vcf";
+    std::ofstream vcf_out;
+    vcf_out.open(vcf_filename);
+    vcf_out << "##fileformat=VCFv4.2" << std::endl;
+    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
+    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
+    vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
+    vcf_out << "##contig=<ID=ref1,length=100>" << std::endl;
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4" << std::endl;
+    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0\t1\t.\t0" << std::endl;
+    vcf_out << "ref2\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t1\t0\t.\t1" << std::endl;
+    vcf_out.close();
+
+    SECTION("Test haploide genotype") {
+            
+        TestVCFParser parser(true, {{"ref1", 1}, {"ref2", 1}});
+        parser.initialize_parser(vcf_filename);
+
+        // Expect ploidy = 1 and 4 samples -> hap_count = 4
+        REQUIRE(parser.ploidy == 2);
+        REQUIRE(parser.hap_count == 8);
+
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref1"));
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            REQUIRE(parser.ploidy == 1);
+            REQUIRE(parser.hap_count == 4);
+            // >1>2>3,>1>3>4
+            // 0 1 . 0
+            REQUIRE(vcf_info.genotype[0] == 0); 
+            REQUIRE(vcf_info.genotype[1] == 1); 
+            REQUIRE(vcf_info.genotype[2] == -1);
+            REQUIRE(vcf_info.genotype[3] == 0); 
+
+        });
+
+        chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref2"));
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            REQUIRE(parser.ploidy == 1);
+            REQUIRE(parser.hap_count == 4);
+
+            // 1 0 . 1
+            REQUIRE(vcf_info.genotype[0] == 1); 
+            REQUIRE(vcf_info.genotype[1] == 0); 
+            REQUIRE(vcf_info.genotype[2] == -1);
+            REQUIRE(vcf_info.genotype[3] == 1); 
+
+        });
+
+        parser.close_vcf();
+    }
+
+    SECTION("Test haploid genotype with triploid chromosome count") {
+            
+        TestVCFParser parser(true, {{"ref1", 3}, {"ref2", 3}});
+        parser.initialize_parser(vcf_filename);
+
+        REQUIRE(parser.ploidy == 2);
+        REQUIRE(parser.hap_count == 8);
+
+        std::string chr = parser.get_next_chromosome_name();
+        REQUIRE(chr == ("ref1"));
+        parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+            REQUIRE(parser.ploidy == 3);
+            REQUIRE(parser.hap_count == 12);
+            // >1>2>3,>1>3>4
+            // 0 1 . 0
+            REQUIRE(vcf_info.genotype[0] == 0);
+            REQUIRE(vcf_info.genotype[1] == -1);
+            REQUIRE(vcf_info.genotype[2] == -1);
+
+            REQUIRE(vcf_info.genotype[3] == 1);
+            REQUIRE(vcf_info.genotype[4] == -1);
+            REQUIRE(vcf_info.genotype[5] == -1);
+
+            REQUIRE(vcf_info.genotype[6] == -1);
+            REQUIRE(vcf_info.genotype[7] == -1);
+            REQUIRE(vcf_info.genotype[8] == -1);
+
+            REQUIRE(vcf_info.genotype[9] == 0);
+            REQUIRE(vcf_info.genotype[10] == -1);
+            REQUIRE(vcf_info.genotype[11] == -1);
+
+        });
+
+        parser.close_vcf();
+    }
+
+    // clean up
+
+    std::string rm_cmd = "rm " + vcf_filename;
+    int rm = system(rm_cmd.c_str());
+
+}
+
+TEST_CASE("GT ploidy differing from configured ploidy", "[vcf_parser][polyploid]") {
+    const std::string vcf_filename = "./test.vcf";
+    std::ofstream vcf_out(vcf_filename);
+    vcf_out << "##fileformat=VCFv4.2" << std::endl;
+    vcf_out << "##FILTER=<ID=PASS,Description=\"All filters passed\">" << std::endl;
+    vcf_out << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    vcf_out << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree (0=top level)\">" << std::endl;
+    vcf_out << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">" << std::endl;
+    vcf_out << "##contig=<ID=ref1,length=100>" << std::endl;
+    vcf_out << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2" << std::endl;
+    vcf_out << "ref1\t1\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\t1/0/1" << std::endl;
+    vcf_out << "ref1\t2\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0\t1" << std::endl;
+    vcf_out.close();
+
+    TestVCFParser parser(true, {{"ref1", 2}});
+    parser.initialize_parser(vcf_filename);
+    const std::string chr = parser.get_next_chromosome_name();
+    REQUIRE(chr == "ref1");
+
+    size_t record = 0;
+    parser.for_each_record_on_chromosome(chr, [&] (const vcf_info_t& vcf_info) {
+        if (record == 0) {
+            // Three GT slots are present; the extra third allele is ignored.
+            const std::vector<int> expected{0, 1, 1, 0};
+            REQUIRE(vcf_info.genotype == expected);
+        } else {
+            // One GT slot is present; the remaining configured slot is missing.
+            const std::vector<int> expected{0, -1, 1, -1};
+            REQUIRE(vcf_info.genotype == expected);
+        }
+
+        ++record;
+    });
+    REQUIRE(record == 2);
+
+    parser.close_vcf();
+    const int rm = std::remove(vcf_filename.c_str());
+    REQUIRE(rm == 0);
+}
+
+TEST_CASE("Parse and validate chromosome haplotype-count configurations", "[vcf_parser][haplotype-counts]") {
+    TestVCFParser parser(false);
+    parser.parse_haplotype_counts("chr1:2, chr2:4");
+    const auto& parsed = parser.chr_haplotype_counts;
+    REQUIRE(parsed.at("chr1") == 2);
+    REQUIRE(parsed.at("chr2") == 4);
+
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:0"),
+                        Catch::Contains("positive integer"));
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:-2"),
+                        Catch::Contains("positive integer"));
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:2,chr1:4"),
+                        Catch::Contains("duplicate chromosome"));
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1:2,"),
+                        Catch::Contains("expected chromosome:count"));
+    REQUIRE_THROWS_WITH(parser.parse_haplotype_counts("chr1"),
+                        Catch::Contains("expected chromosome:count"));
+
+    const std::string filename = "./haplotype_counts.tsv";
+    {
+        std::ofstream output(filename);
+        output << "chromosome\thaplotype_count\n"
+               << "chr1\t2\n"
+               << "chr2\t4\n";
+    }
+    parser.load_haplotype_counts_file(filename);
+    const auto& from_file = parser.chr_haplotype_counts;
+    REQUIRE(from_file.at("chr1") == 2);
+    REQUIRE(from_file.at("chr2") == 4);
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file("./missing_haplotype_counts.tsv"),
+                        Catch::Contains("Cannot open"));
+    std::remove(filename.c_str());
+
+    {
+        std::ofstream output(filename);
+        output << "chr1\t0\n";
+    }
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
+                        Catch::Contains("positive integer"));
+    std::remove(filename.c_str());
+
+    {
+        std::ofstream output(filename);
+        output << "chr1\t\n";
+    }
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
+                        Catch::Contains("positive integer"));
+    std::remove(filename.c_str());
+
+    {
+        std::ofstream output(filename);
+        output << "chr1\t2\textra\n";
+    }
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
+                        Catch::Contains("exactly two tab-separated columns"));
+    std::remove(filename.c_str());
+
+    {
+        std::ofstream output(filename);
+        output << "chr1\t2\nchr1\t4\n";
+    }
+    REQUIRE_THROWS_WITH(parser.load_haplotype_counts_file(filename),
+                        Catch::Contains("duplicate chromosome"));
+    std::remove(filename.c_str());
+}
+
+TEST_CASE("Parse polyploid VCF records in parallel", "[vcf_parser][polyploid][parallel]") {
+    struct ThreadCountGuard {
+        int original = omp_get_max_threads();
+        ~ThreadCountGuard() {
+            omp_set_num_threads(original);
+        }
+    } thread_count_guard;
+    omp_set_num_threads(4);
+
+    const std::string vcf_filename = "./test.vcf";
+    {
+        std::ofstream vcf_out(vcf_filename);
+        vcf_out << "##fileformat=VCFv4.2\n"
+                << "##FILTER=<ID=PASS,Description=\"All filters passed\">\n"
+                << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n"
+                << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Level in the snarl tree\">\n"
+                << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele Traversal as path in graph\">\n"
+                << "##contig=<ID=ref1,length=100>\n"
+                << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n";
+        for (size_t position = 1; position <= 32; ++position) {
+            vcf_out << "ref1\t" << position
+                    << "\t>1>4\tA\tT\t60\t.\tLV=0;AT=>1>2>3,>1>3>4\tGT\t0/1/1\n";
+        }
+    }
+
+    TestVCFParser parser(false, {{"ref1", 3}});
+    parser.initialize_parser(vcf_filename);
+    std::atomic<size_t> records_seen{0};
+    std::atomic<bool> valid_records{true};
+    std::atomic<unsigned int> thread_mask{0};
+
+    parser.for_each_record_on_chromosome("ref1", [&](const vcf_info_t& vcf_info) {
+        if (vcf_info.lv != 0 || vcf_info.genotype != std::vector<int>{0, 1, 1}) {
+            valid_records.store(false, std::memory_order_relaxed);
+        }
+        records_seen.fetch_add(1, std::memory_order_relaxed);
+        thread_mask.fetch_or(1U << omp_get_thread_num(), std::memory_order_relaxed);
+    });
+    parser.close_vcf();
+    std::remove(vcf_filename.c_str());
+
+    REQUIRE(records_seen == 32);
+    REQUIRE(valid_records);
+    const unsigned int threads = thread_mask.load(std::memory_order_relaxed);
+    REQUIRE((threads & (threads - 1)) != 0);
 }

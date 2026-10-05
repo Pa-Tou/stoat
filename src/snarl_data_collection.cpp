@@ -392,31 +392,16 @@ void SnarlDataCollection::add_alleles_by_sample(
     }
 }
 
-void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser) {
+void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(stoat_vcf::VCFParser& vcf_parser) {
 
-    // we'll use this edge matrix object
-    // TODO find the vector of sample names from the VCF header?
-    stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0);
-
-    // use the corresponding sample-haplotypes for this collection
-    // remove any existing sample in the collection first
-    all_sample_haplotypes.clear();
-
-    // add two haplotypes per sample
-    for (std::string sample_name: sample_names) {
-        for (std::string hap_name: {"0", "1"}) {
-            sample_hap_t samp_hap;
-            samp_hap.sample = sample_name;
-            samp_hap.haplotype = hap_name;
-            all_sample_haplotypes.emplace_back(samp_hap);
-        }
-    }
+    // Get the variables from the vcf parser
+    std::vector<std::string> sample_names = vcf_parser.sample_names;
 
     // Fill in sample_to_index
     size_t sample_index = 0;
-    for (const sample_hap_t& sample_hap : all_sample_haplotypes) {
-        if (!sample_to_index.count(sample_hap.sample)) {
-            sample_to_index.emplace(sample_hap.sample, sample_index++);
+    for (const std::string& sample_name : sample_names) {
+        if (!sample_to_index.count(sample_name)) {
+            sample_to_index.emplace(sample_name, sample_index++);
         }
     }
 
@@ -449,8 +434,24 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         stoat::LOG_INFO("Analyzing chr : " + chr);
         auto timer_start_chr = std::chrono::high_resolution_clock::now();
 
+        // Get the number of haplotypes for this chromosome. 
+        // This is used to build the edge matrix
+        vcf_parser.set_chromosome_ploidy(chr);
+        const size_t ploidy = vcf_parser.ploidy;
+
+        all_sample_haplotypes.clear();
+        for (const std::string& sample_name : sample_names) {
+            for (size_t i = 0; i < ploidy; ++i) {
+                sample_hap_t sample_hap;
+                sample_hap.sample = sample_name;
+                sample_hap.haplotype = std::to_string(i);
+                all_sample_haplotypes.emplace_back(std::move(sample_hap));
+            }
+        }
+
         // prepare the edge matrix for this chromosome by reading the VCF
         // this will read to the end of this chr
+        stoat_vcf::EdgeBySampleMatrix edge_matrix(sample_names, 0, ploidy);
         edge_matrix.load_vcf_chunk(vcf_parser, chr);
 
         auto timer_end_matrix = std::chrono::high_resolution_clock::now();
@@ -1508,4 +1509,3 @@ bool SnarlDataCollection::is_equivalent (const SnarlDataCollection& collection1,
 }
     
 }
-
