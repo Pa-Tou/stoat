@@ -14,6 +14,12 @@
 
 namespace stoat_vcf {
 
+// Parse a ploidy count string of the form "ploidy1:count1,ploidy2:count2,..." into a map of ploidy to count
+std::unordered_map<std::string, size_t> parse_ploidy_per_chr_string(const std::string& counts);
+
+// Parse a ploidy count file of the form "ploidy1\tcount1\nploidy2\tcount2\n..." into a map of ploidy to count
+std::unordered_map<std::string, size_t> parse_ploidy_per_chr_file(const std::string& filename);
+
 // Predicts which statistical methods to used based on the values in
 // the phenotype file (when a model is not specified by the user)
 //   binary without covariate -> chi2

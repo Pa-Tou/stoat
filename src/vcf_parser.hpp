@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <utility>
+#include "arg_parser.hpp"
 #include "types_and_structs.hpp"
 
 
@@ -53,10 +55,15 @@ class VCFParser {
     using Bcf1Ptr = std::unique_ptr<bcf1_t, decltype(&bcf_destroy)>;
 
     /// This does nothing. initialize_parser() must be called to actually fill stuff in from a file.
-    VCFParser(bool resolve_nested_calls, size_t max_haplotype=0) : resolve_nested_calls(resolve_nested_calls), max_haplotype(max_haplotype) {};
+    VCFParser(bool resolve_nested_calls, std::unordered_map<std::string, size_t> chr_ploidy_counts={})
+        : resolve_nested_calls(resolve_nested_calls), chr_ploidy_counts(std::move(chr_ploidy_counts)) {};
 
     /// Parse the header
     void initialize_parser(const std::string& vcf_path); 
+
+    /// Use the configured count from user argument -> haplotype count
+    /// or infer it from the chromosome's first variant.
+    void set_chromosome_ploidy(const std::string& chromosome);
 
     /// From wherever in the VCF file we currently are, what is the chromosome?
     /// This doesn't advance the VCF file so it can be called multiple times pointing to the same thing
@@ -85,10 +92,6 @@ class VCFParser {
     // Number of alleles per sample
     size_t ploidy;
 
-    // Max haplotype per sample (if one sample containt more that this threshold it won't be considered for genotyping)
-    // If less that this count is present missing haplotype will be considered as missing genotype like '.'
-    size_t max_haplotype;
-
     // haplotypes count : Number of samples * ploidy
     size_t hap_count;
 
@@ -96,6 +99,10 @@ class VCFParser {
     bool resolve_nested_calls;
 
     protected:
+
+    // The ploidy counts for each chromosome, if user-provided.
+    // If not the ploidy count is inferred from the first record of each chromosome.
+    std::unordered_map<std::string, size_t> chr_ploidy_counts;
 
     // I think this is a file handle for the vcf
     htsFile* ptr_vcf;
@@ -137,9 +144,6 @@ class VCFParser {
     /// entering another snarl. If yes, return the string traversal of the end node of the snarl, to skip it in the parent. 
     /// Otherwise return the input snarl_bound
     stoat::node_traversal_t get_opposite_snarl_bound(stoat::node_traversal_t snarl_bound); 
-
-    /// Clear the previous contents and get all the snarls for the given chromosome. Advance the file pointers
-    void fill_in_snarls_for_chromosome(const std::string& chr);
 
     /////////////////////////////////// These would be private for the untangler
 

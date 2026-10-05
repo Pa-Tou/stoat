@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <limits>
 #include "vcf_parser.hpp"
 
 //#define DEBUG_VCF_PARSER
@@ -51,33 +53,65 @@ void VCFParser::initialize_parser(const std::string& vcf_path) {
         bcf_read(ptr_vcf_bounds, hdr_bounds, rec_bounds);
         bcf_read(ptr_vcf_genotypes, hdr_genotypes, rec_genotypes);
     }
+}
 
-    // Case where user didn't provide max haplotype arg, we dermine it by
-    // Reading the first line of the VCF and get the maximum allele found across samples.
-    if (max_haplotype == 0) {
+void VCFParser::set_chromosome_ploidy(const std::string& chromosome) {
+    const auto user_ploidy_count = chr_ploidy_counts.find(chromosome);
+    size_t inferred_ploidy = 0;
 
+    if (read_status >= 0 && chromosome == bcf_hdr_id2name(hdr, rec->rid)) {
         int32_t* gt = nullptr;
-        int ngt = 0; // number of genotype
+        int genotype_count = 0;
+        genotype_count = bcf_get_genotypes(hdr, rec, &gt, &genotype_count);
 
-        // Read the first line of the VCF to get the ploidy from the genotypes field
-        ngt = bcf_get_genotypes(hdr, rec, &gt, &ngt);
+        if (genotype_count > 0 && gt != nullptr && !sample_names.empty()) {
+            const size_t sample_count = sample_names.size();
+            const size_t slots_per_sample = static_cast<size_t>(genotype_count) / sample_count;
 
-        // ngt is the maximum GT vector length per sample for that record
-        // HTSlib uses a rectangular array:
-        // sample1:  0   1   END
-        // sample2:  0   1   2
-        // ngt = 6
-        ploidy = static_cast<size_t>(ngt / sample_count);
+            for (size_t sample = 0; sample < sample_count; ++sample) {
+                size_t sample_ploidy = 0;
 
-        // haplotype count = number of samples * ploidy
-        hap_count = sample_count * ploidy;
+                while (sample_ploidy < slots_per_sample && gt[sample * slots_per_sample + sample_ploidy] != bcf_int32_vector_end) {
+                    ++sample_ploidy;
+                }
+
+                inferred_ploidy = std::max(inferred_ploidy, sample_ploidy);
+            }
+        }
+
         free(gt);
-
-    // Case where user provide max_haplotype arg
-    } else {
-        ploidy = max_haplotype;
-        hap_count = sample_count * ploidy;
     }
+
+    // Chr ploidy was provided by the user
+    if (user_ploidy_count != chr_ploidy_counts.end()) {
+        size_t user_ploidy = user_ploidy_count->second;
+
+        // Case where the user-provided haplotype count is higher than the inferred ploidy
+        // report a warning but still use the user-provided count
+        if (user_ploidy > inferred_ploidy) {
+            stoat::LOG_WARN("Inferred haplotype count" + chromosome +
+                " for chromosome " + std::to_string(inferred_ploidy) + 
+                " is greater than the user-provided count (" +
+                std::to_string(user_ploidy) + ").", 
+                "inferred_haplotype_higher_that_user_count");
+        }
+
+        // Case where the user-provided haplotype count is lower than the inferred ploidy
+        // report a warning and use the inferred ploidy instead of the user-provided count
+        if (user_ploidy < inferred_ploidy) {
+            stoat::LOG_WARN("Inferred haplotype count" + chromosome +
+                " for chromosome " + std::to_string(inferred_ploidy) + 
+                " is less than the user-provided count (" +
+                std::to_string(user_ploidy) + ")", 
+                "inferred_haplotype_lower_than_user_count");
+        }
+
+    } else {
+        chr_ploidy_counts.emplace(chromosome, inferred_ploidy);
+    }
+
+    ploidy = chr_ploidy_counts.at(chromosome);
+    hap_count = sample_names.size() * ploidy;
 }
 
 std::string VCFParser::get_next_chromosome_name() {
@@ -88,6 +122,8 @@ std::string VCFParser::get_next_chromosome_name() {
 }
 
 void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std::function<void(const vcf_info_t& vcf_info)>& iteratee) {
+
+    set_chromosome_ploidy(chr);
 
     if (resolve_nested_calls) {
         // If we are going to untangle stuff, process the snarls first
@@ -230,6 +266,14 @@ void VCFParser::for_each_record_on_chromosome(const std::string& chr, const std:
         // Number of GT slots actually stored per sample in this record.
         // This can be smaller than the expected maximum ploidy.
         const size_t gt_ploidy = ngt / sample_count;
+
+        // Print warning if the GT field has a different ploidy than expected. This is not an error, but it may indicate a problem with the VCF.
+        if (gt_ploidy != ploidy) {
+            stoat::LOG_WARN("GT field has " + std::to_string(gt_ploidy) + 
+                " slots per sample, but expected ploidy is " + std::to_string(ploidy) + 
+                " at position " + std::to_string(rec->pos + 1), 
+                "gt_field_ploidy_mismatch");
+        }
 
         // Make the actual vector of genotypes
         // If we want to untangle the snarls, then check that the parent snarl actually was genotyped as having this child snarl
@@ -565,4 +609,3 @@ void VCFParser::close_vcf(){
 
 
 }//end namespace
-

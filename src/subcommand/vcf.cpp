@@ -34,24 +34,25 @@ namespace stoat_command {
 void print_help_vcf() {
     stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -g, --graph FILE                Path to the graph file\n"
-              << "  -G, --r-index FILE              Use this r-index (optional, requires -g be a gbz)" << std::endl
-              << "  -d, --dist FILE                 Path to the distance index file\n"
-              << "  -v, --vcf FILE                  Path to the VCF file\n"
-              << "  -s, --snarl FILE                Path to the snarl file\n"
-              << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
-              << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
-              << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
-              << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
-              << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
-              << "  -m, --max-haplotype INT         Max number of haplotype that must be concidered in the vcf per sample\n"
-              << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow (pangenie vcf not supported)\n"
-              << "  -t, --threads INT               Number of threads to use [1]\n"
-              << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
-              << "  -o, --output FILE               Output directory name [stoat_output]\n"
-              << "  -u, --no-bgzip                  Don't compress the output file with bgzip\n"
-              << "  -a, --ascii                     Print the STOAT ascii art banner\n"
-              << "  -h, --help                      Print this help message\n";
+              << "  -g, --graph FILE                  Path to the graph file\n"
+              << "  -G, --r-index FILE                Use this r-index (optional, requires -g be a gbz)" << std::endl
+              << "  -d, --dist FILE                   Path to the distance index file\n"
+              << "  -v, --vcf FILE                    Path to the VCF file\n"
+              << "  -s, --snarl FILE                  Path to the snarl file\n"
+              << "  -R, --reference-file FILE         Path to the chromosome reference file, one path name per line (optional)\n"
+              << "  -r, --reference-prefix NAME       The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
+              << "  -i, --children INT                Max number of children per snarl in decomposition [50]\n"
+              << "  -y, --cycle INT                   Max number of authorized cycles in snarl decomposition [1]\n"
+              << "  -l, --path-length INT             Max number of nodes in paths during snarl decomposition [50]\n"
+              << "  -c, --haplotype-counts STRING     Per-chromosome haplotype counts (e.g. chr1:2,chr2:4)\n"
+              << "  -C, --haplotype-counts-file FILE  Path to haplotype file with chromosome and haplotype_count columns (no header)\n"
+              << "  -f, --resolve-vcf                 Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow (pangenie vcf not supported)\n"
+              << "  -t, --threads INT                 Number of threads to use [1]\n"
+              << "  -V, --verbose INT                 Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
+              << "  -o, --output FILE                 Output directory name [stoat_output]\n"
+              << "  -u, --no-bgzip                    Don't compress the output file with bgzip\n"
+              << "  -a, --ascii                       Print the STOAT ascii art banner\n"
+              << "  -h, --help                        Print this help message\n";
 }
 
 int main_stoat_vcf(int argc, char* argv[]) {
@@ -64,7 +65,10 @@ int main_stoat_vcf(int argc, char* argv[]) {
     size_t min_individuals = 0;
     // JEAN this threshold is a bit redundant with children_threshold and cycle_threshold but I guess could be useful if we want to set it lower than (children_threshold * (cycle_threshold+1))
     size_t path_length_threshold = 50;
-    size_t max_haplotype = 0;
+    std::string haplotype_counts_text;
+    std::string haplotype_counts_file;
+    bool has_haplotype_counts = false;
+    bool has_haplotype_counts_file = false;
     std::string output_dir = "stoat_output";
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
@@ -87,7 +91,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {"children", required_argument, 0, 'i'},
         {"cycle", required_argument, 0, 'y'},
         {"path-length", required_argument, 0, 'l'},
-        {"max-haplotype", required_argument, 0, 'm'},
+        {"haplotype-counts", required_argument, 0, 'c'},
+        {"haplotype-counts-file", required_argument, 0, 'C'},
         {"resolve-vcf", no_argument, 0, 'f'},
         {"thread", required_argument, 0, 't'},
         {"verbose", required_argument, 0, 'V'},
@@ -98,7 +103,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:G:d:r:R:i:y:l:m:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:G:d:r:R:i:y:l:c:C:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -126,11 +131,14 @@ int main_stoat_vcf(int argc, char* argv[]) {
                     throw std::runtime_error("Error: [stoat vcf] Path length threshold must be > 1");
                 }
                 break;
-            case 'm':
-                max_haplotype = std::stoi(optarg);
-                if (max_haplotype <= 0) {
-                    throw std::runtime_error("Error: [stoat vcf] Max haplotype threshold must be > 0");
-                }
+            case 'c':
+                has_haplotype_counts = true;
+                haplotype_counts_text = optarg;
+                break;
+            case 'C':
+                has_haplotype_counts_file = true;
+                haplotype_counts_file = optarg;
+                stoat_vcf::check_file(haplotype_counts_file); 
                 break;
             case 'f':
                 resolve_vcf=true;
@@ -168,6 +176,23 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     if (argc == 2) {
         print_help_vcf();
+        return EXIT_FAILURE;
+    }
+
+    if (has_haplotype_counts && has_haplotype_counts_file) {
+        std::cerr << "Error: [stoat vcf] --haplotype-counts and --haplotype-counts-file are mutually exclusive\n";
+        return EXIT_FAILURE;
+    }
+
+    std::unordered_map<std::string, size_t> haplotype_counts;
+    try {
+        if (has_haplotype_counts) {
+            haplotype_counts = stoat_vcf::parse_haplotype_counts_string(haplotype_counts_text);
+        } else if (has_haplotype_counts_file) {
+            haplotype_counts = stoat_vcf::load_haplotype_counts_file(haplotype_counts_file);
+        }
+    } catch (const std::invalid_argument& error) {
+        std::cerr << "Error: [stoat vcf] " << error.what() << '\n';
         return EXIT_FAILURE;
     }
 
@@ -410,7 +435,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         auto start_gt_timer = std::chrono::high_resolution_clock::now();
 
         // start reading the VCF to get the sample list
-        stoat_vcf::VCFParser vcf_parser(resolve_vcf, max_haplotype);
+        stoat_vcf::VCFParser vcf_parser(resolve_vcf, haplotype_counts);
         vcf_parser.initialize_parser(vcf_path);
 
         // retrieve genotypes one chromosome at a time

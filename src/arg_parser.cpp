@@ -1,10 +1,111 @@
 #include <filesystem>
+#include <algorithm>
+#include <charconv>
+#include <cctype>
+#include <fstream>
+#include <stdexcept>
+#include <string_view>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
 #include "log.hpp"
 #include "arg_parser.hpp"
 
 namespace fs = std::filesystem;
 
 namespace stoat_vcf {
+
+std::unordered_map<std::string, size_t> parse_ploidy_per_chr_string(const std::string& counts) {
+
+    std::unordered_map<std::string, size_t> ploidy_count;
+    size_t start = 0;
+
+    while (start < counts.size()) {
+
+        const size_t end = counts.find(',', start);
+        const std::string entry = counts.substr(
+            start,
+            end == std::string::npos ? std::string::npos : end - start
+        );
+
+        const size_t colon = entry.find(':');
+        if (colon == std::string::npos || colon == 0 || colon == entry.size() - 1) {
+            throw std::invalid_argument("Invalid ploidy count entry: " + entry);
+        }
+
+        const std::string ploidy = entry.substr(0, colon);
+        const std::string count_str = entry.substr(colon + 1);
+
+        size_t count = 0;
+        const char* first = count_str.data();
+        const char* last = first + count_str.size();
+        const auto [ptr, ec] = std::from_chars(first, last, count);
+
+        if (ec != std::errc{} || ptr != last) {
+            throw std::invalid_argument("Invalid ploidy count: " + count_str);
+        }
+
+        if (!ploidy_count.emplace(ploidy, count).second) {
+            throw std::invalid_argument("Duplicate ploidy: " + ploidy);
+        }
+
+        if (end == std::string::npos) {
+            break;
+        }
+
+        start = end + 1;
+
+        if (start == counts.size()) {
+            throw std::invalid_argument("Trailing comma in ploidy counts");
+        }
+    }
+
+    return ploidy_count;
+}
+
+std::unordered_map<std::string, size_t> parse_ploidy_per_chr_file(const std::string& filename) {
+
+    std::ifstream file(filename);
+    std::unordered_map<std::string, size_t> ploidy_count;
+    std::string line;
+    size_t line_number = 0;
+
+    while (std::getline(file, line)) {
+        ++line_number;
+
+        if (line.empty()) {
+            continue;
+        }
+
+        const size_t tab = line.find('\t');
+        if (tab == std::string::npos || tab == 0 || tab == line.size() - 1) {
+            throw std::runtime_error("Invalid format at line " + std::to_string(line_number));
+        }
+
+        const std::string ploidy = line.substr(0, tab);
+        const std::string count_str = line.substr(tab + 1);
+
+        size_t count = 0;
+        const auto [ptr, ec] = std::from_chars(
+            count_str.data(),
+            count_str.data() + count_str.size(),
+            count);
+
+        if (ec != std::errc{} || ptr != count_str.data() + count_str.size()) {
+            throw std::runtime_error("Invalid count at line " + std::to_string(line_number));
+        }
+
+        if (!ploidy_count.emplace(ploidy, count).second) {
+            throw std::runtime_error("Duplicate ploidy at line " + std::to_string(line_number));
+        }
+    }
+
+    if (file.bad()) {
+        throw std::runtime_error("Error reading ploidy count file: " + filename);
+    }
+
+    return ploidy_count;
+}
 
 std::unordered_set<std::string> parse_chromosome_reference(const std::string& file_path) {
     std::unordered_set<std::string> reference;
