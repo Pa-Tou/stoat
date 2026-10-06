@@ -15,6 +15,14 @@ SnarlDataCollection::SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl
                     snarl_child_limit(snarl_child_limit),
                     walk_steps_limit(walk_steps_limit) {}
 
+void SnarlDataCollection::index_reference_names() {
+    reference_name_to_index.clear();
+    reference_name_to_index.reserve(reference_names.size());
+    for (size_t i = 0; i < reference_names.size(); ++i) {
+        reference_name_to_index.emplace(reference_names[i], i);
+    }
+}
+
 // This goes through all the snarls and fills in the data
 void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
                                              const std::vector<stoat::sample_hap_t>& sample_haplotypes,
@@ -300,6 +308,7 @@ void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHand
     }//end omp shared
 
     reference_names = snarl_coordinate_finder->reference_names_as_vector();
+    index_reference_names();
 
     stoat::LOG_INFO("Number of filtered snarl: " + std::to_string(number_snarl_limit_distance + number_snarl_limit_children) 
         + " (number_snarl_limit_distance: " + std::to_string(number_snarl_limit_distance) + ", number_snarl_limit_children: "
@@ -401,12 +410,12 @@ void SnarlDataCollection::add_alleles_by_sample(
         return;
     }
 
-    auto it = std::find(reference_names.begin(), reference_names.end(), chr);
-    if (it == reference_names.end()) {
+    auto reference_it = reference_name_to_index.find(chr);
+    if (reference_it == reference_name_to_index.end()) {
         return; // chromosome not found
     }
 
-    const size_t reference_index = std::distance(reference_names.begin(), it);
+    const size_t reference_index = reference_it->second;
     auto snarl_data_it = chr_idx_to_snarl_data.find(reference_index);
     if (snarl_data_it != chr_idx_to_snarl_data.end()) {
         add_alleles_for_reference(reference_index, snarl_data_it->second);
@@ -466,6 +475,16 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
             // chr is now the next chromosome we want to look at
         }
 
+        const auto reference_it = reference_name_to_index.find(chr);
+        if (reference_it == reference_name_to_index.end()) {
+            throw std::runtime_error("Chromosome " + chr + " is present in the snarl paths but has no snarl information; check that the VCF is sorted.");
+        }
+        const size_t reference_index = reference_it->second;
+        auto snarl_data_it = chr_idx_to_snarl_data.find(reference_index);
+        if (snarl_data_it == chr_idx_to_snarl_data.end() || snarl_data_it->second.empty()) {
+            throw std::runtime_error("No snarl information found for chromosome " + chr + "; check that the VCF is sorted.");
+        }
+
         // start analyzing this chromosome chr
         stoat::LOG_INFO("Analyzing chr : " + chr);
         auto timer_start_chr = std::chrono::high_resolution_clock::now();
@@ -499,7 +518,7 @@ void SnarlDataCollection::genotype_snarls_by_chr_from_vcf(std::vector<std::strin
         stoat::LOG_INFO("Total time for chr " + chr + " : " + std::to_string(std::chrono::duration<double>(timer_end_chr - timer_start_chr).count()) + " s");
 
         // Erase snarl info for the current chromosome to free memory
-        chr_idx_to_snarl_data[std::distance(reference_names.begin(), std::find(reference_names.begin(), reference_names.end(), chr))].clear();
+        snarl_data_it->second.clear();
 
         // The parser has now passed the current chromosome. Get the name of the next one
         chr = vcf_parser.get_next_chromosome_name();
@@ -1043,6 +1062,7 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
         in_reader.getline(line);
     }
     reference_names = snarl_coordinate_finder->reference_names_as_vector();
+    index_reference_names();
 
     // The next header is  "#START_NODE\tEND_NODE\tREF\tSTART_OFFSET\tEND_OFFSET\tDEPTH\tALLELE_LENGTHS\tWALKS\tSEQUENCES", plus all of the sample/haplotypes
     in_reader.getline(line);

@@ -4,6 +4,7 @@
 #include <bdsg/overlays/overlay_helper.hpp>
 #include "../../src/snarl_data_collection.hpp"
 #include "../../src/snarl_traversals.hpp"
+#include "../../src/vcf_parser.hpp"
 #include "../../src/log.hpp"
 
 using namespace stoat;
@@ -1854,4 +1855,110 @@ TEST_CASE( "Snarl collection nested bubbles with path fragments",
         check_collection(snarl_collection);
 
     }
+}
+
+TEST_CASE("Snarl data is cleared and unsorted chromosome reappearance throws", "[snarl_collection][vcf]") {
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/test_data/test_graphs/simple_nested_chain.dist");
+
+    bdsg::HashGraph graph;
+    graph.deserialize("../tests/test_data/test_graphs/simple_nested_chain.hg");
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&graph);
+
+    auto coordinates = std::make_shared<SnarlCoordinates>();
+    TestSnarlDataCollection collection(coordinates, 1, 10, 10);
+    std::vector<sample_hap_t> sample_haplotypes;
+    StdWriter null_writer("");
+    collection.fill_in_snarl_info(
+        *path_graph, distance_index, sample_haplotypes,
+        true, true,
+        [&](const net_handle_t& snarl, const snarl_info_t&, std::vector<PathTraversal>& walks) {
+            get_all_walks_through_snarl(*path_graph, distance_index, snarl, walks, 1);
+        },
+        false,
+        [](const net_handle_t&, const snarl_info_t&, const std::vector<sample_hap_t>&) {
+            return std::vector<size_t>();
+        },
+        false, false, null_writer, true);
+
+    size_t snarl_count = 0;
+    collection.for_each_snarl([&](snarl_info_t&) { ++snarl_count; });
+    REQUIRE(snarl_count > 0);
+
+    const std::string vcf_filename = "./test_snarl_data_chr_clear.vcf";
+    {
+        std::ofstream vcf_out(vcf_filename);
+        vcf_out << "##fileformat=VCFv4.2\n"
+                << "##contig=<ID=path0#0#path0,length=100>\n"
+                << "##contig=<ID=unmatched,length=100>\n"
+                << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Snarl level\">\n"
+                << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele traversal\">\n"
+                << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n"
+                << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n"
+                << "path0#0#path0\t1\t>1>4\tA\tC\t60\t.\tLV=0;AT=>1>2>4,>1>3>4\tGT\t0/1\n"
+                << "unmatched\t1\t.\tA\tC\t60\t.\t.\tGT\t0/1\n"
+                << "path0#0#path0\t2\t>1>4\tA\tC\t60\t.\tLV=0;AT=>1>2>4,>1>3>4\tGT\t0/1\n";
+    }
+
+    stoat_vcf::VCFParser parser(false);
+    std::vector<std::string> sample_names = parser.initialize_parser(vcf_filename);
+    REQUIRE_THROWS_WITH(
+        collection.genotype_snarls_by_chr_from_vcf(sample_names, parser),
+        Catch::Contains("No snarl information found for chromosome path0#0#path0"));
+    parser.close_vcf();
+
+    snarl_count = 0;
+    collection.for_each_snarl([&](snarl_info_t&) { ++snarl_count; });
+    REQUIRE(snarl_count == 0);
+
+    std::filesystem::remove(vcf_filename);
+}
+
+TEST_CASE("Missing chromosome snarl data throws during VCF genotyping", "[snarl_collection][vcf]") {
+    bdsg::SnarlDistanceIndex distance_index;
+    distance_index.deserialize("../tests/test_data/test_graphs/one_node.dist");
+
+    bdsg::HashGraph graph;
+    graph.deserialize("../tests/test_data/test_graphs/one_node.hg");
+
+    bdsg::PathPositionOverlayHelper overlay_helper;
+    auto path_graph = overlay_helper.apply(&graph);
+
+    auto coordinates = std::make_shared<SnarlCoordinates>();
+    coordinates->add_reference_path("path");
+    TestSnarlDataCollection collection(coordinates, 1, 1, 1);
+    std::vector<sample_hap_t> sample_haplotypes;
+    StdWriter null_writer("");
+    collection.fill_in_snarl_info(
+        *path_graph, distance_index, sample_haplotypes,
+        true, false,
+        [](const net_handle_t&, const snarl_info_t&, std::vector<PathTraversal>&) {},
+        false,
+        [](const net_handle_t&, const snarl_info_t&, const std::vector<sample_hap_t>&) {
+            return std::vector<size_t>();
+        },
+        false, false, null_writer, true);
+
+    const std::string vcf_filename = "./test_snarl_data_missing_chr.vcf";
+    {
+        std::ofstream vcf_out(vcf_filename);
+        vcf_out << "##fileformat=VCFv4.2\n"
+                << "##contig=<ID=path,length=100>\n"
+                << "##INFO=<ID=LV,Number=1,Type=Integer,Description=\"Snarl level\">\n"
+                << "##INFO=<ID=AT,Number=R,Type=String,Description=\"Allele traversal\">\n"
+                << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n"
+                << "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\n"
+                << "path\t1\t.\tA\tC\t60\t.\tLV=0;AT=>1,>2\tGT\t0/1\n";
+    }
+
+    stoat_vcf::VCFParser parser(false);
+    std::vector<std::string> sample_names = parser.initialize_parser(vcf_filename);
+    REQUIRE_THROWS_WITH(
+        collection.genotype_snarls_by_chr_from_vcf(sample_names, parser),
+        Catch::Contains("No snarl information found for chromosome path"));
+    parser.close_vcf();
+
+    std::filesystem::remove(vcf_filename);
 }

@@ -7,6 +7,7 @@
 #include "writer.hpp"
 #include "vcf_parser.hpp"
 #include "snarl_coordinates.hpp"
+#include <unordered_map>
 
 namespace stoat {
 
@@ -122,9 +123,9 @@ class SnarlDataCollection {
         static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl,  const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
     
-        // fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
-        // the VCF is read and parsed by chromosome
-        // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
+        // Fill in genotypes from a VCF read chromosome by chromosome. A known chromosome
+        // without remaining snarl data is an error, which can indicate an unsorted VCF.
+        // The VCF parser must have loaded the header and point to the first record.
         void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +175,8 @@ class SnarlDataCollection {
         /// The string representations of reference paths
         /// Used by the snarl_info_internal_t's reference_index
         std::vector<std::string> reference_names;
+        /// Map reference path names to their indexes in reference_names.
+        std::unordered_map<std::string, size_t> reference_name_to_index;
 
         /// This stores all sample_hap_t's that are stored as indexes by snarl_to_alleles_by_sample
         /// It is given by fill_in_snarl_info or loaded from the file
@@ -215,6 +218,9 @@ class SnarlDataCollection {
     
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances); 
+
+        /// Rebuild the name-to-index lookup after loading reference_names.
+        void index_reference_names();
 
         //////////////////// Helper functions for writing and loading stuff from files
 
