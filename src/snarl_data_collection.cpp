@@ -873,7 +873,7 @@ void SnarlDataCollection::write_snarl_data_line(stoat::Writer& out_writer, const
               << snarl_data.end_position << "\t"
               << snarl_data.depth << "\t";
     
-    // Next, optionally include the walks as a single comma-separated string
+    // Next, optionally include allele lengths and the walks as a single comma-separated string
     if (walks_by_allele == nullptr || walks_by_allele->size() == 0) {
         outstream << ".\t.\t";
     } else {

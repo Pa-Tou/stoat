@@ -52,7 +52,7 @@ class SnarlDataCollection {
         /// If only one or the other of allele assignments and walks is requested then find_alleles_first doesn't matter.
         /// find_alleles_by_sample and find_walks must check the walks or allele assignments accordingly to make sure that they match.
         /// Sequences are always found from the walks and cannot be found if walks_requested is false.
-        /// get_all_walks_through_snarl (in snarl_traversals.hpp) and SnarlDataCollection::get_walks_from_alleles that may be used for find_walks
+        /// get_all_walks_through_snarl, get_haplotype_walks_through_snarl (in snarl_traversals.hpp) and SnarlDataCollection::get_walks_from_alleles that may be used for find_walks
         /// Since the distance index may not contain distances, use check_distances=false to skip distance checking
         /// If out_filename is not empty, then write the snarl collection to a file as well. If keep_snarls is False, then delete the snarls as they are found
         /// instead of keeping them in the collection. This saves memory if writing the snarls. If out_filename is empty, then keep_snarls should be True
@@ -77,8 +77,6 @@ class SnarlDataCollection {
         /// doesn't exist in the SnarlDataCollection it is immutable and the allele_by_sample must be returned and saved separately 
         /// Note that this will overwrite any existing allele_by_sample. 
         /// If chr is not empty, run this only on snarls on the given chromosome (as reference path name)
-        // TODO:  I think this should be fine to run multithreaded as long as the list of snarl data doesn't move around, and I think the object
-        //       stores a reference to the vector somewhere else in memory
         void add_alleles_by_sample(const std::function<std::vector<size_t>(const snarl_info_t& snarl_data, 
                                                                            const std::vector<stoat::sample_hap_t>& all_sample_haplotypes)>& find_alleles_by_sample,
                                    std::string chr);
@@ -91,6 +89,7 @@ class SnarlDataCollection {
         /// This will load the header but not keep any of the snarls in the SnarlDataCollection
         void for_each_snarl_in_file(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
+
         /// The same as above, but parallelized. iteratee must be thread safe
         void for_each_snarl_in_file_parallel(stoat::Reader& in_reader, 
             const std::function<void(snarl_info_t& snarl_info)>& iteratee);
@@ -113,17 +112,18 @@ class SnarlDataCollection {
             return reference_names;
         };
 
-        ///////////////////////////// Helper functions for use in add_alleles_by_sample
+        ///////////////////////////// Helper functions 
 
-        /// Helper function for finding walks through the snarl. Fills in walks
+        /// Helper function for finding walks through the snarl, for use in add_alleles_by_sample. Fills in walks
         /// the collection is assumed to have the allele_by_sample filled in and walks must be filled in to match the allele_by_sample
         /// This requires a PathPositionHandleGraph to make sure that multiple traversals of the snarl are properly ordered
         static void get_walks_from_alleles(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, 
                            const net_handle_t& snarl,  const snarl_info_t& snarl_data, std::vector<stoat::PathTraversal>& walks);
     
-        // fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
-        // the VCF is read and parsed by chromosome
-        // The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
+        /// This gets called by stoat vcf subcommand
+        /// fill in the genotypes of the snarls based on the edge matrix built on a VCF stream
+        /// the VCF is read and parsed by chromosome
+        /// The vcf parser is assumed to have loaded the header and be pointing to the start of the actual records
         void genotype_snarls_by_chr_from_vcf(std::vector<std::string>& sample_names, stoat_vcf::VCFParser& vcf_parser);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
