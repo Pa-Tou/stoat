@@ -34,8 +34,8 @@ namespace stoat_command {
 void print_help_vcf() {
     stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n"
-              << "  -g, --graph FILE                Path to the graph file\n"
-              << "  -G, --r-index FILE              Use this r-index (optional, requires -g be a gbz)" << std::endl
+              << "  -g, --graph FILE                Path to the graph file (must be .gbz format)\n"
+              << "  -G, --r-index FILE              Use this r-index" << std::endl
               << "  -d, --dist FILE                 Path to the distance index file\n"
               << "  -v, --vcf FILE                  Path to the VCF file\n"
               << "  -s, --snarl FILE                Path to the snarl file\n"
@@ -146,8 +146,8 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_ERROR("[stoat vcf] " +
             std::string("Invalid argument combination provided.\n") +
             "There are three ways to launch stoat vcf:\n" +
-            "Case 1 (snarl path decomposition): -g graph_path -d dist_path\n" +
-            "Case 2 (snarl path decomposition and genotyping): -g graph_path -d dist_path -v vcf_path\n" +
+            "Case 1 (snarl path decomposition): -g graph_path -G r_index_path -d dist_path\n" +
+            "Case 2 (snarl path decomposition and genotyping): -g graph_path -G r_index_path -d dist_path -v vcf_path\n" +
             "Case 3 (snarl genotyping): -s snarl_path -v vcf_path"
         );
         print_help_vcf();
@@ -233,58 +233,33 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
         // Load the graph and make it a PathPositionHandleGraph
-        handlegraph::PathHandleGraph* graph = nullptr;
-        // This is just to hold the unique pointer from try_load_first so it can be destroyed properly later
-        std::unique_ptr<handlegraph::PathHandleGraph> handle_graph_holder;
-        gbwt::GBWT* gbwt = nullptr;
-        GBZGraph* gbz = nullptr;
+
+        std::unique_ptr<GBZGraph> gbz = vg::io::VPKG::load_one<GBZGraph>(graph_path);
+
         gbwt::FastLocate r_index;
-
-        // We want to know if the graph is specifically a gbz or not since the r-index requires a gbz
-        auto options = vg::io::VPKG::try_load_first<GBZGraph, handlegraph::PathHandleGraph>(graph_path);
-        if (std::get<0>(options)) {
-            // This is a gbz 
+ 
+        gbwt::GBWT* gbwt = &gbz->gbz.index;
         
-                
-            gbz = std::get<0>(options).get();
-                        
-            gbwt = &gbz->gbz.index;
-        
-            if (r_index_path.empty()) { 
-                // If we are given an r-index, then the graph must have been a gbz 
-                std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
-            } else {
-                std::ifstream r_instream;
-                r_instream.open(r_index_path);
-                r_index.load(r_instream);
-                r_instream.close();
-                r_index.setGBWT(*gbwt);
-            }       
-                
-            graph = gbz;
-        
+        if (r_index_path.empty()) { 
+            // If we are given an r-index, then the graph must have been a gbz 
+            std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
         } else {
-            // This is another type of graph, load it as a generic PathHandleGraph
-            handle_graph_holder = std::move(std::get<1>(options));
-            graph = handle_graph_holder.get();
-        
-            if (!r_index_path.empty()) {
-                // If we are given an r-index, then the graph must have been a gbz
-                std::cerr << "[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index" << std::endl;
-                r_index_path.clear();
-            }
-        }
-
-
+            std::ifstream r_instream;
+            r_instream.open(r_index_path);
+            r_index.load(r_instream);
+            r_instream.close();
+            r_index.setGBWT(*gbwt);
+        }       
+            
         // Get the reference sample names from the prefix
-        graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-            std::string path_name = graph->get_path_name(path);
+        gbz->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+            std::string path_name = gbz->get_path_name(path);
 
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
-                snarl_coordinate_finder->add_reference_path(graph->get_path_name(path));
-                ref_path_names.emplace(graph->get_path_name(path));
+                snarl_coordinate_finder->add_reference_path(gbz->get_path_name(path));
+                ref_path_names.emplace(gbz->get_path_name(path));
             }
 
             return true;
@@ -294,7 +269,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Applying overlay...");
         bdsg::ReferencePathOverlayHelper overlay_helper;
         bdsg::PathPositionHandleGraph* path_position_graph;
-        path_position_graph = overlay_helper.apply(graph, ref_path_names);
+        path_position_graph = overlay_helper.apply(gbz.get(), ref_path_names);
 
         std::vector<std::string> ref_path_names = snarl_coordinate_finder->reference_names_as_vector();
         // warning if no reference path matched the provided prefix
@@ -307,9 +282,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
         std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
         distance_index->deserialize(dist_path);
 
-        // Check if chromosomes specified in the --R file are present in the graph
+        // Check if chromosomes specified in the --R file are present in the gbz
         for (const auto& chr : ref_path_names) {
-            if (!graph->has_path(chr)) {
+            if (!gbz->has_path(chr)) {
                 throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
             }
         }

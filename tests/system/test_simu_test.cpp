@@ -1015,7 +1015,8 @@ TEST_CASE("Simple bubble with three alleles and colinearity", "[test]") {
         clean_output_dir(output_dir);
 
         std::string cmd = "../bin/stoat vcf -u";
-           cmd += " -g " + graph_base + ".hg"
+           cmd += " -g " + graph_base + ".gbz"
+            + " -G " + graph_base + ".ri"
             + " -d " + graph_base + ".dist"
             + " -v " + vcf_filename
             + " -r path0"
@@ -1125,7 +1126,8 @@ TEST_CASE("Don't do anything when there are no samples", "[test]") {
         // Make the snarl file
 
         std::string cmd = (std::string)"../bin/stoat vcf -u"
-            + " -g " + graph_base + ".hg"
+            + " -g " + graph_base + ".gbz"
+            + " -G " + graph_base + ".ri"
             + " -d " + graph_base + ".dist"
             + " -R " + reference_filename
             + " -v " + vcf_filename
@@ -1234,7 +1236,8 @@ TEST_CASE("Output simple nested chain with unused paths", "[test]") {
 
 
         std::string cmd = (std::string)"../bin/stoat vcf -u"
-            + " -g " + graph_base + ".hg"
+            + " -g " + graph_base + ".gbz"
+            + " -G " + graph_base + ".ri"
             + " -d " + graph_base + ".dist"
             + " -R " + reference_filename
             + " -v " + vcf_filename
