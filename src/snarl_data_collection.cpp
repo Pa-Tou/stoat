@@ -739,32 +739,6 @@ void SnarlDataCollection::get_walks_from_alleles(
     return ;
 }
 
-std::vector<std::string> SnarlDataCollection::get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-             const std::vector<stoat::PathTraversal>& paths) const {
-
-    std::vector<std::string> sequences;
-    for (const stoat::PathTraversal& path : paths) {
-        sequences.emplace_back();
-        const std::vector<stoat::node_traversal_t>& nodes = path.get_path(); 
-        if (nodes.size() > 0) {
-            handlegraph::nid_t start_id = nodes.front().get_node_id();
-            handlegraph::nid_t end_id = nodes.back().get_node_id(); 
-            for (size_t i = 0 ; i < nodes.size() ; i++) {
-                const stoat::node_traversal_t& node = nodes[i];
-                if (node.get_node_id() != start_id && node.get_node_id() != end_id) {
-                    if (node.get_node_id() == 0) {
-                        sequences.back() += "N";
-                    } else {
-                        //TODO: Does this take into account the reverse complement?
-                        sequences.back() += graph.get_sequence(graph.get_handle(node.get_node_id(), node.get_is_reverse()));
-                    }
-                }
-            }
-        }
-    }
-    return sequences;
-}
-
 bool SnarlDataCollection::snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances) {
 
     // If we have distances in the index, make sure that the snarl's maximum length is big enough

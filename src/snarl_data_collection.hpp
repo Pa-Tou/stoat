@@ -105,6 +105,7 @@ class SnarlDataCollection {
 
         std::unordered_map<std::string, size_t> get_sample_to_index_copy() const;
     
+        /// How many snarls are there?
         size_t size() const {return all_snarl_data.size();}
 
         // Get a reference to the reference path names that are stored in the collection
@@ -152,10 +153,8 @@ class SnarlDataCollection {
 
         //////////////////////////// The stuff holding the data for each snarl, indexed by snarl start node (which uniquely identifies the snarl)
 
-        /// This holds the snarl data as a map from the chromosome name to the data
-        // TODO: Make sure that this gets the chr name the way Matis did it
-        // TODO: idk if I want it to be a map from chr to vector of snarl data or just a vector and then check the chromosome for the per-chromosome calls 
-        //std::unordered_map<std::string, std::vector<snarl_info_internal_t>> chr_to_snarl_data;
+        /// This holds per-snarl data but only the small stuff. The bigger things (walks, alleles, etc) are found by looking up the
+        /// start node in snarl_to_whatever 
         std::vector<snarl_info_internal_t> all_snarl_data;
 
         /// Map snarl (as the start node, which uniquely identifies the snarl) to the walks through the snarl.
@@ -211,9 +210,6 @@ class SnarlDataCollection {
     ///////////////////////////////////////// Private functions
     private:
     
-        // Given the walks through the snarl, find the sequence. The sequence will just be a concatination of sequences of nodes, ignoring anything else
-        std::vector<std::string> get_sequences_from_walks(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-                const std::vector<stoat::PathTraversal>& paths) const; 
     
         // Do we want to analyze this snarl, based on the various limits we were given?
         bool snarl_is_eligible(const bdsg::SnarlDistanceIndex& distance_index, const handlegraph::net_handle_t& snarl, bool check_distances); 
