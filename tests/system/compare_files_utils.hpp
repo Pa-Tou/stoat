@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <regex>
+#include "../../src/types_and_structs.hpp"
 
 namespace fs = std::filesystem;
 
@@ -64,3 +65,28 @@ void process_tsv_line_eqtl(const std::string& line,
     std::unordered_map<std::string, std::string>& map,
     const int& snarl_column, const int& gene_column,
     const std::string& file_name);
+
+
+
+///////////////////////////////// Load and compare an assoc file (output of stoat test)
+
+struct assoc_vals_t {
+    std::string start_node;
+    std::string end_node;
+    std::string chr;
+    size_t start_offset;
+    size_t end_offset;
+    std::vector<std::string> allele_lengths;//Kept as a string to compare min/max
+    double p_value;
+    double p_value_chi2;//For binary, p_value is fisher and this is chi2
+    std::vector<size_t> allele_counts;
+    std::vector<std::vector<size_t>> allele_counts_per_pheno;
+    size_t depth;
+    std::string gene_name;
+};
+
+assoc_vals_t load_assoc_line(stoat::phenotype_type_t phenotype_type, const std::string& line);
+
+// Are the assoc vals equivalent? True for equivalent, false for mismatch
+bool is_equivalent_assoc(stoat::phenotype_type_t phenotype_type, assoc_vals_t& vals1, assoc_vals_t& vals2);
+bool is_equivalent_assoc_file(stoat::phenotype_type_t phenotype_type, const std::string& file1, const std::string& file2);
