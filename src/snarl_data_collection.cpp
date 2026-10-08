@@ -9,11 +9,9 @@
 namespace stoat {
 
 // Constructor
-SnarlDataCollection::SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit) :
+SnarlDataCollection::SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit) :
                     snarl_coordinate_finder(snarl_coordinate_finder),
-                    allele_size_limit(allele_size_limit),
-                    snarl_child_limit(snarl_child_limit),
-                    walk_steps_limit(walk_steps_limit) {}
+                    allele_size_limit(allele_size_limit){}
 
 // This goes through all the snarls and fills in the data
 void SnarlDataCollection::fill_in_snarl_info(const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
@@ -748,21 +746,6 @@ bool SnarlDataCollection::snarl_is_eligible(const bdsg::SnarlDistanceIndex& dist
         return false;
     }
 
-    //TODO: Once the libbdsg branch is merged we can use this instead of going through all the children to count them
-    //pass &= snarl_child_limit <= distance_index.get_snarl_child_count(snarl);
-
-    // Count children
-    size_t children = 0;
-    distance_index.for_each_child(snarl, [&](const handlegraph::net_handle_t& snarl) {
-        children++;
-        return true;
-    });
-    if (snarl_child_limit < children) {
-        stoat::LOG_WARN("Snarl had too many children", "snarl_limit_children");
-        number_snarl_limit_children++;
-        return false;
-    }
-
     return true;
 }
 
@@ -805,8 +788,6 @@ void SnarlDataCollection::write_snarl_data_collection_header(stoat::Writer& out_
     outstream << file_header << std::endl;
 
     outstream << "#allele_size_limit:" << allele_size_limit << std::endl;
-    outstream << "#snarl_child_limit:" << snarl_child_limit << std::endl;
-    outstream << "#walk_steps_limit: " << walk_steps_limit << std::endl;
 
     // Next will be a list of reference path names.
     outstream << "#REFS" << std::endl;
@@ -926,7 +907,10 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
     // Read the first line, which must match the header
     std::string line;
     in_reader.getline(line);
-    if (line != file_header) {
+    bool check_deprecated_limits = false;
+    if (line == file_header_v1_0) {
+        check_deprecated_limits = true;
+    } else if (line != file_header) {
         throw std::runtime_error("stoat: Snarl data file contains the wrong header: " + line);
     }
 
@@ -944,34 +928,30 @@ void SnarlDataCollection::load_snarl_data_collection_header(stoat::Reader& in_re
             stoat::LOG_WARN("The allele_size_limit of the saved snarls file is larger than the given allele_size_limit. Some snarls may be missed", "");
         }
     }
+    if (check_deprecated_limits) {
+        // If this is v1.0, then the next two lines will be the snarl_child_limit and the walk_steps_limit
+        // Ignore these values, just check them when debugging to make sure the file isn't malformed
 
-    // And the snarl child limit
-    in_reader.getline(line);
-    {
-        std::stringstream linestream(line);
-        std::string limit_str;
-        std::getline(linestream, limit_str, ':');
-        #ifdef DEBUG_SNARL_DATA_COLLECTION
-        assert(limit_str == "#snarl_child_limit");
-        #endif
-        std::getline(linestream, limit_str, ':');
-        if (snarl_child_limit < std::stoull(limit_str)) {
-            stoat::LOG_WARN("The snarl_child_limit of the saved snarls file is larger than the given snarl_child_limit. Some snarls may be missed", "");
+        // And the snarl child limit
+        in_reader.getline(line);
+        {
+            #ifdef DEBUG_SNARL_DATA_COLLECTION
+            std::stringstream linestream(line);
+            std::string limit_str;
+            std::getline(linestream, limit_str, ':');
+            assert(limit_str == "#snarl_child_limit");
+            #endif
         }
-    }
 
-    // And the walk steps limit
-    in_reader.getline(line);
-    {
-        std::stringstream linestream(line);
-        std::string limit_str;
-        std::getline(linestream, limit_str, ':');
-        #ifdef DEBUG_SNARL_DATA_COLLECTION
-        assert(limit_str == "#walk_steps_limit");
-        #endif
-        std::getline(linestream, limit_str, ':');
-        if (walk_steps_limit > std::stoull(limit_str)) {
-            stoat::LOG_WARN("The walk_steps_limit of the saved snarls file is smaller than the given walk_steps_limit. Some snarls may be missed", "");
+        // And the walk steps limit
+        in_reader.getline(line);
+        {
+            #ifdef DEBUG_SNARL_DATA_COLLECTION
+            std::stringstream linestream(line);
+            std::string limit_str;
+            std::getline(linestream, limit_str, ':');
+            assert(limit_str == "#walk_steps_limit");
+            #endif
         }
     }
 

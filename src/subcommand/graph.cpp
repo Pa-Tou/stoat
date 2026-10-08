@@ -330,13 +330,10 @@ int main_stoat_graph(int argc, char *argv[]) {
     //////////////////////////////// Make the snarls file and load it if possible
     // If it is being built, it will count towards the time of analysis
 
-    // TODO: Get these from the command line, infinite for now (which may also be fine)
-    size_t snarl_child_limit = std::numeric_limits<size_t>::max();
-    size_t walk_steps_limit = std::numeric_limits<size_t>::max();
     size_t total_number_snarl_limit_distance = 0;
     size_t total_number_snarl_limit_children = 0;
     size_t total_snarl_chr_analysed = 0;
-    SnarlDataCollection snarl_collection(snarl_coordinate_finder, allele_size_limit, snarl_child_limit, walk_steps_limit);
+    SnarlDataCollection snarl_collection(snarl_coordinate_finder, allele_size_limit);
     
     ////////////////////////////////////////////////// Start doing work
 

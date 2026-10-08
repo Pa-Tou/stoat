@@ -41,9 +41,6 @@ void print_help_vcf() {
               << "  -s, --snarl FILE                Path to the snarl file\n"
               << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
               << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
-              << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
-              << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
-              << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
               << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow (pangenie vcf not supported)\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
@@ -58,11 +55,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // Declare variables to hold argument values
     std::string vcf_path, snarl_path, graph_path, r_index_path, dist_path, reference_path, reference_prefix;
 
-    size_t cycle_threshold = 1;
-    size_t children_threshold = 50;
-    size_t min_individuals = 0;
-    // JEAN this threshold is a bit redundant with children_threshold and cycle_threshold but I guess could be useful if we want to set it lower than (children_threshold * (cycle_threshold+1))
-    size_t path_length_threshold = 50;
     std::string output_dir = "stoat_output";
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
@@ -95,7 +87,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:G:d:r:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:G:d:r:R:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -105,24 +97,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
             case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
             case 'r': reference_prefix = optarg; break;
             case 'a': ascii = true; break;
-            case 'i':
-                children_threshold = std::stoi(optarg);
-                if (children_threshold < 2) {
-                    throw std::runtime_error("Error: [stoat vcf] Children threshold must be > 1");
-                }
-                break;
-            case 'y':
-                cycle_threshold = std::stoi(optarg);
-                if (cycle_threshold < 1) {
-                    throw std::runtime_error("Error: [stoat vcf] Cycle threshold must be > 0");
-                }
-                break;
-            case 'l':
-                path_length_threshold = std::stoi(optarg);
-                if (path_length_threshold < 2) {
-                    throw std::runtime_error("Error: [stoat vcf] Path length threshold must be > 1");
-                }
-                break;
             case 'f':
                 resolve_vcf=true;
                 break;
@@ -226,7 +200,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
-    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0, children_threshold, path_length_threshold);
+    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0);
 
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
@@ -368,7 +342,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             true, // walks_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
                 if (r_index_path.empty()) {
-                    get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
+                    get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, walks); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
                 } else {
                     get_haplotype_walks_through_snarl(*path_position_graph, *gbwt, r_index, *distance_index, snarl, walks);
                 }

@@ -37,9 +37,7 @@ class SnarlDataCollection {
 
         /// Make a SnarlDataCollection with limits on which snarls to include
         /// Ignore snarls whose maximum length is less than allele_size_limit
-        /// Ignore snarls with more children than snarl_child_limit
-        /// Ignore snarls if traversing the paths takes more than walk_steps_limit steps
-        SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit, size_t snarl_child_limit, size_t walk_steps_limit);
+        SnarlDataCollection(std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder, size_t allele_size_limit);
 
         /// Fill in the SnarlDataCollection for all snarls in the distance index
         /// sample_haplotypes gets copied and kept around as all_sample_haplotypes. Fills in sample_to_index based on sample_haplotypes 
@@ -99,7 +97,7 @@ class SnarlDataCollection {
         void write_snarl_data_collection(Writer& out_writer) const;
         
         /// Load the collection of snarls from the given file
-        /// Warn if the allele_size_limit or snarl_child_limit of the file are less permissive than this SnarlDataCollection
+        /// Warn if the allele_size_limit of the file is less permissive than this SnarlDataCollection
         /// also a mode to load just the header used to reuse the same sample_to_index for other objects and then run snarl file line by line (although it means loading the sample_to_index map twice technically)
        void load_snarl_data_collection(stoat::Reader& in_reader, const bool header_only = false); 
 
@@ -189,16 +187,12 @@ class SnarlDataCollection {
         //////////////////////////// Extra housekeeping stuff
 
         /// This goes at the beginning of the file to ensure that it is the right file type and version
-        inline const static std::string file_header = "#SNARL_DATA_v1.0";
+        inline const static std::string file_header = "#SNARL_DATA_v1.1";
+        // This is the old version that has the snarl_child_limit and walk_steps_limit, which can be loaded ignoring these lines
+        inline const static std::string file_header_v1_0 = "#SNARL_DATA_v1.0";
 
         /// Skip snarls if their maximum length is smaller than this
         size_t allele_size_limit;
-
-        /// Skip snarls if they have more children than this
-        size_t snarl_child_limit;
-
-        /// Don't include snarls if enumerating all its walks takes more than this many steps
-        size_t walk_steps_limit;
 
         /// These are just for logging purposes to keep track of snarls info
         size_t number_snarl_limit_distance;

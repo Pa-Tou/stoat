@@ -199,7 +199,7 @@ int main_stoat_test(int argc, char* argv[]) {
 
     // Load the SnarlDataCollection
     std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder ( new SnarlCoordinates);
-    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0, 0, 0);
+    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0);
     // load the header from the snarl collection file. We'll use those sample indices
     std::shared_ptr<stoat::Reader> snarl_reader;
     if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
