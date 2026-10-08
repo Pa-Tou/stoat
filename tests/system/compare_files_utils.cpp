@@ -372,6 +372,11 @@ bool compare_output_dirs(const std::string& output_dir, const std::string& expec
                 std::cerr << "Mismatch in eQTL file: " << filename << "\n";
                 return false;
             }
+        } else if (filename.find("assoc.pvalues") != std::string::npos) {
+            if (!is_equivalent_assoc_file(expected_file, output_file)) {
+                std::cerr << "Mismatch in assoc.pvalues file: " << expected_file << "and " << output_file << std::endl;
+                return false;
+            }
         } else if (filename.find("snarl_info") == std::string::npos) {
             // Ignore the snarl file because it gets done separately
             if (!files_equal(expected_file, output_file)) {
@@ -410,10 +415,12 @@ assoc_vals_t load_assoc_line(stoat::phenotype_type_t phenotype_type, const std::
 
     //Allele lengths
     std::getline(linestream, part, '\t');
-    std::stringstream lengthstream(part);
-    std::string length;
-    while (std::getline(lengthstream, length, ',')){
-        vals.allele_lengths.emplace_back(std::move(length));
+    if (part != ".") {
+        std::stringstream lengthstream(part);
+        std::string length;
+        while (std::getline(lengthstream, length, ',')){
+            vals.allele_lengths.emplace_back(std::move(length));
+        }
     }
 
     // For eqtl, this is the gene name next
@@ -432,23 +439,27 @@ assoc_vals_t load_assoc_line(stoat::phenotype_type_t phenotype_type, const std::
         vals.p_value_chi2 = part == "." ? std::numeric_limits<double>::max() : std::stod(part);
 
         std::getline(linestream, part, '\t');
-        std::stringstream countstream(part);
-        std::string counts;
-        while (std::getline(countstream, counts, ',')) {
-            vals.allele_counts_per_pheno.emplace_back();
-            std::stringstream per_phenostream(counts);
-            std::string perpheno;
-            while (std::getline(per_phenostream, perpheno, ':')) {
-                vals.allele_counts_per_pheno.back().emplace_back(part == "." ? std::numeric_limits<size_t>::max() : std::stoull(perpheno));
+        if (part != ".") {
+            std::stringstream countstream(part);
+            std::string counts;
+            while (std::getline(countstream, counts, ',')) {
+                vals.allele_counts_per_pheno.emplace_back();
+                std::stringstream per_phenostream(counts);
+                std::string perpheno;
+                while (std::getline(per_phenostream, perpheno, ':')) {
+                    vals.allele_counts_per_pheno.back().emplace_back(part == "." ? std::numeric_limits<size_t>::max() : std::stoull(perpheno));
+                }
             }
         }
     } else {
         // all others have allele count
         std::getline(linestream, part, '\t');
-        std::stringstream countstream(part);
-        std::string counts;
-        while (std::getline(countstream, counts, ',')) {
-            vals.allele_counts_per_pheno.emplace_back(part == "." ? std::numeric_limits<size_t>::max() : std::stoull(counts));
+        if (part != ".") {
+            std::stringstream countstream(part);
+            std::string counts;
+            while (std::getline(countstream, counts, ',')) {
+                vals.allele_counts.emplace_back(part == "." ? std::numeric_limits<size_t>::max() : std::stoull(counts));
+            }
         }
     }
 
@@ -475,6 +486,7 @@ bool is_equivalent_assoc(stoat::phenotype_type_t phenotype_type, assoc_vals_t& v
     }
     if (vals1.p_value != vals2.p_value) {
         std::cerr << "For snarl " << vals1.start_node << vals1.end_node << ": mismatch in p-values" << std::endl;
+        std::cerr << "For snarl " << vals2.start_node << vals2.end_node << ": mismatch in p-values" << std::endl;
         std::cerr << "\t" << vals1.p_value << std::endl;
         std::cerr << "\t" << vals2.p_value << std::endl;
         return false;
@@ -491,7 +503,18 @@ bool is_equivalent_assoc(stoat::phenotype_type_t phenotype_type, assoc_vals_t& v
         if  (vals1.allele_counts_per_pheno.size() != vals2.allele_counts_per_pheno.size()) {
             std::cerr << "For snarl " << vals1.start_node << vals1.end_node << ": mismatch in number of alleles per pheno" << std::endl;
         }
-    } 
+    } else {
+        if (phenotype_type == stoat::EQTL && vals1.gene_name != vals2.gene_name) {
+            std::cerr << "For snarl " << vals1.start_node << vals1.end_node << ": mismatch in gene name" << std::endl;
+            std::cerr << "\t" << vals1.gene_name << std::endl;
+            std::cerr << "\t" << vals2.gene_name << std::endl;
+            return false;
+            
+        }
+        if  (vals1.allele_counts.size() != vals2.allele_counts.size()) {
+            std::cerr << "For snarl " << vals1.start_node << vals1.end_node << ": mismatch in number of alleles counts" << std::endl;
+        }
+    }
     if  (vals1.allele_lengths.size() != vals2.allele_lengths.size()) {
         std::cerr << "For snarl " << vals1.start_node << vals1.end_node << ": mismatch in number of allele lengths" << std::endl;
     }
@@ -501,86 +524,119 @@ bool is_equivalent_assoc(stoat::phenotype_type_t phenotype_type, assoc_vals_t& v
     // For each allele in vals1, what is the matching allele in vals2?
     std::vector<size_t> allele_of_1_in_2 (vals1.allele_lengths.size(), std::numeric_limits<size_t>::max());
     std::vector<size_t> allele_of_2_in_1 (vals1.allele_lengths.size(), std::numeric_limits<size_t>::max());
-    for (size_t allele_num1 = 0 ; allele_num1 < vals1.allele_lengths.size() ; allele_num1++) {
-        // For each allele in 1, try to find an allele in 2 that matches it and hasn't already been assigned to another allele in 1
-        for (size_t allele_num2 = 0 ; allele_num2 < vals2.allele_lengths.size() ; allele_num2++) {
-            if (allele_of_2_in_1[allele_num2] == std::numeric_limits<size_t>::max() &&
-                vals1.allele_lengths[allele_num1] == vals2.allele_lengths[allele_num2]) {
-                // If the alleles have the same length, check the counts
-                bool match = false;
-                if (phenotype_type == stoat::BINARY) {
-                    // If this is a binary phenotype, then there is a vector of counts per allele
-                    std::sort(vals1.allele_counts_per_pheno[allele_num1].begin(), vals1.allele_counts_per_pheno[allele_num1].end());
-                    std::sort(vals2.allele_counts_per_pheno[allele_num2].begin(), vals2.allele_counts_per_pheno[allele_num2].end());
-                    if (vals1.allele_counts_per_pheno[allele_num1] == vals2.allele_counts_per_pheno[allele_num2]) {
-                        allele_of_1_in_2[allele_num1] = allele_num2;
-                        allele_of_2_in_1[allele_num2] = allele_num1;
-                        break;
-                    }
-                } else {
-                    if (vals1.allele_counts[allele_num1] == vals2.allele_counts[allele_num2]) {
-                        allele_of_1_in_2[allele_num1] = allele_num2;
-                        allele_of_2_in_1[allele_num2] = allele_num1;
-                        break;
+    if (vals1.allele_counts.size() > 0 || vals1.allele_counts_per_pheno.size() > 0) {
+        for (size_t allele_num1 = 0 ; allele_num1 < vals1.allele_lengths.size() ; allele_num1++) {
+            // For each allele in 1, try to find an allele in 2 that matches it and hasn't already been assigned to another allele in 1
+            for (size_t allele_num2 = 0 ; allele_num2 < vals2.allele_lengths.size() ; allele_num2++) {
+                if (allele_of_2_in_1[allele_num2] == std::numeric_limits<size_t>::max() &&
+                    vals1.allele_lengths[allele_num1] == vals2.allele_lengths[allele_num2]) {
+                    // If the alleles have the same length, check the counts
+                    bool match = false;
+                    if (phenotype_type == stoat::BINARY) {
+                        // If this is a binary phenotype, then there is a vector of counts per allele
+                        std::sort(vals1.allele_counts_per_pheno[allele_num1].begin(), vals1.allele_counts_per_pheno[allele_num1].end());
+                        std::sort(vals2.allele_counts_per_pheno[allele_num2].begin(), vals2.allele_counts_per_pheno[allele_num2].end());
+                        if (vals1.allele_counts_per_pheno[allele_num1] == vals2.allele_counts_per_pheno[allele_num2]) {
+                            allele_of_1_in_2[allele_num1] = allele_num2;
+                            allele_of_2_in_1[allele_num2] = allele_num1;
+                            break;
+                        }
+                    } else {
+                        if (vals1.allele_counts[allele_num1] == vals2.allele_counts[allele_num2]) {
+                            allele_of_1_in_2[allele_num1] = allele_num2;
+                            allele_of_2_in_1[allele_num2] = allele_num1;
+                            break;
+                        }
                     }
                 }
             }
         }
-    }
 
-    // Each allele from vals1 should match exactly one allele in vals2 
-    for (size_t assignment1 : allele_of_1_in_2) {
-        if (assignment1 == std::numeric_limits<size_t>::max()) {
-            return false;
+        // Each allele from vals1 should match exactly one allele in vals2 
+        for (size_t assignment1 : allele_of_1_in_2) {
+            if (assignment1 == std::numeric_limits<size_t>::max()) {
+                return false;
+            }
         }
-    }
-    for (size_t assignment2 : allele_of_2_in_1) {
-        if (assignment2 == std::numeric_limits<size_t>::max()) {
-            return false;
+        for (size_t assignment2 : allele_of_2_in_1) {
+            if (assignment2 == std::numeric_limits<size_t>::max()) {
+                return false;
+            }
         }
     }
     return true;
 }
-bool is_equivalent_assoc_file(stoat::phenotype_type_t phenotype_type, const std::string& file1, const std::string& file2){
+bool is_equivalent_assoc_file(const std::string& file1, const std::string& file2){
     // Read each file and save contents as a map from start node to assoc_vals_t
     // Since the bounds might be flipped, save both start and end node to map
 
     std::unordered_map<std::string, assoc_vals_t> vals1;
     std::unordered_map<std::string, assoc_vals_t> vals2; 
 
+
     std::ifstream infile1(file1);
     std::string line;
+    std::getline(infile1, line);
+    // Get the phenotype type based on the contents of the header
+    stoat::phenotype_type_t phenotype_type = stoat::QUANTITATIVE;
+    if (line.find("P_CHI2") != std::string::npos) {
+        phenotype_type = stoat::BINARY;
+    } else if (line.find("GENE") != std::string::npos) {
+        phenotype_type = stoat::EQTL;
+    }
     while (std::getline(infile1, line)) {
         assoc_vals_t vals = load_assoc_line(phenotype_type, line);
-        assert(vals1.count(vals.start_node) == 0);
-        assert(vals1.count(vals.end_node) == 0);
-        vals1.insert({vals.start_node, vals});
-        vals1.insert({vals.end_node, std::move(vals)});
+        assert(vals1.count(vals.start_node+vals.gene_name) == 0);
+        assert(vals1.count(vals.end_node+vals.gene_name) == 0);
+        vals1.insert({vals.start_node+vals.gene_name, vals});
+        vals1.insert({vals.end_node+vals.gene_name, std::move(vals)});
     }
     infile1.close();
+
     std::ifstream infile2(file2);
+    std::getline(infile2, line);
+
+    // verify the phenotype type based on the contents of the header
+    if (line.find("P_CHI2") != std::string::npos) {
+        if (phenotype_type != stoat::BINARY) {
+            std::cerr << "Files come from two different types of phenotype" << std::endl;
+            return false;
+        }
+    } else if (line.find("GENE") != std::string::npos) {
+        if (phenotype_type != stoat::EQTL) {
+            std::cerr << "Files come from two different types of phenotype" << std::endl;
+            return false;
+        }
+    } else {
+        // This doesn't matter since the other two are the only ones with special fields
+        if (phenotype_type != stoat::QUANTITATIVE) {
+            std::cerr << "Files come from two different types of phenotype" << std::endl;
+            return false;
+        }
+    }
     while (std::getline(infile2, line)) {
         assoc_vals_t vals = load_assoc_line(phenotype_type, line);
-        assert(vals2.count(vals.start_node) == 0);
-        assert(vals2.count(vals.end_node) == 0);
-        vals2.insert({vals.start_node, vals});
-        vals2.insert({vals.end_node, std::move(vals)});
+        assert(vals2.count(vals.start_node+vals.gene_name) == 0);
+        assert(vals2.count(vals.end_node+vals.gene_name) == 0);
+        vals2.insert({vals.start_node+vals.gene_name, vals});
+        vals2.insert({vals.end_node+vals.gene_name, std::move(vals)});
     }
     infile2.close();
 
     // Now check that for each snarl in 1, there is an equivalent snarl in 2
     for (auto& snarl1 : vals1) {
         if (vals2.count(snarl1.first) == 0) {
-            std::cerr << "Snarl " << snarl1.second.start_node << snarl1.second.end_node << " missing in second file" << std::endl;
+            std::cerr << "Snarl " << snarl1.first << ": " << snarl1.second.start_node << snarl1.second.end_node << " missing in second file" << std::endl;
             return false;
         }
         if (!is_equivalent_assoc(phenotype_type, snarl1.second, vals2[snarl1.first])) {
             return false;
         }
     }
+    // And for each snarl in 2, there is an equivalent snarl in 1
     for (auto& snarl2 : vals2) {
         if (vals1.count(snarl2.first) == 0) {
-            std::cerr << "Snarl " << snarl2.second.start_node << snarl2.second.end_node << " missing in first file" << std::endl;
+            std::cerr << "Snarl " << snarl2.first << ": " << snarl2.second.start_node << snarl2.second.end_node << " missing in first file" << std::endl;
             return false;
         }
         if (!is_equivalent_assoc(phenotype_type, snarl2.second, vals1[snarl2.first])) {
@@ -589,5 +645,4 @@ bool is_equivalent_assoc_file(stoat::phenotype_type_t phenotype_type, const std:
     }
 
     return true;
-
 }
