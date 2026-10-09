@@ -31,12 +31,12 @@ void print_help_graph() {
 
     std::cerr << "Usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
         << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
+        << "Output: snarl_genotypes.tsv.gz written to the specified output directory"<< std::endl
         << std::endl
         << "input:" << std::endl
         << "  -g, --graph FILE                   Use this graph (required)" << std::endl
-        << "  -G, --r-index FILE                 Use this r-index (optional, requires -g be a gbz)" << std::endl
-        << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
-        << std::endl
+        << "  -G, --r-index FILE                 Use this r-index (recommended, requires -g be a gbz)" << std::endl
+        << "  -d, --distance-index FILE          Use this distance index" << std::endl << std::endl
         << "output:" << std::endl
         << "  -o, --output DIR                   Output directory name [stoat_output]" << std::endl
         << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << std::endl
@@ -46,9 +46,9 @@ void print_help_graph() {
         << "  -t, --threads N                    Number of threads to use" << std::endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << std::endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << std::endl
-        << "  -R, --reference-file FILE          Path to the reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
-        << "  -r, --reference-prefix NAME        The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
-        << "                                     If not given, use any reference-sense paths in the graph as the references" << std::endl
+        << "  -R, --reference-file FILE          Path to the reference file, one path name per line." << std::endl
+        << "  -r, --reference-prefix NAME        The prefix of paths to be used as references." << std::endl
+        << "                                     If references are not given, use any reference-sense paths in the graph. Check paths with vg paths -M" << std::endl
         << "  -a, --ascii                        Print the STOAT ascii art banner"  << std::endl
         << "  -h, --help                         Print this help message" << std::endl;
 }
