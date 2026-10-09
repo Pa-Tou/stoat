@@ -67,6 +67,8 @@ void process_tsv_line_eqtl(const std::string& line,
     const std::string& file_name);
 
 
+/// Load and compare a SnarlDataCollection (snarl_info or snarl_genotypes)
+bool is_equivalent_snarl_collection_file(const std::string& file1, const std::string& file2);
 
 ///////////////////////////////// Load and compare an assoc file (output of stoat test)
 
@@ -90,3 +92,4 @@ assoc_vals_t load_assoc_line(stoat::phenotype_type_t phenotype_type, const std::
 // Are the assoc vals equivalent? True for equivalent, false for mismatch
 bool is_equivalent_assoc(stoat::phenotype_type_t phenotype_type, assoc_vals_t& vals1, assoc_vals_t& vals2);
 bool is_equivalent_assoc_file(const std::string& file1, const std::string& file2);
+

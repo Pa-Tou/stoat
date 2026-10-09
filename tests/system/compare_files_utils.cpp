@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include "../../src/snarl_data_collection.hpp"
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -377,9 +378,9 @@ bool compare_output_dirs(const std::string& output_dir, const std::string& expec
                 std::cerr << "Mismatch in assoc.pvalues file: " << expected_file << "and " << output_file << std::endl;
                 return false;
             }
-        } else if (filename.find("snarl_info") == std::string::npos) {
+        } else if (filename.find("snarl_genotypes") == std::string::npos || filename.find("snarl_info") == std::string::npos) {
             // Ignore the snarl file because it gets done separately
-            if (!files_equal(expected_file, output_file)) {
+            if (!is_equivalent_snarl_collection_file(expected_file, output_file)) {
                 std::cerr << "Mismatch in file: " << filename << "\n";
                 return false;
             }
@@ -645,4 +646,22 @@ bool is_equivalent_assoc_file(const std::string& file1, const std::string& file2
     }
 
     return true;
+}
+
+bool is_equivalent_snarl_collection_file(const std::string& file1, const std::string& file2){
+
+    std::shared_ptr<SnarlCoordinates> snarl_coords1 (new SnarlCoordinates);
+    SnarlDataCollection snarls1(snarl_coords1, 0);
+    StdReader reader1(file1);
+    snarls1.load_snarl_data_collection(reader1);
+    reader1.close();
+    
+    std::shared_ptr<SnarlCoordinates> snarl_coords2 (new SnarlCoordinates);
+    SnarlDataCollection snarls2(snarl_coords2, 0);
+    StdReader reader2(file2);
+    snarls2.load_snarl_data_collection(reader2);
+    reader2.close();
+    
+    return SnarlDataCollection::is_equivalent(snarls1, snarls2);
+
 }
