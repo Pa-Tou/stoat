@@ -21,7 +21,8 @@ namespace stoat_command {
 // STOAT_VERSION are define in the CMAKELIST file
 void print_help_test() {
     stoat::print_banner(std::string(STOAT_VERSION));
-    std::cerr << "Usage: stoat test [options]\n\n"
+    std::cerr << "Usage: stoat test [options]\n"
+              << "Output: stoat.assoc.pvalues.tsv.gz written to the specified output directory\n\n"
               << "  -g, --genotype FILE             Path to the genotype file from stoat graph or stoat vcf\n"
               << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), \n"
               << "                                                            logreg (logistic regression), exact (exact phenotype/genotype match)\n"

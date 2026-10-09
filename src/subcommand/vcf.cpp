@@ -33,14 +33,19 @@ namespace stoat_command {
 // STOAT_VERSION is defined in the CMAKELIST file
 void print_help_vcf() {
     stoat::print_banner(std::string(STOAT_VERSION));
-    std::cerr << "Usage: stoat vcf [options]\n\n"
+    std::cerr << "Usage: stoat vcf [options]\n\n" 
+              << "There are three ways to launch stoat vcf:\n" 
+              << "Case 1 (snarl path decomposition): -g graph_path -G r-index_path -d dist_path\n" 
+              << "Case 2 (snarl path decomposition and genotyping): -g graph_path -G r-index_path -d dist_path -v vcf_path\n" 
+              << "Case 3 (snarl genotyping): -s snarl_path -v vcf_path\n" 
+              << "Output: snarl_info.tsv.gz and/or snarl_genotypes.tsv.gz written to given output directory\n\n"
               << "  -g, --graph FILE                Path to the graph file (must be .gbz format)\n"
               << "  -G, --r-index FILE              Use this r-index" << std::endl
               << "  -d, --dist FILE                 Path to the distance index file\n"
+              << "  -s, --snarl FILE                Path to the snarl file (use this intermediate file instead of loading the graph, snarl_info.tsv.gz)\n"
               << "  -v, --vcf FILE                  Path to the VCF file\n"
-              << "  -s, --snarl FILE                Path to the snarl file\n"
               << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
-              << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M). (optional)\n"
+              << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. (optional)\n"
               << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow (pangenie vcf not supported)\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
@@ -144,11 +149,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         only_prepare_snarls = true;
     } else if ( vcf_path.empty() || (snarl_path.empty() && (graph_path.empty() || dist_path.empty())) ) {
         stoat::LOG_ERROR("[stoat vcf] " +
-            std::string("Invalid argument combination provided.\n") +
-            "There are three ways to launch stoat vcf:\n" +
-            "Case 1 (snarl path decomposition): -g graph_path -G r_index_path -d dist_path\n" +
-            "Case 2 (snarl path decomposition and genotyping): -g graph_path -G r_index_path -d dist_path -v vcf_path\n" +
-            "Case 3 (snarl genotyping): -s snarl_path -v vcf_path"
+            std::string("Invalid argument combination provided.\n")
         );
         print_help_vcf();
         return EXIT_FAILURE;
