@@ -34,9 +34,6 @@ sudo apt-get install build-essential cmake pkg-config libjansson-dev protobuf-co
 
 - [vg](https://github.com/vgteam/vg) (optional)
 
-Note that STOAT uses [`libbdsg`](https://github.com/vgteam/libbdsg) and [`libvgio`](https://github.com/vgteam/libvgio), both of which depend on [`libhandlegraph`](https://github.com/vgteam/libhandlegraph).
-STOAT uses its own copies of each of these libraries but if any of them are already installed on your system, then problems may arise if the versions are incompatible.
-In general, the latest versions of all of these tools should work.
 
 ## Docker
 
@@ -110,7 +107,7 @@ More information in the [`stoat graph` wiki page](https://github.com/Pa-Tou/stoa
 A typical command looks like:
 
 ```bash
-stoat graph -g <graph.pg> -d <graph.dist> -o <output_directory>
+stoat graph -g <graph.[hg|pg|gbz]> -d <graph.dist> -o <output_directory>
 ```
 
 ##### `stoat vcf` to test samples genotyped from sequencing data
@@ -122,7 +119,7 @@ Note: Sorting the VCF using `bcftools sort` before running `stoat vcf` can impro
 A typical command looks like:
 
 ```bash
-stoat vcf -g <graph.pg> -d <graph.dist> -v <genotypes.vcf.gz> --chr <ref_paths.txt> -o <output_directory>
+stoat vcf -g <graph.gbz> -G <graph.ri> -d <graph.dist> -v <genotypes.vcf.gz> --reference-file <ref_paths.txt> -o <output_directory>
 ```
 
 #### Test for association
@@ -130,7 +127,7 @@ stoat vcf -g <graph.pg> -d <graph.dist> -v <genotypes.vcf.gz> --chr <ref_paths.t
 A typical command looks like:
 
 ```bash
-stoat test -s <output_directory/snarl_genotypes.tsv.gz> -p <phenotype.tsv> -m chi2 -o <output_directory>
+stoat test -g <output_directory/snarl_genotypes.tsv.gz> -p <phenotype.tsv> -m chi2 -o <output_directory>
 ```
 
 ### Wiki
