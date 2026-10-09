@@ -35,20 +35,17 @@ void print_help_vcf() {
     stoat::print_banner(std::string(STOAT_VERSION));
     std::cerr << "Usage: stoat vcf [options]\n\n" 
               << "There are three ways to launch stoat vcf:\n" 
-              << "Case 1 (snarl path decomposition): -g graph_path -d dist_path\n" 
-              << "Case 2 (snarl path decomposition and genotyping): -g graph_path -d dist_path -v vcf_path\n" 
+              << "Case 1 (snarl path decomposition): -g graph_path -G r-index_path -d dist_path\n" 
+              << "Case 2 (snarl path decomposition and genotyping): -g graph_path -G r-index_path -d dist_path -v vcf_path\n" 
               << "Case 3 (snarl genotyping): -s snarl_path -v vcf_path\n" 
-              << "Output: snarl_info.tsv.gz and snarl_genotypes.tsv.gz written to given output directory\n\n"
-              << "  -g, --graph FILE                Path to the graph file\n"
-              << "  -G, --r-index FILE              Use this r-index (optional, requires -g be a gbz)" << std::endl
+              << "Output: snarl_info.tsv.gz and/or snarl_genotypes.tsv.gz written to given output directory\n\n"
+              << "  -g, --graph FILE                Path to the graph file (must be .gbz format)\n"
+              << "  -G, --r-index FILE              Use this r-index" << std::endl
               << "  -d, --dist FILE                 Path to the distance index file\n"
               << "  -s, --snarl FILE                Path to the snarl file (use this intermediate file instead of loading the graph, snarl_info.tsv.gz)\n"
               << "  -v, --vcf FILE                  Path to the VCF file\n"
               << "  -R, --reference-file FILE       Path to the chromosome reference file, one path name per line (optional)\n"
               << "  -r, --reference-prefix NAME     The prefix of paths to be used as references. (optional)\n"
-              << "  -i, --children INT              Max number of children per snarl in decomposition [50]\n"
-              << "  -y, --cycle INT                 Max number of authorized cycles in snarl decomposition [1]\n"
-              << "  -l, --path-length INT           Max number of nodes in paths during snarl decomposition [50]\n"
               << "  -f, --resolve-vcf               Resolve conflicting calls in the VCF that may arise in nested snarls. This may be slow (pangenie vcf not supported)\n"
               << "  -t, --threads INT               Number of threads to use [1]\n"
               << "  -V, --verbose INT               Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace) [2]\n"
@@ -63,11 +60,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
     // Declare variables to hold argument values
     std::string vcf_path, snarl_path, graph_path, r_index_path, dist_path, reference_path, reference_prefix;
 
-    size_t cycle_threshold = 1;
-    size_t children_threshold = 50;
-    size_t min_individuals = 0;
-    // JEAN this threshold is a bit redundant with children_threshold and cycle_threshold but I guess could be useful if we want to set it lower than (children_threshold * (cycle_threshold+1))
-    size_t path_length_threshold = 50;
     std::string output_dir = "stoat_output";
     bool only_prepare_snarls = false;
     bool resolve_vcf = false;
@@ -100,7 +92,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "v:s:g:G:d:r:R:i:y:l:ft:V:o:uah", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "v:s:g:G:d:r:R:ft:V:o:uah", long_options, nullptr)) != -1) {
         switch (c) {
             case 'v': vcf_path = optarg; stoat_vcf::check_file(vcf_path); break;
             case 's': snarl_path = optarg; stoat_vcf::check_file(snarl_path); break;
@@ -110,24 +102,6 @@ int main_stoat_vcf(int argc, char* argv[]) {
             case 'R': reference_path = optarg; stoat_vcf::check_file(reference_path); break;
             case 'r': reference_prefix = optarg; break;
             case 'a': ascii = true; break;
-            case 'i':
-                children_threshold = std::stoi(optarg);
-                if (children_threshold < 2) {
-                    throw std::runtime_error("Error: [stoat vcf] Children threshold must be > 1");
-                }
-                break;
-            case 'y':
-                cycle_threshold = std::stoi(optarg);
-                if (cycle_threshold < 1) {
-                    throw std::runtime_error("Error: [stoat vcf] Cycle threshold must be > 0");
-                }
-                break;
-            case 'l':
-                path_length_threshold = std::stoi(optarg);
-                if (path_length_threshold < 2) {
-                    throw std::runtime_error("Error: [stoat vcf] Path length threshold must be > 1");
-                }
-                break;
             case 'f':
                 resolve_vcf=true;
                 break;
@@ -227,7 +201,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
 
     // Make an empty SnarlDataCollection, to be filled in or loaded
     // TODO: Double check that these thresholds are doing the right thing
-    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0, children_threshold, path_length_threshold);
+    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0);
 
     // Start tracking with callgrind
 #ifdef USE_CALLGRIND
@@ -260,58 +234,33 @@ int main_stoat_vcf(int argc, char* argv[]) {
         }
 
         // Load the graph and make it a PathPositionHandleGraph
-        handlegraph::PathHandleGraph* graph = nullptr;
-        // This is just to hold the unique pointer from try_load_first so it can be destroyed properly later
-        std::unique_ptr<handlegraph::PathHandleGraph> handle_graph_holder;
-        gbwt::GBWT* gbwt = nullptr;
-        GBZGraph* gbz = nullptr;
+
+        std::unique_ptr<GBZGraph> gbz = vg::io::VPKG::load_one<GBZGraph>(graph_path);
+
         gbwt::FastLocate r_index;
-
-        // We want to know if the graph is specifically a gbz or not since the r-index requires a gbz
-        auto options = vg::io::VPKG::try_load_first<GBZGraph, handlegraph::PathHandleGraph>(graph_path);
-        if (std::get<0>(options)) {
-            // This is a gbz 
+ 
+        gbwt::GBWT* gbwt = &gbz->gbz.index;
         
-                
-            gbz = std::get<0>(options).get();
-                        
-            gbwt = &gbz->gbz.index;
-        
-            if (r_index_path.empty()) { 
-                // If we are given an r-index, then the graph must have been a gbz 
-                std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
-            } else {
-                std::ifstream r_instream;
-                r_instream.open(r_index_path);
-                r_index.load(r_instream);
-                r_instream.close();
-                r_index.setGBWT(*gbwt);
-            }       
-                
-            graph = gbz;
-        
+        if (r_index_path.empty()) { 
+            // If we are given an r-index, then the graph must have been a gbz 
+            std::cerr << "[stoat] warning: The gbz may be slow without an r-index if there are many paths" << std::endl;
         } else {
-            // This is another type of graph, load it as a generic PathHandleGraph
-            handle_graph_holder = std::move(std::get<1>(options));
-            graph = handle_graph_holder.get();
-        
-            if (!r_index_path.empty()) {
-                // If we are given an r-index, then the graph must have been a gbz
-                std::cerr << "[stoat] warning: The r-index can only be used with gbz input. Ignoring the r-index" << std::endl;
-                r_index_path.clear();
-            }
-        }
-
-
+            std::ifstream r_instream;
+            r_instream.open(r_index_path);
+            r_index.load(r_instream);
+            r_instream.close();
+            r_index.setGBWT(*gbwt);
+        }       
+            
         // Get the reference sample names from the prefix
-        graph->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
-            std::string path_name = graph->get_path_name(path);
+        gbz->for_each_path_matching(nullptr, nullptr, nullptr, [&] (handlegraph::path_handle_t path) {
+            std::string path_name = gbz->get_path_name(path);
 
             if (!reference_prefix.empty() && std::mismatch(path_name.begin(), path_name.end(),
                               reference_prefix.begin(), reference_prefix.end()).second == reference_prefix.end()) {
                 // If these paths match
-                snarl_coordinate_finder->add_reference_path(graph->get_path_name(path));
-                ref_path_names.emplace(graph->get_path_name(path));
+                snarl_coordinate_finder->add_reference_path(gbz->get_path_name(path));
+                ref_path_names.emplace(gbz->get_path_name(path));
             }
 
             return true;
@@ -321,7 +270,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
         stoat::LOG_INFO("Applying overlay...");
         bdsg::ReferencePathOverlayHelper overlay_helper;
         bdsg::PathPositionHandleGraph* path_position_graph;
-        path_position_graph = overlay_helper.apply(graph, ref_path_names);
+        path_position_graph = overlay_helper.apply(gbz.get(), ref_path_names);
 
         std::vector<std::string> ref_path_names = snarl_coordinate_finder->reference_names_as_vector();
         // warning if no reference path matched the provided prefix
@@ -334,9 +283,9 @@ int main_stoat_vcf(int argc, char* argv[]) {
         std::unique_ptr<bdsg::SnarlDistanceIndex> distance_index = std::make_unique<bdsg::SnarlDistanceIndex>();
         distance_index->deserialize(dist_path);
 
-        // Check if chromosomes specified in the --R file are present in the graph
+        // Check if chromosomes specified in the --R file are present in the gbz
         for (const auto& chr : ref_path_names) {
-            if (!graph->has_path(chr)) {
+            if (!gbz->has_path(chr)) {
                 throw std::runtime_error("Reference chromosome: " + chr + " not present in graph");
             }
         }
@@ -369,7 +318,7 @@ int main_stoat_vcf(int argc, char* argv[]) {
             true, // walks_requested
             [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, std::vector<PathTraversal>& walks) { // function to fill in walks
                 if (r_index_path.empty()) {
-                    get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, walks, cycle_threshold); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
+                    get_all_walks_through_snarl(*path_position_graph, *distance_index, snarl, walks); //TODO: Use Matis's STOAT_VERSION and write the skipped snarls somewhere
                 } else {
                     get_haplotype_walks_through_snarl(*path_position_graph, *gbwt, r_index, *distance_index, snarl, walks);
                 }

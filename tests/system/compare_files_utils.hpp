@@ -6,31 +6,18 @@
 #include <string>
 #include <unordered_map>
 #include <regex>
+#include "../../src/types_and_structs.hpp"
 
 namespace fs = std::filesystem;
 
 // === UTILITY FUNCTIONS ===
 
+// rm -rf this directory
 void clean_output_dir(const std::string& output_dir);
 
-// Check if two TSV files contain the same lines. 
-// This assumes that the TSVs have a column for a unique snarl identifier, and checks that the snarls are the same and have the same lines
-bool files_equal(const std::string& file1, const std::string& file2);
-
-// Check if two tsv files contain the same lines, but this time one is in the form of a vector of lines instead of a file
-bool files_equal(const std::string& file1, const std::vector<std::string>& lines);
-
-// Check if two tsv files contain the same lines sepcifique to eqtl
-bool files_equal_eqtl(const std::string& file1, const std::string& file2);
-
-// Helper function for other files_equal() functions. Each of the others transforms the input into maps and calls this 
-bool compare_file(const std::unordered_map<std::string, std::string>& map1, const std::unordered_map<std::string, std::string>& map2);
-
-// Check header function that looking if the header containt SNARL column
-int parse_header(const std::string& header_line, const std::string& file_name);
-
-// Check header function that looking if the header containt SNARL & EQTL column
-std::tuple<int, int> parse_header_eqtl(const std::string& header_line, const std::string& file_name);
+// Check that the two directories have the same files and that the files match.
+// This only knows how to compare snarl_info, snarl_genotypes, and assoc.pvalues files using functions is_equivalent_snarl_collection_file() and is_equivalent_assoc_file
+bool compare_output_dirs(const std::string& output_dir, const std::string& expected_dir);
 
 // Check if a fasta file is equivalent to a set of fasta records.
 // Because there may be multiple options for which path is represented in the fasta (eg two paths that take the same walk), this must allow different headers in an equivalence class (walk through a snarl).
@@ -42,25 +29,34 @@ bool fasta_equal(const std::string& file, const std::vector<std::tuple<size_t, s
 // Check if a fasta is valid: lines are only headers or sequences and sequence lines are less than 80 characters
 bool is_valid_fasta(const std::string& file);
 
-bool compare_output_dirs(const std::string& output_dir, const std::string& expected_dir);
+/// Load and compare two SnarlDataCollections (snarl_info or snarl_genotypes)
+/// Returns true if they are equivalent and false otherwise.
+/// Values must be the same but the order of alleles, orientation of paths, etc may change
+bool is_equivalent_snarl_collection_file(const std::string& file1, const std::string& file2);
 
-// Helper function to load a tsv from a file into a map from snarl to line
-void load_tsv_file(const std::string& path, std::unordered_map<std::string, std::string>& map);
+///////////////////////////////// Load and compare an assoc file (output of stoat test)
 
-// Helper function to load a tsv from a vector of lines into a map from snarl to line
-void load_tsv_file(const std::vector<std::string>& lines, std::unordered_map<std::string, std::string>& map);
+/// Load and compare two assoc.pvalues files, returns true if they are equivalent and false otherwise
+/// All values must be the same but the order of alleles may change
+bool is_equivalent_assoc_file(const std::string& file1, const std::string& file2);
 
-// Helper function to load a tsv from a file into a map from snarl to line specifique for eqtl file
-void load_tsv_file_eqtl(const std::string& path, std::unordered_map<std::string, std::string>& map);
+struct assoc_vals_t {
+    std::string start_node;
+    std::string end_node;
+    std::string chr;
+    size_t start_offset;
+    size_t end_offset;
+    std::vector<std::string> allele_lengths;//Kept as a string to compare min/max
+    double p_value;
+    double p_value_chi2;//For binary, p_value is fisher and this is chi2
+    std::vector<size_t> allele_counts;
+    std::vector<std::vector<size_t>> allele_counts_per_pheno;
+    size_t depth;
+    std::string gene_name;
+};
 
-// Helper function for the two load_tsv_file() functions. Called per line
-void process_tsv_line(const std::string& line, 
-    std::unordered_map<std::string, std::string>& map, 
-    const int& snarl_column, bool& header_processed, 
-    const std::string& file_name);
+assoc_vals_t load_assoc_line(stoat::phenotype_type_t phenotype_type, const std::string& line);
 
-// Helper function specifique for eqtl file
-void process_tsv_line_eqtl(const std::string& line,
-    std::unordered_map<std::string, std::string>& map,
-    const int& snarl_column, const int& gene_column,
-    const std::string& file_name);
+// Are the assoc vals equivalent? True for equivalent, false for mismatch
+bool is_equivalent_assoc(stoat::phenotype_type_t phenotype_type, assoc_vals_t& vals1, assoc_vals_t& vals2);
+
