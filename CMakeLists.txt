@@ -252,7 +252,8 @@ add_executable(test_simu_test tests/system/compare_files_utils.cpp tests/system/
 # add src target lib + Catch2 lib 
 target_link_libraries(test_simu_test PRIVATE 
     Boost::boost
-    ${HTSLIB_LIBRARIES})
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
 
 # Register with CTest
 add_test(NAME TestSimuTest COMMAND test_simu_test)
@@ -262,7 +263,8 @@ add_executable(bh_correct_test tests/system/compare_files_utils.cpp tests/system
 # add src target lib + Catch2 lib 
 target_link_libraries(bh_correct_test PRIVATE 
     Boost::boost
-    ${HTSLIB_LIBRARIES})
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
 
 # Register with CTest
 add_test(NAME BHCorrectTest COMMAND bh_correct_test)
@@ -274,7 +276,8 @@ add_executable(change_ref_test tests/system/compare_files_utils.cpp tests/system
 # add src target lib + Catch2 lib 
 target_link_libraries(change_ref_test PRIVATE 
     Boost::boost
-    ${HTSLIB_LIBRARIES})
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
 
 # Register with CTest
 add_test(NAME ChangeRefTest COMMAND change_ref_test)
