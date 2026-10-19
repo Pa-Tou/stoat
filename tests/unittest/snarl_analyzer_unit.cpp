@@ -71,7 +71,7 @@ TEST_CASE("identify_path with EdgeBySampleMatrix") {
     path.add_node_traversal_t(c);
     
     std::vector<std::string> samples = {"sample1", "sample2", "sample3"};
-    EdgeBySampleMatrix matrix(samples, 2);
+    EdgeBySampleMatrix matrix(samples, 2, 2);
 
     matrix.add_sample_edge(edge1, 0); // Set true at [row for edge1][0]
     matrix.add_sample_edge(edge2, 0); // Set true at [row for edge2][0]
