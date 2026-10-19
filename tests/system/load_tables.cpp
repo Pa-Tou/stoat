@@ -146,15 +146,20 @@ std::vector<snarl_genotype_values_t> load_genotype_file(const std::string& infil
 
     // First header line should be the version
     std::getline(instream, line);
-    if (line != "#SNARL_DATA_v1.0" ) {
+    bool get_limits=false;
+    if (line == "#SNARL_DATA_v1.0" ) {
+        get_limits = true;
+    } else if (line != "#SNARL_DATA_v1.1") {
         std::cerr << "Warning: genotype file is version " << line << std::endl;
     }
     // allele size limit
     std::getline(instream, line);
-    // snarl child limit
-    std::getline(instream, line);
-    // walk steps limit 
-    std::getline(instream, line);
+    if (get_limits) {
+        // snarl child limit
+        std::getline(instream, line);
+        // walk steps limit 
+        std::getline(instream, line);
+    }
     // Start of refs
     std::getline(instream, line);
 

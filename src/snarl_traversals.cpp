@@ -9,8 +9,7 @@ namespace stoat {
 
 void get_all_walks_through_snarl(
         const handlegraph::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
-        const net_handle_t& snarl, std::vector<stoat::PathTraversal>& walks, 
-        size_t walk_cycle_limit, size_t walk_steps_limit) {
+        const net_handle_t& snarl, std::vector<stoat::PathTraversal>& walks, size_t walk_cycle_limit, size_t walk_steps_limit) {
 
 #ifdef DEBUG_SNARL_TRAVERSALS
 #pragma omp critical(cerr)
@@ -54,6 +53,7 @@ void get_all_walks_through_snarl(
            break_snarl = true;
            break;
         }
+
 	
         // Follow edges from the last element in path
         if (!path.empty()) {

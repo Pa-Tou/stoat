@@ -129,6 +129,7 @@ public:
 
 };
 
+
 // Convert a pair of size_t, for example defining a snarl ID to a string of them separated by an underscore
 std::string pairToString(const std::pair<size_t, size_t>& name);
 
@@ -159,6 +160,11 @@ std::vector<PathTraversal> net_handles_to_path_traversals(
                             const bdsg::SnarlDistanceIndex& distance_index, 
                             const handlegraph::PathHandleGraph& graph, 
                             std::vector<std::vector<handlegraph::net_handle_t>>& finished_paths);
+
+/// Given the walks through the snarl, find the sequence. The sequence will just be a concatination of sequences of nodes with "N" for any out-of-snarl
+/// walk or nested chain
+std::vector<std::string> get_sequences_from_walks(const handlegraph::PathHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index,
+        const std::vector<stoat::PathTraversal>& paths);
 
 // This stores a sample name and haplotype identifier
 struct sample_hap_t {

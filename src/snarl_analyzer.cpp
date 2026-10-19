@@ -98,7 +98,7 @@ void SnarlAnalyzer::test_snarls_from_file(stoat::Reader& gt_reader, stoat::Write
 
     // prepare snarl collection that will stream the snarls and open connection to the file
     std::shared_ptr<SnarlCoordinates> snarl_data_collection ( new SnarlCoordinates);
-    stoat::SnarlDataCollection snarl_collection_stream(snarl_data_collection, 0, 0, 0);
+    stoat::SnarlDataCollection snarl_collection_stream(snarl_data_collection, 0);
 
     // Write the header of the output file
     out_writer.write_stoat_output_header(phenotype_type);

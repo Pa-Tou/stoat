@@ -31,24 +31,25 @@ void print_help_graph() {
 
     std::cerr << "Usage: stoat graph -g [graph] -d [distance index] [options]" << std::endl
         << "Retrieves snarl genotypes based on the haplotype paths present in the graph"<< std::endl
+        << "Output: snarl_genotypes.tsv.gz written to the specified output directory"<< std::endl
         << std::endl
         << "input:" << std::endl
         << "  -g, --graph FILE                   Use this graph (required)" << std::endl
-        << "  -G, --r-index FILE                 Use this r-index (optional, requires -g be a gbz)" << std::endl
-        << "  -d, --distance-index FILE          Use this distance index (required if -s is not given)" << std::endl
+        << "  -G, --r-index FILE                 Use this r-index (recommended, requires -g be a gbz)" << std::endl
+        << "  -d, --distance-index FILE          Use this distance index" << std::endl
         << std::endl
         << "output:" << std::endl
         << "  -o, --output DIR                   Output directory name [stoat_output]" << std::endl
-        << "  -L, --allele-lengths               Find the lengths of alleles (they will be NA without this flag). This makes stoat slow." << std::endl
+        << "  -L, --find-alleles                 Find the walks and lengths of alleles (they will be \".\" without this flag). This is slow if not using the r-index." << std::endl
         << "  -u, --no-bgzip                     Don't compress the output file with bgzip\n"
         << std::endl
         << "options:" << std::endl
         << "  -t, --threads N                    Number of threads to use" << std::endl
         << "  -V, --verbose INT                  Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)" << std::endl
         << "  -l, --allele-size-limit INT        Don't report variants smaller than this [0]" << std::endl
-        << "  -R, --reference-file FILE          Path to the reference file, one path name per line. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
-        << "  -r, --reference-prefix NAME        The prefix of paths to be used as references. These paths must be REFERENCE- or GENERIC-sense paths (check with vg paths -M)." << std::endl
-        << "                                     If not given, use any reference-sense paths in the graph as the references" << std::endl
+        << "  -R, --reference-file FILE          Path to the reference file, one path name per line." << std::endl
+        << "  -r, --reference-prefix NAME        The prefix of paths to be used as references." << std::endl
+        << "                                     If references are not given, use any reference-sense paths in the graph. Check paths with vg paths -M" << std::endl
         << "  -a, --ascii                        Print the STOAT ascii art banner"  << std::endl
         << "  -h, --help                         Print this help message" << std::endl;
 }
@@ -88,7 +89,7 @@ int main_stoat_graph(int argc, char *argv[]) {
                 {"reference-file", required_argument, 0, 'R'},
                 {"reference-prefix", required_argument, 0, 'r'},
                 {"output", required_argument, 0, 'o'},
-                {"allele-length", no_argument, 0, 'L'},
+                {"find-alleles", no_argument, 0, 'L'},
                 {"verbose", required_argument, 0, 'V'},
                 {"no-bgzip", no_argument, 0, 'u'},
                 {"ascii", no_argument, 0, 'a'},
@@ -330,13 +331,10 @@ int main_stoat_graph(int argc, char *argv[]) {
     //////////////////////////////// Make the snarls file and load it if possible
     // If it is being built, it will count towards the time of analysis
 
-    // TODO: Get these from the command line, infinite for now (which may also be fine)
-    size_t snarl_child_limit = std::numeric_limits<size_t>::max();
-    size_t walk_steps_limit = std::numeric_limits<size_t>::max();
     size_t total_number_snarl_limit_distance = 0;
     size_t total_number_snarl_limit_children = 0;
     size_t total_snarl_chr_analysed = 0;
-    SnarlDataCollection snarl_collection(snarl_coordinate_finder, allele_size_limit, snarl_child_limit, walk_steps_limit);
+    SnarlDataCollection snarl_collection(snarl_coordinate_finder, allele_size_limit);
     
     ////////////////////////////////////////////////// Start doing work
 
@@ -365,7 +363,7 @@ int main_stoat_graph(int argc, char *argv[]) {
     snarl_collection.fill_in_snarl_info(*path_position_graph, distance_index, all_sample_haplotypes, 
                                         true, // Find the sets of samples in each allele (walk through the snarl) before finding the walks themselves
                                         find_allele_lengths, // find walks (used for sequences or for lengths)
-                                        [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks
+                                        [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data, //Function to find the walks, not called if find_allele_lengths is false
                                              std::vector<PathTraversal>& walks) {
                                             // If we actually need the walks to get the sequences or the lengths
                                             if (r_index_name.empty()) {
@@ -384,8 +382,10 @@ int main_stoat_graph(int argc, char *argv[]) {
                                         [&] (const net_handle_t& snarl, const snarl_info_t& snarl_data,
                                              const std::vector<stoat::sample_hap_t>& sample_haplotypes) {
                                             if (r_index_name.empty()) {
+                                                // If we didn't use the r-index, we just found partitions of paths so now go back and find a walk for each partition
                                                 return stoat_graph::partition_embedded_paths_in_snarl(*path_position_graph, distance_index, snarl, sample_haplotypes);
                                             } else {
+                                                // If we used the r-index, then we already found the walks and saved them in paths_per_allele_per_snarl
                                                 std::vector<PathTraversal> paths_per_allele;
                                                 auto assignments =  stoat_graph::partition_embedded_paths_in_snarl_with_gbwt(*path_position_graph, *gbwt, r_index, 
                                                                                                                 distance_index, snarl, sample_haplotypes, paths_per_allele);
