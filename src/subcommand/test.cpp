@@ -21,7 +21,8 @@ namespace stoat_command {
 // STOAT_VERSION are define in the CMAKELIST file
 void print_help_test() {
     stoat::print_banner(std::string(STOAT_VERSION));
-    std::cerr << "Usage: stoat test [options]\n\n"
+    std::cerr << "Usage: stoat test [options]\n"
+              << "Output: stoat.assoc.pvalues.tsv.gz written to the specified output directory\n\n"
               << "  -g, --genotype FILE             Path to the genotype file from stoat graph or stoat vcf\n"
               << "  -m, --method STR                Which test method to use: chi2 (Fisher/Chi-Squared), linreg (linear regression), \n"
               << "                                                            logreg (logistic regression), exact (exact phenotype/genotype match)\n"
@@ -199,7 +200,7 @@ int main_stoat_test(int argc, char* argv[]) {
 
     // Load the SnarlDataCollection
     std::shared_ptr<SnarlCoordinates> snarl_coordinate_finder ( new SnarlCoordinates);
-    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0, 0, 0);
+    stoat::SnarlDataCollection snarl_collection(snarl_coordinate_finder, 0);
     // load the header from the snarl collection file. We'll use those sample indices
     std::shared_ptr<stoat::Reader> snarl_reader;
     if ((genotype_path.compare(genotype_path.length()-3, 3, ".gz") == 0) ||
