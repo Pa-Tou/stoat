@@ -168,6 +168,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/subcommand/test.cpp
     src/subcommand/bh_correct.cpp
     src/subcommand/change_reference.cpp
+    src/subcommand/get_tree.cpp
 )
 
 # Include Directories
