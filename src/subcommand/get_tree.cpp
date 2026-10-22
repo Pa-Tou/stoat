@@ -137,6 +137,10 @@ int main_stoat_get_tree(int argc, char *argv[]) {
 void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::SnarlDistanceIndex& distance_index, std::string& ref_path, size_t start, size_t end) {
     // Start by getting the bounding nodes/snarls in the lowest common ancestor chain for the reference path
     handlegraph::path_handle_t path_handle = graph.get_path_handle(ref_path);
+    if ( start > end || start >= graph.get_path_length(path_handle) || end >= graph.get_path_length(path_handle)) {
+        std::cerr << "Range " << start << "-" << end << " is invalid for path " << ref_path << std::endl;
+        throw std::runtime_error("error: invalid coordinate range");
+    }
     handlegraph::net_handle_t start_node = distance_index.get_net(graph.get_handle_of_step(graph.get_step_at_position(path_handle, start)), &graph);
     handlegraph::net_handle_t end_node = distance_index.get_net(graph.get_handle_of_step(graph.get_step_at_position(path_handle, end)), &graph);
 
@@ -190,13 +194,20 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
         handlegraph::net_handle_t flipped = distance_index.flip(end_ancestor);
         end_ancestor = flipped;
     }
+    handlegraph::net_handle_t stop_ancestor = distance_index.get_root();
+    distance_index.follow_net_edges(end_ancestor, &graph, false, [&](net_handle_t next_child) {
+        stop_ancestor = next_child;
+        return true;
+    });
 
     // Now walk through the chain from start to end ancestors and emit all snarls contained in the chain
-    do {
-        // Put all snarls we need to print in to_explore
-        // We take this snarl as the parent and print all the child snarls, then put the children in to_explore
-        std::vector<std::pair<handlegraph::net_handle_t, std::string>> to_explore;
+     while (start_ancestor != stop_ancestor) {
+
         if (distance_index.is_snarl(start_ancestor)) {
+
+            // Put all snarls we need to print in to_explore
+            // We take this snarl as the parent and print all the child snarls, then put the children in to_explore
+            std::vector<std::pair<handlegraph::net_handle_t, std::string>> to_explore;
 
             handlegraph::handle_t current_start_in = distance_index.get_handle(distance_index.get_bound(start_ancestor, false, true), &graph);
             handlegraph::handle_t current_end_in = distance_index.get_handle(distance_index.get_bound(start_ancestor, true, true), &graph);
@@ -206,41 +217,45 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
             stoat::node_traversal_t current_end_trav(graph.get_id(current_end_in),
                                                           graph.get_is_reverse(current_end_in));
             to_explore.emplace_back(start_ancestor, current_start_trav.to_string() + current_end_trav.to_string());
+
+            // Write this snarl with no ancestor
+            std::cout << current_start_trav.to_string() << current_end_trav.to_string() << "\t." << std::endl;
+
+            while (!to_explore.empty()) {
+                handlegraph::net_handle_t current_snarl = to_explore.back().first;
+                std::string current_snarl_str = to_explore.back().second;
+
+                to_explore.pop_back();
+                
+                distance_index.for_each_child(current_snarl, [&] (net_handle_t child_chain) {
+                    distance_index.for_each_child(child_chain, [&] (net_handle_t child_snarl) {
+                        if (distance_index.is_snarl(child_snarl)) {
+                            handlegraph::handle_t child_start_in = distance_index.get_handle(distance_index.get_bound(child_snarl, false, true), &graph);
+                            handlegraph::handle_t child_end_in = distance_index.get_handle(distance_index.get_bound(child_snarl, true, true), &graph);
+                            
+                            stoat::node_traversal_t child_start_trav(graph.get_id(child_start_in),
+                                                                            graph.get_is_reverse(child_start_in));
+                            stoat::node_traversal_t child_end_trav(graph.get_id(child_end_in),
+                                                                          graph.get_is_reverse(child_end_in));
+                            std::string child_str = child_start_trav.to_string() + child_end_trav.to_string();
+                            std::cout << child_str << "\t" << current_snarl_str << std::endl;
+
+                            to_explore.emplace_back(child_snarl, child_str);
+                        }
+                        return true; });
+                    return true;
+                });
+            }
         }
 
-        while (!to_explore.empty()) {
-            handlegraph::net_handle_t current_snarl = to_explore.back().first;
-            std::string current_snarl_str = to_explore.back().second;
 
-            to_explore.pop_back();
-            
-            distance_index.for_each_child(current_snarl, [&] (net_handle_t child_chain) {
-                distance_index.for_each_child(child_chain, [&] (net_handle_t child_snarl) {
-                    if (distance_index.is_snarl(child_snarl)) {
-                        handlegraph::handle_t child_start_in = distance_index.get_handle(distance_index.get_bound(child_snarl, false, true), &graph);
-                        handlegraph::handle_t child_end_in = distance_index.get_handle(distance_index.get_bound(child_snarl, true, true), &graph);
-                        
-                        stoat::node_traversal_t child_start_trav(graph.get_id(child_start_in),
-                                                                        graph.get_is_reverse(child_start_in));
-                        stoat::node_traversal_t child_end_trav(graph.get_id(child_end_in),
-                                                                      graph.get_is_reverse(child_end_in));
-                        std::string child_str = child_start_trav.to_string() + child_end_trav.to_string();
-                        std::cerr << child_str << "\t" << current_snarl_str << std::endl;
-
-                        to_explore.emplace_back(child_snarl, child_str);
-                    }
-                    return true; });
-                return true;
-            });
-        }
-
-        handlegraph::net_handle_t next;
+        handlegraph::net_handle_t next = distance_index.get_root();
         distance_index.follow_net_edges(start_ancestor, &graph, false, [&](net_handle_t next_child) {
             next = next_child;
             return true;
         });
         start_ancestor = next;
-    } while (start_ancestor != end_ancestor);
+    }
 
 }
 } //end namespace

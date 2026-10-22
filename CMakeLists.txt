@@ -282,3 +282,16 @@ target_link_libraries(change_ref_test PRIVATE
 
 # Register with CTest
 add_test(NAME ChangeRefTest COMMAND change_ref_test)
+
+
+##### Add get tree system test
+add_executable(get_tree_test tests/system/get_tree_test.cpp)
+
+# add src target lib + Catch2 lib 
+target_link_libraries(get_tree_test PRIVATE 
+    Boost::boost
+    ${HTSLIB_LIBRARIES}
+    ${PROJECT_NAME}_objs)
+
+# Register with CTest
+add_test(NAME GetTreeTest COMMAND get_tree_test)
