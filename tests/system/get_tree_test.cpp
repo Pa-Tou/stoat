@@ -228,6 +228,23 @@ TEST_CASE("Giant unverified graph just to see if it crashes", "[get-tree]") {
         }
 
     }
+    SECTION("test subrange") {
+
+
+        // Run stoat to get 
+        std::string cmd = "../bin/stoat get-tree";
+        cmd += " -g " + graph_base + ".pg"
+            + " -d " + graph_base + ".dist"
+            + " -p ref:2073-183728 > /dev/null";
+
+        std::cout << "Command run : \n" << cmd << std::endl;
+        int command_output = std::system(cmd.c_str());
+        if (command_output != 0) {
+            std::cerr << "Command failed: " << cmd << "\n";
+            REQUIRE(false);
+        }
+
+    }
 }
 
 

@@ -172,7 +172,8 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
     }
     start_ancestor = distance_index.start_end_traversal_of(start_node);
     if (distance_index.is_root(ancestor)) {
-        throw std::runtime_error("error: the offests are on different connected components");
+        throw std::runtime_error("error: the offsets are on different connected components or a weird top-level snarl");
+        //TODO: Could try to deal with top-level snarls
     }
 
     // Now we want to walk across the lowest common ancestor chain and get all snarls
@@ -180,7 +181,6 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
     if (distance_index.is_snarl(ancestor)) {
         start_ancestor = ancestor;
         end_ancestor = ancestor;
-        ancestor = distance_index.start_end_traversal_of(distance_index.get_parent(end_ancestor));
     }
 
     // Get the start and end in the right orientation
@@ -209,6 +209,7 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
             // We take this snarl as the parent and print all the child snarls, then put the children in to_explore
             std::vector<std::pair<handlegraph::net_handle_t, std::string>> to_explore;
 
+            // Get the bounds of the snarl facing in for printing later
             handlegraph::handle_t current_start_in = distance_index.get_handle(distance_index.get_bound(start_ancestor, false, true), &graph);
             handlegraph::handle_t current_end_in = distance_index.get_handle(distance_index.get_bound(start_ancestor, true, true), &graph);
             
@@ -221,6 +222,8 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
             // Write this snarl with no ancestor
             std::cout << current_start_trav.to_string() << current_end_trav.to_string() << "\t." << std::endl;
 
+            // TODO: Check the order/orientation of snarl children to put them in a roughly linear order
+
             while (!to_explore.empty()) {
                 handlegraph::net_handle_t current_snarl = to_explore.back().first;
                 std::string current_snarl_str = to_explore.back().second;
@@ -230,6 +233,9 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
                 distance_index.for_each_child(current_snarl, [&] (net_handle_t child_chain) {
                     distance_index.for_each_child(child_chain, [&] (net_handle_t child_snarl) {
                         if (distance_index.is_snarl(child_snarl)) {
+                            // For each grandchild snarl of the current snarl
+
+                            // Get the bounds as strings
                             handlegraph::handle_t child_start_in = distance_index.get_handle(distance_index.get_bound(child_snarl, false, true), &graph);
                             handlegraph::handle_t child_end_in = distance_index.get_handle(distance_index.get_bound(child_snarl, true, true), &graph);
                             
@@ -238,8 +244,11 @@ void print_tree_tsv(const bdsg::PathPositionHandleGraph& graph, const bdsg::Snar
                             stoat::node_traversal_t child_end_trav(graph.get_id(child_end_in),
                                                                           graph.get_is_reverse(child_end_in));
                             std::string child_str = child_start_trav.to_string() + child_end_trav.to_string();
+
+                            // Write this grandchild snarl
                             std::cout << child_str << "\t" << current_snarl_str << std::endl;
 
+                            // Remember to print its children
                             to_explore.emplace_back(child_snarl, child_str);
                         }
                         return true; });
