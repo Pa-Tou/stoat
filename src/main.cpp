@@ -28,6 +28,7 @@
 #include "subcommand/test.hpp"
 #include "subcommand/bh_correct.hpp"
 #include "subcommand/change_reference.hpp"
+#include "subcommand/get_tree.hpp"
 #include "log.hpp"
 #include "banner.hpp"
 
@@ -47,7 +48,8 @@ void print_help() {
                 << "\n"
                 << "post-processing:\n"
                 << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file (DEPRECATED?)\n"
-                << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n";     
+                << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n"
+                << "  -- get-tree      given a reference range, print the snarls contained in this range and their parents\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -81,6 +83,9 @@ int main(int argc, char* argv[]) {
 
     } else if (subcommand == "change-ref") {
         stoat_command::main_stoat_change_reference(argc, argv);
+
+    } else if (subcommand == "get-tree") {
+        stoat_command::main_stoat_get_tree(argc, argv);
 
     } else if (subcommand == "version") {
         std::cout << "stoat: GWAS analysis tool, version " << STOAT_VERSION;
