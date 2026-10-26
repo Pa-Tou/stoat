@@ -48,8 +48,7 @@ void print_help() {
                 << "\n"
                 << "post-processing:\n"
                 << "  -- BHcorrect     apply the Benjamini-Hochberg procedure for multiple testing to a tsv file (DEPRECATED?)\n"
-                << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n"
-                << "  -- get-tree      given a reference range, print the snarls contained in this range and their parents\n";
+                << "  -- change-ref    change the reference coordinates of the output tsv to a new reference genome\n";
 }
 
 int main(int argc, char* argv[]) {
