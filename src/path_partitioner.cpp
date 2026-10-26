@@ -439,7 +439,6 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
             gbwt::size_type gbwt_path_id = gbwt::Path::id(r_index.seqId(current_sa_index));
             gbwt::size_type path_offset = r_index.seqOffset(current_sa_index);
 
-            gbwt::size_type next_sa_index = r_index.locateNext(current_sa_index);
 
             handlegraph::PathSense sense = gbwtgraph::get_path_sense(gbwt, gbwt_path_id, gbwt_reference_samples);
 
@@ -456,7 +455,11 @@ std::vector<size_t> partition_embedded_paths_in_snarl_with_gbwt(const handlegrap
 
             add_path_to_sample(sample_to_index.at(sample_hap_t(path_name)), current_path.identifier, path_offset);
 
-            current_sa_index = next_sa_index;
+            // Get the next index but don't go beyond the last
+            if (i < current_path.search_state.size() -1) {
+                gbwt::size_type next_sa_index = r_index.locateNext(current_sa_index);
+                current_sa_index = next_sa_index;
+            }
         }
 
         if (sorted_i == sort_order.size()-1 || current_path.identifier != finished_paths.at(sort_order.at(sorted_i+1)).identifier) {
