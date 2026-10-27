@@ -5,9 +5,10 @@ using namespace stoat;
 
 class TestEdgeBySampleMatrix : stoat_vcf::EdgeBySampleMatrix {
     public:
-    TestEdgeBySampleMatrix(const std::vector<std::string>& sampleNames, size_t rows) : EdgeBySampleMatrix(sampleNames, rows) {}
+    TestEdgeBySampleMatrix(const std::vector<std::string>& sampleNames, size_t rows, const size_t& ploidy=2) : EdgeBySampleMatrix(sampleNames, rows, ploidy) {}
 
     using stoat_vcf::EdgeBySampleMatrix::matrix_1D;
+    using stoat_vcf::EdgeBySampleMatrix::n_samp_haps;
     using stoat_vcf::EdgeBySampleMatrix::operator();
     using stoat_vcf::EdgeBySampleMatrix::max_edges;
     using stoat_vcf::EdgeBySampleMatrix::expand_matrix;
@@ -21,6 +22,25 @@ TEST_CASE("stoat_vcf::EdgeBySampleMatrix Constructor and Basic Properties", "[st
         TestEdgeBySampleMatrix mat(sample_names, 4);
         REQUIRE(mat.matrix_1D.size() > 0);  // Ensure matrix is allocated
         REQUIRE_FALSE(mat(0, 0));  // Initially, all elements should be false
+    }
+}
+
+TEST_CASE("stoat_vcf::EdgeBySampleMatrix respects ploidy", "[stoat_vcf::EdgeBySampleMatrix][ploidy]") {
+    std::vector<string> sample_names = {"1", "2"};
+
+    SECTION("diploid samples have two columns per sample") {
+        TestEdgeBySampleMatrix mat(sample_names, 3, 2);
+        REQUIRE(mat.n_samp_haps == 4);
+        REQUIRE(mat.matrix_1D.size() == 3 * 4);
+    }
+
+    SECTION("triploid samples have three columns per sample") {
+        TestEdgeBySampleMatrix mat(sample_names, 3, 3);
+        REQUIRE(mat.n_samp_haps == 6);
+        REQUIRE(mat.matrix_1D.size() == 3 * 6);
+        mat.set_edge(1, 5);
+        REQUIRE(mat(1, 5));
+        REQUIRE_FALSE(mat(1, 4));
     }
 }
 

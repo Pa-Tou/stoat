@@ -5,6 +5,10 @@
 #include <string>
 #include <tuple>
 #include <unordered_set>
+#include <string>
+#include <charconv>
+#include <fstream>
+#include <stdexcept>
 
 #include <bdsg/snarl_distance_index.hpp>
 #include <bdsg/overlays/packed_path_position_overlay.hpp>
@@ -18,7 +22,12 @@
 
 namespace stoat {
 
-    // std::string format_group_paths(const std::vector<size_t>& g0, const std::vector<size_t>& g1);
+// Helper function to trim whitespace from a string 
+std::string trim(const std::string& value);
+
+// Parse a haplotype count from a string. Throws an exception if the string is not a valid number.
+size_t parse_count(const std::string& count_text, const std::string& context);
+
 std::string set_precision(const double& value);
 
 bool is_na(const std::string& s);

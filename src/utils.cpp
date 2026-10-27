@@ -1,9 +1,28 @@
 #include "utils.hpp"
-#include <string>
 
 //#include DEBUG
 
 namespace stoat {
+
+std::string trim(const std::string& value) {
+    const auto first = value.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) {
+        return "";
+    }
+    const auto last = value.find_last_not_of(" \t\r\n");
+    return value.substr(first, last - first + 1);
+}
+
+size_t parse_count(const std::string& count_text, const std::string& context) {
+    size_t count = 0;
+    const char* first = count_text.data();
+    const char* last = first + count_text.size();
+    const auto [ptr, ec] = std::from_chars(first, last, count);
+    if (count_text.empty() || ec != std::errc{} || ptr != last || count == 0) {
+        throw std::invalid_argument("Haplotype count must be a positive integer" + context);
+    }
+    return count;
+}
 
 std::string set_precision(const double& value) {
 
