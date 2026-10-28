@@ -31,7 +31,7 @@ def print_loci(infile_name, gap_limit, only_perfect_split, p_cutoff):
         if line[0] == "#":
             l = line.split()
             for i in range(len(l)):
-                if line[i] == "P" or line[i] == "P_CHI2":
+                if l[i] == "P" or l[i] == "P_CHI2":
                     p_index = i
             continue
         l = line.split()
@@ -67,11 +67,13 @@ def print_loci(infile_name, gap_limit, only_perfect_split, p_cutoff):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="given a stoat.assoc.pvalues.tsv file sorted by chr and position, merge nearby variants and print loci")
+    parser = argparse.ArgumentParser(description="given a stoat.assoc.pvalues.tsv file sorted by chr and position, merge nearby variants and print loci\n\
+                                                  Example usage:\n\
+                                                  (zcat stoat.assoc.pvalues.tsv.gz | head -n 1 - && zcat stoat.assoc.pvalues.tsv.gz | tail -n+2 - | sort -k2 -g | sort -k1 -s) | python3 merge_loci.py -")
     parser.add_argument('input_file', help="stoat.assoc file name")
     parser.add_argument('--only-perfect-split', action='store_true', help = "Only include variants for which ALLELE_COUNT_PER_PHENO allele counts are divided perfectly among phenotype groups")
     parser.add_argument('--p-cutoff', type=float, default = math.inf, help = "Only include variants for which the p-value is less than this")
-    parser.add_argument('--gap-limit', type=int, default = 100000, help = "Only include variants for which the p-value is less than this")
+    parser.add_argument('--gap-limit', type=int, default = 50000, help = "Only include variants for which the p-value is less than this")
     args = parser.parse_args()
 
     print_loci(args.input_file, args.gap_limit, args.only_perfect_split, args.p_cutoff)
